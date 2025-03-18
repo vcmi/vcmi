@@ -62,7 +62,7 @@ public:
 
 	/// load content from all available mods
 	void load();
-	void afterLoad(bool onlyEssential);
+	void afterLoad();
 
 	CModHandler();
 	~CModHandler();

@@ -14,10 +14,12 @@
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "../GameEngine.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
 #include "../render/Canvas.h"
+#include "../lib/CConfigHandler.h"
 
 CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::function<void()> callback)
 	: CWindowObject(BORDERED), spe(_spe), positionCounter(0), voiceSoundHandle(-1), videoSoundHandle(-1), exitCb(callback), elapsedTimeMilliseconds(0)
@@ -56,6 +58,9 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 	};
 	ENGINE->sound().setCallback(voiceSoundHandle, onVoiceStop);
 
+	if(!settings["general"]["enableSubtitle"].Bool())
+		return;
+
 	text = std::make_shared<CMultiLineLabel>(Rect(100, 500, 600, 100), EFonts::FONT_BIG, ETextAlignment::CENTER, Colors::METALLIC_GOLD, spe.prologText.toString());
 	if(text->getLines().size() == 3)
 		text->scrollTextTo(-25); // beginning of text in the vertical middle of black area
@@ -67,9 +72,9 @@ void CPrologEpilogVideo::tick(uint32_t msPassed)
 {
 	elapsedTimeMilliseconds += msPassed;
 
-	const uint32_t speed = (voiceDurationMilliseconds == 0) ? 150 : (voiceDurationMilliseconds / (text->textSize.y));
+	const uint32_t speed = (!text || voiceDurationMilliseconds == 0) ? 150 : (voiceDurationMilliseconds / (text->textSize.y));
 
-	if(elapsedTimeMilliseconds > speed && text->textSize.y - 50 > positionCounter)
+	if(text && elapsedTimeMilliseconds > speed && text->textSize.y - 50 > positionCounter)
 	{
 		text->scrollTextBy(1);
 		elapsedTimeMilliseconds -= speed;
@@ -84,10 +89,11 @@ void CPrologEpilogVideo::show(Canvas & to)
 	to.drawColor(pos, Colors::BLACK);
 
 	videoPlayer->show(to);
-	text->showAll(to); // blit text over video, if needed
+	if(text)
+		text->showAll(to); // blit text over video, if needed
 }
 
-void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
+void CPrologEpilogVideo::exit()
 {
 	ENGINE->music().setVolume(ENGINE->music().getVolume() * 2); // restore background volume
 	close();
@@ -96,4 +102,15 @@ void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 	ENGINE->sound().stopSound(videoSoundHandle);
 	if(exitCb)
 		exitCb();
+}
+
+void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
+{
+	exit();
+}
+
+void CPrologEpilogVideo::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::GLOBAL_RETURN)
+		exit();
 }

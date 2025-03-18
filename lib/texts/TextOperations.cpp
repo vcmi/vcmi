@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "TextOperations.h"
 
-#include "texts/CGeneralTextHandler.h"
+#include "../GameLibrary.h"
+#include "../texts/CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
 
@@ -211,8 +212,12 @@ void TextOperations::trimRightUnicode(std::string & text, const size_t amount)
 
 size_t TextOperations::getUnicodeCharactersCount(const std::string & text)
 {
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-	return conv.from_bytes(text).size(); 
+	size_t charactersCount = 0;
+
+	for (size_t i=0; i<text.size(); i += getUnicodeCharacterSize(text[i]))
+		charactersCount++;
+
+	return charactersCount;
 }
 
 std::string TextOperations::escapeString(std::string input)
@@ -248,7 +253,7 @@ std::string TextOperations::getCurrentFormattedDateTimeLocal(std::chrono::second
 	return TextOperations::getFormattedDateTimeLocal(std::chrono::system_clock::to_time_t(timepoint));
 }
 
-int TextOperations::getLevenshteinDistance(const std::string & s, const std::string & t)
+int TextOperations::getLevenshteinDistance(std::string_view s, std::string_view t)
 {
 	int n = t.size();
 	int m = s.size();
@@ -296,30 +301,42 @@ int TextOperations::getLevenshteinDistance(const std::string & s, const std::str
 	return v0[n];
 }
 
-bool TextOperations::textSearchSimilar(const std::string & s, const std::string & t)
+DLL_LINKAGE std::string TextOperations::getLocaleName()
 {
-	boost::locale::generator gen;
-	std::locale loc = gen("en_US.UTF-8"); // support for UTF8 lowercase
-	
+	return Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
+}
+
+std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
+{
+	static const std::locale loc = boost::locale::generator().generate(getLocaleName());
+
 	auto haystack = boost::locale::to_lower(t, loc);
 	auto needle = boost::locale::to_lower(s, loc);
 
-	if(boost::algorithm::contains(haystack, needle))
-		return true;
+	// 0 - Best possible match: text starts with the search string
+	if(haystack.rfind(needle, 0) == 0)
+		return 0;
 
-	if(needle.size() > haystack.size())
-		return false;
+	// 1 - Strong match: text contains the search string
+	if(haystack.find(needle) != std::string::npos)
+		return 1;
 
-	for(int i = 0; i < haystack.size() - needle.size() + 1; i++)
+	// Dynamic threshold: Reject if too many typos based on word length
+	int maxAllowedDistance = std::max(2, static_cast<int>(needle.size() / 2));
+
+	// Compute Levenshtein distance for fuzzy similarity
+	int minDist = std::numeric_limits<int>::max();
+	for(size_t i = 0; i <= haystack.size() - needle.size(); i++)
 	{
-		auto dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
-		if(needle.size() > 2 && dist <= 1)
-			return true;
-		else if(needle.size() > 4 && dist <= 2)
-			return true;
+		int dist = getLevenshteinDistance(haystack.substr(i, needle.size()), needle);
+		minDist = std::min(minDist, dist);
 	}
-	
-	return false;
+
+	// Apply scaling: Short words tolerate smaller distances
+	if(needle.size() > 2 && minDist <= 2)
+		minDist += 1;
+
+	return (minDist > maxAllowedDistance) ? std::nullopt : std::optional<int>{ minDist };
 }
 
 std::vector<size_t> TextOperations::getAllPositionsInStr(const char & targetChar, const std::string_view & str)

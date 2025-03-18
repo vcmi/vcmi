@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CLogger.h"
 #include "../CThreadHelper.h"
+#include "../CConsoleHandler.h"
 
 #ifdef VCMI_ANDROID
 #include <android/log.h>
@@ -111,10 +112,6 @@ CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 			logger->setLevel(ELogLevel::TRACE);
 		}
 		CLogManager::get().addLogger(logger);
-		if (logGlobal != nullptr)
-		{
-			logGlobal->debug("Created logger %s", domain.getName());
-		}
 	}
 	return logger;
 }
@@ -313,13 +310,13 @@ CColorMapping::CColorMapping()
 	levelMap[ELogLevel::ERROR] = EConsoleTextColor::RED;
 }
 
-void CColorMapping::setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor::EConsoleTextColor color)
+void CColorMapping::setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor color)
 {
 	assert(level != ELogLevel::NOT_SET);
 	map[domain.getName()][level] = color;
 }
 
-EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const
+EConsoleTextColor CColorMapping::getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const
 {
 	CLoggerDomain currentDomain = domain;
 	while(true)
@@ -400,7 +397,7 @@ void CLogConsoleTarget::write(const LogRecord & record)
 	const bool printToStdErr = record.level >= ELogLevel::WARN;
 	if(console)
 	{
-		const EConsoleTextColor::EConsoleTextColor textColor =
+		const EConsoleTextColor textColor =
 			coloredOutputEnabled ? colorMapping.getColorFor(record.domain, record.level) : EConsoleTextColor::DEFAULT;
 
 		console->print(message, true, textColor, printToStdErr);

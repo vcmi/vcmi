@@ -125,12 +125,9 @@ void SettingsMainWindow::quitGameButtonCallback()
 		[this]()
 		{
 			close();
-			ENGINE->dispatchMainThread( []()
-			{
-				handleQuit(false);
-			});
+			ENGINE->user().onShutdownRequested(false);
 		},
-		0
+		nullptr
 	);
 }
 
@@ -147,7 +144,7 @@ void SettingsMainWindow::mainMenuButtonCallback()
 		{
 			close();
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("main");
+			GAME->mainmenu()->menu->switchToTab("main");
 		},
 		0
 	);

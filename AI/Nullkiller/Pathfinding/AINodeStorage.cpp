@@ -28,7 +28,7 @@ namespace NKAI
 
 std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;
 uint32_t AISharedStorage::version = 0;
-boost::mutex AISharedStorage::locker;
+std::mutex AISharedStorage::locker;
 std::set<int3> committedTiles;
 std::set<int3> committedTilesInitial;
 
@@ -140,7 +140,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 			{
 				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
-					const TerrainTile & tile = gs->map->getTile(pos);
+					const TerrainTile & tile = gs->getMap().getTile(pos);
 					if (!tile.getTerrain()->isPassable())
 						continue;
 

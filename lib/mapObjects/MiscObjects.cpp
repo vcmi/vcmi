@@ -322,7 +322,7 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 
 bool CGTeleport::isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	auto * objTopVisObj = gs->map->getTile(obj->visitablePos()).topVisitableObj();
+	auto * objTopVisObj = gs->getMap().getTile(obj->visitablePos()).topVisitableObj();
 	if(objTopVisObj->ID == Obj::HERO)
 	{
 		if(h->id == objTopVisObj->id) // Just to be sure it's won't happen.
@@ -374,7 +374,7 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 
 TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
-	for(auto obj : cb->gameState()->map->objects)
+	for(auto obj : cb->gameState()->getMap().objects)
 	{
 		if(!obj)
 			continue;
@@ -455,9 +455,9 @@ void CGMonolith::initObj(vstd::RNG & rand)
 
 	channel = findMeChannel(IDs, subID);
 	if(channel == TeleportChannelID())
-		channel = TeleportChannelID(static_cast<si32>(cb->gameState()->map->teleportChannels.size()));
+		channel = TeleportChannelID(static_cast<si32>(cb->gameState()->getMap().teleportChannels.size()));
 
-	addToChannel(cb->gameState()->map->teleportChannels, this);
+	addToChannel(cb->gameState()->getMap().teleportChannels, this);
 }
 
 void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
@@ -487,7 +487,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
-	for(auto & obj : cb->gameState()->map->objects)
+	for(auto & obj : cb->gameState()->getMap().objects)
 	{
 		if(!obj)
 			continue;
@@ -507,8 +507,8 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 	{
 		if(obj->channel == TeleportChannelID())
 		{ // if object not linked to channel then create new channel
-			obj->channel = TeleportChannelID(static_cast<si32>(cb->gameState()->map->teleportChannels.size()));
-			addToChannel(cb->gameState()->map->teleportChannels, obj);
+			obj->channel = TeleportChannelID(static_cast<si32>(cb->gameState()->getMap().teleportChannels.size()));
+			addToChannel(cb->gameState()->getMap().teleportChannels, obj);
 		}
 	};
 
@@ -535,7 +535,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 		if(best.first >= 0) //found pair
 		{
 			gatesSplit[1][best.first]->channel = objCurrent->channel;
-			addToChannel(cb->gameState()->map->teleportChannels, gatesSplit[1][best.first]);
+			addToChannel(cb->gameState()->getMap().teleportChannels, gatesSplit[1][best.first]);
 		}
 	}
 
@@ -573,7 +573,7 @@ void CGWhirlpool::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		cb->showInfoDialog(&iw);
-		cb->changeStackCount(StackLocation(h, targetstack), -countToTake);
+		cb->changeStackCount(StackLocation(h->id, targetstack), -countToTake);
 	}
 	else
 	{
@@ -665,7 +665,7 @@ void CGArtifact::initObj(vstd::RNG & rand)
 		if (!storedArtifact)
 		{
 			storedArtifact = ArtifactUtils::createArtifact(ArtifactID());
-			cb->gameState()->map->addNewArtifactInstance(storedArtifact);
+			cb->gameState()->getMap().addNewArtifactInstance(storedArtifact);
 		}
 		if(!storedArtifact->getType())
 			storedArtifact->setType(getArtifact().toArtifact());
@@ -959,7 +959,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 		std::vector<const CGObjectInstance *> eyes;
 
-		for (auto object : cb->gameState()->map->objects)
+		for (auto object : cb->gameState()->getMap().objects)
 		{
 			if (object && object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
 				eyes.push_back(object);
@@ -1043,7 +1043,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(drown)
 			{
-				cb->changeStackCount(StackLocation(h, i->first), -drown);
+				cb->changeStackCount(StackLocation(h->id, i->first), -drown);
 				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}
@@ -1172,7 +1172,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGObelisk::initObj(vstd::RNG & rand)
 {
-	cb->gameState()->map->obeliskCount++;
+	cb->gameState()->getMap().obeliskCount++;
 }
 
 std::string CGObelisk::getHoverText(PlayerColor player) const
@@ -1191,13 +1191,13 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	{
 		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++cb->gameState()->map->obelisksVisited[identifier.as<TeamID>()];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->map->obeliskCount));
+				auto progress = ++cb->gameState()->getMap().obelisksVisited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->getMap().obeliskCount));
 
-				if(progress > cb->gameState()->map->obeliskCount)
+				if(progress > cb->gameState()->getMap().obeliskCount)
 				{
-					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->map->obeliskCount);
-					throw std::runtime_error("Player visited " + std::to_string(progress) + " obelisks out of " + std::to_string(cb->gameState()->map->obeliskCount) + " present on map!");
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->getMap().obeliskCount);
+					throw std::runtime_error("Player visited " + std::to_string(progress) + " obelisks out of " + std::to_string(cb->gameState()->getMap().obeliskCount) + " present on map!");
 				}
 
 				break;

@@ -11,7 +11,6 @@
 
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
-#include "ConstTransitivePtr.h"
 #include "CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

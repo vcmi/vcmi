@@ -71,17 +71,18 @@ int main(int argc, const char * argv[])
 	// Correct working dir executable folder (not bundle folder) so we can use executable relative paths
 	boost::filesystem::current_path(boost::filesystem::system_complete(argv[0]).parent_path());
 
-	console = new CConsoleHandler();
-	CBasicLogConfigurator logConfig(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", console);
-	logConfig.configureDefault();
+	CConsoleHandler console;
+	CBasicLogConfigurator logConfigurator(VCMIDirs::get().userLogsPath() / "VCMI_Server_log.txt", &console);
+	logConfigurator.configureDefault();
 	logGlobal->info(SERVER_NAME);
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(console, false);
-	logConfig.configure();
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	logConfigurator.configure();
 
-	loadDLLClasses();
+	LIBRARY->initializeLibrary();
 	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{
@@ -98,7 +99,7 @@ int main(int argc, const char * argv[])
 		// CVCMIServer destructor must be called here - before LIBRARY cleanup
 	}
 
-	logConfig.deconfigure();
+	logConfigurator.deconfigure();
 	vstd::clear_pointer(LIBRARY);
 
 	return 0;

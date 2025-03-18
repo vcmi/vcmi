@@ -311,7 +311,7 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::BUILDING:
 			{
 				auto index = data.subType.as<BuildingTypeUniqueID>();
-				auto building = (*LIBRARY->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
+				const auto & building = (*LIBRARY->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
 				if(!building)
 				{
 					logGlobal->error("Town of faction %s has no building #%d", (*LIBRARY->townh)[index.getFaction()]->town->faction->getNameTranslated(), index.getBuilding().getNum());

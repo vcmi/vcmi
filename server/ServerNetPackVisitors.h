@@ -14,12 +14,15 @@
 class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	bool result;
+	std::shared_ptr<CConnection> connection;
 	CGameHandler & gh;
+	bool result;
 
 public:
-	ApplyGhNetPackVisitor(CGameHandler & gh)
-		:gh(gh), result(false)
+	ApplyGhNetPackVisitor(CGameHandler & gh, const std::shared_ptr<CConnection> & connection)
+		: connection(connection)
+		, gh(gh)
+		, result(false)
 	{
 	}
 

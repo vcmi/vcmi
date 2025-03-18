@@ -398,7 +398,7 @@ void CBonusSelection::goBack()
 	if(GAME->server().getState() != EClientState::GAMEPLAY)
 	{
 		ENGINE->windows().popWindows(2);
-		CMM->playMusic();
+		GAME->mainmenu()->playMusic();
 	}
 	else
 	{
@@ -422,9 +422,9 @@ void CBonusSelection::startMap()
 	if (!GAME->server().validateGameStart())
 		return;
 
-	auto showPrologVideo = [=]()
+	auto showPrologVideo = [this]()
 	{
-		auto exitCb = [=]()
+		auto exitCb = []()
 		{
 			logGlobal->info("Starting scenario %d", static_cast<int>(GAME->server().campaignMap));
 			GAME->server().sendStartGame();

@@ -37,7 +37,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../ConditionalWait.h"
+#include "../../lib/ConditionalWait.h"
 
 CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {

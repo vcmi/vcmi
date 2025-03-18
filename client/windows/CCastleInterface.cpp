@@ -112,7 +112,7 @@ const CBuilding * CBuildingRect::getBuilding()
 		return nullptr;
 
 	if (str->hiddenUpgrade) // hidden upgrades, e.g. hordes - return base (dwelling for hordes)
-		return town->getTown()->buildings.at(str->building->getBase());
+		return town->getTown()->buildings.at(str->building->getBase()).get();
 
 	return str->building;
 }
@@ -161,7 +161,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	BuildingID bid = getBuilding()->bid;
-	const CBuilding *bld = town->getTown()->buildings.at(bid);
+	const CBuilding *bld = town->getTown()->buildings.at(bid).get();
 	if (!bid.isDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
@@ -178,7 +178,7 @@ void CBuildingRect::show(Canvas & to)
 {
 	uint32_t stageDelay = BUILDING_APPEAR_TIMEPOINT;
 
-	bool showTextOverlay = ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 
 	if(stateTimeCounter < BUILDING_APPEAR_TIMEPOINT)
 	{
@@ -399,6 +399,8 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+		if(resComps.empty())
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, static_cast<GameResID>(GameResID::GOLD), 0)); // add at least gold, when there are no costs
 		resComps.back()->newLine = true;
 		for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->count));
@@ -441,7 +443,7 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 		{ RadialMenuConfig::ITEM_SE, twoHeroes, "swapArtifacts", "vcmi.radialWheel.heroSwapArtifacts", [heroId, heroOtherId](){CExchangeController(heroId, heroOtherId).swapArtifacts(true, true);} }
 	};
 	RadialMenuConfig upgradeSlot = { RadialMenuConfig::ITEM_WW, true, "upgradeCreatures", "vcmi.radialWheel.upgradeCreatures", [upgradeAll](){ upgradeAll(); } };
-	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [=](){ GAME->interface()->cb->dismissHero(hero); }, nullptr); } };
+	RadialMenuConfig dismissSlot = { RadialMenuConfig::ITEM_WW, true, "dismissHero", "vcmi.radialWheel.heroDismiss", [this](){ GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[22], [this](){ GAME->interface()->cb->dismissHero(hero); }, nullptr); } };
 
 	if(upgradableSlots.isCreatureUpgradePossible)
 		menuElements.push_back(upgradeSlot);
@@ -675,7 +677,7 @@ void CCastleBuildings::recreate()
 	if(town->hasBuilt(BuildingID::SHIPYARD))
 	{
 		auto bayPos = town->bestLocation();
-		if(!bayPos.valid())
+		if(!bayPos.isValid())
 			logGlobal->warn("Shipyard in non-coastal town!");
 		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos, false);
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
@@ -685,22 +687,22 @@ void CCastleBuildings::recreate()
 		}
 	}
 
-	for(const CStructure * structure : town->getTown()->clientInfo.structures)
+	for(const auto & structure : town->getTown()->clientInfo.structures)
 	{
 		if(!structure->building)
 		{
-			buildings.push_back(std::make_shared<CBuildingRect>(this, town, structure));
+			buildings.push_back(std::make_shared<CBuildingRect>(this, town, structure.get()));
 			continue;
 		}
 		if(vstd::contains(buildingsCopy, structure->building->bid))
 		{
-			groups[structure->building->getBase()].push_back(structure);
+			groups[structure->building->getBase()].push_back(structure.get());
 		}
 	}
 
 	for(auto & entry : groups)
 	{
-		const CBuilding * build = town->getTown()->buildings.at(entry.first);
+		const CBuilding * build = town->getTown()->buildings.at(entry.first).get();
 
 		const CStructure * toAdd = *boost::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
@@ -771,7 +773,7 @@ void CCastleBuildings::show(Canvas & to)
 {
 	CIntObject::show(to);
 
-	bool showTextOverlay = ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2;
+	bool showTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	if(showTextOverlay)
 		drawOverlays(to, buildings);
 }
@@ -815,28 +817,32 @@ const CGHeroInstance * CCastleBuildings::getHero()
 
 void CCastleBuildings::buildingClicked(BuildingID building)
 {
-	BuildingID buildingToEnter = building;
-	for(;;)
+	std::vector<BuildingID> buildingsToTest;
+
+	for(BuildingID buildingToEnter = building;;)
 	{
-		const CBuilding *b = town->getTown()->buildings.find(buildingToEnter)->second;
+		const auto &b = town->getTown()->buildings.find(buildingToEnter)->second;
 
-		if (buildingTryActivateCustomUI(buildingToEnter, building))
-			return;
-
+		buildingsToTest.push_back(buildingToEnter);
 		if (!b->upgrade.hasValue())
-		{
-			enterBuilding(building);
-			return;
-		}
+			break;
 
 		buildingToEnter = b->upgrade;
 	}
+
+	for(BuildingID buildingToEnter : boost::adaptors::reverse(buildingsToTest))
+	{
+		if (buildingTryActivateCustomUI(buildingToEnter, building))
+			return;
+	}
+
+	enterBuilding(building);
 }
 
 bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, BuildingID buildingTarget)
 {
 	logGlobal->trace("You've clicked on %d", (int)buildingToTest.toEnum());
-	const CBuilding *b = town->getTown()->buildings.at(buildingToTest);
+	const auto & b = town->getTown()->buildings.at(buildingToTest);
 
 	if (town->getWarMachineInBuilding(buildingToTest).hasValue())
 	{
@@ -1075,7 +1081,7 @@ void CCastleBuildings::enterDwelling(int level)
 		return;
 	}
 
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this, level](CreatureID id, int count)
 	{
 		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
@@ -1319,7 +1325,7 @@ void CCreaInfo::hover(bool on)
 void CCreaInfo::clickPressed(const Point & cursorPosition)
 {
 	int offset = GAME->interface()->castleInt? (-87) : 0;
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this](CreatureID id, int count)
 	{
 		GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level);
 	};
@@ -1378,7 +1384,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance * Town, bool townH
 			return;//FIXME: suspicious statement, fix or comment
 		picture = std::make_shared<CAnimImage>(AnimationPath::builtin("ITMCL.DEF"), town->fortLevel()-1);
 	}
-	building = town->getTown()->buildings.at(BuildingID(buildID));
+	building = town->getTown()->buildings.at(BuildingID(buildID)).get();
 	pos = picture->pos;
 }
 
@@ -1733,7 +1739,7 @@ CHallInterface::CHallInterface(const CGTownInstance * Town):
 					continue;
 				}
 
-				const CBuilding * current = town->getTown()->buildings.at(buildingID);
+				const CBuilding * current = town->getTown()->buildings.at(buildingID).get();
 				if(town->hasBuilt(buildingID))
 				{
 					building = current;
@@ -1918,7 +1924,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		fortSize--;
 	fortSize = std::min(fortSize, static_cast<ui32>(GameConstants::CREATURES_PER_TOWN)); // for 8 creatures + portal of summoning
 
-	const CBuilding * fortBuilding = town->getTown()->buildings.at(BuildingID(town->fortLevel()+6));
+	const auto & fortBuilding = town->getTown()->buildings.at(BuildingID(town->fortLevel()+6));
 	title = std::make_shared<CLabel>(400, 12, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, fortBuilding->getNameTranslated());
 
 	std::string text = boost::str(boost::format(LIBRARY->generaltexth->fcommands[6]) % fortBuilding->getNameTranslated());
@@ -2063,11 +2069,11 @@ const CBuilding * CFortScreen::RecruitArea::getMyBuilding()
 	if (!town->getTown()->buildings.count(myID))
 		return nullptr;
 
-	const CBuilding * build = town->getTown()->buildings.at(myID);
+	const CBuilding * build = town->getTown()->buildings.at(myID).get();
 	while (town->getTown()->buildings.count(myID))
 	{
 		if (town->hasBuilt(myID))
-			build = town->getTown()->buildings.at(myID);
+			build = town->getTown()->buildings.at(myID).get();
 		BuildingID::advanceDwelling(myID);
 	}
 

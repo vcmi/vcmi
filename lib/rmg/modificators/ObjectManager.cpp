@@ -121,7 +121,7 @@ void ObjectManager::updateDistances(const int3 & pos)
 void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
 {
 	// Workaround to avoid deadlock when accessed from other zone
-	RecursiveLock lock(zone.areaMutex, boost::try_to_lock);
+	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
 	if (!lock.owns_lock())
 	{
 		// Unsolvable problem of mutual access
@@ -242,7 +242,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 	}
 	
-	if(result.valid())
+	if(result.isValid())
 		obj.setPosition(result);
 	return result;
 }
@@ -348,7 +348,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 	while(true)
 	{
 		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
-		if(!pos.valid())
+		if(!pos.isValid())
 		{
 			return rmg::Path::invalid();
 		}

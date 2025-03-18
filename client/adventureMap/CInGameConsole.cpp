@@ -303,7 +303,7 @@ void CInGameConsole::endEnteringText(bool processEnteredText)
 				commandController.processCommand(txt.substr(1), true);
 			};
 
-			boost::thread clientCommandThread(threadFunction);
+			std::thread clientCommandThread(threadFunction);
 			clientCommandThread.detach();
 		}
 		else

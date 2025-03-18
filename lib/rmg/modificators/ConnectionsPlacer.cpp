@@ -37,8 +37,8 @@ std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Z
 
 	while (true)
 	{
-		auto lock1 = Zone::Lock(zone.areaMutex, boost::try_to_lock);
-		auto lock2 = Zone::Lock(otherZone->areaMutex, boost::try_to_lock);
+		auto lock1 = Zone::Lock(zone.areaMutex, std::try_to_lock);
+		auto lock2 = Zone::Lock(otherZone->areaMutex, std::try_to_lock);
 
 		if (lock1.owns_lock() && lock2.owns_lock())
 		{
@@ -71,8 +71,8 @@ void ConnectionsPlacer::process()
 
 			while (cp)
 			{
-				RecursiveLock lock1(externalAccessMutex, boost::try_to_lock);
-				RecursiveLock lock2(cp->externalAccessMutex, boost::try_to_lock);
+				RecursiveLock lock1(externalAccessMutex, std::try_to_lock);
+				RecursiveLock lock2(cp->externalAccessMutex, std::try_to_lock);
 				if (lock1.owns_lock() && lock2.owns_lock())
 				{
 					if (!vstd::contains(dCompleted, c))
@@ -273,7 +273,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			}
 		}
 		
-		if(guardPos.valid())
+		if(guardPos.isValid())
 		{
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();

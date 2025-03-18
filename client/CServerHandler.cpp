@@ -15,6 +15,7 @@
 #include "GameChatHandler.h"
 #include "CPlayerInterface.h"
 #include "GameEngine.h"
+#include "GameInstance.h"
 #include "gui/WindowHandler.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
@@ -32,7 +33,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "ConditionalWait.h"
+#include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/StartInfo.h"
 #include "../lib/TurnTimerInfo.h"
@@ -48,7 +49,6 @@
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
@@ -63,20 +63,14 @@ CServerHandler::~CServerHandler()
 	if (serverRunner)
 		serverRunner->shutdown();
 	networkHandler->stop();
-	try
+
+	if (serverRunner)
+		serverRunner->wait();
+	serverRunner.reset();
+	if (threadNetwork.joinable())
 	{
-		if (serverRunner)
-			serverRunner->wait();
-		serverRunner.reset();
-		{
-			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-			threadNetwork.join();
-		}
-	}
-	catch (const std::runtime_error & e)
-	{
-		logGlobal->error("Failed to shut down network thread! Reason: %s", e.what());
-		assert(0);
+		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+		threadNetwork.join();
 	}
 }
 
@@ -85,6 +79,8 @@ void CServerHandler::endNetwork()
 	if (client)
 		client->endNetwork();
 	networkHandler->stop();
+
+	if (threadNetwork.joinable())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		threadNetwork.join();
@@ -109,8 +105,8 @@ CServerHandler::CServerHandler()
 
 void CServerHandler::threadRunNetwork()
 {
-	logGlobal->info("Starting network thread");
 	setThreadName("runNetwork");
+	logGlobal->info("Starting network thread");
 	try {
 		networkHandler->run();
 	}
@@ -192,7 +188,6 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 
 void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 {
-	logNetwork->info("Establishing connection to %s:%d...", addr, port);
 	setState(EClientState::CONNECTING);
 	serverHostname = addr;
 	serverPort = port;
@@ -216,7 +211,7 @@ void CServerHandler::connectToServer(const std::string & addr, const ui16 port)
 void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 {
 	assert(getState() == EClientState::CONNECTING);
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (isServerLocal())
 	{
@@ -234,7 +229,7 @@ void CServerHandler::onConnectionFailed(const std::string & errorMessage)
 
 void CServerHandler::onTimer()
 {
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::CONNECTION_CANCELLED)
 	{
@@ -254,7 +249,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 {
 	assert(getState() == EClientState::CONNECTING);
 
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	networkConnection = netConnection;
 
@@ -611,8 +606,8 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 
 void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
 {
-	if(CMM)
-		CMM->disable();
+	if(GAME->mainmenu())
+		GAME->mainmenu()->disable();
 
 	switch(si->mode)
 	{
@@ -650,13 +645,15 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
-		CMM->menu->switchToTab("main");
+		GAME->mainmenu()->menu->switchToTab("main");
 		ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(victory, scenarioHighScores, statistic);
 	}
 }
 
 void CServerHandler::endGameplay()
 {
+	client->finishGameplay();
+
 	// Game is ending
 	// Tell the network thread to reach a stable state
 	sendClientDisconnecting();
@@ -665,22 +662,17 @@ void CServerHandler::endGameplay()
 	client->endGame();
 	client.reset();
 
-	if(CMM)
+	if (GAME->mainmenu())
 	{
-		ENGINE->curInt = CMM.get();
-		CMM->enable();
-		CMM->playMusic();
-	}
-	else
-	{
-		auto mainMenu = CMainMenu::create();
-		ENGINE->curInt = mainMenu.get();
-		mainMenu->playMusic();
+		GAME->mainmenu()->enable();
+		GAME->mainmenu()->playMusic();
+		GAME->mainmenu()->makeActiveInterface();
 	}
 }
 
 void CServerHandler::restartGameplay()
 {
+	client->finishGameplay();
 	client->endGame();
 	client.reset();
 
@@ -711,14 +703,11 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			entry->Bool() = true;
 		}
 
-		ENGINE->windows().pushWindow(CMM);
-		ENGINE->windows().pushWindow(CMM->menu);
-
 		if(!ourCampaign->isCampaignFinished())
-			CMM->openCampaignLobby(ourCampaign);
+			GAME->mainmenu()->openCampaignLobby(ourCampaign);
 		else
 		{
-			CMM->openCampaignScreen(ourCampaign->campaignSet);
+			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
 			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
@@ -799,20 +788,20 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	else
 		startLocalServerAndConnect(false);
 
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(!mi || mapInfo->fileURI != mi->fileURI)
 	{
 		setMapInfo(mapInfo);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it
 	setPlayer(myFirstColor());
 	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 	while(true)
 	{
@@ -825,7 +814,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		{
 
 		}
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 
@@ -855,7 +844,7 @@ public:
 
 void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> &, const std::vector<std::byte> & message)
 {
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if(getState() == EClientState::DISCONNECTING)
 		return;
@@ -867,7 +856,7 @@ void CServerHandler::onPacketReceived(const std::shared_ptr<INetworkConnection> 
 
 void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage)
 {
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	if (connection != networkConnection)
 	{
@@ -891,7 +880,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	if(client)
 	{
 		endGameplay();
-		CMM->menu->switchToTab("main");
+		GAME->mainmenu()->menu->switchToTab("main");
 		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
 	}
 	else

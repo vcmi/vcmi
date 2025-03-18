@@ -13,7 +13,7 @@
 #include "../lib/battle/BattleHex.h"
 #include "../gui/CIntObject.h"
 #include "../../lib/spells/CSpellHandler.h" //CSpell::TAnimation
-#include "../ConditionalWait.h"
+#include "../../lib/ConditionalWait.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

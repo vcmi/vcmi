@@ -116,11 +116,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <atomic>
 #include <bitset>
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cmath>
-#include <codecvt>
-#include <cstdlib>
+#include <condition_variable>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -137,11 +138,17 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
+
+// VCMI requires features that were added to TBB 2021.4
+// However, until TBB 2021.7 they were only available with this define
+// For versions TBB 2021.7 and later this define is not required
+#define TBB_PREVIEW_TASK_GROUP_EXTENSIONS 1
 
 //The only available version is 3, as of Boost 1.50
 #include <boost/version.hpp>
@@ -171,8 +178,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/current_function.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/date_time/posix_time/time_formatters.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/path.hpp>
@@ -187,10 +192,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 #include <boost/range/algorithm.hpp>
-#include <boost/thread/thread_only.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/once.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846

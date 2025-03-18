@@ -218,7 +218,7 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 
 void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
-	boost::this_thread::interruption_point();
+	makingTurnInterrupption.interruptionPoint();
 
 	logAi->debug("Checking behavior %s", behavior->toString());
 
@@ -226,7 +226,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 	
 	decomposer->decompose(result, behavior, decompositionMaxDepth);
 
-	boost::this_thread::interruption_point();
+	makingTurnInterrupption.interruptionPoint();
 
 	logAi->debug(
 		"Behavior %s. Time taken %ld",
@@ -259,7 +259,7 @@ void Nullkiller::invalidatePathfinderData()
 
 void Nullkiller::updateAiState(int pass, bool fast)
 {
-	boost::this_thread::interruption_point();
+	makingTurnInterrupption.interruptionPoint();
 
 	std::unique_lock lockGuard(aiStateMutex);
 
@@ -281,7 +281,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 		dangerHitMap->updateHitMap();
 		dangerHitMap->calculateTileOwners();
 
-		boost::this_thread::interruption_point();
+		makingTurnInterrupption.interruptionPoint();
 
 		heroManager->update();
 		logAi->trace("Updating paths");
@@ -310,7 +310,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
 		}
 
-		boost::this_thread::interruption_point();
+		makingTurnInterrupption.interruptionPoint();
 
 		pathfinder->updatePaths(activeHeroes, cfg);
 
@@ -322,7 +322,7 @@ void Nullkiller::updateAiState(int pass, bool fast)
 				scanDepth == ScanDepth::ALL_FULL ? 255 : 3);
 		}
 
-		boost::this_thread::interruption_point();
+		makingTurnInterrupption.interruptionPoint();
 
 		objectClusterizer->clusterize();
 
@@ -374,7 +374,7 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 
 void Nullkiller::makeTurn()
 {
-	boost::lock_guard<boost::mutex> sharedStorageLock(AISharedStorage::locker);
+	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
 
 	const int MAX_DEPTH = 10;
 
@@ -601,7 +601,7 @@ bool Nullkiller::executeTask(Goals::TTask task)
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
-	boost::this_thread::interruption_point();
+	makingTurnInterrupption.interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
 
 	try

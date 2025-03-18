@@ -217,7 +217,7 @@ set(lib_MAIN_SRCS
 	rmg/modificators/ObstaclePlacer.cpp
 	rmg/modificators/RiverPlacer.cpp
 	rmg/modificators/TerrainPainter.cpp
-	rmg/threadpool/MapProxy.cpp
+	rmg/MapProxy.cpp
 
 	serializer/BinaryDeserializer.cpp
 	serializer/BinarySerializer.cpp
@@ -633,9 +633,7 @@ set(lib_MAIN_HEADERS
 	rmg/modificators/ObstaclePlacer.h
 	rmg/modificators/RiverPlacer.h
 	rmg/modificators/TerrainPainter.h
-	rmg/threadpool/BlockingQueue.h
-	rmg/threadpool/ThreadPool.h
-	rmg/threadpool/MapProxy.h
+	rmg/MapProxy.h
 
 	serializer/BinaryDeserializer.h
 	serializer/BinarySerializer.h
@@ -695,6 +693,7 @@ set(lib_MAIN_HEADERS
 
 	AI_Base.h
 	ArtifactUtils.h
+	AsyncRunner.h
 	BattleFieldHandler.h
 	CAndroidVMHelper.h
 	CArtHandler.h
@@ -704,6 +703,7 @@ set(lib_MAIN_HEADERS
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
+	ConditionalWait.h
 	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
@@ -759,7 +759,7 @@ endif()
 set_target_properties(vcmi PROPERTIES COMPILE_DEFINITIONS "VCMI_DLL=1")
 target_link_libraries(vcmi PUBLIC
 	minizip::minizip ZLIB::ZLIB TBB::tbb
-	${SYSTEM_LIBS} Boost::boost Boost::thread Boost::filesystem Boost::program_options Boost::locale Boost::date_time
+	${SYSTEM_LIBS} Boost::boost Boost::filesystem Boost::program_options Boost::locale Boost::date_time
 )
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)

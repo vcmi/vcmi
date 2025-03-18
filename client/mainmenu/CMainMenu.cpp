@@ -60,17 +60,9 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/json/JsonUtils.h"
 
-std::shared_ptr<CMainMenu> CMM;
 ISelectionScreenInfo * SEL = nullptr;
-
-static void do_quit()
-{
-	ENGINE->dispatchMainThread([]()
-	{
-		handleQuit(false);
-	});
-}
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	: CWindowObject(BORDERED), config(configNode)
@@ -78,7 +70,7 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	OBJECT_CONSTRUCTION;
 
 	const auto& bgConfig = config["background"];
-	if (bgConfig.isVector() && !bgConfig.Vector().empty())
+	if (bgConfig.isVector())
 		background = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(bgConfig.Vector(), CRandomGenerator::getDefault())));
 
 	if (bgConfig.isString())
@@ -89,6 +81,12 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	pos = background->center();
 
+	for (const JsonNode& node : config["images"].Vector())
+	{
+		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+		images.push_back(image);
+	}
+
 	if(!config["video"].isNull())
 	{
 		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
@@ -97,9 +95,6 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	for(const JsonNode & node : config["items"].Vector())
 		menuNameToEntry.push_back(node["name"].String());
-
-	for(const JsonNode & node : config["images"].Vector())
-		images.push_back(CMainMenu::createPicture(node));
 
 	//Hardcoded entry
 	menuNameToEntry.push_back("credits");
@@ -171,7 +166,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			}
 			case 1: //open campaign selection window
 			{
-				return std::bind(&CMainMenu::openCampaignScreen, CMM, commands.front());
+				return std::bind(&CMainMenu::openCampaignScreen, GAME->mainmenu(), commands.front());
 				break;
 			}
 			case 2: //start
@@ -207,7 +202,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			break;
 			case 4: //exit
 			{
-				return []() { CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), do_quit, 0, PlayerColor(1)); };
+				return []() { CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], std::vector<std::shared_ptr<CComponent>>(), [](){GAME->onShutdownRequested(false);}, 0, PlayerColor(1)); };
 			}
 			break;
 			case 5: //highscores
@@ -240,14 +235,13 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	EShortcut shortcut = ENGINE->shortcuts().findShortcut(button["shortcut"].String());
 
 	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
-	{
 		logGlobal->warn("Unknown shortcut '%s' found when loading main menu config!", button["shortcut"].String());
-	}
 
 	auto result = std::make_shared<CButton>(Point(posx, posy), AnimationPath::fromJson(button["name"]), help, command, shortcut);
 
 	if (button["center"].Bool())
 		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
+
 	return result;
 }
 
@@ -260,32 +254,38 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 	for(const JsonNode & node : config["images"].Vector())
 		images.push_back(CMainMenu::createPicture(node));
 
-	for (const JsonNode& node : config["buttons"].Vector()) {
+	for (const JsonNode& node : config["buttons"].Vector())
+	{
 		auto tokens = node["command"].String().find(' ');
 		std::pair<std::string, std::string> commandParts = {
 			node["command"].String().substr(0, tokens),
 			(tokens == std::string::npos) ? "" : node["command"].String().substr(tokens + 1)
 		};
 
-		if (commandParts.first == "campaigns") {
+		if (commandParts.first == "campaigns")
+		{
 			const auto& campaign = CMainMenuConfig::get().getCampaigns()[commandParts.second];
 
-			if (!campaign.isStruct()) {
+			if (!campaign.isStruct())
+			{
 				logGlobal->warn("Campaign set %s not found", commandParts.second);
 				continue;
 			}
 
 			bool fileExists = false;
-			for (const auto& item : campaign["items"].Vector()) {
+			for (const auto& item : campaign["items"].Vector())
+			{
 				std::string filename = item["file"].String();
 
-				if (CResourceHandler::get()->existsResource(ResourcePath(filename, EResType::CAMPAIGN))) {
+				if (CResourceHandler::get()->existsResource(ResourcePath(filename, EResType::CAMPAIGN)))
+				{
 					fileExists = true;
 					break; 
 				}
 			}
 
-			if (!fileExists) {
+			if (!fileExists)
+			{
 				logGlobal->warn("No valid files found for campaign set %s", commandParts.second);
 				continue;
 			}
@@ -298,11 +298,13 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 }
 
 CMainMenuConfig::CMainMenuConfig()
-	: campaignSets(JsonPath::builtin("config/campaignSets.json"))
+	: campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 	, config(JsonPath::builtin("config/mainmenu.json"))
 {
-	if (config["game-select"].Vector().empty())
-		handleFatalError("Main menu config is invalid or corrupted. Please disable any mods or reinstall VCMI", false);
+	if (!config["scenario-selection"].isStruct())
+		// Fallback for 1.6 mods
+		if (config["game-select"].Vector().empty())
+			handleFatalError("The main menu configuration file mainmenu.json is invalid or corrupted. Please check the file for errors, verify your mod setup, or reinstall VCMI to resolve the issue.", false);
 }
 
 const CMainMenuConfig & CMainMenuConfig::get()
@@ -331,11 +333,7 @@ CMainMenu::CMainMenu()
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
-CMainMenu::~CMainMenu()
-{
-	if(ENGINE->curInt == this)
-		ENGINE->curInt = nullptr;
-}
+CMainMenu::~CMainMenu() = default;
 
 void CMainMenu::playIntroVideos()
 {
@@ -386,21 +384,11 @@ void CMainMenu::onScreenResize()
 	backgroundAroundMenu->pos = pos;
 }
 
-void CMainMenu::update()
+void CMainMenu::makeActiveInterface()
 {
-	if(CMM != this->shared_from_this()) //don't update if you are not a main interface
-		return;
-
-	if(ENGINE->windows().count() == 0)
-	{
-		ENGINE->windows().pushWindow(CMM);
-		ENGINE->windows().pushWindow(menu);
-		menu->switchToTab(menu->getActiveTab());
-	}
-
-	// Handles mouse and key input
-	ENGINE->handleEvents();
-	ENGINE->windows().simpleRedraw();
+	ENGINE->windows().pushWindow(GAME->mainmenu());
+	ENGINE->windows().pushWindow(menu);
+	menu->switchToTab(menu->getActiveTab());
 }
 
 void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
@@ -475,14 +463,6 @@ void CMainMenu::openHighScoreScreen()
 	return;
 }
 
-std::shared_ptr<CMainMenu> CMainMenu::create()
-{
-	if(!CMM)
-		CMM = std::shared_ptr<CMainMenu>(new CMainMenu());
-
-	return CMM;
-}
-
 std::shared_ptr<CPicture> CMainMenu::createPicture(const JsonNode & config)
 {
 	return std::make_shared<CPicture>(ImagePath::fromJson(config["name"]), (int)config["x"].Float(), (int)config["y"].Float());
@@ -500,15 +480,6 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	if (multiplayerConfig.isVector() && !multiplayerConfig.Vector().empty())
 		picture = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(multiplayerConfig.Vector(), CRandomGenerator::getDefault())), 16, 77);
 
-	if (multiplayerConfig.isString())
-		picture = std::make_shared<CPicture>(ImagePath::fromJson(multiplayerConfig), 16, 77);
-
-	if (!picture)
-	{
-		picture = std::make_shared<CPicture>(ImagePath::builtin("MUMAP.bmp"), 16, 77);
-		logGlobal->error("Failed to load multiplayer picture");
-	}
-
 	textTitle = std::make_shared<CTextBox>("", Rect(7, 18, 440, 50), 0, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE);
 	textTitle->setText(LIBRARY->generaltexth->zelp[263].second);
 
@@ -523,7 +494,7 @@ CMultiMode::CMultiMode(ESelectionScreen ScreenType)
 	buttonHost = std::make_shared<CButton>(Point(373, 78 + 57 * 3), AnimationPath::builtin("MUBHOST.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.mainMenu.hostTCP"), ""), std::bind(&CMultiMode::hostTCP, this, EShortcut::MAIN_MENU_HOST_GAME), EShortcut::MAIN_MENU_HOST_GAME);
 	buttonJoin = std::make_shared<CButton>(Point(373, 78 + 57 * 4), AnimationPath::builtin("MUBJOIN.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.mainMenu.joinTCP"), ""), std::bind(&CMultiMode::joinTCP, this, EShortcut::MAIN_MENU_JOIN_GAME), EShortcut::MAIN_MENU_JOIN_GAME);
 
-	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[288], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonCancel = std::make_shared<CButton>(Point(373, 424), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[288], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
 void CMultiMode::openLobby()
@@ -604,7 +575,7 @@ CMultiPlayers::CMultiPlayers(const std::vector<std::string>& playerNames, ESelec
 	}
 
 	buttonOk = std::make_shared<CButton>(Point(95, 338), AnimationPath::builtin("MUBCHCK.DEF"), LIBRARY->generaltexth->zelp[560], std::bind(&CMultiPlayers::enterSelectionScreen, this), EShortcut::GLOBAL_ACCEPT);
-	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], [=](){ close();}, EShortcut::GLOBAL_CANCEL);
+	buttonCancel = std::make_shared<CButton>(Point(205, 338), AnimationPath::builtin("MUBCANC.DEF"), LIBRARY->generaltexth->zelp[561], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 	statusBar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(7, 381, 348, 18), 7, 381));
 
 	for(int i = 0; i < playerNames.size(); i++)
@@ -727,25 +698,38 @@ CLoadingScreen::CLoadingScreen(ImagePath background)
 	ENGINE->music().stopMusic(5000);
 
 	const auto& conf = CMainMenuConfig::get().getConfig()["loading"];
-	const auto& nameConfig = conf["name"];
 
-	AnimationPath animationPath;
-	if (nameConfig.isVector() && !nameConfig.Vector().empty())
-		animationPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(nameConfig.Vector(), CRandomGenerator::getDefault()));
+	const auto& backgroundConfig = conf["background"];
+	if (!backgroundConfig.Vector().empty())
+		backimg = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(backgroundConfig.Vector(), CRandomGenerator::getDefault())));
 
-	if (nameConfig.isString())
-		animationPath = AnimationPath::fromJson(nameConfig);
-
-	if (conf.isStruct())
+	for (const JsonNode& node : conf["images"].Vector())
 	{
-		const int posx = conf["x"].Integer();
-		const int posy = conf["y"].Integer();
-		const int blockSize = conf["size"].Integer();
-		const int blocksAmount = conf["amount"].Integer();
-		
-		for (int i = 0; i < blocksAmount; ++i)
+		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+		images.push_back(image);
+	}
+
+	const auto& loadframeConfig = conf["loadframe"];
+	if (loadframeConfig.isStruct())
+	{
+		loadFrame = std::make_shared<CPicture>(
+			ImagePath::fromJson(*RandomGeneratorUtil::nextItem(loadframeConfig["name"].Vector(), CRandomGenerator::getDefault())),
+			loadframeConfig["x"].Integer(),
+			loadframeConfig["y"].Integer()
+			);
+	}
+
+	const auto& loadbarConfig = conf["loadbar"];
+	if (loadbarConfig.isStruct())
+	{
+		AnimationPath loadbarPath = AnimationPath::fromJson(*RandomGeneratorUtil::nextItem(loadbarConfig["name"].Vector(), CRandomGenerator::getDefault()));
+		const int posx = loadbarConfig["x"].Integer();
+		const int posy = loadbarConfig["y"].Integer();
+		const int blockSize = loadbarConfig["size"].Integer();
+		const int blocksAmount = loadbarConfig["amount"].Integer();
+		for (int i = 0; i < blocksAmount; ++i) 
 		{
-			progressBlocks.push_back(std::make_shared<CAnimImage>(animationPath, i, 0, posx + i * blockSize, posy));
+			progressBlocks.push_back(std::make_shared<CAnimImage>(loadbarPath, i, 0, posx + i * blockSize, posy));
 			progressBlocks.back()->deactivate();
 			progressBlocks.back()->visible = false;
 		}

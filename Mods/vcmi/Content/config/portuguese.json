@@ -175,7 +175,7 @@
 	"vcmi.lobby.match.solo" : "Jogo para um Jogador",
 	"vcmi.lobby.match.duel" : "Jogo com %s", // %s -> apelido de outro jogador
 	"vcmi.lobby.match.multi" : "%d jogadores",
-	"vcmi.lobby.room.create" : "Criar Nova Sala",
+	"vcmi.lobby.room.create.hover" : "Criar Nova Sala",
 	"vcmi.lobby.room.players.limit" : "Limite de Jogadores",
 	"vcmi.lobby.room.description.public" : "Qualquer jogador pode entrar na sala pública.",
 	"vcmi.lobby.room.description.private" : "Apenas jogadores convidados podem entrar na sala privada.",

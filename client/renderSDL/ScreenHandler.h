@@ -96,12 +96,10 @@ public:
 
 	/// Creates and initializes screen, window and SDL state
 	ScreenHandler();
+	~ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
 	void onScreenResize() final;
-
-	/// De-initializes and destroys screen, window and SDL state
-	void close() final;
 
 	/// Fills screen with black color, erasing any existing content
 	void clearScreen() final;

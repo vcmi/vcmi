@@ -48,6 +48,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/json/JsonUtils.h"
 
 bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::shared_ptr<ElementInfo> bbb)
 {
@@ -59,7 +60,7 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		{
 			if(boost::algorithm::starts_with(aaa->folderName, "..") || boost::algorithm::starts_with(bbb->folderName, ".."))
 				return boost::algorithm::starts_with(aaa->folderName, "..");
-			return boost::ilexicographical_compare(aaa->folderName, bbb->folderName);
+			return TextOperations::compareLocalizedStrings(aaa->folderName, bbb->folderName);
 		}
 	}
 
@@ -114,13 +115,13 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return (a->victoryIconIndex < b->victoryIconIndex);
 			break;
 		case _name: //by name
-			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
+			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		case _fileName: //by filename
-			return boost::ilexicographical_compare(aaa->fileURI, bbb->fileURI);
+			return TextOperations::compareLocalizedStrings(aaa->fileURI, bbb->fileURI);
 		case _changeDate: //by changedate
 			return aaa->lastWrite < bbb->lastWrite;
 		default:
-			return boost::ilexicographical_compare(a->name.toString(), b->name.toString());
+			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		}
 	}
 	else //if we are sorting campaigns
@@ -130,9 +131,9 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		case _numOfMaps: //by number of maps in campaign
 			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
 		case _name: //by name
-			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		default:
-			return boost::ilexicographical_compare(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
+			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(), bbb->campaign->getNameTranslated());
 		}
 	}
 }
@@ -618,7 +619,13 @@ void SelectionTab::sort()
 	if(!sortModeAscending)
 	{
 		if(firstMapIndex)
-			std::reverse(std::next(curItems.begin(), boost::starts_with(curItems[0]->folderName, "..") ? 1 : 0), std::next(curItems.begin(), firstMapIndex - 1));
+		{
+			auto startIt = std::next(curItems.begin(), boost::starts_with(curItems[0]->folderName, "..") ? 1 : 0);
+			auto endIt = std::next(curItems.begin(), firstMapIndex - 1);
+			if(startIt > endIt)
+				std::swap(startIt, endIt);
+			std::reverse(startIt, endIt);
+		}
 		std::reverse(std::next(curItems.begin(), firstMapIndex), curItems.end());
 	}
 
@@ -956,37 +963,44 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	auto campaignSets = JsonNode(JsonPath::builtin("config/campaignSets.json"));
+	auto campaignSets = JsonUtils::assembleFromFiles("config/campaignSets.json");
 	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
 
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
-		auto info = std::make_shared<ElementInfo>();
-		info->fileURI = file.getOriginalName();
-		info->campaignInit();
-		info->name = info->getNameForList();
-				
-		if(info->campaign)
+		try
 		{
-			// skip campaigns organized in sets
-			std::string foundInSet = "";
-			for (auto const & set : campaignSets.Struct())
-				for (auto const & item : set.second["items"].Vector())
-					if(file.getName() == ResourcePath(item["file"].String()).getName())
-						foundInSet = set.first;
-			
-			// set has to be used in main menu
-			bool setInMainmenu = false;
-			if(!foundInSet.empty())
-				for (auto const & item : mainmenu["window"]["items"].Vector())
-					if(item["name"].String() == "campaign")
-						for (auto const & button : item["buttons"].Vector())
-							if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
-								setInMainmenu = true;
+			auto info = std::make_shared<ElementInfo>();
+			info->fileURI = file.getOriginalName();
+			info->campaignInit();
+			info->name = info->getNameForList();
 
-			if(!setInMainmenu)
-				allItems.push_back(info);
+			if(info->campaign)
+			{
+				// skip campaigns organized in sets
+				std::string foundInSet = "";
+				for (auto const & set : campaignSets.Struct())
+					for (auto const & item : set.second["items"].Vector())
+						if(file.getName() == ResourcePath(item["file"].String()).getName())
+							foundInSet = set.first;
+
+				// set has to be used in main menu
+				bool setInMainmenu = false;
+				if(!foundInSet.empty())
+					for (auto const & item : mainmenu["window"]["items"].Vector())
+						if(item["name"].String() == "campaign")
+							for (auto const & button : item["buttons"].Vector())
+								if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
+									setInMainmenu = true;
+
+				if(!setInMainmenu)
+					allItems.push_back(info);
+			}
+		}
+		catch(const std::exception & e)
+		{
+			logGlobal->error("Error: Failed to process campaign %s: %s", file.getName(), e.what());
 		}
 	}
 }

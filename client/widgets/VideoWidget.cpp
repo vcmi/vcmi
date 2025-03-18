@@ -18,6 +18,7 @@
 #include "../render/Canvas.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 
 VideoWidgetBase::VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio)
@@ -39,12 +40,15 @@ void VideoWidgetBase::playVideo(const VideoPath & fileToPlay)
 {
 	OBJECT_CONSTRUCTION;
 
-	JsonPath subTitlePath = fileToPlay.toType<EResType::JSON>();
-	JsonPath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
-	if(CResourceHandler::get()->existsResource(subTitlePath))
-		subTitleData = JsonNode(subTitlePath);
-	else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
-		subTitleData = JsonNode(subTitlePathVideoDir);
+	if(settings["general"]["enableSubtitle"].Bool())
+	{
+		JsonPath subTitlePath = fileToPlay.toType<EResType::JSON>();
+		JsonPath subTitlePathVideoDir = subTitlePath.addPrefix("VIDEO/");
+		if(CResourceHandler::get()->existsResource(subTitlePath))
+			subTitleData = JsonNode(subTitlePath);
+		else if(CResourceHandler::get()->existsResource(subTitlePathVideoDir))
+			subTitleData = JsonNode(subTitlePathVideoDir);
+	}
 
 	float preScaleFactor = 1;
 	VideoPath videoFile = fileToPlay;

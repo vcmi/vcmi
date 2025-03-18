@@ -46,8 +46,6 @@
 #include "lib/CAndroidVMHelper.h"
 #endif
 
-ThreadSafeVector<int> CClient::waitingRequest;
-
 CPlayerEnvironment::CPlayerEnvironment(PlayerColor player_, CClient * cl_, std::shared_ptr<CCallback> mainCallback_)
 	: player(player_),
 	cl(cl_),
@@ -181,26 +179,28 @@ void CClient::endNetwork()
 	}
 }
 
+void CClient::finishGameplay()
+{
+	waitingRequest.requestTermination();
+
+	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
+	for(auto & i : playerint)
+		i.second->finish();
+}
+
 void CClient::endGame()
 {
 #if SCRIPTING_ENABLED
 	clientScripts.reset();
 #endif
 
-	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
-	for(auto & i : playerint)
-		i.second->finish();
+	logNetwork->info("Ending current game!");
+	removeGUI();
 
-	ENGINE->curInt = nullptr;
-	{
-		logNetwork->info("Ending current game!");
-		removeGUI();
+	GAME->setMapInstance(nullptr);
+	vstd::clear_pointer(gs);
 
-		GAME->setMapInstance(nullptr);
-		vstd::clear_pointer(gs);
-
-		logNetwork->info("Deleted mapHandler and gameState.");
-	}
+	logNetwork->info("Deleted mapHandler and gameState.");
 
 	CPlayerInterface::battleInt.reset();
 	playerint.clear();
@@ -218,7 +218,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		GAME->setMapInstance(std::make_unique<CMapHandler>(gs->map));
+		GAME->setMapInstance(std::make_unique<CMapHandler>(&gs->getMap()));
 		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 	}
 }
@@ -254,7 +254,7 @@ void CClient::initPlayerEnvironments()
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & playerInfo : gs->scenarioOps->playerInfos)
+	for(auto & playerInfo : gs->getStartInfo()->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
@@ -266,7 +266,7 @@ void CClient::initPlayerInterfaces()
 			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
-				for(auto & allyInfo : gs->scenarioOps->playerInfos)
+				for(auto & allyInfo : gs->getStartInfo()->playerInfos)
 					if (gs->getPlayerTeam(allyInfo.first) == gs->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
 						alliedToHuman = true;
 
@@ -353,7 +353,7 @@ void CClient::handlePack(CPackForClient & pack)
 	pack.visit(beforeVisitor);
 	logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 	{
-		boost::unique_lock lock(CGameState::mutex);
+		std::unique_lock lock(CGameState::mutex);
 		gs->apply(pack);
 	}
 	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
@@ -518,7 +518,6 @@ void CClient::reinitScripting()
 void CClient::removeGUI() const
 {
 	// CClient::endGame
-	ENGINE->curInt = nullptr;
 	ENGINE->windows().clear();
 	adventureInt.reset();
 	logGlobal->info("Removed GUI.");
@@ -529,7 +528,7 @@ void CClient::removeGUI() const
 #ifdef VCMI_ANDROID
 extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
 {
-	boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 
 	logGlobal->info("Received emergency save game request");
 	if(!GAME->interface() || !GAME->interface()->cb)

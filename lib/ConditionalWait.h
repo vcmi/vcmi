@@ -24,6 +24,30 @@ public:
 	}
 };
 
+class ThreadInterruption
+{
+	std::atomic<bool> interruptionRequested = false;
+
+public:
+	void interruptionPoint()
+	{
+		bool result = interruptionRequested.exchange(false);
+
+		if (result)
+			throw TerminationRequestedException();
+	}
+
+	void interruptThread()
+	{
+		interruptionRequested.store(true);
+	}
+
+	void reset()
+	{
+		interruptionRequested.store(false);
+	}
+};
+
 class ConditionalWait
 {
 	bool isBusyValue = false;

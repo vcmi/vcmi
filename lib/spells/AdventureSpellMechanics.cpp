@@ -603,9 +603,9 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		return ESpellCastResult::CANCEL;
 	}
 
-	if(!parameters.pos.valid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
+	if(!parameters.pos.isValid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
 	{
-		auto queryCallback = [=](std::optional<int32_t> reply) -> void
+		auto queryCallback = [this, env, parameters](std::optional<int32_t> reply) -> void
 		{
 			if(reply.has_value())
 			{

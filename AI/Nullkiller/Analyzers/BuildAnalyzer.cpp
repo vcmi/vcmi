@@ -62,7 +62,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo)
 		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
-	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > boost::date_time::Friday)
+	if(developmentInfo.existingDwellings.size() >= 2 && ai->cb->getDate(Date::DAY_OF_WEEK) > 4)
 	{
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
@@ -202,7 +202,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	BuildingID building = toBuild;
 	auto townInfo = town->getTown();
 
-	const CBuilding * buildPtr = townInfo->buildings.at(building);
+	const auto & buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
 	CreatureID baseCreatureID;
 
@@ -234,7 +234,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		creature = creatureID.toCreature();
 	}
 
-	auto info = BuildingInfo(buildPtr, creature, baseCreatureID, town, ai);
+	auto info = BuildingInfo(buildPtr.get(), creature, baseCreatureID, town, ai);
 
 	//logAi->trace("checking %s buildInfo %s", info.name, info.toString());
 

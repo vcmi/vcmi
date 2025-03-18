@@ -88,10 +88,9 @@ CMusicHandler::~CMusicHandler()
 {
 	if(isInitialized())
 	{
-		boost::mutex::scoped_lock guard(mutex);
+		std::scoped_lock guard(mutex);
 
 		Mix_HookMusicFinished(nullptr);
-		current->stop();
 
 		current.reset();
 		next.reset();
@@ -100,7 +99,7 @@ CMusicHandler::~CMusicHandler()
 
 void CMusicHandler::playMusic(const AudioPath & musicURI, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if(current && current->isPlaying() && current->isTrack(musicURI))
 		return;
@@ -115,7 +114,7 @@ void CMusicHandler::playMusicFromSet(const std::string & musicSet, const std::st
 
 void CMusicHandler::playMusicFromSet(const std::string & whichSet, bool loop, bool fromStart)
 {
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	auto selectedSet = musicsSet.find(whichSet);
 	if(selectedSet == musicsSet.end())
@@ -155,7 +154,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if(!isInitialized())
 		return;
 
-	boost::mutex::scoped_lock guard(mutex);
+	std::scoped_lock guard(mutex);
 
 	if(current != nullptr)
 		current->stop(fade_ms);
@@ -188,7 +187,7 @@ void CMusicHandler::musicFinishedCallback()
 	ENGINE->dispatchMainThread(
 		[this]()
 		{
-			boost::unique_lock lockGuard(mutex);
+			std::unique_lock lockGuard(mutex);
 			if(current != nullptr)
 			{
 				// if music is looped, play it again
@@ -233,8 +232,7 @@ MusicEntry::~MusicEntry()
 
 	if(loop == 0 && Mix_FadingMusic() != MIX_NO_FADING)
 	{
-		assert(0);
-		logGlobal->error("Attempt to delete music while fading out!");
+		logGlobal->trace("Halting playback of music file %s", currentName.getOriginalName());
 		Mix_HaltMusic();
 	}
 

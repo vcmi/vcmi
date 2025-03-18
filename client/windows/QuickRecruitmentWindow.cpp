@@ -116,7 +116,7 @@ void QuickRecruitmentWindow::purchaseUnits()
 						level = i;
 				i++;
 			}
-			auto onRecruit = [=](CreatureID id, int count){ GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
+			auto onRecruit = [this, level](CreatureID id, int count){ GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
 			CreatureID crid =  selected->creatureOnTheCard->getId();
 			SlotID dstslot = town -> getSlotFor(crid);
 			if(!dstslot.validSlot())

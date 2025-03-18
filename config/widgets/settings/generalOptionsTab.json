@@ -68,6 +68,9 @@
 					"created" : "mobile"
 				},
 				{
+					"text": "vcmi.systemOptions.enableOverlayButton.hover"
+				},
+				{
 					"text": "vcmi.systemOptions.enableUiEnhancementsButton.hover"
 				}
 			]
@@ -98,6 +101,7 @@
 				{
 					"created" : "mobile"
 				},
+				{},
 				{}
 			]
 		},
@@ -160,6 +164,11 @@
 					"created" : "mobile"
 				},
 				{
+					"name": "enableOverlayCheckbox",
+					"help": "vcmi.systemOptions.enableOverlayButton",
+					"callback": "enableOverlayChanged"
+				},
+				{
 					"name": "enableUiEnhancementsCheckbox",
 					"help": "vcmi.systemOptions.enableUiEnhancementsButton",
 					"callback": "enableUiEnhancementsChanged"
@@ -218,6 +227,9 @@
 			"items" : [
 				{
 					"text": "vcmi.systemOptions.audioMuteFocus.hover"
+				},
+				{
+					"text": "core.genrltxt.575"
 				}
 			]
 		},
@@ -230,6 +242,11 @@
 					"name": "audioMuteFocusCheckbox",
 					"help": "vcmi.systemOptions.audioMuteFocus",
 					"callback": "audioMuteFocusChanged"
+				},
+				{
+					"name": "enableSubtitleCheckbox",
+					"help": "core.help.363",
+					"callback": "enableSubtitleChanged"
 				}
 			]
 		},

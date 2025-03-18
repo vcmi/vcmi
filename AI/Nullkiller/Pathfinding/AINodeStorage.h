@@ -149,7 +149,7 @@ class AISharedStorage
 	static std::shared_ptr<boost::multi_array<AIPathNode, 4>> shared;
 	std::shared_ptr<boost::multi_array<AIPathNode, 4>> nodes;
 public:
-	static boost::mutex locker;
+	static std::mutex locker;
 	static uint32_t version;
 
 	AISharedStorage(int3 sizes, int numChains);

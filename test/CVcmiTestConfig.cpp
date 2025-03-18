@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "CVcmiTestConfig.h"
 
-#include "../lib/CConsoleHandler.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/GameLibrary.h"
@@ -23,9 +22,9 @@
 
 void CVcmiTestConfig::SetUp()
 {
-	console = new CConsoleHandler();
-	preinitDLL(console, true);
-	loadDLLClasses(true);
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	LIBRARY->initializeLibrary();
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
 	find your test data folder in your build and change TEST_DATA_DIR for it*/

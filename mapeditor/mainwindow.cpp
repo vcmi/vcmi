@@ -23,6 +23,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
@@ -51,8 +52,6 @@
 #include "playersettings.h"
 #include "validator.h"
 
-static CBasicLogConfigurator * logConfig;
-
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
   QBuffer buffer;
@@ -68,16 +67,6 @@ QPixmap pixmapFromJson(const QJsonValue &val)
   QPixmap p;
   p.loadFromData(QByteArray::fromBase64(encoded), "PNG");
   return p;
-}
-
-void init()
-{
-	loadDLLClasses();
-
-	Settings config = settings.write["session"]["editor"];
-	config->Bool() = true;
-
-	logGlobal->info("Initializing VCMI_Lib");
 }
 
 void MainWindow::loadUserSettings()
@@ -184,14 +173,15 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	//configure logging
 	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-	console = new CConsoleHandler();
-	logConfig = new CBasicLogConfigurator(logPath, console);
+	console = std::make_unique<CConsoleHandler>();
+	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
 	logConfig->configureDefault();
 	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_VERSION);
 	logGlobal->info("The log file will be saved to %s", logPath);
 
 	//init
-	preinitDLL(::console, extractionOptions.extractArchives);
+	LIBRARY = new GameLibrary();
+	LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -251,7 +241,12 @@ MainWindow::MainWindow(QWidget* parent) :
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	init();
+	LIBRARY->initializeLibrary();
+
+	Settings config = settings.write["session"]["editor"];
+	config->Bool() = true;
+
+	logGlobal->info("Initializing VCMI_Lib");
 
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread

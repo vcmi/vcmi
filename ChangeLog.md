@@ -1,5 +1,35 @@
 # VCMI Project Changelog
 
+## 1.6.7 -> 1.7.0
+
+* Added support for configuring icons for bonus icons in creature window per bonus subtype or per bonus value
+* Heroes that are marked as unavailable for specific player will now be correctly blocked from use as starting heroes
+* Added support for loading h3m maps from HotA 1.7 (also needs support from HotA mod)
+* Added BASE_TILE_MOVEMENT_COST bonus that allows configuring minimal cost for moving between tiles for heroes
+* Commanders will now automatically gain no melee penalty bonus on receiving ranged attack
+
+## 1.6.6 -> 1.6.7
+
+### Stability
+
+* Fixed regression causing crash when trying to create lobby room
+* Fixed regression causing crash when upscaling image in background thread on some systems
+* Fixed possible crash on opening Custom Campaigns window while having campaign with unsupported format in maps directory
+* Fixed possible crash on misconfigured `compatibilityIdentifiers` field in mods
+* Fixed rare crash on AI turn that could sometimes happen after AI dismissed a hero
+
+### General
+
+* Added alternative layout for global lobby window that supports H3-like 4:3 screen ratio
+* Added option in launcher to disable in-game overlay available with Alt or two-finger touch.
+* Game will now save and restore map zoom level between sessions.
+* Fixed regression that caused Brotherhood of the Sword to open the Thieves' Guild window instead of the Tavern window when clicked.
+* Fixed regression causing black pixels on some city building sprites from mods when played without upscaling filter
+* Improved handling of very slow taps on mobile systems
+* Added snapping of marker when mouse cursor is next to data point for easy selection in game statistics window
+* Fixed some graphical artifacts in the game statistics window.
+* Fixed client not checking if submod is compatible with current VCMI version
+
 ## 1.6.5 -> 1.6.6
 
 ### General

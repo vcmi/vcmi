@@ -444,10 +444,10 @@ DamageRange CGTownInstance::getKeepDamageRange() const
 FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 {
 	if(getOwner().isValidPlayer())
-		return cb->gameState()->scenarioOps->getIthPlayersSettings(getOwner()).castle;
+		return cb->getStartInfo()->getIthPlayersSettings(getOwner()).castle;
 
 	if(alignmentToPlayer.isValidPlayer())
-		return cb->gameState()->scenarioOps->getIthPlayersSettings(alignmentToPlayer).castle;
+		return cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
 
 	std::vector<FactionID> potentialPicks;
 
@@ -620,12 +620,12 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 		});
 		auto dst = visitingHero->getSlotFor(pair.second->getCreatureID());
 		if(dst.validSlot())
-			cb->moveStack(StackLocation(this, pair.first), StackLocation(visitingHero, dst), -1);
+			cb->moveStack(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst), -1);
 		else
 		{
 			dst = getWeakestStackSlot(static_cast<int>(pair.second->getPower()));
 			if(dst.validSlot())
-				cb->swapStacks(StackLocation(this, pair.first), StackLocation(visitingHero, dst));
+				cb->swapStacks(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst));
 		}
 	}
 }
@@ -654,7 +654,7 @@ void CGTownInstance::clearArmy() const
 {
 	while(!stacks.empty())
 	{
-		cb->eraseStack(StackLocation(this, stacks.begin()->first));
+		cb->eraseStack(StackLocation(id, stacks.begin()->first));
 	}
 }
 
@@ -684,14 +684,14 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const ArtifactID a : cb->gameState()->map->townMerchantArtifacts)
+		for(const ArtifactID a : cb->gameState()->getMap().townMerchantArtifacts)
 			ret.push_back(a);
 
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState()->map->townUniversitySkills;
+		return cb->gameState()->getMap().townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -769,7 +769,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 		if (bonusesReplacedByUpgrade)
 			continue;
 
-		auto building = getTown()->buildings.at(bid);
+		const auto & building = getTown()->buildings.at(bid);
 
 		if(building->buildingBonuses.empty())
 			continue;
@@ -960,7 +960,7 @@ TResources CGTownInstance::getBuildingCost(const BuildingID & buildingID) const
 
 CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & buildID, bool deep) const
 {
-	const CBuilding * building = getTown()->buildings.at(buildID);
+	const auto & building = getTown()->buildings.at(buildID);
 
 	//TODO: find better solution to prevent infinite loops
 	std::set<BuildingID> processed;
@@ -974,7 +974,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 			return CBuilding::TRequired::OperatorAll();
 		}
 
-		const CBuilding * build = getTown()->buildings.at(id);
+		const auto & build = getTown()->buildings.at(id);
 		CBuilding::TRequired::OperatorAll requirements;
 
 		if (!hasBuilt(id))
@@ -999,7 +999,7 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 	CBuilding::TRequired::OperatorAll requirements;
 	if (building->upgrade != BuildingID::NONE)
 	{
-		const CBuilding * upgr = getTown()->buildings.at(building->upgrade);
+		const auto & upgr = getTown()->buildings.at(building->upgrade);
 
 		requirements.expressions.push_back(dependTest(upgr->bid));
 		processed.clear();
@@ -1095,7 +1095,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 				if(id == BuildingID::DEFAULT)
 					continue;
 
-				const CBuilding * building = getTown()->buildings.at(id);
+				const auto & building = getTown()->buildings.at(id);
 
 				if(building->mode == CBuilding::BUILD_AUTO)
 					continue;

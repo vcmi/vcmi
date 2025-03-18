@@ -2749,7 +2749,7 @@ void CMapLoaderH3M::afterRead()
 	for(auto & p : map->players)
 	{
 		int3 posOfMainTown = p.posOfMainTown;
-		if(posOfMainTown.valid() && map->isInTheMap(posOfMainTown))
+		if(posOfMainTown.isValid() && map->isInTheMap(posOfMainTown))
 		{
 			const TerrainTile & t = map->getTile(posOfMainTown);
 

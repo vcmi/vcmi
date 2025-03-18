@@ -315,7 +315,6 @@ void CPlayerInterface::yourTurn(QueryID queryID)
 	bool hotseatWait = humanPlayersCount > 1;
 
 		GAME->setInterfaceInstance(this);
-		ENGINE->curInt = this;
 
 		NotificationHandler::notify("Your turn");
 		if(settings["general"]["startTurnAutosave"].Bool())
@@ -520,7 +519,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill psk
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [=](ui32 selection)
+	ENGINE->windows().createAndPushWindow<CLevelWindow>(hero, pskill, skills, [this, queryID](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -531,7 +530,7 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	ENGINE->sound().playSound(soundBase::heroNewLevel);
-	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [=](ui32 selection)
+	ENGINE->windows().createAndPushWindow<CStackWindow>(commander, skills, [this, queryID](ui32 selection)
 	{
 		cb->selectionMade(selection, queryID);
 	});
@@ -845,7 +844,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 
 			if (allowManualReplay || isAutoFightEndBattle)
 			{
-				wnd->resultCallback = [=](ui32 selection)
+				wnd->resultCallback = [this, queryID](ui32 selection)
 				{
 					cb->selectionMade(selection, queryID);
 				};
@@ -1096,7 +1095,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 		for (auto & component : components)
 			intComps.push_back(std::make_shared<CComponent>(component)); //will be deleted by close in window
 
-		showYesNoDialog(text, [=](){ cb->selectionMade(1, askID); }, [=](){ cb->selectionMade(0, askID); }, intComps);
+		showYesNoDialog(text, [this, askID](){ cb->selectionMade(1, askID); }, [this, askID](){ cb->selectionMade(0, askID); }, intComps);
 	}
 	else if (selection)
 	{
@@ -1145,12 +1144,12 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	};
 	std::stable_sort(objectGuiOrdered.begin(), objectGuiOrdered.end(), townComparator);
 
-	auto selectCallback = [=](int selection)
+	auto selectCallback = [this, askID](int selection)
 	{
 		cb->sendQueryReply(selection, askID);
 	};
 
-	auto cancelCallback = [=]()
+	auto cancelCallback = [this, askID]()
 	{
 		cb->sendQueryReply(std::nullopt, askID);
 	};
@@ -1273,7 +1272,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	auto onEnd = [=](){ cb->selectionMade(0, queryID); };
+	auto onEnd = [this, queryID](){ cb->selectionMade(0, queryID); };
 
 	if (movementController->isHeroMovingThroughGarrison(down, up))
 	{
@@ -1382,11 +1381,11 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	auto recruitCb = [=](CreatureID id, int count)
+	auto recruitCb = [this, dwelling, dst](CreatureID id, int count)
 	{
 		cb->recruitCreatures(dwelling, dst, id, count, -1);
 	};
-	auto closeCb = [=]()
+	auto closeCb = [this, queryID]()
 	{
 		cb->selectionMade(0, queryID);
 	};
@@ -1411,7 +1410,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	auto state = obj->shipyardStatus();
 	TResources cost;
 	obj->getBoatCost(cost);
-	ENGINE->windows().createAndPushWindow<CShipyardWindow>(cost, state, obj->getBoatType(), [=](){ cb->buildBoat(obj); });
+	ENGINE->windows().createAndPushWindow<CShipyardWindow>(cost, state, obj->getBoatType(), [this, obj](){ cb->buildBoat(obj); });
 }
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )
@@ -1438,7 +1437,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			IgnoreEvents ignore(*this);
 			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
+			std::this_thread::sleep_for(std::chrono::milliseconds(focusTime));
 		}
 	}
 	ENGINE->cursor().show();
@@ -1493,7 +1492,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
-			ENGINE->curInt = this;
 			adventureInt->onCurrentPlayerChanged(playerID);
 			std::string msg = LIBRARY->generaltexth->translate("vcmi.adventureMap.playerAttacked");
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
@@ -1509,13 +1507,6 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 
 void CPlayerInterface::update()
 {
-	// Make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
-	boost::shared_lock gsLock(CGameState::mutex);
-
-	// While mutexes were locked away we may be have stopped being the active interface
-	if (GAME->interface() != this)
-		return;
-
 	//if there are any waiting dialogs, show them
 	if (makingTurn && !dialogs.empty() && !showingDialog->isBusy())
 	{
@@ -1523,12 +1514,6 @@ void CPlayerInterface::update()
 		ENGINE->windows().pushWindow(dialogs.front());
 		dialogs.pop_front();
 	}
-
-	assert(adventureInt);
-
-	// Handles mouse and key input
-	ENGINE->handleEvents();
-	ENGINE->windows().simpleRedraw();
 }
 
 void CPlayerInterface::endNetwork()
@@ -1576,11 +1561,9 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		if (victoryLossCheckResult.loss())
 			showInfoDialog(LIBRARY->generaltexth->allTexts[95]);
 
-		assert(ENGINE->curInt == GAME->interface());
 		auto previousInterface = GAME->interface(); //without multiple player interfaces some of lines below are useless, but for hotseat we wanna swap player interface temporarily
 
 		GAME->setInterfaceInstance(this); //this is needed for dialog to show and avoid freeze, dialog showing logic should be reworked someday
-		ENGINE->curInt = this; //waiting for dialogs requires this to get events
 
 		if(!makingTurn)
 		{
@@ -1591,7 +1574,6 @@ void CPlayerInterface::gameOver(PlayerColor player, const EVictoryLossCheckResul
 		else
 			waitForAllDialogs();
 
-		ENGINE->curInt = previousInterface;
 		GAME->setInterfaceInstance(previousInterface);
 	}
 }
@@ -1807,7 +1789,7 @@ void CPlayerInterface::waitForAllDialogs()
 	while(!dialogs.empty())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 	waitWhileDialog();
 }
@@ -1819,7 +1801,7 @@ void CPlayerInterface::proposeLoadingGame()
 		[]()
 		{
 			GAME->server().endGameplay();
-			CMM->menu->switchToTab("load");
+			GAME->mainmenu()->menu->switchToTab("load");
 		},
 		nullptr
 	);

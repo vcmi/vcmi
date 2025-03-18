@@ -84,14 +84,14 @@
 					"type" : "object",
 					"description" : "Timed effects (updated by prolongation)",
 					"additionalProperties" : {
-						"$ref" : "bonus.json"
+						"$ref" : "bonusInstance.json"
 					}
 				},
 				"cumulativeEffects" : {
 					"type" : "object",
 					"description" : "Timed effects (updated by unique bonus)",
 					"additionalProperties" : {
-						"$ref" : "bonus.json"
+						"$ref" : "bonusInstance.json"
 					}
 				},
 				"battleEffects" : {

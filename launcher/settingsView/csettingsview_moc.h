@@ -91,18 +91,13 @@ private slots:
 	void on_buttonFontScalable_clicked(bool checked);
 	void on_buttonFontOriginal_clicked(bool checked);
 
-
 	void on_buttonValidationOff_clicked(bool checked);
-
 	void on_buttonValidationBasic_clicked(bool checked);
-
 	void on_buttonValidationFull_clicked(bool checked);
-
 	void on_sliderScalingCursor_valueChanged(int value);
-
 	void on_buttonScalingAuto_toggled(bool checked);
-
 	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
+	void on_buttonIgnoreMuteSwitch_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

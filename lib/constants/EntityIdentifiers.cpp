@@ -628,6 +628,22 @@ std::string GameResID::entityType()
 	return "resource";
 }
 
+const std::array<PlayerColor, PlayerColor::PLAYER_LIMIT_I> & PlayerColor::ALL_PLAYERS()
+{
+	static const std::array allPlayers = {
+		PlayerColor(0),
+		PlayerColor(1),
+		PlayerColor(2),
+		PlayerColor(3),
+		PlayerColor(4),
+		PlayerColor(5),
+		PlayerColor(6),
+		PlayerColor(7)
+	};
+
+	return allPlayers;
+}
+
 const std::array<PrimarySkill, 4> & PrimarySkill::ALL_SKILLS()
 {
 	static const std::array allSkills = {

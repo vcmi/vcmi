@@ -17,6 +17,7 @@
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
 #include "../CArtHandler.h" // For CArtifactSet
+#include "../ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -16,13 +16,11 @@
 #include "../../lib/CConfigHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
-#include "../GameInstance.h"
+#include "../GameEngineUser.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
 #include "../render/IScreenHandler.h"
-#include "../CServerHandler.h"
-#include "../globalLobby/GlobalLobbyClient.h"
 
 #if defined(VCMI_ANDROID)
 #include "../../lib/CAndroidVMHelper.h"
@@ -58,6 +56,15 @@ InputSourceTouch::InputSourceTouch()
 
 void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfinger)
 {
+	Point screenSize = ENGINE->screenDimensions();
+
+	motionAccumulatedX[tfinger.fingerId] += tfinger.dx;
+	motionAccumulatedY[tfinger.fingerId] += tfinger.dy;
+
+	float motionThreshold = 1.0 / std::min(screenSize.x, screenSize.y);
+	if(std::abs(motionAccumulatedX[tfinger.fingerId]) < motionThreshold && std::abs(motionAccumulatedY[tfinger.fingerId]) < motionThreshold)
+		return;
+
 	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
 		ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x, ENGINE->getCursorPosition().y);
 
@@ -65,12 +72,11 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 	{
 		case TouchState::RELATIVE_MODE:
 		{
-			Point screenSize = ENGINE->screenDimensions();
 			int scalingFactor = ENGINE->screenHandler().getScalingFactor();
 
 			Point moveDistance {
-				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * tfinger.dx),
-				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * tfinger.dy)
+				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * motionAccumulatedX[tfinger.fingerId]),
+				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * motionAccumulatedY[tfinger.fingerId])
 			};
 
 			ENGINE->input().moveCursorPosition(moveDistance);
@@ -111,6 +117,11 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 			break;
 		}
 	}
+
+	if(std::abs(motionAccumulatedX[tfinger.fingerId]) >= motionThreshold)
+		motionAccumulatedX[tfinger.fingerId] = 0;
+	if(std::abs(motionAccumulatedY[tfinger.fingerId]) >= motionThreshold)
+		motionAccumulatedY[tfinger.fingerId] = 0;
 }
 
 void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinger)
@@ -158,7 +169,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 		}
 		case TouchState::TAP_DOWN_DOUBLE:
 		{
-			GAME->server().getGlobalLobby().activateInterface();
+			ENGINE->user().onGlobalLobbyInterfaceActivated();
 			break;
 		}
 		case TouchState::TAP_DOWN_LONG_AWAIT:
@@ -292,7 +303,7 @@ int InputSourceTouch::getNumTouchFingers() const
 
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	Point distance = convertTouchToMouse(-tfinger.dx, -tfinger.dy);
+	Point distance = convertTouchToMouse(-motionAccumulatedX[tfinger.fingerId], -motionAccumulatedY[tfinger.fingerId]);
 
 	ENGINE->events().dispatchGesturePanning(lastTapPosition, convertTouchToMouse(tfinger), distance);
 }
@@ -326,8 +337,8 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 
 	float thisX = tfinger.x * ENGINE->screenDimensions().x;
 	float thisY = tfinger.y * ENGINE->screenDimensions().y;
-	float deltaX = tfinger.dx * ENGINE->screenDimensions().x;
-	float deltaY = tfinger.dy * ENGINE->screenDimensions().y;
+	float deltaX = motionAccumulatedX[tfinger.fingerId] * ENGINE->screenDimensions().x;
+	float deltaY = motionAccumulatedY[tfinger.fingerId] * ENGINE->screenDimensions().y;
 
 	float oldX = thisX - deltaX - otherX;
 	float oldY = thisY - deltaY - otherY;

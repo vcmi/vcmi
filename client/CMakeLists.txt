@@ -398,13 +398,13 @@ set(vcmiclientcommon_HEADERS
 	CMT.h
 	CPlayerInterface.h
 	GameEngine.h
+	GameEngineUser.h
 	GameInstance.h
 	PlayerLocalState.h
 	CServerHandler.h
 	Client.h
 	ClientCommandManager.h
 	ClientNetPackVisitors.h
-	ConditionalWait.h
 	HeroMovementController.h
 	GameChatHandler.h
 	LobbyClientNetPackVisitors.h

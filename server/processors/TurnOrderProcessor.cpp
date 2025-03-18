@@ -109,7 +109,7 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	const auto * leftInfo = gameHandler->getPlayerState(left, false);
 	const auto * rightInfo = gameHandler->getPlayerState(right, false);
 
-	for (auto obj : gameHandler->gameState()->map->objects)
+	for (auto obj : gameHandler->gameState()->getMap().objects)
 	{
 		if (obj && obj->isVisitable())
 		{
@@ -260,7 +260,7 @@ void TurnOrderProcessor::doStartNewDay()
 
 	if(!activePlayer)
 	{
-		gameHandler->gameLobby()->setState(EServerState::SHUTDOWN);
+		gameHandler->gameLobby().setState(EServerState::SHUTDOWN);
 		return;
 	}
 

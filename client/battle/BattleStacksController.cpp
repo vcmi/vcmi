@@ -158,7 +158,7 @@ void BattleStacksController::stackReset(const CStack * stack)
 
 	if(stack->alive() && animation->isDeadOrDying())
 	{
-		owner.addToAnimationStage(EAnimationEvents::HIT, [=]()
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, stack]()
 		{
 			addNewAnim(new ResurrectionAnimation(owner, stack));
 		});
@@ -206,7 +206,7 @@ void BattleStacksController::stackAdded(const CStack * stack, bool instant)
 		// immediately make stack transparent, giving correct shifter time to start
 		setStackColorFilter(Colors::TRANSPARENCY, 0, stack, nullptr, true);
 
-		owner.addToAnimationStage(EAnimationEvents::HIT, [=]()
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, stack]()
 		{
 			addNewAnim(new ColorTransformAnimation(owner, stack, "summonFadeIn", nullptr));
 			if (stack->isClone())
@@ -319,11 +319,13 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 
 	if(settings["battle"]["showHealthBar"].Bool())
 	{
-		float health = stack->getMaxHealth();
-		float healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, .0f);
+		double healthMaxType = stack->unitType()->getMaxHealth();
+		double healthMaxStack = stack->getMaxHealth();
+		double healthMaxRatio = healthMaxStack / healthMaxType;
+		double healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * healthMaxStack, .0) * healthMaxRatio;
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);
-		canvas.drawColor(Rect(r.x, r.y, (r.w / health) * healthRemaining, r.h), Colors::GREEN);
+		canvas.drawColor(Rect(r.x, r.y, (r.w / healthMaxStack) * healthRemaining, r.h), Colors::GREEN);
 		canvas.drawBorder(r, Colors::YELLOW);
 	}
 	canvas.draw(amountBG, boxPosition);
@@ -416,7 +418,7 @@ void BattleStacksController::stackRemoved(uint32_t stackID)
 
 void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
-	owner.addToAnimationStage(EAnimationEvents::HIT, [=](){
+	owner.addToAnimationStage(EAnimationEvents::HIT, [this](){
 		// remove any potentially erased petrification effect
 		removeExpiredColorFilters();
 	});
@@ -441,7 +443,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 		// if (needsReverse && !attackedInfo.defender->isFrozen())
 		if (needsReverse && stackAnimation[attackedInfo.defender->unitId()]->getType() != ECreatureAnimType::FROZEN)
 		{
-			owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [=]()
+			owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [this, attackedInfo]()
 			{
 				addNewAnim(new ReverseAnimation(owner, attackedInfo.defender, attackedInfo.defender->getPosition()));
 			});
@@ -455,7 +457,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		EAnimationEvents usedEvent = useDefenceAnim ? EAnimationEvents::ATTACK : EAnimationEvents::HIT;
 
-		owner.addToAnimationStage(usedEvent, [=]()
+		owner.addToAnimationStage(usedEvent, [this, attackedInfo, useDeathAnim, useDefenceAnim]()
 		{
 			if (useDeathAnim)
 				addNewAnim(new DeathAnimation(owner, attackedInfo.defender, attackedInfo.indirectAttack));
@@ -483,7 +485,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	{
 		if (attackedInfo.rebirth)
 		{
-			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
+			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
 				owner.effectsController->displayEffect(EBattleEffect::RESURRECT, AudioPath::builtin("RESURECT"), attackedInfo.defender->getPosition());
 				addNewAnim(new ResurrectionAnimation(owner, attackedInfo.defender));
 			});
@@ -491,7 +493,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		if (attackedInfo.killed && attackedInfo.defender->summoned)
 		{
-			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
+			owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attackedInfo](){
 				addNewAnim(new ColorTransformAnimation(owner, attackedInfo.defender, "summonFadeOut", nullptr));
 				stackRemoved(attackedInfo.defender->unitId());
 			});
@@ -506,11 +508,11 @@ void BattleStacksController::stackTeleported(const CStack *stack, const BattleHe
 	assert(destHex.size() > 0);
 	//owner.checkForAnimations(); // NOTE: at this point spellcast animations were added, but not executed
 
-	owner.addToAnimationStage(EAnimationEvents::HIT, [=](){
+	owner.addToAnimationStage(EAnimationEvents::HIT, [this, stack](){
 		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeOut", nullptr) );
 	});
 
-	owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=](){
+	owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, stack, destHex](){
 		stackAnimation[stack->unitId()]->pos.moveTo(getStackPositionAtHex(destHex.back(), stack));
 		addNewAnim( new ColorTransformAnimation(owner, stack, "teleportFadeIn", nullptr) );
 	});
@@ -585,7 +587,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if (needsReverse)
 	{
-		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [=]()
+		owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [this, attacker]()
 		{
 			addNewAnim(new ReverseAnimation(owner, attacker, attacker->getPosition()));
 		});
@@ -593,7 +595,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if(info.lucky)
 	{
-		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
+		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45));
 			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
@@ -601,7 +603,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if(info.unlucky)
 	{
-		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
+		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44));
 			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
@@ -609,20 +611,20 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if(info.deathBlow)
 	{
-		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
+		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, defender, info]() {
 			owner.appendBattleLog(info.attacker->formatGeneralMessage(365));
 			owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 		});
 
 		for(auto elem : info.secondaryDefender)
 		{
-			owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [=]() {
+			owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, elem]() {
 				owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, elem->getPosition());
 			});
 		}
 	}
 
-	owner.addToAnimationStage(EAnimationEvents::ATTACK, [=]()
+	owner.addToAnimationStage(EAnimationEvents::ATTACK, [this, attacker, tile, defender, multiAttack, info]()
 	{
 		if (info.indirectAttack)
 		{
@@ -636,7 +638,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if (info.spellEffect != SpellID::NONE)
 	{
-		owner.addToAnimationStage(EAnimationEvents::HIT, [=]()
+		owner.addToAnimationStage(EAnimationEvents::HIT, [this, spellEffect, tile]()
 		{
 			owner.displaySpellHit(spellEffect.toSpell(), tile);
 		});
@@ -644,7 +646,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 
 	if (info.lifeDrain)
 	{
-		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [=]()
+		owner.addToAnimationStage(EAnimationEvents::AFTER_HIT, [this, attacker]()
 		{
 			owner.effectsController->displayEffect(EBattleEffect::DRAIN_LIFE, AudioPath::builtin("DRAINLIF"), attacker->getPosition(), 0.5);
 		});

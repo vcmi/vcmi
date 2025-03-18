@@ -19,6 +19,7 @@
 #include "InputSourceGameController.h"
 
 #include "../GameEngine.h"
+#include "../GameEngineUser.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/EventDispatcher.h"
 #include "../gui/MouseButton.h"
@@ -149,7 +150,7 @@ void InputHandler::copyToClipBoard(const std::string & text)
 
 std::vector<SDL_Event> InputHandler::acquireEvents()
 {
-	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	std::unique_lock<std::mutex> lock(eventsMutex);
 
 	std::vector<SDL_Event> result;
 	std::swap(result, eventsQueue);
@@ -171,7 +172,7 @@ bool InputHandler::ignoreEventsUntilInput()
 {
 	bool inputFound = false;
 
-	boost::unique_lock<boost::mutex> lock(eventsMutex);
+	std::unique_lock<std::mutex> lock(eventsMutex);
 	for(const auto & event : eventsQueue)
 	{
 		switch(event.type)
@@ -192,11 +193,11 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 {
 	if(ev.type == SDL_QUIT)
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 #ifdef VCMI_ANDROID
-		handleQuit(false);
+		ENGINE->user().onShutdownRequested(false);
 #else
-		handleQuit(true);
+		ENGINE->user().onShutdownRequested(true);
 #endif
 		return;
 	}
@@ -205,21 +206,21 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))
 		{
 			// FIXME: dead code? Looks like intercepted by OS/SDL and delivered as SDL_Quit instead?
-			boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-			handleQuit(true);
+			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+			ENGINE->user().onShutdownRequested(true);
 			return;
 		}
 
 		if(ev.key.keysym.scancode == SDL_SCANCODE_AC_BACK && !settings["input"]["handleBackRightMouseButton"].Bool())
 		{
-			boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-			handleQuit(true);
+			std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+			ENGINE->user().onShutdownRequested(true);
 			return;
 		}
 	}
 	else if(ev.type == SDL_USEREVENT)
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		handleUserEvent(ev.user);
 
 		return;
@@ -230,7 +231,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
-				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				ENGINE->onScreenResize(false);
 			}
 #endif
@@ -238,14 +239,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
 #ifdef VCMI_ANDROID
 			{
-				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				ENGINE->onScreenResize(true);
 			}
 #endif
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
-				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
 					ENGINE->music().setVolume(settings["general"]["music"].Integer());
 					ENGINE->sound().setVolume(settings["general"]["sound"].Integer());
@@ -254,7 +255,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 				break;
 			case SDL_WINDOWEVENT_FOCUS_LOST:
 			{
-				boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				if(settings["general"]["audioMuteFocus"].Bool()) {
 					ENGINE->music().setVolume(0);
 					ENGINE->sound().setVolume(0);
@@ -266,7 +267,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	}
 	else if(ev.type == SDL_SYSWMEVENT)
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 		{
 			NotificationHandler::handleSdlEvent(ev);
@@ -291,12 +292,12 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
-		boost::mutex::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
 
 	{
-		boost::unique_lock<boost::mutex> lock(eventsMutex);
+		std::unique_lock<std::mutex> lock(eventsMutex);
 
 		// In a sequence of motion events, skip all but the last one.
 		// This prevents freezes when every motion event takes longer to handle than interval at which

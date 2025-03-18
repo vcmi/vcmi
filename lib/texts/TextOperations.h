@@ -74,10 +74,24 @@ namespace TextOperations
 	/// Algorithm for detection of typos in words
 	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
-	DLL_LINKAGE int getLevenshteinDistance(const std::string & s, const std::string & t);
+	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
 
-	/// Check if texts have similarity when typing into search boxes
-	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
+	/// Retrieves the locale name based on the selected (in config) game language.
+	DLL_LINKAGE std::string getLocaleName();
+
+	/// Compares two strings using locale-aware collation based on the selected game language.
+	DLL_LINKAGE inline bool compareLocalizedStrings(std::string_view str1, std::string_view str2)
+	{
+		static const std::locale loc(getLocaleName());
+		static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
+
+		return col.compare(str1.data(), str1.data() + str1.size(),
+			str2.data(), str2.data() + str2.size()) < 0;
+	}
+
+    /// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match,
+    /// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
+    DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
 
 	/// Finds all positions of a given character in a string.
 	DLL_LINKAGE std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);

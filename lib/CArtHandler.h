@@ -14,7 +14,6 @@
 
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
-#include "ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
 #include "serializer/Serializeable.h"

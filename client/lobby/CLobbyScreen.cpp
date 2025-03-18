@@ -49,7 +49,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, nullptr);
 
 		buttonSelect = std::make_shared<CButton>(Point(411, 80), AnimationPath::builtin("GSPBUTT.DEF"), LIBRARY->generaltexth->zelp[45], 0, EShortcut::LOBBY_SELECT_SCENARIO);
-		buttonSelect->addCallback([=]()
+		buttonSelect->addCallback([this]()
 		{
 			toggleTab(tabSel);
 			if (getMapInfo() && getMapInfo()->isRandomMap)

@@ -212,6 +212,11 @@ ScreenHandler::ScreenHandler()
 	else
 		SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
 
+#ifdef VCMI_IOS
+	if(!settings["general"]["ignoreMuteSwitch"].Bool())
+		SDL_SetHint(SDL_HINT_AUDIO_CATEGORY, "AVAudioSessionCategoryAmbient");
+#endif
+
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER))
 	{
 		logGlobal->error("Something was wrong: %s", SDL_GetError());
@@ -595,7 +600,7 @@ void ScreenHandler::destroyWindow()
 	}
 }
 
-void ScreenHandler::close()
+ScreenHandler::~ScreenHandler()
 {
 	if(settings["general"]["notifications"].Bool())
 		NotificationHandler::destroy();

@@ -418,7 +418,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	{
 		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
 
-		handleQuit(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+		GAME->onShutdownRequested(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
 	}
 }
 
@@ -624,7 +624,7 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 
 void ApplyClientNetPackVisitor::visitHeroRecruited(HeroRecruited & pack)
 {
-	CGHeroInstance *h = gs.map->heroesOnMap.back();
+	CGHeroInstance *h = gs.getMap().heroesOnMap.back();
 	if(h->getHeroTypeID() != pack.hid)
 	{
 		logNetwork->error("Something wrong with hero recruited!");
@@ -882,7 +882,7 @@ void ApplyClientNetPackVisitor::visitEndAction(EndAction & pack)
 void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 {
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::requestRealized, &pack);
-	if(!CClient::waitingRequest.tryRemovingElement(pack.requestID))
+	if(!cl.waitingRequest.tryRemovingElement(pack.requestID))
 		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
 }
 
