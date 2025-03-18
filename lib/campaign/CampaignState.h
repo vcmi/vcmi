@@ -46,16 +46,8 @@ class DLL_LINKAGE CampaignRegions
 		template <typename Handler> void serialize(Handler &h)
 		{
 			h & infix;
-			if (h.version >= Handler::Version::REGION_LABEL)
-			{
-				h & pos;
-				h & labelPos;
-			}
-			else
-			{
-				h & pos.x;
-				h & pos.y;
-			}
+			h & pos;
+			h & labelPos;
 		}
 
 		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
@@ -79,11 +71,8 @@ public:
 		h & campPrefix;
 		h & colorSuffixLength;
 		h & regions;
-		if (h.version >= Handler::Version::CAMPAIGN_REGIONS)
-		{
-			h & campSuffix;
-			h & campBackground;
-		}
+		h & campSuffix;
+		h & campBackground;
 	}
 
 	static CampaignRegions fromJson(const JsonNode & node);
@@ -150,27 +139,20 @@ public:
 		h & numberOfScenarios;
 		h & name;
 		h & description;
-		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
-		{
-			h & author;
-			h & authorContact;
-			h & campaignVersion;
-			h & creationDateTime;
-		}
+		h & author;
+		h & authorContact;
+		h & campaignVersion;
+		h & creationDateTime;
 		h & difficultyChosenByPlayer;
 		h & filename;
 		h & modName;
 		h & music;
 		h & encoding;
 		h & textContainer;
-		if (h.version >= Handler::Version::CHRONICLES_SUPPORT)
-		{
-			h & loadingBackground;
-			h & videoRim;
-			h & introVideo;
-		}
-		if (h.version >= Handler::Version::CAMPAIGN_OUTRO_SUPPORT)
-			h & outroVideo;
+		h & loadingBackground;
+		h & videoRim;
+		h & introVideo;
+		h & outroVideo;
 	}
 };
 
@@ -374,8 +356,7 @@ public:
 		h & chosenCampaignBonuses;
 		h & campaignSet;
 		h & mapTranslations;
-		if (h.version >= Handler::Version::HIGHSCORE_PARAMETERS)
-			h & highscoreParameters;
+		h & highscoreParameters;
 	}
 };
 

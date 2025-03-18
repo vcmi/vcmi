@@ -171,21 +171,13 @@ public:
 		h & day;
 		h & map;
 		h & players;
-		if (h.version < Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
-			generateOwnedObjectsAfterDeserialize();
 		h & teams;
 		h & heroesPool;
 		h & globalEffects;
-		if (h.version < Handler::Version::REMOVE_LIB_RNG)
-		{
-			std::string oldStateOfRNG;
-			h & oldStateOfRNG;
-		}
 		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
-		if (h.version >= Handler::Version::STATISTICS)
-			h & statistic;
+		h & statistic;
 
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
@@ -212,8 +204,6 @@ private:
 	void initMapObjects();
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
-
-	void generateOwnedObjectsAfterDeserialize();
 
 	// ----- bonus system handling -----
 

@@ -108,16 +108,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-
-		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
-		{
-			bool isNull = false;
-			h & isNull;
-			if(!isNull)
-				h & creatureID;
-		}
-		else
-			h & creatureID;
+		h & creatureID;
 		h & includeUpgrades;
 	}
 };

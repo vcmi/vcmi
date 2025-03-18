@@ -162,10 +162,7 @@ public:
 		else
 		{
 			static_assert(!std::is_same_v<uint64_t, T>, "Serialization of unsigned 64-bit value may not work in some cases");
-			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
-				data = loadEncodedInteger();
-			else
-				this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+			data = loadEncodedInteger();
 		}
 	}
 
@@ -444,32 +441,23 @@ public:
 	}
 	void load(std::string &data)
 	{
-		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
-		{
-			int32_t length;
-			load(length);
+		int32_t length;
+		load(length);
 
-			if (length < 0)
-			{
-				int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
-				data = loadedStrings[stringID];
-			}
-			if (length == 0)
-			{
-				data = {};
-			}
-			if (length > 0)
-			{
-				data.resize(length);
-				this->read(static_cast<void *>(data.data()), length, false);
-				loadedStrings.push_back(data);
-			}
-		}
-		else
+		if (length < 0)
 		{
-			uint32_t length = readAndCheckLength();
+			int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
+			data = loadedStrings[stringID];
+		}
+		if (length == 0)
+		{
+			data = {};
+		}
+		if (length > 0)
+		{
 			data.resize(length);
 			this->read(static_cast<void *>(data.data()), length, false);
+			loadedStrings.push_back(data);
 		}
 	}
 

@@ -51,10 +51,7 @@ public:
 		h & bankConfig;
 		h & resetDuration;
 		h & coastVisitable;
-		if (h.version >= Handler::Version::BANK_UNIT_PLACEMENT)
-			h & regularUnitPlacement;
-		else if (!h.saving)
-			regularUnitPlacement = false;
+		h & regularUnitPlacement;
 	}
 
 	friend class CBankInstanceConstructor;

@@ -121,24 +121,8 @@ public:
 		h & resources;
 		h & status;
 		h & turnTimer;
-
-		if (h.version >= Handler::Version::LOCAL_PLAYER_STATE_DATA)
-			h & *playerLocalSettings;
-
-		if (h.version >= Handler::Version::PLAYER_STATE_OWNED_OBJECTS)
-		{
-			h & ownedObjects;
-		}
-		else
-		{
-			std::vector<const CGObjectInstance* > heroes;
-			std::vector<const CGObjectInstance* > towns;
-			std::vector<const CGObjectInstance* > dwellings;
-
-			h & heroes;
-			h & towns;
-			h & dwellings;
-		}
+		h & *playerLocalSettings;
+		h & ownedObjects;
 		h & quests;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;
@@ -173,23 +157,9 @@ public:
 	{
 		h & id;
 		h & players;
-		if (h.version < Handler::Version::REMOVE_FOG_OF_WAR_POINTER)
-		{
-			struct Helper : public Serializeable
-			{
-				void serialize(Handler &h) const
-				{}
-			};
-			Helper helper;
-			auto ptrHelper = &helper;
-			h & ptrHelper;
-		}
-
 		h & fogOfWarMap;
 		h & static_cast<CBonusSystemNode&>(*this);
-
-		if (h.version >= Handler::Version::REWARDABLE_BANKS)
-			h & scoutedObjects;
+		h & scoutedObjects;
 	}
 
 };
