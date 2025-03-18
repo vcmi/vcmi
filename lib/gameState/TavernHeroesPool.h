@@ -13,7 +13,6 @@
 #include "TavernSlot.h"
 #include "../serializer/Serializeable.h"
 
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
@@ -24,9 +23,11 @@ class CSimpleArmy;
 
 class DLL_LINKAGE TavernHeroesPool : public Serializeable
 {
+	CGameState * owner;
+
 	struct TavernSlot
 	{
-		CGHeroInstance * hero;
+		HeroTypeID hero;
 		TavernHeroSlot slot;
 		TavernSlotRole role;
 		PlayerColor player;
@@ -41,7 +42,7 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 	};
 
 	/// list of all heroes in pool, including those currently present in taverns
-	std::map<HeroTypeID, std::shared_ptr<CGHeroInstance> > heroesPool;
+	std::vector<HeroTypeID> heroesPool;
 
 	/// list of which players are able to purchase specific hero
 	/// if hero is not present in list, he is available for everyone
@@ -51,6 +52,8 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 	std::vector<TavernSlot> currentTavern;
 
 public:
+	TavernHeroesPool(CGameState * owner);
+
 	/// Returns heroes currently available in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
 
@@ -67,7 +70,7 @@ public:
 	/// reset mana and movement points for all heroes in pool
 	void onNewDay();
 
-	void addHeroToPool(std::shared_ptr<CGHeroInstance> hero);
+	void addHeroToPool(HeroTypeID hero);
 
 	/// Marks hero as available to only specific set of players
 	void setAvailability(HeroTypeID hero, std::set<PlayerColor> mask);

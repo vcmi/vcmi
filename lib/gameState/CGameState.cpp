@@ -142,7 +142,7 @@ int CGameState::getDate(Date mode) const
 CGameState::CGameState()
 {
 	gs = this;
-	heroesPool = std::make_unique<TavernHeroesPool>();
+	heroesPool = std::make_unique<TavernHeroesPool>(this);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
@@ -638,7 +638,7 @@ void CGameState::initHeroes()
 		}
 
 		map->addToHeroPool(vhi);
-		heroesPool->addHeroToPool(vhi);
+		heroesPool->addHeroToPool(vhi->getHeroTypeID());
 	}
 
 	for(auto & elem : map->disposedHeroes)

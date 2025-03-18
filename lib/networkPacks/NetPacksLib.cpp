@@ -1223,7 +1223,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 		//return hero to the pool, so he may reappear in tavern
 
-		gs->heroesPool->addHeroToPool(beatenHero);
+		gs->heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->boat)

@@ -175,10 +175,11 @@ public:
 		h & map;
 		h & players;
 		h & teams;
-		h & heroesPool;
+		h & *heroesPool;
 		h & globalEffects;
 		h & currentRumor;
-		h & campaign;
+		if (campaign)
+			h & *campaign;
 		h & allocatedArtifacts;
 		h & statistic;
 

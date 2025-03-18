@@ -54,7 +54,6 @@ class CGameStateCampaign : public Serializeable
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
 
 public:
-	CGameStateCampaign() = default;
 	CGameStateCampaign(CGameState * owner);
 
 	void placeCampaignHeroes();
