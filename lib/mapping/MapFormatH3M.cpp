@@ -1406,7 +1406,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readArtifact(const int3 & mapPo
 			logGlobal->warn("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
 	}
 
-	object->storedArtifact = map->createArtifact(artID, SpellID::NONE);
+	object->setArtifactInstance(map->createArtifact(artID, SpellID::NONE));
 	return object;
 }
 
@@ -1416,7 +1416,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readScroll(const int3 & mapPosi
 	readMessageAndGuards(object->message, object.get(), mapPosition);
 	SpellID spellID = reader->readSpell32();
 
-	object->storedArtifact = map->createArtifact(ArtifactID::SPELL_SCROLL, spellID.getNum());
+	object->setArtifactInstance(map->createArtifact(ArtifactID::SPELL_SCROLL, spellID.getNum()));
 	return object;
 }
 

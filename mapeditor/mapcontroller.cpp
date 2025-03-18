@@ -167,7 +167,7 @@ void MapController::repairMap(CMap * map)
 		//fix spell scrolls
 		if(auto * art = dynamic_cast<CGArtifact*>(obj))
 		{
-			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
+			if(art->ID == Obj::SPELL_SCROLL && !art->getArtifactInstance())
 			{
 				std::vector<SpellID> out;
 				for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
@@ -178,7 +178,7 @@ void MapController::repairMap(CMap * map)
 					}
 				}
 				auto a = map->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-				art->storedArtifact = a;
+				art->setArtifactInstance(a);
 			}
 		}
 		//fix mines 

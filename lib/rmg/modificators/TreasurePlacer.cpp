@@ -279,7 +279,7 @@ void TreasurePlacer::addScrolls()
 					out.push_back(spellID);
 			}
 			auto * a = map.mapInstance->createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
-			obj->storedArtifact = a;
+			obj->setArtifactInstance(a);
 			return obj;
 		};
 		oi.setTemplates(Obj::SPELL_SCROLL, 0, zone.getTerrainType());

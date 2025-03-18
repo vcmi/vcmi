@@ -206,7 +206,7 @@ void Initializer::initialize(CGArtifact * o)
 			}
 		}
 		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-		o->storedArtifact = a;
+		o->setArtifactInstance(a);
 	}
 }
 
@@ -370,7 +370,7 @@ void Inspector::updateProperties(CGArtifact * o)
 	
 	addProperty(QObject::tr("Message"), o->message, false);
 	
-	CArtifactInstance * instance = o->storedArtifact;
+	const CArtifactInstance * instance = o->getArtifactInstance();
 	if(instance)
 	{
 		SpellID spellId = instance->getScrollSpellID();
@@ -640,9 +640,9 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
-	if(o->storedArtifact && key == QObject::tr("Spell"))
+	if(key == QObject::tr("Spell"))
 	{
-		o->storedArtifact = controller.map()->createScroll(SpellID(value.toInt()));
+		o->setArtifactInstance(controller.map()->createScroll(SpellID(value.toInt())));
 	}
 }
 

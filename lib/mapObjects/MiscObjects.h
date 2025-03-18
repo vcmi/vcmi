@@ -90,10 +90,10 @@ protected:
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
+	ArtifactInstanceID storedArtifact;
 public:
 	using CArmedInstance::CArmedInstance;
 
-	CArtifactInstance * storedArtifact = nullptr;
 	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -111,7 +111,9 @@ public:
 
 	BattleField getBattlefield() const override;
 
-	ArtifactID getArtifact() const;
+	ArtifactID getArtifactType() const;
+	const CArtifactInstance * getArtifactInstance() const;
+	void setArtifactInstance(const CArtifactInstance *);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

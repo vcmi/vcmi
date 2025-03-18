@@ -92,7 +92,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::ARTIFACT)
 	{
 		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
-		switch(artifactObject->storedArtifact->getType()->aClass)
+		switch(artifactObject->getArtifactInstance()->getType()->aClass)
 		{
 		case CArtifact::EartClass::ART_TREASURE:
 			return 2000;
@@ -111,7 +111,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::SPELL_SCROLL)
 	{
 		auto scrollObject = dynamic_cast<const CGArtifact *>(obj);
-		auto spell = scrollObject->storedArtifact->getScrollSpellID().toSpell();
+		auto spell = scrollObject->getArtifactInstance()->getScrollSpellID().toSpell();
 		if(spell)
 		{
 			switch(spell->getLevel())
@@ -126,7 +126,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 			}
 		}
 		else
-			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->storedArtifact->getScrollSpellID());
+			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->getArtifactInstance()->getScrollSpellID());
 	}
 
 	return getObjectValue(obj->ID, obj->subID);

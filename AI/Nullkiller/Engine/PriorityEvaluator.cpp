@@ -238,7 +238,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::SPELL_SCROLL:
 		//FALL_THROUGH
 	case Obj::ARTIFACT:
-		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact->getType());
+		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
 	case Obj::HERO:
 		return  relations == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()

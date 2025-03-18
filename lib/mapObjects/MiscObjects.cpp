@@ -610,7 +610,12 @@ bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 		|| (h->stacksCount() == 0 && h->getCommander() && h->getCommander()->alive);
 }
 
-ArtifactID CGArtifact::getArtifact() const
+const CArtifactInstance * CGArtifact::getArtifactInstance() const
+{
+	return cb->getArtInstance(storedArtifact);
+}
+
+ArtifactID CGArtifact::getArtifactType() const
 {
 	if(ID == Obj::SPELL_SCROLL)
 		return ArtifactID::SPELL_SCROLL;
@@ -648,37 +653,44 @@ void CGArtifact::pickRandomObject(vstd::RNG & rand)
 		ID = MapObjectID::ARTIFACT;
 }
 
+void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
+{
+	storedArtifact = instance->getId();
+}
+
 void CGArtifact::initObj(vstd::RNG & rand)
 {
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
-		if (!storedArtifact)
-			storedArtifact = cb->gameState()->createArtifact(ArtifactID());
+		if (!storedArtifact.hasValue())
+			setArtifactInstance(cb->gameState()->createArtifact(ArtifactID()));
 
-		if(!storedArtifact->getType())
-			storedArtifact->setType(getArtifact().toArtifact());
+		auto * artifact = cb->gameState()->getArtInstance(storedArtifact);
+
+		if(!artifact->getType())
+			artifact->setType(getArtifactType().toArtifact());
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
-	assert(storedArtifact->getType());
-	assert(!storedArtifact->getParentNodes().empty());
+	assert(getArtifactInstance()->getType());
+	assert(!getArtifactInstance()->getParentNodes().empty());
 
 	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
 
 std::string CGArtifact::getObjectName() const
 {
-	return LIBRARY->artifacts()->getById(getArtifact())->getNameTranslated();
+	return getArtifactType().toEntity(LIBRARY)->getNameTranslated();
 }
 
 std::string CGArtifact::getPopupText(PlayerColor player) const
 {
 	if (settings["general"]["enableUiEnhancements"].Bool())
 	{
-		std::string description = LIBRARY->artifacts()->getById(getArtifact())->getDescriptionTranslated();
-		if (getArtifact() == ArtifactID::SPELL_SCROLL)
+		std::string description = getArtifactType().toEntity(LIBRARY)->getDescriptionTranslated();
+		if (getArtifactType() == ArtifactID::SPELL_SCROLL)
 			ArtifactUtils::insertScrrollSpellName(description, SpellID::NONE); // erase text placeholder
 		return description;
 	}
@@ -694,7 +706,7 @@ std::string CGArtifact::getPopupText(const CGHeroInstance * hero) const
 std::vector<Component> CGArtifact::getPopupComponents(PlayerColor player) const
 {
 	return {
-		Component(ComponentType::ARTIFACT, getArtifact())
+		Component(ComponentType::ARTIFACT, getArtifactType())
 	};
 }
 
@@ -706,22 +718,22 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.player = h->tempOwner;
 
-		if(storedArtifact->getType()->canBePutAt(h))
+		if(getArtifactInstance()->getType()->canBePutAt(h))
 		{
 			switch (ID.toEnum())
 			{
 			case Obj::ARTIFACT:
 			{
-				iw.components.emplace_back(ComponentType::ARTIFACT, getArtifact());
+				iw.components.emplace_back(ComponentType::ARTIFACT, getArtifactType());
 				if(!message.empty())
 					iw.text = message;
 				else
-					iw.text.appendTextID(getArtifact().toArtifact()->getEventTextID());
+					iw.text.appendTextID(getArtifactType().toArtifact()->getEventTextID());
 			}
 			break;
 			case Obj::SPELL_SCROLL:
 			{
-				SpellID spell = storedArtifact->getScrollSpellID();
+				SpellID spell = getArtifactInstance()->getScrollSpellID();
 				iw.components.emplace_back(ComponentType::SPELL, spell);
 				if(!message.empty())
 					iw.text = message;
@@ -781,7 +793,7 @@ void CGArtifact::onHeroVisit(const CGHeroInstance * h) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), storedArtifact->getId()))
+	if(cb->putArtifact(ArtifactLocation(h->id, ArtifactPosition::FIRST_AVAILABLE), getArtifactInstance()->getId()))
 		cb->removeObject(this, h->getOwner());
 }
 
@@ -811,7 +823,7 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 
 	if(handler.saving && ID == Obj::SPELL_SCROLL)
 	{
-		const auto & b = storedArtifact->getFirstBonus(Selector::type()(BonusType::SPELL));
+		const auto & b = getArtifactInstance()->getFirstBonus(Selector::type()(BonusType::SPELL));
 		SpellID spellId(b->subtype.as<SpellID>());
 
 		handler.serializeId("spell", spellId, SpellID::NONE);

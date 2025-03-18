@@ -1089,10 +1089,10 @@ void CMapLoaderJson::MapObjectLoader::configure()
 		else if(art->ID  == Obj::ARTIFACT)
 		{
 			//specific artifact
-			artID = art->getArtifact();
+			artID = art->getArtifactType();
 		}
 
-		art->storedArtifact = owner->map->createArtifact(artID, spellID.getNum());
+		art->setArtifactInstance(owner->map->createArtifact(artID, spellID.getNum()));
 	}
 
 	if(auto hero = std::dynamic_pointer_cast<CGHeroInstance>(instance))

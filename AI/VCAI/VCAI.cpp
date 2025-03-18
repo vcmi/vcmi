@@ -1764,7 +1764,7 @@ const CGObjectInstance * VCAI::lookForArt(ArtifactID aid) const
 {
 	for(const CGObjectInstance * obj : ai->visitableObjs)
 	{
-		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifact()  == aid)
+		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifactType()  == aid)
 			return obj;
 	}
 
