@@ -107,6 +107,7 @@ set(lib_MAIN_SRCS
 	gameState/CGameStateCampaign.cpp
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/QuestInfo.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp

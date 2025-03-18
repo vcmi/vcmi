@@ -66,11 +66,22 @@ public:
 	using StaticIdentifier<BattleID>::StaticIdentifier;
 	DLL_LINKAGE static const BattleID NONE;
 };
+
 class DLL_LINKAGE ObjectInstanceID : public StaticIdentifier<ObjectInstanceID>
 {
 public:
 	using StaticIdentifier<ObjectInstanceID>::StaticIdentifier;
 	static const ObjectInstanceID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+};
+
+class DLL_LINKAGE QuestInstanceID : public StaticIdentifier<QuestInstanceID>
+{
+public:
+	using StaticIdentifier<QuestInstanceID>::StaticIdentifier;
+	static const QuestInstanceID NONE;
 
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);

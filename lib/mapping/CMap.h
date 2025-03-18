@@ -62,8 +62,6 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 
 	std::unique_ptr<GameSettings> gameSettings;
 
-	/// All quests that are currently present on map
-	std::vector<std::shared_ptr<CQuest>> quests;
 	/// All artifacts that exists on map, whether on map, in hero inventory, or stored in some object
 	std::vector<std::shared_ptr<CArtifactInstance>> artInstances;
 	/// All heroes that are currently free for recruitment in taverns and are not present on map
@@ -78,7 +76,7 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 public:
 	/// Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	/// TODO: make private
-	std::vector< std::shared_ptr<CGObjectInstance> > objects;
+	std::vector<std::shared_ptr<CGObjectInstance>> objects;
 
 	explicit CMap(IGameCallback *cb);
 	~CMap();
@@ -109,9 +107,6 @@ public:
 	void moveArtifactInstance(CArtifactSet & srcSet, const ArtifactPosition & srcSlot, CArtifactSet & dstSet, const ArtifactPosition & dstSlot);
 	void putArtifactInstance(CArtifactSet & set, const ArtifactInstanceID art, const ArtifactPosition & slot);
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
-
-	void addNewQuestInstance(std::shared_ptr<CQuest> quest);
-	void clearQuestInstance(const CQuest * quest);
 
 	void generateUniqueInstanceName(CGObjectInstance * target);
 
@@ -213,8 +208,6 @@ public:
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
-	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
-	std::map<si32, ObjectInstanceID> questIdentifierToId;
 
 	std::unique_ptr<CMapEditManager> editManager;
 	boost::multi_array<int3, 3> guardingCreaturePositions;
@@ -254,7 +247,6 @@ public:
 		h & events;
 		h & grailPos;
 		h & artInstances;
-		h & quests;
 
 		//TODO: viccondetails
 		h & terrain;

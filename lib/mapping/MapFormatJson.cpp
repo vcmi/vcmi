@@ -77,17 +77,7 @@ si32 MapObjectResolver::decode(const std::string & identifier) const
 
 std::string MapObjectResolver::encode(si32 identifier) const
 {
-	ObjectInstanceID id;
-
-	//use h3m questIdentifiers if they are present
-	if(owner->map->questIdentifierToId.empty())
-	{
-		id = ObjectInstanceID(identifier);
-	}
-	else
-	{
-		id = owner->map->questIdentifierToId[identifier];
-	}
+	ObjectInstanceID id(identifier);
 
 	auto object = owner->map->getObject(id);
 

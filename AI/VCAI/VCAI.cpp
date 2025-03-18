@@ -13,6 +13,7 @@
 #include "ResourceManager.h"
 #include "BuildingManager.h"
 #include "Goals/Goals.h"
+#include "Goals/CompleteQuest.h"
 
 #include "../../lib/ArtifactUtils.h"
 #include "../../lib/AsyncRunner.h"
@@ -2809,7 +2810,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto q : ai->myCb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.getObject(cb) == obj)
 			{
 				return false; // do not visit guards or gates when wandering
 			}
@@ -2823,9 +2824,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto q : ai->myCb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.getObject(cb) == obj)
 			{
-				if(q.quest->checkQuest(h.h))
+				if(q.getQuest(cb)->checkQuest(h.h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest

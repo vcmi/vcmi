@@ -12,7 +12,9 @@
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
 #include "../Goals/Goals.h"
+#include "../Goals/CompleteQuest.h"
 #include "../../../lib/CGameInfoCallback.h"
+#include "../../../lib/gameState/QuestInfo.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/mapObjects/CQuest.h"
 
@@ -224,7 +226,7 @@ Goals::TSubgoal PathfindingManager::clearWayTo(HeroPtr hero, int3 firstTileToGet
 
 			if(questObj)
 			{
-				auto questInfo = QuestInfo(questObj->getQuest(), topObj, topObj->visitablePos());
+				auto questInfo = QuestInfo(topObj->id);
 
 				return sptr(Goals::CompleteQuest(questInfo));
 			}

@@ -497,19 +497,6 @@ void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & s
 	artifact->addPlacementMap(partsMap);
 }
 
-void CMap::addNewQuestInstance(std::shared_ptr<CQuest> quest)
-{
-	quest->qid = static_cast<si32>(quests.size());
-	quests.emplace_back(quest);
-}
-
-void CMap::clearQuestInstance(const CQuest * quest)
-{
-	assert(quests.at(quest->qid).get() == quest);
-
-	quests.at(quest->qid) = nullptr;
-}
-
 void CMap::generateUniqueInstanceName(CGObjectInstance * target)
 {
 	//this gives object unique name even if objects are removed later
@@ -725,17 +712,6 @@ CMapEditManager * CMap::getEditManager()
 {
 	if(!editManager) editManager = std::make_unique<CMapEditManager>(this);
 	return editManager.get();
-}
-
-void CMap::resolveQuestIdentifiers()
-{
-	//FIXME: move to CMapLoaderH3M
-	for (auto & quest : quests)
-	{
-		if (quest && quest->killTarget != ObjectInstanceID::NONE)
-			quest->killTarget = questIdentifierToId[quest->killTarget.getNum()];
-	}
-	questIdentifierToId.clear();
 }
 
 void CMap::reindexObjects()

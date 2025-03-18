@@ -166,12 +166,12 @@ namespace AIPathfinding
 	{
 		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
 		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
-		auto questInfo = QuestInfo(questObj->getQuest(), destination.nodeObject, destination.coord);
+		auto questInfo = QuestInfo(destination.nodeObject->id);
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-		   && questObj->getQuest()->mission == Rewardable::Limiter{}
-		   && questObj->getQuest()->killTarget == ObjectInstanceID::NONE)
+		   && questObj->getQuest().mission == Rewardable::Limiter{}
+		   && questObj->getQuest().killTarget == ObjectInstanceID::NONE)
 		{
 			return false;
 		}

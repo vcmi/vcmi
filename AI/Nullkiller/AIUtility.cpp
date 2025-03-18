@@ -657,7 +657,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto q : ai->cb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.obj == obj->id)
 			{
 				return false; // do not visit guards or gates when wandering
 			}
@@ -670,9 +670,9 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto q : ai->cb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.obj == obj->id)
 			{
-				if(q.quest->checkQuest(h))
+				if(q.getQuest(cb)->checkQuest(h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest

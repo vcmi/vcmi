@@ -515,14 +515,14 @@ void TreasurePlacer::addSeerHuts()
 		auto setRandomArtifact = [qap](CGSeerHut * obj)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
-			obj->quest->mission.artifacts.push_back(artid);
+			obj->getQuest().mission.artifacts.push_back(artid);
 			qap->addQuestArtifact(artid);
 		};
 		auto destroyObject = [qap](CGObjectInstance & obj)
 		{
 			auto & seer = dynamic_cast<CGSeerHut &>(obj);
 			// Artifact can be used again
-			ArtifactID artid = seer.getQuest()->mission.artifacts.front();
+			ArtifactID artid = seer.getQuest().mission.artifacts.front();
 			qap->addRandomArtifact(artid);
 			qap->removeQuestArtifact(artid);
 		};

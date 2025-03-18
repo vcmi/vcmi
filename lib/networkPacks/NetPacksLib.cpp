@@ -1238,11 +1238,10 @@ void RemoveObject::applyGs(CGameState *gs)
 	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
 	if (quest)
 	{
-		gs->getMap().clearQuestInstance(quest->getQuest());
 		for (auto &player : gs->players)
 		{
 			vstd::erase_if(player.second.quests, [obj](const QuestInfo & q){
-				return q.obj == obj;
+				return q.obj == obj->id;
 			});
 		}
 	}

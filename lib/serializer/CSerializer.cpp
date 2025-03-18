@@ -27,8 +27,6 @@ void CSerializer::addStdVecItems(CGameState *gs, GameLibrary *lib)
 		[](const CGObjectInstance &obj){ return obj.id; });
 	registerVectoredType<CArtifactInstance, ArtifactInstanceID>(&gs->getMap().artInstances,
 		[](const CArtifactInstance &artInst){ return artInst.getId(); });
-	registerVectoredType<CQuest, si32>(&gs->getMap().quests,
-		[](const CQuest &q){ return q.qid; });
 
 	smartVectorMembersSerialization = true;
 }

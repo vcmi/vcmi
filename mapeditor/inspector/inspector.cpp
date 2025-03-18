@@ -456,26 +456,26 @@ void Inspector::updateProperties(CGEvent * o)
 
 void Inspector::updateProperties(CGSeerHut * o)
 {
-	if(!o || !o->getQuest()) return;
+	if(!o) return;
 	
-	addProperty(QObject::tr("First visit text"), o->getQuest()->firstVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Next visit text"), o->getQuest()->nextVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Completed text"), o->getQuest()->completedText, new MessageDelegate, false);
-	addProperty(QObject::tr("Repeat quest"), o->getQuest()->repeatedQuest, false);
-	addProperty(QObject::tr("Time limit"), o->getQuest()->lastDay, false);
+	addProperty(QObject::tr("First visit text"), o->getQuest().firstVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Next visit text"), o->getQuest().nextVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Completed text"), o->getQuest().completedText, new MessageDelegate, false);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, false);
+	addProperty(QObject::tr("Time limit"), o->getQuest().lastDay, false);
 	
 	{ //Quest
-		auto * delegate = new QuestDelegate(controller, *o->quest);
+		auto * delegate = new QuestDelegate(controller, o->getQuest());
 		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
 
 void Inspector::updateProperties(CGQuestGuard * o)
 {
-	if(!o || !o->getQuest()) return;
+	if(!o) return;
 	
 	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), nullptr, true);
-	addProperty(QObject::tr("Repeat quest"), o->getQuest()->repeatedQuest, true);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, true);
 }
 
 void Inspector::updateProperties()
@@ -773,18 +773,18 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(!o) return;
 	
 	if(key == QObject::tr("First visit text"))
-		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Next visit text"))
-		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Completed text"))
-		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
 	if(key == QObject::tr("Repeat quest"))
-		o->quest->repeatedQuest = value.toBool();
+		o->getQuest().repeatedQuest = value.toBool();
 	if(key == QObject::tr("Time limit"))
-		o->quest->lastDay = value.toString().toInt();
+		o->getQuest().lastDay = value.toString().toInt();
 }
 
 void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)

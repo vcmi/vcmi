@@ -268,6 +268,10 @@ private:
 	std::vector<std::shared_ptr<ObjectTemplate>> originalTemplates;
 	std::vector<std::shared_ptr<ObjectTemplate>> remappedTemplates;
 
+	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
+	std::map<si32, ObjectInstanceID> questIdentifierToId;
+	std::map<IQuestObject*, si32> questsToResolve;
+
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;
 
