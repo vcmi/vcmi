@@ -306,6 +306,15 @@ DLL_LINKAGE std::string TextOperations::getLocaleName()
 	return Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
 }
 
+DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, std::string_view str2)
+{
+	static const std::locale loc(getLocaleName());
+	static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
+
+	return col.compare(str1.data(), str1.data() + str1.size(),
+					   str2.data(), str2.data() + str2.size()) < 0;
+}
+
 std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
 {
 	static const std::locale loc = boost::locale::generator().generate(getLocaleName());
