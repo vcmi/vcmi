@@ -32,6 +32,8 @@ public:
 	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;
+	CArmedInstance * getArmy() final { return this; }
+	const CArmedInstance * getArmy() const final { return this; }
 
 	//////////////////////////////////////////////////////////////////////////
 	//IConstBonusProvider

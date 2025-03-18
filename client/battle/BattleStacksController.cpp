@@ -33,13 +33,15 @@
 #include "../render/IFont.h"
 
 #include "../../CCallback.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/battle/BattleAction.h"
-#include "../../lib/battle/BattleHex.h"
-#include "../../lib/texts/TextOperations.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/texts/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {

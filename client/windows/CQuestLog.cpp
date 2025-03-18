@@ -24,11 +24,13 @@
 #include "../render/Canvas.h"
 
 #include "../../CCallback.h"
+
 #include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/QuestInfo.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

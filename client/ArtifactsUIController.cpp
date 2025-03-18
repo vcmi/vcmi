@@ -12,16 +12,17 @@
 #include "ArtifactsUIController.h"
 #include "CPlayerInterface.h"
 
-#include "../CCallback.h"
-#include "../lib/ArtifactUtils.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
-
 #include "GameEngine.h"
 #include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
+
+#include "../CCallback.h"
+#include "../lib/ArtifactUtils.h"
+#include "../lib/GameLibrary.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 ArtifactsUIController::ArtifactsUIController()
 {

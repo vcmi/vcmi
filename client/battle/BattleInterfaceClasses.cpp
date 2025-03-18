@@ -52,6 +52,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/entities/hero/CHero.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"

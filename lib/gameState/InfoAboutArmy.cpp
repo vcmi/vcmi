@@ -12,6 +12,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../GameLibrary.h"
 
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>

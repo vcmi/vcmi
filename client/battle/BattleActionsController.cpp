@@ -28,6 +28,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"

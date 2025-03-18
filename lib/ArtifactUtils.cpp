@@ -13,7 +13,7 @@
 #include "CArtHandler.h"
 #include "IGameSettings.h"
 #include "spells/CSpellHandler.h"
-
+#include "GameLibrary.h"
 #include "mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

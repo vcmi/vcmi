@@ -119,24 +119,11 @@ std::shared_ptr<INetworkConnection> CConnection::getConnection()
 	return networkConnection.lock();
 }
 
-void CConnection::disableStackSendingByID()
-{
-	packReader->sendStackInstanceByIds = false;
-	packWriter->sendStackInstanceByIds = false;
-}
-
-void CConnection::enableStackSendingByID()
-{
-	packReader->sendStackInstanceByIds = true;
-	packWriter->sendStackInstanceByIds = true;
-}
-
 void CConnection::enterLobbyConnectionMode()
 {
 	deserializer->loadedPointers.clear();
 	serializer->savedPointers.clear();
 	disableSmartVectorMemberSerialization();
-	disableStackSendingByID();
 }
 
 void CConnection::setCallback(IGameCallback * cb)
@@ -146,8 +133,6 @@ void CConnection::setCallback(IGameCallback * cb)
 
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
-	enableStackSendingByID();
-
 	setCallback(gs->callback);
 	enableSmartVectorMemberSerializatoin(gs);
 }

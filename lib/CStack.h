@@ -109,21 +109,21 @@ public:
 		h & side;
 		h & initialPosition;
 
-		const CArmedInstance * army = (base ? base->armyObj : nullptr);
-		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
-
-		if(h.saving)
-		{
-			h & army;
-			h & extSlot;
-		}
-		else
-		{
-			h & army;
-			h & extSlot;
-
-			postDeserialize(army, extSlot);
-		}
+//		const CArmedInstance * army = (base ? base->armyObj : nullptr);
+//		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
+//
+//		if(h.saving)
+//		{
+//			h & army;
+//			h & extSlot;
+//		}
+//		else
+//		{
+//			h & army;
+//			h & extSlot;
+//
+//			postDeserialize(army, extSlot);
+//		}
 	}
 
 private:

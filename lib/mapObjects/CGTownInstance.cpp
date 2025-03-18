@@ -533,7 +533,7 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 		CreatureID guardID = getTown()->creatures[guard.tier].at(0);
 		int guardSize = rand.nextInt(guard.min, guard.max);
 
-		putStack(getFreeSlot(), std::make_unique<CStackInstance>(guardID, guardSize));
+		putStack(getFreeSlot(), std::make_unique<CStackInstance>(cb, guardID, guardSize));
 	}
 }
 

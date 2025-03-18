@@ -53,34 +53,6 @@ class BinarySerializer : public CSaverBase
 		}
 	};
 
-	template<typename Fake, typename T>
-	bool saveIfStackInstance(const T &data)
-	{
-		return false;
-	}
-
-	template<typename Fake>
-	bool saveIfStackInstance(const CStackInstance* const &data)
-	{
-		assert(data->armyObj);
-
-		SlotID slot;
-
-		if(data->getNodeType() == CBonusSystemNode::COMMANDER)
-			slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
-		else
-			slot = data->armyObj->findStack(data);
-
-		assert(slot != SlotID());
-		save(data->armyObj->id);
-		save(slot);
-
-		if (data->armyObj->id != ObjectInstanceID::NONE)
-			return true;
-		else
-			return false;
-	}
-
 public:
 	using Version = ESerializationVersion;
 
@@ -197,13 +169,6 @@ public:
 				if(id != IDType(-1)) //vector id is enough
 					return;
 			}
-		}
-
-		if(writer->sendStackInstanceByIds)
-		{
-			const bool gotSaved = saveIfStackInstance<void>(data);
-			if(gotSaved)
-				return;
 		}
 
 		if(trackSerializedPointers)

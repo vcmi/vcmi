@@ -705,7 +705,7 @@ void ApplyClientNetPackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
 	assert(hero);
 	const auto & commander = hero->getCommander();
 	assert(commander);
-	assert(commander->armyObj); //is it possible for Commander to exist beyond armed instance?
+	assert(commander->getArmy()); //is it possible for Commander to exist beyond armed instance?
 	callOnlyThatInterface(cl, pack.player, &CGameInterface::commanderGotLevel, commander, pack.skills, pack.queryID);
 }
 

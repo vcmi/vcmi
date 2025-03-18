@@ -17,6 +17,7 @@
 
 #include "texts/CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
+#include "GameLibrary.h"
 #include "spells/CSpellHandler.h"
 #include "networkPacks/PacksForClientBattle.h"
 
@@ -151,7 +152,7 @@ CStack::~CStack()
 const CGHeroInstance * CStack::getMyHero() const
 {
 	if(base)
-		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
+		return dynamic_cast<const CGHeroInstance *>(base->getArmy());
 	else //we are attached directly?
 		for(const CBonusSystemNode * n : getParentNodes())
 			if(n->getNodeType() == HERO)
@@ -171,8 +172,8 @@ std::string CStack::nodeName() const
 		oss << "[UNDEFINED TYPE]";
 
 	oss << " from slot " << slot;
-	if(base && base->armyObj)
-		oss << " of armyobj=" << base->armyObj->id.getNum();
+	if(base && base->getArmy())
+		oss << " of armyobj=" << base->getArmy()->id.getNum();
 	return oss.str();
 }
 

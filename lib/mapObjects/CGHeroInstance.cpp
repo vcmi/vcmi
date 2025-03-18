@@ -464,8 +464,8 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
 	{
-		commander = std::make_unique<CCommanderInstance>(getHeroClass()->commander);
-		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
+		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
+		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
 

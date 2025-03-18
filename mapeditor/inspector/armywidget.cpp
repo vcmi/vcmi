@@ -13,6 +13,7 @@
 #include "ui_armywidget.h"
 #include "CCreatureHandler.h"
 
+#include "../../lib/GameLibrary.h"
 
 ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	QDialog(parent),
@@ -99,7 +100,7 @@ bool ArmyWidget::commitChanges()
 			{
 				if(army.hasStackAtSlot(SlotID(i)))
 					army.eraseStack(SlotID(i));
-				army.putStack(SlotID(i), std::make_unique<CStackInstance>(creId, amount, false));
+				army.putStack(SlotID(i), std::make_unique<CStackInstance>(army.cb, creId, amount, false));
 			}
 		}
 	}

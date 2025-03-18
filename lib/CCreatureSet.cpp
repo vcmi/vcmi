@@ -23,6 +23,7 @@
 #include "spells/CSpellHandler.h"
 #include "IBonusTypeHandler.h"
 #include "serializer/JsonSerializeFormat.h"
+#include "gameState/CGameState.h"
 
 #include <vcmi/FactionService.h>
 #include <vcmi/Faction.h>
@@ -70,10 +71,10 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 	if(hasStackAtSlot(slot)) //remove old creature
 		eraseStack(slot);
 
-	auto * armyObj = castToArmyObj();
+	auto * armyObj = getArmy();
 	bool isHypotheticArmy = armyObj ? armyObj->isHypothetic() : false;
 
-	putStack(slot, std::make_unique<CStackInstance>(type, quantity, isHypotheticArmy));
+	putStack(slot, std::make_unique<CStackInstance>(armyObj ? armyObj->cb : nullptr, type, quantity, isHypotheticArmy));
 	return true;
 }
 
@@ -511,17 +512,12 @@ SlotID CCreatureSet::findStack(const CStackInstance *stack) const
 	return SlotID();
 }
 
-CArmedInstance * CCreatureSet::castToArmyObj()
-{
-	return dynamic_cast<CArmedInstance *>(this);
-}
-
 void CCreatureSet::putStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack)
 {
 	assert(slot.getNum() < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
 	stacks[slot] = std::move(stack);
-	stack->setArmyObj(castToArmyObj());
+	stack->setArmy(getArmy());
 	armyChanged();
 }
 
@@ -552,7 +548,7 @@ void CCreatureSet::setToArmy(CSimpleArmy &src)
 	{
 		auto i = src.army.begin();
 
-		putStack(i->first, std::make_unique<CStackInstance>(i->second.first, i->second.second));
+		putStack(i->first, std::make_unique<CStackInstance>(getArmy()->cb, i->second.first, i->second.second));
 		src.army.erase(i);
 	}
 }
@@ -565,8 +561,8 @@ std::unique_ptr<CStackInstance> CCreatureSet::detachStack(const SlotID & slot)
 	//if(CArmedInstance *armedObj = castToArmyObj())
 	if(ret)
 	{
-		ret->setArmyObj(nullptr); //detaches from current armyobj
-		assert(!ret->armyObj); //we failed detaching?
+		ret->setArmy(nullptr); //detaches from current armyobj
+		assert(!ret->getArmy()); //we failed detaching?
 	}
 
 	stacks.erase(slot);
@@ -671,38 +667,30 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 			if(amount > 0)
 			{
-				auto new_stack = std::make_unique<CStackInstance>();
-				new_stack->serializeJson(handler);
-				putStack(SlotID(static_cast<si32>(idx)), std::move(new_stack));
+				auto newStack = std::make_unique<CStackInstance>(getArmy()->cb);
+				newStack->serializeJson(handler);
+				putStack(SlotID(static_cast<si32>(idx)), std::move(newStack));
 			}
 		}
 	}
 }
 
-CStackInstance::CStackInstance(bool isHypothetic)
+CStackInstance::CStackInstance(IGameCallback *cb, bool isHypothetic)
 	: CBonusSystemNode(isHypothetic)
+	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
 	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
-	, armyObj(_armyObj)
 {
 	experience = 0;
 	count = 0;
 	setType(nullptr);
-	_armyObj = nullptr;
 	setNodeType(STACK_INSTANCE);
 }
 
-CStackInstance::CStackInstance(const CreatureID & id, TQuantity Count, bool isHypothetic)
-	: CStackInstance(false)
+CStackInstance::CStackInstance(IGameCallback *cb, const CreatureID & id, TQuantity Count, bool isHypothetic)
+	: CStackInstance(cb, false)
 {
 	setType(id);
-	count = Count;
-}
-
-CStackInstance::CStackInstance(const CCreature *cre, TQuantity Count, bool isHypothetic)
-	: CStackInstance(false)
-{
-	setType(cre);
 	count = Count;
 }
 
@@ -786,15 +774,35 @@ ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) 
 	return LIBRARY->getBth()->bonusToGraphics(bonus);
 }
 
-void CStackInstance::setArmyObj(const CArmedInstance * ArmyObj)
+CArmedInstance * CStackInstance::getArmy()
 {
-	if(_armyObj)
-		detachFrom(const_cast<CArmedInstance&>(*_armyObj));
+	if (armyInstanceID.hasValue())
+		return dynamic_cast<CArmedInstance*>(cb->gameState()->getObjInstance(armyInstanceID));
+	return nullptr;
+}
 
-	_armyObj = ArmyObj;
+const CArmedInstance * CStackInstance::getArmy() const
+{
+	if (armyInstanceID.hasValue())
+		return dynamic_cast<const CArmedInstance*>(cb->getObjInstance(armyInstanceID));
+	return nullptr;
+}
+
+void CStackInstance::setArmy(const CArmedInstance * ArmyObj)
+{
+	auto oldArmy = getArmy();
+
+	if(oldArmy)
+	{
+		detachFrom(*oldArmy);
+		armyInstanceID = {};
+	}
 
 	if(ArmyObj)
-		attachTo(const_cast<CArmedInstance&>(*_armyObj));
+	{
+		attachTo(const_cast<CArmedInstance&>(*ArmyObj));
+		armyInstanceID = ArmyObj->id;
+	}
 }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized) const
@@ -836,7 +844,8 @@ std::string CStackInstance::nodeName() const
 
 PlayerColor CStackInstance::getOwner() const
 {
-	return _armyObj ? _armyObj->getOwner() : PlayerColor::NEUTRAL;
+	auto army = getArmy();
+	return army ? army->getOwner() : PlayerColor::NEUTRAL;
 }
 
 int32_t CStackInstance::getInitiative(int turn) const
@@ -862,9 +871,9 @@ TerrainId CStackInstance::getCurrentTerrain() const
 
 void CStackInstance::deserializationFix()
 {
-	const CArmedInstance *armyBackup = _armyObj;
-	_armyObj = nullptr;
-	setArmyObj(armyBackup);
+	const CArmedInstance *armyBackup = getArmy();
+	armyInstanceID = {};
+	setArmy(armyBackup);
 	artDeserializationFix(this);
 }
 
@@ -960,16 +969,19 @@ const IBonusBearer* CStackInstance::getBonusBearer() const
 	return this;
 }
 
-CCommanderInstance::CCommanderInstance() = default;
+CCommanderInstance::CCommanderInstance(IGameCallback *cb)
+	:CStackInstance(cb)
+{}
 
-CCommanderInstance::CCommanderInstance(const CreatureID & id): name("Commando")
+CCommanderInstance::CCommanderInstance(IGameCallback *cb, const CreatureID & id)
+	: CStackInstance(cb)
+	, name("Commando")
 {
 	alive = true;
 	experience = 0;
 	level = 1;
 	count = 1;
 	setType(nullptr);
-	_armyObj = nullptr;
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 	setType(id);

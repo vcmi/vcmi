@@ -78,7 +78,6 @@ class DLL_LINKAGE CSerializer : boost::noncopyable
 
 public:
 	bool smartVectorMembersSerialization = false;
-	bool sendStackInstanceByIds = false;
 
 	~CSerializer();
 

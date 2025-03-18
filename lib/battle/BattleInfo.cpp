@@ -17,6 +17,7 @@
 #include "../CStack.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../BattleFieldHandler.h"
@@ -43,7 +44,7 @@ SideInBattle & BattleInfo::getSide(BattleSide side)
 void BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position)
 {
 	PlayerColor owner = getSide(side).color;
-	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
+	assert(!owner.isValidPlayer() || (base.getArmy() && base.getArmy()->tempOwner == owner));
 
 	auto ret = std::make_unique<CStack>(&base, owner, id, side, slot);
 	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?

@@ -49,6 +49,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -348,7 +349,7 @@ auto CHeroGSlot::getUpgradableSlots(const CArmedInstance *obj) const
 	for(const auto & slot : obj->Slots())
 	{
 		auto upgradeInfo = std::make_pair(slot.first, UpgradeInfo(slot.second->getCreatureID()));
-		GAME->interface()->cb->fillUpgradeInfo(slot.second->armyObj, slot.first, upgradeInfo.second);
+		GAME->interface()->cb->fillUpgradeInfo(slot.second->getArmy(), slot.first, upgradeInfo.second);
 		bool canUpgrade = obj->tempOwner == GAME->interface()->playerID && upgradeInfo.second.canUpgrade();
 		if(canUpgrade)
 			upgradeInfos.push_back(upgradeInfo);

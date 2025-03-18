@@ -37,45 +37,6 @@ public:
 /// Effectively revesed version of BinarySerializer
 class BinaryDeserializer : public CLoaderBase
 {
-	template<typename Fake, typename T>
-	static bool loadIfStackInstance(T &data)
-	{
-		return false;
-	}
-
-	template<typename Fake>
-	bool loadIfStackInstance(const CStackInstance* &data)
-	{
-		CArmedInstance * armyPtr = nullptr;
-		ObjectInstanceID armyID;
-		SlotID slot;
-		load(armyID);
-		load(slot);
-
-		if (armyID == ObjectInstanceID::NONE)
-			return false;
-
-		if(reader->smartVectorMembersSerialization)
-		{
-			if(const auto *info = reader->getVectorizedTypeInfo<CArmedInstance, ObjectInstanceID>())
-				armyPtr = reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID);
-		}
-
-		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
-		{
-			assert(armyPtr->hasStackAtSlot(slot));
-			data = armyPtr->stacks[slot];
-		}
-		else
-		{
-			auto * hero = dynamic_cast<CGHeroInstance *>(armyPtr);
-			assert(hero);
-			assert(hero->getCommander());
-			data = hero->getCommander();
-		}
-		return true;
-	}
-
 	STRONG_INLINE uint32_t readAndCheckLength()
 	{
 		uint32_t length;
@@ -256,13 +217,6 @@ public:
 					return;
 				}
 			}
-		}
-
-		if(reader->sendStackInstanceByIds)
-		{
-			bool gotLoaded = loadIfStackInstance<void>(data);
-			if(gotLoaded)
-				return;
 		}
 
 		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)

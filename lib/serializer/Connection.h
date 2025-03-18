@@ -36,8 +36,6 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 	std::mutex writeMutex;
 
-	void disableStackSendingByID();
-	void enableStackSendingByID();
 	void disableSmartVectorMemberSerialization();
 	void enableSmartVectorMemberSerializatoin(CGameState * gs);
 

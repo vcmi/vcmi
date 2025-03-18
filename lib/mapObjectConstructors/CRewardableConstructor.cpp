@@ -16,6 +16,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CConfigHandler.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

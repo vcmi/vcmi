@@ -43,7 +43,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/building/CBuildingHandler.h"
 #include "../../lib/entities/faction/CFaction.h"
@@ -51,14 +53,11 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-
-#include "../../lib/campaign/CampaignState.h"
-#include "../../lib/mapping/CMapService.h"
-#include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMapHeader.h"
-
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapService.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {

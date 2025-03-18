@@ -36,12 +36,13 @@
 #include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/GameConstants.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/GameConstants.h"
 
 #include "../../lib/mapObjects/CGHeroInstance.h"
 

@@ -1071,9 +1071,9 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 	
 	UpgradeInfo ret(base->getId());
 
-	if (stack.armyObj->ID == Obj::HERO)
+	if (stack.getArmy()->ID == Obj::HERO)
 	{
-		auto hero = dynamic_cast<const CGHeroInstance *>(stack.armyObj);
+		auto hero = dynamic_cast<const CGHeroInstance *>(stack.getArmy());
 		hero->fillUpgradeInfo(ret, stack);
 
 		if (hero->getVisitedTown())
@@ -1089,9 +1089,9 @@ UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
 		}
 	}
 
-	if (stack.armyObj->ID == Obj::TOWN)
+	if (stack.getArmy()->ID == Obj::TOWN)
 	{
-		auto town = dynamic_cast<const CGTownInstance *>(stack.armyObj);
+		auto town = dynamic_cast<const CGTownInstance *>(stack.getArmy());
 		town->fillUpgradeInfo(ret, stack);
 	}
 

@@ -1553,7 +1553,7 @@ void SwapStacks::applyGs(CGameState *gs)
 void InsertNewStack::applyGs(CGameState *gs)
 {
 	if(auto * obj = gs->getArmyInstance(army))
-		obj->putStack(slot, std::make_unique<CStackInstance>(type, count));
+		obj->putStack(slot, std::make_unique<CStackInstance>(gs->callback, type, count));
 	else
 		throw std::runtime_error("InsertNewStack: invalid army object " + std::to_string(army.getNum()) + ", possible game state corruption.");
 }

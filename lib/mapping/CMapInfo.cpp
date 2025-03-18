@@ -19,6 +19,7 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../serializer/CLoadFile.h"
 #include "../texts/CGeneralTextHandler.h"

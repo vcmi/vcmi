@@ -10,10 +10,12 @@
 #include "StdInc.h"
 #include "heroskillswidget.h"
 #include "ui_heroskillswidget.h"
+#include "inspector.h"
+
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
-#include "../../lib/CSkillHandler.h"
-#include "inspector.h"
 
 static const QList<std::pair<QString, QVariant>> LevelIdentifiers
 {

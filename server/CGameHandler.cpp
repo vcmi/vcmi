@@ -191,7 +191,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 {
 	SetCommanderProperty scp;
 
-	auto hero = dynamic_cast<const CGHeroInstance *>(c->armyObj);
+	auto hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
 	if (hero)
 		scp.heroid = hero->id;
 	else
@@ -281,7 +281,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	CommanderLevelUp clu;
 
-	auto hero = dynamic_cast<const CGHeroInstance *>(c->armyObj);
+	auto hero = dynamic_cast<const CGHeroInstance *>(c->getArmy());
 	if(hero)
 	{
 		clu.heroId = hero->id;
@@ -4287,7 +4287,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->character = 2;
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
-	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(creature, -1)); //add placeholder stack
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gs->callback, creature, -1)); //add placeholder stack
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }

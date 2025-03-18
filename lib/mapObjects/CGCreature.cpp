@@ -672,7 +672,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		si32 amount = 0;
 		handler.serializeInt("amount", amount);
-		auto hlp = std::make_unique<CStackInstance>();
+		auto hlp = std::make_unique<CStackInstance>(cb);
 		hlp->count = amount;
 		//type will be set during initialization
 		putStack(SlotID(0), std::move(hlp));

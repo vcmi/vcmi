@@ -16,6 +16,7 @@
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../GameLibrary.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMapDefines.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -35,7 +36,7 @@ void CArmedInstance::randomizeArmy(FactionID type)
 			elem.second->randomStack = std::nullopt;
 		}
 		assert(elem.second->valid(false));
-		assert(elem.second->armyObj == this);
+		assert(elem.second->getArmy() == this);
 	}
 }
 
