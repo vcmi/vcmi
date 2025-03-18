@@ -162,15 +162,34 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #include <boost/algorithm/string.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
+// C++ 20 -> std::source_location::function_name
+#include <boost/current_function.hpp>
+// C++ 17 -> std::filesystem
+#include <boost/filesystem/directory.hpp>
+#include <boost/filesystem/exception.hpp>
+#include <boost/filesystem/file_status.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/format.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/multi_array.hpp>
+// C++ 20 -> std::range
 #include <boost/range/adaptor/filtered.hpp>
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/algorithm.hpp>
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/range/algorithm/count.hpp>
+#include <boost/range/algorithm/count_if.hpp>
+#include <boost/range/algorithm/fill.hpp>
+#include <boost/range/algorithm/find.hpp>
+#include <boost/range/algorithm/find_if.hpp>
+#include <boost/range/algorithm/max_element.hpp>
+#include <boost/range/algorithm/min_element.hpp>
+#include <boost/range/algorithm/remove.hpp>
+#include <boost/range/algorithm/remove_if.hpp>
+#include <boost/range/algorithm/replace.hpp>
+#include <boost/range/algorithm/sort.hpp>
+#include <boost/range/algorithm/unique.hpp>
+#include <boost/range/algorithm/upper_bound.hpp>
 
 #ifndef M_PI
 #  define M_PI 3.14159265358979323846
@@ -180,7 +199,6 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 /* Usings */
 /* ---------------------------------------------------------------------------- */
 using namespace std::placeholders;
-namespace range = boost::range;
 
 /* ---------------------------------------------------------------------------- */
 /* Typedefs */
@@ -319,7 +337,7 @@ namespace vstd
 	template <typename Container, typename Func>
 	int find_pos_if(const Container & c, const Func &f)
 	{
-		auto ret = boost::range::find_if(c, f);
+		auto ret = std::find_if(c.begin(), c.end(), f);
 		if(ret != std::end(c))
 			return std::distance(std::begin(c), ret);
 
@@ -470,13 +488,13 @@ namespace vstd
 	template <typename Container, typename Item>
 	void erase(Container &c, const Item &item)
 	{
-		c.erase(boost::remove(c, item), c.end());
+		c.erase(std::remove(c.begin(), c.end(), item), c.end());
 	}
 
 	template<typename Range, typename Predicate>
 	void erase_if(Range &vec, Predicate pred)
 	{
-		vec.erase(boost::remove_if(vec, pred),vec.end());
+		vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
 	}
 
 	template<typename Elem, typename Predicate>
@@ -563,7 +581,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::min_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::min_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
@@ -578,7 +596,7 @@ namespace vstd
 		 * Current bugfix is to don't use a typedef for decltype(*std::begin(rng)) and to use decltype
 		 * directly for both function parameters.
 		 */
-		return boost::max_element(rng, [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
+		return std::max_element(rng.begin(), rng.end(), [&] (decltype(*std::begin(rng)) lhs, decltype(*std::begin(rng)) rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});
