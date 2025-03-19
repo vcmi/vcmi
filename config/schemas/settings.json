@@ -45,7 +45,8 @@
 				"audioMuteFocus",
 				"enableOverlay",
 				"lastKindomInterface",
-				"enableSubtitle"
+				"enableSubtitle",
+				"ignoreMuteSwitch"
 			],
 			"properties" : {
 				"playerName" : {
@@ -159,6 +160,10 @@
 					"default" : 0
 				},
 				"enableSubtitle" : {
+					"type": "boolean",
+					"default": true
+				},
+				"ignoreMuteSwitch" : {
 					"type": "boolean",
 					"default": true
 				}

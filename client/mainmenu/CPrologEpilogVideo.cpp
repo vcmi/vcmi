@@ -14,6 +14,7 @@
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
 #include "../GameEngine.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../widgets/Images.h"
@@ -92,7 +93,7 @@ void CPrologEpilogVideo::show(Canvas & to)
 		text->showAll(to); // blit text over video, if needed
 }
 
-void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
+void CPrologEpilogVideo::exit()
 {
 	ENGINE->music().setVolume(ENGINE->music().getVolume() * 2); // restore background volume
 	close();
@@ -101,4 +102,15 @@ void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
 	ENGINE->sound().stopSound(videoSoundHandle);
 	if(exitCb)
 		exitCb();
+}
+
+void CPrologEpilogVideo::clickPressed(const Point & cursorPosition)
+{
+	exit();
+}
+
+void CPrologEpilogVideo::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::GLOBAL_RETURN)
+		exit();
 }

@@ -25,9 +25,6 @@ public:
 	/// Updates window state after fullscreen state has been changed in settings
 	virtual void onScreenResize() = 0;
 
-	/// De-initializes window state
-	virtual void close() = 0;
-
 	/// Fills screen with black color, erasing any existing content
 	virtual void clearScreen() = 0;
 

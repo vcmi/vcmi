@@ -15,6 +15,7 @@
 #include "Goals/Goals.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
@@ -36,8 +37,6 @@
 #include "../../lib/pathfinder/PathfinderOptions.h"
 
 #include "AIhelper.h"
-
-static tbb::task_arena executeActionAsyncArena;
 
 extern FuzzyHelper * fh;
 
@@ -78,7 +77,7 @@ struct SetGlobalState
 VCAI::VCAI()
 {
 	LOG_TRACE(logAi);
-	asyncTasks = std::make_unique<tbb::task_group>();
+	asyncTasks = std::make_unique<AsyncRunner>();
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 
@@ -653,11 +652,11 @@ void VCAI::yourTurn(QueryID queryID)
 	status.startedTurn();
 
 	makingTurnInterrupption.reset();
-	executeActionAsyncArena.enqueue(asyncTasks->defer([this]()
+	asyncTasks->run([this]()
 	{
 		ScopedThreadName guard("VCAI::makingTurn");
 		makeTurn();
-	}));
+	});
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -2510,13 +2509,13 @@ void VCAI::executeActionAsync(const std::string & description, const std::functi
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	executeActionAsyncArena.enqueue(asyncTasks->defer([this, description, whatToDo]()
+	asyncTasks->run([this, description, whatToDo]()
 	{
 		ScopedThreadName guard("VCAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
-	}));
+	});
 }
 
 void VCAI::lostHero(HeroPtr h)

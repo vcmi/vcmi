@@ -36,11 +36,6 @@ public:
 	CArtifactSet * getArtifactsStorage() const;
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 
-	template <typename Handler> void serializeArtifactsAltar(Handler &h)
-	{
-		h & *altarArtifactsStorage;
-	}
-
 private:
 	std::unique_ptr<CArtifactSetAltar> altarArtifactsStorage;
 };

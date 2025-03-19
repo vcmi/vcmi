@@ -192,31 +192,11 @@ public:
 		// static members
 		h & obeliskCount;
 		h & obelisksVisited;
-
-		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			int32_t size = 0;
-			h & size;
-			for (int32_t i = 0; i < size; ++i)
-			{
-				bool isNull = false;
-				ArtifactID artifact;
-				h & isNull;
-				if (!isNull)
-					h & artifact;
-				townMerchantArtifacts.push_back(artifact);
-			}
-		}
-		else
-		{
-			h & townMerchantArtifacts;
-		}
+		h & townMerchantArtifacts;
 		h & townUniversitySkills;
 
 		h & instanceNames;
-
-		if (h.version >= Handler::Version::PER_MAP_GAME_SETTINGS)
-			h & *gameSettings;
+		h & *gameSettings;
 	}
 };
 

@@ -197,6 +197,8 @@ class CObjectListWindow : public CWindowObject
 	std::vector< std::pair<int, std::string> > itemsVisible; //visible items present in list
 
 	void init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled);
+	void trimTextIfTooWide(std::string & text, int id) const; // trim item's text to fit within window's width
+	void itemsSearchCallback(const std::string & text);
 	void exitPressed();
 public:
 	size_t selected;//index of currently selected item

@@ -17,24 +17,19 @@
 #include "../client/CMT.h"
 #include "../client/CPlayerInterface.h"
 #include "../client/CServerHandler.h"
-#include "../client/eventsSDL/InputHandler.h"
 #include "../client/GameEngine.h"
 #include "../client/GameInstance.h"
 #include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
-#include "../client/media/CEmptyVideoPlayer.h"
-#include "../client/media/CMusicHandler.h"
-#include "../client/media/CSoundHandler.h"
-#include "../client/media/CVideoHandler.h"
 #include "../client/render/Graphics.h"
 #include "../client/render/IRenderHandler.h"
-#include "../client/render/IScreenHandler.h"
-#include "../client/lobby/CBonusSelection.h"
 #include "../client/windows/CMessage.h"
 #include "../client/windows/InfoWindows.h"
 
+#include "../lib/AsyncRunner.h"
 #include "../lib/CConsoleHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -42,7 +37,6 @@
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
-#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/VCMIDirs.h"
@@ -68,28 +62,19 @@ namespace po_style = boost::program_options::command_line_style;
 static std::atomic<bool> headlessQuit = false;
 static std::optional<std::string> criticalInitializationError;
 
-#ifndef VCMI_IOS
-void processCommand(const std::string &message);
-#endif
-[[noreturn]] static void quitApplication();
-static void mainLoop();
-
-static CBasicLogConfigurator *logConfig;
-
 static void init()
 {
-	CStopWatch tmh;
 	try
 	{
-		loadDLLClasses();
+		CStopWatch tmh;
+		LIBRARY->initializeLibrary();
+		logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 	}
 	catch (const DataLoadingException & e)
 	{
 		criticalInitializationError = e.what();
 		return;
 	}
-
-	logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
@@ -241,7 +226,8 @@ int main(int argc, char * argv[])
 	// Init filesystem and settings
 	try
 	{
-		preinitDLL(false);
+		LIBRARY = new GameLibrary;
+		LIBRARY->initializeFilesystem(false);
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -249,14 +235,14 @@ int main(int argc, char * argv[])
 	}
 
 	Settings session = settings.write["session"];
-	auto setSettingBool = [&](std::string key, std::string arg) {
+	auto setSettingBool = [&](const std::string & key, const std::string & arg) {
 		Settings s = settings.write(vstd::split(key, "/"));
 		if(vm.count(arg))
 			s->Bool() = true;
 		else if(s->isNull())
 			s->Bool() = false;
 	};
-	auto setSettingInteger = [&](std::string key, std::string arg, si64 defaultValue) {
+	auto setSettingInteger = [&](const std::string & key, const std::string & arg, si64 defaultValue) {
 		Settings s = settings.write(vstd::split(key, "/"));
 		if(vm.count(arg))
 			s->Integer() = vm[arg].as<si64>();
@@ -294,7 +280,7 @@ int main(int argc, char * argv[])
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message)
+	auto testFile = [](const std::string & filename, const std::string & message)
 	{
 		if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			handleFatalError(message, false);
@@ -308,13 +294,13 @@ int main(int argc, char * argv[])
 
 	srand ( (unsigned int)time(nullptr) );
 
-	ENGINE = std::make_unique<GameEngine>();
-
 	if(!settings["session"]["headless"].Bool())
-		ENGINE->init();
+		ENGINE = std::make_unique<GameEngine>();
 
 	GAME = std::make_unique<GameInstance>();
-	ENGINE->setEngineUser(GAME.get());
+
+	if (ENGINE)
+		ENGINE->setEngineUser(GAME.get());
 	
 #ifndef VCMI_NO_THREADED_LOAD
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
@@ -345,7 +331,7 @@ int main(int argc, char * argv[])
 		handleFatalError(criticalInitializationError.value(), false);
 	}
 
-	if(!settings["session"]["headless"].Bool())
+	if (ENGINE)
 	{
 		pomtime.getDiff();
 		graphics = new Graphics(); // should be before curh
@@ -387,56 +373,32 @@ int main(int argc, char * argv[])
 			GAME->mainmenu()->playMusic();
 	}
 	
-	std::vector<std::string> names;
-
-	if(!settings["session"]["headless"].Bool())
-	{
-		checkForModLoadingFailure();
-		mainLoop();
-	}
-	else
-	{
-		while(!headlessQuit)
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-		quitApplication();
-	}
-
-	return 0;
-}
-
-static void mainLoop()
-{
 #ifndef VCMI_UNIX
 	// on Linux, name of main thread is also name of our process. Which we don't want to change
 	setThreadName("MainGUI");
 #endif
 
-	while(1) //main SDL events loop
+	try
 	{
-		ENGINE->input().fetchEvents();
-		ENGINE->renderFrame();
+		if (ENGINE)
+		{
+			checkForModLoadingFailure();
+			ENGINE->mainLoop();
+		}
+		else
+		{
+			while(!headlessQuit)
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
 	}
-}
+	catch (const GameShutdownException & )
+	{
+		// no-op - just break out of main loop
+		logGlobal->info("Main loop termination requested");
+	}
 
-[[noreturn]] static void quitApplicationImmediately(int error_code)
-{
-	// Perform quick exit without executing static destructors and let OS cleanup anything that we did not
-	// We generally don't care about them and this leads to numerous issues, e.g.
-	// destruction of locked mutexes (fails an assertion), even in third-party libraries (as well as native libs on Android)
-	// Android - std::quick_exit is available only starting from API level 21
-	// Mingw, macOS and iOS - std::quick_exit is unavailable (at least in current version of CI)
-#if (defined(__ANDROID_API__) && __ANDROID_API__ < 21) || (defined(__MINGW32__)) || defined(VCMI_APPLE)
-	::exit(error_code);
-#else
-	std::quick_exit(error_code);
-#endif
-}
-
-[[noreturn]] static void quitApplication()
-{
 	GAME->server().endNetwork();
 
 	if(!settings["session"]["headless"].Bool())
@@ -444,7 +406,8 @@ static void mainLoop()
 		if(GAME->server().client)
 			GAME->server().endGameplay();
 
-		ENGINE->windows().clear();
+		if (ENGINE)
+			ENGINE->windows().clear();
 	}
 
 	GAME.reset();
@@ -452,51 +415,19 @@ static void mainLoop()
 	if(!settings["session"]["headless"].Bool())
 	{
 		CMessage::dispose();
-
 		vstd::clear_pointer(graphics);
 	}
 
+	// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
+	ENGINE->async().wait();
+
+	ENGINE.reset();
+
 	vstd::clear_pointer(LIBRARY);
-
-	// sometimes leads to a hang. TODO: investigate
-	//vstd::clear_pointer(console);// should be removed after everything else since used by logging
-
-	if(!settings["session"]["headless"].Bool())
-		ENGINE->screenHandler().close();
-
-	if(logConfig != nullptr)
-	{
-		logConfig->deconfigure();
-		delete logConfig;
-		logConfig = nullptr;
-	}
-
-	//ENGINE.reset();
+	logConfigurator.deconfigure();
 
 	std::cout << "Ending...\n";
-	quitApplicationImmediately(0);
-}
-
-void handleQuit(bool ask)
-{
-	if(!ask)
-	{
-		if(settings["session"]["headless"].Bool())
-		{
-			headlessQuit = true;
-		}
-		else
-		{
-			quitApplication();
-		}
-
-		return;
-	}
-
-	if (GAME->interface())
-		GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], quitApplication, nullptr);
-	else
-		CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, quitApplication, {}, PlayerColor(1));
+	return 0;
 }
 
 /// Notify user about encountered fatal error and terminate the game
@@ -513,5 +444,5 @@ void handleFatalError(const std::string & message, bool terminate)
 	if (terminate)
 		throw std::runtime_error(message);
 	else
-		quitApplicationImmediately(1);
+		::exit(1);
 }

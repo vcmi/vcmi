@@ -22,8 +22,9 @@
 
 void CVcmiTestConfig::SetUp()
 {
-	preinitDLL(true);
-	loadDLLClasses(true);
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	LIBRARY->initializeLibrary();
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
 	find your test data folder in your build and change TEST_DATA_DIR for it*/

@@ -43,14 +43,6 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bID;
-		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			// compatibility code
-			si32 indexOnTV = 0; //identifies its index on towns vector
-			BuildingSubID::EBuildingSubID bType = BuildingSubID::NONE;
-			h & indexOnTV;
-			h & bType;
-		}
 	}
 
 private:
@@ -90,8 +82,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<TownBuildingInstance&>(*this);
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
-			h & static_cast<Rewardable::Interface&>(*this);
+		h & static_cast<Rewardable::Interface&>(*this);
 		h & visitors;
 	}
 };

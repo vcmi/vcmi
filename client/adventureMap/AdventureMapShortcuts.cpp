@@ -354,14 +354,8 @@ void AdventureMapShortcuts::quitGame()
 {
 	GAME->interface()->showYesNoDialog(
 		LIBRARY->generaltexth->allTexts[578],
-		[]()
-		{
-			ENGINE->dispatchMainThread( []()
-			{
-				handleQuit(false);
-			});
-		},
-		0
+		[](){ GAME->onShutdownRequested(false);},
+		nullptr
 		);
 }
 

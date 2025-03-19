@@ -125,12 +125,9 @@ void SettingsMainWindow::quitGameButtonCallback()
 		[this]()
 		{
 			close();
-			ENGINE->dispatchMainThread( []()
-			{
-				handleQuit(false);
-			});
+			ENGINE->user().onShutdownRequested(false);
 		},
-		0
+		nullptr
 	);
 }
 

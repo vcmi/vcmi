@@ -51,11 +51,7 @@ struct DLL_LINKAGE SimturnsInfo
 		h & requiredTurns;
 		h & optionalTurns;
 		h & allowHumanWithAI;
-
-		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
-			h & ignoreAlliedContacts;
-		else
-			ignoreAlliedContacts = true;
+		h & ignoreAlliedContacts;
 	}
 };
 
@@ -108,14 +104,7 @@ struct DLL_LINKAGE PlayerSettings
 		h & heroNameTextId;
 		h & bonus;
 		h & color;
-		if (h.version >= Handler::Version::PLAYER_HANDICAP)
-			h & handicap;
-		else
-		{
-			enum EHandicap {NO_HANDICAP, MILD, SEVERE};
-			EHandicap handicapLegacy = NO_HANDICAP;
-			h & handicapLegacy;
-		}
+		h & handicap;
 		h & name;
 		h & connectedPlayerIDs;
 		h & compOnly;
@@ -173,24 +162,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
-		if (h.version < Handler::Version::REMOVE_LIB_RNG)
-		{
-			uint32_t oldSeeds = 0;
-			h & oldSeeds;
-			h & oldSeeds;
-			h & oldSeeds;
-		}
-		if (h.version < Handler::Version::FOLDER_NAME_REWORK)
-		{
-			std::string startTimeLegacy;
-			h & startTimeLegacy;
-			struct std::tm tm;
-			std::istringstream ss(startTimeLegacy);
-			ss >> std::get_time(&tm, "%Y%m%dT%H%M%S");
-			startTime = mktime(&tm);
-		}
-		else
-			h & startTime;
+		h & startTime;
 		h & fileURI;
 		h & simturnsInfo;
 		h & turnTimerInfo;

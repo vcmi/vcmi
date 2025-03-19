@@ -22,8 +22,9 @@
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
-#include <tbb/task_group.h>
-#include <tbb/task_arena.h>
+VCMI_LIB_NAMESPACE_BEGIN
+class AsyncRunner;
+VCMI_LIB_NAMESPACE_END
 
 namespace NKAI
 {
@@ -74,7 +75,7 @@ public:
 	AIStatus status;
 	std::string battlename;
 	std::shared_ptr<CCallback> myCb;
-	std::unique_ptr<tbb::task_group> asyncTasks;
+	std::unique_ptr<AsyncRunner> asyncTasks;
 
 public:
 	ObjectInstanceID selectedObject;

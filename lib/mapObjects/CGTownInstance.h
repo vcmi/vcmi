@@ -94,42 +94,12 @@ public:
 		h & obligatorySpells;
 		h & spells;
 		h & events;
-
-		if (h.version >= Handler::Version::SPELL_RESEARCH)
-		{
-			h & spellResearchCounterDay;
-			h & spellResearchAcceptedCounter;
-			h & spellResearchAllowed;
-		}
-
-		if (h.version >= Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			h & rewardableBuildings;
-		}
-		else
-		{
-			std::vector<TownRewardableBuildingInstance*> oldVector;
-			h & oldVector;
-			rewardableBuildings = convertOldBuildings(oldVector);
-		}
-
-		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
-		{
-			FactionID faction;
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & faction;
-		}
-
+		h & spellResearchCounterDay;
+		h & spellResearchAcceptedCounter;
+		h & spellResearchAllowed;
+		h & rewardableBuildings;
 		h & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
-
-		if (h.version < Handler::Version::NEW_TOWN_BUILDINGS)
-		{
-			std::set<BuildingID> overriddenBuildings;
-			h & overriddenBuildings;
-		}
 
 		if(!h.saving)
 			postDeserialize();

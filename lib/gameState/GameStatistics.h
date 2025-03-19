@@ -63,8 +63,7 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & timestamp;
 		h & day;
 		h & player;
-		if(h.version >= Handler::Version::STATISTICS_SCREEN)
-			h & playerName;
+		h & playerName;
 		h & team;
 		h & isHuman;
 		h & status;
@@ -92,11 +91,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 		h & spentResourcesForArmy;
 		h & spentResourcesForBuildings;
 		h & tradeVolume;
-		if(h.version >= Handler::Version::STATISTICS_SCREEN)
-		{
-			h & eventCapturedTown;
-			h & eventDefeatedStrongestHero;
-		}
+		h & eventCapturedTown;
+		h & eventDefeatedStrongestHero;
 		h & movementPointsUsed;
 	}
 };
@@ -136,11 +132,8 @@ public:
 			h & spentResourcesForBuildings;
 			h & tradeVolume;
 			h & movementPointsUsed;
-			if(h.version >= Handler::Version::STATISTICS_SCREEN)
-			{
-				h & lastCapturedTownDay;
-				h & lastDefeatedStrongestHeroDay;
-			}
+			h & lastCapturedTownDay;
+			h & lastDefeatedStrongestHeroDay;
 		}
 	};
 	std::vector<StatisticDataSetEntry> data;

@@ -63,24 +63,6 @@ public:
 	}
 };
 
-class SerializerCompatibilityBonusingBuilding final : public SerializerCompatibility<TownRewardableBuildingInstance, ESerializationVersion::NEW_TOWN_BUILDINGS>
-{
-	void loadPtr(BinaryDeserializer &ar, IGameCallback * cb, Serializeable * data) const override
-	{
-		auto * realPtr = dynamic_cast<TownRewardableBuildingInstance *>(data);
-		realPtr->serialize(ar);
-	}
-};
-
-class SerializerCompatibilityArtifactsAltar final : public SerializerCompatibility<CGMarket, ESerializationVersion::NEW_MARKETS>
-{
-	void loadPtr(BinaryDeserializer &ar, IGameCallback * cb, Serializeable * data) const override
-	{
-		auto * realPtr = dynamic_cast<CGMarket *>(data);
-		realPtr->serializeArtifactsAltar(ar);
-	}
-};
-
 template<typename Type>
 void CSerializationApplier::registerType(uint16_t ID)
 {
@@ -91,10 +73,6 @@ void CSerializationApplier::registerType(uint16_t ID)
 CSerializationApplier::CSerializationApplier()
 {
 	registerTypes(*this);
-
-	apps[54].reset(new SerializerCompatibilityBonusingBuilding);
-	apps[55].reset(new SerializerCompatibilityBonusingBuilding);
-	apps[81].reset(new SerializerCompatibilityArtifactsAltar);
 }
 
 CSerializationApplier & CSerializationApplier::getInstance()

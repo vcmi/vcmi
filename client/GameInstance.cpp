@@ -11,12 +11,16 @@
 #include "GameInstance.h"
 
 #include "CPlayerInterface.h"
+#include "CMT.h"
 #include "CServerHandler.h"
 #include "mapView/mapHandler.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "mainmenu/CMainMenu.h"
+#include "windows/InfoWindows.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
 
@@ -92,4 +96,19 @@ bool GameInstance::capturedAllEvents()
 		return interfaceInstance->capturedAllEvents();
 	else
 		return false;
+}
+
+void GameInstance::onShutdownRequested(bool ask)
+{
+	auto doQuit = [](){ throw GameShutdownException(); };
+
+	if(!ask)
+		doQuit();
+	else
+	{
+		if (interface())
+			interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[69], doQuit, nullptr);
+		else
+			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, doQuit, {}, PlayerColor(1));
+	}
 }

@@ -143,12 +143,6 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & instanceName;
-		if (h.version < Handler::Version::REMOVE_OBJECT_TYPENAME)
-		{
-			std::string unused;
-			h & unused;
-			h & unused;
-		}
 		h & pos;
 		h & ID;
 		subID.serializeIdentifier(h, ID);
