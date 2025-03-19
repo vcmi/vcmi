@@ -148,10 +148,7 @@ public:
 		}
 		else
 		{
-			if (hasFeature(Version::COMPACT_INTEGER_SERIALIZATION))
-				saveEncodedInteger(data);
-			else
-				this->write(static_cast<const void *>(&data), sizeof(data));
+			saveEncodedInteger(data);
 		}
 	}
 
@@ -325,36 +322,28 @@ public:
 
 	void save(const std::string &data)
 	{
-		if (hasFeature(Version::COMPACT_STRING_SERIALIZATION))
+		if (data.empty())
 		{
-			if (data.empty())
-			{
-				save(static_cast<uint32_t>(0));
-				return;
-			}
-
-			auto it = savedStrings.find(data);
-
-			if (it == savedStrings.end())
-			{
-				save(static_cast<uint32_t>(data.length()));
-				this->write(static_cast<const void *>(data.data()), data.size());
-
-				// -1, -2...
-				int32_t newStringID = -1 - savedStrings.size();
-
-				savedStrings[data] = newStringID;
-			}
-			else
-			{
-				int32_t index = it->second;
-				save(index);
-			}
+			save(static_cast<uint32_t>(0));
+			return;
 		}
-		else
+
+		auto it = savedStrings.find(data);
+
+		if (it == savedStrings.end())
 		{
 			save(static_cast<uint32_t>(data.length()));
 			this->write(static_cast<const void *>(data.data()), data.size());
+
+			// -1, -2...
+			int32_t newStringID = -1 - savedStrings.size();
+
+			savedStrings[data] = newStringID;
+		}
+		else
+		{
+			int32_t index = it->second;
+			save(index);
 		}
 	}
 

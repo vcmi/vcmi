@@ -351,15 +351,6 @@ void CGameState::initCampaign()
 	map = campaign->getCurrentMap();
 }
 
-void CGameState::generateOwnedObjectsAfterDeserialize()
-{
-	for (auto & object : map->objects)
-	{
-		if (object && object->asOwnable() && object->getOwner().isValidPlayer())
-			players.at(object->getOwner()).addOwnedObject(object.get());
-	}
-}
-
 void CGameState::initGlobalBonuses()
 {
 	const JsonNode & baseBonuses = getSettings().getValue(EGameSettings::BONUSES_GLOBAL);

@@ -52,26 +52,12 @@ public:
 		h & name;
 		h & message;
 		h & resources;
-		if (h.version >= Handler::Version::EVENTS_PLAYER_SET)
-		{
-			h & players;
-		}
-		else
-		{
-			ui8 playersMask = 0;
-			h & playersMask;
-			for (int i = 0; i < 8; ++i)
-				if ((playersMask & (1 << i)) != 0)
-					players.insert(PlayerColor(i));
-		}
+		h & players;
 		h & humanAffected;
 		h & computerAffected;
 		h & firstOccurrence;
 		h & nextOccurrence;
-		if(h.version >= Handler::Version::EVENT_OBJECTS_DELETION)
-		{
-			h & deletedObjectsInstances;
-		}
+		h & deletedObjectsInstances;
 	}
 	
 	virtual void serializeJson(JsonSerializeFormat & handler);
@@ -147,49 +133,13 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
-		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			h & terrainType;
-		}
-		else
-		{
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & terrainType;
-		}
+		h & terrainType;
 		h & terView;
-		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			h & riverType;
-		}
-		else
-		{
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & riverType;
-		}
+		h & riverType;
 		h & riverDir;
-		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			h & roadType;
-		}
-		else
-		{
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & roadType;
-		}
+		h & roadType;
 		h & roadDir;
 		h & extTileFlags;
-		if (h.version < Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			bool unused = false;
-			h & unused;
-			h & unused;
-		}
 		h & visitableObjects;
 		h & blockingObjects;
 	}

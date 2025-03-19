@@ -107,16 +107,7 @@ public:
 		h & awaitingPlayers;
 		h & actingPlayers;
 		h & actedPlayers;
-
-		if (h.version >= Handler::Version::VOTING_SIMTURNS)
-		{
-			h & simturnsMinDurationDays;
-			h & simturnsMaxDurationDays;
-		}
-		else if (!h.saving)
-		{
-			simturnsMinDurationDays.reset();
-			simturnsMaxDurationDays.reset();
-		}
+		h & simturnsMinDurationDays;
+		h & simturnsMaxDurationDays;
 	}
 };
