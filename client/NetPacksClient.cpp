@@ -595,7 +595,7 @@ void ApplyClientNetPackVisitor::visitSetAvailableCreatures(SetAvailableCreatures
 
 	PlayerColor p;
 	if(dw->ID == Obj::WAR_MACHINE_FACTORY) //War Machines Factory is not flaggable, it's "owned" by visitor
-		p = cl.getTile(dw->visitablePos())->visitableObjects.back()->tempOwner;
+		p = cl.getObjInstance(cl.getTile(dw->visitablePos())->visitableObjects.back())->getOwner();
 	else
 		p = dw->tempOwner;
 
@@ -1016,7 +1016,9 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
 			const auto market = cl.getMarket(pack.object);
-			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
+			const auto * tile = cl.getTile(obj->visitablePos());
+			const auto * topObject = cl.getObjInstance(tile->visitableObjects.back());
+			callInterfaceIfPresent(cl, topObject->getOwner(), &IGameEventsReceiver::showMarketWindow, market, hero, pack.queryID);
 		}
 		break;
 	case EOpenWindowMode::HILL_FORT_WINDOW:
@@ -1025,7 +1027,9 @@ void ApplyClientNetPackVisitor::visitOpenWindow(OpenWindow & pack)
 			//displays Hill fort window
 			const CGObjectInstance *obj = cl.getObj(ObjectInstanceID(pack.object));
 			const CGHeroInstance *hero = cl.getHero(ObjectInstanceID(pack.visitor));
-			callInterfaceIfPresent(cl, cl.getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::showHillFortWindow, obj, hero);
+			const auto * tile = cl.getTile(obj->visitablePos());
+			const auto * topObject = cl.getObjInstance(tile->visitableObjects.back());
+			callInterfaceIfPresent(cl, topObject->getOwner(), &IGameEventsReceiver::showHillFortWindow, obj, hero);
 		}
 		break;
 	case EOpenWindowMode::PUZZLE_MAP:
@@ -1076,7 +1080,10 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 	{
 		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl.getObj(ObjectInstanceID(pack.id)));
 		assert(bm);
-		callInterfaceIfPresent(cl, cl.getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, &IGameEventsReceiver::availableArtifactsChanged, bm);
+		const auto * tile = cl.getTile(bm->visitablePos());
+		const auto * topObject = cl.getObjInstance(tile->visitableObjects.back());
+
+		callInterfaceIfPresent(cl, topObject->getOwner(), &IGameEventsReceiver::availableArtifactsChanged, bm);
 	}
 }
 

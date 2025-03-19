@@ -322,14 +322,16 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 
 bool CGTeleport::isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	auto * objTopVisObj = gs->getMap().getTile(obj->visitablePos()).topVisitableObj();
-	if(objTopVisObj->ID == Obj::HERO)
+	ObjectInstanceID topObjectID = gs->getMap().getTile(obj->visitablePos()).topVisitableObj();
+	const CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
+
+	if(topObject->ID == Obj::HERO)
 	{
-		if(h->id == objTopVisObj->id) // Just to be sure it's won't happen.
+		if(h->id == topObject->id) // Just to be sure it's won't happen.
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs->getPlayerRelations(h->tempOwner, objTopVisObj->tempOwner) != PlayerRelations::ENEMIES)
+		if(gs->getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))

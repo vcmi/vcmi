@@ -826,13 +826,17 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	CGObjectInstance * guardian = nullptr;
 
 	if (!t.visitableObjects.empty())
-		objectToVisit = t.visitableObjects.back();
+		objectToVisit = gameState()->getObjInstance(t.visitableObjects.back());
 
 	if (isInTheMap(guardPos))
 	{
-		for (auto const & object : getTile(guardPos)->visitableObjects)
+		for (auto const & objectID : getTile(guardPos)->visitableObjects)
+		{
+			auto object = gameState()->getObjInstance(objectID);
+
 			if (object->ID == MapObjectID::MONSTER) // exclude other objects, such as hero flying above monster
 				guardian = object;
+		}
 	}
 
 	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
@@ -909,10 +913,9 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		for (CGObjectInstance *obj : gs->getMap().getTile(h->visitablePos()).visitableObjects)
-		{
-			obj->onHeroLeave(h);
-		}
+		for(const auto & objID : gs->getMap().getTile(h->visitablePos()).visitableObjects)
+			gameState()->getObjInstance(objID)->onHeroLeave(h);
+
 		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadius(), ETileVisibility::HIDDEN, h->tempOwner);
 	};
 
@@ -956,12 +959,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	//interaction with blocking object (like resources)
 	auto blockingVisit = [&]() -> bool
 	{
-		for (CGObjectInstance *obj : t.visitableObjects)
+		for (ObjectInstanceID objectID : t.visitableObjects)
 		{
-			if(h->boat && !obj->isBlockedVisitable() && !h->boat->onboardVisitAllowed)
+			const CGObjectInstance * object = getObj(objectID);
+
+			if(h->boat && !object->isBlockedVisitable() && !h->boat->onboardVisitAllowed)
 				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
 			
-			if (obj != h && obj->isBlockedVisitable() && !obj->passableFor(h->tempOwner))
+			if (object != h && object->isBlockedVisitable() && !object->passableFor(h->tempOwner))
 			{
 				EVisitDest visitDest = VISIT_DEST;
 				if(h->boat && !h->boat->onboardVisitAllowed)
@@ -3657,10 +3662,10 @@ void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance 
 	if (!t.visitableObjects.empty())
 	{
 		//to prevent self-visiting heroes on space press
-		if (t.visitableObjects.back() != h)
-			objectVisited(t.visitableObjects.back(), h);
+		if (t.visitableObjects.back() != h->id)
+			objectVisited(gameState()->getObjInstance(t.visitableObjects.back()), h);
 		else if (t.visitableObjects.size() > 1)
-			objectVisited(*(t.visitableObjects.end()-2),h);
+			objectVisited(gameState()->getObjInstance(*(t.visitableObjects.end()-2)),h);
 	}
 }
 

@@ -1030,7 +1030,8 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 
 	const TerrainTile &t = map->getTile(tile);
 
-	auto * topObject = t.visitableObjects.front();
+	ObjectInstanceID topObjectID = t.visitableObjects.front();
+	const CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
 	if(topObject && topObject->getBattlefield() != BattleField::NONE)
 	{
 		return topObject->getBattlefield();
@@ -1129,9 +1130,9 @@ void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config
  * @return int3(-1, -1, -1) if the tile is unguarded, or the position of
  * the monster guarding the tile.
  */
-std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
+std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 {
-	std::vector<CGObjectInstance*> guards;
+	std::vector<const CGObjectInstance*> guards;
 	const int3 originalPos = pos;
 	if (!map->isInTheMap(pos))
 		return guards;
@@ -1139,12 +1140,13 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 	const TerrainTile &posTile = map->getTile(pos);
 	if (posTile.visitable())
 	{
-		for (CGObjectInstance* obj : posTile.visitableObjects)
+		for (ObjectInstanceID objectID : posTile.visitableObjects)
 		{
-			if(obj->isBlockedVisitable())
+			const CGObjectInstance * object = getObjInstance(objectID);
+			if(object->isBlockedVisitable())
 			{
-				if (obj->ID == Obj::MONSTER) // Monster
-					guards.push_back(obj);
+				if (object->ID == Obj::MONSTER) // Monster
+					guards.push_back(object);
 			}
 		}
 	}
@@ -1158,11 +1160,13 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 				const auto & tile = map->getTile(pos);
 				if (tile.visitable() && (tile.isWater() == posTile.isWater()))
 				{
-					for (CGObjectInstance* obj : tile.visitableObjects)
+					for (ObjectInstanceID objectID : tile.visitableObjects)
 					{
-						if (obj->ID == Obj::MONSTER  &&  map->checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						const CGObjectInstance * object = getObjInstance(objectID);
+
+						if (object->ID == Obj::MONSTER  &&  map->checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
 						{
-							guards.push_back(obj);
+							guards.push_back(object);
 						}
 					}
 				}

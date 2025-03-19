@@ -99,7 +99,7 @@ public:
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	int3 guardingCreaturePosition (int3 pos) const override;
-	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);

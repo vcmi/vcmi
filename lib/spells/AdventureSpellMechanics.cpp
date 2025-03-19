@@ -262,7 +262,11 @@ bool ScuttleBoatMechanics::canBeCastAtImpl(spells::Problem & problem, const CGam
 		return false;
 
 	const TerrainTile * t = cb->getTile(pos);
-	if(!t || t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::BOAT)
+	if(!t || t->visitableObjects.empty())
+		return false;
+
+	const CGObjectInstance * topObject = cb->getObj(t->visitableObjects.back());
+	if (topObject->ID != Obj::BOAT)
 		return false;
 
 	return true;
@@ -286,7 +290,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 
 	RemoveObject ro;
 	ro.initiator = parameters.caster->getCasterOwner();
-	ro.objectID = t.visitableObjects.back()->id;
+	ro.objectID = t.visitableObjects.back();
 	env->apply(ro);
 	return ESpellCastResult::OK;
 }
@@ -476,7 +480,8 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
 
-		auto * const topObj = tile.topVisitableObj(false);
+		ObjectInstanceID topObjID = tile.topVisitableObj(false);
+		const CGObjectInstance * topObj = env->getMap()->getObject(topObjID);
 
 		if(!topObj)
 		{
@@ -556,7 +561,9 @@ void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpe
 	else
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
-		auto * const topObj = tile.topVisitableObj(false);
+		ObjectInstanceID topObjID = tile.topVisitableObj(false);
+		const CGObjectInstance * topObj = env->getMap()->getObject(topObjID);
+
 		destination = dynamic_cast<const CGTownInstance*>(topObj);
 	}
 

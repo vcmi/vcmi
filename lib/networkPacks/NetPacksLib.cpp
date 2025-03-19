@@ -1313,9 +1313,11 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-
-		assert(destTile.visitableObjects.size() >= 1  &&  destTile.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
-		auto * boat = dynamic_cast<CGBoat *>(destTile.visitableObjects.back());
+		const TerrainTile &tt = gs->getMap().getTile(h->convertToVisitablePos(end));
+		ObjectInstanceID topObjectID = tt.visitableObjects.back();
+		CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
+		assert(tt.visitableObjects.size() >= 1 && topObject->ID == Obj::BOAT); //the only visitable object at destination is Boat
+		auto * boat = dynamic_cast<CGBoat *>(topObject);
 		assert(boat);
 
 		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat

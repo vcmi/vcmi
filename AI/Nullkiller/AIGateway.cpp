@@ -1332,8 +1332,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		{
 			auto tile = cb->getTile(coord, false);
 			assert(tile);
-			return tile->topVisitableObj(ignoreHero);
-			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			return cb->getObj(tile->topVisitableObj(ignoreHero));
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool

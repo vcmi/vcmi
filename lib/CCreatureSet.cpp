@@ -866,7 +866,7 @@ TerrainId CStackInstance::getNativeTerrain() const
 
 TerrainId CStackInstance::getCurrentTerrain() const
 {
-	return armyObj->getCurrentTerrain();
+	return getArmy()->getCurrentTerrain();
 }
 
 void CStackInstance::deserializationFix()

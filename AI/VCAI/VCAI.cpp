@@ -1868,10 +1868,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			auto tile = cb->getTile(coord, false);
-			assert(tile);
-			return tile->topVisitableObj(ignoreHero);
-			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			return cb->getObj(cb->getTile(coord)->topVisitableObj(ignoreHero));
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool

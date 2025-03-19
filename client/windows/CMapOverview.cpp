@@ -74,9 +74,10 @@ std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::uniq
 
 			if(drawPlayerElements)
 				// if object at tile is owned - it will be colored as its owner
-				for (const CGObjectInstance *obj : tile.blockingObjects)
+				for (ObjectInstanceID objectID : tile.blockingObjects)
 				{
-					PlayerColor player = obj->getOwner();
+					const auto * object = map->getObject(objectID);
+					PlayerColor player = object->getOwner();
 					if(player == PlayerColor::NEUTRAL)
 					{
 						color = graphics->neutralColor;

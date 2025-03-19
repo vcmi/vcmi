@@ -278,10 +278,12 @@ std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) c
 	if (!tile.visitable())
 		return {};
 
-	if ( tile.visitableObjects.back()->ID == Obj::EVENT)
+	const auto * object = getObject(tile.visitableObjects.back());
+
+	if ( object->ID == Obj::EVENT)
 		return {};
 
-	return tile.visitableObjects.back()->getObjectName();
+	return object->getObjectName();
 }
 
 ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates) const
@@ -294,7 +296,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (!tile.visitable())
 		return {};
 
-	const auto * object = tile.visitableObjects.back();
+	const auto * object = getObject(tile.visitableObjects.back());
 
 	if (object->getOwner() == GAME->interface()->playerID)
 		return { 0, 192, 0};

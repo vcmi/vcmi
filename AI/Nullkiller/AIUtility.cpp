@@ -202,7 +202,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT)
+		if(t->visitableObjects.size() == 1 && cb->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
 			return true;
 	}
 	return false;

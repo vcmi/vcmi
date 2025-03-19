@@ -103,6 +103,7 @@ PathNodeInfo::PathNodeInfo()
 void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 {
 	node = n;
+	guarded = false;
 
 	if(coord != node->coord)
 	{
@@ -110,23 +111,25 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 
 		coord = node->coord;
 		tile = gs->getTile(coord);
-		nodeObject = tile->topVisitableObj();
+		nodeObject = nullptr;
+		nodeHero = nullptr;
 
-		if(nodeObject && nodeObject->ID == Obj::HERO)
+		ObjectInstanceID topObjectID = tile->topVisitableObj();
+		if (topObjectID.hasValue())
 		{
-			nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
-			nodeObject = tile->topVisitableObj(true);
+			nodeObject = gs->getObjInstance(topObjectID);
 
-			if(!nodeObject)
-				nodeObject = nodeHero;
-		}
-		else
-		{
-			nodeHero = nullptr;
+			if (nodeObject->ID == Obj::HERO)
+			{
+				nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
+				ObjectInstanceID bottomObjectID = tile->topVisitableObj(true);
+
+				if (bottomObjectID.hasValue())
+					nodeObject = gs->getObjInstance(bottomObjectID);
+			}
 		}
 	}
 
-	guarded = false;
 }
 
 void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState * gs)

@@ -251,7 +251,8 @@ TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const Te
 			auto pos = obj->getBlockedPos();
 			for(const auto & p : pos)
 			{
-				if(gs->getMap().getTile(p).topVisitableId() == obj->ID)
+				ObjectInstanceID topObject = gs->getMap().getTile(p).topVisitableObj();
+				if(topObject.hasValue() && getObj(topObject)->ID == obj->ID)
 					allowedExits.push_back(p);
 			}
 		}

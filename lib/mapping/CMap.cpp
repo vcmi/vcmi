@@ -143,15 +143,10 @@ bool TerrainTile::isClear(const TerrainTile * from) const
 	return entrableTerrain(from) && !blocked();
 }
 
-Obj TerrainTile::topVisitableId(bool excludeTop) const
-{
-	return topVisitableObj(excludeTop) ? topVisitableObj(excludeTop)->ID : Obj(Obj::NO_OBJ);
-}
-
-CGObjectInstance * TerrainTile::topVisitableObj(bool excludeTop) const
+ObjectInstanceID TerrainTile::topVisitableObj(bool excludeTop) const
 {
 	if(visitableObjects.empty() || (excludeTop && visitableObjects.size() == 1))
-		return nullptr;
+		return {};
 
 	if(excludeTop)
 		return visitableObjects[visitableObjects.size()-2];
@@ -202,10 +197,10 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(total || obj->visitableAt(int3(xVal, yVal, zVal)))
-					curt.visitableObjects -= obj;
+					curt.visitableObjects -= obj->id;
 
 				if(total || obj->blockingAt(int3(xVal, yVal, zVal)))
-					curt.blockingObjects -= obj;
+					curt.blockingObjects -= obj->id;
 			}
 		}
 	}
@@ -224,10 +219,10 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(obj->visitableAt(int3(xVal, yVal, zVal)))
-					curt.visitableObjects.push_back(obj);
+					curt.visitableObjects.push_back(obj->id);
 
 				if(obj->blockingAt(int3(xVal, yVal, zVal)))
-					curt.blockingObjects.push_back(obj);
+					curt.blockingObjects.push_back(obj->id);
 			}
 		}
 	}
@@ -300,12 +295,12 @@ bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile * pom, const
 {
 	if (!pom->entrableTerrain()) //rock is never accessible
 		return false;
-	for(auto * obj : pom->visitableObjects) //checking destination tile
+	for(const auto & objID : pom->visitableObjects) //checking destination tile
 	{
-		if(!vstd::contains(pom->blockingObjects, obj)) //this visitable object is not blocking, ignore
+		if(!vstd::contains(pom->blockingObjects, objID)) //this visitable object is not blocking, ignore
 			continue;
 
-		if (!obj->appearance->isVisitableFrom(src.x - dst.x, src.y - dst.y))
+		if (!getObject(objID)->appearance->isVisitableFrom(src.x - dst.x, src.y - dst.y))
 			return false;
 	}
 	return true;
@@ -320,9 +315,10 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	const TerrainTile &posTile = getTile(pos);
 	if (posTile.visitable())
 	{
-		for (CGObjectInstance* obj : posTile.visitableObjects)
+		for (const auto & objID : posTile.visitableObjects)
 		{
-			if (obj->ID == Obj::MONSTER)
+			const auto * object = getObject(objID);
+			if (object->ID == Obj::MONSTER)
 				return pos;
 		}
 	}
@@ -340,12 +336,11 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 				const auto & tile = getTile(pos);
 				if (tile.visitable() && (tile.isWater() == water))
 				{
-					for (CGObjectInstance* obj : tile.visitableObjects)
+					for (const auto & objID : tile.visitableObjects)
 					{
-						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
-						{
+						const auto * object = getObject(objID);
+						if (object->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &posTile, originalPos)) // Monster being able to attack investigated tile
 							return pos;
-						}
 					}
 				}
 			}
@@ -361,8 +356,9 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 
 const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type)
 {
-	for (CGObjectInstance * object : getTile(pos).visitableObjects)
+	for(const auto & objID : getTile(pos).visitableObjects)
 	{
+		const auto * object = getObject(objID);
 		if (object->ID == type)
 			return object;
 	}

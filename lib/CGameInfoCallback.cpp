@@ -453,8 +453,8 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 
 	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 
-	for(const CGObjectInstance * obj : t->blockingObjects)
-		ret.push_back(obj);
+	for(const auto & objID : t->blockingObjects)
+		ret.push_back(getObj(objID));
 	return ret;
 }
 
@@ -464,10 +464,12 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 	const TerrainTile *t = getTile(pos, verbose);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!t, verbose, pos.toString() + " is not visible!", ret);
 
-	for(const CGObjectInstance * obj : t->visitableObjects)
+	for(const auto & objID : t->visitableObjects)
 	{
-		if(!getPlayerID().has_value() || obj->ID != Obj::EVENT) //hide events from players
-			ret.push_back(obj);
+		const auto & object = getObj(objID);
+
+		if(!getPlayerID().has_value() || object->ID != Obj::EVENT) //hide events from players
+			ret.push_back(object);
 	}
 	return ret;
 }
@@ -492,9 +494,12 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(in
 	std::vector<const CGObjectInstance *> ret;
 	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
-	for(const CGObjectInstance *obj : t->blockingObjects)
+	for(const auto & objectID : t->blockingObjects)
+	{
+		const auto * obj = getObj(objectID);
 		if(obj->tempOwner != PlayerColor::UNFLAGGABLE)
 			ret.push_back(obj);
+	}
 	return ret;
 }
 
@@ -724,7 +729,8 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 		return true;
 
 	const TerrainTile *t = getTile(obj->visitablePos()); //get entrance tile
-	const CGObjectInstance *visitor = t->visitableObjects.back(); //visitong hero if present or the object itself at last
+	const ObjectInstanceID visitorID = t->visitableObjects.back(); //visitong hero if present or the object itself at last
+	const CGObjectInstance * visitor = getObj(visitorID);
 	return visitor->ID == Obj::HERO && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
 

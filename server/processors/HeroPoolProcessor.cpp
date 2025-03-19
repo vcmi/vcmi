@@ -199,7 +199,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 		}
 
-		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject && gameHandler->complain("Tavern entry must be unoccupied!"))
+		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject->id && gameHandler->complain("Tavern entry must be unoccupied!"))
 			return false;
 	}
 

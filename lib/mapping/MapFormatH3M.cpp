@@ -2741,11 +2741,13 @@ void CMapLoaderH3M::afterRead()
 
 			const CGObjectInstance * mainTown = nullptr;
 
-			for(auto * obj : t.visitableObjects)
+			for(ObjectInstanceID objID : t.visitableObjects)
 			{
-				if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+				const CGObjectInstance * object = map->getObject(objID);
+
+				if(object->ID == Obj::TOWN || object->ID == Obj::RANDOM_TOWN)
 				{
-					mainTown = obj;
+					mainTown = object;
 					break;
 				}
 			}
