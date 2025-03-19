@@ -1022,14 +1022,14 @@ void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTe
 
 void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 {
+	logGlobal->info("Starting road randomization");
+
 	auto zones = map.getZones();
 	
-	// First, identify zones with towns
+	// Identify zones with towns
 	std::set<TRmgTemplateZoneId> zonesWithTowns;
-	
 	for(const auto & zone : zones)
 	{
-		// A zone has towns if it has player towns or neutral towns
 		if(zone.second->getPlayerTowns().getTownCount() || 
 		   zone.second->getPlayerTowns().getCastleCount() ||
 		   zone.second->getNeutralTowns().getTownCount() ||
@@ -1039,159 +1039,71 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 		}
 	}
 	
-	logGlobal->info("Zones with towns: %d", zonesWithTowns.size());
+	logGlobal->info("Found %d zones with towns", zonesWithTowns.size());
 	
 	if(zonesWithTowns.empty())
 	{
-		// No towns, no roads needed
-		// Mark all roads as FALSE
+		// No towns, no roads needed - mark all RANDOM roads as FALSE
 		for(auto & zonePtr : zones)
 		{
 			for(auto & connection : zonePtr.second->getConnections())
 			{
 				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 				{
-					auto id = connection.getId();
-					zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
+					zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
 				}
 			}
 		}
 		return;
 	}
 	
-	// Map to track which connections we've processed (to avoid duplicates)
-	std::set<int> processedConnectionIds;
+	// Track direct connections between zones (both TRUE and RANDOM)
+	std::map<TRmgTemplateZoneId, std::map<TRmgTemplateZoneId, bool>> directConnections;
 	
-	// Map of all connections by their ID for easier access
-	std::map<int, std::pair<TRmgTemplateZoneId, TRmgTemplateZoneId>> connectionMap;
-	
-	// Map true roads between zones
-	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> trueRoads;
-	
-	// Track existing defined connections in template (both TRUE and RANDOM)
-	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> existingConnections;
-	
-	// First pass: collect all connections defined in the template
+	// First pass: find all TRUE connections
 	for(auto & zonePtr : zones)
 	{
 		for(auto & connection : zonePtr.second->getConnections())
 		{
-			auto id = connection.getId();
 			auto zoneA = connection.getZoneA();
 			auto zoneB = connection.getZoneB();
 			
-			connectionMap[id] = std::make_pair(zoneA, zoneB);
-			
-			// Track all valid connections defined in template
-			existingConnections[zoneA].insert(zoneB);
-			existingConnections[zoneB].insert(zoneA);
-			
 			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 			{
-				// Record this as a true road
-				trueRoads[zoneA].insert(zoneB);
-				trueRoads[zoneB].insert(zoneA);
-				
-				logGlobal->info("Keeping pre-configured TRUE road for connection %d between zones %d and %d", 
-					id, zoneA, zoneB);
+				// Mark that these zones are directly connected by a TRUE road
+				directConnections[zoneA][zoneB] = true;
+				directConnections[zoneB][zoneA] = true;
 			}
 		}
 	}
 	
-	// For each town zone, ensure it has at least one connection if possible
-	for(auto townZone : zonesWithTowns)
-	{
-		// Skip if the town zone already has a TRUE road
-		if(vstd::contains(trueRoads, townZone) && !trueRoads[townZone].empty())
-		{
-			continue;
-		}
-		
-		// Check if the town has any valid connections
-		if(!vstd::contains(existingConnections, townZone) || existingConnections[townZone].empty())
-		{
-			logGlobal->warn("Town zone %d has no valid connections in template", townZone);
-			continue;
-		}
-		
-		// Find the best random connection to mark as TRUE
-		bool foundConnection = false;
-		
-		for(auto & zonePtr : zones)
-		{
-			if(foundConnection) break;
-			
-			for(auto & connection : zonePtr.second->getConnections())
-			{
-				if(connection.getRoadOption() != rmg::ERoadOption::ROAD_RANDOM)
-					continue;
-					
-				auto zoneA = connection.getZoneA();
-				auto zoneB = connection.getZoneB();
-				
-				// Check if this connection involves our town zone
-				if(zoneA == townZone || zoneB == townZone)
-				{
-					// Found a connection for this town zone, mark it as TRUE
-					zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_TRUE);
-					
-					auto otherZone = (zoneA == townZone) ? zoneB : zoneA;
-					
-					logGlobal->info("Setting RANDOM road to TRUE for connection %d to ensure town zone %d has at least one connection (to zone %d)", 
-									connection.getId(), townZone, otherZone);
-					
-					// Update trueRoads map
-					trueRoads[zoneA].insert(zoneB);
-					trueRoads[zoneB].insert(zoneA);
-					
-					foundConnection = true;
-					break;
-				}
-			}
-		}
-	}
-	
-	// Union-find data structure for MST algorithm
+	// Initialize Union-Find for MST tracking
 	std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> parent;
-	
-	// Initialize all town zones as separate sets
 	for(auto townZone : zonesWithTowns)
 	{
 		parent[townZone] = townZone;
 	}
 	
-	// Process TRUE roads first to build initial MST
-	// Add all TRUE roads that directly connect towns to the MST
+	// Add all TRUE roads connecting town zones to MST
 	for(auto & zonePtr : zones)
 	{
 		for(auto & connection : zonePtr.second->getConnections())
 		{
 			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 			{
-				auto id = connection.getId();
 				auto zoneA = connection.getZoneA();
 				auto zoneB = connection.getZoneB();
 				
-				// Skip if we've already processed this connection
-				if(processedConnectionIds.find(id) != processedConnectionIds.end())
-					continue;
-					
-				processedConnectionIds.insert(id);
-				
-				// If both ends have towns, add to MST
+				// If both zones have towns, add to MST
 				if(vstd::contains(zonesWithTowns, zoneA) && vstd::contains(zonesWithTowns, zoneB))
 				{
 					unionSets(parent, zoneA, zoneB);
-					
-					logGlobal->info("Adding TRUE road between town zones %d and %d to MST", zoneA, zoneB);
 				}
 			}
 		}
 	}
 	
-	// Find all paths through TRUE roads
-	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> reachableFromTown;
-	
+	// Process all paths through true roads (BFS)
 	for(auto townZone : zonesWithTowns)
 	{
 		std::queue<TRmgTemplateZoneId> q;
@@ -1205,36 +1117,69 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			auto current = q.front();
 			q.pop();
 			
-			// Add this zone to reachable list for the town
-			reachableFromTown[townZone].insert(current);
-			
-			// Check all TRUE road neighbors
-			if(vstd::contains(trueRoads, current))
+			for(auto & otherZone : directConnections[current])
 			{
-				for(auto neighbor : trueRoads[current])
+				if(otherZone.second && !vstd::contains(visited, otherZone.first))
 				{
-					if(visited.find(neighbor) == visited.end())
+					visited.insert(otherZone.first);
+					q.push(otherZone.first);
+					
+					// If this is another town, update MST
+					if(vstd::contains(zonesWithTowns, otherZone.first))
 					{
-						visited.insert(neighbor);
-						q.push(neighbor);
-						
-						// If this is another town, update MST
-						if(vstd::contains(zonesWithTowns, neighbor))
-						{
-							unionSets(parent, townZone, neighbor);
-							
-							logGlobal->info("Adding multi-zone TRUE path between town zones %d and %d to MST", 
-											townZone, neighbor);
-						}
+						unionSets(parent, townZone, otherZone.first);
 					}
 				}
 			}
 		}
 	}
 	
-	// Now process RANDOM roads to complete the MST
-	// Collect all RANDOM roads
+	// Process RANDOM connections 
+	// First, ensure each town has at least one connection
+	for(auto townZone : zonesWithTowns)
+	{
+		// Skip if already has a TRUE road
+		if(!directConnections[townZone].empty())
+			continue;
+			
+		// Find a random connection to upgrade to TRUE
+		for(auto & zonePtr : zones)
+		{
+			for(auto & connection : zonePtr.second->getConnections())
+			{
+				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM &&
+				   (connection.getZoneA() == townZone || connection.getZoneB() == townZone))
+				{
+					auto zoneA = connection.getZoneA();
+					auto zoneB = connection.getZoneB();
+					
+					// Don't upgrade if these zones are already directly connected by a TRUE road
+					if(vstd::contains(directConnections[zoneA], zoneB) && directConnections[zoneA][zoneB])
+						continue;
+						
+					// Upgrade to TRUE
+					zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_TRUE);
+					directConnections[zoneA][zoneB] = true;
+					directConnections[zoneB][zoneA] = true;
+					
+					auto otherZone = (zoneA == townZone) ? zoneB : zoneA;
+					logGlobal->info("Setting RANDOM road to TRUE for connection %d to ensure town zone %d has at least one connection (to zone %d)", 
+									connection.getId(), townZone, otherZone);
+					
+					break;
+				}
+			}
+			
+			// Stop if we've found a connection
+			if(!directConnections[townZone].empty())
+				break;
+		}
+	}
+	
+	// Process remaining RANDOM roads - prioritize town connectivity
+	// First collect all RANDOM roads
 	std::vector<std::pair<int, std::pair<TRmgTemplateZoneId, TRmgTemplateZoneId>>> randomRoads;
+	RandomGeneratorUtil::randomShuffle(randomRoads, *rand);
 	
 	for(auto & zonePtr : zones)
 	{
@@ -1246,24 +1191,28 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 				auto zoneA = connection.getZoneA();
 				auto zoneB = connection.getZoneB();
 				
-				// Skip if we've already processed this connection
-				if(processedConnectionIds.find(id) != processedConnectionIds.end())
+				// Skip if these zones are already directly connected by a TRUE road
+				if(vstd::contains(directConnections[zoneA], zoneB) && directConnections[zoneA][zoneB])
+				{
+					zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
+					logGlobal->info("Setting RANDOM road to FALSE for connection %d - duplicate of TRUE road between zones %d and %d", 
+									id, zoneA, zoneB);
 					continue;
-					
-				processedConnectionIds.insert(id);
+				}
 				
-				// Add to random roads vector
 				randomRoads.push_back(std::make_pair(id, std::make_pair(zoneA, zoneB)));
 			}
 		}
 	}
 	
-	// Process random roads - prioritize direct connections between towns
+	// Process random roads - first connect town zones
 	for(auto& road : randomRoads)
 	{
 		auto id = road.first;
 		auto zoneA = road.second.first;
 		auto zoneB = road.second.second;
+		
+		bool setToTrue = false;
 		
 		// If both zones have towns, check if they're already connected in the MST
 		if(vstd::contains(zonesWithTowns, zoneA) && vstd::contains(zonesWithTowns, zoneB))
@@ -1272,302 +1221,44 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			{
 				// Not connected, add this road to MST
 				unionSets(parent, zoneA, zoneB);
+				setToTrue = true;
 				
-				// Set road to TRUE
-				bool found = false;
-				for(auto & zonePtr : zones)
-				{
-					for(auto & connection : zonePtr.second->getConnections())
-					{
-						if(connection.getId() == id)
-						{
-							zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
-							found = true;
-							break;
-						}
-					}
-					if(found) break;
-				}
-				
-				// Update trueRoads map
-				trueRoads[zoneA].insert(zoneB);
-				trueRoads[zoneB].insert(zoneA);
-				
-				logGlobal->info("Setting RANDOM road to TRUE for direct connection %d between town zones %d and %d", 
+				logGlobal->info("Setting RANDOM road to TRUE for connection %d between town zones %d and %d", 
 								id, zoneA, zoneB);
 			}
-			else
-			{
-				// Already connected, set to FALSE
-				bool found = false;
-				for(auto & zonePtr : zones)
-				{
-					for(auto & connection : zonePtr.second->getConnections())
-					{
-						if(connection.getId() == id)
-						{
-							zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
-							found = true;
-							break;
-						}
-					}
-					if(found) break;
-				}
-				
-				logGlobal->info("Setting RANDOM road to FALSE for connection %d between town zones %d and %d (already connected)", 
-								id, zoneA, zoneB);
-			}
-			continue;
 		}
-		
-		// Special case: either zone is a town that has no other connections yet
-		if((vstd::contains(zonesWithTowns, zoneA) && (!vstd::contains(trueRoads, zoneA) || trueRoads[zoneA].empty())) ||
-		   (vstd::contains(zonesWithTowns, zoneB) && (!vstd::contains(trueRoads, zoneB) || trueRoads[zoneB].empty())))
-		{
-			// Always mark this as TRUE - it's the only connection for an isolated town
-			bool found = false;
-			for(auto & zonePtr : zones)
-			{
-				for(auto & connection : zonePtr.second->getConnections())
-				{
-					if(connection.getId() == id)
-					{
-						zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
-						found = true;
-						break;
-					}
-				}
-				if(found) break;
-			}
-			
-			// Update trueRoads map
-			trueRoads[zoneA].insert(zoneB);
-			trueRoads[zoneB].insert(zoneA);
-			
-			// If either is a town zone, note it specially in the log
-			auto townZoneId = vstd::contains(zonesWithTowns, zoneA) ? zoneA : zoneB;
-			auto otherZoneId = vstd::contains(zonesWithTowns, zoneA) ? zoneB : zoneA;
-			
-			logGlobal->info("Setting RANDOM road to TRUE for connection %d - only connection for isolated town zone %d", 
-							id, townZoneId);
-			continue;
-		}
-		
 		// If one zone has a town and one doesn't
-		TRmgTemplateZoneId townZone = vstd::contains(zonesWithTowns, zoneA) ? zoneA : 
-									   vstd::contains(zonesWithTowns, zoneB) ? zoneB : 0;
-		TRmgTemplateZoneId nonTownZone = vstd::contains(zonesWithTowns, zoneA) ? zoneB : 
-										 vstd::contains(zonesWithTowns, zoneB) ? zoneA : 0;
-		
-		if(townZone && nonTownZone)
+		else if(vstd::contains(zonesWithTowns, zoneA) || vstd::contains(zonesWithTowns, zoneB))
 		{
-			// See if this non-town zone can connect to any other town
-			std::set<TRmgTemplateZoneId> possibleConnections;
-			
-			for(auto & otherZonePtr : zones)
+			TRmgTemplateZoneId townZone = vstd::contains(zonesWithTowns, zoneA) ? zoneA : zoneB;
+			// Check if this town already has at least one TRUE connection
+			if(directConnections[townZone].empty())
 			{
-				if(otherZonePtr.first == nonTownZone) continue;
-				
-				// Check if there's a possible connection to another zone
-				if(vstd::contains(existingConnections, nonTownZone) && 
-				   vstd::contains(existingConnections[nonTownZone], otherZonePtr.first))
-				{
-					// If this other zone is a town or can reach other towns, note it
-					if(vstd::contains(zonesWithTowns, otherZonePtr.first) && otherZonePtr.first != townZone)
-					{
-						possibleConnections.insert(otherZonePtr.first);
-					}
-				}
-			}
-			
-			if(!possibleConnections.empty())
-			{
-				// This non-town zone can potentially connect to other towns
-				// Check if any of these towns aren't already connected to our town
-				bool canCreateNewConnection = false;
-				
-				for(auto otherTown : possibleConnections)
-				{
-					if(findSet(parent, townZone) != findSet(parent, otherTown))
-					{
-						canCreateNewConnection = true;
-						break;
-					}
-				}
-				
-				// Set road to TRUE if it could create a new connection
-				// This ensures isolated town zones get connected through non-town zones
-				bool found = false;
-				for(auto & zonePtr : zones)
-				{
-					for(auto & connection : zonePtr.second->getConnections())
-					{
-						if(connection.getId() == id)
-						{
-							if(canCreateNewConnection)
-							{
-								zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
-								logGlobal->info("Setting RANDOM road to TRUE for connection %d - potential path between town zones", id);
-							}
-							else
-							{
-								zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
-								logGlobal->info("Setting RANDOM road to FALSE for connection %d - won't create new town connections", id);
-							}
-							found = true;
-							break;
-						}
-					}
-					if(found) break;
-				}
-				
-				if(canCreateNewConnection)
-				{
-					// Update trueRoads map
-					trueRoads[zoneA].insert(zoneB);
-					trueRoads[zoneB].insert(zoneA);
-				}
-			}
-			else
-			{
-				// This is a dead-end connection to a town zone - keep for connectivity
-				bool found = false;
-				for(auto & zonePtr : zones)
-				{
-					for(auto & connection : zonePtr.second->getConnections())
-					{
-						if(connection.getId() == id)
-						{
-							zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_TRUE);
-							found = true;
-							break;
-						}
-					}
-					if(found) break;
-				}
-				
-				// Update trueRoads map
-				trueRoads[zoneA].insert(zoneB);
-				trueRoads[zoneB].insert(zoneA);
-				
-				logGlobal->info("Setting RANDOM road to TRUE for connection %d - road to town zone %d", 
+				setToTrue = true;
+				logGlobal->info("Setting RANDOM road to TRUE for connection %d - only connection for town zone %d", 
 								id, townZone);
 			}
 		}
-		else
-		{
-			// This is a connection between non-town zones
-			// Set it to FALSE by default
-			bool found = false;
-			for(auto & zonePtr : zones)
-			{
-				for(auto & connection : zonePtr.second->getConnections())
-				{
-					if(connection.getId() == id)
-					{
-						zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
-						found = true;
-						break;
-					}
-				}
-				if(found) break;
-			}
-			
-			logGlobal->info("Setting RANDOM road to FALSE for connection %d between non-town zones %d and %d", 
-							id, zoneA, zoneB);
-		}
-	}
-	
-	// Update town connectivity after adding all roads
-	// Re-run BFS from each town zone through TRUE roads to see if we need more connections
-	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> connectedTownGroups;
-	
-	for(auto townZone : zonesWithTowns)
-	{
-		std::queue<TRmgTemplateZoneId> q;
-		std::set<TRmgTemplateZoneId> visited;
 		
-		q.push(townZone);
-		visited.insert(townZone);
-		
-		while(!q.empty())
-		{
-			auto current = q.front();
-			q.pop();
-			
-			// Check all TRUE road neighbors
-			if(vstd::contains(trueRoads, current))
-			{
-				for(auto neighbor : trueRoads[current])
-				{
-					if(visited.find(neighbor) == visited.end())
-					{
-						visited.insert(neighbor);
-						q.push(neighbor);
-						
-						// If this is another town, add to connected group
-						if(vstd::contains(zonesWithTowns, neighbor))
-						{
-							connectedTownGroups[townZone].insert(neighbor);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	// Set any remaining RANDOM roads to FALSE
-	for(auto & zonePtr : zones)
-	{
-		for(auto & connection : zonePtr.second->getConnections())
-		{
-			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
-			{
-				auto id = connection.getId();
-				zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
-				logGlobal->info("Setting remaining RANDOM road to FALSE for connection %d", id);
-			}
-		}
-	}
-	
-	// Log the final town connectivity information
-	logGlobal->info("======== Town Connectivity Report ========");
-	for(auto townZone : zonesWithTowns)
-	{
-		std::string connections;
-		
-		// Find all adjacent zones connected by roads
-		std::set<TRmgTemplateZoneId> adjacentConnections;
-		
+		// Update all zones with this connection
 		for(auto & zonePtr : zones)
 		{
-			if(zonePtr.first == townZone)
+			for(auto & connection : zonePtr.second->getConnections())
 			{
-				for(auto & connection : zonePtr.second->getConnections())
+				if(connection.getId() == id)
 				{
-					if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
+					zonePtr.second->setRoadOption(id, setToTrue ? rmg::ERoadOption::ROAD_TRUE : rmg::ERoadOption::ROAD_FALSE);
+					
+					if(setToTrue)
 					{
-						auto otherZoneId = connection.getOtherZoneId(townZone);
-						adjacentConnections.insert(otherZoneId);
+						directConnections[zoneA][zoneB] = true;
+						directConnections[zoneB][zoneA] = true;
 					}
+					
+					break;
 				}
 			}
 		}
-		
-		if(!adjacentConnections.empty())
-		{
-			for(auto connectedZone : adjacentConnections)
-			{
-				if(!connections.empty())
-					connections += ", ";
-				connections += std::to_string(connectedZone);
-			}
-		}
-		
-		if(connections.empty())
-			connections = "None (no road connections)";
-		
-		logGlobal->info("Zone %d with town connected to adjacent zones: %s", townZone, connections);
 	}
 	
 	logGlobal->info("Finished road generation - created minimal spanning tree connecting all towns");
