@@ -1118,6 +1118,64 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 		}
 	}
 	
+	// Track all available connections in the template (for graph connectivity analysis)
+	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> allConnections;
+	std::map<std::pair<TRmgTemplateZoneId, TRmgTemplateZoneId>, int> connectionIds;
+	
+	// Build adjacency list for available connections and track connection IDs
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{
+			auto zoneA = connection.getZoneA();
+			auto zoneB = connection.getZoneB();
+			
+			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE ||
+			   connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
+			{
+				// Only include TRUE and RANDOM roads in connectivity analysis
+				allConnections[zoneA].insert(zoneB);
+				allConnections[zoneB].insert(zoneA);
+				
+				// Track connection ID for later use
+				connectionIds[{std::min(zoneA, zoneB), std::max(zoneA, zoneB)}] = connection.getId();
+			}
+		}
+	}
+	
+	// Check if there's a path between all town zones using all available connections
+	// This is to verify if global connectivity is even possible
+	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> reachableTowns;
+	
+	for(auto startTown : zonesWithTowns)
+	{
+		std::queue<TRmgTemplateZoneId> q;
+		std::set<TRmgTemplateZoneId> visited;
+		
+		q.push(startTown);
+		visited.insert(startTown);
+		
+		while(!q.empty())
+		{
+			auto current = q.front();
+			q.pop();
+			
+			for(auto neighbor : allConnections[current])
+			{
+				if(!vstd::contains(visited, neighbor))
+				{
+					visited.insert(neighbor);
+					q.push(neighbor);
+					
+					if(vstd::contains(zonesWithTowns, neighbor))
+					{
+						reachableTowns[startTown].insert(neighbor);
+					}
+				}
+			}
+		}
+	}
+	
 	// Initialize Union-Find for MST tracking
 	std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> parent;
 	for(auto townZone : zonesWithTowns)
@@ -1273,12 +1331,39 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 		else if(vstd::contains(zonesWithTowns, zoneA) || vstd::contains(zonesWithTowns, zoneB))
 		{
 			TRmgTemplateZoneId townZone = vstd::contains(zonesWithTowns, zoneA) ? zoneA : zoneB;
+			TRmgTemplateZoneId nonTownZone = vstd::contains(zonesWithTowns, zoneA) ? zoneB : zoneA;
+			
 			// Check if this town already has at least one TRUE connection
 			if(directConnections[townZone].empty())
 			{
 				setToTrue = true;
 				logGlobal->info("Setting RANDOM road to TRUE for connection %d - only connection for town zone %d", 
 								id, townZone);
+			}
+			else
+			{
+				// See if this non-town zone connects to another town zone
+				// This could be a potential bridge zone to connect towns
+				bool connectsToOtherTown = false;
+				TRmgTemplateZoneId otherTownZone = 0;
+				
+				for(auto connectedZone : allConnections[nonTownZone])
+				{
+					if(vstd::contains(zonesWithTowns, connectedZone) && connectedZone != townZone)
+					{
+						otherTownZone = connectedZone;
+						connectsToOtherTown = true;
+						break;
+					}
+				}
+				
+				if(connectsToOtherTown && findSet(parent, townZone) != findSet(parent, otherTownZone))
+				{
+					// This non-town zone can help connect two town zones that are not yet connected
+					setToTrue = true;
+					logGlobal->info("Setting RANDOM road to TRUE for connection %d - bridge through non-town zone %d to connect towns %d and %d", 
+									id, nonTownZone, townZone, otherTownZone);
+				}
 			}
 		}
 		
@@ -1291,6 +1376,183 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			directConnections[zoneB][zoneA] = true;
 		}
 	}
+	
+	// Check if we have a connected graph for town zones after initial MST
+	std::map<TRmgTemplateZoneId, std::set<TRmgTemplateZoneId>> connectedComponents;
+	std::set<TRmgTemplateZoneId> processedTowns;
+	
+	for(auto townZone : zonesWithTowns)
+	{
+		if(vstd::contains(processedTowns, townZone))
+			continue;
+			
+		std::set<TRmgTemplateZoneId> component;
+		for(auto otherTown : zonesWithTowns)
+		{
+			if(findSet(parent, townZone) == findSet(parent, otherTown))
+			{
+				component.insert(otherTown);
+				processedTowns.insert(otherTown);
+			}
+		}
+		
+		if(!component.empty())
+			connectedComponents[townZone] = component;
+	}
+	
+	// If we have more than one component, try to connect them if possible
+	if(connectedComponents.size() > 1)
+	{
+		logGlobal->warn("Found %d disconnected town components, trying to connect them", connectedComponents.size());
+		
+		// Create a list of components
+		std::vector<std::set<TRmgTemplateZoneId>> components;
+		for(auto & component : connectedComponents)
+		{
+			components.push_back(component.second);
+		}
+		
+		// For each pair of components, try to find a path between them
+		for(size_t i = 0; i < components.size() - 1; i++)
+		{
+			bool foundBridge = false;
+			
+			for(size_t j = i + 1; j < components.size() && !foundBridge; j++)
+			{
+				// Try to find a path between any two towns in different components
+				for(auto townA : components[i])
+				{
+					if(foundBridge) break;
+					
+					for(auto townB : components[j])
+					{
+						// Check if there's a path between townA and townB in the original template
+						if(vstd::contains(reachableTowns[townA], townB))
+						{
+							// There's a path, now find the specific path to enable roads on
+							std::queue<TRmgTemplateZoneId> q;
+							std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> prev;
+							
+							q.push(townA);
+							prev[townA] = 0; // Mark as visited with no predecessor
+							
+							bool found = false;
+							while(!q.empty() && !found)
+							{
+								auto current = q.front();
+								q.pop();
+								
+								for(auto next : allConnections[current])
+								{
+									if(!vstd::contains(prev, next))
+									{
+										prev[next] = current;
+										q.push(next);
+										
+										if(next == townB)
+										{
+											found = true;
+											break;
+										}
+									}
+								}
+							}
+							
+							// Now reconstruct the path and set all roads on this path to TRUE
+							if(found)
+							{
+								std::vector<TRmgTemplateZoneId> path;
+								TRmgTemplateZoneId current = townB;
+								
+								while(current != townA)
+								{
+									path.push_back(current);
+									current = prev[current];
+								}
+								path.push_back(townA);
+								
+								// Reverse to get path from townA to townB
+								std::reverse(path.begin(), path.end());
+								
+								logGlobal->info("Found path between town zones %d and %d, enabling all roads on this path", townA, townB);
+								
+								// Enable all roads on this path
+								for(size_t k = 0; k < path.size() - 1; k++)
+								{
+									auto zoneA = path[k];
+									auto zoneB = path[k+1];
+									
+									auto minZone = std::min(zoneA, zoneB);
+									auto maxZone = std::max(zoneA, zoneB);
+									
+									if(vstd::contains(connectionIds, std::make_pair(minZone, maxZone)))
+									{
+										auto connectionId = connectionIds[std::make_pair(minZone, maxZone)];
+										
+										// Enable this road if it's not already TRUE
+										for(auto & zonePtr : zones)
+										{
+											for(auto & connection : zonePtr.second->getConnections())
+											{
+												if(connection.getId() == connectionId && 
+												   connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
+												{
+													setRoadOptionForConnection(connectionId, rmg::ERoadOption::ROAD_TRUE);
+													directConnections[zoneA][zoneB] = true;
+													directConnections[zoneB][zoneA] = true;
+													
+													logGlobal->info("Setting RANDOM road to TRUE for connection %d to connect components - part of path between towns %d and %d", 
+														connectionId, townA, townB);
+													
+													break;
+												}
+											}
+										}
+									}
+								}
+								
+								// Update Union-Find to merge components
+								unionSets(parent, townA, townB);
+								foundBridge = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			if(!foundBridge)
+			{
+				logGlobal->warn("Could not find a path between component with towns [%s] and other components", 
+					[&components, i]() {
+						std::string result;
+						for(auto town : components[i])
+						{
+							if(!result.empty()) result += ", ";
+							result += std::to_string(town);
+						}
+						return result;
+					}().c_str());
+			}
+		}
+	}
+	
+	// Final check for connectivity between town zones
+	std::set<TRmgTemplateZoneId> connectedTowns;
+	if(!zonesWithTowns.empty())
+	{
+		auto firstTown = *zonesWithTowns.begin();
+		for(auto town : zonesWithTowns)
+		{
+			if(findSet(parent, firstTown) == findSet(parent, town))
+			{
+				connectedTowns.insert(town);
+			}
+		}
+	}
+	
+	logGlobal->info("Final town connectivity: %d connected out of %d total town zones", 
+					connectedTowns.size(), zonesWithTowns.size());
 	
 	logGlobal->info("Finished road generation - created minimal spanning tree connecting all towns");
 }
