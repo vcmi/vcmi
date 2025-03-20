@@ -1005,6 +1005,22 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	logGlobal->info("Finished zone colouring");
 }
 
+void CZonePlacer::RemoveRoadsForWideConnections()
+{
+	auto zones = map.getZones();
+	
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{
+			if(connection.getConnectionType() == rmg::EConnectionType::WIDE)
+			{
+				zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+			}
+		}
+	}
+}
+
 TRmgTemplateZoneId findSet(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x)
 {
 	if(parent[x] != x)
@@ -1019,6 +1035,15 @@ void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTe
 	if(rx != ry)
 		parent[rx] = ry;
 }
+
+/*
+Random road generation requirements:
+- Every town should be connected via road
+- There should be exactly one road betwen any two towns (connected MST)
+	- This excludes cases when there are multiple road connetions betwween two zones
+- Road cannot end in a zone without town
+- Wide connections should have no road
+*/
 
 void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 {
