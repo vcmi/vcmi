@@ -1026,6 +1026,22 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 
 	auto zones = map.getZones();
 	
+	// Helper lambda to set road option for all instances of a connection
+	auto setRoadOptionForConnection = [&zones](int connectionId, rmg::ERoadOption roadOption)
+	{
+		// Update all instances of this connection (A→B and B→A) to have the same road option
+		for(auto & zonePtr : zones)
+		{
+			for(auto & connection : zonePtr.second->getConnections())
+			{
+				if(connection.getId() == connectionId)
+				{
+					zonePtr.second->setRoadOption(connectionId, roadOption);
+				}
+			}
+		}
+	};
+	
 	// Identify zones with towns
 	std::set<TRmgTemplateZoneId> zonesWithTowns;
 	for(const auto & zone : zones)
@@ -1050,7 +1066,7 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			{
 				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 				{
-					zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+					setRoadOptionForConnection(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
 				}
 			}
 		}
@@ -1158,7 +1174,7 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 						continue;
 						
 					// Upgrade to TRUE
-					zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_TRUE);
+					setRoadOptionForConnection(connection.getId(), rmg::ERoadOption::ROAD_TRUE);
 					directConnections[zoneA][zoneB] = true;
 					directConnections[zoneB][zoneA] = true;
 					
@@ -1179,7 +1195,6 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 	// Process remaining RANDOM roads - prioritize town connectivity
 	// First collect all RANDOM roads
 	std::vector<std::pair<int, std::pair<TRmgTemplateZoneId, TRmgTemplateZoneId>>> randomRoads;
-	RandomGeneratorUtil::randomShuffle(randomRoads, *rand);
 	
 	for(auto & zonePtr : zones)
 	{
@@ -1194,7 +1209,7 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 				// Skip if these zones are already directly connected by a TRUE road
 				if(vstd::contains(directConnections[zoneA], zoneB) && directConnections[zoneA][zoneB])
 				{
-					zonePtr.second->setRoadOption(id, rmg::ERoadOption::ROAD_FALSE);
+					setRoadOptionForConnection(id, rmg::ERoadOption::ROAD_FALSE);
 					logGlobal->info("Setting RANDOM road to FALSE for connection %d - duplicate of TRUE road between zones %d and %d", 
 									id, zoneA, zoneB);
 					continue;
@@ -1204,6 +1219,8 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 			}
 		}
 	}
+	
+	RandomGeneratorUtil::randomShuffle(randomRoads, *rand);
 	
 	// Process random roads - first connect town zones
 	for(auto& road : randomRoads)
@@ -1241,23 +1258,12 @@ void CZonePlacer::dropRandomRoads(vstd::RNG * rand)
 		}
 		
 		// Update all zones with this connection
-		for(auto & zonePtr : zones)
+		setRoadOptionForConnection(id, setToTrue ? rmg::ERoadOption::ROAD_TRUE : rmg::ERoadOption::ROAD_FALSE);
+		
+		if(setToTrue)
 		{
-			for(auto & connection : zonePtr.second->getConnections())
-			{
-				if(connection.getId() == id)
-				{
-					zonePtr.second->setRoadOption(id, setToTrue ? rmg::ERoadOption::ROAD_TRUE : rmg::ERoadOption::ROAD_FALSE);
-					
-					if(setToTrue)
-					{
-						directConnections[zoneA][zoneB] = true;
-						directConnections[zoneB][zoneA] = true;
-					}
-					
-					break;
-				}
-			}
+			directConnections[zoneA][zoneB] = true;
+			directConnections[zoneB][zoneA] = true;
 		}
 	}
 	
