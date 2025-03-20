@@ -65,6 +65,7 @@ public:
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
+	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -90,6 +91,9 @@ public:
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
+
+	CGameState * gameState() final { return gs.get(); }
+	const CGameState * gameState() const final { return gs.get(); }
 
 	// Helpers to create new object of specified type
 

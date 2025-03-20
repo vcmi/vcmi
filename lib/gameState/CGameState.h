@@ -69,6 +69,9 @@ public:
 	CGameState();
 	virtual ~CGameState();
 
+	CGameState * gameState() final { return this; }
+	const CGameState * gameState() const final { return this; }
+
 	void preInit(Services * services, IGameCallback * callback);
 
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);

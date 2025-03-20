@@ -31,15 +31,12 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapInfo::CMapInfo()
-	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
+	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
 
 }
 
-CMapInfo::~CMapInfo()
-{
-	vstd::clear_pointer(scenarioOptionsOfSave);
-}
+CMapInfo::~CMapInfo() = default;
 
 std::string CMapInfo::getFullFileURI(const ResourcePath & file) const
 {

@@ -49,7 +49,7 @@ public:
 	void SetUp() override
 	{
 		gameState = std::make_shared<CGameState>();
-		gameCallback->setGameState(gameState.get());
+		gameCallback->setGameState(gameState);
 		gameState->preInit(&services, gameCallback.get());
 	}
 

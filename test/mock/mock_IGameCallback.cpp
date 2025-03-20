@@ -22,9 +22,9 @@ GameCallbackMock::~GameCallbackMock()
 
 }
 
-void GameCallbackMock::setGameState(CGameState * gameState)
+void GameCallbackMock::setGameState(std::shared_ptr<CGameState> newGameState)
 {
-	gs = gameState;
+	gamestate = newGameState;
 }
 
 void GameCallbackMock::sendAndApply(CPackForClient & pack)

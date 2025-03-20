@@ -141,7 +141,6 @@ int CGameState::getDate(Date mode) const
 
 CGameState::CGameState()
 {
-	gs = this;
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
@@ -275,7 +274,7 @@ void CGameState::updateOnLoad(StartInfo * si)
 	assert(callback);
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
-		gs->players[i.first].human = i.second.isControlledByHuman();
+		players[i.first].human = i.second.isControlledByHuman();
 	scenarioOps->extraOptionsInfo = si->extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si->turnTimerInfo;
 	scenarioOps->simturnsInfo = si->simturnsInfo;
@@ -606,7 +605,7 @@ void CGameState::initHeroes()
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(callback, nullptr));
-			handler->configureObject(boat.get(), gs->getRandomGenerator());
+			handler->configureObject(boat.get(), getRandomGenerator());
 
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
@@ -1031,7 +1030,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	const TerrainTile &t = map->getTile(tile);
 
 	ObjectInstanceID topObjectID = t.visitableObjects.front();
-	const CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
+	const CGObjectInstance * topObject = getObjInstance(topObjectID);
 	if(topObject && topObject->getBattlefield() != BattleField::NONE)
 	{
 		return topObject->getBattlefield();
@@ -1183,7 +1182,7 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
+	return getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
@@ -1376,7 +1375,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::DAYS_PASSED:
 		{
-			return (si32)gs->day > condition.value;
+			return (si32)day > condition.value;
 		}
 		case EventCondition::IS_HUMAN:
 		{
@@ -1498,7 +1497,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 3) //obelisks found
 	{
-		FILL_FIELD(obelisks, Statistic::getObeliskVisited(gs, gs->getPlayerTeam(g->second.color)->id))
+		FILL_FIELD(obelisks, Statistic::getObeliskVisited(this, getPlayerTeam(g->second.color)->id))
 	}
 	if(level >= 4) //artifacts
 	{
@@ -1510,7 +1509,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 5) //income
 	{
-		FILL_FIELD(income, Statistic::getIncome(gs, &g->second))
+		FILL_FIELD(income, Statistic::getIncome(this, &g->second))
 	}
 	if(level >= 2) //best hero's stats
 	{

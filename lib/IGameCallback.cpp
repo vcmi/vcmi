@@ -58,17 +58,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	floors.reserve(gs->getMap().levels());
-	for(int b = 0; b < gs->getMap().levels(); ++b)
+	floors.reserve(gameState()->getMap().levels());
+	for(int b = 0; b < gameState()->getMap().levels(); ++b)
 	{
 		floors.push_back(b);
 	}
 	const TerrainTile * tinfo = nullptr;
 	for (auto zd : floors)
 	{
-		for (int xd = 0; xd < gs->getMap().width; xd++)
+		for (int xd = 0; xd < gameState()->getMap().width; xd++)
 		{
-			for (int yd = 0; yd < gs->getMap().height; yd++)
+			for (int yd = 0; yd < gameState()->getMap().height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
@@ -94,10 +94,10 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 		getAllTiles (tiles, player, -1, [](auto * tile){return true;});
 	else
 	{
-		const TeamState * team = !player ? nullptr : gs->getPlayerTeam(*player);
-		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->getMap().width - 1); xd++)
+		const TeamState * team = !player ? nullptr : gameState()->getPlayerTeam(*player);
+		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gameState()->getMap().width - 1); xd++)
 		{
-			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->getMap().height - 1); yd++)
+			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gameState()->getMap().height - 1); yd++)
 			{
 				int3 tilePos(xd,yd,pos.z);
 				int distance = pos.dist(tilePos, distanceFormula);
@@ -126,7 +126,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		for(int b = 0; b < gs->getMap().levels(); ++b)
+		for(int b = 0; b < gameState()->getMap().levels(); ++b)
 		{
 			floors.push_back(b);
 		}
@@ -136,9 +136,9 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 
 	for(auto zd: floors)
 	{
-		for(int xd = 0; xd < gs->getMap().width; xd++)
+		for(int xd = 0; xd < gameState()->getMap().width; xd++)
 		{
-			for(int yd = 0; yd < gs->getMap().height; yd++)
+			for(int yd = 0; yd < gameState()->getMap().height; yd++)
 			{
 				int3 coordinates(xd, yd, zd);
 				if (filter(getTile(coordinates)))
@@ -160,7 +160,7 @@ void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, 
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
-	for (auto const & spellID : gs->getMap().allowedSpells)
+	for (auto const & spellID : gameState()->getMap().allowedSpells)
 	{
 		const auto * spell = spellID.toEntity(LIBRARY);
 
@@ -174,18 +174,13 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::
 	}
 }
 
-CGameState * CPrivilegedInfoCallback::gameState()
-{
-	return gs;
-}
-
 void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 {
 	logGlobal->info("Loading lib part of game...");
 	in.checkMagicBytes(SAVEGAME_MAGIC);
 
 	CMapHeader dum;
-	StartInfo * si = nullptr;
+	StartInfo si;
 	ActiveModsInSaveList activeMods;
 
 	logGlobal->info("\tReading header");
@@ -198,7 +193,7 @@ void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 	in.serializer & activeMods;
 
 	logGlobal->info("\tReading gamestate");
-	in.serializer & gs;
+	in.serializer & *gameState();
 }
 
 void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
@@ -208,20 +203,20 @@ void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->info("\tSaving header");
-	out.serializer & static_cast<CMapHeader&>(gs->getMap());
+	out.serializer & static_cast<const CMapHeader&>(gameState()->getMap());
 	logGlobal->info("\tSaving options");
-	out.serializer & gs->getStartInfo();
+	out.serializer & *gameState()->getStartInfo();
 	logGlobal->info("\tSaving mod list");
 	out.serializer & activeMods;
 	logGlobal->info("\tSaving gamestate");
-	out.serializer & gs;
+	out.serializer & *gameState();
 }
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
-	if(!gs->getMap().isInTheMap(pos))
+	if(!gameState()->getMap().isInTheMap(pos))
 		return nullptr;
-	return &gs->getMap().getTile(pos);
+	return &gameState()->getMap().getTile(pos);
 }
 
 CGHeroInstance * CNonConstInfoCallback::getHero(const ObjectInstanceID & objid)
@@ -251,12 +246,12 @@ PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, b
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)
 {
-	return gs->getMap().getArtifactInstance(aid);
+	return gameState()->getMap().getArtifactInstance(aid);
 }
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)
 {
-	return gs->getMap().getObject(oid);
+	return gameState()->getMap().getObject(oid);
 }
 
 CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)

@@ -320,7 +320,7 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
 	ObjectInstanceID topObjectID = gs->getMap().getTile(obj->visitablePos()).topVisitableObj();
 	const CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
@@ -341,7 +341,7 @@ bool CGTeleport::isExitPassable(CGameState * gs, const CGHeroInstance * h, const
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{

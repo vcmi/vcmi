@@ -54,7 +54,7 @@ const CMapInfo * CSavingScreen::getMapInfo()
 const StartInfo * CSavingScreen::getStartInfo()
 {
 	if (localMi)
-		return localMi->scenarioOptionsOfSave;
+		return localMi->scenarioOptionsOfSave.get();
 	return GAME->interface()->cb->getStartInfo();
 }
 

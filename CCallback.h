@@ -150,8 +150,13 @@ public:
 
 class CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
 {
+	std::shared_ptr<CGameState> gamestate;
+
+	CGameState * gameState() final { return gamestate.get(); }
+	const CGameState * gameState() const final { return gamestate.get(); }
+
 public:
-	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);
+	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)

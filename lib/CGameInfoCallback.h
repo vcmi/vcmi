@@ -102,7 +102,6 @@ public:
 //	const CMapHeader * getMapHeader()const;
 //	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 //	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
-//	std::shared_ptr<boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 //	bool isInTheMap(const int3 &pos) const;
 
 	//town
@@ -133,10 +132,9 @@ public:
 class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
 {
 protected:
-	CGameState * gs;//todo: replace with protected const getter, only actual Server and Client objects should hold game state
+	virtual CGameState * gameState() = 0;
+	virtual const CGameState * gameState() const = 0;
 
-	CGameInfoCallback();
-	CGameInfoCallback(CGameState * GS);
 	bool hasAccess(std::optional<PlayerColor> playerId) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
@@ -203,7 +201,6 @@ public:
 	virtual int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const;
 	virtual const TerrainTile * getTileUnchecked(int3 tile) const;
-	virtual std::shared_ptr<const boost::multi_array<TerrainTile*, 3>> getAllVisibleTiles() const;
 	virtual bool isInTheMap(const int3 &pos) const;
 	virtual void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const;

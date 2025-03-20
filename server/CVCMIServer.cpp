@@ -294,7 +294,7 @@ bool CVCMIServer::prepareToStartGame()
 void CVCMIServer::startGameImmediately()
 {
 	for(auto activeConnection : activeConnections)
-		activeConnection->enterGameplayConnectionMode(gh->gs);
+		activeConnection->enterGameplayConnectionMode(gh->gs.get());
 
 	gh->start(si->mode == EStartMode::LOAD_GAME);
 	setState(EServerState::GAMEPLAY);

@@ -122,6 +122,7 @@ public:
 /// Class which handles client - server logic
 class CClient : public IGameCallback, public Environment
 {
+	std::shared_ptr<CGameState> gamestate;
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
 	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
@@ -139,8 +140,11 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	void newGame(CGameState * gameState);
-	void loadGame(CGameState * gameState);
+	CGameState * gameState() final { return gamestate.get(); }
+	const CGameState * gameState() const final { return gamestate.get(); }
+
+	void newGame(std::shared_ptr<CGameState> gameState);
+	void loadGame(std::shared_ptr<CGameState> gameState);
 
 	void save(const std::string & fname);
 	void endNetwork();

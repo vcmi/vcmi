@@ -58,7 +58,7 @@ namespace scripting
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
-	CGameState *gameState();
+	using CGameInfoCallback::gameState; // make public
 
 	//used for random spawns
 	void getFreeTiles(std::vector<int3> &tiles) const;

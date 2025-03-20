@@ -113,7 +113,7 @@ const Services * CGameHandler::services() const
 
 const CGameHandler::BattleCb * CGameHandler::battle(const BattleID & battleID) const
 {
-	return gs->getBattle(battleID);
+	return gameState()->getBattle(battleID);
 }
 
 const CGameHandler::GameCb * CGameHandler::game() const
@@ -348,8 +348,8 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
 	TExpType currExp = hero->exp;
 
-	if (gs->getMap().levelLimit != 0)
-		maxExp = LIBRARY->heroh->reqExp(gs->getMap().levelLimit);
+	if (gameState()->getMap().levelLimit != 0)
+		maxExp = LIBRARY->heroh->reqExp(gameState()->getMap().levelLimit);
 
 	TExpType canGainExp = 0;
 	if (maxExp > currExp)
@@ -423,7 +423,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 {
-	if(gameLobby().getState() == EServerState::SHUTDOWN || !gs || !gs->getStartInfo())
+	if(gameLobby().getState() == EServerState::SHUTDOWN || !gameState() || !gameState()->getStartInfo())
 	{
 		assert(0); // game should have shut down before reaching this point!
 		return;
@@ -432,7 +432,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
-		auto * playerSettings = gs->getStartInfo()->getPlayersSettings(playerId.getNum());
+		auto * playerSettings = gameState()->getStartInfo()->getPlayersSettings(playerId.getNum());
 		if(!playerSettings)
 			continue;
 		
@@ -443,7 +443,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 		logGlobal->trace("Player %s disconnected. Notifying remaining players", playerId.toString());
 
 		// this player have left the game - broadcast infowindow to all in-game players
-		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
+		for (auto i = gameState()->players.cbegin(); i!=gameState()->players.cend(); i++)
 		{
 			if (i->first == playerId)
 				continue;
@@ -526,8 +526,6 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 CGameHandler::~CGameHandler()
 {
 	delete spellEnv;
-	delete gs;
-	gs = nullptr;
 }
 
 void CGameHandler::reinitScripting()
@@ -546,16 +544,16 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
 
 	CMapService mapService;
-	gs = new CGameState();
+	gs = std::make_shared<CGameState>();
 	gs->preInit(LIBRARY, this);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
-	for (auto & elem : gs->players)
+	for (auto & elem : gameState()->players)
 		turnOrder->addPlayer(elem.first);
 
-//	for (auto & elem : gs->getMap().allHeroes)
+//	for (auto & elem : gameState()->getMap().allHeroes)
 //	{
 //		if(elem)
 //			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
@@ -620,12 +618,12 @@ void CGameHandler::onPlayerTurnEnded(PlayerColor which)
 
 void CGameHandler::addStatistics(StatisticDataSet &stat) const
 {
-	for (const auto & elem : gs->players)
+	for (const auto & elem : gameState()->players)
 	{
 		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
 			continue;
 
-		auto data = StatisticDataSet::createEntry(&elem.second, gs);
+		auto data = StatisticDataSet::createEntry(&elem.second, gameState());
 
 		stat.add(data);
 	}
@@ -633,14 +631,14 @@ void CGameHandler::addStatistics(StatisticDataSet &stat) const
 
 void CGameHandler::onNewTurn()
 {
-	logGlobal->trace("Turn %d", gs->day+1);
+	logGlobal->trace("Turn %d", gameState()->day+1);
 
 	bool firstTurn = !getDate(Date::DAY);
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
 	if (firstTurn)
 	{
-		for (auto obj : gs->getMap().getObjects<CGHeroInstance>())
+		for (auto obj : gameState()->getMap().getObjects<CGHeroInstance>())
 		{
 			if (obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
@@ -648,7 +646,7 @@ void CGameHandler::onNewTurn()
 			}
 		}
 
-		for (auto & elem : gs->players)
+		for (auto & elem : gameState()->players)
 			heroPool->onNewWeek(elem.first);
 
 	}
@@ -677,7 +675,7 @@ void CGameHandler::onNewTurn()
 		auto t = gameState()->getTown(townID);
 		if (t->hasBonusOfType (BonusType::DARKNESS))
 		{
-			for (auto & player : gs->players)
+			for (auto & player : gameState()->players)
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
@@ -700,7 +698,7 @@ void CGameHandler::onNewTurn()
 		checkVictoryLossConditionsForAll(); // check for map turn limit
 
 	//call objects
-	for (auto & elem : gs->getMap().getObjects())
+	for (auto & elem : gameState()->getMap().getObjects())
 	{
 		if (elem)
 			elem->newTurn(getRandomGenerator());
@@ -734,7 +732,7 @@ void CGameHandler::start(bool resume)
 	{
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
-		for(auto & player : gs->players)
+		for(auto & player : gameState()->players)
 			turnTimerHandler->onGameplayStart(player.first);
 	}
 	else
@@ -804,7 +802,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// not turn of that hero or player can't simply teleport hero (at least not with this function)
 	if(!h || (asker != PlayerColor::NEUTRAL && movementMode != EMovementMode::STANDARD))
 	{
-		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gs->players[h->getOwner()].turnTimer.turnTimer == 0)
+		if(h && getStartInfo()->turnTimerInfo.isEnabled() && gameState()->players[h->getOwner()].turnTimer.turnTimer == 0)
 			return true; //timer expired, no error
 		
 		logGlobal->error("Illegal call to move hero!");
@@ -814,14 +812,14 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	logGlobal->trace("Player %d (%s) wants to move hero %d from %s to %s", asker, asker.toString(), hid.getNum(), h->anchorPos().toString(), dst.toString());
 	const int3 hmpos = h->convertToVisitablePos(dst);
 
-	if (!gs->getMap().isInTheMap(hmpos))
+	if (!gameState()->getMap().isInTheMap(hmpos))
 	{
 		logGlobal->error("Destination tile is outside the map!");
 		return false;
 	}
 
 	const TerrainTile t = *getTile(hmpos);
-	const int3 guardPos = gs->guardingCreaturePosition(hmpos);
+	const int3 guardPos = gameState()->guardingCreaturePosition(hmpos);
 	CGObjectInstance * objectToVisit = nullptr;
 	CGObjectInstance * guardian = nullptr;
 
@@ -853,7 +851,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	tmh.movePoints = h->movementPointsRemaining();
 
 	//check if destination tile is available
-	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, h, PathfinderOptions(this));
+	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
 	const bool canFly = ti->hasFlyingMovement() || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
@@ -913,7 +911,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		for(const auto & objID : gs->getMap().getTile(h->visitablePos()).visitableObjects)
+		for(const auto & objID : gameState()->getMap().getTile(h->visitablePos()).visitableObjects)
 			gameState()->getObjInstance(objID)->onHeroLeave(h);
 
 		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadius(), ETileVisibility::HIDDEN, h->tempOwner);
@@ -1042,7 +1040,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
-		gs->statistic.accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
+		gameState()->statistic.accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
 		return true;
 	}
 }
@@ -1086,7 +1084,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
-		gs->statistic.accumulatedValues[owner].lastCapturedTownDay = gs->getDate(Date::DAY);
+		gameState()->statistic.accumulatedValues[owner].lastCapturedTownDay = gameState()->getDate(Date::DAY);
 
 		if (owner.isValidPlayer()) //new owner is real player
 		{
@@ -1455,8 +1453,8 @@ void CGameHandler::sendToAllClients(CPackForClient & pack)
 void CGameHandler::sendAndApply(CPackForClient & pack)
 {
 	sendToAllClients(pack);
-	gs->apply(pack);
-	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
+	gameState()->apply(pack);
+	logNetwork->trace("\tApplied on gameState(): %s", typeid(pack).name());
 }
 
 void CGameHandler::sendAndApply(CGarrisonOperationPack & pack)
@@ -1615,8 +1613,8 @@ bool CGameHandler::load(const std::string & filename)
 		gameLobby().announceMessage(str);
 		return false;
 	}
-	gs->preInit(LIBRARY, this);
-	gs->updateOnLoad(gameLobby().si.get());
+	gameState()->preInit(LIBRARY, this);
+	gameState()->updateOnLoad(gameLobby().si.get());
 	return true;
 }
 
@@ -2191,7 +2189,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!force)
 	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-		gs->statistic.accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
+		gameState()->statistic.accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
@@ -2279,7 +2277,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 
 bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted)
 {
-	CGTownInstance *t = gs->getTown(tid);
+	CGTownInstance *t = gameState()->getTown(tid);
 
 	if(!getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
 		return false;
@@ -2391,7 +2389,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	//recruit
 	TResources cost = (c->getFullRecruitCost() * cram);
 	giveResources(army->tempOwner, -cost);
-	gs->statistic.accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
+	gameState()->statistic.accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2454,7 +2452,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
-	gs->statistic.accumulatedValues[player].spentResourcesForArmy += totalCost;
+	gameState()->statistic.accumulatedValues[player].spentResourcesForArmy += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj->id, pos), upgID.toCreature());
@@ -3066,7 +3064,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if(dynamic_cast<const CGTownInstance *>(m))
 	{
 		saa.id = ObjectInstanceID::NONE;
-		saa.arts = gs->getMap().townMerchantArtifacts;
+		saa.arts = gameState()->getMap().townMerchantArtifacts;
 	}
 	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m)) //black market
 	{
@@ -3156,8 +3154,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	giveResource(player, toSell, -b1 * amountToBoy);
 	giveResource(player, toBuy, b2 * amountToBoy);
 
-	gs->statistic.accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
-	gs->statistic.accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
+	gameState()->statistic.accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
+	gameState()->statistic.accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
 
 	return true;
 }
@@ -3485,7 +3483,7 @@ bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)
 	}
 
 	int3 tile = obj->bestLocation();
-	if (!gs->getMap().isInTheMap(tile))
+	if (!gameState()->getMap().isInTheMap(tile))
 	{
 		complain("Cannot find appropriate tile for a boat!");
 		return false;
@@ -3521,7 +3519,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 	if(!p || p->status != EPlayerStatus::INGAME) return;
 
-	auto victoryLossCheckResult = gs->checkForVictoryAndLoss(player);
+	auto victoryLossCheckResult = gameState()->checkForVictoryAndLoss(player);
 
 	if (victoryLossCheckResult.victory() || victoryLossCheckResult.loss())
 	{
@@ -3539,7 +3537,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
-			for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
+			for (auto i = gameState()->players.cbegin(); i!=gameState()->players.cend(); i++)
 			{
 				if (i->first != player && getPlayerState(i->first)->status == EPlayerStatus::INGAME)
 				{
@@ -3575,7 +3573,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 
 			//player lost -> all his objects become unflagged (neutral)
-			for (auto obj : gs->getMap().getObjects()) //unflag objs
+			for (auto obj : gameState()->getMap().getObjects()) //unflag objs
 			{
 				if (obj && obj->tempOwner == player)
 					setOwner(obj, PlayerColor::NEUTRAL);
@@ -3585,7 +3583,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			std::set<PlayerColor> playerColors;
 
 			//do not copy player state (CBonusSystemNode) by value
-			for (auto &p : gs->players) //players may have different colors, iterate over players and not integers
+			for (auto &p : gameState()->players) //players may have different colors, iterate over players and not integers
 			{
 				if (p.first != player)
 					playerColors.insert(p.first);
@@ -3631,7 +3629,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	if (gs->getMap().grailPos == h->visitablePos())
+	if (gameState()->getMap().grailPos == h->visitablePos())
 	{
 		ArtifactID grail = ArtifactID::GRAIL;
 
@@ -4062,7 +4060,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 void CGameHandler::synchronizeArtifactHandlerLists()
 {
 	UpdateArtHandlerLists uahl;
-	uahl.allocatedArtifacts = gs->allocatedArtifacts;
+	uahl.allocatedArtifacts = gameState()->allocatedArtifacts;
 	sendAndApply(uahl);
 }
 
@@ -4253,15 +4251,15 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 {
 	TerrainId terrainType = ETerrainId::NONE;
 
-	if (!gs->isInTheMap(visitablePosition))
+	if (!gameState()->isInTheMap(visitablePosition))
 		throw std::runtime_error("Attempt to create object outside map at " + visitablePosition.toString());
 
-	const TerrainTile & t = gs->getMap().getTile(visitablePosition);
+	const TerrainTile & t = gameState()->getMap().getTile(visitablePosition);
 	terrainType = t.getTerrainID();
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
-	auto o = handler->create(gs->callback, nullptr);
+	auto o = handler->create(gameState()->callback, nullptr);
 	handler->configureObject(o.get(), getRandomGenerator());
 	assert(o->ID == objectID);
 
@@ -4292,7 +4290,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->character = 2;
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
-	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gs->callback, creature, -1)); //add placeholder stack
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gameState()->callback, creature, -1)); //add placeholder stack
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }
@@ -4311,7 +4309,7 @@ void CGameHandler::createHole(const int3 & visitablePosition, PlayerColor initia
 
 void CGameHandler::newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator)
 {
-	object->initObj(gs->getRandomGenerator());
+	object->initObj(gameState()->getRandomGenerator());
 
 	NewObject no;
 	no.newObject = object;
