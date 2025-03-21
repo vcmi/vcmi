@@ -3,6 +3,18 @@
  
 	"images" :
 	[
-		{ "frame" : 0, "file" : "back.png" }
+		{
+			"frame": 0,
+			"file" : "arrow-back-normal"
+		},
+		{
+			"frame": 1,
+			"file" : "arrow-back-down"
+		},
+		{
+			"frame": 2,
+			"file" : "arrow-back-hover"
+		}
 	]
+
 }

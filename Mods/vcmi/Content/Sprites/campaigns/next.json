@@ -3,6 +3,18 @@
  
 	"images" :
 	[
-		{ "frame" : 0, "file" : "next.png" }
+		{
+			"frame": 0,
+			"file" : "arrow-next-normal"
+		},
+		{
+			"frame": 1,
+			"file" : "arrow-next-down"
+		},
+		{
+			"frame": 2,
+			"file" : "arrow-next-hover"
+		}
 	]
+
 }
