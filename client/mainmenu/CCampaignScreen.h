@@ -65,8 +65,8 @@ private:
 	int currentPage = 0;
 	int maxPages = 0;
 
-	void switchPage(int delta, const std::string& campaignSet);
-	void updateCampaignButtons(const JsonNode& parentConfig, const std::string& campaignSet);
+	void switchPage(int delta);
+	void updateCampaignButtons(const JsonNode& parentConfig);
 
 public:
 	CCampaignScreen(const JsonNode & config, std::string campaignSet);

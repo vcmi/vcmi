@@ -100,7 +100,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 			Point(config[name]["nextbutton"]["x"].Integer(), config[name]["nextbutton"]["y"].Integer()),
 			AnimationPath::fromJson(config[name]["nextbutton"]["name"]),
 			std::make_pair("", ""),
-			[this, name]() { switchPage(1, name); }
+			[this, name]() { switchPage(1); }
 		);
 		buttonNext->setHoverable(true);
 		buttonNext->disable();
@@ -113,7 +113,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 			Point(config[name]["backbutton"]["x"].Integer(), config[name]["backbutton"]["y"].Integer()),
 			AnimationPath::fromJson(config[name]["backbutton"]["name"]),
 			std::make_pair("", ""),
-			[this, name]() { switchPage(-1, name); }
+			[this, name]() { switchPage(-1); }
 		);
 		buttonPrev->setHoverable(true);
 		buttonPrev->disable();
@@ -126,7 +126,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 		buttonBack->setHoverable(true);
 	}
 
-	updateCampaignButtons(config, campaignSet);
+	updateCampaignButtons(config);
 }
 
 void CCampaignScreen::activate()
@@ -221,17 +221,17 @@ void CCampaignScreen::CCampaignButton::hover(bool on)
 	}
 }
 
-void CCampaignScreen::switchPage(int delta, const std::string & campaignSet)
+void CCampaignScreen::switchPage(int delta)
 {
 	currentPage += delta;
 	currentPage = std::clamp(currentPage, 0, maxPages - 1);
 
 	const auto& campaignConfig = CMainMenuConfig::get().getCampaigns();
 
-	updateCampaignButtons(campaignConfig, campaignSet);
+	updateCampaignButtons(campaignConfig);
 }
 
-void CCampaignScreen::updateCampaignButtons(const JsonNode & parentConfig, const std::string & campaignSet)
+void CCampaignScreen::updateCampaignButtons(const JsonNode & parentConfig)
 {
 	const auto& campaigns = parentConfig[campaignSet]["items"].Vector();
 
