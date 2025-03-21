@@ -110,7 +110,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	if (!config[name]["backbutton"].isNull())
 	{
 		buttonPrev = std::make_shared<CButton>(
-			Point((int)config[name]["backbutton"]["x"].Float(), (int)config[name]["backbutton"]["y"].Float()),
+			Point(config[name]["backbutton"]["x"].Integer(), config[name]["backbutton"]["y"].Integer()),
 			AnimationPath::fromJson(config[name]["backbutton"]["name"]),
 			std::make_pair("", ""),
 			[this, name]() { switchPage(-1, name); }
