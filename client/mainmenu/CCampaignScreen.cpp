@@ -97,7 +97,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	if (!config[name]["nextbutton"].isNull())
 	{
 		buttonNext = std::make_shared<CButton>(
-			Point((int)config[name]["nextbutton"]["x"].Float(), (int)config[name]["nextbutton"]["y"].Float()),
+			Point(config[name]["nextbutton"]["x"].Integer(), config[name]["nextbutton"]["y"].Integer()),
 			AnimationPath::fromJson(config[name]["nextbutton"]["name"]),
 			std::make_pair("", ""),
 			[this, name]() { switchPage(1, name); }
