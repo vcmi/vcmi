@@ -4,6 +4,7 @@
 
 This is list of all languages that are currently supported by VCMI. If your languages is missing from the list and you wish to translate VCMI - please contact our team and we'll add support for your language in next release.
 
+- Belarusian
 - Bulgarian
 - Czech
 - Chinese (Simplified)

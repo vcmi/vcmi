@@ -10,6 +10,17 @@
 	"creatures" : [ "config/towerCreature" ],
 	"spells" : [ "config/spells" ],
 
+	"belarusian" : {
+		"name" : "Асноўныя файлы VCMI",
+		"description" : "Асноўныя файлы, неабходныя для карэктнай працы VCMI",
+		"author" : "Каманда VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/belarusian.json"
+		]
+	},
+
 	"bulgarian" : {
 		"name" : "Основни файлове на VCMI",
 		"description" : "Основни файлове, необходими за правилното функциониране на VCMI",
