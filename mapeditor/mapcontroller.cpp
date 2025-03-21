@@ -537,21 +537,24 @@ void MapController::commitObjectCreate(int level)
 }
 
 bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString & error) const
-{
-	//find all objects of such type
-	int objCounter = 0;
-	for(auto o : _map->objects)
+{	
+	if(newObj->ID == Obj::GRAIL) //special case for grail
 	{
-		if(o->ID == newObj->ID && o->subID == newObj->subID)
+		//find all objects of such type
+		int objCounter = 0;
+		for(auto o : _map->objects)
 		{
-			++objCounter;
+			if(o->ID == newObj->ID && o->subID == newObj->subID)
+			{
+				++objCounter;
+			}
 		}
-	}
-	
-	if(newObj->ID == Obj::GRAIL && objCounter >= 1) //special case for grail
-	{
-		error = QObject::tr("There can only be one grail object on the map.");
-		return false; //maplimit reached
+
+		if(objCounter >= 1)
+		{
+			error = QObject::tr("There can only be one grail object on the map.");
+			return false; //maplimit reached
+		}
 	}
 	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
