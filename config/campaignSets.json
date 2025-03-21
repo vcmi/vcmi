@@ -19,7 +19,7 @@
 		"images" :
 		[
 			{"x": 0,   "y": 0,   "name":"CampaignBackground6"},
-			{"x": 32,  "y": 417, "name":"CAMP1FWX"}				// 6. campaign have special inactive image
+			{"x": 34,  "y": 417, "name":"CAMP1FWX"}				// 6. campaign have special inactive image
 		],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
