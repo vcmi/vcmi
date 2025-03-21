@@ -58,6 +58,7 @@ private:
 	std::shared_ptr<CButton> buttonBack;
 	std::shared_ptr<CButton> buttonNext;
 	std::shared_ptr<CButton> buttonPrev;
+	std::shared_ptr<CLabel> page;
 
 	std::shared_ptr<CButton> createExitButton(const JsonNode & button);
 

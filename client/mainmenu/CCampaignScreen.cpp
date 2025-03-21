@@ -81,7 +81,6 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 		images[0]->moveTo(pos.topLeft()); // restore moved twice background
 		pos = images[0]->pos; // fix height\width of this window
 	}
-
 	
 	for (const auto& node : campaigns)
 	{
@@ -91,8 +90,6 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 	}
 
 	maxPages = (campaigns.size() + campaignsPerPage - 1) / campaignsPerPage;
-
-
 	
 	if (!config[name]["nextbutton"].isNull())
 	{
@@ -106,7 +103,6 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 		buttonNext->disable();
 	}
 
-
 	if (!config[name]["backbutton"].isNull())
 	{
 		buttonPrev = std::make_shared<CButton>(
@@ -119,6 +115,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 		buttonPrev->disable();
 	}
 
+	page = std::make_shared<CLabel>(10, 570, FONT_MEDIUM, ETextAlignment::BOTTOMLEFT, Colors::YELLOW, "");
 
 	if (!config[name]["exitbutton"].isNull())
 	{
@@ -256,6 +253,8 @@ void CCampaignScreen::updateCampaignButtons(const JsonNode & parentConfig)
 
 	if(buttonNext && buttonPrev)
 	{
+		page->setText(std::to_string(currentPage + 1) + "/" + std::to_string(maxPages));
+
 		if (maxId < campaigns.size())
 			buttonNext->enable();
 		else
