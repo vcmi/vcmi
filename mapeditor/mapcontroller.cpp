@@ -29,12 +29,18 @@
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/serializer/CMemorySerializer.h"
+#include "mapsettings/modsettings.h"
 #include "mapview.h"
 #include "scenelayer.h"
 #include "maphandler.h"
 #include "mainwindow.h"
 #include "inspector/inspector.h"
 #include "GameLibrary.h"
+
+MapController::MapController(QObject * parent)
+	: QObject(parent)
+{
+}
 
 MapController::MapController(MainWindow * m): main(m)
 {
@@ -562,6 +568,36 @@ bool MapController::canPlaceObject(int level, CGObjectInstance * newObj, QString
 		error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(newObj->instanceName));
 		return false;
 	}
+
+	// check if object's mod is in required mods in map settings
+	ModCompatibilityInfo modsInfo;
+	modAssessmentObject(newObj, modsInfo);
+
+	for(auto & mod : modsInfo)
+	{
+		if(!_map->mods.count(mod.first))
+		{
+			QString submod;
+			if(!mod.second.parent.empty())
+				submod = " (" + tr("submod of") + " " + QString::fromStdString(mod.second.parent) + ")";
+
+			auto reply = QMessageBox::question(main,
+				tr("Required Mod Missing"),
+				tr("This object is from the mod '%1'%2.\n"
+					"The mod is currently not in the map's required modifications list.\n"
+					"Do you want to add this mod to the required modifications ?")
+				.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name), submod),
+				QMessageBox::Yes | QMessageBox::No);
+
+			if(reply == QMessageBox::Yes)
+				requestModsUpdate(modsInfo, true);		// emit signal for MapSettings
+			else
+			{
+				error = tr("The object's mod is mandatory for map to remain valid.");
+				return false;
+			}
+		}
+	}
 	
 	return true;
 }
@@ -590,49 +626,39 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
-			auto modName = QString::fromStdString(handler->getJsonKey()).split(":").at(0).toStdString();
-			if(modName != "core")
-				result[modName] = LIBRARY->modh->getModInfo(modName).getVerificationInfo();
+			auto modScope = handler->getModScope();
+			if(modScope != "core")
+				result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 		}
 	}
 	return result;
 }
 
-ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
+void MapController::modAssessmentObject(CGObjectInstance * obj, ModCompatibilityInfo & result)
 {
-	ModCompatibilityInfo result;
-
-	auto extractEntityMod = [&result](const auto & entity) 
+	auto extractEntityMod = [&result](const auto & entity)
 	{
 		auto modScope = entity->getModScope();
 		if(modScope != "core")
 			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 	};
 
-	for(auto obj : map.objects)
+	auto handler = obj->getObjectHandler();
+	auto modScope = handler->getModScope();
+	if(modScope != "core")
+		result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
+
+	if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
 	{
-		auto handler = obj->getObjectHandler();
-		auto modScope = handler->getModScope();
-		if(modScope != "core")
-			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
-
-		if(obj->ID == Obj::TOWN || obj->ID == Obj::RANDOM_TOWN)
+		auto town = dynamic_cast<CGTownInstance *>(obj);
+		for(const auto & spellID : town->possibleSpells)
 		{
-			auto town = dynamic_cast<CGTownInstance *>(obj.get());
-			for(const auto & spellID : town->possibleSpells)
-			{
-				if(spellID == SpellID::PRESET)
-					continue;
-				extractEntityMod(spellID.toEntity(LIBRARY));
-			}
-
-			for(const auto & spellID : town->obligatorySpells)
-			{
-				extractEntityMod(spellID.toEntity(LIBRARY));
-			}
+			if(spellID == SpellID::PRESET)
+				continue;
+			extractEntityMod(spellID.toEntity(LIBRARY));
 		}
 
-		if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+		for(const auto & spellID : town->obligatorySpells)
 		{
 			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
 			for(const auto & spellID : hero->getSpellsInSpellbook())
@@ -654,6 +680,37 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 		}
 	}
 
-	//TODO: terrains?
+	if(obj->ID == Obj::HERO || obj->ID == Obj::RANDOM_HERO)
+	{
+		auto hero = dynamic_cast<CGHeroInstance *>(obj);
+		for(const auto & spellID : hero->getSpellsInSpellbook())
+		{
+			if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
+				continue;
+			extractEntityMod(spellID.toEntity(LIBRARY));
+		}
+
+		for(const auto & [_, slotInfo] : hero->artifactsWorn)
+		{
+			extractEntityMod(slotInfo.artifact->getTypeId().toEntity(LIBRARY));
+		}
+
+		for(const auto & art : hero->artifactsInBackpack)
+		{
+			extractEntityMod(art.artifact->getTypeId().toEntity(LIBRARY));
+		}
+	}
+
+//TODO: terrains?
+}
+
+ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
+{
+	ModCompatibilityInfo result;
+
+	for(auto obj : map.objects)
+	{
+		modAssessmentObject(obj.get(), result);
+	}
 	return result;
 }

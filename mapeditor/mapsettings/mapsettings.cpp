@@ -30,7 +30,6 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	
 	assert(controller.map());
 	controller.settingsDialog = this;
-	show();
 
 	for(auto const & objectPtr : LIBRARY->skillh->objects)
 	{
@@ -77,6 +76,11 @@ MapSettings::~MapSettings()
 {
 	controller.settingsDialog = nullptr;
 	delete ui;
+}
+
+ModSettings * MapSettings::getModSettings()
+{
+	return ui->mods;
 }
 
 void MapSettings::on_pushButton_clicked()

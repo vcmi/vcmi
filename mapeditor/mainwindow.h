@@ -8,6 +8,7 @@
 
 class ObjectBrowser;
 class ObjectBrowserProxyModel;
+class MapSettings;
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CConsoleHandler;
@@ -189,6 +190,7 @@ private:
     Ui::MainWindow * ui;
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
+	MapSettings * mapSettings = nullptr;
 	
 	QString filename;
 	QString lastSavingDir;

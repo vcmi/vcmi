@@ -26,15 +26,14 @@ public:
 	void initialize(MapController & map) override;
 	void update() override;
 
+	void updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged = false);
+
 private slots:
 	void on_modResolution_map_clicked();
 
 	void on_modResolution_full_clicked();
 
 	void on_treeMods_itemChanged(QTreeWidgetItem *item, int column);
-
-private:
-	void updateModWidgetBasedOnMods(const ModCompatibilityInfo & mods);
 
 private:
 	Ui::ModSettings *ui;
