@@ -92,11 +92,33 @@ CCampaignScreen::CCampaignScreen(const JsonNode & config, std::string name)
 
 	maxPages = (campaigns.size() + campaignsPerPage - 1) / campaignsPerPage;
 
-	buttonNext = std::make_shared<CButton>(Point(340, 560), AnimationPath::builtin("campaigns/next"), std::make_pair("", ""), [this, name]() { switchPage(1, name); });
-	buttonNext->disable();
 
-	buttonPrev = std::make_shared<CButton>(Point(275, 560), AnimationPath::builtin("campaigns/back"), std::make_pair("", ""), [this, name]() { switchPage(-1, name); });
-	buttonPrev->disable();
+	
+	if (!config[name]["nextbutton"].isNull())
+	{
+		buttonNext = std::make_shared<CButton>(
+			Point((int)config[name]["nextbutton"]["x"].Float(), (int)config[name]["nextbutton"]["y"].Float()),
+			AnimationPath::fromJson(config[name]["nextbutton"]["name"]),
+			std::make_pair("", ""),
+			[this, name]() { switchPage(1, name); }
+		);
+		buttonNext->setHoverable(true);
+		buttonNext->disable();
+	}
+
+
+	if (!config[name]["backbutton"].isNull())
+	{
+		buttonPrev = std::make_shared<CButton>(
+			Point((int)config[name]["backbutton"]["x"].Float(), (int)config[name]["backbutton"]["y"].Float()),
+			AnimationPath::fromJson(config[name]["backbutton"]["name"]),
+			std::make_pair("", ""),
+			[this, name]() { switchPage(-1, name); }
+		);
+		buttonPrev->setHoverable(true);
+		buttonPrev->disable();
+	}
+
 
 	if (!config[name]["exitbutton"].isNull())
 	{
@@ -232,15 +254,18 @@ void CCampaignScreen::updateCampaignButtons(const JsonNode & parentConfig, const
 		}
 	}
 
-	if(maxId < campaigns.size())
-		buttonNext->enable();
-	else
-		buttonNext->disable();
+	if(buttonNext && buttonPrev)
+	{
+		if (maxId < campaigns.size())
+			buttonNext->enable();
+		else
+			buttonNext->disable();
 
-	if(currentPage > 0)
-		buttonPrev->enable();
-	else
-		buttonPrev->disable();
+		if (currentPage > 0)
+			buttonPrev->enable();
+		else
+			buttonPrev->disable();
+	}
 
 	redraw();
 }
