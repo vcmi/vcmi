@@ -45,6 +45,7 @@
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
 #include "mapsettings/translations.h"
+#include "mapsettings/modsettings.h"
 #include "playersettings.h"
 #include "validator.h"
 #include "helper.h"
@@ -371,6 +372,10 @@ void MainWindow::initializeMap(bool isNew)
 	initialScale = ui->mapView->mapToScene(ui->mapView->viewport()->geometry()).boundingRect();
 	
 	//enable settings
+	mapSettings = new MapSettings(controller, this);
+	connect(&controller, &MapController::requestModsUpdate,
+		mapSettings->getModSettings(), &ModSettings::updateModWidgetBasedOnMods);
+
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
@@ -604,7 +609,14 @@ void MainWindow::on_actionCampaignEditor_triggered()
 void MainWindow::on_actionNew_triggered()
 {
 	if(getAnswerAboutUnsavedChanges())
+	{
 		new WindowNewMap(this);
+		//mapSettings = new MapSettings(controller, this);
+		//connect(&controller, &MapController::requestModsUpdate,
+		//	mapSettings->getModSettings(), &ModSettings::updateModWidgetBasedOnMods);
+
+		//controller.requestModsUpdate({}, true);
+	}
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -1124,9 +1136,20 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	auto settingsDialog = new MapSettings(controller, this);
-	settingsDialog->setWindowModality(Qt::WindowModal);
-	settingsDialog->setModal(true);
+	if(!mapSettings)
+		return;
+
+	if(mapSettings->isVisible())
+	{
+		mapSettings->raise();
+		mapSettings->activateWindow();
+	}
+	else
+	{
+		mapSettings->setWindowModality(Qt::WindowModal);
+		mapSettings->setModal(true);
+		mapSettings->show();
+	}
 }
 
 

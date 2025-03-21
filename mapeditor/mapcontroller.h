@@ -20,9 +20,12 @@ class EditorObstaclePlacer;
 VCMI_LIB_NAMESPACE_END
 
 class MainWindow;
-class MapController
+class MapController : public QObject
 {
+	Q_OBJECT
+
 public:
+	explicit MapController(QObject * parent = nullptr);
 	MapController(MainWindow *);
 	MapController(const MapController &) = delete;
 	MapController(const MapController &&) = delete;
@@ -62,6 +65,7 @@ public:
 	void createObject(int level, std::shared_ptr<CGObjectInstance> obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
 	
+	static void modAssessmentObject(CGObjectInstance * obj, ModCompatibilityInfo & result);
 	static ModCompatibilityInfo modAssessmentAll();
 	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
@@ -70,6 +74,9 @@ public:
 	
 	PlayerColor defaultPlayer;
 	QDialog * settingsDialog = nullptr;
+
+signals:
+	void requestModsUpdate(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged) const;
 	
 private:
 	std::unique_ptr<CMap> _map;
