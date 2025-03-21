@@ -174,14 +174,12 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			{
 				QString submod;
 				if(!mod.second.parent.empty())
-					submod = " (submod of '"+ QString::fromStdString(mod.second.parent) +"')";
+					submod = " ("+ tr("submod of") +" "+ QString::fromStdString(mod.second.parent) + ")";
 				
 				issues.insert({
 						tr("Map contains object(s) from mod '%1'%2, but the mod is missing from the map's required mods list."
-						" Add it to the map's required mods in Map->General settings.", "be consistent with Map->General menu entry translation")
-						.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name)), submod),
-						true
-					});
+						" Add it to the map's required mods in Map->General settings.", "should be consistent with Map->General menu entry translation")
+						.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name), submod), true });
 			}
 		}
 	}
