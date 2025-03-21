@@ -338,14 +338,6 @@ AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chr
 		canvas.draw(img, Point(162, 98), Rect(424, 308, 10, 4));
 		canvas.draw(img, Point(158, 102), Rect(424, 312, 10, 4));
 		canvas.draw(img, Point(154, 106), Rect(424, 316, 10, 4));
-
-		//rock
-		//canvas.draw(imgSkull, Point(0, 101), Rect(0, 100, 15, 20));
-		//canvas.draw(img, Point(0, 101), Rect(268, 318, 4, 10));
-		//canvas.draw(img, Point(0, 105), Rect(268, 320, 4, 10));
-		//canvas.draw(img, Point(0, 109), Rect(268, 322, 4, 10));
-		//canvas.draw(img, Point(0, 113), Rect(268, 324, 4, 10));
-
 	}
 
 	return image;
