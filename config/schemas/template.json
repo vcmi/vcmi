@@ -19,6 +19,26 @@
 				"playerTowns" : {"$ref" : "#/definitions/towns"},
 				"neutralTowns" : {"$ref" : "#/definitions/towns"},
 				"matchTerrainToTown" : { "type" : "boolean"},
+				"townHints": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"likeZone": { "type": "number" },
+							"notLikeZone": { 
+								"oneOf": [
+									{ "type": "number" },
+									{ 
+										"type": "array",
+										"items": { "type": "number" }
+									}
+								]
+							},
+							"relatedToZoneTerrain": { "type": "number" }
+						}
+					}
+				},
+				"townsLikeZone" : { "type" : "number" },
 				"minesLikeZone" : { "type" : "number" },
 				"terrainTypeLikeZone" : { "type" : "number" },
 				"treasureLikeZone" : { "type" : "number" },

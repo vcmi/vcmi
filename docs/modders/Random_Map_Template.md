@@ -93,6 +93,22 @@
 
 	//possible terrain types. All terrains will be available if not specified
 	"terrainTypes" : [ "sand" ], 
+
+	// List of type hints for every town, in the order of placement. First present hint if used for each town
+	"townHints" : [
+		{
+			// Main town has same type as main town type in zone 1
+			"likeZone" : 1,
+		},
+		{
+			// 2nd town matches terrain type of zone 4
+			"relatedToZoneTerrain" : 4
+		},
+		{
+			// 3rd town type cannot match any of the following zones. Can be integer or vector of integers
+			"notLikeZone" : [1, 2, 3, 4]
+		}
+	],
 	
 	//optional, list of explicitly banned terrain types
 	"bannedTerrains" : ["lava", "asphalt"] 

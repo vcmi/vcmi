@@ -190,13 +190,35 @@ const Area & Path::getPathArea() const
 	return dPath;
 }
 
+float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int3& center)
+{
+	float R = 30.0f; // radius of the zone
+	float W = 10.0f;// width of the transition area
+	float A = 0.7f; // sine bias
+
+    // Euclidean distance:
+    float d = src.dist2d(dst);
+    
+    // Distance from dst to the zone center:
+    float r = dst.dist2d(center);
+    
+    // Compute normalized offset inside the zone:
+    // (R - W) is the inner edge, R is the outer edge.
+    float t = std::clamp((r - (R - W)) / W, 0.0f, 1.0f);
+    
+    // Use sine bias: lowest cost in the middle (t=0.5), higher near edges.
+    float bias = 1.0f + A * std::sin(M_PI * t);
+    
+    return d * bias;
+}
+
 Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 {
 	// Capture by value to ensure the Area object persists
 	return [border = border](const int3& src, const int3& dst) -> float
 	{
+		float ret = nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
 		// Route main roads far from border
-		float ret = dst.dist2d(src);
 		float dist = border.distanceSqr(dst);
 
 		if(dist > 1.0f)
