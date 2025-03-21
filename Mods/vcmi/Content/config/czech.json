@@ -179,6 +179,7 @@
 	"vcmi.lobby.match.duel" : "Hra s %s", // %s -> nickname of another player
 	"vcmi.lobby.match.multi" : "%d hráčů",
 	"vcmi.lobby.room.create.hover" : "Vytvořit novou místnost",
+	"vcmi.lobby.room.create.help" : "Vytvoř novou místnost v online lobby, ke které se mohou připojit ostatní hráči.",
 	"vcmi.lobby.room.players.limit" : "Omezení počtu hráčů",
 	"vcmi.lobby.room.description.public" : "Jakýkoliv hráč se může připojit do veřejné místnosti.",
 	"vcmi.lobby.room.description.private" : "Pouze pozvaní hráči se mohou připojit do soukromé místnosti.",
@@ -201,6 +202,8 @@
 	"vcmi.lobby.preview.error.mods" : "Použváte jinou sadu modifikací.",
 	"vcmi.lobby.preview.error.version" : "Používáte jinou verzi VCMI.",
 	"vcmi.lobby.channel.add" : "Přidat kanál",
+	"vcmi.lobby.channel.sendMessage.hover" : "Odeslat zprávu",
+	"vcmi.lobby.channel.sendMessage.help" : "Odeslat zprávu",
 	"vcmi.lobby.room.new" : "Nová hra",
 	"vcmi.lobby.room.load" : "Načíst hru",
 	"vcmi.lobby.room.type" : "Druh místnosti",
@@ -223,7 +226,6 @@
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Neplatná mapa nebo kampaň}\n\nChyba při startu hry! Vybraná mapa nebo kampaň může být neplatná nebo poškozená. Důvod:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Chybějící datové soubory}\n\nDatové soubory kampaně nebyly nalezeny! Možná máte nekompletní nebo poškozené datové soubory Heroes 3. Prosíme, přeinstalujte hru.",
 	"vcmi.client.errors.modLoadingFailure" : "{Chyba při načítání modifikací}\n\nPři načítání modifikací byly nalezeny kritické problémy! Hra nemusí fungovat správně nebo může spadnout! Aktualizujte nebo deaktivujte následující modifikace:\n\n",
 	"vcmi.server.errors.disconnected" : "{Chyba sítě}\n\nPřipojení k hernímu serveru bylo ztraceno!",
 	"vcmi.server.errors.playerLeft" : "{Hráč opustil hru}\n\nHráč %s se odpojil ze hry!", //%s -> player color

@@ -72,7 +72,6 @@
 	"vcmi.lobby.sortDate" : "Ordena los mapas por la fecha de modificación",
 
 	"vcmi.client.errors.invalidMap" : "{Mapa o Campaña invalido}\n\n¡No se pudo iniciar el juego! El mapa o la campaña seleccionados pueden no ser válidos o estar dañados. Motivo:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Archivos de datos faltantes}\n\n¡No se encontraron los archivos de datos de las campañas! Quizás estés utilizando archivos de datos incompletos o dañados de Heroes 3. Por favor, reinstala los datos del juego.",
 	"vcmi.server.errors.existingProcess" : "Otro servidor VCMI está en ejecución. Por favor, termínalo antes de comenzar un nuevo juego.",
 	"vcmi.server.errors.modsToEnable"    : "{Se requieren los siguientes mods}",
 	"vcmi.server.errors.modsToDisable"   : "{Deben desactivarse los siguientes mods}",
