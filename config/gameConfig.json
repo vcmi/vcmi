@@ -340,14 +340,16 @@
 
 		"combat":
 		{
-			// defines dice size of a morale roll, based on creature's morale.
-			// Resulting chance is 1/(value). If list contains 0 values, option will be disabled
-			"goodMoraleDice" : [ 24, 12, 8 ],
-			"badMoraleDice" : [ 12, 6, 4],
+			// defines dice chance and dice size of a morale roll, based on creature's morale.
+			// Resulting chance is chanceValue / diceSize. If list contains 0 values, option will be disabled
+			"goodMoraleChance" : [ 1, 2, 3 ],
+			"badMoraleChance" : [ 2, 4, 6],
+            "moraleDiceSize" : 24,
 
-			// defines dice size of a luck roll, based on creature's luck
-			"goodLuckDice" : [ 24, 12, 8 ],
-			"badLuckDice" : [],
+			// defines dice chance and dice size of a luck roll, based on creature's luck
+			"goodLuckChance" : [ 1, 2, 3 ],
+			"badLuckChance" : [],
+            "luckDiceSize" : 24,
 
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05, 

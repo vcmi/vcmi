@@ -940,19 +940,21 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if(attackerLuck > 0)
 	{
-		auto diceVector = gameHandler->getSettings().getDiceVector(EGameSettings::COMBAT_GOOD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceVector.size(), attackerLuck) - 1; // array index, so 0-indexed
+		auto goodLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
+		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
+		size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), attackerLuck) - 1; // array index, so 0-indexed
 
-		if(diceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceVector[diceIndex].second) <= diceVector[diceIndex].first)
+		if(goodLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= goodLuckChanceVector[chanceIndex])
 			bat.flags |= BattleAttack::LUCKY;
 	}
 
 	if(attackerLuck < 0)
 	{
-		auto diceVector = gameHandler->getSettings().getDiceVector(EGameSettings::COMBAT_BAD_LUCK_DICE);
-		size_t diceIndex = std::min<size_t>(diceVector.size(), -attackerLuck) - 1; // array index, so 0-indexed
+		auto badLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_LUCK_CHANCE);
+		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
+		size_t chanceIndex = std::min<size_t>(badLuckChanceVector.size(), -attackerLuck) - 1; // array index, so 0-indexed
 
-		if(diceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceVector[diceIndex].second) <= diceVector[diceIndex].first)
+		if(badLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= badLuckChanceVector[chanceIndex])
 			bat.flags |= BattleAttack::UNLUCKY;
 	}
 
