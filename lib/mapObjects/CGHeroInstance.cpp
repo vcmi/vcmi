@@ -135,12 +135,8 @@ void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, boo
 {
 	if (val == 0)      // skill removal
 	{
-		auto it = std::find_if(secSkills.begin(), secSkills.end(), [&](const std::pair<SecondarySkill, ui8>& pair) { return pair.first == which; });
-		if (it != secSkills.end())
-		{
-			secSkills.erase(it);
-			updateSkillBonus(which, val);
-		}
+		vstd::erase_if(secSkills,  [which](const std::pair<SecondarySkill, ui8>& pair) { return pair.first == which; });
+		updateSkillBonus(which, val);
 	}
 	else if(getSecSkillLevel(which) == 0)
 	{
