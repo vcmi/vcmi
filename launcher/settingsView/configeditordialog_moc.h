@@ -41,6 +41,7 @@ private:
 	QString loadedText;
 	QString loadedFile;
 
+	bool askUnsavedChanges(QWidget *parent);
 	QString loadFile(QString filename);
 	void saveFile(QString filename, QString content);
 };

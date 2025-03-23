@@ -54,7 +54,10 @@ void reLoadSettings()
 	loadSettings();
 	for(const auto widget : qApp->allWidgets())
 		if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+		{
 			settingsView->loadSettings();
+			break;
+		}
 	getMainWindow()->updateTranslation();
 	getMainWindow()->getModView()->reload();
 }

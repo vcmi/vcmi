@@ -63,9 +63,9 @@ void ConfigEditorDialog::showConfigEditorDialog()
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
 
-bool askUnsavedChanges(QWidget *parent)
+bool ConfigEditorDialog::askUnsavedChanges(QWidget *parent)
 {
-	auto reply = QMessageBox::question(parent, QObject::tr("Unsaved changes"), QObject::tr("Do you want to discard changes?"), QMessageBox::Yes | QMessageBox::No);
+	auto reply = QMessageBox::question(parent, tr("Unsaved changes"), tr("Do you want to discard changes?"), QMessageBox::Yes | QMessageBox::No);
 	return reply != QMessageBox::Yes;
 }
 
@@ -137,7 +137,7 @@ QString ConfigEditorDialog::loadFile(QString filename)
 	if(!f.open(QFile::ReadOnly | QFile::Text))
 	{
 		logGlobal->error("ConfigEditor can not open config for reading!");
-		return "";
+		return {};
 	}
 	loadedText = QString::fromUtf8(f.readAll());
 	loadedFile = filename;
