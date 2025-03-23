@@ -431,6 +431,10 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
+
+	if(!mapPieces.count(scenarioId) || !mapPieces.find(scenarioId)->second.size())
+		return nullptr;
+
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 

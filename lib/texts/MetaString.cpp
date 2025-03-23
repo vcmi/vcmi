@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
 #include "entities/faction/CFaction.h"
+#include "entities/hero/CHero.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
@@ -346,6 +347,11 @@ void MetaString::serializeJson(JsonSerializeFormat & handler)
 }
 
 void MetaString::appendName(const ArtifactID & id)
+{
+	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
+}
+
+void MetaString::appendName(const HeroTypeID & id)
 {
 	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
 }

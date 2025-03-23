@@ -93,7 +93,7 @@ void MapController::repairMap()
 	repairMap(map());
 }
 
-void MapController::repairMap(CMap * map) const
+void MapController::repairMap(CMap * map)
 {
 	if(!map)
 		return;

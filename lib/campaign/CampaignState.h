@@ -32,6 +32,11 @@ class IGameCallback;
 
 class DLL_LINKAGE CampaignRegions
 {
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	std::string campPrefix;
 	std::vector<std::string> campSuffix;
 	std::string campBackground;
@@ -84,6 +89,11 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
 	friend class Campaign;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -251,6 +261,11 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
 
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 
 public:
@@ -273,6 +288,12 @@ public:
 class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;
 	using GlobalPoolType = std::map<HeroTypeID, JsonNode>;
