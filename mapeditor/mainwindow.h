@@ -25,7 +25,7 @@ namespace Ui
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 	const QString mainWindowSizeSetting = "MainWindow/Size";
 	const QString mainWindowPositionSetting = "MainWindow/Position";
@@ -42,8 +42,8 @@ class MainWindow : public QMainWindow
 	std::unique_ptr<CBasicLogConfigurator> logConfig;
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow();
 
 	void initializeMap(bool isNew);
 
@@ -61,6 +61,11 @@ public:
 	MapController controller;
 
 	void loadTranslation();
+
+	QAction * getActionPlayer(const PlayerColor &);
+
+public slots:
+	void switchDefaultPlayer(const PlayerColor &);
 
 private slots:
 	void on_actionOpen_triggered();
@@ -110,8 +115,6 @@ private slots:
 	void on_actionUpdate_appearance_triggered();
 
 	void on_actionRecreate_obstacles_triggered();
-	
-	void switchDefaultPlayer(const PlayerColor &);
 
 	void on_actionCut_triggered();
 
@@ -169,8 +172,6 @@ private:
 	void preparePreview(const QModelIndex & index);
 	void addGroupIntoCatalog(const QString & groupName, bool staticOnly);
 	void addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID);
-	
-	QAction * getActionPlayer(const PlayerColor &);
 
 	void changeBrushState(int idx);
 	void setTitle();
@@ -187,7 +188,7 @@ private:
 	void updateRecentMenu(const QString & filenameSelect);
 
 private:
-    Ui::MainWindow * ui;
+	Ui::MainWindow * ui;
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	MapSettings * mapSettings = nullptr;

@@ -614,7 +614,7 @@ void MapView::dropEvent(QDropEvent * event)
 	if(sc->selectionObjectsView.newObject)
 	{
 		QString errorMsg;
-		if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject.get(), errorMsg))
+		if(controller->canPlaceObject(sc->selectionObjectsView.newObject, errorMsg))
 		{
 			auto obj = sc->selectionObjectsView.newObject;
 			controller->commitObjectCreate(sc->level);
