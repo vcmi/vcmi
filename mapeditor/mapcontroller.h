@@ -63,9 +63,16 @@ public:
 	
 	bool discardObject(int level) const;
 	void createObject(int level, std::shared_ptr<CGObjectInstance> obj) const;
-	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
+	bool canPlaceObject(const CGObjectInstance * obj, QString & error) const;
+	bool canPlaceGrail(const CGObjectInstance * grailObj, QString & error) const;
+	bool canPlaceHero(const CGObjectInstance * heroObj, QString & error) const;
 	
-	static void modAssessmentObject(CGObjectInstance * obj, ModCompatibilityInfo & result);
+	/// Ensures that the object's mod is listed in the map's required mods.
+	/// If the mod is missing, prompts the user to add it. Returns false if the user declines,
+	/// making the object invalid for placement.
+	bool checkRequiredMods(const CGObjectInstance * obj, QString & error) const;
+	
+	static void modAssessmentObject(const CGObjectInstance * obj, ModCompatibilityInfo & result);
 	static ModCompatibilityInfo modAssessmentAll();
 	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
