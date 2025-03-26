@@ -195,9 +195,9 @@ size_t CComponent::getIndex() const
 		case ComponentType::SPELL:
 			return (size < large) ? data.subType.getNum() + 1 : data.subType.getNum();
 		case ComponentType::MORALE:
-			return data.value.value_or(0) + 3;
+			return std::clamp(data.value.value_or(0) + 3, 0, 6);
 		case ComponentType::LUCK:
-			return data.value.value_or(0) + 3;
+			return std::clamp(data.value.value_or(0) + 3, 0, 6);
 		case ComponentType::BUILDING:
 			return data.subType.as<BuildingTypeUniqueID>().getBuilding();
 		case ComponentType::HERO_PORTRAIT:
