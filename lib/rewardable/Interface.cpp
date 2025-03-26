@@ -145,7 +145,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		smp.val = hero->movementPointsRemaining();
 
 		if (info.reward.movePercentage >= 0) // percent from max
-			smp.val = hero->movementPointsLimit(hero->boat && hero->boat->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
+			smp.val = hero->movementPointsLimit(hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
 		smp.val = std::max<si32>(0, smp.val + info.reward.movePoints);
 
 		cb->setMovePoints(&smp);

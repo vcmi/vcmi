@@ -586,7 +586,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			if (cb->gameState()->getMap().getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
-				if (!boat)
+				if (!inBoat())
 				{
 					//Create a new boat for hero
 					cb->createBoat(boatPos, getBoatType(), h->getOwner());
@@ -635,7 +635,7 @@ std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) con
 	if(player == getOwner())
 	{
 		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
-		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!boat)));
+		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!inBoat())));
 		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
 	}
 
@@ -1295,10 +1295,22 @@ int CGHeroInstance::maxSpellLevel() const
 	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(BonusType::MAX_LEARNABLE_SPELL_LEVEL));
 }
 
-void CGHeroInstance::attachToBoat(CGBoat* newBoat)
+bool CGHeroInstance::inBoat() const
+{
+	return boardedBoat.hasValue();
+}
+
+const CGBoat * CGHeroInstance::getBoat() const
+{
+	if (boardedBoat.hasValue())
+		return dynamic_cast<const CGBoat*>(cb->getObjInstance(boardedBoat));
+	return nullptr;
+}
+
+void CGHeroInstance::setBoat(CGBoat* newBoat)
 {
 	assert(newBoat);
-	boat = newBoat;
+	boardedBoat = newBoat->id;
 	attachTo(*newBoat);
 	newBoat->setBoardedHero(this);
 }
@@ -1311,8 +1323,9 @@ void CGHeroInstance::deserializationFix()
 
 void CGHeroInstance::boatDeserializationFix()
 {
+	auto boat = cb->gameState()->getObjInstance(boardedBoat);
 	if (boat)
-		attachTo(const_cast<CGBoat&>(*boat));
+		attachTo(dynamic_cast<CGBoat&>(*boat));
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
@@ -1351,7 +1364,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
 	
-	auto boatLayer = boat ? boat->layer : EPathfindingLayer::SAIL;
+	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
 
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
 	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);

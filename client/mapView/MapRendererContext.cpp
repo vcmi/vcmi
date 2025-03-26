@@ -135,7 +135,7 @@ double MapRendererBaseContext::objectTransparency(ObjectInstanceID objectID, con
 		if(hero->isGarrisoned())
 			return 0;
 
-		if(hero->boat)
+		if(hero->inBoat())
 			return 0;
 	}
 	return 1;

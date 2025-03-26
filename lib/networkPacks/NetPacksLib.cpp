@@ -1226,11 +1226,11 @@ void RemoveObject::applyGs(CGameState *gs)
 		gs->heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
 
 		//If hero on Boat is removed, the Boat disappears
-		if(beatenHero->boat)
+		if(beatenHero->inBoat())
 		{
-			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->boat));
-			gs->getMap().eraseObject(beatenHero->boat->id);
-			beatenHero->boat = nullptr;
+			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->getBoat()));
+			gs->getMap().eraseObject(beatenHero->getBoat()->id);
+			beatenHero->setBoat(nullptr);
 		}
 		return;
 	}
@@ -1321,26 +1321,26 @@ void TryMoveHero::applyGs(CGameState *gs)
 		assert(boat);
 
 		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
-		h->boat = boat;
+		h->setBoat(boat);
 		h->attachTo(*boat);
 		boat->setBoardedHero(h);
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
-		auto * b = const_cast<CGBoat *>(h->boat);
+		auto * b = const_cast<CGBoat *>(h->getBoat());
 		b->direction = h->moveDir;
 		b->pos = start;
 		b->setBoardedHero(nullptr);
 		gs->getMap().addBlockVisTiles(b);
 		h->detachFrom(*b);
-		h->boat = nullptr;
+		h->setBoat(nullptr);
 	}
 
 	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
 	{
 		gs->getMap().removeBlockVisTiles(h);
 		h->pos = end;
-		if(auto * b = const_cast<CGBoat *>(h->boat))
+		if(auto * b = const_cast<CGBoat *>(h->getBoat()))
 			b->pos = end;
 		gs->getMap().addBlockVisTiles(h);
 	}
@@ -1429,7 +1429,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 		if (boat)
 		{
 			gs->getMap().removeBlockVisTiles(boat);
-			h->attachToBoat(boat);
+			h->setBoat(boat);
 		}
 	}
 
@@ -1463,7 +1463,7 @@ void GiveHero::applyGs(CGameState *gs)
 		if (boat)
 		{
 			gs->getMap().removeBlockVisTiles(boat);
-			h->attachToBoat(boat);
+			h->setBoat(boat);
 		}
 	}
 

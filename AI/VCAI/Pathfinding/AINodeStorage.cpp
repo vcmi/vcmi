@@ -111,7 +111,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, con
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
-	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
+	auto initialNode = getOrCreateNode(hpos, hero->inBoat() ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movementPointsRemaining();

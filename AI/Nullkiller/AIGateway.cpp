@@ -124,7 +124,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
 		//make sure AI not attempt to visit used boat
-		validateObject(hero->boat);
+		validateObject(hero->getBoat());
 	}
 	else if(details.result == TryMoveHero::DISEMBARK && o1)
 	{

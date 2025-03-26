@@ -162,7 +162,7 @@ bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const CGameIn
 	if(!caster->getHeroCaster())
 		return false;
 
-	if(caster->getHeroCaster()->boat)
+	if(caster->getHeroCaster()->inBoat())
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.333");
 		caster->getCasterName(message);

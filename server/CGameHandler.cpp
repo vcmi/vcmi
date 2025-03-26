@@ -837,10 +837,10 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		}
 	}
 
-	const bool embarking = !h->boat && objectToVisit && objectToVisit->ID == Obj::BOAT;
-	const bool disembarking = h->boat
+	const bool embarking = !h->inBoat() && objectToVisit && objectToVisit->ID == Obj::BOAT;
+	const bool disembarking = h->inBoat()
 		&& t.isLand()
-		&& (dst == h->pos || (h->boat->layer == EPathfindingLayer::SAIL && !t.blocked()));
+		&& (dst == h->pos || (h->getBoat()->layer == EPathfindingLayer::SAIL && !t.blocked()));
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -854,13 +854,13 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto pathfinderHelper = std::make_unique<CPathfinderHelper>(gameState(), h, PathfinderOptions(this));
 	auto ti = pathfinderHelper->getTurnInfo();
 
-	const bool canFly = ti->hasFlyingMovement() || (h->boat && h->boat->layer == EPathfindingLayer::AIR);
-	const bool canWalkOnSea = ti->hasWaterWalking() || (h->boat && h->boat->layer == EPathfindingLayer::WATER);
+	const bool canFly = ti->hasFlyingMovement() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::AIR);
+	const bool canWalkOnSea = ti->hasWaterWalking() || (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::WATER);
 	const int cost = pathfinderHelper->getMovementCost(h->visitablePos(), hmpos, nullptr, nullptr, h->movementPointsRemaining());
 
 	const bool movingOntoObstacle = t.blocked() && !t.visitable();
 	const bool objectCoastVisitable = objectToVisit && objectToVisit->isCoastVisitable();
-	const bool movingOntoWater = !h->boat && t.isWater() && !objectCoastVisitable;
+	const bool movingOntoWater = !h->inBoat() && t.isWater() && !objectCoastVisitable;
 
 	const auto complainRet = [&](const std::string & message)
 	{
@@ -891,7 +891,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	if(movingOntoWater && !canFly && !canWalkOnSea)
 		return complainRet("Cannot move hero, destination tile is on water!");
 
-	if(h->boat && h->boat->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
+	if(h->inBoat() && h->getBoat()->layer == EPathfindingLayer::SAIL && t.isLand() && t.blocked())
 		return complainRet("Cannot disembark hero, tile is blocked!");
 
 	if(distance(h->pos, dst) >= 1.5 && movementMode == EMovementMode::STANDARD)
@@ -961,13 +961,13 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		{
 			const CGObjectInstance * object = getObj(objectID);
 
-			if(h->boat && !object->isBlockedVisitable() && !h->boat->onboardVisitAllowed)
+			if(h->inBoat() && !object->isBlockedVisitable() && !h->getBoat()->onboardVisitAllowed)
 				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
 			
 			if (object != h && object->isBlockedVisitable() && !object->passableFor(h->tempOwner))
 			{
 				EVisitDest visitDest = VISIT_DEST;
-				if(h->boat && !h->boat->onboardVisitAllowed)
+				if(h->inBoat() && !h->getBoat()->onboardVisitAllowed)
 					visitDest = DONT_VISIT_DEST;
 				
 				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, visitDest, REMAINING_ON_TILE);
@@ -1035,7 +1035,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		else if (blockingVisit())
 			return true;
 		
-		if(h->boat && !h->boat->onboardAssaultAllowed)
+		if(h->getBoat() && !h->getBoat()->onboardAssaultAllowed)
 			lookForGuards = IGNORE_GUARDS;
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);

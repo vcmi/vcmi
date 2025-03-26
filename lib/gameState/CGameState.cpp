@@ -610,7 +610,7 @@ void CGameState::initHeroes()
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
 			map->addNewObject(boat);
-			hero->attachToBoat(boat.get());
+			hero->setBoat(boat.get());
 		}
 	}
 

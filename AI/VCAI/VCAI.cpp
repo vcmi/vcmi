@@ -138,7 +138,7 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
 		//make sure AI not attempt to visit used boat
-		validateObject(hero->boat);
+		validateObject(hero->getBoat());
 	}
 	else if(details.result == TryMoveHero::DISEMBARK && o1)
 	{
@@ -448,13 +448,13 @@ void VCAI::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initi
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
-		if(hero->boat)
+		if(hero->inBoat())
 		{
-			vstd::erase_if_present(visitableObjs, hero->boat);
-			vstd::erase_if_present(alreadyVisited, hero->boat);
+			vstd::erase_if_present(visitableObjs, hero->getBoat());
+			vstd::erase_if_present(alreadyVisited, hero->getBoat());
 
 			for(auto h : cb->getHeroesInfo())
-				unreserveObject(h, hero->boat);
+				unreserveObject(h, hero->getBoat());
 		}
 	}
 

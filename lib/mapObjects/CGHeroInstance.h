@@ -69,6 +69,8 @@ private:
 
 	std::set<SpellID> spells; //known spells (spell IDs)
 	ObjectInstanceID visitedTown; //set if hero is visiting town or in the town garrison
+	ObjectInstanceID boardedBoat; //set to CGBoat when sailing
+
 	ui32 movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison
 
@@ -93,8 +95,6 @@ public:
 
 	std::string nameCustomTextId;
 	std::string biographyCustomTextId;
-
-	const CGBoat * boat = nullptr; //set to CGBoat when sailing
 
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
@@ -159,6 +159,10 @@ public:
 
 	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
+
+	bool inBoat() const;
+	const CGBoat * getBoat() const;
+	void setBoat(CGBoat * getBoat);
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
@@ -313,7 +317,6 @@ public:
 	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
-	void attachToBoat(CGBoat* newBoat);
 	void boatDeserializationFix();
 	void deserializationFix();
 	void updateAppearance();
@@ -373,7 +376,7 @@ public:
 		h & moveDir;
 		h & skillsInfo;
 		h & visitedTown;
-		h & boat;
+		h & boardedBoat;
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX

@@ -306,7 +306,7 @@ ObjectRect::~ObjectRect()
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor color, int group) const
 {
-	if(!hero || hero->boat)
+	if(!hero || hero->inBoat())
 		return std::shared_ptr<QImage>();
 	
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);

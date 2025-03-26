@@ -969,7 +969,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 		if(actor->hero->tempOwner != ai->playerID)
 		{
-			bool onLand = !actor->hero->boat || actor->hero->boat->layer != EPathfindingLayer::SAIL;
+			bool onLand = !actor->hero->inBoat() || actor->hero->getBoat()->layer != EPathfindingLayer::SAIL;
 			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
 		}
 

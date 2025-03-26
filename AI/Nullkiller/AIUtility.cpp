@@ -375,10 +375,10 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 	switch (bonus->type)
 	{
 		case BonusType::MOVEMENT:
-			if (hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementSea)
+			if (hero->getBoat() && bonus->subtype == BonusCustomSubtype::heroMovementSea)
 				return veryRelevant;
 
-			if (!hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementLand)
+			if (!hero->getBoat() && bonus->subtype == BonusCustomSubtype::heroMovementLand)
 				return relevant;
 			return notRelevant;
 		case BonusType::STACKS_SPEED:
@@ -395,9 +395,9 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 				return relevant; // spellpower / knowledge - always relevant
 		case BonusType::WATER_WALKING:
 		case BonusType::FLYING_MOVEMENT:
-			return hero->boat ? notRelevant : relevant; // boat can't fly
+			return hero->getBoat() ? notRelevant : relevant; // boat can't fly
 		case BonusType::WHIRLPOOL_PROTECTION:
-			return hero->boat ? relevant : notRelevant;
+			return hero->getBoat() ? relevant : notRelevant;
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return hero->hasBonusOfType(BonusType::IMPROVED_NECROMANCY) ? veryRelevant : notRelevant;
 		case BonusType::SPELL_DAMAGE:

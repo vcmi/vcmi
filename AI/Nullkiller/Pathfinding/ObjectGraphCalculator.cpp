@@ -298,7 +298,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 
 	if(cb->getTile(visitablePos)->isWater())
 	{
-		objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
+		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}
 
 	assert(objectActor->visitablePos() == visitablePos);
@@ -335,7 +335,7 @@ void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isV
 
 	if(isVirtualBoat || ai->cb->getTile(visitablePos)->isWater())
 	{
-		objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
+		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}
 
 	assert(objectActor->visitablePos() == visitablePos);

@@ -649,17 +649,17 @@ int CPathfinderHelper::getMovementCost(
 
 	bool isSailLayer;
 	if(indeterminate(isDstSailLayer))
-		isSailLayer = hero->boat && hero->boat->layer == EPathfindingLayer::SAIL && dt->isWater();
+		isSailLayer = hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::SAIL && dt->isWater();
 	else
 		isSailLayer = static_cast<bool>(isDstSailLayer);
 
 	bool isWaterLayer;
 	if(indeterminate(isDstWaterLayer))
-		isWaterLayer = ((hero->boat && hero->boat->layer == EPathfindingLayer::WATER) || ti->hasWaterWalking()) && dt->isWater();
+		isWaterLayer = ((hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::WATER) || ti->hasWaterWalking()) && dt->isWater();
 	else
 		isWaterLayer = static_cast<bool>(isDstWaterLayer);
 	
-	bool isAirLayer = (hero->boat && hero->boat->layer == EPathfindingLayer::AIR) || ti->hasFlyingMovement();
+	bool isAirLayer = (hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::AIR) || ti->hasFlyingMovement();
 
 	int movementCost = getTileMovementCost(*dt, *ct, ti);
 	if(isSailLayer)
