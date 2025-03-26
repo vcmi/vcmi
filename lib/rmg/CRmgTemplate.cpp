@@ -133,9 +133,8 @@ void ZoneOptions::CTownHints::serializeJson(JsonSerializeFormat & handler)
 	}
 	else
 	{
-		int temp;
-		handler.serializeInt("notLikeZone", temp, NO_ZONE);
-		notLikeZone.push_back(temp);
+		notLikeZone.resize(1);
+		handler.serializeInt("notLikeZone", notLikeZone[0], NO_ZONE);
 	}
 	handler.serializeInt("relatedToZoneTerrain", relatedToZoneTerrain, NO_ZONE);
 }
