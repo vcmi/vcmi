@@ -76,6 +76,20 @@
          </property>
         </widget>
        </item>
+       <item row="64" column="0">
+        <widget class="QLabel" name="labelConfigEditor">
+         <property name="text">
+          <string>Config editor</string>
+         </property>
+        </widget>
+       </item>
+      <item row="64" column="1" colspan="5">
+        <widget class="QPushButton" name="buttonConfigEditor">
+         <property name="text">
+          <string>Open editor</string>
+         </property>
+        </widget>
+       </item>
        <item row="25" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxUpscalingFilter">
          <item>
