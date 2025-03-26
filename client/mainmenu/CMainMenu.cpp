@@ -62,6 +62,8 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 
+#include <boost/lexical_cast.hpp>
+
 ISelectionScreenInfo * SEL = nullptr;
 
 CMenuScreen::CMenuScreen(const JsonNode & configNode)

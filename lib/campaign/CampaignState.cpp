@@ -372,7 +372,7 @@ const JsonNode & CampaignState::getHeroByType(HeroTypeID heroID) const
 
 void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroes)
 {
-	range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
+	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
 		return a->getValueForCampaign() > b->getValueForCampaign();
 	});

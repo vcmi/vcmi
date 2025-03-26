@@ -21,6 +21,9 @@
 #include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
+#include <boost/lexical_cast.hpp>
+
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 namespace
