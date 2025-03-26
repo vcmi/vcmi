@@ -133,7 +133,12 @@ ui8 CGHeroInstance::getSecSkillLevel(const SecondarySkill & skill) const
 
 void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, bool abs)
 {
-	if(getSecSkillLevel(which) == 0)
+	if (val == 0)      // skill removal
+	{
+		vstd::erase_if(secSkills,  [which](const std::pair<SecondarySkill, ui8>& pair) { return pair.first == which; });
+		updateSkillBonus(which, val);
+	}
+	else if(getSecSkillLevel(which) == 0)
 	{
 		secSkills.emplace_back(which, val);
 		updateSkillBonus(which, val);
@@ -660,9 +665,13 @@ void CGHeroInstance::recreateSecondarySkillsBonuses()
 void CGHeroInstance::updateSkillBonus(const SecondarySkill & which, int val)
 {
 	removeBonuses(Selector::source(BonusSource::SECONDARY_SKILL, BonusSourceID(which)));
-	auto skillBonus = (*LIBRARY->skillh)[which]->at(val).effects;
-	for(const auto & b : skillBonus)
-		addNewBonus(std::make_shared<Bonus>(*b));
+
+	if(val > 0)
+	{
+		auto skillBonus = (*LIBRARY->skillh)[which]->at(val).effects;
+		for(const auto& b : skillBonus)
+			addNewBonus(std::make_shared<Bonus>(*b));
+	}
 }
 
 void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
