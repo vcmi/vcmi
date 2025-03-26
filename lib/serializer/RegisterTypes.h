@@ -97,7 +97,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGArtifact>(36);
 	s.template registerType<CGResource>(37);
 	s.template registerType<CGMine>(38);
-	s.template registerType<CBank>(39);
 	s.template registerType<CGSeerHut>(40);
 	s.template registerType<CGQuestGuard>(41);
 	s.template registerType<IUpdater>(42);
@@ -229,7 +228,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkRebalanceStacks>(175);
 	s.template registerType<BulkSmartRebalanceStacks>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
-	s.template registerType<SetBankConfiguration>(178);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);
 	s.template registerType<DismissHero>(181);

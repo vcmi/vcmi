@@ -19,7 +19,6 @@
 #include "../IGameSettings.h"
 #include "../CSoundBase.h"
 
-#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
@@ -59,7 +58,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("dwelling", DwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
-	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("flaggable", FlaggableInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
