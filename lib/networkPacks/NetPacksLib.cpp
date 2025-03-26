@@ -903,7 +903,7 @@ void SetCommanderProperty::applyGs(CGameState *gs)
 void AddQuest::applyGs(CGameState *gs)
 {
 	assert (vstd::contains(gs->players, player));
-	auto * vec = &gs->players[player].quests;
+	auto * vec = &gs->players.at(player).quests;
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else

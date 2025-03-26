@@ -523,7 +523,7 @@ void CGameStateCampaign::initHeroes()
 		}
 		assert(humanPlayer != PlayerColor::NEUTRAL);
 
-		const auto & heroes = gameState->players[humanPlayer].getHeroes();
+		const auto & heroes = gameState->players.at(humanPlayer).getHeroes();
 
 		if (chosenBonus->info1 == HeroTypeID::CAMP_STRONGEST) //most powerful
 		{
@@ -607,7 +607,7 @@ void CGameStateCampaign::initStartingResources()
 			//increasing resource quantity
 			for (auto & re : res)
 			{
-				gameState->players[ps->color].resources[re] += chosenBonus->info2;
+				gameState->players.at(ps->color).resources[re] += chosenBonus->info2;
 			}
 		}
 	}

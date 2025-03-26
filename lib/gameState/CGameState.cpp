@@ -274,7 +274,7 @@ void CGameState::updateOnLoad(StartInfo * si)
 	assert(callback);
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
-		players[i.first].human = i.second.isControlledByHuman();
+		players.at(i.first).human = i.second.isControlledByHuman();
 	scenarioOps->extraOptionsInfo = si->extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si->turnTimerInfo;
 	scenarioOps->simturnsInfo = si->simturnsInfo;
@@ -514,7 +514,7 @@ void CGameState::initPlayerStates()
 	logGlobal->debug("\tCreating player entries in gs");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
-		PlayerState & p = players[elem.first];
+		PlayerState & p = players.at(elem.first);
 		p.color=elem.first;
 		p.human = elem.second.isControlledByHuman();
 		p.team = map->players[elem.first.getNum()].team;
@@ -1572,6 +1572,9 @@ void CGameState::buildBonusSystemTree()
 
 void CGameState::deserializationFix()
 {
+	for(auto & player : players)
+		player.second.cb = callback;
+
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 }

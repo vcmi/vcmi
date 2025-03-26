@@ -229,7 +229,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 	if(obj->ID == Obj::TOWN || obj->ID == Obj::TAVERN)
 	{
-		int taverns = gameState()->players[*getPlayerID()].valOfBonuses(BonusType::THIEVES_GUILD_ACCESS);
+		int taverns = gameState()->players.at(*getPlayerID()).valOfBonuses(BonusType::THIEVES_GUILD_ACCESS);
 		gameState()->obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)

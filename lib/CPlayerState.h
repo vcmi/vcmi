@@ -12,10 +12,11 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "bonuses/Bonus.h"
-#include "bonuses/CBonusSystemNode.h"
+#include "GameCallbackHolder.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
+#include "bonuses/Bonus.h"
+#include "bonuses/CBonusSystemNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -25,7 +26,7 @@ class CGTownInstance;
 class CGDwelling;
 struct QuestInfo;
 
-class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
+class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player, public GameCallbackHolder
 {
 	struct VisitedObjectGlobal
 	{
@@ -47,12 +48,7 @@ class DLL_LINKAGE PlayerState : public CBonusSystemNode, public Player
 		}
 	};
 
-	std::vector<CGObjectInstance*> ownedObjects;
-
-	std::vector<const CGTownInstance*> constOwnedTowns; //not serialized
-	std::vector<const CGHeroInstance*> constOwnedHeroes; //not serialized
-	std::vector<CGTownInstance*> ownedTowns; //not serialized
-	std::vector<CGHeroInstance*> ownedHeroes; //not serialized
+	std::vector<ObjectInstanceID> ownedObjects;
 
 	template<typename T>
 	std::vector<T> getObjectsOfType() const;
@@ -78,6 +74,7 @@ public:
 	std::optional<ui8> daysWithoutCastle;
 	TurnTimerInfo turnTimer;
 
+	PlayerState(IGameCallback *cb);
 	PlayerState();
 	~PlayerState();
 
@@ -97,16 +94,15 @@ public:
 	std::string getNameTextID() const override;
 	void registerIcons(const IconRegistar & cb) const override;
 
-	const std::vector<const CGHeroInstance* > & getHeroes() const;
-	const std::vector<const CGTownInstance* > & getTowns() const;
-	const std::vector<CGHeroInstance* > & getHeroes();
-	const std::vector<CGTownInstance* > & getTowns();
+	std::vector<const CGHeroInstance* > getHeroes() const;
+	std::vector<const CGTownInstance* > getTowns() const;
+	std::vector<CGHeroInstance* > getHeroes();
+	std::vector<CGTownInstance* > getTowns();
 
 	std::vector<const CGObjectInstance* > getOwnedObjects() const;
 
 	void addOwnedObject(CGObjectInstance * object);
 	void removeOwnedObject(CGObjectInstance * object);
-	void postDeserialize();
 
 	bool checkVanquished() const
 	{
@@ -135,9 +131,6 @@ public:
 		h & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & destroyedObjects;
-
-		if (!h.saving)
-			postDeserialize();
 	}
 };
 
