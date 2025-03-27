@@ -31,8 +31,6 @@ class StartGameTab : public QWidget
 {
 	Q_OBJECT
 
-	MainWindow * getMainWindow();
-
 	void refreshUpdateStatus(EGameUpdateStatus status);
 	void refreshTranslation(ETranslationStatus status);
 	void refreshMods();

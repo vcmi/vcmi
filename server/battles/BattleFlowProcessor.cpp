@@ -347,10 +347,11 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), -nextStackMorale) - 1; // array index, so 0-indexed
+		auto badMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
+		size_t chanceIndex = std::min<size_t>(badMoraleChanceVector.size(), -nextStackMorale) - 1; // array index, so 0-indexed
 
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
+		if(badMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= badMoraleChanceVector[chanceIndex])
 		{
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
@@ -526,10 +527,11 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto diceSize = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
-		size_t diceIndex = std::min<size_t>(diceSize.size(), nextStackMorale) - 1; // array index, so 0-indexed
+		auto goodMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
+		size_t chanceIndex = std::min<size_t>(goodMoraleChanceVector.size(), nextStackMorale) - 1; // array index, so 0-indexed
 
-		if(diceSize.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, diceSize[diceIndex]) == 1)
+		if(goodMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= goodMoraleChanceVector[chanceIndex])
 		{
 			BattleTriggerEffect bte;
 			bte.battleID = battle.getBattle()->getBattleID();

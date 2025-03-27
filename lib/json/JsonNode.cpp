@@ -15,6 +15,8 @@
 #include "JsonWriter.h"
 #include "filesystem/Filesystem.h"
 
+#include <boost/lexical_cast.hpp>
+
 // to avoid duplicating const and non-const code
 template<typename Node>
 Node & resolvePointer(Node & in, const std::string & pointer)

@@ -31,6 +31,8 @@
 
 #include <vstd/RNG.h>
 
+#include <boost/lexical_cast.hpp>
+
 BattleResultProcessor::BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 //	: owner(owner)
 	: gameHandler(newGameHandler)

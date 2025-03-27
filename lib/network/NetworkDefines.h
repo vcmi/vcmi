@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#if BOOST_VERSION >= 108700
+#if BOOST_VERSION >= 106600
 using NetworkContext = boost::asio::io_context;
 #else
 using NetworkContext = boost::asio::io_service;

@@ -481,8 +481,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	{
 		h & player;
 		h & victoryLossCheckResult;
-		if (h.version >= Handler::Version::STATISTICS_SCREEN)
-			h & statistic;
+		h & statistic;
 	}
 };
 

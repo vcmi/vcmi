@@ -32,6 +32,7 @@
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 

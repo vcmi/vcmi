@@ -29,6 +29,7 @@ protected:
 	void cleanupBoundaries(const rmg::Object & rmgObject);
 	void addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager);
 	FactionID getRandomTownType(bool matchUndergroundType = false);
+	FactionID getTownTypeFromHint(size_t hintIndex);
 	void placeTowns(ObjectManager & manager);
 	bool placeMines(ObjectManager & manager);
 	int3 placeMainTown(ObjectManager & manager, CGTownInstance & town);

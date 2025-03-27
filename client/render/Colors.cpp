@@ -13,6 +13,8 @@
 
 #include "../../lib/json/JsonNode.h"
 
+#include <boost/algorithm/hex.hpp>
+
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE_TRUE = { 255, 255, 255, ColorRGBA::ALPHA_OPAQUE };

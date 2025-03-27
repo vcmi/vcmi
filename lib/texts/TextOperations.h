@@ -80,14 +80,7 @@ namespace TextOperations
 	DLL_LINKAGE std::string getLocaleName();
 
 	/// Compares two strings using locale-aware collation based on the selected game language.
-	DLL_LINKAGE inline bool compareLocalizedStrings(std::string_view str1, std::string_view str2)
-	{
-		static const std::locale loc(getLocaleName());
-		static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
-
-		return col.compare(str1.data(), str1.data() + str1.size(),
-			str2.data(), str2.data() + str2.size()) < 0;
-	}
+	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
 
     /// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match,
     /// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).

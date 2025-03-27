@@ -132,7 +132,7 @@ bool StartBatchCopyDataProgram(
 		(boost::format("start \"\" /D %1% %2%") % currentPath % (to / exeName));	// Start game in 'currentPath"
 
 	const bfs::path bathFilename = to / "_temp.bat";
-	bfs::ofstream bathFile(bathFilename, bfs::ofstream::trunc | bfs::ofstream::out);
+	std::ofstream bathFile(bathFilename.c_str(), std::ofstream::trunc | std::ofstream::out);
 	if (!bathFile.is_open())
 		return false;
 	bathFile << (boost::format(base) % exeName % from % (from / "*.*") % to % startGameString.str()).str();

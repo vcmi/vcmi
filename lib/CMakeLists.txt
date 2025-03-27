@@ -113,7 +113,6 @@ set(lib_MAIN_SRCS
 	gameState/UpgradeInfo.cpp
 
 	mapObjectConstructors/AObjectTypeHandler.cpp
-	mapObjectConstructors/CBankInstanceConstructor.cpp
 	mapObjectConstructors/CObjectClassesHandler.cpp
 	mapObjectConstructors/CommonConstructors.cpp
 	mapObjectConstructors/CRewardableConstructor.cpp
@@ -123,7 +122,6 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
 	mapObjects/CArmedInstance.cpp
-	mapObjects/CBank.cpp
 	mapObjects/CGCreature.cpp
 	mapObjects/CGDwelling.cpp
 	mapObjects/CGHeroInstance.cpp
@@ -498,7 +496,6 @@ set(lib_MAIN_HEADERS
 	gameState/QuestInfo.h
 
 	mapObjectConstructors/AObjectTypeHandler.h
-	mapObjectConstructors/CBankInstanceConstructor.h
 	mapObjectConstructors/CDefaultObjectTypeHandler.h
 	mapObjectConstructors/CObjectClassesHandler.h
 	mapObjectConstructors/CommonConstructors.h
@@ -512,7 +509,6 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/SObjectSounds.h
 
 	mapObjects/CArmedInstance.h
-	mapObjects/CBank.h
 	mapObjects/CGCreature.h
 	mapObjects/CGDwelling.h
 	mapObjects/CGHeroInstance.h

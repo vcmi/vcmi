@@ -88,6 +88,8 @@
 #include <vcmi/events/GenericEvents.h>
 #include <vcmi/events/AdventureEvents.h>
 
+#include <boost/lexical_cast.hpp>
+
 #define COMPLAIN_RET_IF(cond, txt) do {if (cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET_FALSE_IF(cond, txt) do {if (cond){complain(txt); return false;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
@@ -4207,14 +4209,6 @@ void CGameHandler::setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, Ob
 	sob.what = prop;
 	sob.identifier = identifier;
 	sendAndApply(sob);
-}
-
-void CGameHandler::setBankObjectConfiguration(ObjectInstanceID objid, const BankConfig & configuration)
-{
-	SetBankConfiguration srb;
-	srb.objectID = objid;
-	srb.configuration = configuration;
-	sendAndApply(srb);
 }
 
 void CGameHandler::setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration)

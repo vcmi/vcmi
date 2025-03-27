@@ -26,6 +26,7 @@ enum class EPluralForms
 
 enum class ELanguages
 {
+	BELARUSIAN,
 	BULGARIAN,
 	CZECH,
 	CHINESE,
@@ -87,8 +88,9 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 22> languages
+	static const std::array<Options, 23> languages
 	{ {
+		{ "belarusian",  "Belarusian",  "беларускі",		"CP1251", "be_BY.UTF-8", "be", "bel", "%d.%m.%Y %H:%M",		EPluralForms::UK_3, true },
 		{ "bulgarian",   "Bulgarian",   "Български",  "CP1251", "bg_BG.UTF-8", "bg", "bul", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true  },
 		{ "czech",       "Czech",       "Čeština",		"CP1250", "cs_CZ.UTF-8", "cs", "cze", "%d.%m.%Y %H:%M",		EPluralForms::CZ_3, true },
 		{ "chinese",     "Chinese",     "简体中文",		"GBK",	  "zh_CN.UTF-8", "zh", "chi", "%Y-%m-%d %H:%M",		EPluralForms::VI_1, true }, // Note: actually Simplified Chinese

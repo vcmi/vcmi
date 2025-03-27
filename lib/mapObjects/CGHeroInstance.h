@@ -371,14 +371,6 @@ public:
 		h & skillsInfo;
 		h & visitedTown;
 		h & boat;
-		if (h.version < Handler::Version::REMOVE_TOWN_PTR)
-		{
-			HeroTypeID type;
-			bool isNull = false;
-			h & isNull;
-			if(!isNull)
-				h & type;
-		}
 		h & commander;
 		h & visitedObjects;
 		BONUS_TREE_DESERIALIZATION_FIX

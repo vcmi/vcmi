@@ -17,6 +17,8 @@
 #include "CMap.h"
 #include "CMapOperation.h"
 
+#include <boost/lexical_cast.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
