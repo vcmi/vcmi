@@ -40,6 +40,7 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Spells"),
 		QT_TR_NOOP("Music"),
 		QT_TR_NOOP("Maps"),
+		QT_TR_NOOP("Map Pack"),
 		QT_TR_NOOP("Sounds"),
 		QT_TR_NOOP("Skills"),
 		QT_TR_NOOP("Other"),
@@ -50,7 +51,8 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Graphical"),
 		QT_TR_NOOP("Expansion"),
 		QT_TR_NOOP("Creatures"),
-		QT_TR_NOOP("Compatibility") ,
+		QT_TR_NOOP("Compatibility"),
+		QT_TR_NOOP("Campaigns"),
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
 	};
