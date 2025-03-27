@@ -649,14 +649,15 @@
 			"additionalProperties" : false,
 			"required" : [ 
 				"setupCompleted", 
-				"defaultRepositoryEnabled", 
-				"defaultRepositoryURL", 
-				"extraRepositoryURL", 
-				"extraRepositoryEnabled", 
-				"autoCheckRepositories", 
+				"defaultRepositoryEnabled",
+				"defaultRepositoryURL",
+				"extraRepositoryURL",
+				"extraRepositoryEnabled",
+				"autoCheckRepositories",
 				"ignoreSslErrors",
-				"updateOnStartup", 
-				"updateConfigUrl"
+				"updateOnStartup",
+				"updateConfigUrl",
+				"trackClipboardState"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -694,7 +695,15 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
-				}
+				},
+				"trackClipboardState" : {
+					"type" : "boolean",
+					"default" : true,
+					"defaultIOS": false,
+					"defaultAndroid": false,
+					"defaultDesktop" : true
+
+				},
 			}
 		},
 		"lobby" : {

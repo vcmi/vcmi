@@ -85,7 +85,7 @@ SDL_Surface * CSDL_Ext::newSurface(const Point & dimensions, SDL_Surface * mod) 
 		std::string messagePattern = "Failed to create SDL Surface of size %d x %d, %d bpp. Reason: %s";
 		std::string message = boost::str(boost::format(messagePattern) % dimensions.x % dimensions.y % mod->format->BitsPerPixel % error);
 
-		handleFatalError(message, true);
+		throw std::runtime_error(message);
 	}
 
 	if (mod->format->palette)

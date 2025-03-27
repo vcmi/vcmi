@@ -58,13 +58,14 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 	auto it = animationFiles.find(actualPath);
 
 	if (it != animationFiles.end())
-		return it->second;
+	{
+		auto locked = it->second.lock();
+		if (locked)
+			return locked;
+	}
 
 	if (!CResourceHandler::get()->existsResource(actualPath))
-	{
-		animationFiles[actualPath] = nullptr;
 		return nullptr;
-	}
 
 	auto result = std::make_shared<CDefFile>(actualPath);
 
@@ -200,7 +201,11 @@ std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLoc
 {
 	auto it = imageFiles.find(locator);
 	if (it != imageFiles.end())
-		return it->second;
+	{
+		auto locked = it->second.lock();
+		if (locked)
+			return locked;
+	}
 
 	auto sdlImage = loadImageFromFileUncached(locator);
 	auto scaledImage = std::make_shared<ScalableImageShared>(locator, sdlImage);
