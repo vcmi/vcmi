@@ -222,9 +222,9 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 					{
 						try {
 							int index = std::stoi(keyName);
-							if (index < 0 || index > dest.Vector().size())
+							if (index <= 0 || index > dest.Vector().size())
 								throw std::out_of_range("dummy");
-							return index;
+							return index - 1; // 1-based index -> 0-based index
 						}
 						catch(const std::invalid_argument &)
 						{
@@ -233,7 +233,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 						}
 						catch(const std::out_of_range & )
 						{
-							logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exists in targeted array", keyName);
+							logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exists in targeted array of %d items", keyName, dest.Vector().size());
 							return std::nullopt;
 						}
 					};

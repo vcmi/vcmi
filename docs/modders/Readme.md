@@ -180,13 +180,13 @@ More complete description of such syntax:
 		"appendItems" : [ "crossbowman", "arbalist" ]
 		
 		// insert new item before specified position
-		// NOTE: VCMI assume 0-based indexation, the very first item has index '0'
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
 		// Following example will insert new item before 0th item - at the very beginning of the list
 		// Item with provided index must exist in the list
 		"insert@0" : "crossbowman"
 		
 		// modify existing item at specified position
-		// NOTE: VCMI assume 0-based indexation, the very first item has index '0'
+		// NOTE: VCMI assume 1-based indexation, the very first item has index '1'
 		// Following example will modify 0th item
 		// If item is a json object with multiple properties, e.g. { "key" : "value" } 
 		// you only need to provide changed properites, as usually
