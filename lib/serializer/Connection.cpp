@@ -78,7 +78,7 @@ void CConnection::sendPack(const CPack & pack)
 		throw std::runtime_error("Attempt to send packet on a closed connection!");
 
 	packWriter->buffer.clear();
-	(*serializer) & (&pack);
+	serializer->saveRawPointer(&pack);
 
 	logNetwork->trace("Sending a pack of type %s", typeid(pack).name());
 

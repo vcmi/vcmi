@@ -276,11 +276,7 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	this->setNodeType(CBonusSystemNode::TOWN);
 }
 
-CGTownInstance::~CGTownInstance()
-{
-	for (auto & elem : rewardableBuildings)
-		delete elem.second;
-}
+CGTownInstance::~CGTownInstance() = default;
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 {
@@ -398,7 +394,7 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 			continue;
 
 		try {
-			rewardableBuildings[kvp.first] = new TownRewardableBuildingInstance(this, kvp.second->bid, rand);
+			rewardableBuildings[kvp.first] = std::make_unique<TownRewardableBuildingInstance>(this, kvp.second->bid, rand);
 		}
 		catch (std::runtime_error & e)
 		{

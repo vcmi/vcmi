@@ -163,7 +163,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 			lf.checkMagicBytes(SAVEGAME_MAGIC);
 
 			auto mapHeader = std::make_unique<CMapHeader>();
-			StartInfo * startInfo;
+			std::unique_ptr<StartInfo> startInfo;
 			lf >> *(mapHeader) >> startInfo;
 
 			if(startInfo->campState)

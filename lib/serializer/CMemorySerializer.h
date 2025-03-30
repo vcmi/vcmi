@@ -34,7 +34,7 @@ public:
 	static std::unique_ptr<T> deepCopy(const T &data)
 	{
 		CMemorySerializer mem;
-		mem.oser & &data;
+		mem.oser.saveRawPointer(&data);
 
 		std::unique_ptr<T> ret;
 		mem.iser & ret;
@@ -45,7 +45,7 @@ public:
 	static std::shared_ptr<T> deepCopyShared(const T &data)
 	{
 		CMemorySerializer mem;
-		mem.oser & &data;
+		mem.oser.saveRawPointer(&data);
 
 		std::shared_ptr<T> ret;
 		mem.iser & ret;

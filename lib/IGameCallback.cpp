@@ -182,6 +182,7 @@ void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 	CMapHeader dum;
 	StartInfo si;
 	ActiveModsInSaveList activeMods;
+	CGameState & gs = *gameState();
 
 	logGlobal->info("\tReading header");
 	in.serializer & dum;
@@ -193,23 +194,24 @@ void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
 	in.serializer & activeMods;
 
 	logGlobal->info("\tReading gamestate");
-	in.serializer & *gameState();
+	in.serializer & gs;
 }
 
 void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
 {
 	ActiveModsInSaveList activeMods;
+	const CGameState & gs = *gameState();
 
 	logGlobal->info("Saving lib part of game...");
 	out.putMagicBytes(SAVEGAME_MAGIC);
 	logGlobal->info("\tSaving header");
-	out.serializer & static_cast<const CMapHeader&>(gameState()->getMap());
+	out.serializer & static_cast<const CMapHeader&>(gs.getMap());
 	logGlobal->info("\tSaving options");
-	out.serializer & *gameState()->getStartInfo();
+	out.serializer & *gs.getStartInfo();
 	logGlobal->info("\tSaving mod list");
 	out.serializer & activeMods;
 	logGlobal->info("\tSaving gamestate");
-	out.serializer & *gameState();
+	out.serializer & gs;
 }
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)

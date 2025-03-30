@@ -181,8 +181,7 @@ public:
 		h & *heroesPool;
 		h & globalEffects;
 		h & currentRumor;
-		if (campaign)
-			h & *campaign;
+		h & campaign;
 		h & allocatedArtifacts;
 		h & statistic;
 

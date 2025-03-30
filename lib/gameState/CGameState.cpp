@@ -1577,6 +1577,9 @@ void CGameState::deserializationFix()
 
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
+
+	if (campaign)
+		campaign->setGamestate(this);
 }
 
 void CGameState::buildGlobalTeamPlayerTree()

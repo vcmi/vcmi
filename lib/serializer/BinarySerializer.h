@@ -144,8 +144,8 @@ public:
 			*this & data[i];
 	}
 
-	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
-	void save(const T &data)
+	template<typename T>
+	void saveRawPointer(const T & data)
 	{
 		//write if pointer is not nullptr
 		bool isNull = (data == nullptr);
@@ -199,19 +199,19 @@ public:
 	void save(const std::shared_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
-		save(internalPtr);
+		saveRawPointer(internalPtr);
 	}
 	template <typename T>
 	void save(const std::shared_ptr<const T> &data)
 	{
 		const T *internalPtr = data.get();
-		save(internalPtr);
+		saveRawPointer(internalPtr);
 	}
 	template <typename T>
 	void save(const std::unique_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
-		save(internalPtr);
+		saveRawPointer(internalPtr);
 	}
 	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
 	void save(const std::vector<T> &data)

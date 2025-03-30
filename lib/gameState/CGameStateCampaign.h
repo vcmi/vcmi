@@ -31,7 +31,7 @@ struct CampaignHeroReplacement
 
 class CGameStateCampaign : public Serializeable
 {
-	CGameState * gameState;
+	CGameState * gameState = nullptr;
 
 	/// Contains list of heroes that may be available in this scenario
 	/// temporary helper for game initialization, not serialized
@@ -54,7 +54,9 @@ class CGameStateCampaign : public Serializeable
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
 
 public:
+	CGameStateCampaign();
 	CGameStateCampaign(CGameState * owner);
+	void setGamestate(CGameState * owner);
 
 	void placeCampaignHeroes();
 	void initStartingResources();
@@ -66,7 +68,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & gameState;
+		// no-op, but needed to auto-create this class if gamestate had it during serialization
 	}
 };
 

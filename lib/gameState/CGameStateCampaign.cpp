@@ -40,11 +40,18 @@ CampaignHeroReplacement::CampaignHeroReplacement(std::shared_ptr<CGHeroInstance>
 {
 }
 
+CGameStateCampaign::CGameStateCampaign() = default;
+
 CGameStateCampaign::CGameStateCampaign(CGameState * owner):
 	gameState(owner)
 {
 	assert(gameState->scenarioOps->mode == EStartMode::CAMPAIGN);
 	assert(gameState->scenarioOps->campState != nullptr);
+}
+
+void CGameStateCampaign::setGamestate(CGameState * owner)
+{
+	gameState = owner;
 }
 
 std::optional<CampaignBonus> CGameStateCampaign::currentBonus() const

@@ -2452,7 +2452,7 @@ void SetRewardableConfiguration::applyGs(CGameState *gs)
 
 		for (auto & building : townPtr->rewardableBuildings)
 			if (building.second->getBuildingType() == buildingID)
-				buildingPtr = building.second;
+				buildingPtr = building.second.get();
 
 		auto * rewardablePtr = dynamic_cast<TownRewardableBuildingInstance *>(buildingPtr);
 		assert(rewardablePtr);

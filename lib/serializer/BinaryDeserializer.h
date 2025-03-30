@@ -191,8 +191,8 @@ public:
 			load(data[i]);
 	}
 
-	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
-	void load(T &data)
+	template<typename T>
+	void loadRawPointer(T & data)
 	{
 		bool isNull;
 		load( isNull );
@@ -256,7 +256,7 @@ public:
 	{
 		typedef typename std::remove_const_t<T> NonConstT;
 		NonConstT *internalPtr;
-		load(internalPtr);
+		loadRawPointer(internalPtr);
 
 		const auto * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
 
@@ -299,7 +299,7 @@ public:
 	void load(std::unique_ptr<T> &data)
 	{
 		T *internalPtr;
-		load( internalPtr );
+		loadRawPointer( internalPtr );
 		data.reset(internalPtr);
 	}
 	template <typename T, size_t N>
