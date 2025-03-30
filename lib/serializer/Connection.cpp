@@ -123,7 +123,6 @@ void CConnection::enterLobbyConnectionMode()
 {
 	deserializer->loadedPointers.clear();
 	serializer->savedPointers.clear();
-	disableSmartVectorMemberSerialization();
 }
 
 void CConnection::setCallback(IGameCallback * cb)
@@ -134,19 +133,6 @@ void CConnection::setCallback(IGameCallback * cb)
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
 	setCallback(gs->callback);
-	enableSmartVectorMemberSerializatoin(gs);
-}
-
-void CConnection::disableSmartVectorMemberSerialization()
-{
-	packReader->smartVectorMembersSerialization = false;
-	packWriter->smartVectorMembersSerialization = false;
-}
-
-void CConnection::enableSmartVectorMemberSerializatoin(CGameState * gs)
-{
-	packWriter->addStdVecItems(gs);
-	packReader->addStdVecItems(gs);
 }
 
 void CConnection::setSerializationVersion(ESerializationVersion version)

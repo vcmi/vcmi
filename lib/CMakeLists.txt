@@ -224,7 +224,6 @@ set(lib_MAIN_SRCS
 	serializer/CMemorySerializer.cpp
 	serializer/Connection.cpp
 	serializer/CSaveFile.cpp
-	serializer/CSerializer.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp

@@ -155,22 +155,6 @@ public:
 		if(data == nullptr)
 			return;
 
-		typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType;
-
-		if(writer->smartVectorMembersSerialization)
-		{
-			typedef typename VectorizedTypeFor<TObjectType>::type VType;
-			typedef typename VectorizedIDType<TObjectType>::type IDType;
-
-			if(const auto *info = writer->getVectorizedTypeInfo<VType, IDType>())
-			{
-				IDType id = writer->getIdFromVectorItem<VType>(*info, data);
-				save(id);
-				if(id != IDType(-1)) //vector id is enough
-					return;
-			}
-		}
-
 		if(trackSerializedPointers)
 		{
 			// We might have an object that has multiple inheritance and store it via the non-first base pointer.

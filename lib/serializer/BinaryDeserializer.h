@@ -202,23 +202,6 @@ public:
 			return;
 		}
 
-		if(reader->smartVectorMembersSerialization)
-		{
-			typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
-			typedef typename VectorizedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
-			typedef typename VectorizedIDType<TObjectType>::type IDType;
-			if(const auto *info = reader->getVectorizedTypeInfo<VType, IDType>())
-			{
-				IDType id;
-				load(id);
-				if(id != IDType(-1))
-				{
-					data = static_cast<T>(reader->getVectorItemFromId<VType, IDType>(*info, id));
-					return;
-				}
-			}
-		}
-
 		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(trackSerializedPointers)
 		{

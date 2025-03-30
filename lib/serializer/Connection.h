@@ -36,9 +36,6 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 	std::mutex writeMutex;
 
-	void disableSmartVectorMemberSerialization();
-	void enableSmartVectorMemberSerializatoin(CGameState * gs);
-
 public:
 	bool isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const;
 	std::shared_ptr<INetworkConnection> getConnection();
