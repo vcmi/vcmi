@@ -1209,7 +1209,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
-			return asi.artifact->getTypeId() == ArtifactID::GRAIL;
+			return asi.getArt()->getTypeId() == ArtifactID::GRAIL;
 		});
 
 		if(beatenHero->getVisitedTown())
@@ -1715,14 +1715,14 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		const auto slotInfo = artSet->getSlot(slot);
 		if(slotInfo->locked)
 		{
-			logGlobal->debug("Erasing locked artifact: %s", slotInfo->artifact->getType()->getNameTranslated());
+			logGlobal->debug("Erasing locked artifact: %s", slotInfo->getArt()->getType()->getNameTranslated());
 			DisassembledArtifact dis;
 			dis.al.artHolder = artHolder;
 
 			for(auto & slotInfoWorn : artSet->artifactsWorn)
 			{
-				auto art = slotInfoWorn.second.artifact;
-				if(art->isCombined() && art->isPart(slotInfo->artifact))
+				auto art = slotInfoWorn.second.getArt();
+				if(art->isCombined() && art->isPart(slotInfo->getArt()))
 				{
 					dis.al.slot = artSet->getArtPos(art);
 					break;
@@ -1734,7 +1734,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		}
 		else
 		{
-			logGlobal->debug("Erasing artifact %s", slotInfo->artifact->getType()->getNameTranslated());
+			logGlobal->debug("Erasing artifact %s", slotInfo->getArt()->getType()->getNameTranslated());
 		}
 		gs->getMap().removeArtifactInstance(*artSet, slot);
 	}
@@ -1863,8 +1863,8 @@ void DisassembledArtifact::applyGs(CGameState *gs)
 	{
 		// ArtifactPosition::PRE_FIRST is value of main part slot -> it'll replace combined artifact in its pos
 		auto slot = (ArtifactUtils::isSlotEquipment(part.slot) ? part.slot : al.slot);
-		disassembledArt->detachFromSource(*part.art);
-		gs->getMap().putArtifactInstance(*hero, part.art->getId(), slot);
+		disassembledArt->detachFromSource(*part.getArtifact());
+		gs->getMap().putArtifactInstance(*hero, part.getArtifact()->getId(), slot);
 	}
 	gs->getMap().eraseArtifactInstance(disassembledArt->getId());
 }
@@ -2460,18 +2460,30 @@ void SetRewardableConfiguration::applyGs(CGameState *gs)
 	}
 }
 
+ArtSlotInfo::ArtSlotInfo(IGameCallback * cb)
+	: GameCallbackHolder(cb)
+{
+}
+
+ArtSlotInfo::ArtSlotInfo(const CArtifactInstance * artifact, bool locked)
+	: GameCallbackHolder(artifact->cb)
+	, artifactID(artifact->getId())
+	, locked(locked)
+{
+}
+
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
 	if(locked)
 		return nullptr;
-	return artifact;
+	return cb->getArtInstance(artifactID);
 }
 
 ArtifactInstanceID ArtSlotInfo::getID() const
 {
-	if(locked || artifact == nullptr)
+	if(locked)
 		return {};
-	return artifact->getId();
+	return artifactID;
 }
 
 VCMI_LIB_NAMESPACE_END

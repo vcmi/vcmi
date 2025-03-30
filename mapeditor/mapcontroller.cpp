@@ -642,12 +642,12 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 
 			for(const auto & [_, slotInfo] : hero->artifactsWorn)
 			{
-				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(LIBRARY));
+				extractEntityMod(slotInfo.getArt()->getTypeId().toEntity(LIBRARY));
 			}
 
 			for(const auto & art : hero->artifactsInBackpack)
 			{
-				extractEntityMod(art.artifact->getTypeId().toEntity(LIBRARY));
+				extractEntityMod(art.getArt()->getTypeId().toEntity(LIBRARY));
 			}
 		}
 	}

@@ -151,7 +151,7 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots(
 
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
-	return slot.second.artifact
+	return slot.second.getArt()
 		&& !slot.second.locked
 		&& !vstd::contains(unmovableSlots(), slot.first);
 }

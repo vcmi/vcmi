@@ -74,6 +74,8 @@ private:
 	ui32 movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison
 
+	IGameCallback * getCallback() const final { return cb; }
+
 public:
 	//////////////////////////////////////////////////////////////////////////
 	//format:   123

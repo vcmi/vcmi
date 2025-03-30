@@ -164,8 +164,8 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			// Disassemble this backpack artifact
 			for(const auto & ci : parts)
 			{
-				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
+				if(ci.getArtifact()->getTypeId() != elem)
+					cb->giveHeroNewArtifact(h, ci.getArtifact()->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 
 			continue;

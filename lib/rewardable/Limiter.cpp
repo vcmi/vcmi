@@ -144,18 +144,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			// check required amount of artifacts
 			size_t artCnt = 0;
 			for(const auto & [slot, slotInfo] : hero->artifactsWorn)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 					artCnt++;
 
 			for(auto & slotInfo : hero->artifactsInBackpack)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 				{
 					artCnt++;
 				}
-				else if(slotInfo.artifact->isCombined())
+				else if(slotInfo.getArt()->isCombined())
 				{
-					for(const auto & partInfo : slotInfo.artifact->getPartsInfo())
-						if(partInfo.art->getTypeId() == elem.first)
+					for(const auto & partInfo : slotInfo.getArt()->getPartsInfo())
+						if(partInfo.getArtifact()->getTypeId() == elem.first)
 							artCnt++;
 				}
 

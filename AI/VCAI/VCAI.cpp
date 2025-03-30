@@ -1177,22 +1177,22 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 			{
 				for(auto p : h->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.artifact)));
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.artifact)));
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1213,7 +1213,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				auto s = cb->getHero(location.artHolder)->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
-				auto artifact = s->artifact;
+				auto artifact = s->getArt();
 				if(!artifact)
 					continue;
 				//FIXME: why are the above possible to be null?
@@ -1235,13 +1235,13 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
-						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
+						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
 						{
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+							if(compareArtifacts(artifact, otherSlot->getArt()) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 							{
 								ArtifactLocation destLocation(target->id, slot);
-								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
 								changeMade = true;
 								break;
 							}

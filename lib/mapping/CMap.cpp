@@ -488,7 +488,7 @@ void CMap::removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & s
 	for(auto & part : artifact->getPartsInfo())
 	{
 		if(part.slot != ArtifactPosition::PRE_FIRST)
-			partsMap.try_emplace(part.art, ArtifactPosition::PRE_FIRST);
+			partsMap.try_emplace(part.getArtifact(), ArtifactPosition::PRE_FIRST);
 	}
 	artifact->addPlacementMap(partsMap);
 }
@@ -766,17 +766,17 @@ CArtifactInstance * CMap::createScroll(const SpellID & spellId)
 
 CArtifactInstance * CMap::createSingleArtifact(const ArtifactID & artId, const SpellID & spellId)
 {
-	return new CArtifactInstance();
+	return new CArtifactInstance(cb);
 }
 
 CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID & spellId)
 {
 	if(!artID.hasValue())
-		return new CArtifactInstance(); // random, empty //TODO: make this illegal & remove?
+		return new CArtifactInstance(cb); // random, empty //TODO: make this illegal & remove?
 
 	auto art = artID.toArtifact();
 
-	auto artInst = new CArtifactInstance(art);
+	auto artInst = new CArtifactInstance(cb, art);
 	if(art->isCombined() && !art->isFused())
 	{
 		for(const auto & part : art->getConstituents())

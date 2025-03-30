@@ -13,9 +13,28 @@
 
 #include "ArtifactUtils.h"
 #include "CArtHandler.h"
+#include "IGameCallback.h"
 #include "networkPacks/ArtifactLocation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+CCombinedArtifactInstance::PartInfo::PartInfo(IGameCallback * cb)
+	:GameCallbackHolder(cb)
+{}
+
+CCombinedArtifactInstance::PartInfo::PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot)
+	: GameCallbackHolder(artifact->cb)
+	, artifactID(artifact->getId())
+	, slot(slot)
+{
+}
+
+const CArtifactInstance * CCombinedArtifactInstance::PartInfo::getArtifact() const
+{
+	if (artifactID.hasValue())
+		return cb->getArtInstance(artifactID);
+	return nullptr;
+}
 
 void CCombinedArtifactInstance::addPart(const CArtifactInstance * art, const ArtifactPosition & slot)
 {
@@ -37,7 +56,7 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 
 	for(const PartInfo & constituent : partsInfo)
 	{
-		if(constituent.art == supposedPart)
+		if(constituent.artifactID == supposedPart->getId())
 			return true;
 	}
 
@@ -59,8 +78,8 @@ void CCombinedArtifactInstance::addPlacementMap(const CArtifactSet::ArtPlacement
 	if(!placementMap.empty())
 		for(auto & part : partsInfo)
 		{
-			if(placementMap.find(part.art) != placementMap.end())
-				part.slot = placementMap.at(part.art);
+			if(placementMap.find(part.getArtifact()) != placementMap.end())
+				part.slot = placementMap.at(part.getArtifact());
 		}
 }
 
@@ -105,22 +124,16 @@ void CGrowingArtifactInstance::growingUp()
 	}
 }
 
-void CArtifactInstance::init()
+CArtifactInstance::CArtifactInstance(IGameCallback *cb, const CArtifact * art)
+	:CArtifactInstance(cb)
 {
-	// Artifact to be randomized
-	id = static_cast<ArtifactInstanceID>(ArtifactID::NONE);
-	setNodeType(ARTIFACT_INSTANCE);
-}
-
-CArtifactInstance::CArtifactInstance(const CArtifact * art)
-{
-	init();
 	setType(art);
 }
 
-CArtifactInstance::CArtifactInstance()
+CArtifactInstance::CArtifactInstance(IGameCallback *cb)
+	: CCombinedArtifactInstance(cb)
+	, CBonusSystemNode(ARTIFACT_INSTANCE)
 {
-	init();
 }
 
 void CArtifactInstance::setType(const CArtifact * art)
@@ -173,7 +186,7 @@ void CArtifactInstance::deserializationFix()
 {
 	setType(artTypeID.toArtifact());
 	for(PartInfo & part : partsInfo)
-		attachToSource(*part.art);
+		attachToSource(*part.getArtifact());
 }
 
 VCMI_LIB_NAMESPACE_END

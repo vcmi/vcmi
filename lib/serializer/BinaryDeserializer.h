@@ -168,7 +168,11 @@ public:
 	void load(std::vector<T> &data)
 	{
 		uint32_t length = readAndCheckLength();
-		data.resize(length);
+
+		if constexpr (std::is_base_of_v<GameCallbackHolder, T>)
+			data.resize(length, T(cb));
+		else
+			data.resize(length);
 		for(uint32_t i=0;i<length;i++)
 			load( data[i]);
 	}
@@ -373,7 +377,14 @@ public:
 		for(uint32_t i=0;i<length;i++)
 		{
 			load(key);
-			load(data[key]);
+
+			if constexpr (std::is_base_of_v<GameCallbackHolder, T2>)
+			{
+				data.try_emplace(key, cb);
+				load(data.at(key));
+			}
+			else
+				load(data[key]);
 		}
 	}
 	void load(std::string &data)

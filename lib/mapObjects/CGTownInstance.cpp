@@ -264,6 +264,7 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 }
 
 CGTownInstance::CGTownInstance(IGameCallback *cb):
+	IMarket(cb),
 	CGDwelling(cb),
 	built(0),
 	destroyed(0),

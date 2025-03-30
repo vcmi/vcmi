@@ -1050,22 +1050,22 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 			{
 				for(auto p : h->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.artifact)));
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.artifact)));
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1087,7 +1087,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				auto s = artHolder->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
-				auto artifact = s->artifact;
+				auto artifact = s->getArt();
 				if(!artifact)
 					continue;
 				//FIXME: why are the above possible to be null?
@@ -1111,10 +1111,10 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
-						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
+						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
 						{
-							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->artifact);
-							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->artifact->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->getArt());
+							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey(), artifactScore, otherArtifactScore);
 
 							//if that artifact is better than what we have, pick it
 							//combined artifacts are not always allowed to move
@@ -1132,9 +1132,9 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
 									artifact->getType()->getJsonKey(),
-									otherSlot->artifact->getType()->getJsonKey());
+									otherSlot->getArt()->getType()->getJsonKey());
 
-								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
+								if(!otherSlot->getArt()->canBePutAt(artHolder, location.slot, true))
 								{
 									ArtifactLocation destLocation(target->id, slot);
 									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
@@ -1144,7 +1144,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								}
 								else
 								{
-									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
 								}
 
 								changeMade = true;

@@ -254,6 +254,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 
 CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	: CArmedInstance(cb),
+	CArtifactSet(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),

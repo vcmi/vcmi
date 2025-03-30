@@ -2678,7 +2678,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 	auto & slotsDstSrc = ma.artsPack1;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
-	CArtifactFittingSet artFittingSet(pdstSet->bearerType());
+	CArtifactFittingSet artFittingSet(gameState()->callback, pdstSet->bearerType());
 
 	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
 		ArtifactPosition srcSlot, std::vector<MoveArtifactInfo> & slots) -> void
@@ -2714,7 +2714,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 		{
 			for(auto & slotInfo : artSet->artifactsInBackpack)
 			{
-				auto slot = artSet->getArtPos(slotInfo.artifact);
+				auto slot = artSet->getArtPos(slotInfo.getArt());
 				slots.emplace_back(slot, slot);
 			}
 		};
@@ -2754,8 +2754,8 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 			// Move over artifacts that are in backpack
 			for(auto & slotInfo : psrcSet->artifactsInBackpack)
 			{
-				moveArtifact(psrcSet->getArt(psrcSet->getArtPos(slotInfo.artifact)),
-					psrcSet->getArtPos(slotInfo.artifact), slotsSrcDst);
+				moveArtifact(psrcSet->getArt(psrcSet->getArtPos(slotInfo.getArt())),
+					psrcSet->getArtPos(slotInfo.getArt()), slotsSrcDst);
 			}
 		}
 	}

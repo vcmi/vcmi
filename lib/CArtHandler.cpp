@@ -225,7 +225,7 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 			if(ArtifactUtils::isSlotBackpack(slot))
 				return true;
 
-			CArtifactFittingSet fittingSet(artSet->bearerType());
+			CArtifactFittingSet fittingSet(artSet->getCallback(), artSet->bearerType());
 			fittingSet.artifactsWorn = artSet->artifactsWorn;
 			if(assumeDestRemoved)
 				fittingSet.removeArtifact(slot);
@@ -712,8 +712,8 @@ const CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, boo
 {
 	if(const ArtSlotInfo * si = getSlot(pos))
 	{
-		if(si->artifact && (!excludeLocked || !si->locked))
-			return si->artifact;
+		if(si->getArt() && (!excludeLocked || !si->locked))
+			return si->getArt();
 	}
 	return nullptr;
 }
@@ -722,8 +722,8 @@ ArtifactInstanceID CArtifactSet::getArtID(const ArtifactPosition & pos, bool exc
 {
 	if(const ArtSlotInfo * si = getSlot(pos))
 	{
-		if(si->artifact && (!excludeLocked || !si->locked))
-			return si->artifact->getId();
+		if(si->getArt() && (!excludeLocked || !si->locked))
+			return si->getArt()->getId();
 	}
 	return {};
 }
@@ -732,7 +732,7 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 {
 	for(const auto & [slot, slotInfo] : artifactsWorn)
 	{
-		if(slotInfo.artifact->getTypeId() == aid && (allowLocked || !slotInfo.locked))
+		if(slotInfo.getArt()->getTypeId() == aid && (allowLocked || !slotInfo.locked))
 			return slot;
 	}
 	if(!onlyWorn)
@@ -752,12 +752,12 @@ ArtifactPosition CArtifactSet::getArtPos(const ArtifactID & aid, bool onlyWorn, 
 const CArtifactInstance * CArtifactSet::getArtByInstanceId(const ArtifactInstanceID & artInstId) const
 {
 	for(const auto & i : artifactsWorn)
-		if(i.second.artifact->getId() == artInstId)
-			return i.second.artifact;
+		if(i.second.getArt()->getId() == artInstId)
+			return i.second.getArt();
 
 	for(const auto & i : artifactsInBackpack)
-		if(i.artifact->getId() == artInstId)
-			return i.artifact;
+		if(i.getArt()->getId() == artInstId)
+			return i.getArt();
 
 	return nullptr;
 }
@@ -795,22 +795,21 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 	ArtPlacementMap resArtPlacement;
 	const auto putToSlot = [this](const ArtifactPosition & targetSlot, const CArtifactInstance * targetArt, bool locked)
 	{
-		ArtSlotInfo * slotInfo;
+		ArtSlotInfo newSlot(targetArt, locked);
+
 		if(targetSlot == ArtifactPosition::TRANSITION_POS)
 		{
-			slotInfo = &artifactsTransitionPos;
+			artifactsTransitionPos = newSlot;
 		}
 		else if(ArtifactUtils::isSlotEquipment(targetSlot))
 		{
-			slotInfo = &artifactsWorn[targetSlot];
+			artifactsWorn.insert_or_assign(targetSlot, newSlot);
 		}
 		else
 		{
 			auto position = artifactsInBackpack.begin() + targetSlot - ArtifactPosition::BACKPACK_START;
-			slotInfo = &(*artifactsInBackpack.emplace(position));
+			artifactsInBackpack.insert(position, newSlot);
 		}
-		slotInfo->artifact = targetArt;
-		slotInfo->locked = locked;
 	};
 
 	putToSlot(slot, art, false);
@@ -818,33 +817,37 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 	{
 		const CArtifactInstance * mainPart = nullptr;
 		for(const auto & part : art->getPartsInfo())
-			if(vstd::contains(part.art->getType()->getPossibleSlots().at(bearerType()), slot)
+			if(vstd::contains(part.getArtifact()->getType()->getPossibleSlots().at(bearerType()), slot)
 				&& (part.slot == ArtifactPosition::PRE_FIRST))
 			{
-				mainPart = part.art;
+				mainPart = part.getArtifact();
 				break;
 			}
 		
 		for(const auto & part : art->getPartsInfo())
 		{
-			if(part.art != mainPart)
+			if(part.getArtifact() != mainPart)
 			{
 				auto partSlot = part.slot;
-				if(!part.art->getType()->canBePutAt(this, partSlot))
-					partSlot = ArtifactUtils::getArtAnyPosition(this, part.art->getTypeId());
+				if(!part.getArtifact()->getType()->canBePutAt(this, partSlot))
+					partSlot = ArtifactUtils::getArtAnyPosition(this, part.getArtifact()->getTypeId());
 
 				assert(ArtifactUtils::isSlotEquipment(partSlot));
-				putToSlot(partSlot, part.art, true);
-				resArtPlacement.emplace(part.art, partSlot);
+				putToSlot(partSlot, part.getArtifact(), true);
+				resArtPlacement.emplace(part.getArtifact(), partSlot);
 			}
 			else
 			{
-				resArtPlacement.emplace(part.art, part.slot);
+				resArtPlacement.emplace(part.getArtifact(), part.slot);
 			}
 		}
 	}
 	return resArtPlacement;
 }
+
+CArtifactSet::CArtifactSet(IGameCallback * cb)
+	:artifactsTransitionPos(cb)
+{}
 
 void CArtifactSet::removeArtifact(const ArtifactPosition & slot)
 {
@@ -852,7 +855,7 @@ void CArtifactSet::removeArtifact(const ArtifactPosition & slot)
 	{
 		if(slotForErase == ArtifactPosition::TRANSITION_POS)
 		{
-			artifactsTransitionPos.artifact = nullptr;
+			artifactsTransitionPos.artifactID = {};
 		}
 		else if(ArtifactUtils::isSlotBackpack(slotForErase))
 		{
@@ -876,7 +879,7 @@ void CArtifactSet::removeArtifact(const ArtifactPosition & slot)
 				if(part.slot != ArtifactPosition::PRE_FIRST)
 				{
 					assert(getArt(part.slot, false));
-					assert(getArt(part.slot, false) == part.art);
+					assert(getArt(part.slot, false) == part.getArtifact());
 				}
 				eraseArtSlot(part.slot);
 			}
@@ -889,12 +892,12 @@ const CArtifactInstance * CArtifactSet::getCombinedArtWithPart(const ArtifactID 
 {
 	for(const auto & slot : artifactsInBackpack)
 	{
-		auto art = slot.artifact;
+		auto art = slot.getArt();
 		if(art->isCombined())
 		{
 			for(auto & ci : art->getPartsInfo())
 			{
-				if(ci.art->getTypeId() == partId)
+				if(ci.getArtifact()->getTypeId() == partId)
 					return art;
 			}
 		}
@@ -925,7 +928,7 @@ void CArtifactSet::lockSlot(const ArtifactPosition & pos)
 	if(pos == ArtifactPosition::TRANSITION_POS)
 		artifactsTransitionPos.locked = true;
 	else if(ArtifactUtils::isSlotEquipment(pos))
-		artifactsWorn[pos].locked = true;
+		artifactsWorn.at(pos).locked = true;
 	else
 	{
 		assert(artifactsInBackpack.size() > pos - ArtifactPosition::BACKPACK_START);
@@ -939,7 +942,7 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 		return artifactsInBackpack.size() < GameConstants::ALTAR_ARTIFACTS_SLOTS;
 
 	if(const ArtSlotInfo *s = getSlot(pos))
-		return (onlyLockCheck || !s->artifact) && !s->locked;
+		return (onlyLockCheck || !s->getArt()) && !s->locked;
 
 	return true; //no slot means not used
 }
@@ -947,8 +950,8 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 {
 	for(auto & elem : artifactsWorn)
-		if(elem.second.artifact && !elem.second.locked)
-			node->attachToSource(*elem.second.artifact);
+		if(elem.second.getArt() && !elem.second.locked)
+			node->attachToSource(*elem.second.getArt());
 }
 
 void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)
@@ -995,7 +998,7 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 	{
 		backpackTemp.reserve(artifactsInBackpack.size());
 		for(const ArtSlotInfo & info : artifactsInBackpack)
-			backpackTemp.push_back(info.artifact->getTypeId());
+			backpackTemp.push_back(info.getArt()->getTypeId());
 	}
 	handler.serializeIdArray(NArtifactPosition::backpack, backpackTemp);
 	if(!handler.saving)
@@ -1033,7 +1036,7 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(info != nullptr && !info->locked)
 		{
-			artifactID = info->artifact->getTypeId();
+			artifactID = info->getArt()->getTypeId();
 			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
 		}
 	}
@@ -1058,13 +1061,15 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 	}
 }
 
-CArtifactFittingSet::CArtifactFittingSet(ArtBearer::ArtBearer bearer)
-	: bearer(bearer)
+CArtifactFittingSet::CArtifactFittingSet(IGameCallback *cb, ArtBearer::ArtBearer bearer)
+	: GameCallbackHolder(cb)
+	, CArtifactSet(cb)
+	, bearer(bearer)
 {
 }
 
 CArtifactFittingSet::CArtifactFittingSet(const CArtifactSet & artSet)
-	: CArtifactFittingSet(artSet.bearerType())
+	: CArtifactFittingSet(artSet.getCallback(), artSet.bearerType())
 {
 	artifactsWorn = artSet.artifactsWorn;
 	artifactsInBackpack = artSet.artifactsInBackpack;

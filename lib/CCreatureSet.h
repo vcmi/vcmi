@@ -77,6 +77,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 
 	ObjectInstanceID armyInstanceID; //stack must be part of some army, army must be part of some object
 
+	IGameCallback * getCallback() const final { return cb; }
 public:
 	struct RandomStackInfo
 	{

@@ -16,22 +16,27 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct ArtifactLocation;
 
-class DLL_LINKAGE CCombinedArtifactInstance
+class DLL_LINKAGE CCombinedArtifactInstance : public GameCallbackHolder
 {
 protected:
-	CCombinedArtifactInstance() = default;
+	using GameCallbackHolder::GameCallbackHolder;
 public:
-	struct PartInfo
+	struct PartInfo : public GameCallbackHolder
 	{
-		const CArtifactInstance * art;
+		explicit PartInfo(IGameCallback * cb);
+		PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot);
+
+
+		ArtifactInstanceID artifactID;
 		ArtifactPosition slot;
+
+		const CArtifactInstance * getArtifact() const;
+
 		template <typename Handler> void serialize(Handler & h)
 		{
-			h & art;
+			h & artifactID;
 			h & slot;
 		}
-		PartInfo(const CArtifactInstance * art = nullptr, const ArtifactPosition & slot = ArtifactPosition::PRE_FIRST)
-			: art(art), slot(slot) {};
 	};
 	void addPart(const CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
@@ -68,14 +73,12 @@ class DLL_LINKAGE CArtifactInstance final
 	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
 {
 protected:
-	void init();
-
 	ArtifactInstanceID id;
 	ArtifactID artTypeID;
-public:
 
-	CArtifactInstance(const CArtifact * art);
-	CArtifactInstance();
+public:
+	CArtifactInstance(IGameCallback *cb, const CArtifact * art);
+	CArtifactInstance(IGameCallback *cb);
 	void setType(const CArtifact * art);
 	std::string nodeName() const override;
 	ArtifactID getTypeId() const;

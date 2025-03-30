@@ -15,6 +15,7 @@
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
+#include "GameCallbackHolder.h"
 #include "IHandlerBase.h"
 #include "serializer/Serializeable.h"
 
@@ -178,24 +179,27 @@ private:
 	void loadComponents(CArtifact * art, const JsonNode & node);
 };
 
-struct DLL_LINKAGE ArtSlotInfo
+struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 {
-	const CArtifactInstance * artifact;
-	bool locked; //if locked, then artifact points to the combined artifact
+	ArtifactInstanceID artifactID;
+	bool locked = false; //if locked, then artifact points to the combined artifact
 
-	ArtSlotInfo() : artifact(nullptr), locked(false) {}
+	explicit ArtSlotInfo(IGameCallback * cb);
+	ArtSlotInfo(const CArtifactInstance * artifact, bool locked);
+
 	const CArtifactInstance * getArt() const;
 	ArtifactInstanceID getID() const;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & artifact;
+		h & artifactID;
 		h & locked;
 	}
 };
 
 class DLL_LINKAGE CArtifactSet : public virtual Serializeable
 {
+
 public:
 	using ArtPlacementMap = std::map<const CArtifactInstance*, ArtifactPosition>;
 
@@ -214,9 +218,11 @@ public:
 	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchCombinedParts = false) const;
 	bool isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck = false) const;
 
+	virtual IGameCallback * getCallback() const = 0;
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual ArtPlacementMap putArtifact(const ArtifactPosition & slot, const CArtifactInstance * art);
 	virtual void removeArtifact(const ArtifactPosition & slot);
+	CArtifactSet(IGameCallback * cb);
 	virtual ~CArtifactSet() = default;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -239,10 +245,11 @@ private:
 };
 
 // Used to try on artifacts before the claimed changes have been applied
-class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet
+class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallbackHolder
 {
+	IGameCallback * getCallback() const final { return cb; }
 public:
-	CArtifactFittingSet(ArtBearer::ArtBearer Bearer);
+	CArtifactFittingSet(IGameCallback *cb, ArtBearer::ArtBearer Bearer);
 	explicit CArtifactFittingSet(const CArtifactSet & artSet);
 	ArtBearer::ArtBearer bearerType() const override;
 

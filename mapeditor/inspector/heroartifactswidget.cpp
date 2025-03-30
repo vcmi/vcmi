@@ -83,11 +83,11 @@ void HeroArtifactsWidget::obtainData()
 	std::vector<const CArtifact *> combinedArtifactsParts;
 	for (const auto & [artPosition, artSlotInfo] : fittingSet.artifactsWorn)
 	{
-		addArtifactToTable(LIBRARY->arth->getById(artSlotInfo.artifact->getTypeId())->getIndex(), artPosition);
+		addArtifactToTable(LIBRARY->arth->getById(artSlotInfo.getArt()->getTypeId())->getIndex(), artPosition);
 	}
 	for (const auto & art : hero.artifactsInBackpack)
 	{
-		addArtifactToTable(LIBRARY->arth->getById(art.artifact->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
+		addArtifactToTable(LIBRARY->arth->getById(art.getArt()->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
 	}
 }
 
@@ -105,12 +105,12 @@ void HeroArtifactsWidget::commitChanges()
 
 	for(const auto & [artPosition, artSlotInfo] : fittingSet.artifactsWorn)
 	{
-		hero.putArtifact(artPosition, artSlotInfo.artifact);
+		hero.putArtifact(artPosition, artSlotInfo.getArt());
 	}
 
 	for(const auto & art : fittingSet.artifactsInBackpack)
 	{
-		hero.putArtifact(ArtifactPosition::BACKPACK_START + static_cast<int>(hero.artifactsInBackpack.size()), art.artifact);
+		hero.putArtifact(ArtifactPosition::BACKPACK_START + static_cast<int>(hero.artifactsInBackpack.size()), art.getArt());
 	}
 }
 
@@ -157,12 +157,12 @@ void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QM
 	for(const auto & [artPosition, artSlotInfo] : hero.artifactsWorn)
 	{
 		auto slotText = NArtifactPosition::namesHero[artPosition.num];
-		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.artifact->getType()->getNameTranslated()));
+		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.getArt()->getType()->getNameTranslated()));
 	}
 	textList += QString("%1:").arg(QString::fromStdString(NArtifactPosition::backpack));
 	for(const auto & art : hero.artifactsInBackpack)
 	{
-		textList += QString::fromStdString(art.artifact->getType()->getNameTranslated());
+		textList += QString::fromStdString(art.getArt()->getType()->getNameTranslated());
 	}
 	setModelTextData(model, index, textList);
 }

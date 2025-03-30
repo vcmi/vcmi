@@ -137,7 +137,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 					return false;
 
 				// TODO: why would there be nullptr artifacts?
-				const CArtifactInstance *art = info->artifact;
+				const CArtifactInstance *art = info->getArt();
 				if(!art)
 					return false;
 
