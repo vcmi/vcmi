@@ -388,7 +388,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	auto callBattleStart = [&](PlayerColor color, BattleSide side)
 	{
 		if(vstd::contains(battleints, color))
-			battleints[color]->battleStart(info->battleID, leftSide.armyObject, rightSide.armyObject, info->tile, leftSide.hero, rightSide.hero, side, info->replayAllowed);
+			battleints[color]->battleStart(info->battleID, leftSide.getArmy(), rightSide.getArmy(), info->tile, leftSide.getHero(), rightSide.getHero(), side, info->replayAllowed);
 	};
 	
 	callBattleStart(leftSide.color, BattleSide::LEFT_SIDE);
@@ -433,14 +433,14 @@ void CClient::battleStarted(const BattleInfo * info)
 	{
 		if(att || def)
 		{
-			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.getArmy(), rightSide.getArmy(), leftSide.getHero(), rightSide.getHero(), att, def);
 		}
 		else if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
 		{
 			//TODO: This certainly need improvement
 			auto spectratorInt = std::dynamic_pointer_cast<CPlayerInterface>(playerint[PlayerColor::SPECTATOR]);
 			spectratorInt->cb->onBattleStarted(info);
-			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.armyObject, rightSide.armyObject, leftSide.hero, rightSide.hero, att, def, spectratorInt);
+			CPlayerInterface::battleInt = std::make_shared<BattleInterface>(info->getBattleID(), leftSide.getArmy(), rightSide.getArmy(), leftSide.getHero(), rightSide.getHero(), att, def, spectratorInt);
 		}
 	}
 

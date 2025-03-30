@@ -200,7 +200,7 @@ public:
 
 		//send info about battles
 
-		auto battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
+		auto battle = BattleInfo::setupBattle(gameState->callback, tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
 		bs.info = std::move(battle);

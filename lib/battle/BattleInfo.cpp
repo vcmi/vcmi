@@ -157,10 +157,10 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-std::unique_ptr<BattleInfo> BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
+std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
-	auto currentBattle = std::make_unique<BattleInfo>(layout);
+	auto currentBattle = std::make_unique<BattleInfo>(cb, layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
 		currentBattle->sides[i].init(heroes[i], armies[i]);
@@ -171,7 +171,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(const int3 & tile, TerrainId
 	currentBattle->round = -2;
 	currentBattle->activeStack = -1;
 	currentBattle->replayAllowed = false;
-	currentBattle->town = town;
+	if (town)
+		currentBattle->townID = town->id;
 
 	//setting up siege obstacles
 	if (town && town->fortificationsLevel().wallsHealth != 0)
@@ -354,15 +355,15 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(const int3 & tile, TerrainId
 		}
 	}
 
-	if (currentBattle->town)
+	if (currentBattle->townID.hasValue())
 	{
-		if (currentBattle->town->fortificationsLevel().citadelHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().citadelHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (currentBattle->town->fortificationsLevel().upperTowerHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().upperTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
-		if (currentBattle->town->fortificationsLevel().lowerTowerHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().lowerTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 
 		//Moat generating is done on server
@@ -437,7 +438,7 @@ const CGHeroInstance * BattleInfo::getHero(const PlayerColor & player) const
 {
 	for(const auto & side : sides)
 		if(side.color == player)
-			return side.hero;
+			return side.getHero();
 
 	logGlobal->error("Player %s is not in battle!", player.toString());
 	return nullptr;
@@ -458,17 +459,18 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo(const BattleLayout & layout):
-	BattleInfo()
+BattleInfo::BattleInfo(IGameCallback *cb, const BattleLayout & layout):
+	BattleInfo(cb)
 {
 	*this->layout = layout;
 }
 
-BattleInfo::BattleInfo():
+BattleInfo::BattleInfo(IGameCallback *cb)
+	:GameCallbackHolder(cb),
+	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),
 	round(-1),
 	activeStack(-1),
-	town(nullptr),
 	tile(-1,-1,-1),
 	battlefieldType(BattleField::NONE),
 	tacticsSide(BattleSide::NONE),
@@ -557,12 +559,19 @@ PlayerColor BattleInfo::getSidePlayer(BattleSide side) const
 
 const CArmedInstance * BattleInfo::getSideArmy(BattleSide side) const
 {
-	return getSide(side).armyObject;
+	return getSide(side).getArmy();
 }
 
 const CGHeroInstance * BattleInfo::getSideHero(BattleSide side) const
 {
-	return getSide(side).hero;
+	return getSide(side).getHero();
+}
+
+const CGTownInstance * BattleInfo::getTown() const
+{
+	if (townID.hasValue())
+		return cb->getTown(townID);
+	return nullptr;
 }
 
 uint8_t BattleInfo::getTacticDist() const
@@ -577,7 +586,9 @@ BattleSide BattleInfo::getTacticsSide() const
 
 const CGTownInstance * BattleInfo::getDefendedTown() const
 {
-	return town;
+	if (townID.hasValue())
+		return cb->getTown(townID);
+	return nullptr;
 }
 
 EWallState BattleInfo::getWallState(EWallPart partOfWall) const

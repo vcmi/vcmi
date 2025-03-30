@@ -175,7 +175,7 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, battlefieldType, armies, heroes, layout, town);
+	bs.info = BattleInfo::setupBattle(gameHandler->gameState()->callback, tile, terrain, battlefieldType, armies, heroes, layout, town);
 	bs.battleID = gameHandler->gameState()->nextBattleID;
 
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);

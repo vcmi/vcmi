@@ -745,11 +745,11 @@ void ApplyFirstClientNetPackVisitor::visitBattleStart(BattleStart & pack)
 {
 	// Cannot use the usual code because curB is not set yet
 	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::ATTACKER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSideArmy(BattleSide::ATTACKER), pack.info->getSideArmy(BattleSide::DEFENDER),
-		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSideHero(BattleSide::DEFENDER));
+		pack.info->tile, pack.info->getSideHero(BattleSide::ATTACKER), pack.info->getSideHero(BattleSide::DEFENDER));
 	callOnlyThatBattleInterface(cl, pack.info->getSide(BattleSide::DEFENDER).color, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSideArmy(BattleSide::ATTACKER), pack.info->getSideArmy(BattleSide::DEFENDER),
-		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSideHero(BattleSide::DEFENDER));
+		pack.info->tile, pack.info->getSideHero(BattleSide::ATTACKER), pack.info->getSideHero(BattleSide::DEFENDER));
 	callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, &IBattleEventsReceiver::battleStartBefore, pack.battleID, pack.info->getSideArmy(BattleSide::ATTACKER), pack.info->getSideArmy(BattleSide::DEFENDER),
-		pack.info->tile, pack.info->getSide(BattleSide::ATTACKER).hero, pack.info->getSideHero(BattleSide::DEFENDER));
+		pack.info->tile, pack.info->getSideHero(BattleSide::ATTACKER), pack.info->getSideHero(BattleSide::DEFENDER));
 }
 
 void ApplyClientNetPackVisitor::visitBattleStart(BattleStart & pack)
