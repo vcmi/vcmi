@@ -1376,7 +1376,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		}
 		case EventCondition::DAYS_PASSED:
 		{
-			return (si32)day > condition.value;
+			return day > condition.value;
 		}
 		case EventCondition::IS_HUMAN:
 		{

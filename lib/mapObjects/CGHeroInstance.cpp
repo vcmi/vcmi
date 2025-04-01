@@ -1308,6 +1308,13 @@ const CGBoat * CGHeroInstance::getBoat() const
 	return nullptr;
 }
 
+CGBoat * CGHeroInstance::getBoat()
+{
+	if (boardedBoat.hasValue())
+		return dynamic_cast<CGBoat*>(cb->gameState()->getObjInstance(boardedBoat));
+	return nullptr;
+}
+
 void CGHeroInstance::setBoat(CGBoat* newBoat)
 {
 	assert(newBoat);
@@ -1334,9 +1341,10 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBat
 	if(!getVisitedTown())
 		return nullptr;
 
-	return isBattleOutsideTown ? (CBonusSystemNode *)(& getVisitedTown()->townAndVis)
-		: (CBonusSystemNode *)(getVisitedTown());
+	if (isBattleOutsideTown)
+		return const_cast<CTownAndVisitingHero *>(&getVisitedTown()->townAndVis);
 
+	return const_cast<CGTownInstance*>(getVisitedTown());
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)

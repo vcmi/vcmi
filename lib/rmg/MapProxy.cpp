@@ -25,7 +25,7 @@ void MapProxy::insertObject(std::shared_ptr<CGObjectInstance> obj)
 	map.getEditManager()->insertObject(obj);
 }
 
-void MapProxy::insertObjects(std::set<std::shared_ptr<CGObjectInstance>>& objects)
+void MapProxy::insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects)
 {
 	Lock lock(mx);
 	map.getEditManager()->insertObjects(objects);

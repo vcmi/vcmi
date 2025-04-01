@@ -152,7 +152,7 @@ void CMapEditManager::insertObject(std::shared_ptr<CGObjectInstance> obj)
 	execute(std::make_unique<CInsertObjectOperation>(map, obj));
 }
 
-void CMapEditManager::insertObjects(std::set<std::shared_ptr<CGObjectInstance>>& objects)
+void CMapEditManager::insertObjects(const std::set<std::shared_ptr<CGObjectInstance>>& objects)
 {
 	auto composedOperation = std::make_unique<CComposedOperation>(map);
 	for(auto obj : objects)

@@ -38,9 +38,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		//h & quest;
 		h & obj;
-		//h & tile;
 	}
 };
 

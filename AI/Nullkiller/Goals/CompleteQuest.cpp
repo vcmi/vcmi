@@ -185,29 +185,6 @@ TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * ai) const
 TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
 {
 	TGoalVec solutions = tryCompleteQuest(ai);
-
-	/*auto heroes = cb->getHeroesInfo(); //TODO: choose best / free hero from among many possibilities?
-
-	if(heroes.size())
-	{
-		if(q.getQuest(cb)->checkQuest(heroes.front())) //it doesn't matter which hero it is
-		{
-			return solutions;// ai->ah->howToVisitObj(q.getObject(cb));
-		}
-		else
-		{
-			for(int i = 0; i < q.getQuest(cb)->m7resources.size(); ++i)
-			{
-				if(q.getQuest(cb)->m7resources[i])
-					solutions.push_back(sptr(CollectRes(static_cast<EGameResID>(i), q.getQuest(cb)->m7resources[i])));
-			}
-		}
-	}
-	else
-	{
-		solutions.push_back(sptr(Goals::RecruitHero())); //FIXME: checkQuest requires any hero belonging to player :(
-	}*/
-
 	return solutions;
 }
 

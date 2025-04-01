@@ -18,26 +18,15 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE CSaverBase
-{
-protected:
-	IBinaryWriter * writer;
-public:
-	CSaverBase(IBinaryWriter * w): writer(w){};
-
-	void write(const void * data, unsigned size)
-	{
-		writer->write(reinterpret_cast<const std::byte*>(data), size);
-	};
-};
-
 /// Main class for serialization of classes into binary form
 /// Behaviour for various classes is following:
 /// Primitives:    copy memory into underlying stream (defined in CSaverBase)
 /// Containers:    custom overloaded method that decouples class into primitives
 /// VCMI Classes:  recursively serialize them via ClassName::serialize( BinarySerializer &, int version) call
-class BinarySerializer : public CSaverBase
+class BinarySerializer
 {
+	IBinaryWriter * writer;
+
 	template<typename Handler>
 	struct VariantVisitorSaver
 	{
@@ -51,6 +40,11 @@ class BinarySerializer : public CSaverBase
 		{
 			h & t;
 		}
+	};
+
+	void write(const void * data, unsigned size)
+	{
+		writer->write(reinterpret_cast<const std::byte*>(data), size);
 	};
 
 public:
@@ -70,7 +64,7 @@ public:
 	};
 
 	BinarySerializer(IBinaryWriter * w)
-		: CSaverBase(w)
+		: writer(w)
 	{
 	}
 

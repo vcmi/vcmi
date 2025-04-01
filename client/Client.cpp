@@ -227,7 +227,7 @@ void CClient::initPlayerEnvironments()
 		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
 		
-		if(!hasHumanPlayer && gameState()->players.at(color).isHuman())
+		if(color.isValidPlayer() && !hasHumanPlayer && gameState()->players.at(color).isHuman())
 			hasHumanPlayer = true;
 	}
 
@@ -247,7 +247,7 @@ void CClient::initPlayerEnvironments()
 
 void CClient::initPlayerInterfaces()
 {
-	for(auto & playerInfo : gameState()->getStartInfo()->playerInfos)
+	for(const auto & playerInfo : gameState()->getStartInfo()->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
@@ -259,7 +259,7 @@ void CClient::initPlayerInterfaces()
 			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
-				for(auto & allyInfo : gameState()->getStartInfo()->playerInfos)
+				for(const auto & allyInfo : gameState()->getStartInfo()->playerInfos)
 					if (gameState()->getPlayerTeam(allyInfo.first) == gameState()->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
 						alliedToHuman = true;
 

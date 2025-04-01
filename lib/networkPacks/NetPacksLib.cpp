@@ -1228,7 +1228,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->inBoat())
 		{
-			beatenHero->detachFrom(const_cast<CGBoat&>(*beatenHero->getBoat()));
+			beatenHero->detachFrom(*beatenHero->getBoat());
 			gs->getMap().eraseObject(beatenHero->getBoat()->id);
 			beatenHero->setBoat(nullptr);
 		}
@@ -1327,7 +1327,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
-		auto * b = const_cast<CGBoat *>(h->getBoat());
+		auto * b = h->getBoat();
 		b->direction = h->moveDir;
 		b->pos = start;
 		b->setBoardedHero(nullptr);
@@ -1340,7 +1340,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 	{
 		gs->getMap().removeBlockVisTiles(h);
 		h->pos = end;
-		if(auto * b = const_cast<CGBoat *>(h->getBoat()))
+		if(auto * b = h->getBoat())
 			b->pos = end;
 		gs->getMap().addBlockVisTiles(h);
 	}
@@ -1713,16 +1713,18 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 	for(const auto & slot : posPack)
 	{
 		const auto slotInfo = artSet->getSlot(slot);
+		const ArtifactInstanceID artifactID = slotInfo->artifactID;
+		const CArtifactInstance * artifact = gs->getArtInstance(artifactID);
 		if(slotInfo->locked)
 		{
-			logGlobal->debug("Erasing locked artifact: %s", slotInfo->getArt()->getType()->getNameTranslated());
+			logGlobal->debug("Erasing locked artifact: %s", artifact->getType()->getNameTranslated());
 			DisassembledArtifact dis;
 			dis.al.artHolder = artHolder;
 
 			for(auto & slotInfoWorn : artSet->artifactsWorn)
 			{
 				auto art = slotInfoWorn.second.getArt();
-				if(art->isCombined() && art->isPart(slotInfo->getArt()))
+				if(art->isCombined() && art->isPart(artifact))
 				{
 					dis.al.slot = artSet->getArtPos(art);
 					break;
@@ -1734,7 +1736,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 		}
 		else
 		{
-			logGlobal->debug("Erasing artifact %s", slotInfo->getArt()->getType()->getNameTranslated());
+			logGlobal->debug("Erasing artifact %s", artifact->getType()->getNameTranslated());
 		}
 		gs->getMap().removeArtifactInstance(*artSet, slot);
 	}

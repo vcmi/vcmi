@@ -804,7 +804,7 @@ void BattleInfo::removeUnit(uint32_t id)
 			}
 
 			//cleanup remaining clone links if any
-			for(auto & s : stacks)
+			for(const auto & s : stacks)
 			{
 				if(s->cloneID == toRemoveId)
 					s->cloneID = -1;

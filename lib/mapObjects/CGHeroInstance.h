@@ -60,7 +60,6 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 
-private:
 	PrimarySkillsCache primarySkills;
 	MagicSchoolMasteryCache magicSchoolMastery;
 	BonusValueCache manaPerKnowledgeCached;
@@ -163,6 +162,7 @@ public:
 	std::string getClassNameTextID() const;
 
 	bool inBoat() const;
+	CGBoat * getBoat();
 	const CGBoat * getBoat() const;
 	void setBoat(CGBoat * getBoat);
 

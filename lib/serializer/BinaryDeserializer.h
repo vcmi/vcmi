@@ -16,27 +16,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE CLoaderBase
-{
-protected:
-	IBinaryReader * reader;
-public:
-	CLoaderBase(IBinaryReader * r): reader(r){};
-
-	inline void read(void * data, unsigned size, bool reverseEndianness)
-	{
-		auto bytePtr = reinterpret_cast<std::byte*>(data);
-
-		reader->read(bytePtr, size);
-		if(reverseEndianness)
-			std::reverse(bytePtr, bytePtr + size);
-	};
-};
-
 /// Main class for deserialization of classes from binary form
 /// Effectively revesed version of BinarySerializer
-class BinaryDeserializer : public CLoaderBase
+class BinaryDeserializer
 {
+	IBinaryReader * reader;
+
 	STRONG_INLINE uint32_t readAndCheckLength()
 	{
 		uint32_t length;
@@ -50,7 +35,14 @@ class BinaryDeserializer : public CLoaderBase
 		return length;
 	}
 
-	int write(const void * data, unsigned size);
+	inline void read(void * data, unsigned size)
+	{
+		auto bytePtr = reinterpret_cast<std::byte*>(data);
+
+		reader->read(bytePtr, size);
+		if(reverseEndianness)
+			std::reverse(bytePtr, bytePtr + size);
+	};
 
 public:
 	using Version = ESerializationVersion;
@@ -72,7 +64,7 @@ public:
 	};
 
 	BinaryDeserializer(IBinaryReader * r)
-		: CLoaderBase(r)
+		: reader(r)
 	{}
 
 	template<class T>
@@ -112,7 +104,7 @@ public:
 	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
 	void load(T &data)
 	{
-		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		this->read(static_cast<void *>(&data), sizeof(data));
 	}
 
 	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
@@ -120,7 +112,7 @@ public:
 	{
 		if constexpr (sizeof(T) == 1)
 		{
-			this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+			this->read(static_cast<void *>(&data), sizeof(data));
 		}
 		else
 		{
@@ -147,7 +139,7 @@ public:
 
 	void load(Version &data)
 	{
-		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		this->read(static_cast<void *>(&data), sizeof(data));
 	}
 
 	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
@@ -406,7 +398,7 @@ public:
 		if (length > 0)
 		{
 			data.resize(length);
-			this->read(static_cast<void *>(data.data()), length, false);
+			this->read(static_cast<void *>(data.data()), length);
 			loadedStrings.push_back(data);
 		}
 	}

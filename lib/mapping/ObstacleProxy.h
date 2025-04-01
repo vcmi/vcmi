@@ -47,7 +47,7 @@ public:
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
-	void finalInsertion(CMapEditManager * manager, std::set<std::shared_ptr<CGObjectInstance>> & instances);
+	void finalInsertion(CMapEditManager * manager, const std::set<std::shared_ptr<CGObjectInstance>> & instances);
 
 	virtual void postProcess(const rmg::Object& object) {};
 

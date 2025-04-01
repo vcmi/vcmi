@@ -131,8 +131,8 @@ CArtifactInstance::CArtifactInstance(IGameCallback *cb, const CArtifact * art)
 }
 
 CArtifactInstance::CArtifactInstance(IGameCallback *cb)
-	: CCombinedArtifactInstance(cb)
-	, CBonusSystemNode(ARTIFACT_INSTANCE)
+	: CBonusSystemNode(ARTIFACT_INSTANCE)
+	, CCombinedArtifactInstance(cb)
 {
 }
 

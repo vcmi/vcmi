@@ -161,7 +161,7 @@ void CQuestLog::recreateLabelList()
 
 		MetaString text;
 		questPtr->getRolloverText(GAME->interface()->cb.get(), text, false);
-		if (quests[i].obj)
+		if (quests[i].obj.hasValue())
 		{
 			if (auto seersHut = dynamic_cast<const CGSeerHut *>(questObject))
 			{

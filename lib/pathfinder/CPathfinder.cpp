@@ -498,11 +498,11 @@ int CPathfinderHelper::getGuardiansCount(int3 tile) const
 }
 
 CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
-	turn(-1),
 	gs(gs),
+	turn(-1),
+	owner(Hero->tempOwner),
 	hero(Hero),
-	options(Options),
-	owner(Hero->tempOwner)
+	options(Options)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();

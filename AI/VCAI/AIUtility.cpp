@@ -201,7 +201,10 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should be handled by pathfinder
 {
 	const auto * object = cb->getTopObj(tileToHit);
-	if( object && object->id != Obj::BORDER_GATE)
+	if(!object)
+		return false;
+
+	if(object->id != Obj::BORDER_GATE)
 		return false;
 
 	auto gate = dynamic_cast<const CGKeys *>(object);

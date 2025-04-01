@@ -356,7 +356,7 @@ std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd:
 
 //FIXME: Only editor placer obstacles directly
 
-void ObstacleProxy::finalInsertion(CMapEditManager * manager, std::set<std::shared_ptr<CGObjectInstance>> & instances)
+void ObstacleProxy::finalInsertion(CMapEditManager * manager, const std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
 	manager->insertObjects(instances); //insert as one operation - for undo purposes
 }
@@ -368,7 +368,7 @@ std::pair<bool, bool> ObstacleProxy::verifyCoverage(const int3 & t) const
 
 void ObstacleProxy::placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
-	for (auto * instance : object.instances())
+	for (const auto * instance : object.instances())
 	{
 		instances.insert(instance->pointer());
 	}

@@ -550,7 +550,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
-	for (auto & elem : gameState()->players)
+	for (const auto & elem : gameState()->players)
 		turnOrder->addPlayer(elem.first);
 
 //	for (auto & elem : gameState()->getMap().allHeroes)
@@ -646,7 +646,7 @@ void CGameHandler::onNewTurn()
 			}
 		}
 
-		for (auto & elem : gameState()->players)
+		for (const auto & elem : gameState()->players)
 			heroPool->onNewWeek(elem.first);
 
 	}
@@ -3583,10 +3583,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			std::set<PlayerColor> playerColors;
 
 			//do not copy player state (CBonusSystemNode) by value
-			for (auto &p : gameState()->players) //players may have different colors, iterate over players and not integers
+			for (const auto &playerState : gameState()->players) //players may have different colors, iterate over players and not integers
 			{
-				if (p.first != player)
-					playerColors.insert(p.first);
+				if (playerState.first != player)
+					playerColors.insert(playerState.first);
 			}
 
 			//notify all players

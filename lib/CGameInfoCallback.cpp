@@ -759,7 +759,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 
 	for (auto & possibleHero : heroes)
 	{
-		if (includeGarrisoned || !(possibleHero)->isGarrisoned())
+		if (includeGarrisoned || !possibleHero->isGarrisoned())
 			index++;
 
 		if (possibleHero == hero)

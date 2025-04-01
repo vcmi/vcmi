@@ -683,8 +683,8 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 CStackInstance::CStackInstance(IGameCallback *cb, bool isHypothetic)
 	: CBonusSystemNode(isHypothetic)
-	, GameCallbackHolder(cb)
 	, CArtifactSet(cb)
+	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
 	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
 {

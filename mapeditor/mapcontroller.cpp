@@ -120,10 +120,9 @@ void MapController::repairMap(CMap * map)
 	for(auto obj : allImpactedObjects)
 	{
 		//fix flags
-		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
+		if(obj->asOwnable() != nullptr && obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			if(obj->asOwnable())
-				obj->tempOwner = PlayerColor::NEUTRAL;
+			obj->tempOwner = PlayerColor::NEUTRAL;
 		}
 		//fix hero instance
 		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj))

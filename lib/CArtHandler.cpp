@@ -1062,8 +1062,8 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 }
 
 CArtifactFittingSet::CArtifactFittingSet(IGameCallback *cb, ArtBearer::ArtBearer bearer)
-	: GameCallbackHolder(cb)
-	, CArtifactSet(cb)
+	: CArtifactSet(cb)
+	, GameCallbackHolder(cb)
 	, bearer(bearer)
 {
 }

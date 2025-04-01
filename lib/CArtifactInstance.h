@@ -72,7 +72,6 @@ public:
 class DLL_LINKAGE CArtifactInstance final
 	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
 {
-protected:
 	ArtifactInstanceID id;
 	ArtifactID artTypeID;
 

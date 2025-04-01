@@ -39,8 +39,8 @@
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
 Initializer::Initializer(MapController & controller, CGObjectInstance * o, const PlayerColor & pl)
-	: defaultPlayer(pl)
-	, controller(controller)
+	: controller(controller)
+	, defaultPlayer(pl)
 {
 	logGlobal->info("New object instance initialized");
 ///IMPORTANT! initialize order should be from base objects to derived objects

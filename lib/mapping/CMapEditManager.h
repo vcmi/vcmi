@@ -84,7 +84,7 @@ public:
 	void drawRiver(RiverId riverType, vstd::RNG * gen);
 
 	void insertObject(std::shared_ptr<CGObjectInstance> obj);
-	void insertObjects(std::set<std::shared_ptr<CGObjectInstance>> & objects);
+	void insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects);
 	void moveObject(CGObjectInstance* obj, const int3 & pos);
 	void removeObject(CGObjectInstance* obj);
 	void removeObjects(std::set<CGObjectInstance*> & objects);

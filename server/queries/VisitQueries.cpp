@@ -52,13 +52,14 @@ MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectIns
 
 void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
+	auto object = gh->gameState()->getObjInstance(visitedObject);
 	auto hero = gh->gameState()->getHero(visitingHero);
 
 	gh->objectVisitEnded(hero, players.front());
 
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
-		gh->removeObject(hero, color);
+		gh->removeObject(object, color);
 }
 
 TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)
