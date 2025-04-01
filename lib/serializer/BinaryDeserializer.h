@@ -55,8 +55,8 @@ class BinaryDeserializer : public CLoaderBase
 public:
 	using Version = ESerializationVersion;
 
-	bool reverseEndianness; //if source has different endianness than us, we reverse bytes
-	Version version;
+	bool reverseEndianness = false; //if source has different endianness than us, we reverse bytes
+	Version version = Version::NONE;
 
 	std::vector<std::string> loadedStrings;
 	std::map<uint32_t, Serializeable*> loadedPointers;
@@ -71,7 +71,9 @@ public:
 		return version >= what;
 	};
 
-	DLL_LINKAGE BinaryDeserializer(IBinaryReader * r);
+	BinaryDeserializer(IBinaryReader * r)
+		: CLoaderBase(r)
+	{}
 
 	template<class T>
 	BinaryDeserializer & operator&(T & t)

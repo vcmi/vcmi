@@ -1573,11 +1573,6 @@ void CGameState::buildBonusSystemTree()
 
 void CGameState::deserializationFix()
 {
-	assert(cb != nullptr);
-
-	for(auto & player : players)
-		player.second.cb = cb;
-
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
 

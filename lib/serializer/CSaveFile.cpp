@@ -49,15 +49,6 @@ void CSaveFile::openNextFile(const boost::filesystem::path &fname)
 	}
 }
 
-void CSaveFile::reportState(vstd::CLoggerBase * out)
-{
-	out->debug("CSaveFile");
-	if(sfile.get() && *sfile)
-	{
-		out->debug("\tOpened %s \tPosition: %d", fName, sfile->tellp());
-	}
-}
-
 void CSaveFile::clear()
 {
 	fName.clear();

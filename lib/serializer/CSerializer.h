@@ -9,27 +9,9 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 const std::string SAVEGAME_MAGIC = "VCMISVG";
-
-class CHero;
-class CGHeroInstance;
-class CGObjectInstance;
-
-class CGameState;
-class GameLibrary;
-extern DLL_LINKAGE GameLibrary * LIBRARY;
-
-/// Base class for serializers capable of reading or writing data
-class DLL_LINKAGE CSerializer : boost::noncopyable
-{
-public:
-	virtual ~CSerializer() = default;
-	virtual void reportState(vstd::CLoggerBase * out){};
-};
 
 /// Helper to detect classes with user-provided serialize(S&, int version) method
 template<class S, class T>
@@ -45,16 +27,19 @@ struct is_serializeable
 };
 
 /// Base class for deserializers
-class DLL_LINKAGE IBinaryReader : public virtual CSerializer
+class IBinaryReader
 {
 public:
+	virtual ~IBinaryReader() = default;
 	virtual int read(std::byte * data, unsigned size) = 0;
+	virtual void reportState(vstd::CLoggerBase * out){};
 };
 
 /// Base class for serializers
-class DLL_LINKAGE IBinaryWriter : public virtual CSerializer
+class IBinaryWriter
 {
 public:
+	virtual ~IBinaryWriter() = default;
 	virtual int write(const std::byte * data, unsigned size) = 0;
 };
 

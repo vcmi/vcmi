@@ -75,7 +75,6 @@ public:
 	TurnTimerInfo turnTimer;
 
 	PlayerState(IGameCallback *cb);
-	PlayerState();
 	~PlayerState();
 
 	std::string nodeName() const override;

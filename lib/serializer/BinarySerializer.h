@@ -69,7 +69,10 @@ public:
 		return version >= what;
 	};
 
-	DLL_LINKAGE BinarySerializer(IBinaryWriter * w);
+	BinarySerializer(IBinaryWriter * w)
+		: CSaverBase(w)
+	{
+	}
 
 	template<class T>
 	BinarySerializer & operator&(const T & t)

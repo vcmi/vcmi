@@ -21,10 +21,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-PlayerState::PlayerState()
-	:PlayerState(nullptr)
-{}
-
 PlayerState::PlayerState(IGameCallback *cb)
 	: CBonusSystemNode(PLAYER)
 	, GameCallbackHolder(cb)

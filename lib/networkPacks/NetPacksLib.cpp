@@ -2418,13 +2418,13 @@ void PlayerEndsTurn::applyGs(CGameState *gs)
 
 void DaysWithoutTown::applyGs(CGameState *gs)
 {
-	auto & playerState = gs->players[player];
+	auto & playerState = gs->players.at(player);
 	playerState.daysWithoutCastle = daysWithoutCastle;
 }
 
 void TurnTimeUpdate::applyGs(CGameState *gs)
 {
-	auto & playerState = gs->players[player];
+	auto & playerState = gs->players.at(player);
 	playerState.turnTimer = turnTimer;
 }
 

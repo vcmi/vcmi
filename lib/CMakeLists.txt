@@ -218,8 +218,6 @@ set(lib_MAIN_SRCS
 	rmg/modificators/TerrainPainter.cpp
 	rmg/MapProxy.cpp
 
-	serializer/BinaryDeserializer.cpp
-	serializer/BinarySerializer.cpp
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
 	serializer/Connection.cpp

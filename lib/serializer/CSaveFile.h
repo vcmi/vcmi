@@ -27,7 +27,6 @@ public:
 
 	void openNextFile(const boost::filesystem::path &fname); //throws!
 	void clear();
-	void reportState(vstd::CLoggerBase * out) override;
 
 	void putMagicBytes(const std::string &text);
 
