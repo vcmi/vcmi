@@ -110,7 +110,7 @@ std::shared_ptr<CGHeroInstance> TavernHeroesPool::takeHeroFromPool(HeroTypeID he
 		return entry.hero == hero;
 	});
 
-	return owner->getMap().tryTakeFromHeroPool(hero);;
+	return owner->getMap().tryTakeFromHeroPool(hero);
 }
 
 void TavernHeroesPool::onNewDay()

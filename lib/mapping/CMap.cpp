@@ -505,7 +505,10 @@ void CMap::generateUniqueInstanceName(CGObjectInstance * target)
 
 void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 {
-	if(obj->id != ObjectInstanceID(static_cast<si32>(objects.size())))
+	if (!obj->id.hasValue())
+		obj->id = ObjectInstanceID(objects.size());
+
+	if(obj->id != ObjectInstanceID(objects.size()) && objects.at(obj->id.getNum()) != nullptr)
 		throw std::runtime_error("Invalid object instance id");
 
 	if(obj->instanceName.empty())
@@ -766,17 +769,27 @@ CArtifactInstance * CMap::createScroll(const SpellID & spellId)
 
 CArtifactInstance * CMap::createSingleArtifact(const ArtifactID & artId, const SpellID & spellId)
 {
-	return new CArtifactInstance(cb);
+	auto newArtifact = artId.hasValue() ?
+		std::make_shared<CArtifactInstance>(cb, artId.toArtifact()):
+		std::make_shared<CArtifactInstance>(cb);
+
+	newArtifact->setId(ArtifactInstanceID(artInstances.size()));
+	artInstances.push_back(newArtifact);
+	return newArtifact.get();
 }
 
 CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID & spellId)
 {
 	if(!artID.hasValue())
-		return new CArtifactInstance(cb); // random, empty //TODO: make this illegal & remove?
+	{
+		// random, empty
+		// TODO: make this illegal & remove? Such artifact can't be randomized as combined artifact later
+		return createSingleArtifact(artID, spellId);
+	}
 
 	auto art = artID.toArtifact();
 
-	auto artInst = new CArtifactInstance(cb, art);
+	auto artInst = createSingleArtifact(artID, spellId);
 	if(art->isCombined() && !art->isFused())
 	{
 		for(const auto & part : art->getConstituents())

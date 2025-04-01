@@ -131,6 +131,13 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 
 const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
 {
+	if (!objid.hasValue())
+	{
+		if(verbose)
+			logGlobal->error("Cannot get object with id %d. No such object", objid.getNum());
+		return nullptr;
+	}
+
 	const CGObjectInstance *ret = gameState()->getMap().getObject(objid);
 	if(!ret)
 	{

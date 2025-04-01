@@ -949,9 +949,9 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 
 void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
 {
-	for(auto & elem : artifactsWorn)
-		if(elem.second.getArt() && !elem.second.locked)
-			node->attachToSource(*elem.second.getArt());
+	//for(auto & elem : artifactsWorn)
+	//	if(elem.second.getArt() && !elem.second.locked)
+	//		node->attachToSource(*elem.second.getArt());
 }
 
 void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)

@@ -334,6 +334,15 @@ void CCreatureSet::addToSlot(const SlotID & slot, std::unique_ptr<CStackInstance
 	}
 }
 
+void CCreatureSet::deserializationFix()
+{
+	for(const auto & elem : stacks)
+	{
+		elem.second->attachTo(*getArmy());
+		elem.second->artDeserializationFix(elem.second.get());
+	}
+}
+
 bool CCreatureSet::validTypes(bool allowUnrandomized) const
 {
 	for(const auto & elem : stacks)
@@ -517,7 +526,7 @@ void CCreatureSet::putStack(const SlotID & slot, std::unique_ptr<CStackInstance>
 	assert(slot.getNum() < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
 	stacks[slot] = std::move(stack);
-	stack->setArmy(getArmy());
+	stacks[slot]->setArmy(getArmy());
 	armyChanged();
 }
 
@@ -536,10 +545,7 @@ void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
 	setStackCount(slot, getStackCount(slot) + toAdd);
 }
 
-CCreatureSet::~CCreatureSet()
-{
-	clearSlots();
-}
+CCreatureSet::~CCreatureSet() = default;
 
 void CCreatureSet::setToArmy(CSimpleArmy &src)
 {
@@ -864,19 +870,11 @@ TerrainId CStackInstance::getNativeTerrain() const
 
 	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
-
 TerrainId CStackInstance::getCurrentTerrain() const
 {
 	return getArmy()->getCurrentTerrain();
 }
 
-void CStackInstance::deserializationFix()
-{
-	const CArmedInstance *armyBackup = getArmy();
-	armyInstanceID = {};
-	setArmy(armyBackup);
-	artDeserializationFix(this);
-}
 
 CreatureID CStackInstance::getCreatureID() const
 {

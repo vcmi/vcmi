@@ -11,6 +11,7 @@
 
 #include "../bonuses/CBonusSystemNode.h"
 #include "../IGameCallback.h"
+#include "../GameCallbackHolder.h"
 #include "../LoadProgress.h"
 
 #include "RumorState.h"
@@ -42,7 +43,7 @@ class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
-class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
+class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable, public GameCallbackHolder
 {
 	friend class CGameStateCampaign;
 
@@ -64,15 +65,13 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	IGameCallback * callback;
-
-	CGameState();
+	CGameState(IGameCallback * callback);
 	virtual ~CGameState();
 
 	CGameState * gameState() final { return this; }
 	const CGameState * gameState() const final { return this; }
 
-	void preInit(Services * services, IGameCallback * callback);
+	void preInit(Services * services);
 
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);

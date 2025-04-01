@@ -132,7 +132,7 @@ void CConnection::setCallback(IGameCallback * cb)
 
 void CConnection::enterGameplayConnectionMode(CGameState * gs)
 {
-	setCallback(gs->callback);
+	setCallback(gs->cb);
 }
 
 void CConnection::setSerializationVersion(ESerializationVersion version)

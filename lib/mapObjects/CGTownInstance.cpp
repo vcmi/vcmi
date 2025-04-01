@@ -708,13 +708,6 @@ std::string CGTownInstance::nodeName() const
 void CGTownInstance::deserializationFix()
 {
 	attachTo(townAndVis);
-
-	//Hero is already handled by CGameState::attachArmedObjects
-
-// 	if(getVisitingHero())
-// 		getVisitingHero()->attachTo(&townAndVis);
-// 	if(getGarrisonHero())
-// 		getGarrisonHero()->attachTo(this);
 }
 
 void CGTownInstance::updateMoraleBonusFromArmy()

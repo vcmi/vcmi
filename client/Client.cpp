@@ -118,7 +118,7 @@ void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 	CMapService mapService;
 	assert(initializedGameState);
 	gamestate = initializedGameState;
-	gamestate->preInit(LIBRARY, this);
+	gamestate->preInit(LIBRARY);
 	logNetwork->trace("\tCreating gamestate: %i", GAME->server().th->getDiff());
 
 	initMapHandler();
@@ -133,7 +133,7 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 
 	logNetwork->info("Game state was transferred over network, loading.");
 	gamestate = initializedGameState;
-	gamestate->preInit(LIBRARY, this);
+	gamestate->preInit(LIBRARY);
 	gamestate->updateOnLoad(GAME->server().si.get());
 	logNetwork->info("Game loaded, initialize interfaces.");
 

@@ -139,7 +139,8 @@ int CGameState::getDate(Date mode) const
 	return getDate(day, mode);
 }
 
-CGameState::CGameState()
+CGameState::CGameState(IGameCallback * callback)
+	: GameCallbackHolder(callback)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
 	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
@@ -156,16 +157,15 @@ const IGameSettings & CGameState::getSettings() const
 	return map->getSettings();
 }
 
-void CGameState::preInit(Services * newServices, IGameCallback * newCallback)
+void CGameState::preInit(Services * newServices)
 {
 	services = newServices;
-	callback = newCallback;
 }
 
 void CGameState::init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
 {
 	assert(services);
-	assert(callback);
+	assert(cb);
 	scenarioOps = CMemorySerializer::deepCopy(*si);
 	initialOpts = CMemorySerializer::deepCopy(*si);
 	si = nullptr;
@@ -271,7 +271,7 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 void CGameState::updateOnLoad(StartInfo * si)
 {
 	assert(services);
-	assert(callback);
+	assert(cb);
 	scenarioOps->playerInfos = si->playerInfos;
 	for(auto & i : si->playerInfos)
 		players.at(i.first).human = i.second.isControlledByHuman();
@@ -288,7 +288,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, callback, getRandomGenerator().nextInt());
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, cb, getRandomGenerator().nextInt());
 		progressTracking.include(mapGenerator);
 
 		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
@@ -351,7 +351,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
-		map = mapService->loadMap(mapURI, callback);
+		map = mapService->loadMap(mapURI, cb);
 	}
 }
 
@@ -514,6 +514,7 @@ void CGameState::initPlayerStates()
 	logGlobal->debug("\tCreating player entries in gs");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
+		players.try_emplace(elem.first, cb);
 		PlayerState & p = players.at(elem.first);
 		p.color=elem.first;
 		p.human = elem.second.isControlledByHuman();
@@ -536,7 +537,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
-	auto object = handler->create(callback, handler->getTemplates().front());
+	auto object = handler->create(cb, handler->getTemplates().front());
 	auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 
 	hero->ID = Obj::HERO;
@@ -604,7 +605,7 @@ void CGameState::initHeroes()
 		if (tile.isWater())
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(callback, nullptr));
+			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(cb, nullptr));
 			handler->configureObject(boat.get(), getRandomGenerator());
 
 			boat->setAnchorPos(hero->anchorPos());
@@ -632,7 +633,7 @@ void CGameState::initHeroes()
 		}
 		else
 		{
-			auto vhi = std::make_shared<CGHeroInstance>(callback);
+			vhi = std::make_shared<CGHeroInstance>(cb);
 			vhi->initHero(getRandomGenerator(), htype);
 		}
 
@@ -924,7 +925,7 @@ void CGameState::initMapObjects()
 		if (q->ID ==Obj::QUEST_GUARD || q->ID ==Obj::SEER_HUT)
 			q->setObjToKill();
 	}
-	CGSubterraneanGate::postInit(callback); //pairing subterranean gates
+	CGSubterraneanGate::postInit(cb); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
 }
@@ -1572,8 +1573,10 @@ void CGameState::buildBonusSystemTree()
 
 void CGameState::deserializationFix()
 {
+	assert(cb != nullptr);
+
 	for(auto & player : players)
-		player.second.cb = callback;
+		player.second.cb = cb;
 
 	buildGlobalTeamPlayerTree();
 	attachArmedObjects();
@@ -1668,7 +1671,7 @@ TeamState::TeamState()
 
 vstd::RNG & CGameState::getRandomGenerator()
 {
-	return callback->getRandomGenerator();
+	return cb->getRandomGenerator();
 }
 
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)

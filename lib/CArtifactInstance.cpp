@@ -184,9 +184,9 @@ bool CArtifactInstance::isScroll() const
 
 void CArtifactInstance::deserializationFix()
 {
-	setType(artTypeID.toArtifact());
-	for(PartInfo & part : partsInfo)
-		attachToSource(*part.getArtifact());
+//	setType(artTypeID.toArtifact());
+//	for(PartInfo & part : partsInfo)
+//		attachToSource(*part.getArtifact());
 }
 
 VCMI_LIB_NAMESPACE_END

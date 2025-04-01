@@ -544,8 +544,8 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
 
 	CMapService mapService;
-	gs = std::make_shared<CGameState>();
-	gs->preInit(LIBRARY, this);
+	gs = std::make_shared<CGameState>(this);
+	gs->preInit(LIBRARY);
 	logGlobal->info("Gamestate created!");
 	gs->init(&mapService, si, progressTracking);
 	logGlobal->info("Gamestate initialized!");
@@ -1613,7 +1613,7 @@ bool CGameHandler::load(const std::string & filename)
 		gameLobby().announceMessage(str);
 		return false;
 	}
-	gameState()->preInit(LIBRARY, this);
+	gameState()->preInit(LIBRARY);
 	gameState()->updateOnLoad(gameLobby().si.get());
 	return true;
 }
@@ -2678,7 +2678,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 	auto & slotsDstSrc = ma.artsPack1;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
-	CArtifactFittingSet artFittingSet(gameState()->callback, pdstSet->bearerType());
+	CArtifactFittingSet artFittingSet(gameState()->cb, pdstSet->bearerType());
 
 	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
 		ArtifactPosition srcSlot, std::vector<MoveArtifactInfo> & slots) -> void
@@ -4259,7 +4259,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
-	auto o = handler->create(gameState()->callback, nullptr);
+	auto o = handler->create(gameState()->cb, nullptr);
 	handler->configureObject(o.get(), getRandomGenerator());
 	assert(o->ID == objectID);
 
@@ -4290,7 +4290,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->character = 2;
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
-	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gameState()->callback, creature, -1)); //add placeholder stack
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gameState()->cb, creature, -1)); //add placeholder stack
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }

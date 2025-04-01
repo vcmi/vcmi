@@ -48,9 +48,9 @@ public:
 
 	void SetUp() override
 	{
-		gameState = std::make_shared<CGameState>();
+		gameState = std::make_shared<CGameState>(gameCallback.get());
 		gameCallback->setGameState(gameState);
-		gameState->preInit(&services, gameCallback.get());
+		gameState->preInit(&services);
 	}
 
 	void TearDown() override
@@ -196,11 +196,11 @@ public:
 
 		auto terrain = t.getTerrainID();
 		BattleField terType(0);
-		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
+		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->cb, attacker, defender);
 
 		//send info about battles
 
-		auto battle = BattleInfo::setupBattle(gameState->callback, tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
+		auto battle = BattleInfo::setupBattle(gameState->cb, tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
 		bs.info = std::move(battle);

@@ -254,6 +254,7 @@ public:
 
 		h & objects;
 		h & heroesOnMap;
+		h & heroesPool;
 		h & teleportChannels;
 		h & towns;
 		h & artInstances;
