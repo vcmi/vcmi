@@ -76,8 +76,8 @@ namespace TextOperations
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
 	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
 
-	/// Retrieves the locale name based on the selected (in config) game language.
-	DLL_LINKAGE std::string getLocaleName();
+    /// Retrieves the locale based on the selected (in config) game language.
+    DLL_LINKAGE const std::locale & getLocale();
 
 	/// Compares two strings using locale-aware collation based on the selected game language.
 	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
