@@ -49,7 +49,7 @@ private:
 	CanvasPtr createBigSpellBook() const;
 	CanvasPtr createPlayerColoredBackground(const PlayerColor & player) const;
 	CanvasPtr createCombatUnitNumberWindow(float multR, float multG, float multB) const;
-	CanvasPtr createCampaignBackground() const;
+	CanvasPtr createCampaignBackground(int selection) const;
 	CanvasPtr createChroniclesCampaignImages(int chronicle) const;
 	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
 

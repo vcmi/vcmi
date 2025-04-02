@@ -226,7 +226,6 @@
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Ungültige Karte oder Kampagne}\n\nDas Spiel konnte nicht gestartet werden! Die ausgewählte Karte oder Kampagne ist möglicherweise ungültig oder beschädigt. Grund:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Fehlende Dateien}\n\nEs wurden keine Kampagnendateien gefunden! Möglicherweise verwendest du unvollständige oder beschädigte Heroes 3 Datendateien. Bitte installiere die Spieldaten neu.",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod Ladefehler}\n\nKritische Probleme beim Laden von Mods gefunden! Das Spiel könnte nicht korrekt funktionieren oder abstürzen! Bitte aktualisiere oder deaktiviere folgende Mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
 	"vcmi.server.errors.playerLeft" : "{Verlassen eines Spielers}\n\n%s Spieler hat die Verbindung zum Spiel unterbrochen!", //%s -> player color

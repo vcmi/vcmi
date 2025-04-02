@@ -219,7 +219,6 @@
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Bản đồ hoặc chiến dịch không hợp lệ}\n\nKhông thể bắt đầu trò chơi! Bản đồ hoặc chiến dịch đã chọn có thể không hợp lệ hoặc bị lỗi như sau:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Thiếu tệp tin dữ liệu}\n\nKhông tìm thấy tệp tin dữ liệu của chiến dịch! Có thể bạn đang sử dụng các tệp tin dữ liệu Heroes 3 bị thiếu hoặc bị lỗi. Hãy thử cài đặt lại trò chơi.",
 	"vcmi.client.errors.modLoadingFailure" : "{Lỗi tải mod}\n\nĐã phát hiện ra lỗi nghiêm trọng khi tải mod! Trò chơi có thể không hoạt động chính xác hoặc bị văng! Hãy cập nhật hoặc tắt các mod sau:\n\n",
 	"vcmi.server.errors.disconnected" : "{Mạng bị lỗi}\n\nĐã mất kết nối tới máy chủ trò chơi!",
 	"vcmi.server.errors.playerLeft" : "{Người chơi}\n\n%s đã ngắt kết nối khỏi trò chơi!", //%s -> màu của người chơi

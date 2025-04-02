@@ -226,7 +226,6 @@
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Missing data files}\n\nCampaigns data files were not found! You may be using incomplete or corrupted Heroes 3 data files. Please reinstall game data.",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod loading failure}\n\nCritical issues found when loading mods! Game may not work correctly or crash! Please update or disable following mods:\n\n",
 	"vcmi.server.errors.disconnected" : "{Network Error}\n\nConnection to game server has been lost!",
 	"vcmi.server.errors.playerLeft" : "{Player Left}\n\n%s player have disconnected from the game!", //%s -> player color

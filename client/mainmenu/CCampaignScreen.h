@@ -56,8 +56,18 @@ private:
 	std::vector<std::shared_ptr<CCampaignButton>> campButtons;
 	std::vector<std::shared_ptr<CPicture>> images;
 	std::shared_ptr<CButton> buttonBack;
+	std::shared_ptr<CButton> buttonNext;
+	std::shared_ptr<CButton> buttonPrev;
+	std::shared_ptr<CLabel> page;
 
 	std::shared_ptr<CButton> createExitButton(const JsonNode & button);
+
+	int campaignsPerPage = 8;
+	int currentPage = 0;
+	int maxPages = 0;
+
+	void switchPage(int delta);
+	void updateCampaignButtons(const JsonNode& parentConfig);
 
 public:
 	CCampaignScreen(const JsonNode & config, std::string campaignSet);

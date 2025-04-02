@@ -226,7 +226,6 @@
 	"vcmi.lobby.pvp.versus" : "对战",
 
 	"vcmi.client.errors.invalidMap" : "{非法地图或战役}\n\n启动游戏失败，选择的地图或者战役，无效或被污染。原因:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{找不到数据文件}\n\n没有找到战役数据文件！你可能使用了不完整或损坏的英雄无敌3数据文件，请重新安装数据文件。",
 	"vcmi.client.errors.modLoadingFailure" : "{加载mod失败}\n\n加载mod发生致命错误！游戏可能无法正常进行，也可能崩溃。请升级或禁用下列mod：\n\n",
 	"vcmi.server.errors.disconnected" : "{网络错误}\n\n与游戏服务器的连接已断开！",
 	"vcmi.server.errors.playerLeft" : "{玩家离开}\n\n%s玩家已断开游戏！", //%s -> player color

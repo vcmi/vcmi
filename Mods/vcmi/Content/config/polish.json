@@ -221,7 +221,6 @@
 	"vcmi.lobby.deleteUnsupportedSave" : "{Znaleziono niekompatybilne zapisy gry}\n\nVCMI wykrył %d zapisów gry, które nie są już wspierane. Prawdopodobnie ze względu na różne wersje gry.\n\nCzy chcesz je usunąć?",
 
 	"vcmi.client.errors.invalidMap" : "{Błędna mapa lub kampania}\n\nNie udało się stworzyć gry! Wybrana mapa lub kampania jest niepoprawna lub uszkodzona. Powód:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Brakujące pliki gry}\n\nPliki kampanii nie zostały znalezione! Możliwe że używasz niekompletnych lub uszkodzonych plików Heroes 3. Spróbuj ponownej instalacji plików gry.",
 	"vcmi.server.errors.disconnected" : "{Błąd sieciowy}\n\nUtracono połączenie z serwerem!",
 	"vcmi.server.errors.playerLeft" : "{Rozłączenie z graczem}\n\n%s opuścił rozgrywkę!", //%s -> player color
 	"vcmi.server.errors.existingProcess" : "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim przejdziesz dalej",

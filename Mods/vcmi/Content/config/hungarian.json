@@ -219,7 +219,6 @@
 	"vcmi.lobby.pvp.versus" : "vs.",
 
 	"vcmi.client.errors.invalidMap" : "{Érvénytelen térkép vagy kampány}\n\nNem sikerült elindítani a játékot! A kiválasztott térkép vagy kampány érvénytelen vagy sérült lehet. Indok:\n%s",
-	"vcmi.client.errors.missingCampaigns" : "{Hiányzó adatfájlok}\n\nNem találhatók kampány adatfájlok! Lehet, hogy hiányos vagy sérült Heroes 3 adatfájlokat használ. Telepítse újra az adatokat.",
 	"vcmi.client.errors.modLoadingFailure" : "{Mod betöltési hiba}\n\nKritikus problémák léptek fel a modok betöltésekor! A játék nem működhet megfelelően, vagy összeomolhat! Frissítse vagy tiltsa le az alábbi modokat:\n\n",
 	"vcmi.server.errors.disconnected" : "{Hálózati hiba}\n\nA kapcsolat a játékszerverrel megszakadt!",
 	"vcmi.server.errors.playerLeft" : "{Játékos kilépett}\n\n%s játékos kilépett a játékból!", //%s -> player color

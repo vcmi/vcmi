@@ -425,22 +425,6 @@ void CMainMenu::openCampaignScreen(std::string name)
 		return;
 	}
 
-	bool campaignsFound = true;
-	for (auto const & entry : config[name]["items"].Vector())
-	{
-		ResourcePath resourceID(entry["file"].String(), EResType::CAMPAIGN);
-		if(entry["optional"].Bool())
-			continue;
-		if(!CResourceHandler::get()->existsResource(resourceID))
-			campaignsFound = false;
-	}
-
-	if (!campaignsFound)
-	{
-		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
-		return;
-	}
-
 	ENGINE->windows().createAndPushWindow<CCampaignScreen>(config, name);
 }
 
