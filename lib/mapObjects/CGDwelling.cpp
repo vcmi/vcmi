@@ -252,7 +252,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	bd.player = h->tempOwner;
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
-		bd.text.appendLocalString(EMetaText::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
+		bd.text.appendLocalString(EMetaText::ADVOB_TXT, creatures.size() == 1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
