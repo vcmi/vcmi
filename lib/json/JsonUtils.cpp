@@ -209,9 +209,64 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 				if (copyMeta)
 					dest.setModScope(source.getModScope(), false);
 
-				//recursively merge all entries from struct
-				for(auto & node : source.Struct())
-					merge(dest[node.first], node.second, ignoreOverride);
+				if (dest.isStruct())
+				{
+					//recursively merge all entries from struct
+					for(auto & node : source.Struct())
+						merge(dest[node.first], node.second, ignoreOverride);
+					break;
+				}
+				if (dest.isVector())
+				{
+					auto getIndexSafe = [&dest](const std::string & keyName) -> std::optional<int>
+					{
+						try {
+							int index = std::stoi(keyName);
+							if (index <= 0 || index > dest.Vector().size())
+								throw std::out_of_range("dummy");
+							return index - 1; // 1-based index -> 0-based index
+						}
+						catch(const std::invalid_argument &)
+						{
+							logMod->warn("Failed to interpret key '%s' when replacing individual items in array. Expected 'appendItem', 'appendItems', 'modify@NUM' or 'insert@NUM", keyName);
+							return std::nullopt;
+						}
+						catch(const std::out_of_range & )
+						{
+							logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exists in targeted array of %d items", keyName, dest.Vector().size());
+							return std::nullopt;
+						}
+					};
+
+					for(auto & node : source.Struct())
+					{
+						if (node.first == "append")
+						{
+							dest.Vector().push_back(std::move(node.second));
+						}
+						else if (node.first == "appendItems")
+						{
+							assert(node.second.isVector());
+							std::move(dest.Vector().begin(), dest.Vector().end(), std::back_inserter(dest.Vector()));
+						}
+						else if (boost::algorithm::starts_with(node.first, "insert@"))
+						{
+							constexpr int numberPosition = std::char_traits<char>::length("insert@");
+							auto index = getIndexSafe(node.first.substr(numberPosition));
+							if (index)
+								dest.Vector().insert(dest.Vector().begin() + index.value(), std::move(node.second));
+						}
+						else if (boost::algorithm::starts_with(node.first, "modify@"))
+						{
+							constexpr int numberPosition = std::char_traits<char>::length("modify@");
+							auto index = getIndexSafe(node.first.substr(numberPosition));
+							if (index)
+								merge(dest.Vector().at(index.value()), node.second, ignoreOverride);
+						}
+					}
+					break;
+				}
+				assert(false);
 			}
 		}
 	}
