@@ -206,4 +206,7 @@ private:
 
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
 };
