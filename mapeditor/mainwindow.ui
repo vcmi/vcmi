@@ -1025,28 +1025,28 @@
     <string>Open</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+O</string>
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionOpenRecent">
-    <property name="text">
-     <string>Open Recent</string>
-    </property>
+   <property name="text">
+    <string>Open Recent</string>
+   </property>
   </action>
   <action name="actionOpenRecentMore">
-    <property name="text">
-     <string>More...</string>
-    </property>
-    <property name="shortcut">
-     <string notr="true">Ctrl+R</string>
-    </property>
+   <property name="text">
+    <string>More...</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+R</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+S</string>
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionNew">
@@ -1054,7 +1054,7 @@
     <string>New</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+N</string>
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -1073,7 +1073,7 @@
     <string>View underground</string>
    </property>
    <property name="shortcut">
-    <string notr="true">U</string>
+    <string>Ctrl+U</string>
    </property>
   </action>
   <action name="actionPass">
@@ -1084,7 +1084,7 @@
     <string>Pass</string>
    </property>
    <property name="shortcut">
-    <string notr="true">P</string>
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
   <action name="actionCut">
@@ -1092,7 +1092,7 @@
     <string>Cut</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+X</string>
+    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionCopy">
@@ -1100,7 +1100,7 @@
     <string>Copy</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+C</string>
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionPaste">
@@ -1108,7 +1108,7 @@
     <string>Paste</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+V</string>
+    <string>Ctrl+V</string>
    </property>
   </action>
   <action name="actionFill">
@@ -1130,7 +1130,7 @@
     <string>Grid</string>
    </property>
    <property name="shortcut">
-    <string notr="true">G</string>
+    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionMapSettings">
@@ -1144,7 +1144,7 @@
     <string>Map title and description</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string>Ctrl+Enter</string>
    </property>
   </action>
   <action name="actionPlayers_settings">
@@ -1155,7 +1155,7 @@
     <string>Players settings</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -1169,7 +1169,7 @@
     <string>Undo</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Z</string>
+    <string>Ctrl+Z</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
@@ -1183,7 +1183,7 @@
     <string>Redo</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Y</string>
+    <string>Ctrl+Y</string>
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>true</bool>
@@ -1197,7 +1197,7 @@
     <string>Erase</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Del</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="actionNeutral">
@@ -1208,7 +1208,7 @@
     <string>Neutral</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+0</string>
+    <string>Ctrl+0</string>
    </property>
   </action>
   <action name="actionValidate">
@@ -1216,7 +1216,7 @@
     <string>Validate</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string>Ctrl+Shift+V</string>
    </property>
   </action>
   <action name="actionUpdate_appearance">
@@ -1227,7 +1227,7 @@
     <string>Update appearance</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string notr="true">Ctrl+A</string>
    </property>
   </action>
   <action name="actionRecreate_obstacles">
@@ -1238,7 +1238,7 @@
     <string>Recreate obstacles</string>
    </property>
    <property name="shortcut">
-    <string notr="true"/>
+    <string notr="true">Ctrl+R</string>
    </property>
   </action>
   <action name="actionPlayer_1">
@@ -1249,7 +1249,7 @@
     <string>Player 1</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+1</string>
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="actionPlayer_2">
@@ -1260,7 +1260,7 @@
     <string>Player 2</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+2</string>
+    <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionPlayer_3">
@@ -1271,7 +1271,7 @@
     <string>Player 3</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+3</string>
+    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="actionPlayer_4">
@@ -1282,7 +1282,7 @@
     <string>Player 4</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+4</string>
+    <string>Ctrl+4</string>
    </property>
   </action>
   <action name="actionPlayer_5">
@@ -1293,7 +1293,7 @@
     <string>Player 5</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+5</string>
+    <string>Ctrl+5</string>
    </property>
   </action>
   <action name="actionPlayer_6">
@@ -1304,7 +1304,7 @@
     <string>Player 6</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+6</string>
+    <string>Ctrl+6</string>
    </property>
   </action>
   <action name="actionPlayer_7">
@@ -1315,7 +1315,7 @@
     <string>Player 7</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+7</string>
+    <string>Ctrl+7</string>
    </property>
   </action>
   <action name="actionPlayer_8">
@@ -1326,12 +1326,15 @@
     <string>Player 8</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+8</string>
+    <string>Ctrl+8</string>
    </property>
   </action>
   <action name="actionExport">
    <property name="text">
     <string>Export as...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
   <action name="actionTranslations">
@@ -1352,6 +1355,9 @@
    <property name="toolTip">
     <string>h3m converter</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+M</string>
+   </property>
   </action>
   <action name="actionh3c_converter">
    <property name="text">
@@ -1359,6 +1365,9 @@
    </property>
    <property name="toolTip">
     <string>h3c converter</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
   <action name="actionLock">
@@ -1388,7 +1397,7 @@
     <string>Zoom in</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+=</string>
+    <string>Ctrl++</string>
    </property>
   </action>
   <action name="actionZoom_out">
