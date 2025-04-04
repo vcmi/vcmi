@@ -157,6 +157,28 @@ void MainWindow::loadTranslation()
 #endif
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+	if (!getAnswerAboutUnsavedChanges())
+		return;
+
+	for (const QUrl& url : event->mimeData()->urls())
+	{
+		QString path = url.toLocalFile();
+		if (path.endsWith(".h3m", Qt::CaseInsensitive) || path.endsWith(".vmap", Qt::CaseInsensitive))
+		{
+			openMap(path);
+			break;
+		}
+	}
+}
+
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
