@@ -49,7 +49,6 @@ private:
 
     QRect screenGeometry;
 
-	QPixmap createGreenTickIcon();
 	void showValidationResults(const CMap * map);
     void adjustWindowSize();
 };

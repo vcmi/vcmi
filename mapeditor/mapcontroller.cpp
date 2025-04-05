@@ -588,7 +588,7 @@ bool MapController::canPlaceHero(const CGObjectInstance * heroObj, QString & err
 		return true;
 	}
 	
-	error = QObject::tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(heroObj->instanceName));
+	error = tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(heroObj->instanceName));
 	return false;
 }
 
@@ -603,18 +603,18 @@ bool MapController::checkRequiredMods(const CGObjectInstance * obj, QString & er
 		{
 			QString submod;
 			if(!mod.second.parent.empty())
-				submod = " (" + tr("submod of") + " " + QString::fromStdString(mod.second.parent) + ")";
+				submod = tr(" (submod of %1)").arg(QString::fromStdString(mod.second.parent));
 
 			auto reply = QMessageBox::question(main,
 				tr("Missing Required Mod"),
 				tr("This object is from the mod '%1'%2.\n\n"
 					"The mod is currently not in the map's required modifications list.\n\n"
-					"Do you want to add this mod to the required modifications ?\n")
+					"Do you want to add this mod to the required modifications?\n")
 				.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name), submod),
 				QMessageBox::Yes | QMessageBox::No);
 
 			if(reply == QMessageBox::Yes)
-				/* emit */ requestModsUpdate(modsInfo, true); // signal for MapSettings
+				Q_EMIT requestModsUpdate(modsInfo, true); // signal for MapSettings
 			else
 			{
 				error = tr("This object's mod is mandatory for map to remain valid.");

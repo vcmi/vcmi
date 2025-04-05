@@ -12,26 +12,24 @@
 #include "mainwindow.h"
 #include "../lib/mapping/CMap.h"
 
-PlayerSelectionDialog::PlayerSelectionDialog(QWidget * parent)
-	: QDialog(parent), selectedPlayer(PlayerColor::NEUTRAL)
+PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
+	: QDialog(mainWindow), selectedPlayer(PlayerColor::NEUTRAL)
 {
-	auto main = qobject_cast<MainWindow *>(parent);
-	assert(main);
+	assert(mainWindow);
 
 	setupDialogComponents();
 
 	int maxPlayers = 0;
-	if(main && main->controller.map())
-		maxPlayers = main->controller.map()->players.size();
-	
-	bool defaultIsChecked = false;
+	if(mainWindow && mainWindow->controller.map())
+		maxPlayers = mainWindow->controller.map()->players.size();
 
 	for(int i = 0; i < maxPlayers; ++i)
 	{
 		PlayerColor player(i);
-		QAction * action = main->getActionPlayer(player);
+		QAction * action = mainWindow->getActionPlayer(player);
+		bool isEnabled = mainWindow->controller.map()->players.at(i).canAnyonePlay();
 
-		addCheckbox(action, player, main->controller.map()->players.at(i).canAnyonePlay(), & defaultIsChecked);
+		addCheckbox(action, player, isEnabled);
 	}
 }
 
@@ -53,9 +51,8 @@ void PlayerSelectionDialog::onCheckboxToggled(bool checked)
 		}
 		else
 		{
-			cb->blockSignals(true);
+			QSignalBlocker blocker(cb);
 			cb->setChecked(false);
-			cb->blockSignals(false);
 		}
 	}
 }
@@ -101,7 +98,7 @@ void PlayerSelectionDialog::setupDialogComponents()
 	setLayout(& mainLayout);
 }
 
-void PlayerSelectionDialog::addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled, bool * isDefault)
+void PlayerSelectionDialog::addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled)
 {
 	QHBoxLayout * rowLayout = new QHBoxLayout();
 	auto * checkbox = new QCheckBox(checkboxAction->text(), this);
@@ -122,16 +119,17 @@ void PlayerSelectionDialog::addCheckbox(QAction * checkboxAction, PlayerColor pl
 	rowLayout->addWidget(shortcutLabel, 1);
 
 	checkbox->setEnabled(isEnabled);
-	if(checkbox->isEnabled() && !*isDefault)
+
+	if(isEnabled && !defaultCheckedSet)
 	{
 		checkbox->setChecked(true);
 		selectedPlayer = player;
-		*isDefault = true;
+		defaultCheckedSet = true;
 	}
 
 	checkboxLayout.addLayout(rowLayout);
 
-	connect(checkbox, &QCheckBox::clicked, this, [=]()
+	connect(checkbox, &QCheckBox::clicked, this, [this, checkbox, player]()
 		{
 			selectedPlayer = player;
 
@@ -148,7 +146,7 @@ void PlayerSelectionDialog::addCheckbox(QAction * checkboxAction, PlayerColor pl
 	addAction(checkboxAction);
 
 	// Connect action trigger to simulate checkbox click
-	connect(checkboxAction, &QAction::triggered, this, [=]()
+	connect(checkboxAction, &QAction::triggered, this, [checkbox]()
 		{
 			if(checkbox->isEnabled())
 				checkbox->click();
