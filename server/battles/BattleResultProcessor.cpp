@@ -392,7 +392,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
 			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{
-				pack.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+				pack.artsPack0.emplace_back(MoveArtifactInfo(srcSlot, dstSlot));
 				if(ArtifactUtils::isSlotEquipment(dstSlot))
 					pack.artsPack0.back().askAssemble = true;
 				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));

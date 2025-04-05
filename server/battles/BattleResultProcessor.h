@@ -47,7 +47,7 @@ struct FinishingBattleHelper
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
-	ObjectInstanceID winnerId, loserId;
+	ObjectInstanceID winnerId = ObjectInstanceID::NONE, loserId = ObjectInstanceID::NONE;
 	PlayerColor victor, loser;
 	BattleSide winnerSide;
 	std::vector<BulkMoveArtifacts> artifacts;

@@ -2643,14 +2643,14 @@ bool CGameHandler::moveArtifact(const PlayerColor & player, const ArtifactLocati
 	{
 		// Previous artifact must be swapped
 		COMPLAIN_RET_FALSE_IF(!dstArtifact->canBePutAt(srcArtSet, src.slot, true), "Cannot swap artifacts!");
-		ma.artsPack1.push_back(BulkMoveArtifacts::LinkedSlots(dstSlot, src.slot));
+		ma.artsPack1.emplace_back(dstSlot, src.slot);
 	}
 
 	auto hero = getHero(dst.artHolder);
 	if(ArtifactUtils::checkSpellbookIsNeeded(hero, srcArtifact->getTypeId(), dstSlot))
 		giveHeroNewArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
 
-	ma.artsPack0.push_back(BulkMoveArtifacts::LinkedSlots(src.slot, dstSlot));
+	ma.artsPack0.emplace_back(src.slot, dstSlot);
 	if(src.artHolder != dst.artHolder && !isDstSlotBackpack)
 		ma.artsPack0.back().askAssemble = true;
 	sendAndApply(ma);
@@ -2676,14 +2676,14 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 	CArtifactFittingSet artFittingSet(pdstSet->bearerType());
 
 	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
-		ArtifactPosition srcSlot, std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+		ArtifactPosition srcSlot, std::vector<MoveArtifactInfo> & slots) -> void
 	{
 		assert(artifact);
 		auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, artifact->getTypeId());
 		if(dstSlot != ArtifactPosition::PRE_FIRST)
 		{
 			artFittingSet.putArtifact(dstSlot, static_cast<ConstTransitivePtr<CArtifactInstance>>(artifact));
-			slots.push_back(BulkMoveArtifacts::LinkedSlots(srcSlot, dstSlot));
+			slots.emplace_back(srcSlot, dstSlot);
 
 			// TODO Shouldn't be here. Possibly in callback after equipping the artifact
 			if(auto dstHero = getHero(dstId))
@@ -2696,7 +2696,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 
 	if(swap)
 	{
-		auto moveArtsWorn = [moveArtifact](const CArtifactSet * srcArtSet, std::vector<BulkMoveArtifacts::LinkedSlots> & slots)
+		auto moveArtsWorn = [moveArtifact](const CArtifactSet * srcArtSet, std::vector<MoveArtifactInfo> & slots)
 		{
 			for(auto & artifact : srcArtSet->artifactsWorn)
 			{
@@ -2705,12 +2705,12 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 			}
 		};
 		auto moveArtsInBackpack = [](const CArtifactSet * artSet,
-			std::vector<BulkMoveArtifacts::LinkedSlots> & slots) -> void
+			std::vector<MoveArtifactInfo> & slots) -> void
 		{
 			for(auto & slotInfo : artSet->artifactsInBackpack)
 			{
 				auto slot = artSet->getArtPos(slotInfo.artifact);
-				slots.push_back(BulkMoveArtifacts::LinkedSlots(slot, slot));
+				slots.emplace_back(slot, slot);
 			}
 		};
 		if(equipped)
@@ -2766,7 +2766,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
 	const auto makeSortBackpackRequest = [artSet, &bma](const std::function<int32_t(const ArtSlotInfo&)> & getSortId)
 	{
-		std::map<int32_t, std::vector<BulkMoveArtifacts::LinkedSlots>> packsSorted;
+		std::map<int32_t, std::vector<MoveArtifactInfo>> packsSorted;
 		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
 		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
 			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
@@ -2888,11 +2888,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		{
 			if(const auto slot = artFittingSet.getArtPos(artPos.second, false, false); slot != ArtifactPosition::PRE_FIRST)
 			{
-				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots
-					{
-						artSet->getArtPos(artFittingSet.getArt(slot)),
-						artPos.first
-					});
+				bma.artsPack0.emplace_back(artSet->getArtPos(artFittingSet.getArt(slot)), artPos.first);
 				artFittingSet.removeArtifact(slot);
 				if(ArtifactUtils::isSlotBackpack(slot))
 					estimateBackpackSize--;
@@ -2903,7 +2899,7 @@ bool CGameHandler::switchArtifactsCostume(const PlayerColor & player, const Obje
 		for(const auto & slot : ArtifactUtils::commonWornSlots())
 			if(artFittingSet.getArt(slot))
 			{
-				bma.artsPack0.emplace_back(BulkMoveArtifacts::LinkedSlots{slot, ArtifactPosition::BACKPACK_START});
+				bma.artsPack0.emplace_back(slot, ArtifactPosition::BACKPACK_START);
 				estimateBackpackSize++;
 			}
 		

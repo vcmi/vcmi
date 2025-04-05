@@ -291,7 +291,7 @@ void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
 	const auto dstOwner = cl.getOwner(pack.dstArtHolder);
-	const auto applyMove = [this, &pack, dstOwner](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack)
+	const auto applyMove = [this, &pack, dstOwner](const std::vector<MoveArtifactInfo> & artsPack)
 	{
 		for(const auto & slotToMove : artsPack)
 		{
@@ -851,6 +851,22 @@ void ApplyClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
 
 void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack)
 {
+	InfoWindow win;
+	win.player = pack.victor;
+	win.text.appendLocalString(EMetaText::GENERAL_TXT, 30);
+	const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.artifacts.front().dstArtHolder));
+	assert(artSet);
+	for(const auto & artPack : pack.artifacts)
+	{
+		auto packComponents = GAME->interface()->artifactController->getMovedComponents(*artSet, artPack.artsPack0);
+		win.components.insert(win.components.end(), std::make_move_iterator(packComponents.begin()), std::make_move_iterator(packComponents.end()));
+	}
+	if(!win.components.empty())
+		visitInfoWindow(win);
+
+	for(auto & artPack : pack.artifacts)
+		visitBulkMoveArtifacts(artPack);
+
 	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);

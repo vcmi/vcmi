@@ -14,7 +14,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CArtifactSet;
 class CGHeroInstance;
+struct Component;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -23,8 +25,6 @@ class ArtifactsUIController
 	size_t numOfMovedArts;
 	size_t numOfArtsAskAssembleSession;
 	std::set<ArtifactID> ignoredArtifacts;
-
-	std::mutex askAssembleArtifactMutex;
 
 public:
 	ArtifactsUIController();
@@ -38,5 +38,5 @@ public:
 	void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts);
 	void artifactAssembled();
 	void artifactDisassembled();
+	std::vector<Component> getMovedComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack) const;
 };
- 

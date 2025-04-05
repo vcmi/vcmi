@@ -1766,7 +1766,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 
 void BulkMoveArtifacts::applyGs(CGameState *gs)
 {
-	const auto bulkArtsRemove = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
+	const auto bulkArtsRemove = [gs](std::vector<MoveArtifactInfo> & artsPack, CArtifactSet & artSet)
 	{
 		std::vector<ArtifactPosition> packToRemove;
 		for(const auto & slotsPair : artsPack)
@@ -1780,7 +1780,7 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 			gs->getMap().removeArtifactInstance(artSet, slot);
 	};
 
-	const auto bulkArtsPut = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
+	const auto bulkArtsPut = [gs](std::vector<MoveArtifactInfo> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
 		for(const auto & slotsPair : artsPack)
 		{

@@ -60,10 +60,9 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	{
 		auto askThread = new std::thread([this, hero, art, slot, assemblyPossibilities, checkIgnored]() -> void
 			{
-				std::scoped_lock askLock(askAssembleArtifactMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
-					std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 					if(checkIgnored)
 					{
 						if(vstd::contains(ignoredArtifacts, combinedArt->getId()))
@@ -167,4 +166,20 @@ void ArtifactsUIController::artifactDisassembled()
 {
 	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
+}
+
+std::vector<Component> ArtifactsUIController::getMovedComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack) const
+{
+	std::vector<Component> components;
+	for(const auto & artMoveInfo : movedPack)
+	{
+		const auto art = artSet.getArt(artMoveInfo.dstPos);
+		assert(art);
+
+		if(art->isScroll())
+			components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());
+		else
+			components.emplace_back(ComponentType::ARTIFACT, art->getTypeId());
+	}
+	return components;
 }
