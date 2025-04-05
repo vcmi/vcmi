@@ -188,6 +188,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	// This is important on Mac for relative paths to work inside DMG.
 	QDir::setCurrent(QApplication::applicationDirPath());
 
+	setAcceptDrops(true);
+	
 	new QShortcut(QKeySequence("Backspace"), this, SLOT(on_actionErase_triggered()));
 
 	ExtractionOptions extractionOptions;
