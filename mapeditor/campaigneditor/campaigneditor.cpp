@@ -205,6 +205,7 @@ void CampaignEditor::on_actionNew_triggered()
 		campaignState->scenarios.emplace(CampaignScenarioID(i), s);
 	}
 	campaignState->modName = "mapEditor";
+	campaignState->creationDateTime = std::time(nullptr);
 	
 	changed();
 	redraw();
