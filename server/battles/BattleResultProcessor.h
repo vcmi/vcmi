@@ -17,6 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
 struct BattleResult;
+struct BulkMoveArtifacts;
 class CBattleInfoCallback;
 class CGHeroInstance;
 class CArmedInstance;
@@ -46,19 +47,21 @@ struct FinishingBattleHelper
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
-	const CGHeroInstance *winnerHero, *loserHero;
+	ObjectInstanceID winnerId, loserId;
 	PlayerColor victor, loser;
 	BattleSide winnerSide;
+	std::vector<BulkMoveArtifacts> artifacts;
 
 	int remainingBattleQueriesCount;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & winnerHero;
-		h & loserHero;
+		h & winnerId;
+		h & loserId;
 		h & victor;
 		h & loser;
 		h & winnerSide;
+		h & artifacts;
 		h & remainingBattleQueriesCount;
 	}
 };
