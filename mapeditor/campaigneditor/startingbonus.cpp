@@ -280,11 +280,11 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 {
 	auto getHeroName = [](int id){
 		MetaString tmp;
-		if(0xFFFD)
+		if(id == 0xFFFD)
 			tmp.appendRawString(tr("strongest hero").toStdString());
-		else if(0xFFFE)
+		else if(id == 0xFFFE)
 			tmp.appendRawString(tr("generated hero").toStdString());
-		else if(0xFFFF)
+		else if(id == 0xFFFF)
 			tmp.appendRawString(tr("random hero").toStdString());
 		else
 			tmp.appendName(HeroTypeID(id));
