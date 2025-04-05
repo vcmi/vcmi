@@ -11,10 +11,10 @@
 #pragma once
 
 #include <QDialog>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QDialogButtonBox>
-#include "../source/lib/constants/EntityIdentifiers.h"
+#include "../lib/constants/EntityIdentifiers.h"
+
+class QCheckBox;
+class MainWindow;
 
 /// Dialog shown when a hero cannot be placed as NEUTRAL.
 /// Allows the user to select a valid player via checkboxes,
@@ -24,7 +24,7 @@ class PlayerSelectionDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit PlayerSelectionDialog(QWidget * parent = nullptr);
+	explicit PlayerSelectionDialog(MainWindow * mainWindow = nullptr);
 	PlayerColor getSelectedPlayer() const;
 
 private slots:
@@ -38,7 +38,9 @@ private:
 	QVBoxLayout mainLayout;
 	QVBoxLayout checkboxLayout;
 
+	bool defaultCheckedSet = false;
+
 	void setupDialogComponents();
-	void addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled, bool * isDefault);
+	void addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled);
 
 };

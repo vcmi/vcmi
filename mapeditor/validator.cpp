@@ -174,7 +174,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			{
 				QString submod;
 				if(!mod.second.parent.empty())
-					submod = " ("+ tr("submod of") +" "+ QString::fromStdString(mod.second.parent) + ")";
+					submod = tr(" (submod of %1").arg(QString::fromStdString(mod.second.parent));
 				
 				issues.insert({
 						tr("Map contains object(s) from mod '%1'%2, but the mod is missing from the map's required mods list."
@@ -195,30 +195,6 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 	return issues;
 }
 
-QPixmap Validator::createGreenTickIcon()
-{
-	QPixmap pixmap(24, 24);
-	pixmap.fill(Qt::transparent);
-
-	QPainter painter(&pixmap);
-	painter.setRenderHint(QPainter::Antialiasing);
-
-	QBrush brush(QColor(50, 205, 50));
-	painter.setBrush(brush);
-	painter.setPen(Qt::NoPen);
-	painter.drawEllipse(0, 0, 24, 24);
-
-	QPen pen(Qt::white);
-	pen.setWidth(3);
-	painter.setPen(pen);
-
-	painter.drawLine(7, 12, 10, 17);  // Tick part 1
-	painter.drawLine(10, 17, 17, 7);  // Tick part 2
-
-	painter.end();
-	return pixmap;
-}
-
 void Validator::showValidationResults(const CMap * map)
 {
 	show();
@@ -235,7 +211,7 @@ void Validator::showValidationResults(const CMap * map)
 
 	if(ui->listWidget->count() == 0)
 	{
-		QPixmap greenTick = createGreenTickIcon();
+		QPixmap greenTick = QPixmap(":/icons/mod-enabled.png");
 		QString validMessage = tr("The map is valid and has no issues.");
 		auto * item = new QListWidgetItem(QIcon(greenTick), validMessage, ui->listWidget);
 		ui->listWidget->addItem(item);
@@ -276,13 +252,11 @@ void Validator::adjustWindowSize()
 	int finalWidth = qMin(contentWidth + padding, screenWidth - screenMarginHorizontal);
 	int finalHeight = qMin(contentHeight + padding, screenHeight - screenMarginVertical);
 
-	logGlobal->warn("adjustWindowSize(): %d x %d", finalWidth, finalHeight);
-
 	QWidget * parentWidget = ui->listWidget->parentWidget();
 	if(parentWidget)
 	{
-		parentWidget->setFixedWidth(finalWidth + padding);
-		parentWidget->setFixedHeight(finalHeight + padding);
+		parentWidget->setMinimumWidth(finalWidth + padding);
+		parentWidget->setMinimumHeight(finalHeight + padding);
 	}
 
 	ui->listWidget->resize(finalWidth, finalHeight);

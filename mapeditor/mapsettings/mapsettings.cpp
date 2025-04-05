@@ -25,7 +25,8 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	controller(ctrl)
 {
 	ui->setupUi(this);
-	
+
+	setWindowModality(Qt::WindowModal);
 	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 	
 	assert(controller.map());

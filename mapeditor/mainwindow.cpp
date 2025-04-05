@@ -609,14 +609,7 @@ void MainWindow::on_actionCampaignEditor_triggered()
 void MainWindow::on_actionNew_triggered()
 {
 	if(getAnswerAboutUnsavedChanges())
-	{
 		new WindowNewMap(this);
-		//mapSettings = new MapSettings(controller, this);
-		//connect(&controller, &MapController::requestModsUpdate,
-		//	mapSettings->getModSettings(), &ModSettings::updateModWidgetBasedOnMods);
-
-		//controller.requestModsUpdate({}, true);
-	}
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -1136,9 +1129,6 @@ void MainWindow::on_inspectorWidget_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionMapSettings_triggered()
 {
-	if(!mapSettings)
-		return;
-
 	if(mapSettings->isVisible())
 	{
 		mapSettings->raise();
@@ -1146,8 +1136,6 @@ void MainWindow::on_actionMapSettings_triggered()
 	}
 	else
 	{
-		mapSettings->setWindowModality(Qt::WindowModal);
-		mapSettings->setModal(true);
 		mapSettings->show();
 	}
 }
@@ -1178,15 +1166,15 @@ void MainWindow::switchDefaultPlayer(const PlayerColor & player)
 {
 	if(controller.defaultPlayer == player)
 		return;
-	
-	ui->actionNeutral->blockSignals(true);
+
+	QSignalBlocker blockerNeutral(ui->actionNeutral);
 	ui->actionNeutral->setChecked(PlayerColor::NEUTRAL == player);
-	ui->actionNeutral->blockSignals(false);
+
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT.getNum(); ++i)
 	{
-		getActionPlayer(PlayerColor(i))->blockSignals(true);
-		getActionPlayer(PlayerColor(i))->setChecked(PlayerColor(i) == player);
-		getActionPlayer(PlayerColor(i))->blockSignals(false);
+		QAction * playerEntry = getActionPlayer(PlayerColor(i));
+		QSignalBlocker blocker(playerEntry); 
+		playerEntry->setChecked(PlayerColor(i) == player);
 	}
 	controller.defaultPlayer = player;
 }
