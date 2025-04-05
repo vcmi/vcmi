@@ -43,6 +43,7 @@ void MapObjectVisitQuery::onExposure(QueryPtr topQuery)
 MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero)
 	: VisitQuery(owner, Obj, Hero)
 	, removeObjectAfterVisit(false)
+	, removeVisitorAfterVisit(false)
 {
 }
 
@@ -53,6 +54,8 @@ void MapObjectVisitQuery::onRemoval(PlayerColor color)
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)
 		gh->removeObject(visitedObject, color);
+	if(removeVisitorAfterVisit)
+		gh->removeObject(visitingHero, color);
 }
 
 TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTownInstance * Obj, std::vector<const CGHeroInstance *> heroes, std::vector<BuildingID> buildingToVisit)

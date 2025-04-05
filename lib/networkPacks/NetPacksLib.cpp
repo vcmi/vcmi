@@ -2105,26 +2105,24 @@ void BattleCancelled::applyGs(CGameState *gs)
 
 void BattleResultAccepted::applyGs(CGameState *gs)
 {
+	const auto attackerArmy = gs->getArmyInstance(heroResult[BattleSide::ATTACKER].army);
+	const auto defenderArmy = gs->getArmyInstance(heroResult[BattleSide::DEFENDER].army);
+
 	// Remove any "until next battle" bonuses
-	for(auto & res : heroResult)
-	{
-		if(res.hero)
-			res.hero->removeBonusesRecursive(Bonus::OneBattle);
-	}
+	attackerArmy->removeBonusesRecursive(Bonus::OneBattle);
+	defenderArmy->removeBonusesRecursive(Bonus::OneBattle);
 
 	if(winnerSide != BattleSide::NONE)
 	{
 		// Grow up growing artifacts
-		const auto hero = heroResult[winnerSide].hero;
-
-		if (hero)
+		if(const auto winnerHero = gs->getHero(heroResult[winnerSide].army))
 		{
-			if(hero->commander && hero->commander->alive)
+			if(winnerHero->commander && winnerHero->commander->alive)
 			{
-				for(auto & art : hero->commander->artifactsWorn)
+				for(auto & art : winnerHero->commander->artifactsWorn)
 					art.second.artifact->growingUp();
 			}
-			for(auto & art : hero->artifactsWorn)
+			for(auto & art : winnerHero->artifactsWorn)
 			{
 				art.second.artifact->growingUp();
 			}
@@ -2135,16 +2133,18 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 	{
 		if(heroResult[BattleSide::ATTACKER].army)
 		{
-			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
-			heroResult[BattleSide::ATTACKER].army->nodeHasChanged();
+			attackerArmy->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
+			attackerArmy->nodeHasChanged();
 		}
 		if(heroResult[BattleSide::DEFENDER].army)
 		{
-			heroResult[BattleSide::DEFENDER].army->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
-			heroResult[BattleSide::DEFENDER].army->nodeHasChanged();
+			defenderArmy->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
+			defenderArmy->nodeHasChanged();
 		}
-
 	}
+
+	for(auto & artPack : artifacts)
+		artPack.applyGs(gs);
 
 	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
 	{

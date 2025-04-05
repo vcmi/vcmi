@@ -520,10 +520,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[BattleSide::ATTACKER].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::ATTACKER));
-	raccepted.heroResult[BattleSide::DEFENDER].army = const_cast<CArmedInstance*>(battle.battleGetArmyObject(BattleSide::DEFENDER));
-	raccepted.heroResult[BattleSide::ATTACKER].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::ATTACKER));
-	raccepted.heroResult[BattleSide::DEFENDER].hero = const_cast<CGHeroInstance*>(battle.battleGetFightingHero(BattleSide::DEFENDER));
+	raccepted.heroResult[BattleSide::ATTACKER].army = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
+	raccepted.heroResult[BattleSide::DEFENDER].army = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
 	raccepted.heroResult[BattleSide::DEFENDER].exp = battleResult->exp[BattleSide::DEFENDER];
 	raccepted.winnerSide = finishingBattle->winnerSide;
@@ -568,8 +566,8 @@ void BattleResultProcessor::battleAfterLevelUp(const BattleID & battleID, const 
 
 	BattleResultsApplied resultsApplied;
 	resultsApplied.battleID = battleID;
-	resultsApplied.player1 = finishingBattle->victor;
-	resultsApplied.player2 = finishingBattle->loser;
+	resultsApplied.victor = finishingBattle->victor;
+	resultsApplied.loser = finishingBattle->loser;
 	gameHandler->sendAndApply(resultsApplied);
 
 	//handle victory/loss of engaged players

@@ -3842,7 +3842,7 @@ bool CGameHandler::addToSlot(const StackLocation &sl, const CCreature *c, TQuant
 void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging)
 {
 	if (removeObjWhenFinished)
-		removeAfterVisit(src);
+		removeAfterVisit(src->id);
 
 	if (!src->canBeMergedWith(*dst, allowMerging))
 	{
@@ -4090,16 +4090,21 @@ bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor pl
 	return false;
 }
 
-void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
+void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 {
 	//If the object is being visited, there must be a matching query
 	for (const auto &query : queries->allQueries())
 	{
 		if (auto someVistQuery = std::dynamic_pointer_cast<MapObjectVisitQuery>(query))
 		{
-			if (someVistQuery->visitedObject == object)
+			if(someVistQuery->visitedObject->id == id)
 			{
 				someVistQuery->removeObjectAfterVisit = true;
+				return;
+			}
+			else if(someVistQuery->visitingHero->id == id)
+			{
+				someVistQuery->removeVisitorAfterVisit = true;
 				return;
 			}
 		}

@@ -67,7 +67,7 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifa
 	if(target->bearerType() == ArtBearer::HERO)
 		if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
 		{
-			return ArtifactPosition::BACKPACK_START;
+			return ArtifactPosition::BACKPACK_START + target->artifactsInBackpack.size();
 		}
 	return ArtifactPosition::PRE_FIRST;
 }

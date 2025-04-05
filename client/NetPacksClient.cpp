@@ -851,8 +851,8 @@ void ApplyClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
 
 void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack)
 {
-	callInterfaceIfPresent(cl, pack.player1, &IGameEventsReceiver::battleResultsApplied);
-	callInterfaceIfPresent(cl, pack.player2, &IGameEventsReceiver::battleResultsApplied);
+	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleResultsApplied);
+	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
 }
 

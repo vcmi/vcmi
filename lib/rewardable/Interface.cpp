@@ -212,7 +212,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
-			cb->removeAfterVisit(instance);
+			cb->removeAfterVisit(instance->id);
 }
 
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)
