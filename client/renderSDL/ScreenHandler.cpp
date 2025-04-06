@@ -368,16 +368,12 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	float scaleY = static_cast<float>(outputResolution.x) / logicalResolution.x;
 	float scaling = std::min(scaleX, scaleY);
 	int systemMemoryMb = SDL_GetSystemRAM();
-	bool is32Bit = sizeof(void*) == 4;
 
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
 
-	if (systemMemoryMb < 2048)
+	if (systemMemoryMb <= 4096)
 		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
-
-	if (is32Bit)
-		return EUpscalingFilter::NONE; // to be safe, avoid large numbers of memory (re)allocations when address space is small
 
 	// Only using xbrz2 for autoselection.
 	// Higher options may have high system requirements and should be only selected explicitly by player
