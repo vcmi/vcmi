@@ -70,6 +70,15 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 			result = false;
 			return;
 		}
+
+		// player got some query he has to reply to first for example, from triggered event
+		// ignore remaining path (if any), but handle this as success - since at least part of path was legal & was applied
+		auto query = gh.queries->topQuery(pack.player);
+		if (query && query->blocksPack(&pack))
+		{
+			result = true;
+			return;
+		}
 	}
 
 	result = true;
