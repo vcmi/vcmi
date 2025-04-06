@@ -147,7 +147,8 @@ void CTrueTypeFont::renderTextImpl(SDL_Surface * surface, const std::string & da
 	else
 		rendered = TTF_RenderUTF8_Solid(font.get(), data.c_str(), CSDL_Ext::toSDL(color));
 
-	assert(rendered);
+	if (!rendered)
+		throw std::runtime_error("Failed to render text '" + data + "'. Reason: '" + TTF_GetError() + "'");
 
 	CSDL_Ext::blitSurface(rendered, surface, pos);
 	SDL_FreeSurface(rendered);
