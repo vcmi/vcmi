@@ -1639,13 +1639,19 @@ void RebalanceStacks::applyGs(CGameState *gs)
 			{
 				if(auto dstArt = dstStack->getArt(ArtifactPosition::CREATURE_SLOT))
 				{
-					auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
-					if(srcHero && dstSlot != ArtifactPosition::PRE_FIRST)
+					bool artifactIsLost = true;
+
+					if(srcHero)
 					{
-						gs->map->moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
+						auto dstSlot = ArtifactUtils::getArtBackpackPosition(srcHero, dstArt->getTypeId());
+						if (dstSlot != ArtifactPosition::PRE_FIRST)
+						{
+							gs->map->moveArtifactInstance(*dstStack, ArtifactPosition::CREATURE_SLOT, *srcHero, dstSlot);
+							artifactIsLost = false;
+						}
 					}
-					//else - artifact can be lost :/
-					else
+
+					if (artifactIsLost)
 					{
 						BulkEraseArtifacts ea;
 						ea.artHolder = dstHero->id;
