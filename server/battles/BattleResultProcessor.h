@@ -17,7 +17,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
 struct BattleResult;
-struct BulkMoveArtifacts;
 class CBattleInfoCallback;
 class CGHeroInstance;
 class CArmedInstance;

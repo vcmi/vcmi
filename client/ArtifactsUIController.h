@@ -14,9 +14,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CArtifactSet;
 class CGHeroInstance;
-struct Component;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -38,5 +36,4 @@ public:
 	void bulkArtMovementStart(size_t totalNumOfArts, size_t possibleAssemblyNumOfArts);
 	void artifactAssembled();
 	void artifactDisassembled();
-	std::vector<Component> getMovedComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack) const;
 };

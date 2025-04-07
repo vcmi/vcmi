@@ -191,6 +191,7 @@ set(vcmiclientcommon_SRCS
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
 	ServerRunner.cpp
+	UIHelper.cpp
 )
 
 set(vcmiclientcommon_HEADERS
@@ -410,6 +411,7 @@ set(vcmiclientcommon_HEADERS
 	LobbyClientNetPackVisitors.h
 	ServerRunner.h
 	resource.h
+	UIHelper.h
 )
 
 if(APPLE_IOS)

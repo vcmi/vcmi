@@ -21,16 +21,11 @@
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
-#include "../../lib/battle/CBattleInfoCallback.h"
-#include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
-#include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/spells/CSpellHandler.h"
-
-#include <vstd/RNG.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -374,7 +369,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(raccepted);
 
-	//--> continuation (battleAfterLevelUp) occurs after level-up gameHandler->queries are handled or on removing query
+	//--> continuation (battleFinalize) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
 void BattleResultProcessor::battleFinalize(const BattleID & battleID, const BattleResult & result)
@@ -399,9 +394,9 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	// Still, it looks like a hole.
 
 	const auto battle = std::find_if(gameHandler->gameState()->currentBattles.begin(), gameHandler->gameState()->currentBattles.end(),
-		[battleID](const auto & battle)
+		[battleID](const auto & desiredBattle)
 		{
-			return battle->battleID == battleID;
+			return desiredBattle->battleID == battleID;
 		});
 	assert(battle != gameHandler->gameState()->currentBattles.end());
 
@@ -412,57 +407,21 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	// Eagle Eye handling
 	if(!finishingBattle->isDraw() && winnerHero)
 	{
-		ChangeSpells spells;
-
 		if(auto eagleEyeLevel = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
 		{
-			auto eagleEyeChance = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE);
+			resultsApplied.learnedSpells.learn = 1;
+			resultsApplied.learnedSpells.hid = finishingBattle->winnerId;
 			for(const auto & spellId : (*battle)->getUsedSpells(CBattleInfoEssentials::otherSide(result.winner)))
 			{
-				auto spell = spellId.toEntity(LIBRARY->spells());
+				const auto spell = spellId.toEntity(LIBRARY->spells());
 				if(spell
 					&& spell->getLevel() <= eagleEyeLevel
 					&& !winnerHero->spellbookContainsSpell(spell->getId())
-					&& gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)
+					&& gameHandler->getRandomGenerator().nextInt(99) < winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE))
 				{
-					spells.spells.insert(spell->getId());
+					resultsApplied.learnedSpells.spells.insert(spell->getId());
 				}
 			}
-		}
-
-		if(!spells.spells.empty())
-		{
-			spells.learn = 1;
-			spells.hid = finishingBattle->winnerId;
-
-			InfoWindow iw;
-			iw.player = winnerHero->tempOwner;
-			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 221); //Through eagle-eyed observation, %s is able to learn %s
-			iw.text.replaceRawString(winnerHero->getNameTranslated());
-
-			std::ostringstream names;
-			for(int i = 0; i < spells.spells.size(); i++)
-			{
-				names << "%s";
-				if(i < spells.spells.size() - 2)
-					names << ", ";
-				else if(i < spells.spells.size() - 1)
-					names << "%s";
-			}
-			names << ".";
-
-			iw.text.replaceRawString(names.str());
-
-			auto it = spells.spells.begin();
-			for(int i = 0; i < spells.spells.size(); i++, it++)
-			{
-				iw.text.replaceName(*it);
-				if(i == spells.spells.size() - 2) //we just added pre-last name
-					iw.text.replaceLocalString(EMetaText::GENERAL_TXT, 141); // " and "
-				iw.components.emplace_back(ComponentType::SPELL, *it);
-			}
-			gameHandler->sendAndApply(iw);
-			gameHandler->sendAndApply(spells);
 		}
 	}
 
@@ -519,16 +478,14 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		}
 	}
 
-	// Necromancy if applicable.
-	const CStackBasicDescriptor raisedStack = winnerHero ? winnerHero->calculateNecromancy(result) : CStackBasicDescriptor();
-	// Give raised units to winner and show dialog, if any were raised,
-	// units will be given after casualties are taken
-	const SlotID necroSlot = raisedStack.getCreature() ? winnerHero->getSlotFor(raisedStack.getCreature()) : SlotID();
-
-	if (necroSlot != SlotID() && !finishingBattle->isDraw())
+	// Necromancy handling
+	// Give raised units to winner, if any were raised, units will be given after casualties are taken
+	if(winnerHero)
 	{
-		winnerHero->showNecromancyDialog(raisedStack, gameHandler->getRandomGenerator());
-		gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), raisedStack.getCreature(), raisedStack.count);
+		resultsApplied.raisedStack = winnerHero->calculateNecromancy(result);
+		const SlotID necroSlot = resultsApplied.raisedStack.getCreature() ? winnerHero->getSlotFor(resultsApplied.raisedStack.getCreature()) : SlotID();
+		if(necroSlot != SlotID() && !finishingBattle->isDraw())
+			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.count);
 	}
 
 	resultsApplied.battleID = battleID;
@@ -537,8 +494,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	gameHandler->sendAndApply(resultsApplied);
 
 	//handle victory/loss of engaged players
-	std::set<PlayerColor> playerColors = {finishingBattle->loser, finishingBattle->victor};
-	gameHandler->checkVictoryLossConditions(playerColors);
+	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
 	if (result.result == EBattleResult::SURRENDER)
 	{

@@ -2306,6 +2306,8 @@ void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 
 void BattleResultsApplied::applyGs(CGameState * gs)
 {
+	learnedSpells.applyGs(gs);
+
 	for(auto & artPack : artifacts)
 		artPack.applyGs(gs);
 

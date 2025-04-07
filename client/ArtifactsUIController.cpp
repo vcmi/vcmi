@@ -167,19 +167,3 @@ void ArtifactsUIController::artifactDisassembled()
 	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
 		artWin->update();
 }
-
-std::vector<Component> ArtifactsUIController::getMovedComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack) const
-{
-	std::vector<Component> components;
-	for(const auto & artMoveInfo : movedPack)
-	{
-		const auto art = artSet.getArt(artMoveInfo.dstPos);
-		assert(art);
-
-		if(art->isScroll())
-			components.emplace_back(ComponentType::SPELL_SCROLL, art->getScrollSpellID());
-		else
-			components.emplace_back(ComponentType::ARTIFACT, art->getTypeId());
-	}
-	return components;
-}

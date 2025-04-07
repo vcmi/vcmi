@@ -96,8 +96,8 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	struct HeroBattleResults
 	{
 		HeroBattleResults()
-			: armyId(ObjectInstanceID::NONE)
-			, heroId(ObjectInstanceID::NONE)
+			: heroId(ObjectInstanceID::NONE)
+			, armyId(ObjectInstanceID::NONE)
 			, exp(0) {}
 
 		ObjectInstanceID heroId;
@@ -426,7 +426,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	BattleID battleID = BattleID::NONE;
 	PlayerColor victor;
 	PlayerColor loser;
+	ChangeSpells learnedSpells;
 	std::vector<BulkMoveArtifacts> artifacts;
+	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
 	void applyGs(CGameState *gs) override;
 
@@ -435,7 +437,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 		h & battleID;
 		h & victor;
 		h & loser;
+		h & learnedSpells;
 		h & artifacts;
+		h & raisedStack;
 		assert(battleID != BattleID::NONE);
 	}
 };
