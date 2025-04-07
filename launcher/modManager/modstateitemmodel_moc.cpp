@@ -40,7 +40,6 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Spells"),
 		QT_TR_NOOP("Music"),
 		QT_TR_NOOP("Maps"),
-		QT_TR_NOOP("Map Pack"),
 		QT_TR_NOOP("Sounds"),
 		QT_TR_NOOP("Skills"),
 		QT_TR_NOOP("Other"),
