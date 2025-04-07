@@ -145,16 +145,14 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
 {
-
 	if (!dirsConfig || !dirsConfig->isStruct())
 		return fallbackFunc();
 
-	const auto& structMap = dirsConfig->Struct();
-	auto it = structMap.find(key);
-	if (it == structMap.end() || !it->second.isString())
+	const JsonNode& node = (*dirsConfig)[key];
+	if (!node.isString())
 		return fallbackFunc();
 
-	std::wstring raw = utf8ToWstring(it->second.String());
+	std::wstring raw = utf8ToWstring(node.String());
 	wchar_t expanded[MAX_PATH];
 	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
 		return bfs::path(expanded);
