@@ -115,6 +115,15 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 	return result;
 }
 
+static std::string pathToUtf8(const bfs::path& path)
+{
+	std::wstring wstr = path.wstring();
+	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+	std::string result(size - 1, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
+	return result;
+}
+
 void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 {
 	if (dirsConfig.has_value())
@@ -130,7 +139,7 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 		return;
 	}
 
-	std::ifstream in(configPath.wstring(), std::ios::binary);
+	std::ifstream in(pathToUtf8(configPath), std::ios::binary);
 	if (!in)
 	{
 		dirsConfig = std::nullopt;
@@ -138,13 +147,7 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 	}
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	std::wstring wstr = configPath.wstring();
-
-	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string utf8path(size - 1, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8path.data(), size, nullptr, nullptr);
-
-	dirsConfig = JsonNode(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), utf8path);
+	dirsConfig = JsonNode(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
 }
 
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
