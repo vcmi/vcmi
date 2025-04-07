@@ -10,6 +10,10 @@
 #include "StdInc.h"
 #include "helper.h"
 
+#include "mainwindow_moc.h"
+#include "settingsView/csettingsview_moc.h"
+#include "modManager/cmodlistview_moc.h"
+
 #include "../lib/CConfigHandler.h"
 
 #include <QObject>
@@ -43,6 +47,19 @@ void loadSettings()
 {
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
+}
+
+void reLoadSettings()
+{
+	loadSettings();
+	for(const auto widget : qApp->allWidgets())
+		if(auto settingsView = qobject_cast<CSettingsView *>(widget))
+		{
+			settingsView->loadSettings();
+			break;
+		}
+	getMainWindow()->updateTranslation();
+	getMainWindow()->getModView()->reload();
 }
 
 void enableScrollBySwiping(QObject * scrollTarget)
@@ -88,5 +105,13 @@ void revealDirectoryInFileBrowser(QString path)
 #else
 	QDesktopServices::openUrl(dirUrl);
 #endif
+}
+
+MainWindow * getMainWindow()
+{
+	foreach(QWidget *w, qApp->allWidgets())
+		if(auto mainWin = qobject_cast<MainWindow*>(w))
+			return mainWin;
+	return nullptr;
 }
 }

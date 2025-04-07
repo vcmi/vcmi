@@ -194,13 +194,8 @@ struct DLL_LINKAGE Configuration
 		h & canRefuse;
 		h & showScoutedPreview;
 		h & infoWindowType;
-		if (h.version >= Handler::Version::REWARDABLE_BANKS)
-		{
-			h & coastVisitable;
-			h & guardsLayout;
-		}
-		else
-			coastVisitable = false;
+		h & coastVisitable;
+		h & guardsLayout;
 	}
 };
 

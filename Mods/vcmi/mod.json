@@ -10,9 +10,32 @@
 	"creatures" : [ "config/towerCreature" ],
 	"spells" : [ "config/spells" ],
 
+	"belarusian" : {
+		"name" : "Асноўныя файлы VCMI",
+		"description" : "Асноўныя файлы, неабходныя для карэктнай працы VCMI",
+		"author" : "Каманда VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/belarusian.json"
+		]
+	},
+
+	"bulgarian" : {
+		"name" : "Основни файлове на VCMI",
+		"description" : "Основни файлове, необходими за правилното функциониране на VCMI",
+		"author" : "Екип на VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/bulgarian.json"
+		]
+	},
+
 	"czech" : {
 		"name" : "Nezbytné soubory VCMI",
 		"description" : "Nezbytné soubory pro správný běh VCMI",
+		"author" : "Tým VCMI",
 
 		"skipValidation" : true,
 		"translations" : [
@@ -21,8 +44,9 @@
 	},
 
 	"chinese" : {
-		"name" : "VCMI essential files",
-		"description" : "Essential files required for VCMI to run correctly",
+		"name" : "VCMI 基本檔案",
+		"description" : "VCMI 正確執行所需的基本檔案",
+		"author" : "VCMI 團隊",
 
 		"skipValidation" : true,
 		"translations" : [
@@ -147,6 +171,17 @@
 		"skipValidation" : true,
 		"translations" : [
 			"config/portuguese.json"
+		]
+	},
+
+	"romanian" : {
+		"name" : "Fișiere esențiale VCMI",
+		"description" : "Fișiere esențiale necesare pentru ca VCMI să funcționeze corect",
+		"author" : "Echipa VCMI",
+
+		"skipValidation" : true,
+		"translations" : [
+			"config/romanian.json"
 		]
 	},
 

@@ -401,7 +401,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 		}
 
 		//saving whole structure only if position is valid
-		if(!handler.saving || info.posOfMainTown.valid())
+		if(!handler.saving || info.posOfMainTown.isValid())
 		{
 			auto mainTown = handler.enterStruct("mainTown");
 			handler.serializeBool("generateHero", info.generateHeroAtMainTown);
@@ -411,7 +411,7 @@ void CMapFormatJson::serializePlayerInfo(JsonSerializeFormat & handler)
 		}
 		if(!handler.saving)
 		{
-			info.hasMainTown = info.posOfMainTown.valid();
+			info.hasMainTown = info.posOfMainTown.isValid();
 		}
 
 		handler.serializeString("mainHero", info.mainHeroInstance);//must be before "heroes"
@@ -1315,7 +1315,7 @@ void CMapSaverJson::writeObjects()
 		obj->serializeJson(handler);
 	}
 
-	if(map->grailPos.valid())
+	if(map->grailPos.isValid())
 	{
 		JsonNode grail;
 		grail["type"].String() = "grail";

@@ -287,7 +287,7 @@
     <message>
         <location filename="../mainwindow.ui" line="14"/>
         <source>VCMI Map Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI harita düzenleyicisi</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="59"/>

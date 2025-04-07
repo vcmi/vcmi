@@ -124,7 +124,7 @@
 		"bonuses" : {
 			"type" : "array",
 			"description" : "Bonuses that are provided by this building in any town where this building has been built. Only affects town itself (including siege), to propagate effect to player or team please use bonus propagators",
-			"items" : { "$ref" : "bonus.json" }
+			"items" : { "$ref" : "bonusInstance.json" }
 		},
 		"marketModes" : {
 			"type" : "array",

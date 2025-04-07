@@ -28,7 +28,6 @@
 #include "../mapping/CMap.h"
 #include "../ArtifactUtils.h"
 #include "../CPlayerState.h"
-#include "../serializer/CMemorySerializer.h"
 
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
@@ -485,7 +484,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			continue;
 		}
 
-		CGHeroInstance * hero = campaignState->crossoverDeserialize(node, gameState->map);
+		CGHeroInstance * hero = campaignState->crossoverDeserialize(node, gameState->map.get());
 
 		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTranslated());
 
@@ -510,7 +509,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			if (nodeListIter == nodeList.end())
 				break;
 
-			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map);
+			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());
@@ -521,7 +520,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 		// Add remaining heroes without placeholders - to transfer their artifacts to placed heroes
 		for (;nodeListIter != nodeList.end(); ++nodeListIter)
 		{
-			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map);
+			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			campaignHeroReplacements.emplace_back(hero, ObjectInstanceID::NONE);
 		}
 	}
@@ -677,7 +676,7 @@ void CGameStateCampaign::initTowns()
 
 			town->addBuilding(newBuilding);
 
-			auto building = town->getTown()->buildings.at(newBuilding);
+			const auto & building = town->getTown()->buildings.at(newBuilding);
 			newBuilding = building->upgrade;
 		}
 		break;

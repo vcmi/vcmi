@@ -1,25 +1,59 @@
 {
 	//images used in game selection screen
-	"game-select" : ["gamselb0", "gamselb1"],
-
-	//Loading screen background and progress bar
+	"scenario-selection" :
+	{
+		"background" : ["gamselb0", "gamselb1"],
+		
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+	},
+	
 	"loading" :
 	{
 		"background" : ["loadbar"],
-		"x": 395, "y": 548, "size": 18, "amount": 20,
-		"name": "loadprog"
-	},
+		
+		"loadbar" : {
+			"name": ["loadprog"],
+			"x": 395, "y": 548, "size": 18, "amount": 20,
+		},
 
+		//"loadframe" : {
+		//	"name": ["loadframe0", "loadframe1", "loadframe2", "loadframe3"],
+		//	"x": 390, "y": 543
+		//},
+
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+		
+	},
+	
 	//Multiplayer selection image
 	"multiplayer" : ["mumap"],
-	
+
 	//Main menu window, consists of several sub-menus aka items
 	"window":
 	{
-		"background" : "gamselbk",
 		//"scalable" : true, //background will be scaled to screen size
+		
+		"background" : ["gamselbk"],
+
 		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo. Disabled due to different position in various versions of H3.
-		//"images" : [],//Optional, contains any additional images in the same format as video
+		
+		// Additional images
+		//"images": 
+		//[
+		//	{ "x": 10, "y": 0, "name": ["img1", "img2" ]},
+		//	{ "x": 10, "y": 140, "name": ["pic1", "pic2" ]} 
+		//]
+
 		"items" : 
 		[
 			{

@@ -140,7 +140,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 			{
 				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
-					const TerrainTile & tile = gs->map->getTile(pos);
+					const TerrainTile & tile = gs->getMap().getTile(pos);
 					if (!tile.getTerrain()->isPassable())
 						continue;
 

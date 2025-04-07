@@ -11,7 +11,6 @@
 
 #include "bonuses/CBonusSystemNode.h"
 #include "GameConstants.h"
-#include "ConstTransitivePtr.h"
 #include "CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -95,17 +94,7 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCombinedArtifactInstance&>(*this);
-		if (h.version >= Handler::Version::REMOVE_VLC_POINTERS)
-		{
-			h & artTypeID;
-		}
-		else
-		{
-			bool isNull = false;
-			h & isNull;
-			if (!isNull)
-				h & artTypeID;
-		}
+		h & artTypeID;
 		h & id;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

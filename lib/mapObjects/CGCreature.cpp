@@ -476,13 +476,13 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	for (int slotID = 1; slotID < a; ++slotID)
 	{
 		int stackSize = m + 1;
-		cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, SlotID(slotID)), stackSize);
+		cb->moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
 	}
 	for (int slotID = a; slotID < stacksCount; ++slotID)
 	{
 		int stackSize = m;
 		if (slotID) //don't do this when a = 0 -> stack is single
-			cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, SlotID(slotID)), stackSize);
+			cb->moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
 	}
 	if (stacksCount > 1)
 	{
@@ -493,7 +493,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			if(!upgrades.empty())
 			{
 				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
-				cb->changeStackType(StackLocation(this, slotID), it->toCreature());
+				cb->changeStackType(StackLocation(id, slotID), it->toCreature());
 			}
 		}
 	}
@@ -532,13 +532,13 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		{
 			if(cre->isMyUpgrade(i->second->getCreature()))
 			{
-				cb->changeStackType(StackLocation(this, i->first), cre); //un-upgrade creatures
+				cb->changeStackType(StackLocation(id, i->first), cre); //un-upgrade creatures
 			}
 		}
 
 		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
 		if(!hasStackAtSlot(SlotID(0)))
-			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, SlotID(0)), stacks.begin()->second->count);
+			cb->moveStack(StackLocation(id, stacks.begin()->first), StackLocation(id, SlotID(0)), stacks.begin()->second->count);
 
 		while(stacks.size() > 1) //hopefully that's enough
 		{
@@ -549,7 +549,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
-				cb->moveStack(StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
+				cb->moveStack(StackLocation(id, i->first), StackLocation(id, slot), i->second->count);
 		}
 
 		cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties

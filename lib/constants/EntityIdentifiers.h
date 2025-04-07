@@ -144,6 +144,8 @@ public:
 	static const PlayerColor NEUTRAL; //255
 	static const PlayerColor PLAYER_LIMIT; //player limit per map
 
+	static const std::array<PlayerColor, PLAYER_LIMIT_I> & ALL_PLAYERS();
+
 	bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
 	bool isSpectator() const;
 

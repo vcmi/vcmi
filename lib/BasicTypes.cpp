@@ -71,8 +71,8 @@ int AFactionMember::getMaxDamage(bool ranged) const
 
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodMorale = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE).size();
-	int32_t maxBadMorale = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_DICE).size();
+	int32_t maxGoodMorale = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE).size();
+	int32_t maxBadMorale = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_MORALE))
 	{
@@ -100,8 +100,8 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 
 int AFactionMember::luckValAndBonusList(TConstBonusListPtr & bonusList) const
 {
-	int32_t maxGoodLuck = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_DICE).size();
-	int32_t maxBadLuck = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_DICE).size();
+	int32_t maxGoodLuck = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_LUCK_CHANCE).size();
+	int32_t maxBadLuck = - (int32_t) LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_BAD_LUCK_CHANCE).size();
 
 	if(getBonusBearer()->hasBonusOfType(BonusType::MAX_LUCK))
 	{

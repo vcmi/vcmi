@@ -41,7 +41,7 @@ NewTurnProcessor::NewTurnProcessor(CGameHandler * gameHandler)
 
 void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 {
-	for (auto const & event : gameHandler->gameState()->map->events)
+	for (auto const & event : gameHandler->gameState()->getMap().events)
 	{
 		if (!event.occursToday(gameHandler->gameState()->day))
 			continue;
@@ -385,7 +385,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		if (creature->getLevel() != tierToGrow)
 			continue;
 
-		StackLocation stackLocation(t, slot.first);
+		StackLocation stackLocation(t->id, slot.first);
 		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
 		takeFromAvailable(creature->getGrowth());
 
@@ -410,7 +410,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			if (baseCreature.toEntity(LIBRARY)->getLevel() != tierToGrow)
 				continue;
 
-			StackLocation stackLocation(t, freeSlotID);
+			StackLocation stackLocation(t->id, freeSlotID);
 
 			if (upgradeUnit && !baseCreature.toCreature()->upgrades.empty())
 			{
@@ -436,7 +436,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	if(gameHandler->gameState()->map->grailPos.valid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+	if(gameHandler->gameState()->getMap().grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
 		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
 
 	int rumorId = -1;
@@ -455,7 +455,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
 				if(rumorId == RumorState::RUMOR_GRAIL)
 				{
-					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->map->grailPos)->getTerrainID().getNum();
+					rumorExtra = gameHandler->gameState()->getTile(gameHandler->gameState()->getMap().grailPos)->getTerrainID().getNum();
 					break;
 				}
 
@@ -484,9 +484,9 @@ RumorState NewTurnProcessor::pickNewRumor()
 			}
 			case RumorState::TYPE_MAP:
 				// Makes sure that map rumors only used if there enough rumors too choose from
-				if(!gameHandler->gameState()->map->rumors.empty() && (gameHandler->gameState()->map->rumors.size() > 1 || !gameHandler->gameState()->currentRumor.last.count(RumorState::TYPE_MAP)))
+				if(!gameHandler->gameState()->getMap().rumors.empty() && (gameHandler->gameState()->getMap().rumors.size() > 1 || !gameHandler->gameState()->currentRumor.last.count(RumorState::TYPE_MAP)))
 				{
-					rumorId = rand.nextInt(gameHandler->gameState()->map->rumors.size() - 1);
+					rumorId = rand.nextInt(gameHandler->gameState()->getMap().rumors.size() - 1);
 					break;
 				}
 				else
@@ -507,7 +507,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 
 std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 {
-	for (const CGTownInstance *t : gameHandler->gameState()->map->towns)
+	for (const CGTownInstance *t : gameHandler->gameState()->getMap().towns)
 	{
 		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
@@ -587,7 +587,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 		{
 			auto ti = h->getTurnInfo(1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
-			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->map->getTile(h->visitablePos()).isLand(), ti.get());
+			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState()->getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
 				result.emplace_back(h->id, newMovementPoints, true);
@@ -666,7 +666,7 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 
 	if (newWeek)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (CGTownInstance *t : gameHandler->gameState()->getMap().towns)
 			n.availableCreatures.push_back(generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn));
 	}
 
@@ -695,14 +695,14 @@ void NewTurnProcessor::onNewTurn()
 
 	if (newWeek)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (CGTownInstance *t : gameHandler->gameState()->getMap().towns)
 			if (t->hasBuilt(BuildingSubID::PORTAL_OF_SUMMONING))
 				gameHandler->setPortalDwelling(t, true, (n.specialWeek == EWeekType::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 	}
 
 	if (newWeek && !firstTurn)
 	{
-		for (CGTownInstance *t : gameHandler->gameState()->map->towns)
+		for (CGTownInstance *t : gameHandler->gameState()->getMap().towns)
 		{
 			if (!t->getOwner().isValidPlayer())
 				updateNeutralTownGarrison(t, 1 + gameHandler->getDate(Date::DAY) / 7);

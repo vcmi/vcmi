@@ -63,7 +63,7 @@ namespace PathfinderUtil
 			{
 				return EPathAccessibility::BLOCKED;
 			}
-			else if(gs->guardingCreaturePosition(pos).valid())
+			else if(gs->guardingCreaturePosition(pos).isValid())
 			{
 				// Monster close by; blocked visit for battle
 				return EPathAccessibility::GUARDED;

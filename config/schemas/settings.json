@@ -44,7 +44,9 @@
 				"enableUiEnhancements",
 				"audioMuteFocus",
 				"enableOverlay",
-				"lastKindomInterface"
+				"lastKindomInterface",
+				"enableSubtitle",
+				"ignoreMuteSwitch"
 			],
 			"properties" : {
 				"playerName" : {
@@ -73,12 +75,12 @@
 				},
 				"language" : {
 					"type" : "string",
-					"enum" : [ "english", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "english"
 				},
 				"gameDataLanguage" : {
 					"type" : "string",
-					"enum" : [ "auto", "english", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
+					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "auto"
 				},
 				"lastSave" : {
@@ -156,6 +158,14 @@
 				"lastKindomInterface" : {
 					"type" : "number",
 					"default" : 0
+				},
+				"enableSubtitle" : {
+					"type": "boolean",
+					"default": true
+				},
+				"ignoreMuteSwitch" : {
+					"type": "boolean",
+					"default": true
 				}
 			}
 		},

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -68,10 +69,10 @@ struct SetGlobalState
 AIGateway::AIGateway()
 {
 	LOG_TRACE(logAi);
-	makingTurn = nullptr;
 	destinationTeleport = ObjectInstanceID();
 	destinationTeleportPos = int3(-1);
 	nullkiller.reset(new Nullkiller());
+	asyncTasks = std::make_unique<AsyncRunner>();
 }
 
 AIGateway::~AIGateway()
@@ -163,7 +164,7 @@ void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroIn
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "TavernWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showTavernWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -216,10 +217,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
-		// some whitespace to flush stream
-		logAi->debug(std::string(200, ' '));
-
-		finish();
+		nullkiller->makingTurnInterrupption.interruptThread();
 	}
 }
 
@@ -299,7 +297,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
-	requestActionASAP([this, firstHero, secondHero, query]()
+	executeActionAsync("heroExchangeStarted", [this, firstHero, secondHero, query]()
 	{
 		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 		{
@@ -338,7 +336,7 @@ void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedI
 
 	status.addQuery(queryID, "RecruitmentDialog");
 
-	requestActionASAP([this, dwelling, dst, queryID](){
+	executeActionAsync("showRecruitmentDialog", [this, dwelling, dst, queryID](){
 		recruitCreatures(dwelling, dst);
 		answerQuery(queryID, 0);
 	});
@@ -457,7 +455,7 @@ void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstanc
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "UniversityWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showUniversityWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -533,7 +531,7 @@ void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * 
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "MarketWindow");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("showMarketWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -589,9 +587,16 @@ void AIGateway::yourTurn(QueryID queryID)
 	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	status.addQuery(queryID, "YourTurn");
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("yourTurn", [this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
-	makingTurn = std::make_unique<boost::thread>(&AIGateway::makeTurn, this);
+
+	nullkiller->makingTurnInterrupption.reset();
+
+	asyncTasks->run([this]()
+	{
+		ScopedThreadName guard("NKAI::makingTurn");
+		makeTurn();
+	});
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
@@ -602,7 +607,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
 	HeroPtr hPtr = hero;
 
-	requestActionASAP([this, hPtr, skills, queryID]()
+	executeActionAsync("heroGotLevel", [this, hPtr, skills, queryID]()
 	{ 
 		int sel = 0;
 
@@ -624,7 +629,7 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
-	requestActionASAP([this, queryID](){ answerQuery(queryID, 0); });
+	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
 void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -639,13 +644,13 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 	if(!selection && cancel)
 	{
-		requestActionASAP([this, hero, target, askID]()
+		executeActionAsync("showBlockingDialog", [this, hero, target, askID]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
 			auto objects = cb->getVisitableObjs(target);
 
-			if(hero.validAndSet() && target.valid() && objects.size())
+			if(hero.validAndSet() && target.isValid() && objects.size())
 			{
 				auto topObj = objects.front()->id == hero->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
@@ -687,7 +692,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		return;
 	}
 
-	requestActionASAP([this, selection, components, hero, askID]()
+	executeActionAsync("showBlockingDialog", [this, selection, components, hero, askID]()
 	{
 		int sel = 0;
 
@@ -722,7 +727,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	{
 		nullkiller->memory->knownTeleportChannels[channel]->passability = TeleportChannel::IMPASSABLE;
 	}
-	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.valid())
+	else if(destinationTeleport != ObjectInstanceID() && destinationTeleportPos.isValid())
 	{
 		auto neededExit = std::make_pair(destinationTeleport, destinationTeleportPos);
 		if(destinationTeleport != ObjectInstanceID() && vstd::contains(exits, neededExit))
@@ -749,7 +754,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 		}
 	}
 
-	requestActionASAP([this, askID, chosenExit]()
+	executeActionAsync("showTeleportDialog", [this, askID, chosenExit]()
 	{
 		answerQuery(askID, chosenExit);
 	});
@@ -766,7 +771,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
-	requestActionASAP([this, up, down, removableUnits, queryID]()
+	executeActionAsync("showGarrisonDialog", [this, up, down, removableUnits, queryID]()
 	{
 		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
 		{
@@ -781,7 +786,7 @@ void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon,
 {
 	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
-	requestActionASAP([this, askID](){ answerQuery(askID, selectedObject.getNum()); });
+	executeActionAsync("showMapObjectSelectDialog", [this, askID](){ answerQuery(askID, selectedObject.getNum()); });
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
@@ -831,13 +836,13 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
+	setThreadName("AIGateway::makeTurn");
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	std::shared_lock gsLock(CGameState::mutex);
-	setThreadName("AIGateway::makeTurn");
 
 	if(nullkiller->isOpenMap())
 	{
@@ -871,19 +876,26 @@ void AIGateway::makeTurn()
 		}
 #if NKAI_TRACE_LEVEL == 0
 	}
-	catch (boost::thread_interrupted & e)
+	catch (const TerminationRequestedException &)
 	{
-	(void)e;
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
 		return;
 	}
-	catch (std::exception & e)
+	catch (const std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
 	}
 #endif
 
-	endTurn();
+	try
+	{
+		endTurn();
+	}
+	catch (const TerminationRequestedException &)
+	{
+		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
+		return;
+	}
 }
 
 void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
@@ -1209,10 +1221,10 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	{
 		status.addQuery(queryID, "Confirm battle query");
 
-		requestActionASAP([this, queryID]()
-			{
-				answerQuery(queryID, 0);
-			});
+		executeActionAsync("battleEnd", [this, queryID]()
+		{
+			answerQuery(queryID, 0);
+		});
 	}
 }
 
@@ -1352,7 +1364,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			}
 
 			destinationTeleport = exitId;
-			if(exitPos.valid())
+			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
 			cb->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
@@ -1581,28 +1593,27 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
-	//we want to lock to avoid multiple threads from calling makingTurn->join() at same time
-	std::lock_guard<std::mutex> multipleCleanupGuard(turnInterruptionMutex);
+	nullkiller->makingTurnInterrupption.interruptThread();
 
-	if(makingTurn)
+	if (asyncTasks)
 	{
-		makingTurn->interrupt();
-		makingTurn->join();
-		makingTurn.reset();
+		asyncTasks->wait();
+		asyncTasks.reset();
 	}
 }
 
-void AIGateway::requestActionASAP(std::function<void()> whatToDo)
+void AIGateway::executeActionAsync(const std::string & description, const std::function<void()> & whatToDo)
 {
-	boost::thread newThread([this, whatToDo]()
+	if (!asyncTasks)
+		throw std::runtime_error("Attempt to execute task on shut down AI state!");
+
+	asyncTasks->run([this, description, whatToDo]()
 	{
-		setThreadName("AIGateway::requestActionASAP::whatToDo");
+		ScopedThreadName guard("NKAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
-
-	newThread.detach();
 }
 
 void AIGateway::lostHero(HeroPtr h)

@@ -16,4 +16,3 @@ extern SDL_Renderer * mainRenderer;
 /// Defined in clientapp EntryPoint
 /// TODO: decide on better location for this method
 [[noreturn]] void handleFatalError(const std::string & message, bool terminate);
-void handleQuit(bool ask = true);

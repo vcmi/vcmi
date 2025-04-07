@@ -14,6 +14,7 @@ set(launcher_SRCS
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
 		settingsView/csettingsview_moc.cpp
+		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
 		firstLaunch/firstlaunch_moc.cpp
 		main.cpp
@@ -45,6 +46,7 @@ set(launcher_HEADERS
 		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
+		settingsView/configeditordialog_moc.h
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h
 		firstLaunch/firstlaunch_moc.h
@@ -61,6 +63,7 @@ set(launcher_FORMS
 		aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
+		settingsView/configeditordialog_moc.ui
 		settingsView/csettingsview_moc.ui
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
@@ -74,6 +77,8 @@ set(launcher_RESOURCES
 
 set(translationsDir "translation")
 set(launcher_TS
+	"${translationsDir}/belarusian.ts"
+	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/english.ts"
@@ -88,6 +93,7 @@ set(launcher_TS
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"

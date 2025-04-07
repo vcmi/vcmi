@@ -232,18 +232,19 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
-			const auto & badMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_DICE);
-			const auto & highMoraleDice = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_DICE);
+			const auto & badMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+			const auto & highMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+			int moraleDiceSize = cb->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
 
-			if(morale < 0 && !badMoraleDice.empty())
+			if(morale < 0 && !badMoraleChance.empty())
 			{
-				size_t diceIndex = std::min<size_t>(badMoraleDice.size(), -morale) - 1;
-				multiplier -= 1.0 / badMoraleDice.at(diceIndex);
+				size_t chanceIndex = std::min<size_t>(badMoraleChance.size(), -morale) - 1;
+				multiplier -= 1.0 / moraleDiceSize * badMoraleChance.at(chanceIndex);
 			}
-			else if(morale > 0 && !highMoraleDice.empty())
+			else if(morale > 0 && !highMoraleChance.empty())
 			{
-				size_t diceIndex = std::min<size_t>(highMoraleDice.size(), morale) - 1;
-				multiplier += 1.0 / highMoraleDice.at(diceIndex);
+				size_t chanceIndex = std::min<size_t>(highMoraleChance.size(), morale) - 1;
+				multiplier += 1.0 / moraleDiceSize * highMoraleChance.at(chanceIndex);
 			}
 
 			newValue += multiplier * slot.second->getPower();

@@ -21,6 +21,8 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../modding/IdentifierStorage.h"
 
+#include <boost/lexical_cast.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 static bool isOnVisitableFromTopList(Obj identifier, int type)

@@ -27,7 +27,7 @@ public:
 		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
 	};
 
-	ui32 identifier; //unique code for this monster (used in missions)
+	ui32 identifier = -1; //unique code for this monster (used in missions)
 	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters

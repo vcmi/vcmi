@@ -178,7 +178,7 @@
 	"vcmi.lobby.match.solo"              : "Spel för en spelare",
 	"vcmi.lobby.match.duel"              : "Spel med %s", // %s -> smeknamn på en annan spelare
 	"vcmi.lobby.match.multi"             : "%d spelare",
-	"vcmi.lobby.room.create.hover"             : "Skapa nytt rum",
+	"vcmi.lobby.room.create.hover"       : "Skapa nytt rum",
 	"vcmi.lobby.room.players.limit"      : "Begränsning av spelare",
 	"vcmi.lobby.room.description.public" : "Alla spelare kan gå med i det offentliga rummet.",
 	"vcmi.lobby.room.description.private": "Endast inbjudna spelare kan gå med i ett privat rum.",
@@ -307,6 +307,8 @@
 	"vcmi.systemOptions.enableLargeSpellbookButton.help" : "{Stor trollformelsbok}\n\nAktiverar en större trollformelsbok som rymmer fler trollformler per sida (animeringen av sidbyte i den större trollformelsboken fungerar inte).",
 	"vcmi.systemOptions.audioMuteFocus.hover"            : "Tyst vid inaktivitet",
 	"vcmi.systemOptions.audioMuteFocus.help"             : "{Tyst vid inaktivitet}\n\nStänger av ljudet i spelet vid inaktivitet. Undantag är meddelanden i spelet och ljudet för ny turomgång.",
+	"vcmi.systemOptions.enableOverlayButton.hover"       : "Aktivera överläggsinformation",
+ 	"vcmi.systemOptions.enableOverlayButton.help"        : "{Aktivera överläggsinformation}\n\nVisar behjälplig information på skärmen, så som namn på byggnader och objekt med hjälp av ALT-tangenten eller en tvåfingergest.",
 
 	"vcmi.adventureOptions.infoBarPick.hover"               : "Visar textmeddelanden i infopanelen",
 	"vcmi.adventureOptions.infoBarPick.help"                : "{Infopanelsmeddelanden}\n\nNär det är möjligt kommer spelmeddelanden från besökande kartobjekt att visas i infopanelen istället för att dyka upp i ett separat fönster.",

@@ -28,7 +28,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
 	if(pack.isForServer())
 	{
-		result = srv.isClientHost(pack.c->connectionID);
+		result = srv.isClientHost(connection->connectionID);
 	}
 }
 
@@ -49,12 +49,12 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	auto compatibleVersion = std::min(pack.version, ESerializationVersion::CURRENT);
-	pack.c->setSerializationVersion(compatibleVersion);
+	connection->setSerializationVersion(compatibleVersion);
 
-	srv.clientConnected(pack.c, pack.names, pack.uuid, pack.mode);
+	srv.clientConnected(connection, pack.names, pack.uuid, pack.mode);
 
 	// Server need to pass some data to newly connected client
-	pack.clientId = pack.c->connectionID;
+	pack.clientId = connection->connectionID;
 	pack.mode = srv.si->mode;
 	pack.hostClientId = srv.hostClientId;
 	pack.version = compatibleVersion;
@@ -64,9 +64,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	// FIXME: we need to avoid senting something to client that not yet get answer for LobbyClientConnected
-	// Until UUID set we only pass LobbyClientConnected to this client
-	pack.c->uuid = pack.uuid;
 	srv.updateAndPropagateLobbyState();
 
 // FIXME: what is this??? We do NOT support reconnection into ongoing game - at the very least queries and battles are NOT serialized
@@ -83,7 +80,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyCl
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.clientId != pack.c->connectionID)
+	if(pack.clientId != connection->connectionID)
 	{
 		result = false;
 		return;
@@ -97,7 +94,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 			return;
 		}
 
-		if(pack.c->connectionID != srv.hostClientId)
+		if(connection->connectionID != srv.hostClientId)
 		{
 			result = false;
 			return;
@@ -109,38 +106,14 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyC
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	pack.c->getConnection()->close();
-	srv.clientDisconnected(pack.c);
+	connection->getConnection()->close();
+	srv.clientDisconnected(connection);
 	result = true;
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
 {
-	if(pack.shutdownServer)
-	{
-		logNetwork->info("Client requested shutdown, server will close itself...");
-		srv.setState(EServerState::SHUTDOWN);
-		return;
-	}
-	else if(srv.activeConnections.empty())
-	{
-		logNetwork->error("Last connection lost, server will close itself...");
-		srv.setState(EServerState::SHUTDOWN);
-	}
-	else if(pack.c->connectionID == srv.hostClientId)
-	{
-		LobbyChangeHost ph;
-		auto newHost = srv.activeConnections.front();
-		ph.newHostConnectionId = newHost->connectionID;
-		srv.announcePack(ph);
-	}
 	srv.updateAndPropagateLobbyState();
-	
-//	if(srv.getState() != EServerState::SHUTDOWN && srv.remoteConnections.count(pack.c))
-//	{
-//		srv.remoteConnections -= pack.c;
-//		srv.connectToRemote();
-//	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
@@ -202,12 +175,12 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaignBonus(LobbySetCampaignBon
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
@@ -225,12 +198,12 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestar
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
@@ -252,7 +225,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		return;
 	}
 	
-	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getStartInfo(true));
+	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getInitialStartInfo());
 	pack.initializedGameState = srv.gh->gameState();
 	result = true;
 }
@@ -276,7 +249,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
@@ -296,13 +269,13 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyChangeHost(LobbyChangeH
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
 {
-	if(srv.isClientHost(pack.c->connectionID))
+	if(srv.isClientHost(connection->connectionID))
 	{
 		result = true;
 		return;
 	}
 
-	if(vstd::contains(srv.getAllClientPlayers(pack.c->connectionID), pack.color))
+	if(vstd::contains(srv.getAllClientPlayers(connection->connectionID), pack.color))
 	{
 		result = true;
 		return;
@@ -439,7 +412,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
-	result = srv.isClientHost(pack.c->connectionID);
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)

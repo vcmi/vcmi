@@ -385,7 +385,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	else
 		ret->upgrade = BuildingID::NONE;
 
-	ret->town->buildings[ret->bid] = ret;
+	ret->town->buildings[ret->bid].reset(ret);
 	for(const auto & element : source["marketModes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
@@ -413,21 +413,21 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 
 	LIBRARY->identifiers()->tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 	{
-		ret->building = town.buildings[BuildingID(identifier)];
+		ret->building = town.buildings[BuildingID(identifier)].get();
 	});
 
 	if (source["builds"].isNull())
 	{
 		LIBRARY->identifiers()->tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 		{
-			ret->building = town.buildings[BuildingID(identifier)];
+			ret->building = town.buildings[BuildingID(identifier)].get();
 		});
 	}
 	else
 	{
 		LIBRARY->identifiers()->requestIdentifier("building." + town.faction->getJsonKey(), source["builds"], [=, &town](si32 identifier) mutable
 		{
-			ret->buildable = town.buildings[BuildingID(identifier)];
+			ret->buildable = town.buildings[BuildingID(identifier)].get();
 		});
 	}
 

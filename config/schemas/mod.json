@@ -175,7 +175,13 @@
 		"language" : {
 			"type" : "string",
 			"description" : "Base language of the mod, before applying localizations. By default vcmi assumes English",
-			"enum" : [ "czech", "chinese", "english", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+			"enum" : [ "belarusian", "bulgarian", "czech", "chinese", "english", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "norwegian", "polish", "portuguese", "romanian", "russian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ]
+		},
+		"belarusian" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"bulgarian" : {
+			"$ref" : "#/definitions/localizable"
 		},
 		"czech" : {
 			"$ref" : "#/definitions/localizable"
@@ -217,6 +223,9 @@
 			"$ref" : "#/definitions/localizable"
 		},
 		"portuguese" : {
+			"$ref" : "#/definitions/localizable"
+		},
+		"romanian" : {
 			"$ref" : "#/definitions/localizable"
 		},
 		"russian" : {

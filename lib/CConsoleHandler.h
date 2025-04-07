@@ -94,9 +94,13 @@ private:
 	//function to be called when message is received - string: message, bool: whether call was made from in-game console
 	std::function<void(const std::string &, bool)> cb;
 
+	std::condition_variable shutdownVariable;
+	std::mutex shutdownMutex;
+	std::atomic<bool> shutdownPending = false;
+
 	std::mutex smx;
 
-	boost::thread thread;
+	std::thread thread;
 };
 
 VCMI_LIB_NAMESPACE_END

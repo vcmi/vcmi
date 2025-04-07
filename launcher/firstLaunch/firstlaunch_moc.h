@@ -42,6 +42,7 @@ class FirstLaunchView : public QWidget
 
 	QString getHeroesInstallDir();
 	void extractGogData();
+	void extractGogDataAsync(QString filePathBin, QString filePathExe);
 	void copyHeroesData(const QString & path = {}, bool move = false);
 
 	// Tab Mod Preset

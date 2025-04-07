@@ -14,7 +14,6 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Magic.h>
 #include "../IHandlerBase.h"
-#include "../ConstTransitivePtr.h"
 #include "../int3.h"
 #include "../bonuses/Bonus.h"
 #include "../filesystem/ResourcePath.h"

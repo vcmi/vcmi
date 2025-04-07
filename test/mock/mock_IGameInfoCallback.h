@@ -17,7 +17,8 @@ class IGameInfoCallbackMock : public IGameInfoCallback
 public:
 	//various
 	MOCK_CONST_METHOD1(getDate, int(Date));
-	MOCK_CONST_METHOD1(getStartInfo, const StartInfo *(bool));
+	MOCK_CONST_METHOD0(getStartInfo, const StartInfo *());
+	MOCK_CONST_METHOD0(getInitialStartInfo, const StartInfo *());
 
 	MOCK_CONST_METHOD1(isAllowed, bool(SpellID));
 	MOCK_CONST_METHOD1(isAllowed, bool(ArtifactID));

@@ -462,7 +462,7 @@ endif()
 #        Finding packages                  #
 ############################################
 
-set(BOOST_COMPONENTS date_time filesystem locale program_options system thread)
+set(BOOST_COMPONENTS date_time filesystem locale program_options system)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()

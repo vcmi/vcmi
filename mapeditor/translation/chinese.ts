@@ -580,7 +580,7 @@
         <location filename="../mainwindow.ui" line="1358"/>
         <location filename="../mainwindow.ui" line="1361"/>
         <source>h3c converter</source>
-        <translation type="unfinished">h3m转换器 {3c?}</translation>
+        <translation>h3c转换器</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1366"/>
@@ -655,12 +655,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="434"/>
         <source>Mods are required</source>
-        <translation type="unfinished"></translation>
+        <translation>需要模组</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="439"/>
         <source>Failed to open map</source>
-        <translation type="unfinished"></translation>
+        <translation>打开地图失败</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="465"/>
@@ -680,22 +680,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="574"/>
         <source>Map validation</source>
-        <translation type="unfinished"></translation>
+        <translation>地图校验</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="576"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>地图有致命问题，很可能无法游玩。打开地图菜单的校验功能以定位问题</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="578"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished"></translation>
+        <translation>地图有一些错误，打开地图菜单的校验功能以定位问题</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="602"/>
         <source>Failed to save map</source>
-        <translation type="unfinished"></translation>
+        <translation>保存地图失败</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="615"/>
@@ -795,12 +795,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="969"/>
         <source>Mods loading problem</source>
-        <translation type="unfinished"></translation>
+        <translation>模组加载遇到问题</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="969"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>加载模组时遇到致命错误，请关闭无效模组后重启。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="986"/>
@@ -860,22 +860,22 @@
     <message>
         <location filename="../mainwindow.cpp" line="1402"/>
         <source>Select campaign to convert</source>
-        <translation type="unfinished"></translation>
+        <translation>选择待转换的战役</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1404"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄无敌3战役文件(*.h3c)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1408"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择目标文件</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1410"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI战役文件(*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -1130,12 +1130,12 @@
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="164"/>
         <source>Default secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>默认辅助技能：</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="169"/>
         <source>Secondary skills:</source>
-        <translation type="unfinished"></translation>
+        <translation>辅助技能：</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="931"/>
@@ -1171,32 +1171,32 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="293"/>
         <source>POWER RANK</source>
-        <translation type="unfinished"></translation>
+        <translation>实力排行</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="293"/>
         <source>HERO TYPE</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄类型</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="316"/>
         <source>Hero class</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄职业</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="325"/>
         <source>Portrait</source>
-        <translation type="unfinished">头像</translation>
+        <translation>头像</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="328"/>
         <source>Skills</source>
-        <translation type="unfinished">技能</translation>
+        <translation>技能</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="330"/>
         <source>Artifacts</source>
-        <translation type="unfinished">宝物</translation>
+        <translation>宝物</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="352"/>
@@ -1209,52 +1209,52 @@
     <message>
         <location filename="../inspector/inspector.cpp" line="365"/>
         <source>Buildings</source>
-        <translation type="unfinished">建筑</translation>
+        <translation>建筑</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="367"/>
         <source>Events</source>
-        <translation type="unfinished">事件</translation>
+        <translation>事件</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="400"/>
         <source>Resource</source>
-        <translation type="unfinished"></translation>
+        <translation>资源</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="431"/>
         <source>Artifact reward</source>
-        <translation type="unfinished"></translation>
+        <translation>宝物奖励</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="474"/>
         <source>Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>任务</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="492"/>
         <source>Identifier</source>
-        <translation type="unfinished"></translation>
+        <translation>标识符</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="493"/>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="494"/>
         <source>SubID</source>
-        <translation type="unfinished"></translation>
+        <translation>子ID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="495"/>
         <source>InstanceName</source>
-        <translation type="unfinished"></translation>
+        <translation>实力名称</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="500"/>
         <source>IsStatic</source>
-        <translation type="unfinished"></translation>
+        <translation>是否静态</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="874"/>
@@ -1266,7 +1266,7 @@
         <location filename="../inspector/inspector.cpp" line="241"/>
         <location filename="../inspector/inspector.cpp" line="432"/>
         <source>Army</source>
-        <translation type="unfinished"></translation>
+        <translation>部队</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="248"/>
@@ -1279,31 +1279,31 @@
         <location filename="../inspector/inspector.cpp" line="503"/>
         <location filename="../inspector/inspector.cpp" line="550"/>
         <source>Owner</source>
-        <translation type="unfinished"></translation>
+        <translation>所有者</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
         <location filename="../inspector/inspector.cpp" line="658"/>
         <source>Same as town</source>
-        <translation type="unfinished"></translation>
+        <translation>与城镇相同</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="269"/>
         <location filename="../inspector/inspector.cpp" line="673"/>
         <source>Removable units</source>
-        <translation type="unfinished"></translation>
+        <translation>可移除单位</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="294"/>
         <location filename="../inspector/inspector.cpp" line="681"/>
         <source>Placeholder type</source>
-        <translation type="unfinished"></translation>
+        <translation>占位符类型</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="297"/>
         <location filename="../inspector/inspector.cpp" line="699"/>
         <source>Power rank</source>
-        <translation type="unfinished"></translation>
+        <translation>实力排行</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="305"/>
@@ -1311,67 +1311,67 @@
         <location filename="../inspector/inspector.cpp" line="702"/>
         <location filename="../inspector/inspector.cpp" line="726"/>
         <source>Hero type</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄类型</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="315"/>
         <location filename="../inspector/inspector.cpp" line="723"/>
         <source>Experience</source>
-        <translation type="unfinished"></translation>
+        <translation>经验值</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="320"/>
         <location filename="../inspector/inspector.cpp" line="321"/>
         <source>MALE</source>
-        <translation type="unfinished"></translation>
+        <translation>男性</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="320"/>
         <location filename="../inspector/inspector.cpp" line="321"/>
         <source>FEMALE</source>
-        <translation type="unfinished"></translation>
+        <translation>女性</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="321"/>
         <location filename="../inspector/inspector.cpp" line="712"/>
         <source>Gender</source>
-        <translation type="unfinished"></translation>
+        <translation>性别</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="323"/>
         <location filename="../inspector/inspector.cpp" line="715"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名字</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="324"/>
         <location filename="../inspector/inspector.cpp" line="719"/>
         <source>Biography</source>
-        <translation type="unfinished"></translation>
+        <translation>传记</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="329"/>
         <location filename="../inspector/inspector.cpp" line="366"/>
         <source>Spells</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="354"/>
         <location filename="../inspector/inspector.cpp" line="738"/>
         <source>Patrol radius</source>
-        <translation type="unfinished"></translation>
+        <translation>巡逻半径</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="362"/>
         <location filename="../inspector/inspector.cpp" line="615"/>
         <source>Town name</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇名</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="369"/>
         <location filename="../inspector/inspector.cpp" line="619"/>
         <source>Same as player</source>
-        <translation type="unfinished"></translation>
+        <translation>与玩家相同</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="376"/>
@@ -1384,19 +1384,19 @@
         <location filename="../inspector/inspector.cpp" line="644"/>
         <location filename="../inspector/inspector.cpp" line="763"/>
         <source>Message</source>
-        <translation type="unfinished">消息</translation>
+        <translation>消息</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="390"/>
         <location filename="../inspector/inspector.cpp" line="648"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="401"/>
         <location filename="../inspector/inspector.cpp" line="636"/>
         <source>Productivity</source>
-        <translation type="unfinished"></translation>
+        <translation>产量</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="408"/>
@@ -1404,84 +1404,84 @@
         <location filename="../inspector/inspector.cpp" line="755"/>
         <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>数量</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="766"/>
         <source>Character</source>
-        <translation type="unfinished"></translation>
+        <translation>角色</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="917"/>
         <source>Select town</source>
-        <translation type="unfinished"></translation>
+        <translation>选择城镇</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="429"/>
         <location filename="../inspector/inspector.cpp" line="768"/>
         <source>Never flees</source>
-        <translation type="unfinished"></translation>
+        <translation>从不撤退</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="430"/>
         <location filename="../inspector/inspector.cpp" line="770"/>
         <source>Not growing</source>
-        <translation type="unfinished"></translation>
+        <translation>不增长</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="442"/>
         <location filename="../inspector/inspector.cpp" line="482"/>
         <source>Reward</source>
-        <translation type="unfinished">奖励</translation>
+        <translation>奖励</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="456"/>
         <location filename="../inspector/inspector.cpp" line="601"/>
         <source>Remove after</source>
-        <translation type="unfinished"></translation>
+        <translation>访问后移除</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="457"/>
         <location filename="../inspector/inspector.cpp" line="604"/>
         <source>Human trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>人类触发</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="607"/>
         <source>Cpu trigger</source>
-        <translation type="unfinished"></translation>
+        <translation>电脑触发</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="466"/>
         <location filename="../inspector/inspector.cpp" line="780"/>
         <source>First visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>首次访问文本</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="467"/>
         <location filename="../inspector/inspector.cpp" line="783"/>
         <source>Next visit text</source>
-        <translation type="unfinished"></translation>
+        <translation>后续访问文本</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="468"/>
         <location filename="../inspector/inspector.cpp" line="786"/>
         <source>Completed text</source>
-        <translation type="unfinished"></translation>
+        <translation>完成后文本</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="469"/>
         <location filename="../inspector/inspector.cpp" line="483"/>
         <location filename="../inspector/inspector.cpp" line="789"/>
         <source>Repeat quest</source>
-        <translation type="unfinished"></translation>
+        <translation>重复任务</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="470"/>
         <location filename="../inspector/inspector.cpp" line="791"/>
         <source>Time limit</source>
-        <translation type="unfinished"></translation>
+        <translation>世界限制</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="872"/>
@@ -1507,167 +1507,167 @@
         <location filename="../inspector/herospellwidget.cpp" line="143"/>
         <location filename="../inspector/townspellswidget.cpp" line="175"/>
         <source>Custom Spells:</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义魔法：</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="152"/>
         <location filename="../inspector/townspellswidget.cpp" line="195"/>
         <source>Default Spells</source>
-        <translation type="unfinished"></translation>
+        <translation>默认魔法</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.cpp" line="143"/>
         <source>Default</source>
-        <translation type="unfinished">默认</translation>
+        <translation>默认</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="446"/>
         <source>Quest:</source>
-        <translation type="unfinished"></translation>
+        <translation>任务：</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="447"/>
         <source>Day of Week: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>每周天数：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="448"/>
         <source>Days Passed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>起始天数：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
         <location filename="../inspector/rewardswidget.cpp" line="768"/>
         <source>Hero Level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄等级：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
         <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Hero Experience: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄经验值：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="451"/>
         <source>Mana Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法值：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
         <location filename="../inspector/rewardswidget.cpp" line="771"/>
         <source>Mana Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法值百分比：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
         <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation type="unfinished"></translation>
+        <translation>主属性：%1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="466"/>
         <location filename="../inspector/rewardswidget.cpp" line="786"/>
         <source>Resources: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>资源：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="473"/>
         <location filename="../inspector/rewardswidget.cpp" line="792"/>
         <source>Artifacts: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>宝物：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="480"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Spells: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="487"/>
         <location filename="../inspector/rewardswidget.cpp" line="804"/>
         <source>Secondary Skills: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>辅助技能：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="494"/>
         <location filename="../inspector/rewardswidget.cpp" line="810"/>
         <source>Creatures: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>生物：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="501"/>
         <source>Heroes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="508"/>
         <source>Hero Classes: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄职业：%1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="517"/>
         <source>Players: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="764"/>
         <source>Rewards:</source>
-        <translation type="unfinished"></translation>
+        <translation>奖励：</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="767"/>
         <source>Reward Message: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>奖励消息：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="770"/>
         <source>Mana Diff: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法值变动：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Move Points: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>移动点数：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Move Percentage: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>移动点数百分比：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="813"/>
         <source>Spell Cast: %1 (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>施法：%1（%2）</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="820"/>
         <source>Bonuses: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>奖励：%1</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="361"/>
         <source>Built buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>已建建筑：</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="372"/>
         <source>Forbidden buildings:</source>
-        <translation type="unfinished"></translation>
+        <translation>禁止建筑：</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="182"/>
         <source>Town Events:</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇事件：</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="176"/>
         <source>Required:</source>
-        <translation type="unfinished"></translation>
+        <translation>必须：</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="183"/>
         <source>Possible:</source>
-        <translation type="unfinished"></translation>
+        <translation>可选：</translation>
     </message>
 </context>
 <context>
@@ -1785,7 +1785,7 @@
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation>英雄类型</translation>
+        <translation>英雄职业</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
@@ -2058,7 +2058,7 @@
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1489"/>
         <source>Hero classes</source>
-        <translation>英雄类型</translation>
+        <translation>英雄职业</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1521"/>
@@ -2314,7 +2314,7 @@
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="186"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">%1 - %2 日</translation>
+        <translation>%1 - %2 日</translation>
     </message>
 </context>
 <context>
@@ -2643,7 +2643,7 @@
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
         <source>Any town</source>
-        <translation type="unfinished"></translation>
+        <translation>任一城镇</translation>
     </message>
 </context>
 <context>
@@ -2750,27 +2750,27 @@
     <message>
         <location filename="../windownewmap.ui" line="239"/>
         <source>Standard size</source>
-        <translation type="unfinished"></translation>
+        <translation>标准大小</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="264"/>
         <source>Custom size</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义大小</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="289"/>
         <source>Underground</source>
-        <translation type="unfinished"></translation>
+        <translation>双层地图</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="412"/>
         <source>Humans</source>
-        <translation type="unfinished"></translation>
+        <translation>人类</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="475"/>
         <source>Computers</source>
-        <translation type="unfinished"></translation>
+        <translation>电脑</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="541"/>
@@ -2847,7 +2847,7 @@
     <message>
         <location filename="../windownewmap.ui" line="1025"/>
         <source>OK</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -2876,7 +2876,7 @@
     <message>
         <location filename="../windownewmap.cpp" line="451"/>
         <source>[default]</source>
-        <translation type="unfinished"></translation>
+        <translation>[默认]</translation>
     </message>
 </context>
 <context>

@@ -108,6 +108,8 @@
 
 #include "../lib/texts/TextOperations.h"
 
+#include <boost/lexical_cast.hpp>
+
 // The macro below is used to mark functions that are called by client when game state changes.
 // They all assume that interface mutex is locked.
 #define EVENT_HANDLER_CALLED_BY_CLIENT
@@ -1437,7 +1439,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 		{
 			IgnoreEvents ignore(*this);
 			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-			boost::this_thread::sleep_for(boost::chrono::milliseconds(focusTime));
+			std::this_thread::sleep_for(std::chrono::milliseconds(focusTime));
 		}
 	}
 	ENGINE->cursor().show();
@@ -1789,7 +1791,7 @@ void CPlayerInterface::waitForAllDialogs()
 	while(!dialogs.empty())
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-		boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 	waitWhileDialog();
 }

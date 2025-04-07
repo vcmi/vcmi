@@ -73,7 +73,7 @@ BuildingID CBuilding::getBase() const
 	const CBuilding * build = this;
 	while (build->upgrade != BuildingID::NONE)
 	{
-		build = build->town->buildings.at(build->upgrade);
+		build = build->town->buildings.at(build->upgrade).get();
 	}
 
 	return build->bid;
@@ -81,11 +81,11 @@ BuildingID CBuilding::getBase() const
 
 si32 CBuilding::getDistance(const BuildingID & buildID) const
 {
-	const CBuilding * build = town->buildings.at(buildID);
+	const CBuilding * build = town->buildings.at(buildID).get();
 	int distance = 0;
 	while (build->upgrade != BuildingID::NONE && build != this)
 	{
-		build = build->town->buildings.at(build->upgrade);
+		build = build->town->buildings.at(build->upgrade).get();
 		distance++;
 	}
 	if (build == this)

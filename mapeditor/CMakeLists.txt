@@ -126,6 +126,8 @@ set(editor_RESOURCES
 
 set(translationsDir "translation")
 set(editor_TS
+	"${translationsDir}/belarusian.ts"
+	"${translationsDir}/bulgarian.ts"
 	"${translationsDir}/chinese.ts"
 	"${translationsDir}/czech.ts"
 	"${translationsDir}/english.ts"
@@ -140,6 +142,7 @@ set(editor_TS
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
+	"${translationsDir}/romanian.ts"
 	"${translationsDir}/russian.ts"
 	"${translationsDir}/spanish.ts"
 	"${translationsDir}/swedish.ts"

@@ -150,9 +150,6 @@ CGameState::~CGameState()
 {
 	// explicitly delete all ongoing battles first - BattleInfo destructor requires valid CGameState
 	currentBattles.clear();
-	map.dellNull();
-	scenarioOps.dellNull();
-	initialOpts.dellNull();
 }
 
 const IGameSettings & CGameState::getSettings() const
@@ -170,8 +167,8 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 {
 	assert(services);
 	assert(callback);
-	scenarioOps = CMemorySerializer::deepCopy(*si).release();
-	initialOpts = CMemorySerializer::deepCopy(*si).release();
+	scenarioOps = CMemorySerializer::deepCopy(*si);
+	initialOpts = CMemorySerializer::deepCopy(*si);
 	si = nullptr;
 
 	switch(scenarioOps->mode)
@@ -336,7 +333,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			}
 		}
 
-		map = randomMap.release();
+		map = std::move(randomMap);
 
 		logGlobal->info("Generated random map in %i ms.", sw.getDiff());
 	}
@@ -344,23 +341,14 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 	{
 		logGlobal->info("Open map file: %s", scenarioOps->mapname);
 		const ResourcePath mapURI(scenarioOps->mapname, EResType::MAP);
-		map = mapService->loadMap(mapURI, callback).release();
+		map = mapService->loadMap(mapURI, callback);
 	}
 }
 
 void CGameState::initCampaign()
 {
 	campaign = std::make_unique<CGameStateCampaign>(this);
-	map = campaign->getCurrentMap().release();
-}
-
-void CGameState::generateOwnedObjectsAfterDeserialize()
-{
-	for (auto & object : map->objects)
-	{
-		if (object && object->asOwnable() && object->getOwner().isValidPlayer())
-			players.at(object->getOwner()).addOwnedObject(object.get());
-	}
+	map = campaign->getCurrentMap();
 }
 
 void CGameState::initGlobalBonuses()
@@ -617,7 +605,7 @@ void CGameState::initHeroes()
 
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
-			boat->id = ObjectInstanceID(static_cast<si32>(gs->map->objects.size()));
+			boat->id = ObjectInstanceID(static_cast<si32>(gs->getMap().objects.size()));
 
 			map->objects.emplace_back(boat);
 
@@ -1051,9 +1039,9 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 
 BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 {
-	assert(tile.valid());
+	assert(tile.isValid());
 
-	if(!tile.valid())
+	if(!tile.isValid())
 		return BattleField::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
@@ -1207,7 +1195,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
-	return gs->map->guardingCreaturePositions[pos.z][pos.x][pos.y];
+	return gs->getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const

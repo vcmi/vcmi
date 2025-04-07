@@ -12,6 +12,7 @@
 #include "ui_csettingsview_moc.h"
 
 #include "mainwindow_moc.h"
+#include "configeditordialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
 #include "../helper.h"
@@ -53,14 +54,6 @@ static constexpr std::array downscalingFilterTypes =
 	"linear",
 	"best"
 };
-
-MainWindow * CSettingsView::getMainWindow()
-{
-	foreach(QWidget *w, qApp->allWidgets())
-		if(QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
-			return dynamic_cast<MainWindow *>(mainWin);
-	return nullptr;
-}
 
 void CSettingsView::setDisplayList()
 {
@@ -130,6 +123,10 @@ void CSettingsView::loadSettings()
 	ui->labelHandleBackRightMouseButton->hide();
 	ui->buttonAllowPortrait->hide();
 	ui->labelAllowPortrait->hide();
+#endif
+#ifndef VCMI_IOS
+	ui->labelIgnoreMuteSwitch->hide();
+	ui->buttonIgnoreMuteSwitch->hide();
 #endif
 	fillValidScalingRange();
 
@@ -223,6 +220,8 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonHapticFeedback, settings["general"]["hapticFeedback"].Bool());
 
 	setCheckbuttonState(ui->buttonHandleBackRightMouseButton, settings["input"]["handleBackRightMouseButton"].Bool());
+
+	setCheckbuttonState(ui->buttonIgnoreMuteSwitch, settings["general"]["ignoreMuteSwitch"].Bool());
 
 	std::string cursorType = settings["video"]["cursor"].String();
 	int cursorTypeIndex = vstd::find_pos(cursorTypesList, cursorType);
@@ -495,7 +494,7 @@ void CSettingsView::on_comboBoxLanguage_currentIndexChanged(int index)
 	QString selectedLanguage = ui->comboBoxLanguage->itemData(index).toString();
 	node->String() = selectedLanguage.toStdString();
 
-	getMainWindow()->updateTranslation();
+	Helper::getMainWindow()->updateTranslation();
 }
 
 void CSettingsView::changeEvent(QEvent *event)
@@ -529,7 +528,7 @@ void CSettingsView::loadTranslation()
 {
 	QString baseLanguage = Languages::getHeroesDataLanguage();
 
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	if (!mainWindow)
 		return;
@@ -562,7 +561,7 @@ void CSettingsView::loadTranslation()
 
 void CSettingsView::on_pushButtonTranslation_clicked()
 {
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
@@ -626,13 +625,18 @@ void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
 
 void CSettingsView::on_refreshRepositoriesButton_clicked()
 {
-	auto * mainWindow = getMainWindow();
+	auto * mainWindow = Helper::getMainWindow();
 
 	assert(mainWindow);
 	if (!mainWindow)
 		return;
 
 	mainWindow->getModView()->loadRepositories();
+}
+
+void CSettingsView::on_buttonConfigEditor_clicked()
+{
+	ConfigEditorDialog::showConfigEditorDialog();
 }
 
 void CSettingsView::on_spinBoxFramerateLimit_valueChanged(int arg1)
@@ -866,3 +870,9 @@ void CSettingsView::on_buttonHandleBackRightMouseButton_toggled(bool checked)
 	updateCheckbuttonText(ui->buttonHandleBackRightMouseButton);
 }
 
+void CSettingsView::on_buttonIgnoreMuteSwitch_toggled(bool checked)
+{
+	Settings node = settings.write["general"]["ignoreMuteSwitch"];
+	node->Bool() = checked;
+	updateCheckbuttonText(ui->buttonIgnoreMuteSwitch);
+}

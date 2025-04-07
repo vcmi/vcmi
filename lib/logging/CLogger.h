@@ -10,6 +10,10 @@
 #pragma once
 
 
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/posix_time/time_formatters.hpp>
+
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CLogger;

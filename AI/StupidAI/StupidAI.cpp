@@ -124,7 +124,6 @@ void CStupidAI::yourTacticPhase(const BattleID & battleID, int distance)
 
 void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 {
-	//boost::this_thread::sleep_for(boost::chrono::seconds(2));
 	print("activeStack called for " + stack->nodeName());
 	ReachabilityInfo dists = cb->getBattle(battleID)->getReachability(stack);
 	std::vector<EnemyInfo> enemiesShootable;

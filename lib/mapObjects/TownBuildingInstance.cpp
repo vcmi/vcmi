@@ -75,7 +75,7 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * 
 Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
-	auto building = town->getTown()->buildings.at(getBuildingType());
+	const auto & building = town->getTown()->buildings.at(getBuildingType());
 
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)
@@ -165,7 +165,7 @@ bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * con
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
 		{
-			const auto building = town->getTown()->buildings.at(getBuildingType());
+			const auto & building = town->getTown()->buildings.at(getBuildingType());
 			if (building->mapObjectLikeBonuses.hasValue())
 				return contextHero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(building->mapObjectLikeBonuses));
 			else

@@ -40,7 +40,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	scenarioHighScores.parameters.push_back(param);
 	scenarioHighScores.isCampaign = false;
 
-	data.map = gs->map->name.toString();
+	data.map = gs->getMap().name.toString();
 	data.timestamp = std::time(nullptr);
 	data.day = gs->getDate(Date::DAY);
 	data.player = ps->color;
@@ -193,7 +193,7 @@ std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const Pla
 	std::vector<const CGMine *> tmp;
 
 	std::vector<const CGObjectInstance *> ownedObjects;
-	for(const CGObjectInstance * obj : gs->map->objects)
+	for(const CGObjectInstance * obj : gs->getMap().objects)
 	{
 		if(obj && obj->tempOwner == ps->color)
 			ownedObjects.push_back(obj);
@@ -285,11 +285,11 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 	float visible = 0.0;
 	float numTiles = 0.0;
 
-	for(int layer = 0; layer < (gs->map->twoLevel ? 2 : 1); layer++)
-		for(int y = 0; y < gs->map->height; ++y)
-			for(int x = 0; x < gs->map->width; ++x)
+	for(int layer = 0; layer < (gs->getMap().twoLevel ? 2 : 1); layer++)
+		for(int y = 0; y < gs->getMap().height; ++y)
+			for(int x = 0; x < gs->getMap().width; ++x)
 			{
-				TerrainTile tile = gs->map->getTile(int3(x, y, layer));
+				TerrainTile tile = gs->getMap().getTile(int3(x, y, layer));
 
 				if(tile.blocked() && !tile.visitable())
 					continue;
@@ -346,17 +346,17 @@ std::vector<std::vector<PlayerColor>> Statistic::getRank(std::vector<std::pair<P
 
 int Statistic::getObeliskVisited(const CGameState * gs, const TeamID & t)
 {
-	if(gs->map->obelisksVisited.count(t))
-		return gs->map->obelisksVisited.at(t);
+	if(gs->getMap().obelisksVisited.count(t))
+		return gs->getMap().obelisksVisited.at(t);
 	else
 		return 0;
 }
 
 float Statistic::getObeliskVisitedRatio(const CGameState * gs, const TeamID & t)
 {
-	if(!gs->map->obeliskCount)
+	if(!gs->getMap().obeliskCount)
 		return 0;
-	return static_cast<float>(getObeliskVisited(gs, t)) / gs->map->obeliskCount;
+	return static_cast<float>(getObeliskVisited(gs, t)) / gs->getMap().obeliskCount;
 }
 
 std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const PlayerState * ps)

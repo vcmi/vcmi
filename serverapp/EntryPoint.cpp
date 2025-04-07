@@ -78,10 +78,11 @@ int main(int argc, const char * argv[])
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	preinitDLL(false);
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
 	logConfigurator.configure();
 
-	loadDLLClasses();
+	LIBRARY->initializeLibrary();
 	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{

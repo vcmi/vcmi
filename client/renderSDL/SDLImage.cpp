@@ -20,10 +20,10 @@
 #include "../GameEngine.h"
 #include "../render/IScreenHandler.h"
 
+#include "../../lib/AsyncRunner.h"
 #include "../../lib/CConfigHandler.h"
 
 #include <tbb/parallel_for.h>
-#include <tbb/task_arena.h>
 
 #include <SDL_image.h>
 #include <SDL_surface.h>
@@ -256,8 +256,6 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 
 SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
 {
-	static tbb::task_arena upscalingArena;
-
 	upscalingInProgress = true;
 
 	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
@@ -273,7 +271,7 @@ SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFact
 	};
 
 	if(settings["video"]["asyncUpscaling"].Bool())
-		upscalingArena.enqueue(scalingTask);
+		ENGINE->async().run(scalingTask);
 	else
 		scalingTask();
 }
@@ -401,6 +399,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 	ret->margins.y = fullSize.y - surf->h - margins.y;
 	ret->fullSize = fullSize;
 
+	// erase our own reference
+	SDL_FreeSurface(flipped);
+
 	return ret;
 }
 
@@ -418,6 +419,9 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;
 	ret->fullSize = fullSize;
+
+	// erase our own reference
+	SDL_FreeSurface(flipped);
 
 	return ret;
 }

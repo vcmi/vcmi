@@ -37,7 +37,7 @@
 				"effects" : {
 					"type" : "object",
 					"additionalProperties" : {
-						"$ref" : "bonus.json"
+						"$ref" : "bonusInstance.json"
 					}
 				}
 			}
