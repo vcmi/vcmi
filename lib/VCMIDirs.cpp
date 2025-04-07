@@ -99,7 +99,10 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
+
 		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
+		bfs::path getDefaultUserDataPath() const;
+
 		std::wstring utf8ToWstring(const std::string& str) const;
 		std::string pathToUtf8(const bfs::path& path) const;
 };
@@ -160,7 +163,7 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return bfs::path(raw);
 }
 
-static bfs::path getDefaultUserDataPath()
+bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
 	wchar_t profileDir[MAX_PATH];
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
