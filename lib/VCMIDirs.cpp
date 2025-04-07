@@ -133,7 +133,7 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 		return;
 	}
 
-	std::ifstream in(configPath.string(), std::ios::binary);
+	std::ifstream in(configPath.c_str(), std::ios::binary);
 	if (!in)
 	{
 		dirsConfig = std::nullopt;
