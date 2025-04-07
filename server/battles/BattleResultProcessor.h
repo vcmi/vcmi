@@ -47,10 +47,10 @@ struct FinishingBattleHelper
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
-	ObjectInstanceID winnerId = ObjectInstanceID::NONE, loserId = ObjectInstanceID::NONE;
+	ObjectInstanceID winnerId;
+	ObjectInstanceID loserId;
 	PlayerColor victor, loser;
 	BattleSide winnerSide;
-	std::vector<BulkMoveArtifacts> artifacts;
 
 	int remainingBattleQueriesCount;
 
@@ -61,7 +61,6 @@ struct FinishingBattleHelper
 		h & victor;
 		h & loser;
 		h & winnerSide;
-		h & artifacts;
 		h & remainingBattleQueriesCount;
 	}
 };
@@ -82,5 +81,5 @@ public:
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
-	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
+	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 };

@@ -33,7 +33,6 @@ class MapObjectVisitQuery final : public VisitQuery
 {
 public:
 	bool removeObjectAfterVisit;
-	bool removeVisitorAfterVisit;
 
 	MapObjectVisitQuery(CGameHandler * owner, const CGObjectInstance * Obj, const CGHeroInstance * Hero);
 

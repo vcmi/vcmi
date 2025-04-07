@@ -968,7 +968,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
+		const std::map<CreatureID,si32> casualties {}; //= battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;

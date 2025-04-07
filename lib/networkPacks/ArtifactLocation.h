@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
-#include <optional>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

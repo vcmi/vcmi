@@ -4098,11 +4098,6 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 				someVistQuery->removeObjectAfterVisit = true;
 				return;
 			}
-			else if(someVistQuery->visitingHero->id == id)
-			{
-				someVistQuery->removeVisitorAfterVisit = true;
-				return;
-			}
 		}
 	}
 

@@ -96,14 +96,18 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	struct HeroBattleResults
 	{
 		HeroBattleResults()
-			: army(ObjectInstanceID::NONE), exp(0) {}
+			: armyId(ObjectInstanceID::NONE)
+			, heroId(ObjectInstanceID::NONE)
+			, exp(0) {}
 
-		ObjectInstanceID army;
+		ObjectInstanceID heroId;
+		ObjectInstanceID armyId;
 		TExpType exp;
 
 		template <typename Handler> void serialize(Handler & h)
 		{
-			h & army;
+			h & armyId;
+			h & heroId;
 			h & exp;
 		}
 	};
@@ -424,7 +428,7 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	PlayerColor loser;
 	std::vector<BulkMoveArtifacts> artifacts;
 	void visitTyped(ICPackVisitor & visitor) override;
-	void applyGs(CGameState *gs) override {}
+	void applyGs(CGameState *gs) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
