@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "VCMIDirs.h"
-#include "../lib/json/JsonNode.h"
+#include "json/JsonNode.h"
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
