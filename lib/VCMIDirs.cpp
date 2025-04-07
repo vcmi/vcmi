@@ -24,7 +24,7 @@ namespace bfs = boost::filesystem;
 
 bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
 
-bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "saves"; }
+bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
 bfs::path IVCMIDirs::userExtractedPath() const { return userCachePath() / "extracted"; }
 
@@ -96,8 +96,6 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		std::string libraryName(const std::string& basename) const override;
 
-		void init() override;
-
 	protected:
 		mutable std::optional<JsonNode> dirsConfig;
 		void loadDirsJsonIfNeeded() const;
@@ -124,7 +122,6 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 
 	wchar_t currentPath[MAX_PATH];
 	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
-
 	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
 
 	if (!bfs::exists(configPath))
@@ -133,7 +130,7 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 		return;
 	}
 
-	std::ifstream in(configPath.c_str(), std::ios::binary);
+	std::ifstream in(configPath.wstring(), std::ios::binary);
 	if (!in)
 	{
 		dirsConfig = std::nullopt;
@@ -141,7 +138,13 @@ void VCMIDirsWIN32::loadDirsJsonIfNeeded() const
 	}
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = JsonNode(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), configPath.string());
+	std::wstring wstr = configPath.wstring();
+
+	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+	std::string utf8path(size - 1, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8path.data(), size, nullptr, nullptr);
+
+	dirsConfig = JsonNode(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), utf8path);
 }
 
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
@@ -164,16 +167,10 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return bfs::path(raw);
 }
 
-void VCMIDirsWIN32::init()
-{
-	// Call base (init dirs)
-	IVCMIDirs::init();
-}
-
 static bfs::path getDefaultUserDataPath()
 {
 	wchar_t profileDir[MAX_PATH];
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE))
+	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
 		return bfs::path(profileDir) / "My Games" / "vcmi";
 	return bfs::path(".");
 }
@@ -200,7 +197,7 @@ bfs::path VCMIDirsWIN32::userLogsPath() const
 
 bfs::path VCMIDirsWIN32::userSavePath() const
 {
-	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "saves"; });
+	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "Saves"; });
 }
 
 std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
