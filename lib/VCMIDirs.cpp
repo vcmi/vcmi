@@ -112,7 +112,7 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 	if (size_needed > 0)
 	{
 		result.resize(size_needed - 1);
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &result[0], size_needed);
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, result.data(), size_needed);
 	}
 	return result;
 }
