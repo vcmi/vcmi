@@ -78,13 +78,13 @@ void CConnection::sendPack(const CPack & pack)
 		throw std::runtime_error("Attempt to send packet on a closed connection!");
 
 	packWriter->buffer.clear();
-	serializer->saveRawPointer(&pack);
+	*serializer & &pack;
 
 	logNetwork->trace("Sending a pack of type %s", typeid(pack).name());
 
 	connectionPtr->sendPacket(packWriter->buffer);
 	packWriter->buffer.clear();
-	serializer->savedPointers.clear();
+	serializer->clear();
 }
 
 std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & data)
@@ -104,8 +104,7 @@ std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & 
 
 	auto packRawPtr = result.get();
 	logNetwork->trace("Received CPack of type %s", typeid(*packRawPtr).name());
-	deserializer->loadedPointers.clear();
-	deserializer->loadedSharedPointers.clear();
+	deserializer->clear();
 	return result;
 }
 
@@ -121,8 +120,8 @@ std::shared_ptr<INetworkConnection> CConnection::getConnection()
 
 void CConnection::enterLobbyConnectionMode()
 {
-	deserializer->loadedPointers.clear();
-	serializer->savedPointers.clear();
+	deserializer->clear();
+	serializer->clear();
 }
 
 void CConnection::setCallback(IGameCallback * cb)
