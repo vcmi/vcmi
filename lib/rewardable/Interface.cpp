@@ -108,7 +108,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 	for(const auto & entry : info.reward.secondary)
 	{
 		auto currentLevel = static_cast<MasteryLevel::Type>(hero->getSecSkillLevel(entry.first));
-		if(currentLevel == MasteryLevel::EXPERT)
+		if(currentLevel == MasteryLevel::EXPERT && entry.second != 0)
 			continue;
 
 		if(currentLevel != MasteryLevel::NONE || hero->canLearnSkill())
