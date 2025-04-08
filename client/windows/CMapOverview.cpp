@@ -36,6 +36,7 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 #include "../../lib/StartInfo.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

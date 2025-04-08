@@ -24,6 +24,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CArtHandler;
 class CGHeroInstance;
 class CMap;
+class CGameState;
 class CArtifactSet;
 class CArtifactInstance;
 class JsonSerializeFormat;
@@ -231,7 +232,7 @@ public:
 		h & artifactsWorn;
 	}
 
-	void artDeserializationFix(CBonusSystemNode *node);
+	void artDeserializationFix(CGameState * gs, CBonusSystemNode *node);
 
 	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map);
 	const CArtifactInstance * getCombinedArtWithPart(const ArtifactID & partId) const;

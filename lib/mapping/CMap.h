@@ -23,6 +23,7 @@ class CArtifactSet;
 class CGObjectInstance;
 class CGHeroInstance;
 class CCommanderInstance;
+class CGameState;
 class CGCreature;
 class CQuest;
 class CGTownInstance;
@@ -140,6 +141,8 @@ public:
 	CGObjectInstance * getObject(ObjectInstanceID obj);
 	const CGObjectInstance * getObject(ObjectInstanceID obj) const;
 
+	void attachToBonusSystem(CGameState * gs);
+
 	template<typename ObjectType = CGObjectInstance>
 	std::vector<const ObjectType *> getObjects() const
 	{
@@ -166,6 +169,16 @@ public:
 		return result;
 	}
 
+	std::vector<CArtifactInstance *> getArtifacts()
+	{
+		std::vector<CArtifactInstance *> result;
+		for (const auto & art : artInstances)
+			if (art)
+				result.push_back(art.get());
+
+		return result;
+	}
+
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
@@ -183,8 +196,7 @@ public:
 	CGHeroInstance * getHero(HeroTypeID heroId);
 
 	/// Returns ID's of all heroes that are currently present on map
-	/// All garrisoned heroes are included from this list
-	/// All prisons are excluded from this list
+	/// Includes all garrisoned and imprisoned heroes
 	const std::vector<ObjectInstanceID> & getHeroesOnMap();
 
 	/// Returns ID's of all towns present on map

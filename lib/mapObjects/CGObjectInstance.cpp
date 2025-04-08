@@ -380,16 +380,6 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-void CGObjectInstance::afterAddToMap(CMap * map)
-{
-	//nothing here
-}
-
-void CGObjectInstance::afterRemoveFromMap(CMap * map)
-{
-	//nothing here
-}
-
 void CGObjectInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//nothing here

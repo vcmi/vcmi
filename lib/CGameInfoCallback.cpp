@@ -910,7 +910,8 @@ const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
 {
-	return gameState()->getArtSet(loc);
+	auto gs = const_cast<CGameState*>(gameState());
+	return gs->getArtSet(loc);
 }
 
 std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player) const

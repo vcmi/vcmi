@@ -153,6 +153,34 @@ CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 	return *this;
 }
 
+void CArmedInstance::attachToBonusSystem(CGameState * gs)
+{
+	CArmedInstance::restoreBonusSystem(gs);
+}
+
+void CArmedInstance::restoreBonusSystem(CGameState * gs)
+{
+	whatShouldBeAttached().attachTo(whereShouldBeAttached(gs));
+
+	for(const auto & elem : stacks)
+		elem.second->artDeserializationFix(gs, elem.second.get());
+}
+
+void CArmedInstance::detachFromBonusSystem(CGameState * gs)
+{
+	whatShouldBeAttached().detachFrom(whereShouldBeAttached(gs));
+
+// TODO: the opposite
+//	for(const auto & elem : stacks)
+//		elem.second->artDeserializationFix(elem.second.get());
+}
+
+void CArmedInstance::attachUnitsToArmy()
+{
+	for(const auto & elem : stacks)
+		elem.second->attachTo(*getArmy());
+}
+
 const IBonusBearer* CArmedInstance::getBonusBearer() const
 {
 	return this;

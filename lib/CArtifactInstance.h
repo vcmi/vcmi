@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct ArtifactLocation;
+class CGameState;
 
 class DLL_LINKAGE CCombinedArtifactInstance : public GameCallbackHolder
 {
@@ -90,14 +91,18 @@ public:
 	bool isCombined() const;
 	bool isScroll() const;
 	
-	void deserializationFix();
+	void attachToBonusSystem(CGameState * gs);
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCombinedArtifactInstance&>(*this);
 		h & artTypeID;
 		h & id;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving && h.loadingGamestate)
+			setType(artTypeID.toArtifact());
+
 	}
 };
 

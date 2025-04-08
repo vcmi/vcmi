@@ -99,7 +99,6 @@ public:
 		h & spellResearchAllowed;
 		h & rewardableBuildings;
 		h & townAndVis;
-		BONUS_TREE_DESERIALIZATION_FIX
 
 		if(!h.saving)
 			postDeserialize();
@@ -109,7 +108,6 @@ public:
 	CBonusSystemNode & whatShouldBeAttached() override;
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
-	void deserializationFix();
 	void postDeserialize();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);

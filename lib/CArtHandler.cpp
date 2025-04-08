@@ -18,6 +18,7 @@
 #include "json/JsonBonus.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
+#include "gameState/CGameState.h"
 #include "mapping/CMap.h"
 #include "serializer/JsonSerializeFormat.h"
 #include "texts/CGeneralTextHandler.h"
@@ -947,11 +948,11 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 	return true; //no slot means not used
 }
 
-void CArtifactSet::artDeserializationFix(CBonusSystemNode *node)
+void CArtifactSet::artDeserializationFix(CGameState * gs, CBonusSystemNode *node)
 {
-	//for(auto & elem : artifactsWorn)
-	//	if(elem.second.getArt() && !elem.second.locked)
-	//		node->attachToSource(*elem.second.getArt());
+	for(auto & elem : artifactsWorn)
+		if(elem.second.artifactID.hasValue() && !elem.second.locked)
+			node->attachToSource(*gs->getArtInstance(elem.second.artifactID));
 }
 
 void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)

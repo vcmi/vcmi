@@ -14,6 +14,7 @@
 #include "ArtifactUtils.h"
 #include "CArtHandler.h"
 #include "IGameCallback.h"
+#include "gameState/CGameState.h"
 #include "networkPacks/ArtifactLocation.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -182,11 +183,10 @@ bool CArtifactInstance::isScroll() const
 	return getType()->isScroll();
 }
 
-void CArtifactInstance::deserializationFix()
+void CArtifactInstance::attachToBonusSystem(CGameState * gs)
 {
-//	setType(artTypeID.toArtifact());
-//	for(PartInfo & part : partsInfo)
-//		attachToSource(*part.getArtifact());
+	for(PartInfo & part : partsInfo)
+		attachToSource(*gs->getArtInstance(part.artifactID));
 }
 
 VCMI_LIB_NAMESPACE_END

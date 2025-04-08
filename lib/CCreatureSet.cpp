@@ -334,15 +334,6 @@ void CCreatureSet::addToSlot(const SlotID & slot, std::unique_ptr<CStackInstance
 	}
 }
 
-void CCreatureSet::deserializationFix()
-{
-	for(const auto & elem : stacks)
-	{
-		elem.second->attachTo(*getArmy());
-		elem.second->artDeserializationFix(elem.second.get());
-	}
-}
-
 bool CCreatureSet::validTypes(bool allowUnrandomized) const
 {
 	for(const auto & elem : stacks)

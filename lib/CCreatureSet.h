@@ -221,9 +221,6 @@ class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializ
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
 
-
-	void deserializationFix();
-
 public:
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
 	EArmyFormation formation = EArmyFormation::LOOSE; //0 - wide, 1 - tight
@@ -296,9 +293,6 @@ public:
 	{
 		h & stacks;
 		h & formation;
-
-		if(!h.saving)
-			deserializationFix();
 	}
 
 	void serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize = std::nullopt);

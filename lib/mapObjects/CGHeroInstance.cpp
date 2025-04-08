@@ -1323,17 +1323,38 @@ void CGHeroInstance::setBoat(CGBoat* newBoat)
 	newBoat->setBoardedHero(this);
 }
 
-void CGHeroInstance::deserializationFix()
+void CGHeroInstance::restoreBonusSystem(CGameState * gs)
 {
-	artDeserializationFix(this);
-	boatDeserializationFix();
+	CArmedInstance::restoreBonusSystem(gs);
+	artDeserializationFix(gs, this);
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs->getObjInstance(boardedBoat);
+		if (boat)
+			attachTo(dynamic_cast<CGBoat&>(*boat));
+	}
 }
 
-void CGHeroInstance::boatDeserializationFix()
+void CGHeroInstance::attachToBonusSystem(CGameState * gs)
 {
-//	auto boat = cb->gameState()->getObjInstance(boardedBoat);
-//	if (boat)
-//		attachTo(dynamic_cast<CGBoat&>(*boat));
+	CArmedInstance::attachToBonusSystem(gs);
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs->getObjInstance(boardedBoat);
+		if (boat)
+			attachTo(dynamic_cast<CGBoat&>(*boat));
+	}
+}
+
+void CGHeroInstance::detachFromBonusSystem(CGameState * gs)
+{
+	CArmedInstance::attachToBonusSystem(gs);
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs->getObjInstance(boardedBoat);
+		if (boat)
+			detachFrom(dynamic_cast<CGBoat&>(*boat));
+	}
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
@@ -1357,14 +1378,15 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
 {
-//	if(getVisitedTown())
-//	{
-//		if(isGarrisoned())
-//			return *getVisitedTown();
-//		else
-//			return getVisitedTown()->townAndVis;
-//	}
-//	else
+	if(visitedTown.hasValue())
+	{
+		auto town = gs->getTown(visitedTown);
+		if(isGarrisoned())
+			return *town;
+		else
+			return town->townAndVis;
+	}
+	else
 		return CArmedInstance::whereShouldBeAttached(gs);
 }
 

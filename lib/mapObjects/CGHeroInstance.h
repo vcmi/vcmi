@@ -319,8 +319,6 @@ public:
 	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
-	void boatDeserializationFix();
-	void deserializationFix();
 	void updateAppearance();
 
 	void pickRandomObject(vstd::RNG & rand) override;
@@ -333,6 +331,9 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
+	void attachToBonusSystem(CGameState * gs) override;
+	void detachFromBonusSystem(CGameState * gs) override;
+	void restoreBonusSystem(CGameState * gs) override;
 
 	void updateFrom(const JsonNode & data) override;
 
@@ -381,7 +382,6 @@ public:
 		h & boardedBoat;
 		h & commander;
 		h & visitedObjects;
-		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 

@@ -25,6 +25,12 @@ class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNo
 private:
 	BonusValueCache nonEvilAlignmentMix;
 
+	void attachUnitsToArmy();
+
+protected:
+	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
+	virtual CBonusSystemNode & whatShouldBeAttached();
+
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
@@ -38,9 +44,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
-//	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
-	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
-	virtual CBonusSystemNode & whatShouldBeAttached();
+
+	void attachToBonusSystem(CGameState * gs) override;
+	void detachFromBonusSystem(CGameState * gs) override;
+	void restoreBonusSystem(CGameState * gs) override;
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance(IGameCallback *cb);
@@ -60,6 +67,9 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CCreatureSet&>(*this);
+
+		if(!h.saving && h.loadingGamestate)
+			attachUnitsToArmy();
 	}
 };
 

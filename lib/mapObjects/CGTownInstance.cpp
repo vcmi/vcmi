@@ -274,7 +274,8 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	spellResearchAcceptedCounter(0),
 	spellResearchAllowed(true)
 {
-	this->setNodeType(CBonusSystemNode::TOWN);
+	setNodeType(CBonusSystemNode::TOWN);
+	attachTo(townAndVis);
 }
 
 CGTownInstance::~CGTownInstance() = default;
@@ -703,11 +704,6 @@ void CGTownInstance::updateAppearance()
 std::string CGTownInstance::nodeName() const
 {
 	return "Town (" + getTown()->faction->getNameTranslated() + ") of " + getNameTranslated();
-}
-
-void CGTownInstance::deserializationFix()
-{
-	attachTo(townAndVis);
 }
 
 void CGTownInstance::updateMoraleBonusFromArmy()
@@ -1255,7 +1251,6 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 
 void CGTownInstance::postDeserialize()
 {
-	setNodeType(CBonusSystemNode::TOWN);
 	for(auto & building : rewardableBuildings)
 		building.second->town = this;
 

@@ -602,6 +602,10 @@ void CGameState::initHeroes()
 		auto hero = getHero(heroID);
 		assert(map->isInTheMap(hero->visitablePos()));
 		const auto & tile = map->getTile(hero->visitablePos());
+
+		if (hero->ID == Obj::PRISON)
+			continue;
+
 		if (tile.isWater())
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
@@ -613,12 +617,6 @@ void CGameState::initHeroes()
 			map->addNewObject(boat);
 			hero->setBoat(boat.get());
 		}
-	}
-
-	for(auto hero : map->getObjects<CGHeroInstance>()) //prisons
-	{
-		if(hero->ID == Obj::PRISON)
-			hero->initHero(getRandomGenerator());
 	}
 
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
@@ -1562,19 +1560,21 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 void CGameState::buildBonusSystemTree()
 {
 	buildGlobalTeamPlayerTree();
-	attachArmedObjects();
+	for(auto & armed : map->getObjects<CArmedInstance>())
+		armed->attachToBonusSystem(this);
 
-	for (const auto & townID : getMap().getAllTowns())
-	{
-		auto t = getTown(townID);
-		t->deserializationFix();
-	}
+	for(auto & art : map->getArtifacts())
+		art->attachToBonusSystem(this);
 }
 
-void CGameState::deserializationFix()
+void CGameState::restoreBonusSystemTree()
 {
 	buildGlobalTeamPlayerTree();
-	attachArmedObjects();
+	for(auto & armed : map->getObjects<CArmedInstance>())
+		armed->restoreBonusSystem(this);
+
+	for(auto & art : map->getArtifacts())
+		art->attachToBonusSystem(this);
 
 	if (campaign)
 		campaign->setGamestate(this);
@@ -1593,14 +1593,6 @@ void CGameState::buildGlobalTeamPlayerTree()
 			assert(p);
 			p->attachTo(*t);
 		}
-	}
-}
-
-void CGameState::attachArmedObjects()
-{
-	for(auto & armed : map->getObjects<CArmedInstance>())
-	{
-		armed->whatShouldBeAttached().attachTo(armed->whereShouldBeAttached(this));
 	}
 }
 
@@ -1631,12 +1623,6 @@ std::set<HeroTypeID> CGameState::getUnusedAllowedHeroes(bool alsoIncludeNotAllow
 
 	for (auto heroID : map->getHeroesOnMap())
 		ret -= getHero(heroID)->getHeroTypeID();
-
-	for(auto hero : map->getObjects<CGHeroInstance>()) //prisons
-	{
-		if(hero && hero->ID == Obj::PRISON)
-			ret -= hero->getHeroTypeID();
-	}
 
 	return ret;
 }

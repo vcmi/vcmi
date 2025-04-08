@@ -1493,7 +1493,7 @@ void NewObject::applyGs(CGameState *gs)
 	// attach newly spawned wandering monster to global bonus system node
 	auto newArmy = std::dynamic_pointer_cast<CArmedInstance>(newObject);
 	if (newArmy)
-		newArmy->whatShouldBeAttached().attachTo(newArmy->whereShouldBeAttached(gs));
+		newArmy->attachToBonusSystem(gs);
 
 	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
@@ -1977,10 +1977,9 @@ void SetObjectProperty::applyGs(CGameState *gs)
 			}
 		}
 
-		CBonusSystemNode & nodeToMove = cai->whatShouldBeAttached();
-		nodeToMove.detachFrom(cai->whereShouldBeAttached(gs));
+		cai->detachFromBonusSystem(gs);
 		obj->setProperty(what, identifier);
-		nodeToMove.attachTo(cai->whereShouldBeAttached(gs));
+		cai->attachToBonusSystem(gs);
 	}
 	else //not an armed instance
 	{
@@ -2476,7 +2475,7 @@ ArtSlotInfo::ArtSlotInfo(const CArtifactInstance * artifact, bool locked)
 
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
-	if(locked)
+	if(locked || !artifactID.hasValue())
 		return nullptr;
 	return cb->getArtInstance(artifactID);
 }

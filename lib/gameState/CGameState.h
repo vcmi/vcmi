@@ -184,7 +184,8 @@ public:
 		h & allocatedArtifacts;
 		h & statistic;
 
-		BONUS_TREE_DESERIALIZATION_FIX
+		if(!h.saving && h.loadingGamestate)
+			restoreBonusSystemTree();
 	}
 
 private:
@@ -213,9 +214,8 @@ private:
 	// ----- bonus system handling -----
 
 	void buildBonusSystemTree();
-	void attachArmedObjects();
 	void buildGlobalTeamPlayerTree();
-	void deserializationFix();
+	void restoreBonusSystemTree();
 
 	// ---- misc helpers -----
 
