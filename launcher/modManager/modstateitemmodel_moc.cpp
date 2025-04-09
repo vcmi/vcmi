@@ -50,7 +50,8 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Graphical"),
 		QT_TR_NOOP("Expansion"),
 		QT_TR_NOOP("Creatures"),
-		QT_TR_NOOP("Compatibility") ,
+		QT_TR_NOOP("Compatibility"),
+		QT_TR_NOOP("Campaigns"),
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
 	};
