@@ -36,6 +36,8 @@ signals:
 private:
 	Ui::PlayerSelectionWidget *ui;
 	QMap<PlayerColor, QCheckBox*> colorCheckboxes;
+
+	void populateCheckboxes();
 };
 
 class PlayerSelectionDelegate : public BaseInspectorItemDelegate

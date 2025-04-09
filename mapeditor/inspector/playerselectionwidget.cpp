@@ -1,5 +1,6 @@
 #include "playerselectionwidget.h"
 #include "ui_playerselectionwidget.h"
+#include "lib/texts/MetaString.h"
 #include <QString>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -10,22 +11,10 @@ PlayerSelectionWidget::PlayerSelectionWidget(const std::set<PlayerColor>& curren
 	: QDialog(parent), ui(new Ui::PlayerSelectionWidget)
 {
     ui->setupUi(this);
-    colorCheckboxes = {
-        { PlayerColor::ALL_PLAYERS()[0], ui->checkBoxRed },
-        { PlayerColor::ALL_PLAYERS()[1], ui->checkBoxBlue },
-        { PlayerColor::ALL_PLAYERS()[2], ui->checkBoxTan },
-        { PlayerColor::ALL_PLAYERS()[3], ui->checkBoxGreen },
-        { PlayerColor::ALL_PLAYERS()[4], ui->checkBoxOrange },
-        { PlayerColor::ALL_PLAYERS()[5], ui->checkBoxPurple },
-        { PlayerColor::ALL_PLAYERS()[6], ui->checkBoxTeal },
-        { PlayerColor::ALL_PLAYERS()[7], ui->checkBoxPink }
-    };
+    populateCheckboxes();
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &PlayerSelectionWidget::editingFinished);
 	connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &PlayerSelectionWidget::cancelEditing);
-
-	// Initialize checkboxes
-	setSelectedPlayers(currentSelection);
 }
 
 PlayerSelectionWidget::~PlayerSelectionWidget()
@@ -49,6 +38,19 @@ void PlayerSelectionWidget::setSelectedPlayers(const std::set<PlayerColor>& play
             colorCheckboxes[*it]->setChecked(true);
 }
 
+void PlayerSelectionWidget::populateCheckboxes()
+{
+    for (const PlayerColor &color : PlayerColor::ALL_PLAYERS())
+    {
+        MetaString name;
+        name.appendName(color);
+
+        QCheckBox *box = new QCheckBox(QString::fromStdString(name.toString()), this);
+        ui->checkboxLayout->addWidget(box);
+        colorCheckboxes[color] = box;
+    }
+}
+
 PlayerSelectionDelegate::PlayerSelectionDelegate(std::set<PlayerColor>& p)
     : BaseInspectorItemDelegate(), colors(p) 
 {
@@ -64,6 +66,11 @@ QWidget* PlayerSelectionDelegate::createEditor(QWidget* parent, const QStyleOpti
         // Commit the data and close the editor when editing is done
         const_cast<PlayerSelectionDelegate*>(this)->commitData(editor);
         const_cast<PlayerSelectionDelegate*>(this)->closeEditor(editor);
+    });
+
+    connect(editor, &PlayerSelectionWidget::cancelEditing, this, [this, editor]() {
+        // Just close, no commit
+        const_cast<PlayerSelectionDelegate*>(this)->closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
     });
 
     return editor;
