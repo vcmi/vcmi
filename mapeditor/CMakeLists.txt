@@ -40,6 +40,7 @@ set(editor_SRCS
 		inspector/herospellwidget.cpp
 		inspector/PickObjectDelegate.cpp
 		inspector/portraitwidget.cpp
+		inspector/playerselectionwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 )
 
@@ -85,6 +86,7 @@ set(editor_HEADERS
 		inspector/PickObjectDelegate.h
 		inspector/portraitwidget.h
 		inspector/baseinspectoritemdelegate.h
+		inspector/playerselectionwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 )
@@ -118,6 +120,7 @@ set(editor_FORMS
 		inspector/heroskillswidget.ui
 		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
+		inspector/playerselectionwidget.ui
 )
 
 set(editor_RESOURCES
