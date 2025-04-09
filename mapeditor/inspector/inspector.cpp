@@ -607,7 +607,16 @@ void Inspector::setProperty(CGEvent * o, const QString & key, const QVariant & v
 		o->availableFor.clear();
 		const QStringList parts = value.toString().split(",", Qt::SkipEmptyParts);
 		for (const  QString &s : parts)
-			o->availableFor.insert(PlayerColor::ALL_PLAYERS()[PlayerColor::decode(s.toStdString())]);
+		{
+			auto colorStr = s.toStdString();
+			auto decoded = PlayerColor::decode(colorStr);
+
+			const auto &allPlayers = PlayerColor::ALL_PLAYERS();
+			if(std::find(allPlayers.begin(), allPlayers.end(), decoded) != allPlayers.end())
+				o->availableFor.insert(allPlayers[decoded]);
+			else
+				logGlobal->warn("Invalid player color string for allowedPlayers: %s", colorStr);
+		}
 	}
 }
 
