@@ -301,24 +301,41 @@ int TextOperations::getLevenshteinDistance(std::string_view s, std::string_view 
 	return v0[n];
 }
 
-DLL_LINKAGE std::string TextOperations::getLocaleName()
+DLL_LINKAGE const std::locale & TextOperations::getLocale()
 {
-	return Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
+    static std::locale loc;
+
+    const std::string & localeName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
+    try
+    {
+        loc = std::locale(localeName); // might fail on Android
+    }
+    catch (const std::exception & e)
+    {
+        logGlobal->warn("Failed to set locale '%s'. Falling back to 'en_US.UTF-8'", localeName);
+        try
+        {
+            loc = std::locale("en_US.UTF-8");
+        }
+        catch (...)
+        {
+            logGlobal->warn("Fallback locale 'en_US.UTF-8' failed. Using default 'C' locale.");
+            loc = std::locale::classic();
+        }
+    }
+    return loc;
 }
 
 DLL_LINKAGE bool TextOperations::compareLocalizedStrings(std::string_view str1, std::string_view str2)
 {
-	static const std::locale loc(getLocaleName());
-	static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
-
+    static const std::collate<char> & col = std::use_facet<std::collate<char>>(getLocale());
 	return col.compare(str1.data(), str1.data() + str1.size(),
 					   str2.data(), str2.data() + str2.size()) < 0;
 }
 
 std::optional<int> TextOperations::textSearchSimilarityScore(const std::string & s, const std::string & t)
 {
-	static const std::locale loc(getLocaleName());
-	static const std::collate<char> & col = std::use_facet<std::collate<char>>(loc);
+    static const std::collate<char> & col = std::use_facet<std::collate<char>>(getLocale());
 
 	auto haystack = col.transform(t.data(), t.data() + t.size());
 	auto needle = col.transform(s.data(), s.data() + s.size());
