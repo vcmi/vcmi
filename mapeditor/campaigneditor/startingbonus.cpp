@@ -21,6 +21,7 @@
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 StartingBonus::StartingBonus(PlayerColor color, std::shared_ptr<CMap> map, CampaignBonus bonus):
 	ui(new Ui::StartingBonus),
@@ -102,19 +103,23 @@ void StartingBonus::initControls()
 	for(auto const & objectPtr : LIBRARY->skillh->objects)
 		ui->comboBoxSecondarySkillSecondarySkill->addItem(QString::fromStdString(objectPtr->getNameTranslated()), QVariant(objectPtr->getId()));
 	
-	ui->comboBoxSecondarySkillMastery->addItem(tr("Basic"), QVariant(0));
-	ui->comboBoxSecondarySkillMastery->addItem(tr("Advanced"), QVariant(1));
-	ui->comboBoxSecondarySkillMastery->addItem(tr("Expert"), QVariant(2));
+	for(int i = 0; i < 3; i++) // Basic, Advanced, Expert
+		ui->comboBoxSecondarySkillMastery->addItem(QString::fromStdString(LIBRARY->generaltexth->translate("core.skilllev", i)), QVariant(i));
 
-	ui->comboBoxResourceResourceType->addItem(tr("Wood"), QVariant(EGameResID::WOOD));
-	ui->comboBoxResourceResourceType->addItem(tr("Mercury"), QVariant(EGameResID::MERCURY));
-	ui->comboBoxResourceResourceType->addItem(tr("Ore"), QVariant(EGameResID::ORE));
-	ui->comboBoxResourceResourceType->addItem(tr("Sulfur"), QVariant(EGameResID::SULFUR));
-	ui->comboBoxResourceResourceType->addItem(tr("Crystal"), QVariant(EGameResID::CRYSTAL));
-	ui->comboBoxResourceResourceType->addItem(tr("Gems"), QVariant(EGameResID::GEMS));
-	ui->comboBoxResourceResourceType->addItem(tr("Gold"), QVariant(EGameResID::GOLD));
-	ui->comboBoxResourceResourceType->addItem(tr("Common (Wood and Ore)"), QVariant(EGameResID::COMMON));
-	ui->comboBoxResourceResourceType->addItem(tr("Rare (Mercury, Sulfur, Crystal, Gems)"), QVariant(EGameResID::RARE));
+	for(auto & res : std::vector<EGameResID>({EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, EGameResID::GOLD}))
+		ui->comboBoxResourceResourceType->addItem(QString::fromStdString(MetaString::createFromName(res).toString()), QVariant(res));
+	ui->comboBoxResourceResourceType->addItem(
+		tr("Common (%1 and %2)")
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::WOOD).toString()))
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::ORE).toString()))
+		, QVariant(EGameResID::COMMON));
+	ui->comboBoxResourceResourceType->addItem(
+		tr("Rare (%1, %2, %3, %4)")
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::MERCURY).toString()))
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::SULFUR).toString()))
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::CRYSTAL).toString()))
+		.arg(QString::fromStdString(MetaString::createFromName(EGameResID::GEMS).toString()))
+		, QVariant(EGameResID::RARE));
 }
 
 void StartingBonus::loadBonus()

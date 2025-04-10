@@ -432,7 +432,7 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
 
-	if(!mapPieces.count(scenarioId) || !mapPieces.find(scenarioId)->second.size())
+	if(!mapPieces.count(scenarioId))
 		return nullptr;
 
 	const auto & mapContent = mapPieces.find(scenarioId)->second;

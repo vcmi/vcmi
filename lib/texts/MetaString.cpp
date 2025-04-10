@@ -39,6 +39,13 @@ MetaString MetaString::createFromTextID(const std::string & value)
 	return result;
 }
 
+MetaString MetaString::createFromName(const GameResID& id)
+{
+	MetaString result;
+	result.appendName(id);
+	return result;
+}
+
 void MetaString::appendLocalString(EMetaText type, ui32 serial)
 {
 	message.push_back(EMessage::APPEND_LOCAL_STRING);
