@@ -281,23 +281,21 @@ static const std::map<std::string, ui32> primarySkillsMap = {
 };
 
 static const std::map<std::string, ui16> heroSpecialMap = {
-	{"strongest", 0xFFFD},
-	{"generated", 0xFFFE},
-	{"random", 0xFFFF}
+	{"strongest", HeroTypeID::STRONGEST},
+	{"generated", HeroTypeID::GENERATED},
+	{"random", HeroTypeID::RANDOM}
 };
 
 static const std::map<std::string, ui8> resourceTypeMap = {
-	//FD - wood+ore
-	//FE - mercury+sulfur+crystal+gem
-	{"wood", 0},
-	{"mercury", 1},
-	{"ore", 2},
-	{"sulfur", 3},
-	{"crystal", 4},
-	{"gems", 5},
-	{"gold", 6},
-	{"common", 0xFD},
-	{"rare", 0xFE}
+	{"wood", EGameResID::WOOD},
+	{"mercury", EGameResID::MERCURY},
+	{"ore", EGameResID::ORE},
+	{"sulfur", EGameResID::SULFUR},
+	{"crystal", EGameResID::CRYSTAL},
+	{"gems", EGameResID::GEMS},
+	{"gold", EGameResID::GOLD},
+	{"common", EGameResID::COMMON},
+	{"rare", EGameResID::RARE}
 };
 
 CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)

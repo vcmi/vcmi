@@ -55,9 +55,9 @@ void StartingBonus::initControls()
 	for(auto & hero : map->heroesOnMap)
 		if(hero->getOwner() == color || color == PlayerColor::CANNOT_DETERMINE)
 			heroSelection.emplace(hero->getHeroTypeID(), hero->getNameTranslated());
-	heroSelection.emplace(0xFFFD, tr("Strongest").toStdString());
-	heroSelection.emplace(0xFFFE, tr("Generated").toStdString());
-	heroSelection.emplace(0xFFFF, tr("Random").toStdString());
+	heroSelection.emplace(HeroTypeID::STRONGEST, tr("Strongest").toStdString());
+	heroSelection.emplace(HeroTypeID::GENERATED, tr("Generated").toStdString());
+	heroSelection.emplace(HeroTypeID::RANDOM, tr("Random").toStdString());
 
 	for(auto & hero : heroSelection)
 	{
@@ -106,15 +106,15 @@ void StartingBonus::initControls()
 	ui->comboBoxSecondarySkillMastery->addItem(tr("Advanced"), QVariant(1));
 	ui->comboBoxSecondarySkillMastery->addItem(tr("Expert"), QVariant(2));
 
-	ui->comboBoxResourceResourceType->addItem(tr("Wood"), QVariant(0));
-	ui->comboBoxResourceResourceType->addItem(tr("Mercury"), QVariant(1));
-	ui->comboBoxResourceResourceType->addItem(tr("Ore"), QVariant(2));
-	ui->comboBoxResourceResourceType->addItem(tr("Sulfur"), QVariant(3));
-	ui->comboBoxResourceResourceType->addItem(tr("Crystal"), QVariant(4));
-	ui->comboBoxResourceResourceType->addItem(tr("Gems"), QVariant(5));
-	ui->comboBoxResourceResourceType->addItem(tr("Gold"), QVariant(6));
-	ui->comboBoxResourceResourceType->addItem(tr("Common (Wood and Ore)"), QVariant(0xFD));
-	ui->comboBoxResourceResourceType->addItem(tr("Rare (Mercury, Sulfur, Crystal, Gems)"), QVariant(0xFE));
+	ui->comboBoxResourceResourceType->addItem(tr("Wood"), QVariant(EGameResID::WOOD));
+	ui->comboBoxResourceResourceType->addItem(tr("Mercury"), QVariant(EGameResID::MERCURY));
+	ui->comboBoxResourceResourceType->addItem(tr("Ore"), QVariant(EGameResID::ORE));
+	ui->comboBoxResourceResourceType->addItem(tr("Sulfur"), QVariant(EGameResID::SULFUR));
+	ui->comboBoxResourceResourceType->addItem(tr("Crystal"), QVariant(EGameResID::CRYSTAL));
+	ui->comboBoxResourceResourceType->addItem(tr("Gems"), QVariant(EGameResID::GEMS));
+	ui->comboBoxResourceResourceType->addItem(tr("Gold"), QVariant(EGameResID::GOLD));
+	ui->comboBoxResourceResourceType->addItem(tr("Common (Wood and Ore)"), QVariant(EGameResID::COMMON));
+	ui->comboBoxResourceResourceType->addItem(tr("Rare (Mercury, Sulfur, Crystal, Gems)"), QVariant(EGameResID::RARE));
 }
 
 void StartingBonus::loadBonus()
@@ -280,11 +280,11 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 {
 	auto getHeroName = [](int id){
 		MetaString tmp;
-		if(id == 0xFFFD)
+		if(id == HeroTypeID::STRONGEST)
 			tmp.appendRawString(tr("strongest hero").toStdString());
-		else if(id == 0xFFFE)
+		else if(id == HeroTypeID::GENERATED)
 			tmp.appendRawString(tr("generated hero").toStdString());
-		else if(id == 0xFFFF)
+		else if(id == HeroTypeID::RANDOM)
 			tmp.appendRawString(tr("random hero").toStdString());
 		else
 			tmp.appendName(HeroTypeID(id));

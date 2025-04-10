@@ -69,7 +69,7 @@ namespace BitmapHandler
 			it = (int)size - 256 * 3;
 			for(int i = 0; i < 256; i++)
 			{
-				unsigned char bytes[4];
+				std::array<uint8_t, 4> bytes;
 				bytes[0] = pcx[it++];
 				bytes[1] = pcx[it++];
 				bytes[2] = pcx[it++];

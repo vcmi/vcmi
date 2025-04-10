@@ -102,9 +102,12 @@ public:
 	const HeroType * toEntity(const Services * services) const;
 
 	static const HeroTypeID NONE;
-	static const HeroTypeID RANDOM;
 	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
 	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
+
+	static const HeroTypeID STRONGEST;
+	static const HeroTypeID GENERATED;
+	static const HeroTypeID RANDOM;
 
 	bool isValid() const
 	{
@@ -1043,6 +1046,8 @@ public:
 		COUNT,
 
 		WOOD_AND_ORE = 127,  // special case for town bonus resource
+		COMMON = 0xFD, // campaign bonus
+		RARE = 0xFE, // campaign bonus
 		NONE = -1
 	};
 };

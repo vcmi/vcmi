@@ -271,13 +271,13 @@ void CBonusSelection::createBonusesIcons()
 
 			switch(bonDescs[i].info1)
 			{
-				case 0xFD: //wood + ore
+				case EGameResID::COMMON: //wood + ore
 				{
 					desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
 					picNumber = 7;
 					break;
 				}
-				case 0xFE: //wood + ore
+				case EGameResID::RARE : //mercury + sulfur + crystal + gems
 				{
 					desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
 					picNumber = 8;
@@ -305,7 +305,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-			if(bonDescs[i].info2 == 0xFFFF)
+			if(bonDescs[i].info2 == HeroTypeID::RANDOM)
 			{
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;

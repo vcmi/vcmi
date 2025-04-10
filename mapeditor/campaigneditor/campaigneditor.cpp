@@ -124,7 +124,7 @@ bool CampaignEditor::getAnswerAboutUnsavedChanges()
 void CampaignEditor::setTitle()
 {
 	QFileInfo fileInfo(filename);
-	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", VCMI_CAMP_EDITOR_NAME, GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(fileInfo.fileName(), unsaved ? "*" : "", tr("VCMI Campaign Editor"), GameConstants::VCMI_VERSION.c_str());
 	setWindowTitle(title);
 }
 
@@ -138,8 +138,9 @@ bool CampaignEditor::saveCampaign()
 {
 	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
 	{
-		QMessageBox::critical(nullptr, tr("Maps missing"), tr("Not all Regions have a map. Please add them in Scenario Properties."));
-		return false;
+		auto reply = QMessageBox::question(nullptr, tr("Maps missing"), tr("Not all regions have a map. Do you want to continue?"), QMessageBox::Yes|QMessageBox::No);
+		if (reply != QMessageBox::Yes)
+			return false;
 	}
 
 	Helper::saveCampaign(campaignState, filename);

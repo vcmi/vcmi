@@ -11,9 +11,6 @@
 
 #include "../Global.h"
 
-#define VCMI_EDITOR_NAME "VCMI Map Editor"
-#define VCMI_CAMP_EDITOR_NAME "VCMI Campaign Editor"
-
 #include <QtWidgets>
 #include <QStringList>
 #include <QSet>

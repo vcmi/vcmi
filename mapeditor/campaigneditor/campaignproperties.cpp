@@ -15,6 +15,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/json/JsonNode.h"
 
 CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignState):
 	ui(new Ui::CampaignProperties),
@@ -36,9 +37,12 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
 	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
 	
-	for (int i = 0; i < 20; i++)
+	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaign_regions.json"));
+	int legacyRegionNumber = legacyRegionConfig["campaign_regions"].Vector().size();
+
+	for (int i = 0; i < legacyRegionNumber; i++)
 		ui->comboBoxRegionPreset->insertItem(i, QString::fromStdString(LIBRARY->generaltexth->translate("core.camptext.names", i)));
-	ui->comboBoxRegionPreset->insertItem(20, tr("Custom"));
+	ui->comboBoxRegionPreset->insertItem(legacyRegionNumber, tr("Custom"));
 	ui->comboBoxRegionPreset->setCurrentIndex(20);
 
 	loadRegion();
