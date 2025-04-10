@@ -291,13 +291,13 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, cb, getRandomGenerator().nextInt());
 		progressTracking.include(mapGenerator);
 
-		std::unique_ptr<CMap> randomMap = mapGenerator.generate();
+		map = mapGenerator.generate();
 		progressTracking.exclude(mapGenerator);
 
 		// Update starting options
-		for(int i = 0; i < randomMap->players.size(); ++i)
+		for(int i = 0; i < map->players.size(); ++i)
 		{
-			const auto & playerInfo = randomMap->players[i];
+			const auto & playerInfo = map->players[i];
 			if(playerInfo.canAnyonePlay())
 			{
 				PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
@@ -330,9 +330,9 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 				const std::string fileName = boost::str(boost::format("%s_%s.vmap") % dt % templateName );
 				const auto fullPath = path / fileName;
 
-				randomMap->name.appendRawString(boost::str(boost::format(" %s") % dt));
+				map->name.appendRawString(boost::str(boost::format(" %s") % dt));
 
-				mapService->saveMap(randomMap, fullPath);
+				mapService->saveMap(map, fullPath);
 
 				logGlobal->info("Random map has been saved to:");
 				logGlobal->info(fullPath.string());
@@ -343,7 +343,6 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 			}
 		}
 
-		map = std::move(randomMap);
 
 		logGlobal->info("Generated random map in %i ms.", sw.getDiff());
 	}
@@ -631,9 +630,11 @@ void CGameState::initHeroes()
 			auto newHeroPtr = std::make_shared<CGHeroInstance>(cb);
 			newHeroPtr->subID = htype.getNum();
 			map->addToHeroPool(newHeroPtr);
+			map->generateUniqueInstanceName(newHeroPtr.get());
 			heroInPool = newHeroPtr.get();
 		}
 		heroInPool->initHero(getRandomGenerator());
+		heroesPool->addHeroToPool(htype);
 	}
 
 	for(auto & elem : map->disposedHeroes)

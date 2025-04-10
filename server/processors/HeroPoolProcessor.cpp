@@ -109,7 +109,9 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.slotID = slot;
 	sah.replenishPoints = true;
 
-	CGHeroInstance *newHero = (nextHero == HeroTypeID::NONE) ? pickHeroFor(needNativeHero, color) : gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero];
+	CGHeroInstance *newHero = nextHero.hasValue()?
+		gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero]:
+		pickHeroFor(needNativeHero, color);
 
 	if (newHero)
 	{

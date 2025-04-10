@@ -517,7 +517,11 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
 
-	objects.emplace_back(obj);
+	if (obj->id == ObjectInstanceID(objects.size()))
+		objects.emplace_back(obj);
+	else
+		objects[obj->id.getNum()] = obj;
+
 	instanceNames[obj->instanceName] = obj;
 	addBlockVisTiles(obj.get());
 
@@ -540,17 +544,34 @@ std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 
 	removeBlockVisTiles(obj.get());
 	instanceNames.erase(obj->instanceName);
+	obj->afterRemoveFromMap(this);
 
 	//update indices
 
 	auto iter = std::next(objects.begin(), obj->id.getNum());
 	iter = objects.erase(iter);
-	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
-	{
-		(*iter)->id = ObjectInstanceID(i);
-	}
 
-	obj->afterRemoveFromMap(this);
+	for(int i = obj->id.getNum(); iter != objects.end(); ++i, ++iter)
+		(*iter)->id = ObjectInstanceID(i);
+
+	for (auto & town : towns)
+		if (town.getNum() >= obj->id)
+			town = ObjectInstanceID(town.getNum()-1);
+
+	for (auto & hero : heroesOnMap)
+		if (hero.getNum() >= obj->id)
+			hero = ObjectInstanceID(hero.getNum()-1);
+
+	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	{
+		for (auto & objectID : tile->blockingObjects)
+			if (objectID.getNum() >= obj->id)
+				objectID = ObjectInstanceID(objectID.getNum()-1);
+
+		for (auto & objectID : tile->visitableObjects)
+			if (objectID.getNum() >= obj->id)
+				objectID = ObjectInstanceID(objectID.getNum()-1);
+	}
 
 	//TODO: Clean artifact instances (mostly worn by hero?) and quests related to this object
 	//This causes crash with undo/redo in editor
@@ -718,6 +739,8 @@ void CMap::reindexObjects()
 {
 	// Only reindex at editor / RMG operations
 
+	auto oldIndex = objects;
+
 	std::sort(objects.begin(), objects.end(), [](const auto & lhs, const auto & rhs)
 	{
 		// Obstacles first, then visitable, at the end - removable
@@ -743,8 +766,21 @@ void CMap::reindexObjects()
 
 	// instanceNames don't change
 	for (size_t i = 0; i < objects.size(); ++i)
-	{
 		objects[i]->id = ObjectInstanceID(i);
+
+	for (auto & town : towns)
+		town = oldIndex.at(town.getNum())->id;
+
+	for (auto & hero : heroesOnMap)
+		hero = oldIndex.at(hero.getNum())->id;
+
+	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	{
+		for (auto & objectID : tile->blockingObjects)
+			objectID = oldIndex.at(objectID.getNum())->id;
+
+		for (auto & objectID : tile->visitableObjects)
+			objectID = oldIndex.at(objectID.getNum())->id;
 	}
 }
 

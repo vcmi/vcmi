@@ -1433,16 +1433,11 @@ void HeroRecruited::applyGs(CGameState *gs)
 	h->pos = tile;
 	h->updateAppearance();
 
-	assert(h->id == ObjectInstanceID());
-	if(h->id == ObjectInstanceID())
-	{
-		gs->getMap().addNewObject(h);
-	}
-	else
-		gs->getMap().replaceObject(h->id, h);
+	assert(h->id.hasValue());
+	gs->getMap().addNewObject(h);
 
 	p->addOwnedObject(h.get());
-	h->attachTo(*p);
+	h->attachToBonusSystem(gs);
 
 	if(t)
 		t->setVisitingHero(h.get());
