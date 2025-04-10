@@ -412,7 +412,7 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 void ScenarioProperties::on_pushButtonRemove_clicked()
 {
 	campaignState->mapPieces.erase(scenario);
-	campaignState->scenarios.at(scenario).mapName = "";
+	campaignState->scenarios.at(scenario) = CampaignScenario();
 	reloadMapRelatedUi();
 }
 
