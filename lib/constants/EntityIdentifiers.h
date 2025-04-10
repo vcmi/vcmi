@@ -102,12 +102,13 @@ public:
 	const HeroType * toEntity(const Services * services) const;
 
 	static const HeroTypeID NONE;
+	static const HeroTypeID RANDOM;
 	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
 	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
 
-	static const HeroTypeID STRONGEST;
-	static const HeroTypeID GENERATED;
-	static const HeroTypeID RANDOM;
+	static const HeroTypeID CAMP_STRONGEST;
+	static const HeroTypeID CAMP_GENERATED;
+	static const HeroTypeID CAMP_RANDOM;
 
 	bool isValid() const
 	{

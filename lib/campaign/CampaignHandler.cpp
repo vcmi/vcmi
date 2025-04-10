@@ -281,9 +281,9 @@ static const std::map<std::string, ui32> primarySkillsMap = {
 };
 
 static const std::map<std::string, ui16> heroSpecialMap = {
-	{"strongest", HeroTypeID::STRONGEST},
-	{"generated", HeroTypeID::GENERATED},
-	{"random", HeroTypeID::RANDOM}
+	{"strongest", HeroTypeID::CAMP_STRONGEST},
+	{"generated", HeroTypeID::CAMP_GENERATED},
+	{"random", HeroTypeID::CAMP_RANDOM}
 };
 
 static const std::map<std::string, ui8> resourceTypeMap = {

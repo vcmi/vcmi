@@ -53,11 +53,12 @@ const BattleID BattleID::NONE(-1);
 const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
+const HeroTypeID HeroTypeID::RANDOM(-2);
 const HeroTypeID HeroTypeID::GEM(27);
 const HeroTypeID HeroTypeID::SOLMYR(45);
-const HeroTypeID HeroTypeID::STRONGEST(0xFFFD);
-const HeroTypeID HeroTypeID::GENERATED(0xFFFE);
-const HeroTypeID HeroTypeID::RANDOM(0xFFFF);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(0xFFFD);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(0xFFFE);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(0xFFFF);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 

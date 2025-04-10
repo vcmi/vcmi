@@ -56,9 +56,9 @@ void StartingBonus::initControls()
 	for(auto & hero : map->heroesOnMap)
 		if(hero->getOwner() == color || color == PlayerColor::CANNOT_DETERMINE)
 			heroSelection.emplace(hero->getHeroTypeID(), hero->getNameTranslated());
-	heroSelection.emplace(HeroTypeID::STRONGEST, tr("Strongest").toStdString());
-	heroSelection.emplace(HeroTypeID::GENERATED, tr("Generated").toStdString());
-	heroSelection.emplace(HeroTypeID::RANDOM, tr("Random").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_STRONGEST, tr("Strongest").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_GENERATED, tr("Generated").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_RANDOM, tr("Random").toStdString());
 
 	for(auto & hero : heroSelection)
 	{
@@ -285,11 +285,11 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 {
 	auto getHeroName = [](int id){
 		MetaString tmp;
-		if(id == HeroTypeID::STRONGEST)
+		if(id == HeroTypeID::CAMP_STRONGEST)
 			tmp.appendRawString(tr("strongest hero").toStdString());
-		else if(id == HeroTypeID::GENERATED)
+		else if(id == HeroTypeID::CAMP_GENERATED)
 			tmp.appendRawString(tr("generated hero").toStdString());
-		else if(id == HeroTypeID::RANDOM)
+		else if(id == HeroTypeID::CAMP_RANDOM)
 			tmp.appendRawString(tr("random hero").toStdString());
 		else
 			tmp.appendName(HeroTypeID(id));

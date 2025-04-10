@@ -112,9 +112,9 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	{
 		heroSelection.emplace(hero->getId().getNum(), hero->getNameTranslated());
 	});
-	heroSelection.emplace(HeroTypeID::STRONGEST, tr("Strongest").toStdString());
-	heroSelection.emplace(HeroTypeID::GENERATED, tr("Generated").toStdString());
-	heroSelection.emplace(HeroTypeID::RANDOM, tr("Random").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_STRONGEST, tr("Strongest").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_GENERATED, tr("Generated").toStdString());
+	heroSelection.emplace(HeroTypeID::CAMP_RANDOM, tr("Random").toStdString());
 
 	reloadMapRelatedUi();
 

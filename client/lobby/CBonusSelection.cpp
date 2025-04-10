@@ -305,7 +305,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-			if(bonDescs[i].info2 == HeroTypeID::RANDOM)
+			if(bonDescs[i].info2 == HeroTypeID::CAMP_RANDOM)
 			{
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;
