@@ -33,7 +33,7 @@ namespace TextOperations
 	bool DLL_LINKAGE isValidASCII(const char * data, size_t size);
 
 	/// test if text contains valid UTF-8 sequence
-	bool DLL_LINKAGE isValidUnicodeString(const std::string & text);
+	bool DLL_LINKAGE isValidUnicodeString(std::string_view text);
 	bool DLL_LINKAGE isValidUnicodeString(const char * data, size_t size);
 
 	/// converts text to UTF-8 from specified encoding or from one specified in settings
@@ -47,7 +47,7 @@ namespace TextOperations
 	DLL_LINKAGE void trimRightUnicode(std::string & text, size_t amount = 1);
 
 	/// give back amount of unicode characters
-	size_t DLL_LINKAGE getUnicodeCharactersCount(const std::string & text);
+	size_t DLL_LINKAGE getUnicodeCharactersCount(std::string_view text);
 
 	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
 	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
@@ -75,9 +75,6 @@ namespace TextOperations
 	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
 	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
-
-    /// Retrieves the locale based on the selected (in config) game language.
-    DLL_LINKAGE const std::locale & getLocale();
 
 	/// Compares two strings using locale-aware collation based on the selected game language.
 	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
