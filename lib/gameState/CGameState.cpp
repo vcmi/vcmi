@@ -577,7 +577,6 @@ void CGameState::removeHeroPlaceholders()
 	for(auto obj : map->getObjects<CGHeroPlaceholder>())
 	{
 		map->removeBlockVisTiles(obj, true);
-		map->instanceNames.erase(obj->instanceName);
 		map->eraseObject(obj->id);
 	}
 }
@@ -623,20 +622,18 @@ void CGameState::initHeroes()
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
-		auto vhi = map->tryTakeFromHeroPool(htype);
+		CGHeroInstance * heroInPool = map->tryGetFromHeroPool(htype);
 
-		if (vhi)
+		// some heroes are created as part of map loading (sod+ h3m maps)
+		// instances for h3 heroes from roe/ab h3m maps and heroes from mods at this point don't exist -> create them
+		if (!heroInPool)
 		{
-			vhi->initHero(getRandomGenerator());
+			auto newHeroPtr = std::make_shared<CGHeroInstance>(cb);
+			newHeroPtr->subID = htype.getNum();
+			map->addToHeroPool(newHeroPtr);
+			heroInPool = newHeroPtr.get();
 		}
-		else
-		{
-			vhi = std::make_shared<CGHeroInstance>(cb);
-			vhi->initHero(getRandomGenerator(), htype);
-		}
-
-		map->addToHeroPool(vhi);
-		heroesPool->addHeroToPool(vhi->getHeroTypeID());
+		heroInPool->initHero(getRandomGenerator());
 	}
 
 	for(auto & elem : map->disposedHeroes)

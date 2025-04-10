@@ -164,7 +164,7 @@ public:
 	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request
 
-	void battleStarted(const BattleInfo * info);
+	void battleStarted(const BattleID & battle);
 	void battleFinished(const BattleID & battleID);
 	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 

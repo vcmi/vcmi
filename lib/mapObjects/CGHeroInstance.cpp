@@ -1317,10 +1317,19 @@ CGBoat * CGHeroInstance::getBoat()
 
 void CGHeroInstance::setBoat(CGBoat* newBoat)
 {
-	assert(newBoat);
-	boardedBoat = newBoat->id;
-	attachTo(*newBoat);
-	newBoat->setBoardedHero(this);
+	if (newBoat)
+	{
+		boardedBoat = newBoat->id;
+		attachTo(*newBoat);
+		newBoat->setBoardedHero(this);
+	}
+	else if (boardedBoat.hasValue())
+	{
+		auto oldBoat = getBoat();
+		boardedBoat = {};
+		detachFrom(*oldBoat);
+		oldBoat->setBoardedHero(nullptr);
+	}
 }
 
 void CGHeroInstance::restoreBonusSystem(CGameState * gs)
@@ -1348,7 +1357,7 @@ void CGHeroInstance::attachToBonusSystem(CGameState * gs)
 
 void CGHeroInstance::detachFromBonusSystem(CGameState * gs)
 {
-	CArmedInstance::attachToBonusSystem(gs);
+	CArmedInstance::detachFromBonusSystem(gs);
 	if (boardedBoat.hasValue())
 	{
 		auto boat = gs->getObjInstance(boardedBoat);

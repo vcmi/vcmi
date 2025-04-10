@@ -581,6 +581,7 @@ std::shared_ptr<CGObjectInstance> CMap::eraseObject(ObjectInstanceID oldObjectID
 {
 	auto oldObject = objects.at(oldObjectID.getNum());
 
+	instanceNames.erase(oldObject->instanceName);
 	objects.at(oldObjectID) = nullptr;
 	removeBlockVisTiles(oldObject.get(), true);
 	oldObject->afterRemoveFromMap(this);
@@ -849,6 +850,13 @@ void CMap::addToHeroPool(std::shared_ptr<CGHeroInstance> hero)
 	assert(heroesPool.at(hero->getHeroTypeID().getNum()) == nullptr);
 
 	heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
+
+	if (!hero->id.hasValue())
+	{
+		// reserve ID for this new hero, if needed (but don't actually add it since hero is not present on map)
+		hero->id = ObjectInstanceID(objects.size());
+		objects.push_back(nullptr);
+	}
 }
 
 CGHeroInstance * CMap::tryGetFromHeroPool(HeroTypeID hero)

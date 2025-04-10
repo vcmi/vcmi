@@ -4263,6 +4263,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 	auto o = handler->create(gameState()->cb, nullptr);
 	handler->configureObject(o.get(), getRandomGenerator());
 	assert(o->ID == objectID);
+	gameState()->getMap().generateUniqueInstanceName(o.get());
 
 	assert(!handler->getTemplates(terrainType).empty());
 	if (handler->getTemplates().empty())

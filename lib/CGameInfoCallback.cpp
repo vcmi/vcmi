@@ -443,16 +443,6 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 {
 	return isVisible(obj, getPlayerID());
 }
-// const CCreatureSet* CInfoCallback::getGarrison(const CGObjectInstance *obj) const
-// {
-// 	//std::shared_lock<std::shared_mutex> lock(*gameState()->mx);
-// 	if()
-// 	const CArmedInstance *armi = dynamic_cast<const CArmedInstance*>(obj);
-// 	if(!armi)
-// 		return nullptr;
-// 	else
-// 		return armi;
-// }
 
 std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
 {
@@ -473,7 +463,9 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getVisitableObjs(int3 
 
 	for(const auto & objID : t->visitableObjects)
 	{
-		const auto & object = getObj(objID);
+		const auto & object = getObj(objID, false);
+		if (!object)
+			continue; // event - visitable, but not visible
 
 		if(!getPlayerID().has_value() || object->ID != Obj::EVENT) //hide events from players
 			ret.push_back(object);

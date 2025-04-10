@@ -214,6 +214,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			CRandomGenerator rng;
 			auto visitablePos = town->visitablePos();
 			
+			townHero->id = town->id;
 			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
 			townHero->initHero(rng, static_cast<HeroTypeID>(0));
 			townHero->pos = townHero->convertFromVisitablePos(visitablePos);

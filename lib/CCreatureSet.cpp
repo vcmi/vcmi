@@ -516,6 +516,7 @@ void CCreatureSet::putStack(const SlotID & slot, std::unique_ptr<CStackInstance>
 {
 	assert(slot.getNum() < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
+
 	stacks[slot] = std::move(stack);
 	stacks[slot]->setArmy(getArmy());
 	armyChanged();

@@ -1246,7 +1246,7 @@ void RemoveObject::applyGs(CGameState *gs)
 		}
 	}
 
-	gs->getMap().instanceNames.erase(obj->instanceName);
+
 	gs->getMap().eraseObject(objectID);
 	gs->getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
@@ -1322,17 +1322,13 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->setBoat(boat);
-		h->attachTo(*boat);
-		boat->setBoardedHero(h);
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
 	{
 		auto * b = h->getBoat();
 		b->direction = h->moveDir;
 		b->pos = start;
-		b->setBoardedHero(nullptr);
 		gs->getMap().addBlockVisTiles(b);
-		h->detachFrom(*b);
 		h->setBoat(nullptr);
 	}
 

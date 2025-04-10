@@ -20,6 +20,7 @@ class CGHeroInstance;
 class MapReaderH3M;
 class MetaString;
 class CArtifactInstance;
+class CArmedInstance;
 class CGObjectInstance;
 class CGSeerHut;
 class IQuestObject;
@@ -192,14 +193,14 @@ private:
 	std::shared_ptr<CGObjectInstance> readMonster(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 	std::shared_ptr<CGObjectInstance> readHero(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
 	std::shared_ptr<CGObjectInstance> readSeerHut(const int3 & initialPos, const ObjectInstanceID & idToBeGiven);
-	std::shared_ptr<CGObjectInstance> readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readTown(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
 	std::shared_ptr<CGObjectInstance> readSign(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readWitchHut(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readScholar(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readGarrison(const int3 & mapPosition);
-	std::shared_ptr<CGObjectInstance> readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	std::shared_ptr<CGObjectInstance> readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
-	std::shared_ptr<CGObjectInstance> readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
+	std::shared_ptr<CGObjectInstance> readGarrison(const int3 & mapPosition, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readArtifact(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readScroll(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
+	std::shared_ptr<CGObjectInstance> readResource(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl, const ObjectInstanceID & idToBeGiven);
 	std::shared_ptr<CGObjectInstance> readMine(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readAbandonedMine(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
@@ -225,7 +226,7 @@ private:
 	 * @param out the loaded creature set
 	 * @param number the count of creatures to read
 	 */
-	void readCreatureSet(CCreatureSet * out, int number);
+	void readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven);
 
 	void readBoxContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
 	void readBoxHotaContent(CGPandoraBox * object, const int3 & position, const ObjectInstanceID & idToBeGiven);
@@ -249,7 +250,7 @@ private:
 	/**
 	* read optional message and optional guards
 	*/
-	void readMessageAndGuards(MetaString & message, CCreatureSet * guards, const int3 & position);
+	void readMessageAndGuards(MetaString & message, CArmedInstance * guards, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();

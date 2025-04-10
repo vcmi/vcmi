@@ -769,20 +769,17 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
-		assert(p);
-		h->detachFrom(*p);
-		h->attachTo(townAndVis);
+		h->detachFromBonusSystem(cb->gameState());
 		h->setVisitedTown(this, false);
+		h->attachToBonusSystem(cb->gameState());
 		visitingHero = h->id;
 	}
-	else
+	else if (visitingHero.hasValue())
 	{
 		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState()->getObjInstance(visitingHero));
-		PlayerState *p = cb->gameState()->getPlayerState(getVisitingHero()->tempOwner);
+		oldVisitor->detachFromBonusSystem(cb->gameState());
 		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->detachFrom(townAndVis);
-		oldVisitor->attachTo(*p);
+		oldVisitor->attachToBonusSystem(cb->gameState());
 		visitingHero = {};
 	}
 }
@@ -794,20 +791,17 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
-		assert(p);
-		h->detachFrom(*p);
-		h->attachTo(*this);
+		h->detachFromBonusSystem(cb->gameState());
 		h->setVisitedTown(this, true);
+		h->attachToBonusSystem(cb->gameState());
 		garrisonHero = h->id;
 	}
-	else
+	else if (garrisonHero.hasValue())
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(getGarrisonHero()->tempOwner);
-		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState()->getObjInstance(visitingHero));
+		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState()->getObjInstance(garrisonHero));
+		oldVisitor->detachFromBonusSystem(cb->gameState());
 		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->detachFrom(*this);
-		oldVisitor->attachTo(*p);
+		oldVisitor->attachToBonusSystem(cb->gameState());
 		garrisonHero = {};
 	}
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice

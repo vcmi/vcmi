@@ -371,8 +371,10 @@ int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 	return requestID;
 }
 
-void CClient::battleStarted(const BattleInfo * info)
+void CClient::battleStarted(const BattleID & battleID)
 {
+	const BattleInfo * info = gameState()->getBattle(battleID);
+
 	std::shared_ptr<CPlayerInterface> att;
 	std::shared_ptr<CPlayerInterface> def;
 	const auto & leftSide = info->getSide(BattleSide::LEFT_SIDE);
