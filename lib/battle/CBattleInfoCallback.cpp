@@ -325,7 +325,7 @@ BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * 
 	for (const BattleHex & tile : at.hostileCreaturePositions)
 	{
 		const auto * st = battleGetUnitByPos(tile, true);
-		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedHexes.insert(tile);
 		}
@@ -1347,7 +1347,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
 				const auto * st = battleGetUnitByPos(tile, true);
-				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
+				if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
 					at.hostileCreaturePositions.insert(tile);
 			}
 		}
@@ -1488,7 +1488,7 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
-		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedCres.insert(st);
 		}
