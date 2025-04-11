@@ -166,15 +166,21 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _
 
 ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
-	//TODO: proper selector config with parsing of JSON
-	auto mySelector = Selector::type()(type);
+	boost::container::static_vector<CSelector, 4> selectorSegments;
 
+	if (type != BonusType::NONE)
+		selectorSegments.push_back(Selector::type()(type));
 	if(isSubtypeRelevant)
-		mySelector = mySelector.And(Selector::subtype()(subtype));
+		selectorSegments.push_back(Selector::subtype()(subtype));
 	if(isSourceRelevant && isSourceIDRelevant)
-		mySelector = mySelector.And(Selector::source(source, sid));
+		selectorSegments.push_back(Selector::source(source, sid));
 	else if (isSourceRelevant)
-		mySelector = mySelector.And(Selector::sourceTypeSel(source));
+		selectorSegments.push_back(Selector::sourceTypeSel(source));
+
+	auto mySelector = selectorSegments.empty() ? Selector::none : selectorSegments[0];
+
+	for (size_t i = 1; i <selectorSegments.size(); ++i)
+		mySelector = mySelector.And(selectorSegments[i]);
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))

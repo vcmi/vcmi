@@ -63,20 +63,27 @@ Usage:
 
 Remark: The stack level for war machines is 0.
 
-## ARMY_MOVEMENT
+## DIVIDE_STACK_LEVEL
 
-- Type: Complex
-- Parameters: basePerSpeed, dividePerSpeed, additionalMultiplier, maxValue
-- Effect: Updates val to `val+= max((floor(basePerSpeed / dividePerSpeed) * additionalMultiplier), maxValue)`
-- Remark: this updater is designed for MOVEMENT bonus to match H3 army movement rules (in the example - actual movement updater, which produces values same as in default movement.txt).
-- Example:
+- Type: Simple
+- Effect: Updates val to `val / stackLevel`
 
-```json
-"updater" : {
-    "parameters" : [ 20, 3, 10, 700 ],
-    "type" : "ARMY_MOVEMENT"
-}
-```
+Usage:
+
+`"updater" : "DIVIDE_STACK_LEVEL"`
+
+Remark: The stack level for war machines is 0.
+
+## TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL
+
+- Type: Simple
+- Effect: Same effect as `TIMES_HERO_LEVEL` combined with `DIVIDE_STACK_LEVEL`: `val * heroLevel / stackLevel`
+
+Intended to be used as hero bonus (such as specialty, skill, or artifact), for bonuses that affect units (Example: Adela Bless specialty)
+
+Usage:
+
+`"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL"`
 
 ## BONUS_OWNER_UPDATER
 

@@ -104,7 +104,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<TimesHeroLevelUpdater>(44);
 	s.template registerType<TimesStackLevelUpdater>(45);
 	s.template registerType<OwnerUpdater>(46);
-	s.template registerType<ArmyMovementUpdater>(47);
 	s.template registerType<ILimiter>(48);
 	s.template registerType<AnyOfLimiter>(49);
 	s.template registerType<NoneOfLimiter>(50);
@@ -294,6 +293,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetResearchedSpells>(242);
 	s.template registerType<SaveLocalState>(243);
 	s.template registerType<LobbyDelete>(244);
+	s.template registerType<TimesHeroLevelDivideStackLevelUpdater>(245);
+	s.template registerType<DivideStackLevelUpdater>(246);
 }
 
 VCMI_LIB_NAMESPACE_END
