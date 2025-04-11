@@ -125,7 +125,6 @@ public:
 class DLL_LINKAGE OwnerUpdater : public IUpdater
 {
 protected:
-	std::mutex mutex;
 	PlayerColor owner;
 
 public:

@@ -200,7 +200,6 @@ JsonNode OwnerUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
-	std::lock_guard lock(mutex);
 	owner = context.getOwner();
 	
 	if(owner == PlayerColor::UNFLAGGABLE)
