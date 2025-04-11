@@ -34,6 +34,10 @@ CampaignEditor::CampaignEditor():
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
 	ui->actionScenarioProperties->setIcon(QIcon{":/icons/menu-settings.png"});
 	ui->actionCampaignProperties->setIcon(QIcon{":/icons/menu-mods.png"});
+	ui->actionShowFullBackground->setIcon(QIcon{":/icons/tool-area.png"});
+
+	ui->actionShowFullBackground->setCheckable(true);
+	connect(ui->actionShowFullBackground, &QAction::triggered, [this](){ redraw(); });
 
 	campaignScene.reset(new CampaignScene());
 	ui->campaignView->setScene(campaignScene.get());
@@ -65,6 +69,8 @@ void CampaignEditor::redraw()
 	campaignScene->clear();
 
 	auto background = BitmapHandler::loadBitmap(campaignState->getRegions().getBackgroundName().getName());
+	if(!ui->actionShowFullBackground->isChecked())
+		background = background.copy(0, 0, 456, 600); 
 	campaignScene->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(background)));
 	for (auto & s : campaignState->scenarios)
 	{
@@ -105,6 +111,7 @@ void CampaignEditor::redraw()
 		campaignScene->addItem(pixmap);
 	}
 
+	campaignScene->setSceneRect(background.rect());
 	ui->campaignView->show();
 }
 
