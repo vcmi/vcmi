@@ -28,6 +28,8 @@ class EVictoryLossCheckResult;
 class Services;
 class IMapService;
 class CMap;
+class CSaveFile;
+class CLoadFile;
 struct CPack;
 class CHeroClass;
 struct EventCondition;
@@ -167,6 +169,9 @@ public:
 	/// CGameHandler have it's own getter for vstd::RNG::getDefault
 	/// Any server-side code outside of GH must use vstd::RNG::getDefault
 	vstd::RNG & getRandomGenerator();
+
+	void saveGame(CSaveFile & file) const;
+	void loadGame(CLoadFile & file);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

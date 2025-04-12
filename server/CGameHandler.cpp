@@ -1544,12 +1544,10 @@ void CGameHandler::save(const std::string & filename)
 
 	try
 	{
-		{
-			CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
-			saveCommonState(save);
-			logGlobal->info("Saving server state");
-			save << *this;
-		}
+		CSaveFile save(*CResourceHandler::get("local")->getResourceName(savePath));
+		gameState()->saveGame(save);
+		logGlobal->info("Saving server state");
+		save.save(*this);
 		logGlobal->info("Game has been successfully saved!");
 	}
 	catch(std::exception &e)
@@ -1567,13 +1565,11 @@ bool CGameHandler::load(const std::string & filename)
 
 	try
 	{
-		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
-			lf.serializer.cb = this;
-			loadCommonState(lf);
-			logGlobal->info("Loading server state");
-			lf >> *this;
-		}
+		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), this);
+		gs = std::make_shared<CGameState>(this);
+		gs->loadGame(lf);
+		logGlobal->info("Loading server state");
+		lf.load(*this);
 		logGlobal->info("Game has been successfully loaded!");
 	}
 	catch(const ModIncompatibility & e)

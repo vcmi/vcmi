@@ -22,7 +22,6 @@
 #include "entities/hero/CHero.h"
 #include "networkPacks/ArtifactLocation.h"
 #include "serializer/CLoadFile.h"
-#include "serializer/CSaveFile.h"
 #include "rmg/CMapGenOptions.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
@@ -173,46 +172,6 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::
 
 		out.push_back(spellID);
 	}
-}
-
-void CPrivilegedInfoCallback::loadCommonState(CLoadFile & in)
-{
-	logGlobal->info("Loading lib part of game...");
-	in.checkMagicBytes(SAVEGAME_MAGIC);
-
-	CMapHeader dum;
-	StartInfo si;
-	ActiveModsInSaveList activeMods;
-	CGameState & gs = *gameState();
-
-	logGlobal->info("\tReading header");
-	in.serializer & dum;
-
-	logGlobal->info("\tReading options");
-	in.serializer & si;
-
-	logGlobal->info("\tReading mod list");
-	in.serializer & activeMods;
-
-	logGlobal->info("\tReading gamestate");
-	in.serializer & gs;
-}
-
-void CPrivilegedInfoCallback::saveCommonState(CSaveFile & out) const
-{
-	ActiveModsInSaveList activeMods;
-	const CGameState & gs = *gameState();
-
-	logGlobal->info("Saving lib part of game...");
-	out.putMagicBytes(SAVEGAME_MAGIC);
-	logGlobal->info("\tSaving header");
-	out.serializer & static_cast<const CMapHeader&>(gs.getMap());
-	logGlobal->info("\tSaving options");
-	out.serializer & *gs.getStartInfo();
-	logGlobal->info("\tSaving mod list");
-	out.serializer & activeMods;
-	logGlobal->info("\tSaving gamestate");
-	out.serializer & gs;
 }
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)

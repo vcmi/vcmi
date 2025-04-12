@@ -62,7 +62,6 @@ private:
 		if(length > 1000000)
 		{
 			logGlobal->warn("Warning: very big length: %d", length);
-			reader->reportState(logGlobal);
 		};
 		return length;
 	}

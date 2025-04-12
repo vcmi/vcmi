@@ -32,7 +32,6 @@ class IBinaryReader
 public:
 	virtual ~IBinaryReader() = default;
 	virtual int read(std::byte * data, unsigned size) = 0;
-	virtual void reportState(vstd::CLoggerBase * out){};
 };
 
 /// Base class for serializers

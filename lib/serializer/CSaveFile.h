@@ -10,31 +10,27 @@
 #pragma once
 
 #include "BinarySerializer.h"
+#include "CSerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE CSaveFile : public IBinaryWriter
+class DLL_LINKAGE CSaveFile final : public IBinaryWriter
 {
-public:
 	BinarySerializer serializer;
 
 	boost::filesystem::path fName;
-	std::unique_ptr<std::fstream> sfile;
+	std::fstream sfile;
 
-	CSaveFile(const boost::filesystem::path &fname); //throws!
-	~CSaveFile();
-	int write(const std::byte * data, unsigned size) override;
+	int write(const std::byte * data, unsigned size) final;
 
-	void openNextFile(const boost::filesystem::path &fname); //throws!
-	void clear();
-
-	void putMagicBytes(const std::string &text);
+public:
+	explicit CSaveFile(const boost::filesystem::path & fname); //throws!
 
 	template<class T>
-	CSaveFile & operator<<(const T &t)
+	void save(const T & data)
 	{
-		serializer & t;
-		return * this;
+		static_assert(is_serializeable<BinarySerializer, T>::value, "This class can't be serialized (possible pointer?)");
+		serializer & data;
 	}
 };
 

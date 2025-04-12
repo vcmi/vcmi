@@ -32,8 +32,6 @@ struct BattleLayout;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
-class CSaveFile;
-class CLoadFile;
 class IObjectInterface;
 enum class EOpenWindowMode : uint8_t;
 
@@ -77,9 +75,6 @@ public:
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
-
-	void saveCommonState(CSaveFile &out) const; //stores GS
-	void loadCommonState(CLoadFile &in); //loads GS
 };
 
 class DLL_LINKAGE IGameEventCallback

@@ -59,11 +59,12 @@ void CMapInfo::mapInit(const std::string & fname)
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), ESerializationVersion::MINIMAL);
-	lf.checkMagicBytes(SAVEGAME_MAGIC);
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), nullptr);
 
 	mapHeader = std::make_unique<CMapHeader>();
-	lf >> *(mapHeader) >> scenarioOptionsOfSave;
+	scenarioOptionsOfSave = std::make_unique<StartInfo>();
+	lf.load(*mapHeader);
+	lf.load(*scenarioOptionsOfSave);
 	fileURI = file.getName();
 	originalFileURI = file.getOriginalName();
 	fullFileURI = getFullFileURI(file);

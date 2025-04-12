@@ -15,8 +15,10 @@
 #include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
 #include "SThievesGuildInfo.h"
+#include "QuestInfo.h"
 
 #include "../ArtifactUtils.h"
+#include "../GameSettings.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CPlayerState.h"
 #include "../CStopWatch.h"
@@ -25,6 +27,9 @@
 #include "../TerrainHandler.h"
 #include "../VCMIDirs.h"
 #include "../GameLibrary.h"
+#include "../bonuses/Limiters.h"
+#include "../bonuses/Propagators.h"
+#include "../bonuses/Updaters.h"
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
@@ -44,6 +49,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
+#include "../modding/ActiveModsInSaveList.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/NetPacksBase.h"
@@ -51,6 +57,8 @@
 #include "../pathfinder/PathfinderOptions.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
+#include "../serializer/CLoadFile.h"
+#include "../serializer/CSaveFile.h"
 #include "../spells/CSpellHandler.h"
 #include "UpgradeInfo.h"
 
@@ -1735,6 +1743,30 @@ CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
 CArtifactInstance * CGameState::createArtifact(const ArtifactID & artID, const SpellID & spellId)
 {
 	return map->createArtifact(artID, spellId);
+}
+
+void CGameState::saveGame(CSaveFile & file) const
+{
+	ActiveModsInSaveList activeModsDummy;
+	logGlobal->info("Saving game state");
+	file.save(*getMapHeader());
+	file.save(*getStartInfo());
+	file.save(activeModsDummy);
+	file.save(*this);
+}
+
+void CGameState::loadGame(CLoadFile & file)
+{
+	logGlobal->info("Loading game state...");
+
+	CMapHeader dummyHeader;
+	StartInfo dummyStartInfo;
+	ActiveModsInSaveList dummyActiveMods;
+
+	file.load(dummyHeader);
+	file.load(dummyStartInfo);
+	file.load(dummyActiveMods);
+	file.load(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

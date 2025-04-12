@@ -15,27 +15,21 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE CLoadFile : public IBinaryReader
 {
-public:
 	BinaryDeserializer serializer;
 
 	std::string fName;
-	std::unique_ptr<std::fstream> sfile;
+	std::fstream sfile;
 
-	CLoadFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion = ESerializationVersion::CURRENT); //throws!
-	virtual ~CLoadFile();
 	int read(std::byte * data, unsigned size) override; //throws!
 
-	void openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion); //throws!
-	void clear();
-	void reportState(vstd::CLoggerBase * out) override;
-
-	void checkMagicBytes(const std::string & text);
+public:
+	CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb); //throws!
 
 	template<class T>
-	CLoadFile & operator>>(T &t)
+	void load(T & data)
 	{
-		serializer & t;
-		return * this;
+		static_assert(is_serializeable<BinaryDeserializer, T>::value, "This class can't be deserialized (possible pointer?)");
+		serializer & data;
 	}
 };
 

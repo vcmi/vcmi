@@ -160,16 +160,15 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
-			lf.checkMagicBytes(SAVEGAME_MAGIC);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), nullptr);
+			CMapHeader mapHeader;
+			StartInfo startInfo;
+			lf.load(mapHeader);
+			lf.load(startInfo);
 
-			auto mapHeader = std::make_unique<CMapHeader>();
-			std::unique_ptr<StartInfo> startInfo;
-			lf >> *(mapHeader) >> startInfo;
-
-			if(startInfo->campState)
-				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario(), nullptr);
-			res = ResourcePath(startInfo->fileURI, EResType::MAP);
+			if(startInfo.campState)
+				campaignMap = startInfo.campState->getMap(*startInfo.campState->currentScenario(), nullptr);
+			res = ResourcePath(startInfo.fileURI, EResType::MAP);
 		}
 		if(!campaignMap)
 			minimaps = createMinimaps(res);

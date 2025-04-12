@@ -247,8 +247,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #  define DLL_LINKAGE DLL_IMPORT
 #endif
 
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
-
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
 #include <AvailabilityVersions.h>

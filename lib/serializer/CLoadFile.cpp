@@ -12,90 +12,58 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CLoadFile::CLoadFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb)
 	: serializer(this)
+	, fName(fname.string())
+	, sfile(fname.c_str(), std::ios::in | std::ios::binary)
 {
-	openNextFile(fname, minimalVersion);
-}
+	serializer.cb = cb;
+	serializer.loadingGamestate = true;
+	assert(!serializer.reverseEndianness);
 
-//must be instantiated in .cpp file for access to complete types of all member fields
-CLoadFile::~CLoadFile() = default;
+	fName = fname.string();
+	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
+
+	if(!sfile)
+		throw std::runtime_error("Error: cannot open file '" + fName + "' for reading!");
+
+	//we can read
+	char buffer[4];
+	sfile.read(buffer, 4);
+	if(std::memcmp(buffer, "VCMI", 4) != 0)
+		throw std::runtime_error("Error: '" + fName + "' is not a VCMI file!");
+
+	serializer & serializer.version;
+	if(serializer.version < ESerializationVersion::MINIMAL)
+		throw std::runtime_error("Error: too old file format detected in '" + fName + "'!");
+
+	if(serializer.version > ESerializationVersion::CURRENT)
+	{
+		logGlobal->warn("Warning format version mismatch: found %d when current is %d! (file %s)\n", vstd::to_underlying(serializer.version), vstd::to_underlying(ESerializationVersion::CURRENT), fName);
+
+		auto * versionptr = reinterpret_cast<char *>(&serializer.version);
+		std::reverse(versionptr, versionptr + 4);
+		logGlobal->warn("Version number reversed is %x, checking...", vstd::to_underlying(serializer.version));
+
+		if(serializer.version == ESerializationVersion::CURRENT)
+		{
+			logGlobal->warn("%s seems to have different endianness! Entering reversing mode.", fname.string());
+			serializer.reverseEndianness = true;
+		}
+		else
+			throw std::runtime_error("Error: too new file format detected in '" + fName + "'!");
+	}
+
+	std::string loaded = SAVEGAME_MAGIC;
+	sfile.read(loaded.data(), SAVEGAME_MAGIC.length());
+	if(loaded != SAVEGAME_MAGIC)
+		throw std::runtime_error("Magic bytes doesn't match!");
+}
 
 int CLoadFile::read(std::byte * data, unsigned size)
 {
-	sfile->read(reinterpret_cast<char *>(data), size);
+	sfile.read(reinterpret_cast<char *>(data), size);
 	return size;
-}
-
-void CLoadFile::openNextFile(const boost::filesystem::path & fname, ESerializationVersion minimalVersion)
-{
-	serializer.loadingGamestate = true;
-	assert(!serializer.reverseEndianness);
-	assert(minimalVersion <= ESerializationVersion::CURRENT);
-
-	try
-	{
-		fName = fname.string();
-		sfile = std::make_unique<std::fstream>(fname.c_str(), std::ios::in | std::ios::binary);
-		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
-
-		if(!(*sfile))
-			THROW_FORMAT("Error: cannot open to read %s!", fName);
-
-		//we can read
-		char buffer[4];
-		sfile->read(buffer, 4);
-		if(std::memcmp(buffer, "VCMI", 4) != 0)
-			THROW_FORMAT("Error: not a VCMI file(%s)!", fName);
-
-		serializer & serializer.version;
-		if(serializer.version < minimalVersion)
-			THROW_FORMAT("Error: too old file format (%s)!", fName);
-
-		if(serializer.version > ESerializationVersion::CURRENT)
-		{
-			logGlobal->warn("Warning format version mismatch: found %d when current is %d! (file %s)\n", vstd::to_underlying(serializer.version), vstd::to_underlying(ESerializationVersion::CURRENT), fName);
-
-			auto * versionptr = reinterpret_cast<char *>(&serializer.version);
-			std::reverse(versionptr, versionptr + 4);
-			logGlobal->warn("Version number reversed is %x, checking...", vstd::to_underlying(serializer.version));
-
-			if(serializer.version == ESerializationVersion::CURRENT)
-			{
-				logGlobal->warn("%s seems to have different endianness! Entering reversing mode.", fname.string());
-				serializer.reverseEndianness = true;
-			}
-			else
-				THROW_FORMAT("Error: too new file format (%s)!", fName);
-		}
-	}
-	catch(...)
-	{
-		clear(); //if anything went wrong, we delete file and rethrow
-		throw;
-	}
-}
-
-void CLoadFile::reportState(vstd::CLoggerBase * out)
-{
-	out->debug("CLoadFile");
-	if(!!sfile && *sfile)
-		out->debug("\tOpened %s Position: %d", fName, sfile->tellg());
-}
-
-void CLoadFile::clear()
-{
-	sfile = nullptr;
-	fName.clear();
-	serializer.version = ESerializationVersion::NONE;
-}
-
-void CLoadFile::checkMagicBytes(const std::string &text)
-{
-	std::string loaded = text;
-	read(reinterpret_cast<std::byte*>(loaded.data()), text.length());
-	if(loaded != text)
-		throw std::runtime_error("Magic bytes doesn't match!");
 }
 
 VCMI_LIB_NAMESPACE_END
