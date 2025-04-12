@@ -71,7 +71,10 @@ public:
 	/// If the mod is missing, prompts the user to add it. Returns false if the user declines,
 	/// making the object invalid for placement.
 	bool checkRequiredMods(const CGObjectInstance * obj, QString & error) const;
-	
+
+	/// These functions collect mod verification data for gameplay objects by scanning map objects
+	/// and their nested elements (like spells and artifacts). The gathered information
+	/// is used to assess compatibility and integrity of mods used in a given map or game state
 	static void modAssessmentObject(const CGObjectInstance * obj, ModCompatibilityInfo & result);
 	static ModCompatibilityInfo modAssessmentAll();
 	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
