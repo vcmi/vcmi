@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "Limiters.h"
+#include "Updaters.h"
 
 #include "../GameLibrary.h"
 #include "../entities/faction/CFaction.h"
@@ -97,6 +98,8 @@ JsonNode ILimiter::toJsonNode() const
 	return root;
 }
 
+void ILimiter::acceptUpdater(IUpdater& visitor) {}
+
 ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
@@ -134,6 +137,11 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(includeUpgrades);
 
 	return root;
+}
+
+void CCreatureTypeLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
@@ -213,6 +221,11 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 	return root;
 }
 
+void HasAnotherBonusLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
+}
+
 ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &context) const
 {
 	const auto * stack = retrieveStackBattle(&context.node);
@@ -242,6 +255,12 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 
 	return root;
 }
+
+void UnitOnHexLimiter::acceptUpdater(IUpdater& visitor)
+{
+	visitor.visitLimiter(*this);
+}
+
 
 CreatureTerrainLimiter::CreatureTerrainLimiter()
 	: terrainType(ETerrainId::NATIVE_TERRAIN)
@@ -286,6 +305,11 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(terrainName);
 
 	return root;
+}
+
+void CreatureTerrainLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
 }
 
 FactionLimiter::FactionLimiter(FactionID creatureFaction)
@@ -333,6 +357,11 @@ JsonNode FactionLimiter::toJsonNode() const
 	return root;
 }
 
+void FactionLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
+}
+
 CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel) :
 	minLevel(minLevel),
 	maxLevel(maxLevel)
@@ -362,6 +391,11 @@ JsonNode CreatureLevelLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(maxLevel);
 
 	return root;
+}
+
+void CreatureLevelLimiter::acceptUpdater(IUpdater& visitor)
+{
+	visitor.visitLimiter(*this);
 }
 
 CreatureAlignmentLimiter::CreatureAlignmentLimiter(EAlignment Alignment)
@@ -401,6 +435,11 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	return root;
 }
 
+void CreatureAlignmentLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
+}
+
 RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
 	:minRank(Min), maxRank(Max)
 {
@@ -424,6 +463,11 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	return ILimiter::EDecision::DISCARD;
 }
 
+void RankRangeLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
+}
+
 OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
 	owner(std::move(Owner))
 {
@@ -434,6 +478,11 @@ ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & co
 	auto contextOwner = context.node.getOwner();
 	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
 	return decision;
+}
+
+void OppositeSideLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
 }
 
 // Aggregate/Boolean Limiters
@@ -456,6 +505,11 @@ JsonNode AggregateLimiter::toJsonNode() const
 	for(const auto & l : limiters)
 		result.Vector().push_back(l->toJsonNode());
 	return result;
+}
+
+void AggregateLimiter::acceptUpdater(IUpdater & visitor)
+{
+	visitor.visitLimiter(*this);
 }
 
 const std::string AllOfLimiter::aggregator = "allOf";

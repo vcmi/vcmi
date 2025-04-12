@@ -12,14 +12,13 @@
 
 #include "Updaters.h"
 #include "Limiters.h"
-
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	return b;
 }
@@ -34,11 +33,27 @@ JsonNode IUpdater::toJsonNode() const
 	return JsonNode();
 }
 
+void IUpdater::visitLimiter(AggregateLimiter& limiter)
+{
+	for (auto& limit : limiter.limiters)
+		limit->acceptUpdater(*this);
+}
+
+void IUpdater::visitLimiter(CCreatureTypeLimiter& limiter) {}
+void IUpdater::visitLimiter(HasAnotherBonusLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureTerrainLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureLevelLimiter& limiter) {}
+void IUpdater::visitLimiter(FactionLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureAlignmentLimiter& limiter) {}
+void IUpdater::visitLimiter(OppositeSideLimiter& limiter) {}
+void IUpdater::visitLimiter(RankRangeLimiter& limiter) {}
+void IUpdater::visitLimiter(UnitOnHexLimiter& limiter) {}
+
 GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
 {
 }
 
-std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -71,7 +86,7 @@ JsonNode GrowsWithLevelUpdater::toJsonNode() const
 	return root;
 }
 
-std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -109,7 +124,7 @@ ArmyMovementUpdater::ArmyMovementUpdater(int base, int divider, int multiplier, 
 {
 }
 
-std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	return b;
 }
@@ -131,7 +146,7 @@ JsonNode ArmyMovementUpdater::toJsonNode() const
 
 	return root;
 }
-std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
 	{
@@ -183,17 +198,23 @@ JsonNode OwnerUpdater::toJsonNode() const
 	return JsonNode("BONUS_OWNER_UPDATER");
 }
 
-std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
-	auto owner = context.getOwner();
-
+	owner = context.getOwner();
+	
 	if(owner == PlayerColor::UNFLAGGABLE)
 		owner = PlayerColor::NEUTRAL;
 
 	std::shared_ptr<Bonus> updated =
 		std::make_shared<Bonus>(*b);
-	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
+	updated->limiter = b->limiter;
+	updated->limiter->acceptUpdater(*this);
 	return updated;
+}
+
+void OwnerUpdater::visitLimiter(OppositeSideLimiter& limiter)
+{
+	limiter.owner = owner;
 }
 
 VCMI_LIB_NAMESPACE_END
