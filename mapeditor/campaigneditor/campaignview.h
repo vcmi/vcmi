@@ -30,7 +30,7 @@ public:
 
 class ClickablePixmapItem : public QGraphicsPixmapItem {
 public:
-	ClickablePixmapItem(const QPixmap &pixmap, std::function<void()> clickedCallback, std::function<void()> doubleClickedCallback, std::function<void(QGraphicsSceneContextMenuEvent *)> contextMenuCallback);
+	ClickablePixmapItem(const QPixmap &pixmap, const std::function<void()> & clickedCallback, const std::function<void()> & doubleClickedCallback, const std::function<void(QGraphicsSceneContextMenuEvent *)> & contextMenuCallback);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event) override;

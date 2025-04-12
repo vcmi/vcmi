@@ -206,11 +206,11 @@ void ScenarioProperties::reloadMapRelatedUi()
 			}
 			else
 			{
-				for(int i = 0; i < scenario.getNum(); ++i)
+				for(int j = 0; j < scenario.getNum(); ++j)
 				{
-					auto tmpScenario = CampaignScenarioID(i);
+					auto tmpScenario = CampaignScenarioID(j);
 					auto text = getRegionChar(tmpScenario.getNum()) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
-					comboBoxOption->addItem(text, i);
+					comboBoxOption->addItem(text, j);
 				}
 			}
 

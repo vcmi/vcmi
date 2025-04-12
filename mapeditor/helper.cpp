@@ -81,7 +81,7 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 {
 	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState);
 	
-	std::shared_ptr<CIOApi> io(new CDefaultIOApi());
+	auto io = std::make_shared<CDefaultIOApi>();
 	auto saver = std::make_shared<CZipSaver>(io, filename.toStdString());
 	for(auto & scenario : campaignState->allScenarios())
 	{
