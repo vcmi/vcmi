@@ -96,6 +96,12 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 {
 	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 
+	if (bonus->type == BonusType::SPELL_IMMUNITY && bonus->subtype.as<SpellID>().hasValue())
+	{
+		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
+		return sp->getIconImmune();
+	}
+
 	if (bt.subtypeIcons.count(bonus->subtype.getNum()))
 		return bt.subtypeIcons.at(bonus->subtype.getNum());
 
