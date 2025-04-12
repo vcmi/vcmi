@@ -139,7 +139,10 @@
     <string>Campaign Properties</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Ctrl+Enter</string>
+    <string notr="true">Ctrl+Return</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionScenarioProperties">
@@ -150,7 +153,10 @@
     <string>Scenario Properties</string>
    </property>
    <property name="shortcut">
-    <string notr="true">Enter</string>
+    <string notr="true">Return</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
   <action name="actionShowFullBackground">
