@@ -1719,7 +1719,7 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 
 	const auto & units = battleGetUnitsIf([&hexes](const battle::Unit * testedUnit)
 	{
-		if (testedUnit->isDead())
+		if (!testedUnit->alive())
 			return false;
 		const auto & unitHexes = testedUnit->getHexes();
 		for (const auto & hex : unitHexes)

@@ -1557,7 +1557,12 @@ void BattleActionProcessor::addGenericDrainedLifeLog(BattleLogMessage& blm, cons
 	attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
 	attackerState->addNameReplacement(text);
 	text.replaceNumber(drainedLife);
-	defender->addNameReplacement(text);
+
+	if (defender)
+		defender->addNameReplacement(text);
+	else
+		text.replaceTextID("core.genrltxt.43"); // creatures
+
 	blm.lines.push_back(std::move(text));
 }
 
