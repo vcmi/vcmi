@@ -141,17 +141,13 @@ void CampaignEditor::changed()
 	setTitle();
 }
 
-bool CampaignEditor::saveCampaign()
+void CampaignEditor::saveCampaign()
 {
 	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
-	{
-		auto reply = QMessageBox::question(nullptr, tr("Maps missing"), tr("Not all regions have a map. Do you want to continue?"), QMessageBox::Yes|QMessageBox::No);
-		if (reply != QMessageBox::Yes)
-			return false;
-	}
+		logGlobal->trace("Not all regions have a map");
 
 	Helper::saveCampaign(campaignState, filename);
-	return true;
+	unsaved = false;
 }
 
 void CampaignEditor::showCampaignEditor()
@@ -194,8 +190,7 @@ void CampaignEditor::on_actionSave_as_triggered()
 		filenameSelect += ".vcmp";
 
 	filename = filenameSelect;
-	if(saveCampaign())
-		unsaved = false;
+	saveCampaign();
 	setTitle();
 }
 
@@ -226,8 +221,8 @@ void CampaignEditor::on_actionSave_triggered()
 
 	if(filename.isNull())
 		on_actionSave_as_triggered();
-	else if(saveCampaign())
-		unsaved = false;
+	else 
+		saveCampaign();
 	setTitle();
 }
 

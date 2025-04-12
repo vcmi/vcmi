@@ -358,11 +358,6 @@ void MetaString::appendName(const ArtifactID & id)
 	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
 }
 
-void MetaString::appendName(const HeroTypeID & id)
-{
-	appendTextID(id.toEntity(LIBRARY)->getNameTextID());
-}
-
 void MetaString::appendName(const SpellID & id)
 {
 	appendTextID(id.toEntity(LIBRARY)->getNameTextID());

@@ -283,7 +283,7 @@ bool StartingBonus::showStartingBonus(PlayerColor color, std::shared_ptr<CMap> m
 
 QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CMap> map)
 {
-	auto getHeroName = [](int id){
+	auto getHeroName = [map](int id){
 		MetaString tmp;
 		if(id == HeroTypeID::CAMP_STRONGEST)
 			tmp.appendRawString(tr("strongest hero").toStdString());
@@ -292,7 +292,12 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 		else if(id == HeroTypeID::CAMP_RANDOM)
 			tmp.appendRawString(tr("random hero").toStdString());
 		else
-			tmp.appendName(HeroTypeID(id));
+		{
+			for(auto o : map->objects)
+				if(auto * ins = dynamic_cast<CGHeroInstance *>(o.get()))
+					if(ins->getHeroTypeID().getNum() == id)
+						tmp.appendTextID(ins->getNameTextID());
+		}
 		return QString::fromStdString(tmp.toString());
 	};
 	auto getSpellName = [](int id){
