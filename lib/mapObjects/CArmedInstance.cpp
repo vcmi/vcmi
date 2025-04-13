@@ -166,7 +166,10 @@ void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 TerrainId CArmedInstance::getCurrentTerrain() const
 {
-	return cb->getTile(anchorPos())->getTerrainID();
+	if (anchorPos().isValid())
+		return cb->getTile(visitablePos())->getTerrainID();
+	else
+		return TerrainId::NONE;
 }
 
 VCMI_LIB_NAMESPACE_END
