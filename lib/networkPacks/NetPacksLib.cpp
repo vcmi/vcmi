@@ -1044,9 +1044,7 @@ void ChangeObjPos::applyGs(CGameState *gs)
 		logNetwork->error("Wrong ChangeObjPos: object %d doesn't exist!", objid.getNum());
 		return;
 	}
-	gs->getMap().removeBlockVisTiles(obj);
-	obj->setAnchorPos(nPos + obj->getVisitableOffset());
-	gs->getMap().addBlockVisTiles(obj);
+	gs->getMap().moveObject(objid, nPos + obj->getVisitableOffset());
 }
 
 void ChangeObjectVisitors::applyGs(CGameState *gs)
@@ -1175,8 +1173,6 @@ void RemoveObject::applyGs(CGameState *gs)
 {
 	CGObjectInstance *obj = gs->getObjInstance(objectID);
 	logGlobal->debug("removing object id=%d; address=%x; name=%s", objectID, (intptr_t)obj, obj->getObjectName());
-	//unblock tiles
-	gs->getMap().removeBlockVisTiles(obj);
 
 	if (initiator.isValidPlayer())
 		gs->getPlayerState(initiator)->destroyedObjects.insert(objectID);
@@ -1320,7 +1316,7 @@ void TryMoveHero::applyGs(CGameState *gs)
 		auto * boat = dynamic_cast<CGBoat *>(topObject);
 		assert(boat);
 
-		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
+		gs->getMap().hideObject(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
 		h->setBoat(boat);
 	}
 	else if(result == DISEMBARK) //hero leaves boat to destination tile
@@ -1328,17 +1324,17 @@ void TryMoveHero::applyGs(CGameState *gs)
 		auto * b = h->getBoat();
 		b->direction = h->moveDir;
 		b->pos = start;
-		gs->getMap().addBlockVisTiles(b);
+		gs->getMap().showObject(b);
 		h->setBoat(nullptr);
 	}
 
 	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
 	{
-		gs->getMap().removeBlockVisTiles(h);
-		h->pos = end;
+		gs->getMap().hideObject(h);
+		h->setAnchorPos(end);
 		if(auto * b = h->getBoat())
-			b->pos = end;
-		gs->getMap().addBlockVisTiles(h);
+			b->setAnchorPos(end);
+		gs->getMap().showObject(h);
 	}
 
 	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
@@ -1403,13 +1399,10 @@ void SetHeroesInTown::applyGs(CGameState *gs)
 		t->setGarrisonedHero(g);
 
 	if(v)
-	{
-		gs->getMap().addBlockVisTiles(v);
-	}
+		gs->getMap().showObject(v);
+
 	if(g)
-	{
-		gs->getMap().removeBlockVisTiles(g);
-	}
+		gs->getMap().hideObject(g);
 }
 
 void HeroRecruited::applyGs(CGameState *gs)
@@ -1424,7 +1417,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			gs->getMap().removeBlockVisTiles(boat);
+			gs->getMap().hideObject(boat);
 			h->setBoat(boat);
 		}
 	}
@@ -1453,7 +1446,7 @@ void GiveHero::applyGs(CGameState *gs)
 		auto * boat = dynamic_cast<CGBoat *>(obj);
 		if (boat)
 		{
-			gs->getMap().removeBlockVisTiles(boat);
+			gs->getMap().hideObject(boat);
 			h->setBoat(boat);
 		}
 	}
@@ -1463,7 +1456,7 @@ void GiveHero::applyGs(CGameState *gs)
 	h->attachTo(*gs->getPlayerState(player));
 
 	auto oldVisitablePos = h->visitablePos();
-	gs->getMap().removeBlockVisTiles(h,true);
+	gs->getMap().hideObject(h);
 	h->updateAppearance();
 
 	h->setOwner(player);
@@ -1472,7 +1465,7 @@ void GiveHero::applyGs(CGameState *gs)
 	gs->getMap().heroAddedToMap(h);
 	gs->getPlayerState(h->getOwner())->addOwnedObject(h);
 
-	gs->getMap().addBlockVisTiles(h);
+	gs->getMap().showObject(h);
 	h->setVisitedTown(nullptr, false);
 }
 

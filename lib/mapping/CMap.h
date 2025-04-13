@@ -93,8 +93,6 @@ public:
 	bool checkForVisitableDir(const int3 & src, const TerrainTile * pom, const int3 & dst) const;
 	int3 guardingCreaturePosition (int3 pos) const;
 
-	void addBlockVisTiles(CGObjectInstance * obj);
-	void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
 	void calculateGuardingGreaturePositions();
 
 	CArtifactInstance * createScroll(const SpellID & spellId);
@@ -114,6 +112,9 @@ public:
 	///Use only this method when creating new map object instances
 	void addNewObject(std::shared_ptr<CGObjectInstance> obj);
 	void moveObject(ObjectInstanceID target, const int3 & dst);
+
+	void hideObject(CGObjectInstance * obj);
+	void showObject(CGObjectInstance * obj);
 
 	/// Remove objects and shifts object indicies.
 	/// Only for use in map editor / RMG

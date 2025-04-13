@@ -184,7 +184,7 @@ CMap::CMap(IGameCallback * cb)
 
 CMap::~CMap() = default;
 
-void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
+void CMap::hideObject(CGObjectInstance * obj)
 {
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
@@ -196,17 +196,14 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
-				if(total || obj->visitableAt(int3(xVal, yVal, zVal)))
-					curt.visitableObjects -= obj->id;
-
-				if(total || obj->blockingAt(int3(xVal, yVal, zVal)))
-					curt.blockingObjects -= obj->id;
+				curt.visitableObjects -= obj->id;
+				curt.blockingObjects -= obj->id;
 			}
 		}
 	}
 }
 
-void CMap::addBlockVisTiles(CGObjectInstance * obj)
+void CMap::showObject(CGObjectInstance * obj)
 {
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
@@ -219,10 +216,16 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
 			{
 				TerrainTile & curt = terrain[zVal][xVal][yVal];
 				if(obj->visitableAt(int3(xVal, yVal, zVal)))
+				{
+					assert(!vstd::contains(curt.visitableObjects, obj->id));
 					curt.visitableObjects.push_back(obj->id);
+				}
 
 				if(obj->blockingAt(int3(xVal, yVal, zVal)))
+				{
+					assert(!vstd::contains(curt.blockingObjects, obj->id));
 					curt.blockingObjects.push_back(obj->id);
+				}
 			}
 		}
 	}
@@ -523,7 +526,7 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 		objects[obj->id.getNum()] = obj;
 
 	instanceNames[obj->instanceName] = obj;
-	addBlockVisTiles(obj.get());
+	showObject(obj.get());
 
 	//TODO: how about defeated heroes recruited again?
 
@@ -533,16 +536,16 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 void CMap::moveObject(ObjectInstanceID target, const int3 & dst)
 {
 	auto obj = objects.at(target).get();
-	removeBlockVisTiles(obj);
+	hideObject(obj);
 	obj->setAnchorPos(dst);
-	addBlockVisTiles(obj);
+	showObject(obj);
 }
 
 std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 {
 	auto obj = objects.at(oldObject);
 
-	removeBlockVisTiles(obj.get());
+	hideObject(obj.get());
 	instanceNames.erase(obj->instanceName);
 	obj->afterRemoveFromMap(this);
 
@@ -585,11 +588,11 @@ std::shared_ptr<CGObjectInstance> CMap::replaceObject(ObjectInstanceID oldObject
 
 	newObject->id = oldObjectID;
 
-	removeBlockVisTiles(oldObject.get(), true);
+	hideObject(oldObject.get());
 	instanceNames.erase(oldObject->instanceName);
 
 	objects.at(oldObjectID.getNum()) = newObject;
-	addBlockVisTiles(newObject.get());
+	showObject(newObject.get());
 	instanceNames[newObject->instanceName] = newObject;
 
 	oldObject->afterRemoveFromMap(this);
@@ -604,7 +607,7 @@ std::shared_ptr<CGObjectInstance> CMap::eraseObject(ObjectInstanceID oldObjectID
 
 	instanceNames.erase(oldObject->instanceName);
 	objects.at(oldObjectID) = nullptr;
-	removeBlockVisTiles(oldObject.get(), true);
+	hideObject(oldObject.get());
 	oldObject->afterRemoveFromMap(this);
 
 	return oldObject;

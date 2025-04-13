@@ -125,7 +125,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	auto &tile = cb->gameState()->getMap().getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
-	cb->gameState()->getMap().removeBlockVisTiles(this, true);
+	cb->gameState()->getMap().hideObject(this);
 	auto handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
 
 	if(!handler->getTemplates(tile.getTerrainID()).empty())
@@ -155,7 +155,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	this->ID = Obj(newID);
 	this->subID = newSubID;
 
-	cb->gameState()->getMap().addBlockVisTiles(this);
+	cb->gameState()->getMap().showObject(this);
 }
 
 void CGObjectInstance::pickRandomObject(vstd::RNG & rand)

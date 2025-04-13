@@ -583,7 +583,6 @@ void CGameState::removeHeroPlaceholders()
 	// remove any hero placeholders that remain on map after (potential) campaign heroes placement
 	for(auto obj : map->getObjects<CGHeroPlaceholder>())
 	{
-		map->removeBlockVisTiles(obj, true);
 		map->eraseObject(obj->id);
 	}
 }
@@ -951,11 +950,8 @@ void CGameState::placeHeroesInTowns()
 				// assume that this hero should be visiting the town (H3M format quirk) and move hero to correct position
 				if (heroOnTownBlockableTile)
 				{
-					map->removeBlockVisTiles(h);
 					int3 correctedPos = h->convertFromVisitablePos(t->visitablePos());
-					h->setAnchorPos(correctedPos);
-					map->addBlockVisTiles(h);
-
+					map->moveObject(h->id, correctedPos);
 					assert(t->visitableAt(h->visitablePos()));
 				}
 			}
