@@ -88,6 +88,7 @@ public:
 
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 {
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 public:
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -99,23 +100,33 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE ArmyMovementUpdater : public IUpdater
+class DLL_LINKAGE DivideStackLevelUpdater : public IUpdater
 {
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 public:
-	si32 base;
-	si32 divider;
-	si32 multiplier;
-	si32 max;
-	ArmyMovementUpdater();
-	ArmyMovementUpdater(int base, int divider, int multiplier, int max);
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
-		h & base;
-		h & divider;
-		h & multiplier;
-		h & max;
 	}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE TimesHeroLevelDivideStackLevelUpdater : public TimesHeroLevelUpdater
+{
+	std::shared_ptr<DivideStackLevelUpdater> divideStackLevel;
+public:
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<TimesHeroLevelUpdater &>(*this);
+		h & divideStackLevel;
+	}
+
+	TimesHeroLevelDivideStackLevelUpdater()
+		: divideStackLevel(std::make_shared<DivideStackLevelUpdater>())
+	{}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
 	std::string toString() const override;

@@ -72,7 +72,7 @@
 			"anyOf" : [
 				{
 					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
 				},
 				{
 					"description" : "updater",
@@ -82,7 +82,7 @@
 					"properties" : {
 						"type" : {
 							"type" : "string",
-							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
+							"enum" : [ "GROWS_WITH_LEVEL" ],
 							"description" : "type"
 						},
 						"parameters" : {
