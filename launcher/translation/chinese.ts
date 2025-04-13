@@ -1268,7 +1268,8 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">捷克语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -1278,77 +1279,92 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>English</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">英语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">芬兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>French</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">法语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>German</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">德语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">匈牙利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">意大利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Korean</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">韩语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Polish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">波兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">葡萄牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Russian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">俄语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Spanish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">西班牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">瑞典语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">土耳其语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Ukrainian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">乌克兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">越南语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="61"/>

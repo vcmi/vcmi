@@ -237,7 +237,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-#ifdef VCMI_ANDROID
+#ifdef VCMI_MOBILE
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				ENGINE->onScreenResize(true);

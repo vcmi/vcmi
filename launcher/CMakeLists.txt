@@ -32,6 +32,11 @@ if(APPLE_IOS)
 		ios/revealdirectoryinfiles.mm
 		ios/selectdirectory.h
 		ios/selectdirectory.mm
+		prepare_ios.mm
+	)
+elseif(ANDROID)
+	list(APPEND launcher_SRCS
+		prepare_android.cpp
 	)
 endif()
 
@@ -57,6 +62,7 @@ set(launcher_HEADERS
 		helper.h
 		innoextract.h
 		prepare.h
+		prepare_p.h
 )
 
 set(launcher_FORMS

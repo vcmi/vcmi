@@ -113,6 +113,8 @@ void CSettingsView::loadSettings()
 	ui->labelHapticFeedback->hide();
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
+	ui->labelAllowPortrait->hide();
+	ui->buttonAllowPortrait->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -121,8 +123,6 @@ void CSettingsView::loadSettings()
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
 	ui->labelHandleBackRightMouseButton->hide();
-	ui->buttonAllowPortrait->hide();
-	ui->labelAllowPortrait->hide();
 #endif
 #ifndef VCMI_IOS
 	ui->labelIgnoreMuteSwitch->hide();
