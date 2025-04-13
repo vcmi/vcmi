@@ -280,18 +280,52 @@ CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
 
 ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CStack *stack = retrieveStackBattle(&context.node);
-	if(stack)
+	if (context.node.getNodeType() != CBonusSystemNode::STACK_BATTLE && context.node.getNodeType() != CBonusSystemNode::STACK_INSTANCE)
+		return ILimiter::EDecision::DISCARD;
+
+	if (terrainType == ETerrainId::NATIVE_TERRAIN)
 	{
-		if (terrainType == ETerrainId::NATIVE_TERRAIN && stack->isOnNativeTerrain())//terrainType not specified = native
+		auto selector = Selector::type()(BonusType::TERRAIN_NATIVE);
+
+		if(context.alreadyAccepted.getFirst(selector))
 			return ILimiter::EDecision::ACCEPT;
 
-		if(terrainType != ETerrainId::NATIVE_TERRAIN && stack->isOnTerrain(terrainType))
-			return ILimiter::EDecision::ACCEPT;
+		if(context.stillUndecided.getFirst(selector))
+			return ILimiter::EDecision::NOT_SURE;
 
+		// TODO: CStack and CStackInstance need some common base type that represents any stack
+		// Closest existing class is ACreature, however it is also used as base for CCreature, which is not a stack
+		if (context.node.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+		{
+			const auto * unit = dynamic_cast<const CStack *>(&context.node);
+			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
+			if (unit->getCurrentTerrain() == unitNativeTerrain)
+				return ILimiter::EDecision::ACCEPT;
+		}
+		else
+		{
+			const auto * unit = dynamic_cast<const CStackInstance *>(&context.node);
+			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
+			if (unit->getCurrentTerrain() == unitNativeTerrain)
+				return ILimiter::EDecision::ACCEPT;
+		}
+	}
+	else
+	{
+		if (context.node.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+		{
+			const auto * unit = dynamic_cast<const CStack *>(&context.node);
+			if (unit->getCurrentTerrain() == terrainType)
+				return ILimiter::EDecision::ACCEPT;
+		}
+		else
+		{
+			const auto * unit = dynamic_cast<const CStackInstance*>(&context.node);
+			if (unit->getCurrentTerrain() == terrainType)
+				return ILimiter::EDecision::ACCEPT;
+		}
 	}
 	return ILimiter::EDecision::DISCARD;
-	//TODO neutral creatues
 }
 
 std::string CreatureTerrainLimiter::toString() const

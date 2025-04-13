@@ -28,7 +28,6 @@ class DLL_LINKAGE CStack final : public CBonusSystemNode, public battle::CUnitSt
 private:
 	ui32 ID = -1; //unique ID of stack
 	CreatureID typeID;
-	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
@@ -56,7 +55,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
-	bool isOnTerrain(TerrainId terrain) const;
+	TerrainId getCurrentTerrain() const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance

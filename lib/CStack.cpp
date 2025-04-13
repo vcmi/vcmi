@@ -76,7 +76,6 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(*army);
 		attachToSource(*typeID.toCreature());
 	}
-	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
@@ -316,14 +315,13 @@ bool CStack::canBeHealed() const
 
 bool CStack::isOnNativeTerrain() const
 {
-	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == ETerrainId::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
-	return res;
+	auto nativeTerrain = getNativeTerrain();
+	return nativeTerrain == ETerrainId::ANY_TERRAIN || getCurrentTerrain() == nativeTerrain;
 }
 
-bool CStack::isOnTerrain(TerrainId terrain) const
+TerrainId CStack::getCurrentTerrain() const
 {
-	return battle->getTerrainType() == terrain;
+	return battle->getTerrainType();
 }
 
 const CCreature * CStack::unitType() const

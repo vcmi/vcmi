@@ -858,6 +858,11 @@ TerrainId CStackInstance::getNativeTerrain() const
 	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
 
+TerrainId CStackInstance::getCurrentTerrain() const
+{
+	return armyObj->getCurrentTerrain();
+}
+
 void CStackInstance::deserializationFix()
 {
 	const CArmedInstance *armyBackup = _armyObj;

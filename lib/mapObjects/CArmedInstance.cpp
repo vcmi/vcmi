@@ -17,6 +17,7 @@
 #include "../entities/faction/CTown.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../gameState/CGameState.h"
+#include "../mapping/CMapDefines.h"
 #include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -161,6 +162,11 @@ void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CGObjectInstance::serializeJsonOptions(handler);
 	CCreatureSet::serializeJson(handler, "army", 7);
+}
+
+TerrainId CArmedInstance::getCurrentTerrain() const
+{
+	return cb->getTile(anchorPos())->getTerrainID();
 }
 
 VCMI_LIB_NAMESPACE_END
