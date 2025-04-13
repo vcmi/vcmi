@@ -104,7 +104,7 @@ ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &co
 {
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
-		return ILimiter::EDecision::DISCARD;
+		return ILimiter::EDecision::NOT_APPLICABLE;
 	
 	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyUpgrade(c));
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
@@ -236,7 +236,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 {
 	const auto * stack = retrieveStackBattle(&context.node);
 	if(!stack)
-		return ILimiter::EDecision::DISCARD;
+		return ILimiter::EDecision::NOT_APPLICABLE;
 
 	auto accept = false;
 
@@ -281,7 +281,7 @@ CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
 ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
 	if (context.node.getNodeType() != CBonusSystemNode::STACK_BATTLE && context.node.getNodeType() != CBonusSystemNode::STACK_INSTANCE)
-		return ILimiter::EDecision::DISCARD;
+		return ILimiter::EDecision::NOT_APPLICABLE;
 
 	if (terrainType == ETerrainId::NATIVE_TERRAIN)
 	{
@@ -377,7 +377,7 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 			//TODO: other sources of bonuses
 		}
 	}
-	return ILimiter::EDecision::DISCARD; //Discard by default
+	return ILimiter::EDecision::NOT_APPLICABLE; //Discard by default
 }
 
 std::string FactionLimiter::toString() const
@@ -411,7 +411,10 @@ CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel)
 ILimiter::EDecision CreatureLevelLimiter::limit(const BonusLimitationContext &context) const
 {
 	const auto *c = retrieveCreature(&context.node);
-	auto accept = c && (c->getLevel() < maxLevel && c->getLevel() >= minLevel);
+	if (!c)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	auto accept = c->getLevel() < maxLevel && c->getLevel() >= minLevel;
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 
@@ -453,9 +456,11 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 			return ILimiter::EDecision::ACCEPT;
 		if(alignment == EAlignment::NEUTRAL && !c->isEvil() && !c->isGood())
 			return ILimiter::EDecision::ACCEPT;
+
+		return ILimiter::EDecision::DISCARD;
 	}
 
-	return ILimiter::EDecision::DISCARD;
+	return ILimiter::EDecision::NOT_APPLICABLE;
 }
 
 std::string CreatureAlignmentLimiter::toString() const
@@ -499,8 +504,10 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 			return ILimiter::EDecision::DISCARD;
 		if (csi->getExpRank() > minRank && csi->getExpRank() < maxRank)
 			return ILimiter::EDecision::ACCEPT;
+
+		return ILimiter::EDecision::DISCARD;
 	}
-	return ILimiter::EDecision::DISCARD;
+	return ILimiter::EDecision::NOT_APPLICABLE;
 }
 
 void RankRangeLimiter::acceptUpdater(IUpdater & visitor)
@@ -570,7 +577,7 @@ ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) 
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
-		if(result == ILimiter::EDecision::DISCARD)
+		if(result == ILimiter::EDecision::DISCARD || result == ILimiter::EDecision::NOT_APPLICABLE)
 			return result;
 		if(result == ILimiter::EDecision::NOT_SURE)
 			wasntSure = true;
@@ -624,6 +631,8 @@ ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context)
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
+		if(result == ILimiter::EDecision::NOT_APPLICABLE)
+			return ILimiter::EDecision::NOT_APPLICABLE;
 		if(result == ILimiter::EDecision::ACCEPT)
 			return ILimiter::EDecision::DISCARD;
 		if(result == ILimiter::EDecision::NOT_SURE)
