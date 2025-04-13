@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "Global.h"
 #include "NumericConstants.h"
 #include "IdentifierBase.h"
 

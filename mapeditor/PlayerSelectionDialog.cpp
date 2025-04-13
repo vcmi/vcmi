@@ -9,8 +9,14 @@
  */
 
 #include "PlayerSelectionDialog.h"
-#include "mainwindow.h"
 #include "../lib/mapping/CMap.h"
+#include "mainwindow.h"
+
+#include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QAction>
+#include <QLabel>
+
 
 PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
 	: QDialog(mainWindow), selectedPlayer(PlayerColor::NEUTRAL)

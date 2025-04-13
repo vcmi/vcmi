@@ -3,6 +3,8 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QStandardItemModel>
+#include <QTranslator>
+#include <QTableWidgetItem>
 #include "mapcontroller.h"
 #include "resourceExtractor/ResourceConverter.h"
 
