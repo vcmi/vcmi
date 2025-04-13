@@ -11,6 +11,7 @@
 #pragma once
 
 #include <QDialog>
+#include <QVBoxLayout>
 #include "../lib/constants/EntityIdentifiers.h"
 
 class QCheckBox;
