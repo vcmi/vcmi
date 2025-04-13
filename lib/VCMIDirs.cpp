@@ -100,6 +100,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
 
+		std::wstring GetRawMyDocumentsPath() const;
 		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
 		bfs::path getDefaultUserDataPath() const;
 
@@ -146,6 +147,14 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 	return result;
 }
 
+std::wstring VCMIDirsWIN32::GetRawMyDocumentsPath() const{
+	wchar_t path[MAX_PATH];
+	if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK) {
+		return path;
+	}
+	return L""; 
+}
+
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
 {
 	if (!dirsConfig || !dirsConfig->isStruct())
@@ -156,6 +165,16 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return fallbackFunc();
 
 	std::wstring raw = utf8ToWstring(node.String());
+
+	const std::wstring placeholder = L"%MyDocuments%";
+	size_t pos = raw.find(placeholder);
+	if (pos != std::wstring::npos) {
+		std::wstring docPath = GetRawMyDocumentsPath();
+		if (!docPath.empty()) {
+			raw.replace(pos, placeholder.length(), docPath);
+		}
+	}
+
 	wchar_t expanded[MAX_PATH];
 	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
 		return bfs::path(expanded);
@@ -165,10 +184,8 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
-	wchar_t profileDir[MAX_PATH];
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
-	return bfs::path(".");
+	std::wstring profileDir = GetRawMyDocumentsPath();
+	return profileDir.empty() ? bfs::path(".") : bfs::path(profileDir) / "My Games" / "vcmi";
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
