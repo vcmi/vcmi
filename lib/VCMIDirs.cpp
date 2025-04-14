@@ -65,14 +65,6 @@ void IVCMIDirs::init()
 
 #ifdef VCMI_WINDOWS
 
-#ifdef __MINGW32__
-    #define _WIN32_IE 0x0500
-
-	#ifndef CSIDL_MYDOCUMENTS
-	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif
-#endif // __MINGW32__
-
 #include <windows.h>
 #include <shlobj.h>
 
@@ -149,7 +141,7 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 
 std::wstring VCMIDirsWIN32::GetRawMyDocumentsPath() const{
 	wchar_t path[MAX_PATH];
-	if (SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK) {
+	if (SHGetFolderPathW(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK) {
 		return path;
 	}
 	return L""; 
@@ -166,7 +158,7 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 
 	std::wstring raw = utf8ToWstring(node.String());
 
-	const std::wstring placeholder = L"%MyDocuments%";
+	const std::wstring placeholder = L"%USERDOCUMENTS%";
 	size_t pos = raw.find(placeholder);
 	if (pos != std::wstring::npos) {
 		std::wstring docPath = GetRawMyDocumentsPath();
