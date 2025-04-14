@@ -5,7 +5,7 @@
 		"index": 144,
 		"class" : "knight",
 		"female": false,
-		"special" : false, // available in single scenario, replacement for no longer available Lord Haart
+		"special" : true,
 		"skills":
 		[
 			{ "skill" : "leadership", "level": "advanced" }
