@@ -633,9 +633,20 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TWCRPORT"), stack->creatureId() + 2, 0, 10, 6));
 	labels.push_back(std::make_shared<CLabel>(10 + 58, 6 + 64, FONT_MEDIUM, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(stack->getCount(), 4)));
 
+	int damageMultiplier = 1;
+	if (stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
+	{
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
+
+		damageMultiplier += stack->valOfBonuses(bonusSelector);
+	}
+
 	auto attack = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getAttack(stack->isShooter())) + "(" + std::to_string(stack->getAttack(stack->isShooter())) + ")";
 	auto defense = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getDefense(stack->isShooter())) + "(" + std::to_string(stack->getDefense(stack->isShooter())) + ")";
-	auto damage = std::to_string(LIBRARY->creatures()->getByIndex(stack->creatureIndex())->getMinDamage(stack->isShooter())) + "-" + std::to_string(stack->getMaxDamage(stack->isShooter()));
+	auto damage = std::to_string(damageMultiplier * stack->getMinDamage(stack->isShooter())) + "-" + std::to_string(damageMultiplier * stack->getMaxDamage(stack->isShooter()));
 	auto health = stack->getMaxHealth();
 	auto morale = stack->moraleVal();
 	auto luck = stack->luckVal();

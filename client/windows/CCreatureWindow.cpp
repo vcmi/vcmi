@@ -592,18 +592,17 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
-	const BattleInterface* battleInterface = GAME->interface()->battleInt.get();
 	const CStack* battleStack = parent->info->stack;
 
 	int dmgMultiply = 1;
-	if (battleInterface && battleInterface->getBattle() != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
+	if (battleStack != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		// Determine the relevant hero based on the unit side
-		const auto hero = (battleStack->unitSide() == BattleSide::ATTACKER)
-			? battleInterface->attackingHeroInstance
-			: battleInterface->defendingHeroInstance;
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
 
-		dmgMultiply += hero->getPrimSkillLevel(PrimarySkill::ATTACK);
+		dmgMultiply += battleStack->valOfBonuses(bonusSelector);
 	}
 		
 	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
