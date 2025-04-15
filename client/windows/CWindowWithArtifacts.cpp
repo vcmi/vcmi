@@ -12,7 +12,6 @@
 
 #include "CHeroWindow.h"
 #include "CSpellWindow.h"
-#include "CExchangeWindow.h"
 #include "CHeroBackpackWindow.h"
 
 #include "../GameEngine.h"

@@ -132,7 +132,7 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override;
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override;
 
-	void removeAfterVisit(const CGObjectInstance *object) override;
+	void removeAfterVisit(const ObjectInstanceID & id) override;
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, const SpellID & spellId, const ArtifactPosition & pos);
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override;

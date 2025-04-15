@@ -118,7 +118,7 @@ public:
 	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) =0; //merges army from src do dst or opens a garrison window
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 
-	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
+	virtual void removeAfterVisit(const ObjectInstanceID & id) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
 	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;

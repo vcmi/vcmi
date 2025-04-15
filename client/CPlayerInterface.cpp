@@ -1072,6 +1072,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
+	waitWhileDialog();
 	movementController->requestMovementAbort();
 	GAME->interface()->showingDialog->setBusy();
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);

@@ -24,8 +24,6 @@ class ArtifactsUIController
 	size_t numOfArtsAskAssembleSession;
 	std::set<ArtifactID> ignoredArtifacts;
 
-	std::mutex askAssembleArtifactMutex;
-
 public:
 	ArtifactsUIController();
 	bool askToAssemble(const ArtifactLocation & al, const bool onlyEquipped = false, const bool checkIgnored = false);
@@ -39,4 +37,3 @@ public:
 	void artifactAssembled();
 	void artifactDisassembled();
 };
- 

@@ -46,7 +46,8 @@ struct FinishingBattleHelper
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
-	const CGHeroInstance *winnerHero, *loserHero;
+	ObjectInstanceID winnerId;
+	ObjectInstanceID loserId;
 	PlayerColor victor, loser;
 	BattleSide winnerSide;
 
@@ -54,8 +55,8 @@ struct FinishingBattleHelper
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & winnerHero;
-		h & loserHero;
+		h & winnerId;
+		h & loserId;
 		h & victor;
 		h & loser;
 		h & winnerSide;
@@ -79,5 +80,5 @@ public:
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
-	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
+	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 };

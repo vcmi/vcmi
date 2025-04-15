@@ -26,6 +26,7 @@
 #include "CMT.h"
 #include "GameChatHandler.h"
 #include "CServerHandler.h"
+#include "UIHelper.h"
 
 #include "../CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
@@ -291,7 +292,7 @@ void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
 void ApplyClientNetPackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 {
 	const auto dstOwner = cl.getOwner(pack.dstArtHolder);
-	const auto applyMove = [this, &pack, dstOwner](std::vector<BulkMoveArtifacts::LinkedSlots> & artsPack)
+	const auto applyMove = [this, &pack, dstOwner](const std::vector<MoveArtifactInfo> & artsPack)
 	{
 		for(const auto & slotToMove : artsPack)
 		{
@@ -851,8 +852,36 @@ void ApplyClientNetPackVisitor::visitStacksInjured(StacksInjured & pack)
 
 void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack)
 {
-	callInterfaceIfPresent(cl, pack.player1, &IGameEventsReceiver::battleResultsApplied);
-	callInterfaceIfPresent(cl, pack.player2, &IGameEventsReceiver::battleResultsApplied);
+	if(!pack.learnedSpells.spells.empty())
+	{
+		const auto hero = GAME->interface()->cb->getHero(pack.learnedSpells.hid);
+		assert(hero);
+		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL,
+			UIHelper::getEagleEyeInfoWindowText(*hero, pack.learnedSpells.spells), UIHelper::getSpellsComponents(pack.learnedSpells.spells), soundBase::soundID(0));
+	}
+
+	const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.artifacts.front().dstArtHolder));
+	assert(artSet);
+	std::vector<Component> artComponents;
+	for(const auto & artPack : pack.artifacts)
+	{
+		auto packComponents = UIHelper::getArtifactsComponents(*artSet, artPack.artsPack0);
+		artComponents.insert(artComponents.end(), std::make_move_iterator(packComponents.begin()), std::make_move_iterator(packComponents.end()));
+	}
+	if(!artComponents.empty())
+		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL, UIHelper::getArtifactsInfoWindowText(),
+			artComponents, soundBase::soundID(0));
+
+	for(auto & artPack : pack.artifacts)
+		visitBulkMoveArtifacts(artPack);
+
+	if(pack.raisedStack.getCreature())
+		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::AUTO,
+			UIHelper::getNecromancyInfoWindowText(pack.raisedStack), std::vector<Component>{Component(ComponentType::CREATURE, pack.raisedStack.getId(),
+			pack.raisedStack.count)}, UIHelper::getNecromancyInfoWindowSound());
+
+	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleResultsApplied);
+	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
 }
 

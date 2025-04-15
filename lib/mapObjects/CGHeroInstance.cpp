@@ -1037,32 +1037,6 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	return CStackBasicDescriptor();
 }
 
-/**
- * Show the necromancy dialog with information about units raised.
- * @param raisedStack Pair where the first element represents ID of the raised creature
- * and the second element the amount.
- */
-void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
-	iw.player = tempOwner;
-	iw.components.emplace_back(ComponentType::CREATURE, raisedStack.getId(), raisedStack.count);
-
-	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
-	{
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 145);
-		iw.text.replaceNumber(raisedStack.count);
-	}
-	else // Practicing the dark arts of necromancy, ... (singular)
-	{
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 146);
-	}
-	iw.text.replaceName(raisedStack);
-
-	cb->showInfoDialog(&iw);
-}
 /*
 int3 CGHeroInstance::getSightCenter() const
 {

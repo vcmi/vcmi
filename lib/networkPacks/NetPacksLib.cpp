@@ -1778,7 +1778,7 @@ void BulkEraseArtifacts::applyGs(CGameState *gs)
 
 void BulkMoveArtifacts::applyGs(CGameState *gs)
 {
-	const auto bulkArtsRemove = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & artSet)
+	const auto bulkArtsRemove = [gs](std::vector<MoveArtifactInfo> & artsPack, CArtifactSet & artSet)
 	{
 		std::vector<ArtifactPosition> packToRemove;
 		for(const auto & slotsPair : artsPack)
@@ -1792,7 +1792,7 @@ void BulkMoveArtifacts::applyGs(CGameState *gs)
 			gs->getMap().removeArtifactInstance(artSet, slot);
 	};
 
-	const auto bulkArtsPut = [gs](std::vector<LinkedSlots> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
+	const auto bulkArtsPut = [gs](std::vector<MoveArtifactInfo> & artsPack, CArtifactSet & initArtSet, CArtifactSet & dstArtSet)
 	{
 		for(const auto & slotsPair : artsPack)
 		{
@@ -2118,25 +2118,22 @@ void BattleCancelled::applyGs(CGameState *gs)
 void BattleResultAccepted::applyGs(CGameState *gs)
 {
 	// Remove any "until next battle" bonuses
-	for(auto & res : heroResult)
-	{
-		if(res.hero)
-			res.hero->removeBonusesRecursive(Bonus::OneBattle);
-	}
+	if(const auto attackerHero = gs->getHero(heroResult[BattleSide::ATTACKER].heroId))
+		attackerHero->removeBonusesRecursive(Bonus::OneBattle);
+	if(const auto defenderHero = gs->getHero(heroResult[BattleSide::DEFENDER].heroId))
+		defenderHero->removeBonusesRecursive(Bonus::OneBattle);
 
 	if(winnerSide != BattleSide::NONE)
 	{
 		// Grow up growing artifacts
-		const auto hero = heroResult[winnerSide].hero;
-
-		if (hero)
+		if(const auto winnerHero = gs->getHero(heroResult[winnerSide].heroId))
 		{
-			if(hero->commander && hero->commander->alive)
+			if(winnerHero->commander && winnerHero->commander->alive)
 			{
-				for(auto & art : hero->commander->artifactsWorn)
+				for(auto & art : winnerHero->commander->artifactsWorn)
 					art.second.artifact->growingUp();
 			}
-			for(auto & art : hero->artifactsWorn)
+			for(auto & art : winnerHero->artifactsWorn)
 			{
 				art.second.artifact->growingUp();
 			}
@@ -2145,26 +2142,17 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 
 	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
-		if(heroResult[BattleSide::ATTACKER].army)
+		if(const auto attackerArmy = gs->getArmyInstance(heroResult[BattleSide::ATTACKER].armyId))
 		{
-			heroResult[BattleSide::ATTACKER].army->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
-			heroResult[BattleSide::ATTACKER].army->nodeHasChanged();
+			attackerArmy->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
+			attackerArmy->nodeHasChanged();
 		}
-		if(heroResult[BattleSide::DEFENDER].army)
+		if(const auto defenderArmy = gs->getArmyInstance(heroResult[BattleSide::DEFENDER].armyId))
 		{
-			heroResult[BattleSide::DEFENDER].army->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
-			heroResult[BattleSide::DEFENDER].army->nodeHasChanged();
+			defenderArmy->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
+			defenderArmy->nodeHasChanged();
 		}
-
 	}
-
-	auto currentBattle = boost::range::find_if(gs->currentBattles, [&](const auto & battle)
-	{
-		return battle->battleID == battleID;
-	});
-
-	assert(currentBattle != gs->currentBattles.end());
-	gs->currentBattles.erase(currentBattle);
 }
 
 void BattleLogMessage::applyGs(CGameState *gs)
@@ -2326,6 +2314,23 @@ void BattleUnitsChanged::applyBattle(IBattleState * battleState)
 			break;
 		}
 	}
+}
+
+void BattleResultsApplied::applyGs(CGameState * gs)
+{
+	learnedSpells.applyGs(gs);
+
+	for(auto & artPack : artifacts)
+		artPack.applyGs(gs);
+
+	const auto currentBattle = std::find_if(gs->currentBattles.begin(), gs->currentBattles.end(),
+		[this](const auto & battle)
+		{
+			return battle->battleID == battleID;
+		});
+
+	assert(currentBattle != gs->currentBattles.end());
+	gs->currentBattles.erase(currentBattle);
 }
 
 void BattleObstaclesChanged::applyGs(CGameState *gs)

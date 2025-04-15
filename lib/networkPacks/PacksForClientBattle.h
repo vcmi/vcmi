@@ -11,6 +11,7 @@
 
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
+#include "PacksForClient.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleAction.h"
 #include "../texts/MetaString.h"
@@ -95,16 +96,18 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	struct HeroBattleResults
 	{
 		HeroBattleResults()
-			: hero(nullptr), army(nullptr), exp(0) {}
+			: heroId(ObjectInstanceID::NONE)
+			, armyId(ObjectInstanceID::NONE)
+			, exp(0) {}
 
-		CGHeroInstance * hero;
-		CArmedInstance * army;
+		ObjectInstanceID heroId;
+		ObjectInstanceID armyId;
 		TExpType exp;
 
 		template <typename Handler> void serialize(Handler & h)
 		{
-			h & hero;
-			h & army;
+			h & armyId;
+			h & heroId;
 			h & exp;
 		}
 	};
@@ -112,12 +115,14 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	BattleID battleID = BattleID::NONE;
 	BattleSideArray<HeroBattleResults> heroResult;
 	BattleSide winnerSide;
+	std::vector<BulkMoveArtifacts> artifacts;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & heroResult;
 		h & winnerSide;
+		h & artifacts;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -131,7 +136,6 @@ struct DLL_LINKAGE BattleResult : public Query
 	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	BattleSideArray<std::map<CreatureID, si32>> casualties; //first => casualties of attackers - map crid => number
 	BattleSideArray<TExpType> exp{0,0}; //exp for attacker and defender
-	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	void visitTyped(ICPackVisitor & visitor) override;
 	void applyGs(CGameState *gs) override {}
@@ -144,7 +148,6 @@ struct DLL_LINKAGE BattleResult : public Query
 		h & winner;
 		h & casualties;
 		h & exp;
-		h & artifacts;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -421,15 +424,22 @@ struct DLL_LINKAGE StacksInjured : public CPackForClient
 struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
-	PlayerColor player1, player2;
+	PlayerColor victor;
+	PlayerColor loser;
+	ChangeSpells learnedSpells;
+	std::vector<BulkMoveArtifacts> artifacts;
+	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
-	void applyGs(CGameState *gs) override {}
+	void applyGs(CGameState *gs) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & player1;
-		h & player2;
+		h & victor;
+		h & loser;
+		h & learnedSpells;
+		h & artifacts;
+		h & raisedStack;
 		assert(battleID != BattleID::NONE);
 	}
 };

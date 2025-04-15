@@ -306,7 +306,7 @@ void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 	resultProcessor->endBattleConfirm(*battle);
 }
 
-void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
+void BattleProcessor::battleFinalize(const BattleID & battleID, const BattleResult &result)
 {
-	resultProcessor->battleAfterLevelUp(battleID, result);
+	resultProcessor->battleFinalize(battleID, result);
 }

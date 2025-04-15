@@ -52,4 +52,31 @@ struct ArtifactLocation
 	}
 };
 
+struct MoveArtifactInfo
+{
+	ArtifactPosition srcPos;
+	ArtifactPosition dstPos;
+	bool askAssemble;
+
+	MoveArtifactInfo()
+		: srcPos(ArtifactPosition::PRE_FIRST)
+		, dstPos(ArtifactPosition::PRE_FIRST)
+		, askAssemble(false)
+	{
+	}
+	MoveArtifactInfo(const ArtifactPosition & srcPos, const ArtifactPosition & dstPos, bool askAssemble = false)
+		: srcPos(srcPos)
+		, dstPos(dstPos)
+		, askAssemble(askAssemble)
+	{
+	}
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & srcPos;
+		h & dstPos;
+		h & askAssemble;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END
