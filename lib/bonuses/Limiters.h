@@ -31,7 +31,13 @@ struct BonusLimitationContext
 class DLL_LINKAGE ILimiter : public Serializeable
 {
 public:
-	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};
+	enum class EDecision : uint8_t
+	{
+		ACCEPT,
+		DISCARD,
+		NOT_SURE, // result may still change based on not yet resolved bonuses
+		NOT_APPLICABLE // limiter is not applicable to current node and is never applicable
+	};
 
 	virtual ~ILimiter() = default;
 

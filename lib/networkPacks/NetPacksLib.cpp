@@ -1309,6 +1309,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 		return;
 	}
 
+	const TerrainTile & fromTile = gs->getMap().getTile(h->convertToVisitablePos(start));
+	const TerrainTile & destTile = gs->getMap().getTile(h->convertToVisitablePos(end));
+
 	h->setMovementPoints(movePoints);
 
 	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
@@ -1321,9 +1324,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 
 	if(result == EMBARK) //hero enters boat at destination tile
 	{
-		const TerrainTile &tt = gs->getMap().getTile(h->convertToVisitablePos(end));
-		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
-		auto * boat = dynamic_cast<CGBoat *>(tt.visitableObjects.back());
+
+		assert(destTile.visitableObjects.size() >= 1  &&  destTile.visitableObjects.back()->ID == Obj::BOAT); //the only visitable object at destination is Boat
+		auto * boat = dynamic_cast<CGBoat *>(destTile.visitableObjects.back());
 		assert(boat);
 
 		gs->getMap().removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
@@ -1354,6 +1357,9 @@ void TryMoveHero::applyGs(CGameState *gs)
 	auto & fogOfWarMap = gs->getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(const int3 & t : fowRevealed)
 		fogOfWarMap[t.z][t.x][t.y] = 1;
+
+	if (fromTile.getTerrainID() != destTile.getTerrainID())
+		h->nodeHasChanged(); // update bonuses with terrain limiter
 }
 
 void NewStructures::applyGs(CGameState *gs)

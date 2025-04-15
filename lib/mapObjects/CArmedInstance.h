@@ -48,6 +48,8 @@ public:
 	{
 		return this->tempOwner;
 	}
+
+	TerrainId getCurrentTerrain() const;
 	
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 

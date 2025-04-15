@@ -141,6 +141,7 @@ public:
 
 	int32_t getInitiative(int turn = 0) const final;
 	TerrainId getNativeTerrain() const final;
+	TerrainId getCurrentTerrain() const;
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance

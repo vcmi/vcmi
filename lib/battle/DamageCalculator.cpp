@@ -62,15 +62,15 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
 	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
 	{
-		auto retrieveHeroPrimSkill = [&](PrimarySkill skill) -> int
-		{
-			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL).And(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill))));
-			return b ? b->val : 0;
-		};
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
 
-		//minDmg and maxDmg are multiplied by hero attack + 1
-		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
+		//minDmg and maxDmg of a Ballista are multiplied by hero attack + 1
+		int heroAttackSkill = info.attacker->valOfBonuses(bonusSelector);
+		minDmg *= heroAttackSkill + 1;
+		maxDmg *= heroAttackSkill + 1;
 	}
 	return { minDmg, maxDmg };
 }
