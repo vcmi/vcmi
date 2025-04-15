@@ -69,18 +69,20 @@ namespace BitmapHandler
 			it = (int)size - 256 * 3;
 			for(int i = 0; i < 256; i++)
 			{
-				char bytes[3];
+				std::array<uint8_t, 4> bytes;
 				bytes[0] = pcx[it++];
 				bytes[1] = pcx[it++];
 				bytes[2] = pcx[it++];
-				colorTable.append(qRgb(bytes[0], bytes[1], bytes[2]));
+				bytes[3] = (bytes[0] == 0 && bytes[1] == 255 && bytes[2] == 255) ? 0 : 255;
+
+				colorTable.append(qRgba(bytes[0], bytes[1], bytes[2], bytes[3]));
 			}
 			image.setColorTable(colorTable);
 			return image;
 		}
 		else
 		{
-			QImage image(pcx + it, width, height, width * 3, QImage::Format_RGB888);
+			QImage image(pcx + it, width, height, width * 3, QImage::Format_BGR888);
 			return image;
 		}
 	}

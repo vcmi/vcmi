@@ -106,6 +106,10 @@ public:
 	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
 	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
 
+	static const HeroTypeID CAMP_STRONGEST;
+	static const HeroTypeID CAMP_GENERATED;
+	static const HeroTypeID CAMP_RANDOM;
+
 	bool isValid() const
 	{
 		return getNum() >= 0;
@@ -1043,6 +1047,8 @@ public:
 		COUNT,
 
 		WOOD_AND_ORE = 127,  // special case for town bonus resource
+		COMMON = 0xFD, // campaign bonus
+		RARE = 0xFE, // campaign bonus
 		NONE = -1
 	};
 };

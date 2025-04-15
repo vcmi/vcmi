@@ -10,8 +10,6 @@ class ObjectBrowser;
 class ObjectBrowserProxyModel;
 
 VCMI_LIB_NAMESPACE_BEGIN
-class CMap;
-class CampaignState;
 class CConsoleHandler;
 class CBasicLogConfigurator;
 class CGObjectInstance;
@@ -42,9 +40,6 @@ class MainWindow : public QMainWindow
 #endif
 	std::unique_ptr<CBasicLogConfigurator> logConfig;
 
-	std::unique_ptr<CMap> openMapInternal(const QString &);
-	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);
-
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -74,6 +69,8 @@ private slots:
 	void on_menuOpenRecent_aboutToShow();
 
 	void on_actionSave_as_triggered();
+
+	void on_actionCampaignEditor_triggered();
 
 	void on_actionNew_triggered();
 

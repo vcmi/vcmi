@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CampaignProperties</class>
+ <widget class="QDialog" name="CampaignProperties">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>499</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Campaign Properties</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabGeneral">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <attribute name="title">
+       <string>General</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="labelName">
+         <property name="text">
+          <string>Campaign name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditName"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelDescription">
+         <property name="text">
+          <string>Campaign description</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="textEditDescription"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAuthor">
+         <property name="text">
+          <string>Author</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditAuthor"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAuthorContact">
+         <property name="text">
+          <string>Author contact (e.g. e-mail)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditAuthorContact"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelCreationDateTime">
+         <property name="text">
+          <string>Campaign creation date</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDateTimeEdit" name="dateTimeEditCreationDateTime"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelCampaignVersion">
+         <property name="text">
+          <string>Campaign version</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditCampaignVersion"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelMusic">
+         <property name="text">
+          <string>Music</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditMusic"/>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBoxScenarioDifficulty">
+         <property name="text">
+          <string>Scenario difficulty is user selectable</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabRegions">
+      <attribute name="title">
+       <string>Regions</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="labelRegionPreset">
+         <property name="text">
+          <string>Regions Preset</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxRegionPreset"/>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelBackground">
+         <property name="text">
+          <string>Background</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditBackground"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelSuffix">
+         <property name="text">
+          <string>Suffix</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEditSuffix1"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditSuffix2"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditSuffix3"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelPrefix">
+         <property name="text">
+          <string>Prefix</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditPrefix"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelColorSuffixLength">
+         <property name="text">
+          <string>Color suffix length</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spinBoxColorSuffixLength">
+         <property name="maximum">
+          <number>2</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelRegions">
+         <property name="text">
+          <string>Regions</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTableWidget" name="tableWidgetRegions"/>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="pushButtonRegionAdd">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButtonRegionRemove">
+             <property name="text">
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabMisc">
+      <attribute name="title">
+       <string>Misc</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="labelLoadingBackground">
+         <property name="text">
+          <string>Loading background image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditLoadingBackground"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelVideoRim">
+         <property name="text">
+          <string>Video rim image</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditVideoRim"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelIntroVideo">
+         <property name="text">
+          <string>Intro video</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditIntroVideo"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelOutroVideo">
+         <property name="text">
+          <string>Outro video</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="lineEditOutroVideo"/>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

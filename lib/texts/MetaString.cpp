@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
 #include "entities/faction/CFaction.h"
+#include "entities/hero/CHero.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
@@ -35,6 +36,13 @@ MetaString MetaString::createFromTextID(const std::string & value)
 {
 	MetaString result;
 	result.appendTextID(value);
+	return result;
+}
+
+MetaString MetaString::createFromName(const GameResID& id)
+{
+	MetaString result;
+	result.appendName(id);
 	return result;
 }
 

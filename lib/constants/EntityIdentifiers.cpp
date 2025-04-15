@@ -56,6 +56,9 @@ const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
 const HeroTypeID HeroTypeID::GEM(27);
 const HeroTypeID HeroTypeID::SOLMYR(45);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(0xFFFD);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(0xFFFE);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(0xFFFF);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 

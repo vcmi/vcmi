@@ -209,7 +209,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		if(it != gameState->scenarioOps->playerInfos.end())
 		{
 			HeroTypeID heroTypeId = HeroTypeID(campaignBonus->info2);
-			if(heroTypeId.getNum() == 0xffff) // random bonus hero
+			if(heroTypeId.getNum() == HeroTypeID::CAMP_RANDOM) // random bonus hero
 			{
 				heroTypeId = gameState->pickUnusedHeroTypeRandomly(playerColor);
 			}
@@ -529,7 +529,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 void CGameStateCampaign::initHeroes()
 {
 	auto chosenBonus = currentBonus();
-	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != 0xFFFE) //exclude generated heroes
+	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != HeroTypeID::CAMP_GENERATED) //exclude generated heroes
 	{
 		//find human player
 		PlayerColor humanPlayer=PlayerColor::NEUTRAL;
@@ -545,7 +545,7 @@ void CGameStateCampaign::initHeroes()
 
 		const auto & heroes = gameState->players[humanPlayer].getHeroes();
 
-		if (chosenBonus->info1 == 0xFFFD) //most powerful
+		if (chosenBonus->info1 == HeroTypeID::CAMP_STRONGEST) //most powerful
 		{
 			int maxB = -1;
 			for (int b=0; b<heroes.size(); ++b)
@@ -610,11 +610,11 @@ void CGameStateCampaign::initStartingResources()
 				case 0: case 1: case 2: case 3: case 4: case 5: case 6:
 					res.push_back(chosenBonus->info1);
 					break;
-				case 0xFD: //wood+ore
+				case EGameResID::COMMON: //wood+ore
 					res.push_back(GameResID(EGameResID::WOOD));
 					res.push_back(GameResID(EGameResID::ORE));
 					break;
-				case 0xFE:  //rare
+				case EGameResID::RARE:  //rare
 					res.push_back(GameResID(EGameResID::MERCURY));
 					res.push_back(GameResID(EGameResID::SULFUR));
 					res.push_back(GameResID(EGameResID::CRYSTAL));

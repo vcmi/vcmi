@@ -70,6 +70,9 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionCampaignEditor"/>
+    <addaction name="separator"/>
     <addaction name="actionh3m_converter"/>
     <addaction name="actionh3c_converter"/>
    </widget>
@@ -143,6 +146,8 @@
    <addaction name="actionOpen"/>
    <addaction name="actionOpenRecent"/>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionCampaignEditor"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
@@ -1063,6 +1068,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionCampaignEditor">
+   <property name="text">
+    <string>Campaign editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Campaign editor</string>
    </property>
   </action>
   <action name="actionLevel">

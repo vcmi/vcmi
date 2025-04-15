@@ -67,6 +67,8 @@ public:
 	static MetaString createFromRawString(const std::string & value);
 	/// Creates MetaString and appends provided text ID string to it
 	static MetaString createFromTextID(const std::string & value);
+	/// Creates MetaString and appends provided name string to it
+	static MetaString createFromName(const GameResID& id);
 
 	/// Appends local string to resulting string
 	void appendLocalString(EMetaText type, ui32 serial);

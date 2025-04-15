@@ -31,7 +31,7 @@ public:
 	void setMap(std::unique_ptr<CMap>);
 	void initObstaclePainters(CMap * map);
 	
-	void repairMap(CMap * map) const;
+	static void repairMap(CMap * map);
 	void repairMap();
 	
 	const std::unique_ptr<CMap> & getMapUniquePtr() const; //to be used for map saving

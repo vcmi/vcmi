@@ -25,14 +25,11 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/filesystem/CMemoryBuffer.h"
 #include "../lib/GameConstants.h"
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
-#include "../lib/mapping/CMapService.h"
-#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/mapping/MapFormatJson.h"
@@ -40,7 +37,6 @@
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
-#include "../lib/filesystem/CFilesystemLoader.h"
 
 #include "maphandler.h"
 #include "graphics.h"
@@ -51,6 +47,8 @@
 #include "mapsettings/translations.h"
 #include "playersettings.h"
 #include "validator.h"
+#include "helper.h"
+#include "campaigneditor/campaigneditor.h"
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -261,6 +259,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->actionZoom_in->setIcon(QIcon{":/icons/zoom_plus.png"});
 	ui->actionZoom_out->setIcon(QIcon{":/icons/zoom_minus.png"});
 	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
+	ui->actionCampaignEditor->setIcon(QIcon{":/icons/mapeditor.64x64.png"});
 
 	loadUserSettings(); //For example window size
 	setTitle();
@@ -346,7 +345,7 @@ void MainWindow::setStatusMessage(const QString & status)
 
 void MainWindow::setTitle()
 {
-	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", VCMI_EDITOR_NAME, GameConstants::VCMI_VERSION.c_str());
+	QString title = QString("%1%2 - %3 (%4)").arg(filename, unsaved ? "*" : "", tr("VCMI Map Editor"), GameConstants::VCMI_VERSION.c_str());
 	setWindowTitle(title);
 }
 
@@ -387,65 +386,11 @@ void MainWindow::initializeMap(bool isNew)
 	onPlayersChanged();
 }
 
-std::unique_ptr<CMap> MainWindow::openMapInternal(const QString & filenameSelect)
-{
-	QFileInfo fi(filenameSelect);
-	std::string fname = fi.fileName().toStdString();
-	std::string fdir = fi.dir().path().toStdString();
-	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
-	
-	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
-	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
-	
-	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open map from this folder");
-	
-	CMapService mapService;
-	if(auto header = mapService.loadMapHeader(resId))
-	{
-		auto missingMods = CMapService::verifyMapHeaderMods(*header);
-		ModIncompatibility::ModList modList;
-		for(const auto & m : missingMods)
-			modList.push_back(m.second.name);
-		
-		if(!modList.empty())
-			throw ModIncompatibility(modList);
-		
-		return mapService.loadMap(resId, nullptr);
-	}
-	else
-		throw std::runtime_error("Corrupted map");
-}
-
-std::shared_ptr<CampaignState> MainWindow::openCampaignInternal(const QString & filenameSelect)
-{
-	QFileInfo fi(filenameSelect);
-	std::string fname = fi.fileName().toStdString();
-	std::string fdir = fi.dir().path().toStdString();
-	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::CAMPAIGN);
-	
-	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
-	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
-	
-	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open campaign from this folder");
-	if(auto campaign = CampaignHandler::getCampaign(resId.getName()))
-		return campaign;
-	else
-		throw std::runtime_error("Corrupted campaign");
-}
-
 bool MainWindow::openMap(const QString & filenameSelect)
 {
 	try
 	{
-		controller.setMap(openMapInternal(filenameSelect));
+		controller.setMap(Helper::openMapInternal(filenameSelect));
 	}
 	catch(const ModIncompatibility & e)
 	{
@@ -647,6 +592,14 @@ void MainWindow::on_actionSave_as_triggered()
 	saveMap();
 }
 
+void MainWindow::on_actionCampaignEditor_triggered()
+{
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	hide();
+	CampaignEditor::showCampaignEditor();
+}
 
 void MainWindow::on_actionNew_triggered()
 {
@@ -1406,7 +1359,7 @@ void MainWindow::on_actionh3m_converter_triggered()
 		for(auto & m : mapFiles)
 		{
 			CMapService mapService;
-			auto map = openMapInternal(m);
+			auto map = Helper::openMapInternal(m);
 			controller.repairMap(map.get());
 			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
 		}
@@ -1435,35 +1388,9 @@ void MainWindow::on_actionh3c_converter_triggered()
 	QFileInfo fileInfo(campaignFileDest);
 	if(fileInfo.suffix().toLower() != "vcmp")
 		campaignFileDest += ".vcmp";
-	auto campaign = openCampaignInternal(campaignFile);
+	auto campaign = Helper::openCampaignInternal(campaignFile);
 
-	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaign);
-	
-	std::shared_ptr<CIOApi> io(new CDefaultIOApi());
-	auto saver = std::make_shared<CZipSaver>(io, campaignFileDest.toStdString());
-	for(auto & scenario : campaign->allScenarios())
-	{
-		CMapService mapService;
-		auto map = campaign->getMap(scenario, nullptr);
-		controller.repairMap(map.get());
-		CMemoryBuffer serializeBuffer;
-		{
-			CMapSaverJson jsonSaver(&serializeBuffer);
-			jsonSaver.saveMap(map);
-		}
-
-		auto mapName = boost::algorithm::to_lower_copy(campaign->scenario(scenario).mapName);
-		mapName = boost::replace_all_copy(mapName, ".h3m", std::string("")) + ".vmap";
-
-		auto stream = saver->addFile(mapName);
-		stream->write(reinterpret_cast<const ui8 *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
-
-		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaign->scenario(scenario)));
-		jsonCampaign["scenarios"].Vector().back()["map"].String() = mapName;
-	}
-
-	auto jsonCampaignStr = jsonCampaign.toString();
-	saver->addFile("header.json")->write(reinterpret_cast<const ui8 *>(jsonCampaignStr.data()), jsonCampaignStr.length());
+	Helper::saveCampaign(campaign, campaignFileDest);
 }
 
 void MainWindow::on_actionLock_triggered()
