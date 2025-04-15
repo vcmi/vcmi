@@ -860,17 +860,19 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 			UIHelper::getEagleEyeInfoWindowText(*hero, pack.learnedSpells.spells), UIHelper::getSpellsComponents(pack.learnedSpells.spells), soundBase::soundID(0));
 	}
 
-	const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.artifacts.front().dstArtHolder));
-	assert(artSet);
-	std::vector<Component> artComponents;
-	for(const auto & artPack : pack.artifacts)
+	if(!pack.artifacts.empty())
 	{
-		auto packComponents = UIHelper::getArtifactsComponents(*artSet, artPack.artsPack0);
-		artComponents.insert(artComponents.end(), std::make_move_iterator(packComponents.begin()), std::make_move_iterator(packComponents.end()));
-	}
-	if(!artComponents.empty())
+		const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.artifacts.front().dstArtHolder));
+		assert(artSet);
+		std::vector<Component> artComponents;
+		for(const auto & artPack : pack.artifacts)
+		{
+			auto packComponents = UIHelper::getArtifactsComponents(*artSet, artPack.artsPack0);
+			artComponents.insert(artComponents.end(), std::make_move_iterator(packComponents.begin()), std::make_move_iterator(packComponents.end()));
+		}
 		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL, UIHelper::getArtifactsInfoWindowText(),
 			artComponents, soundBase::soundID(0));
+	}
 
 	for(auto & artPack : pack.artifacts)
 		visitBulkMoveArtifacts(artPack);
