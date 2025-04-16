@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
+#include <filesystem>
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
@@ -97,7 +98,6 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		bfs::path getDefaultUserDataPath() const;
 
 		std::wstring utf8ToWstring(const std::string& str) const;
-		std::string pathToUtf8(const bfs::path& path) const;
 };
 
 
@@ -105,27 +105,19 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 {
 	wchar_t currentPath[MAX_PATH];
 	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
-	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
+	auto configPath = std::filesystem::path(currentPath).parent_path() / "config" / "dirs.json";
 
-	if (!bfs::exists(configPath))
+	if (!std::filesystem::exists(configPath))
 		return;
 
-	std::ifstream in(pathToUtf8(configPath), std::ios::binary);
+	std::ifstream in(configPath, std::ios::binary);
 	if (!in)
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
+	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), configPath.u8string());
 }
 
-std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
-{
-	std::wstring wstr = path.wstring();
-	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string result(size - 1, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
-	return result;
-}
 
 std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 {
