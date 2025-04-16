@@ -1217,16 +1217,17 @@ void RemoveObject::applyGs(CGameState *gs)
 
 			beatenHero->setVisitedTown(nullptr, false);
 		}
-		//return hero to the pool, so he may reappear in tavern
 
+		//return hero to the pool, so he may reappear in tavern
 		gs->heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
+		gs->getMap().addToHeroPool(beatenHero);
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->inBoat())
 		{
-			beatenHero->detachFrom(*beatenHero->getBoat());
-			gs->getMap().eraseObject(beatenHero->getBoat()->id);
+			auto boat = beatenHero->getBoat();
 			beatenHero->setBoat(nullptr);
+			gs->getMap().eraseObject(boat->id);
 		}
 		return;
 	}
@@ -1241,7 +1242,6 @@ void RemoveObject::applyGs(CGameState *gs)
 			});
 		}
 	}
-
 
 	gs->getMap().eraseObject(objectID);
 	gs->getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles

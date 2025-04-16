@@ -672,7 +672,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		{
 			if(q.obj == obj->id)
 			{
-				if(q.getQuest(cb)->checkQuest(h))
+				if(q.getQuest(ai->cb.get())->checkQuest(h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest

@@ -1578,6 +1578,9 @@ void CGameState::restoreBonusSystemTree()
 	for(auto & art : map->getArtifacts())
 		art->attachToBonusSystem(this);
 
+	for(auto & heroID : map->getHeroesInPool())
+		map->tryGetFromHeroPool(heroID)->artDeserializationFix(this, map->tryGetFromHeroPool(heroID));
+
 	if (campaign)
 		campaign->setGamestate(this);
 }
