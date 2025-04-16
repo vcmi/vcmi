@@ -32,6 +32,8 @@ private slots:
 	void onCheckboxToggled(bool checked);
 
 private:
+	const int dialogWidth = 320;
+
 	std::vector<QCheckBox *> checkboxes;
 	PlayerColor selectedPlayer;
 

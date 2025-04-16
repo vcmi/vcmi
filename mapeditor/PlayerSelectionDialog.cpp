@@ -72,24 +72,21 @@ PlayerColor PlayerSelectionDialog::getSelectedPlayer() const
 void PlayerSelectionDialog::setupDialogComponents()
 {
 	setWindowTitle(tr("Select Player"));
-	setFixedSize(sizeHint());
+	setFixedWidth(dialogWidth);
 	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 	font.setPointSize(10);
 	setFont(font);
 
-	mainLayout.setSpacing(10);
-	mainLayout.setContentsMargins(20, 20, 80, 20);
-	checkboxLayout.setContentsMargins(0, 10, 0, 20);
-	mainLayout.addSpacing(4);
-
 	QLabel * errorLabel = new QLabel(tr("Hero cannot be created as NEUTRAL"), this);
 	font.setBold(true);
 	errorLabel->setFont(font);
+	errorLabel->setWordWrap(true);
 	mainLayout.addWidget(errorLabel);
 
 	QLabel * instructionLabel = new QLabel(tr("Switch to one of the available players:"), this);
 	font.setBold(false);
 	instructionLabel->setFont(font);
+	instructionLabel->setWordWrap(true);
 	mainLayout.addWidget(instructionLabel);
 
 	QWidget * checkboxContainer = new QWidget(this);

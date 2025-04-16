@@ -201,11 +201,11 @@ void Validator::showValidationResults(const CMap * map)
 	setAttribute(Qt::WA_DeleteOnClose);
 	ui->listWidget->setItemDelegate(new ValidatorItemDelegate(ui->listWidget));
 
-	const std::array<QString, 2> icons{ ":/icons/mod-update.png", ":/icons/mod-delete.png" };
-
 	for(auto const & issue : Validator::validate(map))
 	{
-		auto * item = new QListWidgetItem(QIcon(icons[issue.critical ? 1 : 0]), issue.message, ui->listWidget);
+		auto * item = new QListWidgetItem(QIcon(issue.critical ? ":/icons/mod-delete.png" : ":/icons/mod-update.png"),
+			issue.message, ui->listWidget);
+
 		ui->listWidget->addItem(item);
 	}
 
