@@ -378,8 +378,23 @@ public:
 		h & patrol;
 		h & moveDir;
 		h & skillsInfo;
-		h & visitedTown;
-		h & boardedBoat;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & visitedTown;
+			h & boardedBoat;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrTown;
+			std::shared_ptr<CGObjectInstance> ptrBoat;
+			h & ptrTown;
+			h & ptrBoat;
+
+			visitedTown = ptrTown ? ptrTown->id : ObjectInstanceID();
+			boardedBoat = ptrBoat ? ptrBoat->id : ObjectInstanceID();
+		}
+
 		h & commander;
 		h & visitedObjects;
 	}

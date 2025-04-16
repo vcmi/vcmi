@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArtHandler.h"
+#include "CArtifactSet.h"
 #include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
 #include "GameCallbackHolder.h"
@@ -18,6 +18,7 @@
 #include "bonuses/BonusCache.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "serializer/Serializeable.h"
+#include "mapObjects/CGObjectInstance.h"
 
 #include <vcmi/Entity.h>
 
@@ -98,7 +99,17 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
-		h & armyInstanceID;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & armyInstanceID;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> army;
+			h & army;
+			armyInstanceID = army->id;
+		}
 		h & experience;
 	}
 

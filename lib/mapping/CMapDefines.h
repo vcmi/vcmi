@@ -14,6 +14,7 @@
 #include "../texts/MetaString.h"
 #include "../GameLibrary.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -139,8 +140,24 @@ struct DLL_LINKAGE TerrainTile
 		h & roadType;
 		h & roadDir;
 		h & extTileFlags;
-		h & visitableObjects;
-		h & blockingObjects;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & visitableObjects;
+			h & blockingObjects;
+		}
+		else
+		{
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				visitableObjects.push_back(ptr->id);
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				blockingObjects.push_back(ptr->id);
+		}
+
+
 	}
 };
 

@@ -10,41 +10,40 @@
 #pragma once
 
 #include "bonuses/CBonusSystemNode.h"
-#include "CArtHandler.h"
+#include "GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct ArtifactLocation;
 class CGameState;
+class CArtifactSet;
 
 class DLL_LINKAGE CCombinedArtifactInstance : public GameCallbackHolder
 {
 protected:
 	using GameCallbackHolder::GameCallbackHolder;
 public:
+	using ArtPlacementMap = std::map<const CArtifactInstance*, ArtifactPosition>;
+
 	struct PartInfo : public GameCallbackHolder
 	{
 		explicit PartInfo(IGameCallback * cb);
 		PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot);
-
 
 		ArtifactInstanceID artifactID;
 		ArtifactPosition slot;
 
 		const CArtifactInstance * getArtifact() const;
 
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & artifactID;
-			h & slot;
-		}
+		template <typename Handler>
+		void serialize(Handler & h);
 	};
 	void addPart(const CArtifactInstance * art, const ArtifactPosition & slot);
 	// Checks if supposed part inst is part of this combined art inst
 	bool isPart(const CArtifactInstance * supposedPart) const;
 	bool hasParts() const;
 	const std::vector<PartInfo> & getPartsInfo() const;
-	void addPlacementMap(const CArtifactSet::ArtPlacementMap & placementMap);
+	void addPlacementMap(const ArtPlacementMap & placementMap);
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -86,6 +85,8 @@ public:
 	ArtifactInstanceID getId() const;
 	void setId(ArtifactInstanceID id);
 
+	static void saveCompatibilityFixArtifactID(std::shared_ptr<CArtifactInstance> self);
+
 	bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE,
 		bool assumeDestRemoved = false) const;
 	bool isCombined() const;
@@ -105,5 +106,23 @@ public:
 
 	}
 };
+
+template <typename Handler>
+void CCombinedArtifactInstance::PartInfo::serialize(Handler & h)
+{
+	if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+	{
+		h & artifactID;
+	}
+	else
+	{
+		std::shared_ptr<CArtifactInstance> pointer;
+		h & pointer;
+		if (pointer->getId() == ArtifactInstanceID())
+			CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
+		artifactID = pointer->getId();
+	}
+	h & slot;
+}
 
 VCMI_LIB_NAMESPACE_END

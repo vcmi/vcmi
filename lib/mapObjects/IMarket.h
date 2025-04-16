@@ -11,7 +11,7 @@
 
 #include "../networkPacks/TradeItem.h"
 #include "../constants/Enumerations.h"
-#include "../CArtHandler.h"
+#include "../CArtifactSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

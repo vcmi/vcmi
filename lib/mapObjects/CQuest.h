@@ -118,7 +118,7 @@ public:
 
 class DLL_LINKAGE IQuestObject
 {
-	std::unique_ptr<CQuest> quest;
+	std::shared_ptr<CQuest> quest; // TODO: not actually shared, replace with unique_ptr once 1.6 save compat is not needed
 public:
 	IQuestObject();
 	virtual ~IQuestObject();

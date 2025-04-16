@@ -64,7 +64,11 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	mapHeader = std::make_unique<CMapHeader>();
 	scenarioOptionsOfSave = std::make_unique<StartInfo>();
 	lf.load(*mapHeader);
-	lf.load(*scenarioOptionsOfSave);
+	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
+		lf.load(*scenarioOptionsOfSave);
+	else
+		lf.load(scenarioOptionsOfSave);
+
 	fileURI = file.getName();
 	originalFileURI = file.getOriginalName();
 	fullFileURI = getFullFileURI(file);

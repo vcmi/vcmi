@@ -13,6 +13,7 @@
 #include "CMapDefines.h"
 #include "CMapHeader.h"
 
+#include "../mapObjects/CGObjectInstance.h"
 #include "../GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
 
@@ -95,6 +96,7 @@ public:
 
 	void calculateGuardingGreaturePositions();
 
+	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
 	CArtifactInstance * createScroll(const SpellID & spellId);
 	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 	CArtifactInstance * createSingleArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
@@ -240,6 +242,7 @@ public:
 	const IGameSettings & getSettings() const;
 
 	void postInitialize();
+	void saveCompatibilityStoreAllocatedArtifactID();
 
 private:
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
@@ -261,15 +264,43 @@ public:
 		h & grailPos;
 		h & artInstances;
 
+		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			saveCompatibilityStoreAllocatedArtifactID();
+			std::vector< std::shared_ptr<CQuest> > quests;
+			h & quests;
+		}
+		h & heroesPool;
+
 		//TODO: viccondetails
 		h & terrain;
 		h & guardingCreaturePositions;
 
 		h & objects;
-		h & heroesOnMap;
-		h & heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & heroesOnMap;
+		else
+		{
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				heroesOnMap.push_back(ptr->id);
+
+			for (auto & ptr : heroesPool)
+				if (vstd::contains(objects, ptr))
+					ptr = nullptr;
+		}
+
 		h & teleportChannels;
-		h & towns;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & towns;
+		else
+		{
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				towns.push_back(ptr->id);
+		}
 		h & artInstances;
 
 		// static members

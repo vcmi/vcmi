@@ -44,6 +44,12 @@ public:
 	{
 		loadedPointers.clear();
 		loadedSharedPointers.clear();
+		loadedUniquePointers.clear();
+	}
+
+	bool hasFeature(Version v) const
+	{
+		return version >= v;
 	}
 
 private:
@@ -51,6 +57,7 @@ private:
 
 	std::vector<std::string> loadedStrings;
 	std::map<uint32_t, Serializeable *> loadedPointers;
+	std::set<Serializeable *> loadedUniquePointers;
 	std::map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
 	IBinaryReader * reader;
 
@@ -156,6 +163,7 @@ private:
 	{
 		uint8_t read;
 		load(read);
+		assert(read == 0 || read == 1);
 		data = static_cast<bool>(read);
 	}
 
@@ -168,16 +176,17 @@ private:
 			data.resize(length, T(cb));
 		else
 			data.resize(length);
-		for(uint32_t i = 0; i < length; i++)
-			load(data[i]);
+
+		for(uint32_t i=0;i<length;i++)
+			load( data[i]);
 	}
 
-	template<typename T, size_t N>
-	void load(boost::container::small_vector<T, N> & data)
+	template <typename T, size_t N>
+	void load(boost::container::small_vector<T, N>& data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.resize(length);
-		for(uint32_t i = 0; i < length; i++)
+		for (uint32_t i = 0; i < length; i++)
 			load(data[i]);
 	}
 
@@ -212,6 +221,9 @@ private:
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
 				data = dynamic_cast<T>(i->second);
+				if (vstd::contains(loadedUniquePointers, data))
+					throw std::runtime_error("Attempt to deserialize duplicated unique_ptr!");
+
 				return;
 			}
 		}
@@ -236,7 +248,10 @@ private:
 				data = nullptr;
 				return;
 			}
-			auto dataNonConst = dynamic_cast<ncpT *>(app->createPtr(*this, cb));
+			auto createdPtr = app->createPtr(*this, cb);
+			auto dataNonConst = dynamic_cast<ncpT *>(createdPtr);
+			assert(createdPtr);
+			assert(dataNonConst);
 			data = dataNonConst;
 			ptrAllocated(data, pid);
 			app->loadPtr(*this, cb, dataNonConst);
@@ -300,6 +315,7 @@ private:
 		T * internalPtr;
 		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
+		loadedUniquePointers.insert(internalPtr);
 	}
 
 	template<typename T, size_t N>
@@ -321,9 +337,8 @@ private:
 			data.insert(ins);
 		}
 	}
-
-	template<typename T, typename U>
-	void load(std::unordered_set<T, U> & data)
+	template <typename T, typename U>
+	void load(std::unordered_set<T, U> &data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.clear();

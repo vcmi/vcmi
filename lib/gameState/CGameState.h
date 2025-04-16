@@ -49,10 +49,15 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 {
 	friend class CGameStateCampaign;
 
-	std::unique_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
-	std::unique_ptr<StartInfo> scenarioOps;
+	std::shared_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
+	std::shared_ptr<StartInfo> scenarioOps;
 	std::unique_ptr<CMap> map;
+
+	void saveCompatibilityRegisterMissingArtifacts();
 public:
+	ArtifactInstanceID saveCompatibilityLastAllocatedArtifactID;
+	std::vector<std::shared_ptr<CArtifactInstance>> saveCompatibilityUnregisteredArtifacts;
+
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
 
@@ -180,9 +185,14 @@ public:
 		h & actingPlayers;
 		h & day;
 		h & map;
+		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			saveCompatibilityRegisterMissingArtifacts();
 		h & players;
 		h & teams;
-		h & *heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & *heroesPool;
+		else
+			h & heroesPool;
 		h & globalEffects;
 		h & currentRumor;
 		h & campaign;

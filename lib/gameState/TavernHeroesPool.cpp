@@ -21,6 +21,11 @@ TavernHeroesPool::TavernHeroesPool(CGameState * owner)
 	: owner(owner)
 {}
 
+void TavernHeroesPool::setGameState(CGameState * newOwner)
+{
+	owner = newOwner;
+}
+
 std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() const
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool;

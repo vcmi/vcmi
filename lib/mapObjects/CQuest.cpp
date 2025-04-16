@@ -416,7 +416,7 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 }
 
 IQuestObject::IQuestObject()
-	:quest(std::make_unique<CQuest>())
+	:quest(std::make_shared<CQuest>())
 {}
 
 IQuestObject::~IQuestObject() = default;

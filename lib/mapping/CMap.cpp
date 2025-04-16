@@ -10,24 +10,28 @@
 #include "StdInc.h"
 #include "CMap.h"
 
+#include "CMapEditManager.h"
+#include "CMapOperation.h"
+
 #include "../CArtHandler.h"
-#include "../GameLibrary.h"
 #include "../CCreatureHandler.h"
+#include "../CSkillHandler.h"
+#include "../GameLibrary.h"
 #include "../GameSettings.h"
+#include "../IGameCallback.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
+
 #include "../entities/hero/CHeroHandler.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../spells/CSpellHandler.h"
-#include "../CSkillHandler.h"
-#include "CMapEditManager.h"
-#include "CMapOperation.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../spells/CSpellHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -928,6 +932,18 @@ CGObjectInstance * CMap::getObject(ObjectInstanceID obj)
 const CGObjectInstance * CMap::getObject(ObjectInstanceID obj) const
 {
 	return objects.at(obj).get();
+}
+
+void CMap::saveCompatibilityStoreAllocatedArtifactID()
+{
+	if (!artInstances.empty())
+		cb->gameState()->saveCompatibilityLastAllocatedArtifactID = artInstances.back()->getId();
+}
+
+void CMap::saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact)
+{
+	assert(artifact->getId().getNum() == artInstances.size());
+	artInstances.push_back(artifact);
 }
 
 VCMI_LIB_NAMESPACE_END

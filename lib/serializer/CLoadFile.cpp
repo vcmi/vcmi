@@ -12,6 +12,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+template <typename From, typename To>
+struct static_caster
+{
+	To operator()(From p) {return static_cast<To>(p);}
+};
+
+
 CLoadFile::CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb)
 	: serializer(this)
 	, fName(fname.string())
@@ -28,12 +35,13 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb)
 		throw std::runtime_error("Error: cannot open file '" + fName + "' for reading!");
 
 	//we can read
-	char buffer[4];
-	sfile.read(buffer, 4);
-	if(std::memcmp(buffer, "VCMI", 4) != 0)
+	char magic[4];
+	sfile.read(magic, 4);
+	if(std::memcmp(magic, "VCMI", 4) != 0)
 		throw std::runtime_error("Error: '" + fName + "' is not a VCMI file!");
 
-	serializer & serializer.version;
+	sfile.read(reinterpret_cast<char*>(&serializer.version), sizeof(serializer.version));
+
 	if(serializer.version < ESerializationVersion::MINIMAL)
 		throw std::runtime_error("Error: too old file format detected in '" + fName + "'!");
 

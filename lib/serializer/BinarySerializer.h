@@ -47,6 +47,11 @@ public:
 		savedPointers.clear();
 	}
 
+	bool hasFeature(Version v) const
+	{
+		return version >= v;
+	}
+
 private:
 	std::map<std::string, uint32_t> savedStrings;
 	std::map<const Serializeable*, uint32_t> savedPointers;
@@ -97,6 +102,7 @@ private:
 	void save(const T & data)
 	{
 		uint8_t writ = static_cast<uint8_t>(data);
+		assert(writ == 0 || writ == 1);
 		save(writ);
 	}
 

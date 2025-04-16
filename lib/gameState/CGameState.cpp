@@ -1571,6 +1571,8 @@ void CGameState::buildBonusSystemTree()
 
 void CGameState::restoreBonusSystemTree()
 {
+	heroesPool->setGameState(this);
+
 	buildGlobalTeamPlayerTree();
 	for(auto & armed : map->getObjects<CArmedInstance>())
 		armed->restoreBonusSystem(this);
@@ -1759,13 +1761,35 @@ void CGameState::loadGame(CLoadFile & file)
 	logGlobal->info("Loading game state...");
 
 	CMapHeader dummyHeader;
-	StartInfo dummyStartInfo;
+	auto startInfo = std::make_shared<StartInfo>();
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
-	file.load(dummyStartInfo);
-	file.load(dummyActiveMods);
-	file.load(*this);
+	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
+	{
+		file.load(startInfo);
+		file.load(dummyActiveMods);
+		file.load(*this);
+	}
+	else
+	{
+		bool dummyA = false;
+		uint32_t dummyB = 0;
+		uint16_t dummyC = 0;
+		file.load(startInfo);
+		file.load(dummyActiveMods);
+		file.load(dummyA);
+		file.load(dummyB);
+		file.load(dummyC);
+		file.load(*this);
+	}
+}
+
+void CGameState::saveCompatibilityRegisterMissingArtifacts()
+{
+	for( const auto & newArtifact : saveCompatibilityUnregisteredArtifacts)
+		map->saveCompatibilityAddMissingArtifact(newArtifact);
+	saveCompatibilityUnregisteredArtifacts.clear();
 }
 
 VCMI_LIB_NAMESPACE_END

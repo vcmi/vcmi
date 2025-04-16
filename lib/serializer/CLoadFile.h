@@ -28,8 +28,13 @@ public:
 	template<class T>
 	void load(T & data)
 	{
-		static_assert(is_serializeable<BinaryDeserializer, T>::value, "This class can't be deserialized (possible pointer?)");
+		//static_assert(is_serializeable<BinaryDeserializer, T>::value, "This class can't be deserialized (possible pointer?)");
 		serializer & data;
+	}
+
+	bool hasFeature(BinaryDeserializer::Version v) const
+	{
+		return serializer.version >= v;
 	}
 };
 

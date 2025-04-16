@@ -84,8 +84,23 @@ public:
 		h & built;
 		h & destroyed;
 		h & identifier;
-		h & garrisonHero;
-		h & visitingHero;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & garrisonHero;
+			h & visitingHero;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrGarr;
+			std::shared_ptr<CGObjectInstance> ptrVisit;
+			h & ptrGarr;
+			h & ptrVisit;
+
+			garrisonHero = ptrGarr ? ptrGarr->id : ObjectInstanceID();
+			visitingHero = ptrVisit ? ptrVisit->id : ObjectInstanceID();
+		}
+
 		h & alignmentToPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;

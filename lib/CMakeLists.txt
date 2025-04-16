@@ -692,6 +692,7 @@ set(lib_MAIN_HEADERS
 	CAndroidVMHelper.h
 	CArtHandler.h
 	CArtifactInstance.h
+	CArtifactSet.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h

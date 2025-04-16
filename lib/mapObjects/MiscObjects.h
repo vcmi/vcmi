@@ -119,7 +119,18 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & message;
-		h & storedArtifact;
+		if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & storedArtifact;
+		}
+		else
+		{
+			std::shared_ptr<CArtifactInstance> pointer;
+			h & pointer;
+			if (pointer->getId() == ArtifactInstanceID())
+				CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
+			storedArtifact = pointer->getId();
+		}
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -312,7 +323,17 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
-		h & boardedHeroID;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & boardedHeroID;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptr;
+			h & ptr;
+			boardedHeroID = ptr ? ptr->id : ObjectInstanceID();
+		}
+
 		h & layer;
 		h & onboardAssaultAllowed;
 		h & onboardVisitAllowed;

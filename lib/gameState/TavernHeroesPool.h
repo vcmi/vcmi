@@ -11,6 +11,7 @@
 
 #include "../GameConstants.h"
 #include "TavernSlot.h"
+#include "../mapObjects/CGObjectInstance.h"
 #include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -34,7 +35,17 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 
 		template <typename Handler> void serialize(Handler &h)
 		{
-			h & hero;
+			if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			{
+				h & hero;
+			}
+			else
+			{
+				std::shared_ptr<CGObjectInstance> pointer;
+				h & pointer;
+				hero = HeroTypeID(pointer->subID);
+			}
+
 			h & slot;
 			h & role;
 			h & player;
@@ -52,7 +63,10 @@ class DLL_LINKAGE TavernHeroesPool : public Serializeable
 	std::vector<TavernSlot> currentTavern;
 
 public:
+	TavernHeroesPool() = default;
 	TavernHeroesPool(CGameState * owner);
+
+	void setGameState(CGameState * owner);
 
 	/// Returns heroes currently available in tavern of a specific player
 	std::vector<const CGHeroInstance *> getHeroesFor(PlayerColor color) const;
@@ -80,7 +94,15 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & heroesPool;
+		else
+		{
+			std::map<HeroTypeID, std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				heroesPool.push_back(ptr.first);
+		}
 		h & perPlayerAvailability;
 		h & currentTavern;
 	}

@@ -17,6 +17,7 @@
 #include "TurnTimerInfo.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -117,7 +118,16 @@ public:
 		h & status;
 		h & turnTimer;
 		h & *playerLocalSettings;
-		h & ownedObjects;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & ownedObjects;
+		else
+		{
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				ownedObjects.push_back(ptr->id);
+		}
+
 		h & quests;
 		h & visitedObjects;
 		h & visitedObjectsGlobal;

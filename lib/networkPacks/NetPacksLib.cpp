@@ -2459,15 +2459,13 @@ ArtSlotInfo::ArtSlotInfo(const CArtifactInstance * artifact, bool locked)
 
 const CArtifactInstance * ArtSlotInfo::getArt() const
 {
-	if(locked || !artifactID.hasValue())
+	if(!artifactID.hasValue())
 		return nullptr;
 	return cb->getArtInstance(artifactID);
 }
 
 ArtifactInstanceID ArtSlotInfo::getID() const
 {
-	if(locked)
-		return {};
 	return artifactID;
 }
 
