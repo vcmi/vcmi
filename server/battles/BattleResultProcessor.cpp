@@ -369,6 +369,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	raccepted.winnerSide = finishingBattle->winnerSide;
 	gameHandler->sendAndApply(raccepted);
 
+	gameHandler->queries->popIfTop(battleQuery); // Workaround to remove battle query for AI case. TODO Think of a cleaner solution.
 	//--> continuation (battleFinalize) occurs after level-up gameHandler->queries are handled or on removing query
 }
 
