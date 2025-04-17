@@ -33,7 +33,7 @@ jobs:
         repoPath="$(pwd)"
         cd android-build
 
-        sed -iEe "s|qt5AndroidDir=.+|qt5AndroidDir=$(pwd)/qt5AndroidDir|" gradle.properties
+        sed -i -Ee "s|qt5AndroidDir=.+|qt5AndroidDir=$(pwd)/qt5AndroidDir|" gradle.properties
         echo "sdk.dir=$ANDROID_HOME" > local.properties
         echo "signingRoot=$repoPath/CI/android" > vcmi-app/gradle.properties
 
