@@ -14,7 +14,8 @@
 #include <QVBoxLayout>
 #include "../lib/constants/EntityIdentifiers.h"
 
-class QCheckBox;
+class QRadioButton;
+class QButtonGroup;
 class MainWindow;
 
 /// Dialog shown when a hero cannot be placed as NEUTRAL.
@@ -28,22 +29,17 @@ public:
 	explicit PlayerSelectionDialog(MainWindow * mainWindow = nullptr);
 	PlayerColor getSelectedPlayer() const;
 
-private slots:
-	void onCheckboxToggled(bool checked);
-
 private:
 	const int dialogWidth = 320;
 
-	std::vector<QCheckBox *> checkboxes;
+	QButtonGroup * buttonGroup = nullptr;
 	PlayerColor selectedPlayer;
 
 	QFont font;
 	QVBoxLayout mainLayout;
-	QVBoxLayout checkboxLayout;
-
-	bool defaultCheckedSet = false;
+	QVBoxLayout radioButtonsLayout;
 
 	void setupDialogComponents();
-	void addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled);
+	void addRadioButton(QAction * action, PlayerColor player);
 
 };

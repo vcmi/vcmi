@@ -12,7 +12,8 @@
 #include "../lib/mapping/CMap.h"
 #include "mainwindow.h"
 
-#include <QCheckBox>
+#include <QRadioButton>
+#include <QButtonGroup>
 #include <QDialogButtonBox>
 #include <QAction>
 #include <QLabel>
@@ -32,37 +33,9 @@ PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
 	for(int i = 0; i < maxPlayers; ++i)
 	{
 		PlayerColor player(i);
-		QAction * action = mainWindow->getActionPlayer(player);
-		bool isEnabled = mainWindow->controller.map()->players.at(i).canAnyonePlay();
-
-		addCheckbox(action, player, isEnabled);
+		addRadioButton(mainWindow->getActionPlayer(player), player);
 	}
 }
-
-void PlayerSelectionDialog::onCheckboxToggled(bool checked)
-{
-	if(!checked)
-		return;
-
-	QCheckBox * senderCheckBox = qobject_cast<QCheckBox *>(sender());
-	if(!senderCheckBox)
-		return;
-
-	for(int i = 0; i < checkboxes.size(); ++i)
-	{
-		QCheckBox * cb = checkboxes[i];
-		if(cb == senderCheckBox)
-		{
-			selectedPlayer = PlayerColor(i);
-		}
-		else
-		{
-			QSignalBlocker blocker(cb);
-			cb->setChecked(false);
-		}
-	}
-}
-
 
 PlayerColor PlayerSelectionDialog::getSelectedPlayer() const
 {
@@ -77,6 +50,9 @@ void PlayerSelectionDialog::setupDialogComponents()
 	font.setPointSize(10);
 	setFont(font);
 
+	buttonGroup = new QButtonGroup(this);
+	buttonGroup->setExclusive(true);
+
 	QLabel * errorLabel = new QLabel(tr("Hero cannot be created as NEUTRAL"), this);
 	font.setBold(true);
 	errorLabel->setFont(font);
@@ -89,9 +65,9 @@ void PlayerSelectionDialog::setupDialogComponents()
 	instructionLabel->setWordWrap(true);
 	mainLayout.addWidget(instructionLabel);
 
-	QWidget * checkboxContainer = new QWidget(this);
-	checkboxContainer->setLayout(& checkboxLayout);
-	mainLayout.addWidget(checkboxContainer);
+	QWidget * radioContainer = new QWidget(this);
+	radioContainer->setLayout(& radioButtonsLayout);
+	mainLayout.addWidget(radioContainer);
 
 	QDialogButtonBox * box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
 	connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -101,57 +77,43 @@ void PlayerSelectionDialog::setupDialogComponents()
 	setLayout(& mainLayout);
 }
 
-void PlayerSelectionDialog::addCheckbox(QAction * checkboxAction, PlayerColor player, bool isEnabled)
+void PlayerSelectionDialog::addRadioButton(QAction * action, PlayerColor player)
 {
-	QHBoxLayout * rowLayout = new QHBoxLayout();
-	auto * checkbox = new QCheckBox(checkboxAction->text(), this);
-	
-	QLabel * shortcutLabel = new QLabel(checkboxAction->shortcut().toString(), this);
+	auto * radioButton = new QRadioButton(action->text(), this);
+	radioButton->setEnabled(action->isEnabled());
+	// Select first available player by default
+	if(buttonGroup->buttons().isEmpty() && radioButton->isEnabled())
+	{
+		radioButton->setChecked(true);
+		selectedPlayer = player;
+	}
+
+	buttonGroup->addButton(radioButton, player.getNum());
+
+	auto * shortcutLabel = new QLabel(action->shortcut().toString(), this);
 	QFont shortcutFont = font;
 	shortcutFont.setPointSize(9);
 	shortcutFont.setItalic(true);
 	shortcutLabel->setFont(shortcutFont);
 	shortcutLabel->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+	shortcutLabel->setContentsMargins(0, 0, 6, 0); // Italic text was trimmed at the end
 
-	QWidget * checkboxContainer = new QWidget(this);
-	QHBoxLayout * cbLayout = new QHBoxLayout(checkboxContainer);
-	cbLayout->setContentsMargins(0, 0, 0, 0);
-	cbLayout->addWidget(checkbox, 0, Qt::AlignCenter);
+	auto * rowWidget = new QWidget(this);
+	auto * rowLayout = new QGridLayout(rowWidget);
+	rowLayout->setContentsMargins(0, 0, 0, 0);
+	rowLayout->addWidget(radioButton, 0, 0, Qt::AlignCenter | Qt::AlignVCenter);
+	rowLayout->addWidget(shortcutLabel, 0, 1, Qt::AlignCenter | Qt::AlignVCenter);
+	radioButtonsLayout.addWidget(rowWidget);
 
-	rowLayout->addWidget(checkboxContainer, 1);
-	rowLayout->addWidget(shortcutLabel, 1);
-
-	checkbox->setEnabled(isEnabled);
-
-	if(isEnabled && !defaultCheckedSet)
-	{
-		checkbox->setChecked(true);
-		selectedPlayer = player;
-		defaultCheckedSet = true;
-	}
-
-	checkboxLayout.addLayout(rowLayout);
-
-	connect(checkbox, &QCheckBox::clicked, this, [this, checkbox, player]()
+	connect(radioButton, &QRadioButton::clicked, this, [this, player]()
 		{
 			selectedPlayer = player;
-
-			// Radio-style logic: uncheck other boxes
-			for(auto * box : findChildren<QCheckBox *>())
-			{
-				if(box != checkbox)
-					box->setChecked(false);
-			}
 		});
 
-
-	// Add action to the dialog for shortcut support
-	addAction(checkboxAction);
-
-	// Connect action trigger to simulate checkbox click
-	connect(checkboxAction, &QAction::triggered, this, [checkbox]()
+	addAction(action);
+	connect(action, &QAction::triggered, this, [radioButton]()
 		{
-			if(checkbox->isEnabled())
-				checkbox->click();
+			if(radioButton->isEnabled())
+				radioButton->click();
 		});
 }
