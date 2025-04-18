@@ -2040,7 +2040,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 	//If hero of this type has been predefined, use that as a base.
 	//Instance data will overwrite the predefined values where appropriate.
-	auto object = map->tryTakeFromHeroPool(heroType);
+	std::shared_ptr<CGHeroInstance> object;
+
+	if (heroType.hasValue())
+		object = map->tryTakeFromHeroPool(heroType);
+
 	if (!object)
 	{
 		object = std::make_shared<CGHeroInstance>(map->cb);

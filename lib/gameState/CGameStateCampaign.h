@@ -68,7 +68,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		// no-op, but needed to auto-create this class if gamestate had it during serialization
+		if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			// no-op, but needed to auto-create this class if gamestate had it during serialization
+		}
+		else
+		{
+			bool dummyA = false;
+			uint32_t dummyB = 0;
+			uint16_t dummyC = 0;
+
+			h & dummyA;
+			h & dummyB;
+			h & dummyC;
+		}
 	}
 };
 

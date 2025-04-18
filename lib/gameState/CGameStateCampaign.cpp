@@ -394,6 +394,9 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 
 	for(auto hero : gameState->map->getObjects<CGHeroInstance>())
 	{
+		if (!hero->getOwner().isValidPlayer())
+			continue; // prisons
+
 		if (gameState->getPlayerState(hero->getOwner())->isHuman())
 		{
 			receiver = hero;
