@@ -93,13 +93,13 @@ void TurnTimerHandler::update(int waitTimeMs)
 		return;
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-		if(gameHandler.gameState()->isPlayerMakingTurn(player))
+		if(gameHandler.gameState().isPlayerMakingTurn(player))
 			onPlayerMakingTurn(player, waitTimeMs);
 
 	// create copy for iterations - battle might end during onBattleLoop call
 	std::vector<BattleID> ongoingBattles;
 
-	for (auto & battle : gameHandler.gameState()->currentBattles)
+	for (auto & battle : gameHandler.gameState().currentBattles)
 		ongoingBattles.push_back(battle->battleID);
 
 	for (auto & battleID : ongoingBattles)
@@ -123,9 +123,8 @@ bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor
 
 void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 {
-	const auto * gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !si->turnTimerInfo.isEnabled())
+	if(!si || !si->turnTimerInfo.isEnabled())
 		return;
 	
 	auto & timer = timers[player];
@@ -149,9 +148,9 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 
 bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 {
-	const auto * gs = gameHandler.gameState();
-	auto attacker = gs->getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
-	auto defender = gs->getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
+	const auto & gs = gameHandler.gameState();
+	auto attacker = gs.getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
+	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	if(attacker.isValidPlayer() && defender.isValidPlayer())
 	{
 		const auto * attackerState = gameHandler.getPlayerState(attacker);
@@ -164,13 +163,13 @@ bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 
 void TurnTimerHandler::onBattleStart(const BattleID & battleID)
 {
-	const auto * gs = gameHandler.gameState();
+	const auto & gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs)
+	if(!si)
 		return;
 
-	auto attacker = gs->getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
-	auto defender = gs->getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
+	auto attacker = gs.getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
+	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	
 	bool pvpBattle = isPvpBattle(battleID);
 	
@@ -191,9 +190,9 @@ void TurnTimerHandler::onBattleStart(const BattleID & battleID)
 
 void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 {
-	const auto * gs = gameHandler.gameState();
+	const auto & gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs)
+	if(!si)
 	{
 		assert(0);
 		return;
@@ -202,8 +201,8 @@ void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 	if (!si->turnTimerInfo.isBattleEnabled())
 		return;
 	
-	auto attacker = gs->getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
-	auto defender = gs->getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
+	auto attacker = gs.getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
+	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	
 	for(auto i : {attacker, defender})
 	{
@@ -219,9 +218,9 @@ void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 
 void TurnTimerHandler::onBattleNextStack(const BattleID & battleID, const CStack & stack)
 {
-	const auto * gs = gameHandler.gameState();
+	const auto & gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs || !gs->getBattle(battleID))
+	if(!si || !gs.getBattle(battleID))
 	{
 		assert(0);
 		return;
@@ -245,9 +244,9 @@ void TurnTimerHandler::onBattleNextStack(const BattleID & battleID, const CStack
 
 void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 {
-	const auto * gs = gameHandler.gameState();
+	const auto & gs = gameHandler.gameState();
 	const auto * si = gameHandler.getStartInfo();
-	if(!si || !gs)
+	if(!si)
 	{
 		assert(0);
 		return;
@@ -258,19 +257,19 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 
 	BattleSide side = BattleSide::NONE;
 	const CStack * stack = nullptr;
-	bool isTactisPhase = gs->getBattle(battleID)->battleTacticDist() > 0;
+	bool isTactisPhase = gs.getBattle(battleID)->battleTacticDist() > 0;
 	
 	if(isTactisPhase)
-		side = gs->getBattle(battleID)->battleGetTacticsSide();
+		side = gs.getBattle(battleID)->battleGetTacticsSide();
 	else
 	{
-		stack = gs->getBattle(battleID)->battleGetStackByID(gs->getBattle(battleID)->getActiveStackID());
+		stack = gs.getBattle(battleID)->battleGetStackByID(gs.getBattle(battleID)->getActiveStackID());
 		if(!stack || !stack->getOwner().isValidPlayer())
 			return;
 		side = stack->unitSide();
 	}
 	
-	auto player = gs->getBattle(battleID)->getSidePlayer(side);
+	auto player = gs.getBattle(battleID)->getSidePlayer(side);
 	if(!player.isValidPlayer())
 		return;
 	

@@ -948,11 +948,11 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 	return true; //no slot means not used
 }
 
-void CArtifactSet::artDeserializationFix(CGameState * gs, CBonusSystemNode *node)
+void CArtifactSet::artDeserializationFix(CGameState & gs, CBonusSystemNode *node)
 {
 	for(auto & elem : artifactsWorn)
 		if(elem.second.artifactID.hasValue() && !elem.second.locked)
-			node->attachToSource(*gs->getArtInstance(elem.second.artifactID));
+			node->attachToSource(*gs.getArtInstance(elem.second.artifactID));
 }
 
 void CArtifactSet::serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map)

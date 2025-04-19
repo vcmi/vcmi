@@ -92,7 +92,7 @@ public:
 	bool isCombined() const;
 	bool isScroll() const;
 	
-	void attachToBonusSystem(CGameState * gs);
+	void attachToBonusSystem(CGameState & gs);
 
 	template <typename Handler> void serialize(Handler & h)
 	{

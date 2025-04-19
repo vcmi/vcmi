@@ -132,8 +132,8 @@ public:
 class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
 {
 protected:
-	virtual CGameState * gameState() = 0;
-	virtual const CGameState * gameState() const = 0;
+	virtual CGameState & gameState() = 0;
+	virtual const CGameState & gameState() const = 0;
 
 	bool hasAccess(std::optional<PlayerColor> playerId) const;
 

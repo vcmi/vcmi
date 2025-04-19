@@ -74,7 +74,7 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
@@ -298,7 +298,7 @@ ObjectInstanceID CGTeleport::getRandomExit(const CGHeroInstance * h) const
 {
 	auto passableExits = getPassableExits(cb->gameState(), h, getAllExits(true));
 	if(!passableExits.empty())
-		return *RandomGeneratorUtil::nextItem(passableExits, cb->gameState()->getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(passableExits, cb->gameState().getRandomGenerator());
 
 	return ObjectInstanceID();
 }
@@ -320,10 +320,10 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(const CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	ObjectInstanceID topObjectID = gs->getMap().getTile(obj->visitablePos()).topVisitableObj();
-	const CGObjectInstance * topObject = gs->getObjInstance(topObjectID);
+	ObjectInstanceID topObjectID = gs.getMap().getTile(obj->visitablePos()).topVisitableObj();
+	const CGObjectInstance * topObject = gs.getObjInstance(topObjectID);
 
 	if(topObject->ID == Obj::HERO)
 	{
@@ -331,7 +331,7 @@ bool CGTeleport::isExitPassable(const CGameState * gs, const CGHeroInstance * h,
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs->getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
+		if(gs.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -341,11 +341,11 @@ bool CGTeleport::isExitPassable(const CGameState * gs, const CGHeroInstance * h,
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{
-		return !isExitPassable(gs, h, gs->getObj(exit));
+		return !isExitPassable(gs, h, gs.getObj(exit));
 	});
 	return exits;
 }
@@ -376,7 +376,7 @@ void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<Telepo
 
 TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObjectSubID SubID) const
 {
-	for(auto teleportObj : cb->gameState()->getMap().getObjects<CGMonolith>())
+	for(auto teleportObj : cb->gameState().getMap().getObjects<CGMonolith>())
 	{
 		if(vstd::contains(IDs, teleportObj->ID) && teleportObj->subID == SubID)
 			return teleportObj->channel;
@@ -453,9 +453,9 @@ void CGMonolith::initObj(vstd::RNG & rand)
 
 	channel = findMeChannel(IDs, subID);
 	if(channel == TeleportChannelID())
-		channel = TeleportChannelID(static_cast<si32>(cb->gameState()->getMap().teleportChannels.size()));
+		channel = TeleportChannelID(static_cast<si32>(cb->gameState().getMap().teleportChannels.size()));
 
-	addToChannel(cb->gameState()->getMap().teleportChannels, this);
+	addToChannel(cb->gameState().getMap().teleportChannels, this);
 }
 
 void CGSubterraneanGate::onHeroVisit( const CGHeroInstance * h ) const
@@ -485,7 +485,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
-	for(auto gate : cb->gameState()->getMap().getObjects<CGSubterraneanGate>())
+	for(auto gate : cb->gameState().getMap().getObjects<CGSubterraneanGate>())
 	{
 		gatesSplit[gate->visitablePos().z].push_back(gate);
 	}
@@ -500,8 +500,8 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 	{
 		if(obj->channel == TeleportChannelID())
 		{ // if object not linked to channel then create new channel
-			obj->channel = TeleportChannelID(static_cast<si32>(cb->gameState()->getMap().teleportChannels.size()));
-			addToChannel(cb->gameState()->getMap().teleportChannels, obj);
+			obj->channel = TeleportChannelID(static_cast<si32>(cb->gameState().getMap().teleportChannels.size()));
+			addToChannel(cb->gameState().getMap().teleportChannels, obj);
 		}
 	};
 
@@ -528,7 +528,7 @@ void CGSubterraneanGate::postInit(IGameCallback * cb) //matches subterranean gat
 		if(best.first >= 0) //found pair
 		{
 			gatesSplit[1][best.first]->channel = objCurrent->channel;
-			addToChannel(cb->gameState()->getMap().teleportChannels, gatesSplit[1][best.first]);
+			addToChannel(cb->gameState().getMap().teleportChannels, gatesSplit[1][best.first]);
 		}
 	}
 
@@ -599,7 +599,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 
 		const auto * obj = cb->getObj(exit);
 		std::set<int3> tiles = obj->getBlockedPos();
-		dPos = *RandomGeneratorUtil::nextItem(tiles, cb->gameState()->getRandomGenerator());
+		dPos = *RandomGeneratorUtil::nextItem(tiles, cb->gameState().getRandomGenerator());
 	}
 
 	cb->moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
@@ -630,19 +630,19 @@ void CGArtifact::pickRandomObject(vstd::RNG & rand)
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = cb->gameState()->pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_RELIC);
 			break;
 	}
 
@@ -666,9 +666,9 @@ void CGArtifact::initObj(vstd::RNG & rand)
 	if(ID == Obj::ARTIFACT)
 	{
 		if (!storedArtifact.hasValue())
-			setArtifactInstance(cb->gameState()->createArtifact(ArtifactID()));
+			setArtifactInstance(cb->gameState().createArtifact(ArtifactID()));
 
-		auto * artifact = cb->gameState()->getArtInstance(storedArtifact);
+		auto * artifact = cb->gameState().getArtInstance(storedArtifact);
 
 		if(!artifact->getType())
 			artifact->setType(getArtifactType().toArtifact());
@@ -881,7 +881,7 @@ std::vector<CreatureID> CGGarrison::providedCreatures() const
 
 void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 {
-	auto relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		cb->startBattle(h, this);
@@ -953,7 +953,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 
 		std::vector<const CGObjectInstance *> eyes;
 
-		for (const auto & object : cb->gameState()->getMap().getObjects<CGMagi>())
+		for (const auto & object : cb->gameState().getMap().getObjects<CGMagi>())
 		{
 			if (object->ID == Obj::EYE_OF_MAGI && object->subID == this->subID)
 				eyes.push_back(object);
@@ -1100,7 +1100,7 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		cb->setOwner(this, h->tempOwner);
 
 	if(shipyardStatus() != IBoatGenerator::GOOD)
@@ -1152,7 +1152,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	TeamState *ts = cb->gameState()->getPlayerTeam(h->tempOwner);
+	TeamState *ts = cb->gameState().getPlayerTeam(h->tempOwner);
 	assert(ts);
 	TeamID team = ts->id;
 
@@ -1181,7 +1181,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGObelisk::initObj(vstd::RNG & rand)
 {
-	cb->gameState()->getMap().obeliskCount++;
+	cb->gameState().getMap().obeliskCount++;
 }
 
 std::string CGObelisk::getHoverText(PlayerColor player) const
@@ -1200,13 +1200,13 @@ void CGObelisk::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	{
 		case ObjProperty::OBELISK_VISITED:
 			{
-				auto progress = ++cb->gameState()->getMap().obelisksVisited[identifier.as<TeamID>()];
-				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState()->getMap().obeliskCount));
+				auto progress = ++cb->gameState().getMap().obelisksVisited[identifier.as<TeamID>()];
+				logGlobal->debug("Player %d: obelisk progress %d / %d", identifier.getNum(), static_cast<int>(progress) , static_cast<int>(cb->gameState().getMap().obeliskCount));
 
-				if(progress > cb->gameState()->getMap().obeliskCount)
+				if(progress > cb->gameState().getMap().obeliskCount)
 				{
-					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState()->getMap().obeliskCount);
-					throw std::runtime_error("Player visited " + std::to_string(progress) + " obelisks out of " + std::to_string(cb->gameState()->getMap().obeliskCount) + " present on map!");
+					logGlobal->error("Visited %d of %d", static_cast<int>(progress), cb->gameState().getMap().obeliskCount);
+					throw std::runtime_error("Player visited " + std::to_string(progress) + " obelisks out of " + std::to_string(cb->gameState().getMap().obeliskCount) + " present on map!");
 				}
 
 				break;

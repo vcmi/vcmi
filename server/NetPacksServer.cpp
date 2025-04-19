@@ -397,7 +397,7 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
-	*gh.gameState()->getPlayerState(pack.player)->playerLocalSettings = pack.data;
+	*gh.gameState().getPlayerState(pack.player)->playerLocalSettings = pack.data;
 	result = true;
 }
 

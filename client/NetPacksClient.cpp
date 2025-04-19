@@ -100,16 +100,16 @@ void callAllInterfaces(CClient & cl, void (T::*ptr)(Args...), Args2 && ...args)
 template<typename T, typename ... Args, typename ... Args2>
 void callBattleInterfaceIfPresentForBothSides(CClient & cl, const BattleID & battleID, void (T::*ptr)(Args...), Args2 && ...args)
 {
-	assert(cl.gameState()->getBattle(battleID));
+	assert(cl.gameState().getBattle(battleID));
 
-	if(!cl.gameState()->getBattle(battleID))
+	if(!cl.gameState().getBattle(battleID))
 	{
 		logGlobal->error("Attempt to call battle interface without ongoing battle!");
 		return;
 	}
 
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::ATTACKER).color, ptr, std::forward<Args2>(args)...);
-	callOnlyThatBattleInterface(cl, cl.gameState()->getBattle(battleID)->getSide(BattleSide::DEFENDER).color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState().getBattle(battleID)->getSide(BattleSide::ATTACKER).color, ptr, std::forward<Args2>(args)...);
+	callOnlyThatBattleInterface(cl, cl.gameState().getBattle(battleID)->getSide(BattleSide::DEFENDER).color, ptr, std::forward<Args2>(args)...);
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool() && GAME->interface()->battleInt)
 	{
 		callOnlyThatBattleInterface(cl, PlayerColor::SPECTATOR, ptr, std::forward<Args2>(args)...);
@@ -431,7 +431,7 @@ void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface
 
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
-			if(cl.gameState()->isPlayerMakingTurn(player))
+			if(cl.gameState().isPlayerMakingTurn(player))
 			{
 				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
 				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, QueryID::NONE);

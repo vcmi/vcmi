@@ -58,17 +58,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 void CPrivilegedInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 {
 	std::vector<int> floors;
-	floors.reserve(gameState()->getMap().levels());
-	for(int b = 0; b < gameState()->getMap().levels(); ++b)
+	floors.reserve(gameState().getMap().levels());
+	for(int b = 0; b < gameState().getMap().levels(); ++b)
 	{
 		floors.push_back(b);
 	}
 	const TerrainTile * tinfo = nullptr;
 	for (auto zd : floors)
 	{
-		for (int xd = 0; xd < gameState()->getMap().width; xd++)
+		for (int xd = 0; xd < gameState().getMap().width; xd++)
 		{
-			for (int yd = 0; yd < gameState()->getMap().height; yd++)
+			for (int yd = 0; yd < gameState().getMap().height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
@@ -94,10 +94,10 @@ void CPrivilegedInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 		getAllTiles (tiles, player, -1, [](auto * tile){return true;});
 	else
 	{
-		const TeamState * team = !player ? nullptr : gameState()->getPlayerTeam(*player);
-		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gameState()->getMap().width - 1); xd++)
+		const TeamState * team = !player ? nullptr : gameState().getPlayerTeam(*player);
+		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gameState().getMap().width - 1); xd++)
 		{
-			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gameState()->getMap().height - 1); yd++)
+			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gameState().getMap().height - 1); yd++)
 			{
 				int3 tilePos(xd,yd,pos.z);
 				int distance = pos.dist(tilePos, distanceFormula);
@@ -126,7 +126,7 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		for(int b = 0; b < gameState()->getMap().levels(); ++b)
+		for(int b = 0; b < gameState().getMap().levels(); ++b)
 		{
 			floors.push_back(b);
 		}
@@ -136,9 +136,9 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 
 	for(auto zd: floors)
 	{
-		for(int xd = 0; xd < gameState()->getMap().width; xd++)
+		for(int xd = 0; xd < gameState().getMap().width; xd++)
 		{
-			for(int yd = 0; yd < gameState()->getMap().height; yd++)
+			for(int yd = 0; yd < gameState().getMap().height; yd++)
 			{
 				int3 coordinates(xd, yd, zd);
 				if (filter(getTile(coordinates)))
@@ -151,16 +151,16 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_TREASURE));
+		out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE));
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MINOR));
+		out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_MINOR));
 
-	out.push_back(gameState()->pickRandomArtifact(rand, CArtifact::ART_MAJOR));
+	out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_MAJOR));
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
-	for (auto const & spellID : gameState()->getMap().allowedSpells)
+	for (auto const & spellID : gameState().getMap().allowedSpells)
 	{
 		const auto * spell = spellID.toEntity(LIBRARY);
 
@@ -176,9 +176,9 @@ void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::
 
 TerrainTile * CNonConstInfoCallback::getTile(const int3 & pos)
 {
-	if(!gameState()->getMap().isInTheMap(pos))
+	if(!gameState().getMap().isInTheMap(pos))
 		return nullptr;
-	return &gameState()->getMap().getTile(pos);
+	return &gameState().getMap().getTile(pos);
 }
 
 CGHeroInstance * CNonConstInfoCallback::getHero(const ObjectInstanceID & objid)
@@ -208,12 +208,12 @@ PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, b
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)
 {
-	return gameState()->getMap().getArtifactInstance(aid);
+	return gameState().getMap().getArtifactInstance(aid);
 }
 
 CGObjectInstance * CNonConstInfoCallback::getObjInstance(const ObjectInstanceID & oid)
 {
-	return gameState()->getMap().getObject(oid);
+	return gameState().getMap().getObject(oid);
 }
 
 CArmedInstance * CNonConstInfoCallback::getArmyInstance(const ObjectInstanceID & oid)

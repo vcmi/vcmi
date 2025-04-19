@@ -545,7 +545,7 @@ void CTavernWindow::addInvite()
 	if(!GAME->interface()->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
 		return;
 
-	const auto & heroesPool = GAME->server().client->gameState()->heroesPool;
+	const auto & heroesPool = GAME->server().client->gameState().heroesPool;
 	for(auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());

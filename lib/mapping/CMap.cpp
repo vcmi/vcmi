@@ -937,7 +937,7 @@ const CGObjectInstance * CMap::getObject(ObjectInstanceID obj) const
 void CMap::saveCompatibilityStoreAllocatedArtifactID()
 {
 	if (!artInstances.empty())
-		cb->gameState()->saveCompatibilityLastAllocatedArtifactID = artInstances.back()->getId();
+		cb->gameState().saveCompatibilityLastAllocatedArtifactID = artInstances.back()->getId();
 }
 
 void CMap::saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact)

@@ -127,7 +127,7 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vector<std::string> & words)
 {
 	int playersCheated = 0;
-	for(const auto & player : gameHandler->gameState()->players)
+	for(const auto & player : gameHandler->gameState().players)
 	{
 		if(player.second.cheated)
 		{
@@ -148,7 +148,7 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	std::string path = gameHandler->gameState()->statistic.writeCsv();
+	std::string path = gameHandler->gameState().statistic.writeCsv();
 
 	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
 	str.replaceRawString(path);
@@ -484,7 +484,7 @@ void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroIn
 		return;
 
 	for(const auto & spell : LIBRARY->spellh->objects)
-		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
+		if(gameHandler->gameState().isAllowed(spell->getId()) && !spell->isSpecial())
 		{
 			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
 		}
@@ -606,8 +606,8 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	FoWChange fc;
 	fc.mode = reveal ? ETileVisibility::REVEALED : ETileVisibility::HIDDEN;
 	fc.player = player;
-	const auto & fowMap = gameHandler->gameState()->getPlayerTeam(player)->fogOfWarMap;
-	const auto & mapSize = gameHandler->gameState()->getMapSize();
+	const auto & fowMap = gameHandler->gameState().getPlayerTeam(player)->fogOfWarMap;
+	const auto & mapSize = gameHandler->gameState().getMapSize();
 	auto hlp_tab = new int3[mapSize.x * mapSize.y * mapSize.z];
 	int lastUnc = 0;
 
@@ -626,9 +626,9 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
-	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
+	TeamState *t = gameHandler->gameState().getPlayerTeam(player);
 
-	for(auto & obj : gameHandler->gameState()->getMap().getObjects<CGObelisk>())
+	for(auto & obj : gameHandler->gameState().getMap().getObjects<CGObelisk>())
 	{
 		if(!obj->wasVisited(player))
 		{
@@ -724,7 +724,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 	bool playerTargetedCheat = false;
 
-	for (const auto & i : gameHandler->gameState()->players)
+	for (const auto & i : gameHandler->gameState().players)
 	{
 		if (words.empty())
 			break;

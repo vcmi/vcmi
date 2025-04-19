@@ -634,11 +634,11 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
 
-	if(victory && client->gameState()->getStartInfo()->campState)
+	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
+		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{

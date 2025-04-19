@@ -109,7 +109,7 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	const auto * leftInfo = gameHandler->getPlayerState(left, false);
 	const auto * rightInfo = gameHandler->getPlayerState(right, false);
 
-	for (auto obj : gameHandler->gameState()->getMap().getObjects())
+	for (auto obj : gameHandler->gameState().getMap().getObjects())
 	{
 		if (obj->asOwnable())
 		{

@@ -492,7 +492,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			const auto & upgrades = getStack(slotID).getCreature()->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState().getRandomGenerator());
 				cb->changeStackType(StackLocation(id, slotID), it->toCreature());
 			}
 		}

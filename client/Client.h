@@ -140,8 +140,8 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	CGameState * gameState() final { return gamestate.get(); }
-	const CGameState * gameState() const final { return gamestate.get(); }
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
 
 	void newGame(std::shared_ptr<CGameState> gameState);
 	void loadGame(std::shared_ptr<CGameState> gameState);

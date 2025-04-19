@@ -327,7 +327,7 @@ CGTownInstance * CGHeroInstance::getVisitedTown()
 	if (!visitedTown.hasValue())
 		return nullptr;
 
-	return dynamic_cast<CGTownInstance*>(cb->gameState()->getObjInstance(visitedTown));
+	return dynamic_cast<CGTownInstance*>(cb->gameState().getObjInstance(visitedTown));
 }
 
 void CGHeroInstance::setVisitedTown(const CGTownInstance * town, bool garrisoned)
@@ -373,7 +373,7 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 void CGHeroInstance::updateAppearance()
 {
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
 		appearance = app;
@@ -406,7 +406,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook)
 		{
-			auto artifact = cb->gameState()->createArtifact(ArtifactID::SPELLBOOK);
+			auto artifact = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -415,7 +415,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(!getArt(ArtifactPosition::MACH4))
 	{
-		auto artifact = cb->gameState()->createArtifact(ArtifactID::CATAPULT);
+		auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -528,7 +528,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 				if(!getArt(slot))
 				{
-					auto artifact = cb->gameState()->createArtifact(aid);
+					auto artifact = cb->gameState().createArtifact(aid);
 					putArtifact(slot, artifact);
 				}
 				else
@@ -559,7 +559,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 	if (ID == Obj::HERO)
 	{
-		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
+		if( cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
 			cb->heroExchange(h->id, id);
@@ -584,7 +584,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
-			if (cb->gameState()->getMap().getTile(boatPos).isWater())
+			if (cb->gameState().getMap().getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
 				if (!inBoat())
@@ -672,7 +672,7 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 	if (ID == Obj::RANDOM_HERO)
 	{
-		auto selectedHero = cb->gameState()->pickNextHeroType(getOwner());
+		auto selectedHero = cb->gameState().pickNextHeroType(getOwner());
 
 		ID = Obj::HERO;
 		subID = selectedHero;
@@ -1282,7 +1282,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		cb->gameState()->getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
+		cb->gameState().getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 
@@ -1311,7 +1311,7 @@ const CGBoat * CGHeroInstance::getBoat() const
 CGBoat * CGHeroInstance::getBoat()
 {
 	if (boardedBoat.hasValue())
-		return dynamic_cast<CGBoat*>(cb->gameState()->getObjInstance(boardedBoat));
+		return dynamic_cast<CGBoat*>(cb->gameState().getObjInstance(boardedBoat));
 	return nullptr;
 }
 
@@ -1332,35 +1332,35 @@ void CGHeroInstance::setBoat(CGBoat* newBoat)
 	}
 }
 
-void CGHeroInstance::restoreBonusSystem(CGameState * gs)
+void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 {
 	CArmedInstance::restoreBonusSystem(gs);
 	artDeserializationFix(gs, this);
 	if (boardedBoat.hasValue())
 	{
-		auto boat = gs->getObjInstance(boardedBoat);
+		auto boat = gs.getObjInstance(boardedBoat);
 		if (boat)
 			attachTo(dynamic_cast<CGBoat&>(*boat));
 	}
 }
 
-void CGHeroInstance::attachToBonusSystem(CGameState * gs)
+void CGHeroInstance::attachToBonusSystem(CGameState & gs)
 {
 	CArmedInstance::attachToBonusSystem(gs);
 	if (boardedBoat.hasValue())
 	{
-		auto boat = gs->getObjInstance(boardedBoat);
+		auto boat = gs.getObjInstance(boardedBoat);
 		if (boat)
 			attachTo(dynamic_cast<CGBoat&>(*boat));
 	}
 }
 
-void CGHeroInstance::detachFromBonusSystem(CGameState * gs)
+void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
 {
 	CArmedInstance::detachFromBonusSystem(gs);
 	if (boardedBoat.hasValue())
 	{
-		auto boat = gs->getObjInstance(boardedBoat);
+		auto boat = gs.getObjInstance(boardedBoat);
 		if (boat)
 			detachFrom(dynamic_cast<CGBoat&>(*boat));
 	}
@@ -1377,7 +1377,7 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBat
 	return const_cast<CGTownInstance*>(getVisitedTown());
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState & gs)
 {
 	if(getVisitedTown())
 		return whereShouldBeAttachedOnSiege(getVisitedTown()->isBattleOutsideTown(this));
@@ -1385,11 +1385,11 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
 	return &CArmedInstance::whereShouldBeAttached(gs);
 }
 
-CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(visitedTown.hasValue())
 	{
-		auto town = gs->getTown(visitedTown);
+		auto town = gs.getTown(visitedTown);
 		if(isGarrisoned())
 			return *town;
 		else
@@ -1819,7 +1819,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState()->getMap());
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)

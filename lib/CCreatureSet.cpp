@@ -776,7 +776,7 @@ ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) 
 CArmedInstance * CStackInstance::getArmy()
 {
 	if (armyInstanceID.hasValue())
-		return dynamic_cast<CArmedInstance*>(cb->gameState()->getObjInstance(armyInstanceID));
+		return dynamic_cast<CArmedInstance*>(cb->gameState().getObjInstance(armyInstanceID));
 	return nullptr;
 }
 

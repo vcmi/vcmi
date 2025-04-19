@@ -74,7 +74,7 @@ void CPathfinderHelper::calculateNeighbourTiles(NeighbourTilesVector & result, c
 	}
 }
 
-CPathfinder::CPathfinder(CGameState * gamestate, std::shared_ptr<PathfinderConfig> config):
+CPathfinder::CPathfinder(CGameState & gamestate, std::shared_ptr<PathfinderConfig> config):
 	gamestate(gamestate),
 	config(std::move(config))
 {
@@ -111,9 +111,9 @@ void CPathfinder::calculatePaths()
 
 	for(auto * initialNode : initialNodes)
 	{
-		if(!gamestate->isInTheMap(initialNode->coord)/* || !gameState()->getMap().isInTheMap(dest)*/) //check input
+		if(!gamestate.isInTheMap(initialNode->coord)/* || !gameState().getMap().isInTheMap(dest)*/) //check input
 		{
-			logGlobal->error("CGameState::calculatePaths: Hero outside the gameState()->map? How dare you...");
+			logGlobal->error("CGameState::calculatePaths: Hero outside the gameState().map? How dare you...");
 			throw std::runtime_error("Wrong checksum");
 		}
 
@@ -251,7 +251,7 @@ TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const Te
 			auto pos = obj->getBlockedPos();
 			for(const auto & p : pos)
 			{
-				ObjectInstanceID topObject = gameState()->getMap().getTile(p).topVisitableObj();
+				ObjectInstanceID topObject = gameState().getMap().getTile(p).topVisitableObj();
 				if(topObject.hasValue() && getObj(topObject)->ID == obj->ID)
 					allowedExits.push_back(p);
 			}
@@ -390,7 +390,7 @@ EPathNodeAction CPathfinder::getTeleportDestAction() const
 
 bool CPathfinder::isDestinationGuardian() const
 {
-	return gamestate->guardingCreaturePosition(destination.node->coord) == destination.node->coord;
+	return gamestate.guardingCreaturePosition(destination.node->coord) == destination.node->coord;
 }
 
 void CPathfinderHelper::initializePatrol()
@@ -402,7 +402,7 @@ void CPathfinderHelper::initializePatrol()
 		if(hero->patrol.patrolRadius)
 		{
 			state = PATROL_RADIUS;
-			gameState()->getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, ETileVisibility::REVEALED, std::optional<PlayerColor>(), int3::DIST_MANHATTAN);
+			gameState().getTilesInRange(patrolTiles, hero->patrol.initialPos, hero->patrol.patrolRadius, ETileVisibility::REVEALED, std::optional<PlayerColor>(), int3::DIST_MANHATTAN);
 		}
 		else
 			state = PATROL_LOCKED;
@@ -414,12 +414,12 @@ void CPathfinderHelper::initializePatrol()
 void CPathfinder::initializeGraph()
 {
 	INodeStorage * nodeStorage = config->nodeStorage.get();
-	nodeStorage->initialize(config->options, gamestate);
+	nodeStorage->initialize(config->options, &gamestate);
 }
 
 bool CPathfinderHelper::canMoveBetween(const int3 & a, const int3 & b) const
 {
-	return gameState()->checkForVisitableDir(a, b);
+	return gameState().checkForVisitableDir(a, b);
 }
 
 bool CPathfinderHelper::isAllowedTeleportEntrance(const CGTeleport * obj) const
@@ -497,7 +497,7 @@ int CPathfinderHelper::getGuardiansCount(int3 tile) const
 	return getGuardingCreatures(tile).size();
 }
 
-CPathfinderHelper::CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
+CPathfinderHelper::CPathfinderHelper(CGameState & gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
 	gs(gs),
 	turn(-1),
 	owner(Hero->tempOwner),
@@ -572,7 +572,7 @@ void CPathfinderHelper::getNeighbours(
 	const boost::logic::tribool & onLand,
 	const bool limitCoastSailing) const
 {
-	const CMap * map = &gameState()->getMap();
+	const CMap * map = &gameState().getMap();
 	const TerrainType * sourceTerrain = sourceTile.getTerrain();
 
 	static constexpr std::array dirs = {

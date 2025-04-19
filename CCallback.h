@@ -152,8 +152,8 @@ class CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, pu
 {
 	std::shared_ptr<CGameState> gamestate;
 
-	CGameState * gameState() final { return gamestate.get(); }
-	const CGameState * gameState() const final { return gamestate.get(); }
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
 
 public:
 	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C);

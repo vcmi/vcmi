@@ -305,7 +305,7 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
+	if(cb->gameState().getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
 		if(armedGarrison() || getVisitingHero())
 		{
@@ -330,7 +330,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			auto heroColor = h->getOwner();
 			onTownCaptured(heroColor);
 
-			if(cb->gameState()->getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
+			if(cb->gameState().getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
 			{
 				return; //we just won game, we do not need to perform any extra actions
 				//TODO: check how does H3 behave, visiting town on victory can affect campaigns (spells learned, +1 stat building visited)
@@ -624,7 +624,7 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
-		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
+		PlayerState* state = cb->gameState().getPlayerState(owner); //get all towns owned by player
 		for (const auto & otherTown : state->getTowns())
 		{
 			if (otherTown != this && otherTown->hasCapitol())
@@ -674,14 +674,14 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const ArtifactID a : cb->gameState()->getMap().townMerchantArtifacts)
+		for(const ArtifactID a : cb->gameState().getMap().townMerchantArtifacts)
 			ret.push_back(a);
 
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState()->getMap().townUniversitySkills;
+		return cb->gameState().getMap().townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -694,7 +694,7 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
 	//FIXME: not the best way to do this
 	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)
@@ -776,7 +776,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 	}
 	else if (visitingHero.hasValue())
 	{
-		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState()->getObjInstance(visitingHero));
+		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(visitingHero));
 		oldVisitor->detachFromBonusSystem(cb->gameState());
 		oldVisitor->setVisitedTown(nullptr, false);
 		oldVisitor->attachToBonusSystem(cb->gameState());
@@ -798,7 +798,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 	}
 	else if (garrisonHero.hasValue())
 	{
-		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState()->getObjInstance(garrisonHero));
+		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(garrisonHero));
 		oldVisitor->detachFromBonusSystem(cb->gameState());
 		oldVisitor->setVisitedTown(nullptr, false);
 		oldVisitor->attachToBonusSystem(cb->gameState());

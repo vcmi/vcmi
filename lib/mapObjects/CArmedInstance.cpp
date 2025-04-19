@@ -139,13 +139,13 @@ void CArmedInstance::armyChanged()
 	updateMoraleBonusFromArmy();
 }
 
-CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(tempOwner.isValidPlayer())
-		if(auto * where = gs->getPlayerState(tempOwner))
+		if(auto * where = gs.getPlayerState(tempOwner))
 			return *where;
 
-	return gs->globalEffects;
+	return gs.globalEffects;
 }
 
 CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
@@ -153,19 +153,19 @@ CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 	return *this;
 }
 
-void CArmedInstance::attachToBonusSystem(CGameState * gs)
+void CArmedInstance::attachToBonusSystem(CGameState & gs)
 {
 	whatShouldBeAttached().attachTo(whereShouldBeAttached(gs));
 }
 
-void CArmedInstance::restoreBonusSystem(CGameState * gs)
+void CArmedInstance::restoreBonusSystem(CGameState & gs)
 {
 	whatShouldBeAttached().attachTo(whereShouldBeAttached(gs));
 	for(const auto & elem : stacks)
 		elem.second->artDeserializationFix(gs, elem.second.get());
 }
 
-void CArmedInstance::detachFromBonusSystem(CGameState * gs)
+void CArmedInstance::detachFromBonusSystem(CGameState & gs)
 {
 	whatShouldBeAttached().detachFrom(whereShouldBeAttached(gs));
 }

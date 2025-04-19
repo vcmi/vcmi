@@ -107,7 +107,7 @@ std::vector<T> PlayerState::getObjectsOfType() const
 	std::vector<T> result;
 	for (const ObjectInstanceID & objectID : ownedObjects)
 	{
-		auto objectPtr = cb->gameState()->getObjInstance(objectID);
+		auto objectPtr = cb->gameState().getObjInstance(objectID);
 		auto casted = dynamic_cast<T>(objectPtr);
 		if (casted)
 			result.push_back(casted);

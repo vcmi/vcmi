@@ -34,8 +34,8 @@ bool VisitQuery::blocksPack(const CPackForServer * pack) const
 
 void MapObjectVisitQuery::onExposure(QueryPtr topQuery)
 {
-	auto object = gh->gameState()->getObjInstance(visitedObject);
-	auto hero = gh->gameState()->getHero(visitingHero);
+	auto object = gh->gameState().getObjInstance(visitedObject);
+	auto hero = gh->gameState().getHero(visitingHero);
 
 	//Object may have been removed and deleted.
 	if (object)
@@ -52,7 +52,7 @@ MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectIns
 
 void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
-	auto object = gh->gameState()->getObjInstance(visitedObject);
+	auto object = gh->gameState().getObjInstance(visitedObject);
 
 	gh->objectVisitEnded(visitingHero, players.front());
 
@@ -73,8 +73,8 @@ TownBuildingVisitQuery::TownBuildingVisitQuery(CGameHandler * owner, const CGTow
 
 void TownBuildingVisitQuery::onExposure(QueryPtr topQuery)
 {
-	auto object = gh->gameState()->getObjInstance(visitedObject);
-	auto hero = gh->gameState()->getHero(visitingHero);
+	auto object = gh->gameState().getObjInstance(visitedObject);
+	auto hero = gh->gameState().getHero(visitingHero);
 
 	topQuery->notifyObjectAboutRemoval(object, hero);
 

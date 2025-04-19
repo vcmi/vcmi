@@ -34,7 +34,7 @@ HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 
 TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
 {
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	const auto & heroes = heroesPool->getHeroesFor(player);
 
@@ -110,7 +110,7 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.replenishPoints = true;
 
 	CGHeroInstance *newHero = nextHero.hasValue()?
-		gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero]:
+		gameHandler->gameState().heroesPool->unusedHeroesFromPool()[nextHero]:
 		pickHeroFor(needNativeHero, color);
 
 	if (newHero)
@@ -150,7 +150,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	const PlayerState * playerState = gameHandler->getPlayerState(player);
 	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
 	const CGTownInstance * town = gameHandler->getTown(objectID);
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
 		return false;
@@ -256,7 +256,7 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 {
 	std::vector<const CHeroClass *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
@@ -278,7 +278,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 {
 	std::vector<CGHeroInstance *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
@@ -303,7 +303,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 	}
 
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	const auto & currentTavern = heroesPool->getHeroesFor(player);
 
 	std::vector<const CHeroClass *> potentialClasses = findAvailableClassesFor(player);

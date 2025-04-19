@@ -92,8 +92,8 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
-	CGameState * gameState() final { return gs.get(); }
-	const CGameState * gameState() const final { return gs.get(); }
+	CGameState & gameState() final { return *gs; }
+	const CGameState & gameState() const final { return *gs; }
 
 	// Helpers to create new object of specified type
 

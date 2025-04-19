@@ -28,8 +28,8 @@ public:
 	virtual ~GameCallbackMock();
 
 	void setGameState(std::shared_ptr<CGameState> gameState);
-	CGameState * gameState() final { return gamestate.get(); }
-	const CGameState * gameState() const final { return gamestate.get(); }
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
 
 
 	///STUBS, to be removed as long as same methods moved from GameHandler

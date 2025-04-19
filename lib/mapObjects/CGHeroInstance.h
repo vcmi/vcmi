@@ -291,7 +291,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
+	CBonusSystemNode & whereShouldBeAttached(CGameState & gs) override;
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
@@ -299,7 +299,7 @@ public:
 	const IBonusBearer* getBonusBearer() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);
+	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState & gs);
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
@@ -331,9 +331,9 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
-	void attachToBonusSystem(CGameState * gs) override;
-	void detachFromBonusSystem(CGameState * gs) override;
-	void restoreBonusSystem(CGameState * gs) override;
+	void attachToBonusSystem(CGameState & gs) override;
+	void detachFromBonusSystem(CGameState & gs) override;
+	void restoreBonusSystem(CGameState & gs) override;
 
 	void updateFrom(const JsonNode & data) override;
 

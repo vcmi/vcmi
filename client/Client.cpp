@@ -147,7 +147,7 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 
 void CClient::save(const std::string & fname)
 {
-	if(!gameState()->currentBattles.empty())
+	if(!gameState().currentBattles.empty())
 	{
 		logNetwork->error("Game cannot be saved during battle!");
 		return;
@@ -211,7 +211,7 @@ void CClient::initMapHandler()
 	// During loading CPlayerInterface from serialized state it's depend on MH
 	if(!settings["session"]["headless"].Bool())
 	{
-		GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState()->getMap()));
+		GAME->setMapInstance(std::make_unique<CMapHandler>(&gameState().getMap()));
 		logNetwork->trace("Creating mapHandler: %d ms", GAME->server().th->getDiff());
 	}
 }
@@ -227,7 +227,7 @@ void CClient::initPlayerEnvironments()
 		logNetwork->info("Preparing environment for player %s", color.toString());
 		playerEnvironments[color] = std::make_shared<CPlayerEnvironment>(color, this, std::make_shared<CCallback>(gamestate, color, this));
 		
-		if(color.isValidPlayer() && !hasHumanPlayer && gameState()->players.at(color).isHuman())
+		if(color.isValidPlayer() && !hasHumanPlayer && gameState().players.at(color).isHuman())
 			hasHumanPlayer = true;
 	}
 
@@ -247,7 +247,7 @@ void CClient::initPlayerEnvironments()
 
 void CClient::initPlayerInterfaces()
 {
-	for(const auto & playerInfo : gameState()->getStartInfo()->playerInfos)
+	for(const auto & playerInfo : gameState().getStartInfo()->playerInfos)
 	{
 		PlayerColor color = playerInfo.first;
 		if(!vstd::contains(GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID), color))
@@ -259,8 +259,8 @@ void CClient::initPlayerInterfaces()
 			if(playerInfo.second.isControlledByAI() || settings["session"]["onlyai"].Bool())
 			{
 				bool alliedToHuman = false;
-				for(const auto & allyInfo : gameState()->getStartInfo()->playerInfos)
-					if (gameState()->getPlayerTeam(allyInfo.first) == gameState()->getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
+				for(const auto & allyInfo : gameState().getStartInfo()->playerInfos)
+					if (gameState().getPlayerTeam(allyInfo.first) == gameState().getPlayerTeam(playerInfo.first) && allyInfo.second.isControlledByHuman())
 						alliedToHuman = true;
 
 				auto AiToGive = aiNameForPlayer(playerInfo.second, false, alliedToHuman);
@@ -340,14 +340,14 @@ void CClient::installNewBattleInterface(std::shared_ptr<CBattleGameInterface> ba
 
 void CClient::handlePack(CPackForClient & pack)
 {
-	ApplyClientNetPackVisitor afterVisitor(*this, *gameState());
-	ApplyFirstClientNetPackVisitor beforeVisitor(*this, *gameState());
+	ApplyClientNetPackVisitor afterVisitor(*this, gameState());
+	ApplyFirstClientNetPackVisitor beforeVisitor(*this, gameState());
 
 	pack.visit(beforeVisitor);
 	logNetwork->trace("\tMade first apply on cl: %s", typeid(pack).name());
 	{
 		std::unique_lock lock(CGameState::mutex);
-		gameState()->apply(pack);
+		gameState().apply(pack);
 	}
 	logNetwork->trace("\tApplied on gs: %s", typeid(pack).name());
 	pack.visit(afterVisitor);
@@ -373,7 +373,7 @@ int CClient::sendRequest(const CPackForServer & request, PlayerColor player)
 
 void CClient::battleStarted(const BattleID & battleID)
 {
-	const BattleInfo * info = gameState()->getBattle(battleID);
+	const BattleInfo * info = gameState().getBattle(battleID);
 
 	std::shared_ptr<CPlayerInterface> att;
 	std::shared_ptr<CPlayerInterface> def;
@@ -459,8 +459,8 @@ void CClient::battleFinished(const BattleID & battleID)
 {
 	for(auto side : { BattleSide::ATTACKER, BattleSide::DEFENDER })
 	{
-		if(battleCallbacks.count(gameState()->getBattle(battleID)->getSide(side).color))
-			battleCallbacks[gameState()->getBattle(battleID)->getSide(side).color]->onBattleEnded(battleID);
+		if(battleCallbacks.count(gameState().getBattle(battleID)->getSide(side).color))
+			battleCallbacks[gameState().getBattle(battleID)->getSide(side).color]->onBattleEnded(battleID);
 	}
 
 	if(settings["session"]["spectate"].Bool() && !settings["session"]["spectate-skip-battle"].Bool())
@@ -478,11 +478,11 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	{
 		// we want to avoid locking gamestate and causing UI to freeze while AI is making turn
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
-		battleint->activeStack(battleID, gameState()->getBattle(battleID)->battleGetStackByID(gameState()->getBattle(battleID)->activeStack, false));
+		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
 	}
 	else
 	{
-		battleint->activeStack(battleID, gameState()->getBattle(battleID)->battleGetStackByID(gameState()->getBattle(battleID)->activeStack, false));
+		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
 	}
 }
 

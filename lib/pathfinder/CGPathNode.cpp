@@ -100,7 +100,7 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
+void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 {
 	node = n;
 	guarded = false;
@@ -110,14 +110,14 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 		assert(node->coord.isValid());
 
 		coord = node->coord;
-		tile = gs->getTile(coord);
+		tile = gs.getTile(coord);
 		nodeObject = nullptr;
 		nodeHero = nullptr;
 
 		ObjectInstanceID topObjectID = tile->topVisitableObj();
 		if (topObjectID.hasValue())
 		{
-			nodeObject = gs->getObjInstance(topObjectID);
+			nodeObject = gs.getObjInstance(topObjectID);
 
 			if (nodeObject->ID == Obj::HERO)
 			{
@@ -125,28 +125,28 @@ void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
 				ObjectInstanceID bottomObjectID = tile->topVisitableObj(true);
 
 				if (bottomObjectID.hasValue())
-					nodeObject = gs->getObjInstance(bottomObjectID);
+					nodeObject = gs.getObjInstance(bottomObjectID);
 			}
 		}
 	}
 
 }
 
-void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState * gs)
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState & gs)
 {
-	if(gs->guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
+	if(gs.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
 		guarded = true;
 	}
 
 	if(nodeObject)
 	{
-		objectRelations = gs->getPlayerRelations(hlp->owner, nodeObject->tempOwner);
+		objectRelations = gs.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
 	}
 
 	if(nodeHero)
 	{
-		heroRelations = gs->getPlayerRelations(hlp->owner, nodeHero->tempOwner);
+		heroRelations = gs.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
 	}
 }
 
@@ -164,7 +164,7 @@ CDestinationNodeInfo::CDestinationNodeInfo():
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n)
+void CDestinationNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 {
 	PathNodeInfo::setNode(gs, n);
 

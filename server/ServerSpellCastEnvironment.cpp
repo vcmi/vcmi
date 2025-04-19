@@ -86,7 +86,7 @@ const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 
 const CMap * ServerSpellCastEnvironment::getMap() const
 {
-	return &gh->gameState()->getMap();
+	return &gh->gameState().getMap();
 }
 
 bool ServerSpellCastEnvironment::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode)

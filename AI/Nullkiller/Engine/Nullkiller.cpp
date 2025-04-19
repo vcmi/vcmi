@@ -77,7 +77,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 
 	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
 
-	PathfinderOptions pathfinderOptions(cb.get());
+	PathfinderOptions pathfinderOptions(*cb);
 
 	pathfinderOptions.useTeleportTwoWay = true;
 	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();

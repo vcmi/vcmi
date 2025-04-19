@@ -75,8 +75,8 @@ public:
 	CGameState(IGameCallback * callback);
 	virtual ~CGameState();
 
-	CGameState * gameState() final { return this; }
-	const CGameState * gameState() const final { return this; }
+	CGameState & gameState() final { return *this; }
+	const CGameState & gameState() const final { return *this; }
 
 	void preInit(Services * services);
 

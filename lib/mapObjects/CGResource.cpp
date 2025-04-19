@@ -108,7 +108,7 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
-	sii.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
+	sii.soundID = soundBase::pickup01 + cb->gameState().getRandomGenerator().nextInt(6);
 	cb->showInfoDialog(&sii);
 	cb->removeObject(this, player);
 }

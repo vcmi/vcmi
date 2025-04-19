@@ -93,7 +93,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 
 		if (props.hide)
 		{
-			for (auto & player : cb->gameState()->players)
+			for (auto & player : cb->gameState().players)
 			{
 				if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME && cb->getPlayerRelations(player.first, hero->getOwner()) == PlayerRelations::ENEMIES)
 					cb->changeFogOfWar(tiles, player.first, ETileVisibility::HIDDEN);

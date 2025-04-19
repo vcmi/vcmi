@@ -66,18 +66,18 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 
 	if (!randomizationInfo->instanceId.empty())
 	{
-		auto iter = cb->gameState()->getMap().instanceNames.find(randomizationInfo->instanceId);
+		auto iter = cb->gameState().getMap().instanceNames.find(randomizationInfo->instanceId);
 
-		if(iter == cb->gameState()->getMap().instanceNames.end())
+		if(iter == cb->gameState().getMap().instanceNames.end())
 			logGlobal->error("Map object not found: %s", randomizationInfo->instanceId);
 		linkedTown = dynamic_cast<CGTownInstance *>(iter->second.get());
 	}
 
 	if (randomizationInfo->identifier != 0)
 	{
-		for(auto & townID : cb->gameState()->getMap().getAllTowns())
+		for(auto & townID : cb->gameState().getMap().getAllTowns())
 		{
-			auto town = cb->gameState()->getTown(townID);
+			auto town = cb->gameState().getTown(townID);
 			if(town && town->identifier == randomizationInfo->identifier)
 			{
 				linkedTown = town;
@@ -222,7 +222,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
+	PlayerRelations relations = cb->gameState().getPlayerRelations( h->tempOwner, tempOwner );
 
 	if ( relations == PlayerRelations::ALLIES )
 		return;//do not allow recruiting or capturing

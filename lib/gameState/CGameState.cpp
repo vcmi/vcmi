@@ -1119,7 +1119,7 @@ void CGameState::apply(CPackForClient & pack)
 
 void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
-	CPathfinder pathfinder(const_cast<CGameState*>(this), config);
+	CPathfinder pathfinder(*const_cast<CGameState*>(this), config);
 	pathfinder.calculatePaths();
 }
 
@@ -1563,10 +1563,10 @@ void CGameState::buildBonusSystemTree()
 {
 	buildGlobalTeamPlayerTree();
 	for(auto & armed : map->getObjects<CArmedInstance>())
-		armed->attachToBonusSystem(this);
+		armed->attachToBonusSystem(*this);
 
 	for(auto & art : map->getArtifacts())
-		art->attachToBonusSystem(this);
+		art->attachToBonusSystem(*this);
 }
 
 void CGameState::restoreBonusSystemTree()
@@ -1575,13 +1575,13 @@ void CGameState::restoreBonusSystemTree()
 
 	buildGlobalTeamPlayerTree();
 	for(auto & armed : map->getObjects<CArmedInstance>())
-		armed->restoreBonusSystem(this);
+		armed->restoreBonusSystem(*this);
 
 	for(auto & art : map->getArtifacts())
-		art->attachToBonusSystem(this);
+		art->attachToBonusSystem(*this);
 
 	for(auto & heroID : map->getHeroesInPool())
-		map->tryGetFromHeroPool(heroID)->artDeserializationFix(this, map->tryGetFromHeroPool(heroID));
+		map->tryGetFromHeroPool(heroID)->artDeserializationFix(*this, map->tryGetFromHeroPool(heroID));
 
 	if (campaign)
 		campaign->setGamestate(this);

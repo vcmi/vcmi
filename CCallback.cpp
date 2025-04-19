@@ -378,7 +378,7 @@ CCallback::~CCallback() = default;
 bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
 	//bidirectional
-	return gameState()->getMap().canMoveBetween(a, b);
+	return gameState().getMap().canMoveBetween(a, b);
 }
 
 std::optional<PlayerColor> CCallback::getPlayerID() const
@@ -388,10 +388,10 @@ std::optional<PlayerColor> CCallback::getPlayerID() const
 
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
 {
-	if (!gameState()->getMap().isInTheMap(tile))
+	if (!gameState().getMap().isInTheMap(tile))
 		return int3(-1,-1,-1);
 
-	return gameState()->getMap().guardingCreaturePositions[tile.z][tile.x][tile.y];
+	return gameState().getMap().guardingCreaturePositions[tile.z][tile.x][tile.y];
 }
 
 void CCallback::dig( const CGObjectInstance *hero )

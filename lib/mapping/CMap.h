@@ -144,7 +144,7 @@ public:
 	CGObjectInstance * getObject(ObjectInstanceID obj);
 	const CGObjectInstance * getObject(ObjectInstanceID obj) const;
 
-	void attachToBonusSystem(CGameState * gs);
+	void attachToBonusSystem(CGameState & gs);
 
 	template<typename ObjectType = CGObjectInstance>
 	std::vector<const ObjectType *> getObjects() const

@@ -1430,7 +1430,7 @@ void HeroRecruited::applyGs(CGameState *gs)
 	gs->getMap().addNewObject(h);
 
 	p->addOwnedObject(h.get());
-	h->attachToBonusSystem(gs);
+	h->attachToBonusSystem(*gs);
 
 	if(t)
 		t->setVisitingHero(h.get());
@@ -1477,7 +1477,7 @@ void NewObject::applyGs(CGameState *gs)
 	// attach newly spawned wandering monster to global bonus system node
 	auto newArmy = std::dynamic_pointer_cast<CArmedInstance>(newObject);
 	if (newArmy)
-		newArmy->attachToBonusSystem(gs);
+		newArmy->attachToBonusSystem(*gs);
 
 	logGlobal->debug("Added object id=%d; name=%s", newObject->id, newObject->getObjectName());
 }
@@ -1961,9 +1961,9 @@ void SetObjectProperty::applyGs(CGameState *gs)
 			}
 		}
 
-		cai->detachFromBonusSystem(gs);
+		cai->detachFromBonusSystem(*gs);
 		obj->setProperty(what, identifier);
-		cai->attachToBonusSystem(gs);
+		cai->attachToBonusSystem(*gs);
 	}
 	else //not an armed instance
 	{

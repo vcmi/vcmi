@@ -80,7 +80,7 @@ public:
 		h & artifactsWorn;
 	}
 
-	void artDeserializationFix(CGameState * gs, CBonusSystemNode *node);
+	void artDeserializationFix(CGameState & gs, CBonusSystemNode *node);
 
 	void serializeJsonArtifacts(JsonSerializeFormat & handler, const std::string & fieldName, CMap * map);
 	const CArtifactInstance * getCombinedArtWithPart(const ArtifactID & partId) const;

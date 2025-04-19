@@ -28,7 +28,7 @@ private:
 	void attachUnitsToArmy();
 
 protected:
-	virtual CBonusSystemNode & whereShouldBeAttached(CGameState * gs);
+	virtual CBonusSystemNode & whereShouldBeAttached(CGameState & gs);
 	virtual CBonusSystemNode & whatShouldBeAttached();
 
 public:
@@ -45,9 +45,9 @@ public:
 	//IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 
-	void attachToBonusSystem(CGameState * gs) override;
-	void detachFromBonusSystem(CGameState * gs) override;
-	void restoreBonusSystem(CGameState * gs) override;
+	void attachToBonusSystem(CGameState & gs) override;
+	void detachFromBonusSystem(CGameState & gs) override;
+	void restoreBonusSystem(CGameState & gs) override;
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance(IGameCallback *cb);

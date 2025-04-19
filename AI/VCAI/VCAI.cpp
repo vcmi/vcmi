@@ -627,7 +627,7 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
-	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(myCb.get()));
+	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(*myCb));
 
 	if(!fh)
 		fh = new FuzzyHelper();

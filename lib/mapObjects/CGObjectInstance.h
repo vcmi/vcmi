@@ -139,9 +139,9 @@ public:
 
 	virtual void afterAddToMap(CMap * map){};
 	virtual void afterRemoveFromMap(CMap * map){};
-	virtual void attachToBonusSystem(CGameState * gs){};
-	virtual void detachFromBonusSystem(CGameState * gs){};
-	virtual void restoreBonusSystem(CGameState * gs){};
+	virtual void attachToBonusSystem(CGameState & gs){};
+	virtual void detachFromBonusSystem(CGameState & gs){};
+	virtual void restoreBonusSystem(CGameState & gs){};
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h)
