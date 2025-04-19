@@ -14,6 +14,8 @@
 
 #include "../ExceptionsCommon.h"
 
+#include <boost/locale/encoding_utf.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
@@ -91,20 +93,21 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	}
 
 	filename = filename.substr(mountPoint.size());
+	std::wstring filePath = boost::locale::conv::utf_to_utf<wchar_t>(filename);
 
 	if (!update)
 	{
 		// create folders if not exists
-		boost::filesystem::path p((baseDirectory / filename).c_str());
+		boost::filesystem::path p((baseDirectory / filePath).c_str());
 		boost::filesystem::create_directories(p.parent_path());
 
 		// create file, if not exists
-		std::ofstream file((baseDirectory / filename).c_str(), std::ofstream::binary);
+		std::ofstream file((baseDirectory / filePath).c_str(), std::ofstream::binary);
 
 		if (!file.is_open())
 			return false;
 	}
-	fileList[resID] = filename;
+	fileList[resID] = filePath;
 	return true;
 }
 
@@ -173,19 +176,26 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 				filename = it->path().filename();
 
 			std::string resName;
+
+#ifdef VCMI_WINDOWS
+			std::string filenameUtf8 = boost::locale::conv::utf_to_utf<char>(filename.native());
+#else
+			std::string filenameUtf8 = filename.string();
+#endif
+
 			if (boost::filesystem::path::preferred_separator != '/')
 			{
 				// resource names are using UNIX slashes (/)
 				resName.reserve(resName.size() + filename.native().size());
 				resName = mountPoint;
-				for (const char c : filename.string())
+				for (const char c : filenameUtf8)
 					if (c != boost::filesystem::path::preferred_separator)
 						resName.push_back(c);
 					else
 						resName.push_back('/');
 			}
 			else
-				resName = mountPoint + filename.string();
+				resName = mountPoint + filenameUtf8;
 
 			fileList[ResourcePath(resName, type)] = std::move(filename);
 		}
