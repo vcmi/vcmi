@@ -93,7 +93,11 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	}
 
 	filename = filename.substr(mountPoint.size());
-	std::wstring filePath = boost::locale::conv::utf_to_utf<wchar_t>(filename);
+#ifdef VCMI_WINDOWS
+			boost::filesystem::path filePath(boost::locale::conv::utf_to_utf<wchar_t>(filename));
+#else
+			boost::filesystem::path filePath(filename.string());
+#endif
 
 	if (!update)
 	{
