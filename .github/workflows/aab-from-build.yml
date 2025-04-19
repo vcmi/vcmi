@@ -40,7 +40,7 @@ jobs:
 
         ./gradlew bundleRelease
         ANDROID_AAB_PATH="$(ls vcmi-app/build/outputs/bundle/release/*.aab)"
-        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+        echo "ANDROID_AAB_PATH=$(pwd)/$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
     - name: Artifact
       uses: actions/upload-artifact@v4
