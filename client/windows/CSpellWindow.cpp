@@ -278,7 +278,7 @@ void CSpellWindow::processSpells()
 
 		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
 		{
-			++sitesPerOurTab[school];
+			++sitesPerOurTab[school.getNum()];
 		});
 	}
 	if(sitesPerTabAdv[4] % spellsPerPage == 0)
@@ -729,7 +729,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 
-		image->setFrame(mySpell->id);
+		image->setFrame(mySpell->id.getNum());
 		image->visible = true;
 
 		{
@@ -745,7 +745,7 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 			schoolBorder.reset();
 			if (owner->selectedTab >= 4)
 			{
-				if (whichSchool.getNum() != SpellSchool())
+				if (whichSchool.hasValue())
 					schoolBorder = std::make_shared<CAnimImage>(schoolBorders.at(whichSchool.getNum()), schoolLevel);
 			}
 			else

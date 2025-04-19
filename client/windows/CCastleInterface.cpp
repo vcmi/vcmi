@@ -894,7 +894,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 	}
 	else
 	{
-		switch(buildingToTest)
+		switch(buildingToTest.toEnum())
 		{
 		case BuildingID::MAGES_GUILD_1:
 		case BuildingID::MAGES_GUILD_2:
@@ -1065,7 +1065,7 @@ void CCastleBuildings::enterCastleGate(BuildingID building)
 		}
 	}
 
-	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building);//will be deleted by selection window
+	auto gateIcon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building.getNum());//will be deleted by selection window
 	auto wnd = std::make_shared<CObjectListWindow>(availableTowns, gateIcon, LIBRARY->generaltexth->jktexts[40],
 		LIBRARY->generaltexth->jktexts[41], std::bind (&CCastleInterface::castleTeleport, GAME->interface()->castleInt, _1), 0, images);
 	wnd->onPopup = [availableTowns](int index) { CRClickPopup::createAndPush(GAME->interface()->cb->getObjInstance(ObjectInstanceID(availableTowns[index])), ENGINE->getCursorPosition()); };
@@ -1667,7 +1667,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 		-1, -1, -1, 0, 0, 1, 2, -1, 1, 1, -1, -1
 	};
 
-	icon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building->bid, 0, 2, 2);
+	icon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building->bid.getNum(), 0, 2, 2);
 	header = std::make_shared<CAnimImage>(AnimationPath::builtin("TPTHBAR"), panelIndex[static_cast<int>(state)], 0, 1, 73);
 	if(iconIndex[static_cast<int>(state)] >=0)
 		mark = std::make_shared<CAnimImage>(AnimationPath::builtin("TPTHCHK"), iconIndex[static_cast<int>(state)], 0, 136, 56);
@@ -1769,7 +1769,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 {
 	OBJECT_CONSTRUCTION;
 
-	icon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
+	icon = std::make_shared<CAnimImage>(town->getTown()->clientInfo.buildingsIcons, building->bid.getNum(), 0, 125, 50);
 	auto statusbarBackground = std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26);
 	statusbar = CGStatusBar::create(statusbarBackground);
 
@@ -2170,7 +2170,7 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInst
 
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos += position;
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLSCR"), spell->id);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLSCR"), spell->id.getNum());
 	pos = image->pos;
 }
 
@@ -2292,5 +2292,5 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 	else
 		buy->block(true);
 
-	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD), 0, 148, 244);
+	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD).getNum(), 0, 148, 244);
 }

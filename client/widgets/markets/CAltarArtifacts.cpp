@@ -189,7 +189,7 @@ CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), LIBRARY->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
+			ShowcaseParams {std::to_string(offerQty), art->getType()->getIconIndex()}
 		};
 	return MarketShowcasesParams {std::nullopt, std::nullopt};
 }

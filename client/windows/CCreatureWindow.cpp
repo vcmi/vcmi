@@ -879,7 +879,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 
-		if(b->sid.getNum() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
+		if(b->sid.as<CreatureID>() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
 			continue;
 
 		//if it's possible to give any description or image for this kind of bonus

@@ -202,14 +202,14 @@ void CBonusSelection::createBonusesIcons()
 				}
 
 			}
-			assert(faction != -1);
+			assert(faction.hasValue());
 
 			BuildingID buildID;
 			if(getCampaign()->formatVCMI())
 				buildID = BuildingID(bonDescs[i].info1);
 			else
 				buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
-			picName = graphics->ERMUtoPicture[faction][buildID];
+			picName = graphics->ERMUtoPicture[faction.getNum()][buildID.getNum()];
 			picNumber = -1;
 
 			if(vstd::contains((*LIBRARY->townh)[faction]->town->buildings, buildID))
@@ -304,7 +304,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-			if(bonDescs[i].info2 == HeroTypeID::CAMP_RANDOM)
+			if(bonDescs[i].info2 == HeroTypeID::CAMP_RANDOM.getNum())
 			{
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;
@@ -425,7 +425,7 @@ void CBonusSelection::startMap()
 	{
 		auto exitCb = []()
 		{
-			logGlobal->info("Starting scenario %d", static_cast<int>(GAME->server().campaignMap));
+			logGlobal->info("Starting scenario %d", GAME->server().campaignMap.getNum());
 			GAME->server().sendStartGame();
 		};
 

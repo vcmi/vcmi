@@ -1072,7 +1072,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 
 void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pack)
 {
-	if(pack.id < 0) //artifact merchants globally
+	if(!pack.id.hasValue()) //artifact merchants globally
 	{
 		callAllInterfaces(cl, &IGameEventsReceiver::availableArtifactsChanged, nullptr);
 	}

@@ -164,7 +164,7 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 		return EDiggingStatus::WRONG_TERRAIN;
 
 	int allowedBlocked = excludeTop ? 1 : 0;
-	if(blockingObjects.size() > allowedBlocked || topVisitableObj(excludeTop))
+	if(blockingObjects.size() > allowedBlocked || topVisitableObj(excludeTop).hasValue())
 		return EDiggingStatus::TILE_OCCUPIED;
 	else
 		return EDiggingStatus::CAN_DIG;

@@ -721,13 +721,13 @@ void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 
 int CGHeroInstance::getPrimSkillLevel(PrimarySkill id) const
 {
-	return primarySkills.getSkills()[id];
+	return primarySkills.getSkill(id);
 }
 
 double CGHeroInstance::getFightingStrength() const
 {
 	const auto & skillValues = primarySkills.getSkills();
-	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::ATTACK]) * (1.0 + 0.05*skillValues[PrimarySkill::DEFENSE]));
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::ATTACK.getNum()]) * (1.0 + 0.05*skillValues[PrimarySkill::DEFENSE.getNum()]));
 }
 
 double CGHeroInstance::getMagicStrength() const
@@ -746,7 +746,7 @@ double CGHeroInstance::getMagicStrength() const
 	}
 	if (!atLeastOneCombatSpell)
 		return 1;
-	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*skillValues[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::KNOWLEDGE.getNum()] * mana / manaLimit()) * (1.0 + 0.05*skillValues[PrimarySkill::SPELL_POWER.getNum()] * mana / manaLimit()));
 }
 
 double CGHeroInstance::getHeroStrength() const
@@ -1976,7 +1976,7 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 
 int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
-	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(static_cast<int>(which));
+	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(which.getNum());
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 	auto minSkillValue = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);

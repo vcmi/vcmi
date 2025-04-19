@@ -199,7 +199,7 @@ size_t CComponent::getIndex() const
 		case ComponentType::LUCK:
 			return std::clamp(data.value.value_or(0) + 3, 0, 6);
 		case ComponentType::BUILDING:
-			return data.subType.as<BuildingTypeUniqueID>().getBuilding();
+			return data.subType.as<BuildingTypeUniqueID>().getBuilding().getNum();
 		case ComponentType::HERO_PORTRAIT:
 			return LIBRARY->heroTypes()->getById(data.subType.as<HeroTypeID>())->getIconIndex();
 		case ComponentType::FLAG:

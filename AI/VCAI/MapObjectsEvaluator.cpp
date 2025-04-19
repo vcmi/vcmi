@@ -68,7 +68,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	{
 		//special case handling: in-game heroes have hero ID as object subID, but when reading configs available hero object subID's are hero classes
 		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
-		return getObjectValue(obj->ID, hero->getHeroClassID());
+		return getObjectValue(obj->ID.getNum(), hero->getHeroClassID().getNum());
 	}
 	else if(obj->ID == Obj::PRISON)
 	{

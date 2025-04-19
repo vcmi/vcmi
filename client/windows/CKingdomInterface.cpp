@@ -297,7 +297,7 @@ int InfoBoxHeroData::getSubID()
 		return index;
 	case HERO_SECONDARY_SKILL:
 		if(hero->secSkills.size() > index)
-			return hero->secSkills[index].first;
+			return hero->secSkills[index].first.getNum();
 		else
 			return 0;
 	case HERO_SPECIAL:
@@ -353,7 +353,7 @@ std::string InfoBoxHeroData::getHoverText()
 		if (hero->secSkills.size() > index)
 		{
 			std::string level = LIBRARY->generaltexth->levels[hero->secSkills[index].second-1];
-			std::string skill = LIBRARY->skillh->getByIndex(hero->secSkills[index].first)->getNameTranslated();
+			std::string skill = hero->secSkills[index].first.toEntity(LIBRARY)->getNameTranslated();
 			return boost::str(boost::format(LIBRARY->generaltexth->heroscrn[21]) % level % skill);
 		}
 		else

@@ -87,7 +87,7 @@ uint64_t CompleteQuest::getHash() const
 		return q.getObject(cb)->subID;
 	}
 
-	return q.getObject(cb)->id;
+	return q.getObject(cb)->id.getNum();
 }
 
 std::string CompleteQuest::questToString() const
@@ -129,7 +129,7 @@ TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
 
 	for(auto art : q.getQuest(cb)->mission.artifacts)
 	{
-		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art)));
+		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art.getNum())));
 	}
 
 	return solutions;

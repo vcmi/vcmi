@@ -606,7 +606,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-		switch(spellBeingCasted->id)
+		switch(spellBeingCasted->id.toEnum())
 		{
 		case SpellID::SCUTTLE_BOAT:
 			if(isValidAdventureSpellTarget(targetPosition))

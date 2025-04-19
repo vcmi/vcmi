@@ -229,7 +229,7 @@ void RandomMapTab::updateMapInfoByHost()
 		playerInfo.team = team;
 		playerInfo.hasMainTown = true;
 		playerInfo.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[player.first] = playerInfo;
+		mapInfo->mapHeader->players[player.first.getNum()] = playerInfo;
 		vstd::erase(availableColors, player.first);
 	}
 

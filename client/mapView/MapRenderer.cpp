@@ -152,7 +152,7 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	int32_t terrainIndex = mapTile.getTerrainID();
+	int32_t terrainIndex = mapTile.getTerrainID().getNum();
 	int32_t imageIndex = mapTile.terView;
 	int32_t rotationIndex = mapTile.extTileFlags % 4;
 
@@ -194,7 +194,7 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 	if(!mapTile.hasRiver())
 		return;
 
-	int32_t terrainIndex = mapTile.getRiverID();
+	int32_t terrainIndex = mapTile.getRiverID().getNum();
 	int32_t imageIndex = mapTile.riverDir;
 	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
 
@@ -231,7 +231,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 		const TerrainTile & mapTileAbove = context.getMapTile(coordinatesAbove);
 		if(mapTileAbove.hasRoad())
 		{
-			int32_t terrainIndex = mapTileAbove.getRoadID();
+			int32_t terrainIndex = mapTileAbove.getRoadID().getNum();
 			int32_t imageIndex = mapTileAbove.roadDir;
 			int32_t rotationIndex = (mapTileAbove.extTileFlags >> 4) % 4;
 
@@ -243,7 +243,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 	if(mapTile.hasRoad())
 	{
-		int32_t terrainIndex = mapTile.getRoadID();
+		int32_t terrainIndex = mapTile.getRoadID().getNum();
 		int32_t imageIndex = mapTile.roadDir;
 		int32_t rotationIndex = (mapTile.extTileFlags >> 4) % 4;
 

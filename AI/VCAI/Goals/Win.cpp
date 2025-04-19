@@ -51,7 +51,7 @@ TSubgoal Win::whatToDoToAchieve()
 		switch(goal.condition)
 		{
 		case EventCondition::HAVE_ARTIFACT:
-			return sptr(GetArtOfType(goal.objectType.as<ArtifactID>()));
+			return sptr(GetArtOfType(goal.objectType.as<ArtifactID>().getNum()));
 		case EventCondition::DESTROY:
 		{
 			if(goal.objectID != ObjectInstanceID::NONE)
@@ -151,7 +151,7 @@ TSubgoal Win::whatToDoToAchieve()
 			//save?
 			return sptr(CollectRes(goal.objectType.as<GameResID>(), goal.value));
 		case EventCondition::HAVE_CREATURES:
-			return sptr(GatherTroops(goal.objectType.as<CreatureID>(), goal.value));
+			return sptr(GatherTroops(goal.objectType.as<CreatureID>().getNum(), goal.value));
 		case EventCondition::TRANSPORT:
 		{
 			//TODO. merge with bring Grail to town? So AI will first dig grail, then transport it using this goal and builds it

@@ -221,7 +221,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 		if(it != gameState->scenarioOps->playerInfos.end())
 		{
 			HeroTypeID heroTypeId = HeroTypeID(campaignBonus->info2);
-			if(heroTypeId.getNum() == HeroTypeID::CAMP_RANDOM) // random bonus hero
+			if(heroTypeId == HeroTypeID::CAMP_RANDOM) // random bonus hero
 			{
 				heroTypeId = gameState->pickUnusedHeroTypeRandomly(playerColor);
 			}
@@ -519,7 +519,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 void CGameStateCampaign::initHeroes()
 {
 	auto chosenBonus = currentBonus();
-	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != HeroTypeID::CAMP_GENERATED) //exclude generated heroes
+	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != HeroTypeID::CAMP_GENERATED.getNum()) //exclude generated heroes
 	{
 		//find human player
 		PlayerColor humanPlayer=PlayerColor::NEUTRAL;
@@ -535,7 +535,7 @@ void CGameStateCampaign::initHeroes()
 
 		const auto & heroes = gameState->players.at(humanPlayer).getHeroes();
 
-		if (chosenBonus->info1 == HeroTypeID::CAMP_STRONGEST) //most powerful
+		if (chosenBonus->info1 == HeroTypeID::CAMP_STRONGEST.getNum()) //most powerful
 		{
 			int maxB = -1;
 			for (int b=0; b<heroes.size(); ++b)

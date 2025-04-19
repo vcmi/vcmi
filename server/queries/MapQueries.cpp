@@ -81,11 +81,13 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
-		if(auto id1 = arts->src.artHolder)
+		auto id1 = arts->src.artHolder;
+		if(id1.hasValue())
 			if(!vstd::contains(ourIds, id1))
 				return true;
 
-		if(auto id2 = arts->dst.artHolder)
+		auto id2 = arts->dst.artHolder;
+		if(id2.hasValue())
 			if(!vstd::contains(ourIds, id2))
 				return true;
 		return false;
@@ -101,7 +103,8 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto art = dynamic_cast<const EraseArtifactByClient*>(pack))
 	{
-		if(auto id = art->al.artHolder)
+		auto id = art->al.artHolder;
+		if(id.hasValue())
 			return !vstd::contains(ourIds, id);
 	}
 

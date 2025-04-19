@@ -364,7 +364,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -2156,7 +2156,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 
 				int toGive;
 				int toGet;
-				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				m->getOffer(res.getNum(), g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources

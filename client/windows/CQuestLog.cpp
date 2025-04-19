@@ -101,7 +101,7 @@ void CQuestMinimap::update()
 
 void CQuestMinimap::iconClicked()
 {
-	if(currentQuest->obj)
+	if(currentQuest->obj.hasValue())
 		adventureInt->centerOnTile(currentQuest->getObject(GAME->interface()->cb.get())->visitablePos());
 	//moveAdvMapSelection();
 }

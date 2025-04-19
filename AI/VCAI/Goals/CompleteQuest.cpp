@@ -146,7 +146,7 @@ TGoalVec CompleteQuest::missionArt() const
 
 	for(auto art : q.getQuest(cb)->mission.artifacts)
 	{
-		solutions.push_back(sptr(GetArtOfType(art))); //TODO: transport?
+		solutions.push_back(sptr(GetArtOfType(art.getNum()))); //TODO: transport?
 	}
 
 	return solutions;
@@ -174,7 +174,7 @@ TGoalVec CompleteQuest::missionArmy() const
 
 	for(auto creature : q.getQuest(cb)->mission.creatures)
 	{
-		solutions.push_back(sptr(GatherTroops(creature.getId(), creature.count)));
+		solutions.push_back(sptr(GatherTroops(creature.getId().getNum(), creature.count)));
 	}
 
 	return solutions;

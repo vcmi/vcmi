@@ -75,7 +75,7 @@ int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
 
-	return hero->movementPointsLimit(layer);
+	return hero->movementPointsLimit(layer != EPathfindingLayer::SAIL);
 }
 
 std::string ChainActor::toString() const

@@ -180,7 +180,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
+	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % ai->settings->getPathfinderBucketsCount();
 	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 

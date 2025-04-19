@@ -204,7 +204,7 @@ bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should
 	if(!object)
 		return false;
 
-	if(object->id != Obj::BORDER_GATE)
+	if(object->ID != Obj::BORDER_GATE)
 		return false;
 
 	auto gate = dynamic_cast<const CGKeys *>(object);

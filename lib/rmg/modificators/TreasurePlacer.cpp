@@ -767,7 +767,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 
 		if (templates.empty())
 		{
-			throw rmgException(boost::str(boost::format("Did not find template for object (%d,%d) at %s") % object->ID % object->subID % zone.getTerrainType().encode(zone.getTerrainType())));
+			throw rmgException(boost::str(boost::format("Did not find template for object (%d,%d) at %s") % object->ID.getNum() % object->subID.getNum() % zone.getTerrainType().encode(zone.getTerrainType().getNum())));
 		}
 
 		object->appearance = *RandomGeneratorUtil::nextItem(templates, zone.getRand());

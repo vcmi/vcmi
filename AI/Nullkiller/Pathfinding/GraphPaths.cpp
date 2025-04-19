@@ -59,7 +59,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 	graph.copyFrom(*ai->baseGraph);
 	graph.connectHeroes(ai);
 
-	visualKey = std::to_string(ai->playerID) + ":" + targetHero->getNameTranslated();
+	visualKey = std::to_string(ai->playerID.getNum()) + ":" + targetHero->getNameTranslated();
 	pathNodes.clear();
 
 	GraphNodeComparer cmp(pathNodes);

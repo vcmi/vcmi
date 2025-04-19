@@ -217,7 +217,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		r.exp[BattleSide::DEFENDER] = 0;
 		for (auto i = r.casualties[battle.otherSide(r.winner)].begin(); i!=r.casualties[battle.otherSide(r.winner)].end(); i++)
 		{
-			r.exp[r.winner] += LIBRARY->creh->objects.at(i->first)->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
+			r.exp[r.winner] += i->first.toCreature()->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
 		}
 	};
 

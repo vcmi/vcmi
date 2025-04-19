@@ -239,7 +239,7 @@ void CHeroWindow::update()
 	{
 		SecondarySkill skill = curHero->secSkills[g].first;
 		int	level = curHero->getSecSkillLevel(skill);
-		std::string skillName = LIBRARY->skillh->getByIndex(skill)->getNameTranslated();
+		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
 		std::string skillValue = LIBRARY->generaltexth->levels[level-1];
 
 		secSkillNames[g]->setText(skillName);

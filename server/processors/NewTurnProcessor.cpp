@@ -257,7 +257,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
 		for (GameResID i : GameResID::ALL_RESOURCES())
 		{
-			const std::string & name = GameConstants::RESOURCE_NAMES[i];
+			const std::string & name = GameConstants::RESOURCE_NAMES[i.getNum()];
 			int64_t weeklyBonus = difficultyConfig[name].Integer();
 			int64_t dayOfWeek = gameHandler->gameState().getDate(Date::DAY_OF_WEEK);
 			int64_t dailyIncome = incomeHandicapped[i];
@@ -552,8 +552,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			do
 			{
 				newMonster.second = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
-			} while (LIBRARY->creh->objects[newMonster.second] &&
-					(*LIBRARY->townh)[LIBRARY->creatures()->getById(newMonster.second)->getFactionID()]->town == nullptr); // find first non neutral creature
+			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
 		}
