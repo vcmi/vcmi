@@ -27,8 +27,6 @@
 #include "../IGameSettings.h"
 #include "../CConfigHandler.h"
 
- #include <boost/locale/encoding_utf.hpp>
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapInfo::CMapInfo()
@@ -45,11 +43,7 @@ CMapInfo::~CMapInfo()
 std::string CMapInfo::getFullFileURI(const ResourcePath & file) const
 {
 	auto path = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file));
-#ifdef VCMI_WINDOWS
-	return boost::locale::conv::utf_to_utf<char>(path.native());
-#else
-	return path.string();
-#endif
+	return TextOperations::filesystemPathToUtf8(path);
 }
 
 void CMapInfo::mapInit(const std::string & fname)

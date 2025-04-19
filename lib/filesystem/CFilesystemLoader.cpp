@@ -13,8 +13,7 @@
 #include "CFileInputStream.h"
 
 #include "../ExceptionsCommon.h"
-
-#include <boost/locale/encoding_utf.hpp>
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -93,11 +92,7 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	}
 
 	filename = filename.substr(mountPoint.size());
-#ifdef VCMI_WINDOWS
-			boost::filesystem::path filePath(boost::locale::conv::utf_to_utf<wchar_t>(filename));
-#else
-			boost::filesystem::path filePath(filename.string());
-#endif
+	boost::filesystem::path filePath = TextOperations::Utf8TofilesystemPath(filename);
 
 	if (!update)
 	{
@@ -180,12 +175,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 				filename = it->path().filename();
 
 			std::string resName;
-
-#ifdef VCMI_WINDOWS
-			std::string filenameUtf8 = boost::locale::conv::utf_to_utf<char>(filename.native());
-#else
-			std::string filenameUtf8 = filename.string();
-#endif
+			std::string filenameUtf8 = TextOperations::filesystemPathToUtf8(filename);
 
 			if (boost::filesystem::path::preferred_separator != '/')
 			{
