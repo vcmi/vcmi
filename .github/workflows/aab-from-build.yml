@@ -27,9 +27,10 @@ jobs:
       run: curl -L '${{ inputs.build_dir_xz_url }}' | tar -xf - --xz
 
     - name: Build aab
+      env:
+        ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       run: |
-        set -x
-
         repoPath="$(pwd)"
         cd android-build
 
