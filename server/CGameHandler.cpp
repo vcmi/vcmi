@@ -3439,11 +3439,9 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		queries->popIfTop(visitQuery); //visit ends here if no queries were created
 }
 
-void CGameHandler::objectVisitEnded(const CGHeroInstance *h, PlayerColor player)
+void CGameHandler::objectVisitEnded(const ObjectInstanceID & heroObjectID, PlayerColor player)
 {
 	using events::ObjectVisitEnded;
-
-	logGlobal->debug("%s visit ends.\n", h->nodeName());
 
 	auto endVisit = [&](ObjectVisitEnded & event)
 	{
@@ -3456,7 +3454,7 @@ void CGameHandler::objectVisitEnded(const CGHeroInstance *h, PlayerColor player)
 
 	//TODO: ObjectVisitEnded should also have id of visited object,
 	//but this requires object being deleted only by `removeAfterVisit()` but not `removeObject()`
-	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, player, h->id);
+	ObjectVisitEnded::defaultExecute(serverEventBus.get(), endVisit, player, heroObjectID);
 }
 
 bool CGameHandler::buildBoat(ObjectInstanceID objid, PlayerColor playerID)

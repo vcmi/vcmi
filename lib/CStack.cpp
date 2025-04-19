@@ -405,9 +405,9 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	server->apply(ssp);
 }
 
-void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot)
+void CStack::postDeserialize(const CArmedInstance * army)
 {
-	if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+	if(slot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
 		assert(hero);
@@ -418,14 +418,13 @@ void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot
 		//no external slot possible, so no base stack
 		base = nullptr;
 	}
-	else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
+	else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 	{
-		base = nullptr;
-		logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(LIBRARY)->getNameSingularTranslated());
+		throw std::runtime_error(typeID.toEntity(LIBRARY)->getNameSingularTranslated() + " doesn't have a base stack!");
 	}
 	else
 	{
-		base = &army->getStack(extSlot);
+		base = &army->getStack(slot);
 	}
 
 	doubleWideCached = battle::CUnitState::doubleWide();

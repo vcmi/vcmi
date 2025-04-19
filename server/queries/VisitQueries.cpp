@@ -53,9 +53,8 @@ MapObjectVisitQuery::MapObjectVisitQuery(CGameHandler * owner, const CGObjectIns
 void MapObjectVisitQuery::onRemoval(PlayerColor color)
 {
 	auto object = gh->gameState()->getObjInstance(visitedObject);
-	auto hero = gh->gameState()->getHero(visitingHero);
 
-	gh->objectVisitEnded(hero, players.front());
+	gh->objectVisitEnded(visitingHero, players.front());
 
 	//Can object visit affect 2 players and what would be desired behavior?
 	if(removeObjectAfterVisit)

@@ -31,6 +31,8 @@ class DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallba
 {
 	BattleSideArray<SideInBattle> sides; //sides[0] - attacker, sides[1] - defender
 	std::unique_ptr<BattleLayout> layout;
+
+	void postDeserialize();
 public:
 	BattleID battleID = BattleID(0);
 
@@ -66,6 +68,9 @@ public:
 		h & tacticDistance;
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & replayAllowed;
+
+		if(!h.saving)
+			postDeserialize();
 	}
 
 	//////////////////////////////////////////////////////////////////////////

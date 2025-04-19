@@ -959,6 +959,12 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(BattleSide side) const
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
 }
 
+void BattleInfo::postDeserialize()
+{
+	for (auto & unit : stacks)
+		unit->postDeserialize(getSideArmy(unit->unitSide()));
+}
+
 #if SCRIPTING_ENABLED
 scripting::Pool * BattleInfo::getContextPool() const
 {
