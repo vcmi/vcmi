@@ -419,7 +419,7 @@ boost::filesystem::path TextOperations::Utf8TofilesystemPath(const std::string& 
 #ifdef VCMI_WINDOWS
 	return boost::filesystem::path(boost::locale::conv::utf_to_utf<wchar_t>(path));
 #else
-	return boost::filesystem::path(path.string());
+	return boost::filesystem::path(path);
 #endif
 }
 
