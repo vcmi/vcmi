@@ -110,6 +110,7 @@ public:
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
 	void generateUniqueInstanceName(CGObjectInstance * target);
+	ObjectInstanceID allocateUniqueInstanceID();
 
 	///Use only this method when creating new map object instances
 	void addNewObject(std::shared_ptr<CGObjectInstance> obj);

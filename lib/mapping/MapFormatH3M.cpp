@@ -1921,7 +1921,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 void CMapLoaderH3M::readObjects()
 {
 	uint32_t objectsCount = reader->readUInt32();
-	ObjectInstanceID nextObjectID(0);
 
 	for(uint32_t i = 0; i < objectsCount; ++i)
 	{
@@ -1936,14 +1935,15 @@ void CMapLoaderH3M::readObjects()
 		auto originalSubID = originalTemplate->subid;
 		reader->skipZero(5);
 
-		auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, nextObjectID);
+		ObjectInstanceID newObjectID = map->allocateUniqueInstanceID();
+		auto newObject = readObject(originalID, originalSubID, remappedTemplate, mapPosition, newObjectID);
 
 		if(!newObject)
 			continue;
 
 		newObject->setAnchorPos(mapPosition);
 		newObject->ID = remappedTemplate->id;
-		newObject->id = nextObjectID;
+		newObject->id = newObjectID;
 		if(newObject->ID != Obj::HERO && newObject->ID != Obj::HERO_PLACEHOLDER && newObject->ID != Obj::PRISON)
 		{
 			newObject->subID = remappedTemplate->subid;
@@ -1955,7 +1955,6 @@ void CMapLoaderH3M::readObjects()
 
 		map->generateUniqueInstanceName(newObject.get());
 		map->addNewObject(newObject);
-		nextObjectID.num += 1;
 	}
 
 	map->postInitialize();

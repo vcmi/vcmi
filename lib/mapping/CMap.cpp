@@ -946,4 +946,10 @@ void CMap::saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance
 	artInstances.push_back(artifact);
 }
 
+ObjectInstanceID CMap::allocateUniqueInstanceID()
+{
+	objects.push_back(nullptr);
+	return ObjectInstanceID(objects.size() - 1);
+}
+
 VCMI_LIB_NAMESPACE_END
