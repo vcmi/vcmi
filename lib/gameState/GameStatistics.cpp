@@ -334,7 +334,7 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 	for(const auto * object : ps->getOwnedObjects())
 	{
 		//Mines
-		if ( object->ID == Obj::MINE )
+		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
 		{
 			const auto * mine = dynamic_cast<const CGMine *>(object);
 			assert(mine);

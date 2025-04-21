@@ -358,9 +358,7 @@ public:
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
 
-public:
-
-	int getMagesGuildLevel()
+	int getMagesGuildLevel() const
 	{
 		switch (toEnum())
 		{

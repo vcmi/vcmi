@@ -127,12 +127,12 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vector<std::string> & words)
 {
 	int playersCheated = 0;
-	for(const auto & player : gameHandler->gameState().players)
+	for(const auto & playerState : gameHandler->gameState().players)
 	{
-		if(player.second.cheated)
+		if(playerState.second.cheated)
 		{
 			auto str = MetaString::createFromTextID("vcmi.broadcast.playerCheater");
-			str.replaceName(player.first);
+			str.replaceName(playerState.first);
 			broadcastSystemMessage(str);
 			playersCheated++;
 		}
@@ -626,7 +626,7 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
-	TeamState *t = gameHandler->gameState().getPlayerTeam(player);
+	const TeamState * t = gameHandler->gameState().getPlayerTeam(player);
 
 	for(auto & obj : gameHandler->gameState().getMap().getObjects<CGObelisk>())
 	{

@@ -496,7 +496,7 @@ void CGSeerHut::initObj(vstd::RNG & rand)
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	getQuest().getRolloverText(cb, text, onHover);//TODO: simplify?
+	getQuest().getRolloverText(cb, text, onHover);
 	if(!onHover)
 		text.replaceRawString(seerName);
 }

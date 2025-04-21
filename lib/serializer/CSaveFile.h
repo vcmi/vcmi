@@ -17,8 +17,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CSaveFile final : public IBinaryWriter
 {
 	BinarySerializer serializer;
-
-	boost::filesystem::path fName;
 	std::fstream sfile;
 
 	int write(const std::byte * data, unsigned size) final;

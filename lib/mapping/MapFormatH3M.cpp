@@ -1407,7 +1407,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readArtifact(const int3 & mapPo
 			logGlobal->warn("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
 	}
 
-	object->setArtifactInstance(map->createArtifact(artID, SpellID::NONE));
+	if (artID.hasValue())
+		object->setArtifactInstance(map->createArtifact(artID, SpellID::NONE));
+	// else - random, will be initialized later
 	return object;
 }
 
@@ -1956,8 +1958,6 @@ void CMapLoaderH3M::readObjects()
 		map->generateUniqueInstanceName(newObject.get());
 		map->addNewObject(newObject);
 	}
-
-	map->postInitialize();
 }
 
 void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID & idToBeGiven)

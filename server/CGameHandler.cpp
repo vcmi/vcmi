@@ -433,7 +433,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
-		auto * playerSettings = gameState().getStartInfo()->getPlayersSettings(playerId.getNum());
+		const auto * playerSettings = gameState().getStartInfo()->getPlayersSettings(playerId.getNum());
 		if(!playerSettings)
 			continue;
 		
@@ -554,11 +554,11 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	for (const auto & elem : gameState().players)
 		turnOrder->addPlayer(elem.first);
 
-//	for (auto & elem : gameState().getMap().allHeroes)
-//	{
-//		if(elem)
-//			heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
-//	}
+	for (const auto & elem : gameState().getMap().getObjects<CGHeroInstance>())
+		heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
+
+	for (const auto & elem : gameState().getMap().getHeroesInPool())
+		heroPool->getHeroSkillsRandomGenerator(elem); // init RMG seed
 
 	reinitScripting();
 }
@@ -674,9 +674,9 @@ void CGameHandler::onNewTurn()
 	for (const auto & townID : gameState().getMap().getAllTowns())
 	{
 		auto t = gameState().getTown(townID);
-		if (t->hasBonusOfType (BonusType::DARKNESS))
+		if(t->hasBonusOfType(BonusType::DARKNESS))
 		{
-			for (auto & player : gameState().players)
+			for(const auto & player : gameState().players)
 			{
 				if (getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
 					getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
@@ -733,7 +733,7 @@ void CGameHandler::start(bool resume)
 	{
 		onNewTurn();
 		events::TurnStarted::defaultExecute(serverEventBus.get());
-		for(auto & player : gameState().players)
+		for(const auto & player : gameState().players)
 			turnTimerHandler->onGameplayStart(player.first);
 	}
 	else

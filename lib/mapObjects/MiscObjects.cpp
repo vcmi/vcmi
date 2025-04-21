@@ -665,21 +665,16 @@ void CGArtifact::initObj(vstd::RNG & rand)
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
 	{
+		assert(getArtifactType().hasValue());
+
 		if (!storedArtifact.hasValue())
-			setArtifactInstance(cb->gameState().createArtifact(ArtifactID()));
-
-		auto * artifact = cb->gameState().getArtInstance(storedArtifact);
-
-		if(!artifact->getType())
-			artifact->setType(getArtifactType().toArtifact());
+			setArtifactInstance(cb->gameState().createArtifact(getArtifactType()));
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
 	assert(getArtifactInstance()->getType());
 	assert(!getArtifactInstance()->getParentNodes().empty());
-
-	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
 
 std::string CGArtifact::getObjectName() const

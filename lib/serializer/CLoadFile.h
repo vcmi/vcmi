@@ -16,8 +16,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE CLoadFile : public IBinaryReader
 {
 	BinaryDeserializer serializer;
-
-	std::string fName;
 	std::fstream sfile;
 
 	int read(std::byte * data, unsigned size) override; //throws!
@@ -28,7 +26,6 @@ public:
 	template<class T>
 	void load(T & data)
 	{
-		//static_assert(is_serializeable<BinaryDeserializer, T>::value, "This class can't be deserialized (possible pointer?)");
 		serializer & data;
 	}
 

@@ -82,14 +82,13 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
 		auto id1 = arts->src.artHolder;
-		if(id1.hasValue())
-			if(!vstd::contains(ourIds, id1))
-				return true;
+		if(id1.hasValue() && !vstd::contains(ourIds, id1))
+			return true;
 
 		auto id2 = arts->dst.artHolder;
-		if(id2.hasValue())
-			if(!vstd::contains(ourIds, id2))
-				return true;
+		if(id2.hasValue() && !vstd::contains(ourIds, id2))
+			return true;
+
 		return false;
 	}
 	if(auto dismiss = dynamic_cast<const DisbandCreature*>(pack))

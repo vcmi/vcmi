@@ -1220,7 +1220,7 @@ public:
 		}
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
-			evaluationContext.skillReward += 2 * buildThis.town->spellsAtLevel(bi.id.getMagesGuildLevel(), false);
+			evaluationContext.skillReward += 2 * bi.id.getMagesGuildLevel();
 			if (!alreadyOwn && evaluationContext.evaluator.ai->cb->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
 			{
 				for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())

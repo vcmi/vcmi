@@ -1779,7 +1779,7 @@ void AssembledArtifact::applyGs(CGameState *gs)
 			return art->getId() == builtArt->getId();
 		}));
 
-	auto * combinedArt = gs->getMap().createSingleArtifact(artId);
+	auto * combinedArt = gs->getMap().createArtifactComponent(artId);
 
 	// Find slots for all involved artifacts
 	std::set<ArtifactPosition, std::greater<>> slotsInvolved = { al.slot };

@@ -21,33 +21,31 @@ struct static_caster
 
 CLoadFile::CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb)
 	: serializer(this)
-	, fName(fname.string())
 	, sfile(fname.c_str(), std::ios::in | std::ios::binary)
 {
 	serializer.cb = cb;
 	serializer.loadingGamestate = true;
 	assert(!serializer.reverseEndianness);
 
-	fName = fname.string();
 	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 	if(!sfile)
-		throw std::runtime_error("Error: cannot open file '" + fName + "' for reading!");
+		throw std::runtime_error("Error: cannot open file '" + fname.string() + "' for reading!");
 
-	//we can read
-	char magic[4];
-	sfile.read(magic, 4);
-	if(std::memcmp(magic, "VCMI", 4) != 0)
-		throw std::runtime_error("Error: '" + fName + "' is not a VCMI file!");
+	static const std::string MAGIC = "VCMI";
+	std::string readMagic = MAGIC;
+	sfile.read(readMagic.data(), 4);
+	if(readMagic != MAGIC)
+		throw std::runtime_error("Error: '" + fname.string() + "' is not a VCMI file!");
 
 	sfile.read(reinterpret_cast<char*>(&serializer.version), sizeof(serializer.version));
 
 	if(serializer.version < ESerializationVersion::MINIMAL)
-		throw std::runtime_error("Error: too old file format detected in '" + fName + "'!");
+		throw std::runtime_error("Error: too old file format detected in '" + fname.string() + "'!");
 
 	if(serializer.version > ESerializationVersion::CURRENT)
 	{
-		logGlobal->warn("Warning format version mismatch: found %d when current is %d! (file %s)\n", vstd::to_underlying(serializer.version), vstd::to_underlying(ESerializationVersion::CURRENT), fName);
+		logGlobal->warn("Warning format version mismatch: found %d when current is %d! (file %s)\n", vstd::to_underlying(serializer.version), vstd::to_underlying(ESerializationVersion::CURRENT), fname.string());
 
 		auto * versionptr = reinterpret_cast<char *>(&serializer.version);
 		std::reverse(versionptr, versionptr + 4);
@@ -59,7 +57,7 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname, IGameCallback * cb)
 			serializer.reverseEndianness = true;
 		}
 		else
-			throw std::runtime_error("Error: too new file format detected in '" + fName + "'!");
+			throw std::runtime_error("Error: too new file format detected in '" + fname.string() + "'!");
 	}
 
 	std::string loaded = SAVEGAME_MAGIC;

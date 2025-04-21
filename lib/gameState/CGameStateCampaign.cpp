@@ -379,7 +379,6 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		if(heroPlaceholder->tempOwner.isValidPlayer())
 			heroToPlace->tempOwner = heroPlaceholder->tempOwner;
 
-		// FIXME: consider whether to move these actions to CMap::replaceObject method
 		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
 		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
@@ -436,9 +435,6 @@ void CGameStateCampaign::transferMissingArtifacts(const CampaignTravel & travelO
 			else
 				logGlobal->error("Cannot transfer artifact - no receiver hero!");
 		}
-
-		// FIXME: erase entry from array? clear entire campaignHeroReplacements?
-		//campaignHeroReplacement.hero.reset();
 	}
 }
 

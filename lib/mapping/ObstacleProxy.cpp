@@ -244,7 +244,7 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 		for(const auto & temp : shuffledObstacles)
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto obj = handler->create(nullptr, temp);
+			auto obj = handler->create(cb, temp);
 			allObjects.emplace_back(obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())

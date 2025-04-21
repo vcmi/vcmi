@@ -811,7 +811,7 @@ CArtifactInstance * CMap::createScroll(const SpellID & spellId)
 	return createArtifact(ArtifactID::SPELL_SCROLL, spellId);
 }
 
-CArtifactInstance * CMap::createSingleArtifact(const ArtifactID & artId, const SpellID & spellId)
+CArtifactInstance * CMap::createArtifactComponent(const ArtifactID & artId)
 {
 	auto newArtifact = artId.hasValue() ?
 		std::make_shared<CArtifactInstance>(cb, artId.toArtifact()):
@@ -825,15 +825,11 @@ CArtifactInstance * CMap::createSingleArtifact(const ArtifactID & artId, const S
 CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID & spellId)
 {
 	if(!artID.hasValue())
-	{
-		// random, empty
-		// TODO: make this illegal & remove? Such artifact can't be randomized as combined artifact later
-		return createSingleArtifact(artID, spellId);
-	}
+		throw std::runtime_error("Can't create empty artifact!");
 
 	auto art = artID.toArtifact();
 
-	auto artInst = createSingleArtifact(artID, spellId);
+	auto artInst = createArtifactComponent(artID);
 	if(art->isCombined() && !art->isFused())
 	{
 		for(const auto & part : art->getConstituents())
@@ -872,18 +868,6 @@ const std::vector<ObjectInstanceID> & CMap::getAllTowns()
 const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap()
 {
 	return heroesOnMap;
-}
-
-void CMap::postInitialize()
-{
-	//TODO: check whether this is actually needed
-	boost::range::sort(heroesOnMap, [this](const ObjectInstanceID & a, const ObjectInstanceID & b)
-	{
-		const auto aHero = std::dynamic_pointer_cast<const CGHeroInstance>(objects.at(a.getNum()));
-		const auto bHero = std::dynamic_pointer_cast<const CGHeroInstance>(objects.at(b.getNum()));
-
-		return aHero->getHeroTypeID() < bHero->getHeroTypeID();
-	});
 }
 
 void CMap::addToHeroPool(std::shared_ptr<CGHeroInstance> hero)

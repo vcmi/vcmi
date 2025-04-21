@@ -15,12 +15,11 @@ VCMI_LIB_NAMESPACE_BEGIN
 CSaveFile::CSaveFile(const boost::filesystem::path &fname)
 	: serializer(this)
 	, sfile(fname.c_str(), std::ios::out | std::ios::binary)
-	, fName(fname)
 {
 	sfile.exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
 
 	if(!sfile)
-		throw std::runtime_error("Error: cannot open file '" + fName.string() + "' for writing!");
+		throw std::runtime_error("Error: cannot open file '" + fname.string() + "' for writing!");
 
 	sfile.write("VCMI", 4); //write magic identifier
 	serializer & ESerializationVersion::CURRENT; //write format version

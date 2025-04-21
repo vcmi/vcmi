@@ -637,9 +637,9 @@ void CGameState::initHeroes()
 			auto newHeroPtr = std::make_shared<CGHeroInstance>(cb);
 			newHeroPtr->subID = htype.getNum();
 			map->addToHeroPool(newHeroPtr);
-			map->generateUniqueInstanceName(newHeroPtr.get());
 			heroInPool = newHeroPtr.get();
 		}
+		map->generateUniqueInstanceName(heroInPool);
 		heroInPool->initHero(getRandomGenerator());
 		heroesPool->addHeroToPool(htype);
 	}

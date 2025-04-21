@@ -961,7 +961,7 @@ CGHeroInstance * BattleInfo::battleGetFightingHero(BattleSide side) const
 
 void BattleInfo::postDeserialize()
 {
-	for (auto & unit : stacks)
+	for (const auto & unit : stacks)
 		unit->postDeserialize(getSideArmy(unit->unitSide()));
 }
 

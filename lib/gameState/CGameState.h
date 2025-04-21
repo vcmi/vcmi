@@ -116,7 +116,12 @@ public:
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
 
+	/// Creates instance of spell scroll artifact with provided spell
 	CArtifactInstance * createScroll(const SpellID & spellId);
+
+	/// Creates instance of requested artifact
+	/// For combined artifact this method will also create alll required components
+	/// For scrolls this method will also initialize its spell
 	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 
 	/// Returns battle in which selected player is engaged, or nullptr if none.

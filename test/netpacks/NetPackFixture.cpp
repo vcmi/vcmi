@@ -24,8 +24,7 @@ NetPackFixture::~NetPackFixture() = default;
 
 void NetPackFixture::setUp()
 {
-    gameState = std::make_shared<GameStateFake>(nullptr);
-
+	gameState = std::make_shared<GameStateFake>(nullptr);
 }
 
 }

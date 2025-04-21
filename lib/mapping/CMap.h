@@ -72,7 +72,7 @@ class DLL_LINKAGE CMap : public CMapHeader, public GameCallbackHolder
 	/// Precomputed indices of all towns on map
 	std::vector<ObjectInstanceID> towns;
 
-	/// Precomputed indices of all towns on map. Does not includes heroes in prisons
+	/// Precomputed indices of all heroes on map. Does not includes heroes in prisons
 	std::vector<ObjectInstanceID> heroesOnMap;
 
 public:
@@ -97,26 +97,50 @@ public:
 	void calculateGuardingGreaturePositions();
 
 	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
-	CArtifactInstance * createScroll(const SpellID & spellId);
-	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
-	CArtifactInstance * createSingleArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 
+	/// Creates instance of spell scroll artifact with provided spell
+	CArtifactInstance * createScroll(const SpellID & spellId);
+
+	/// Creates instance of requested artifact
+	/// For combined artifact this method will also create alll required components
+	/// For scrolls this method will also initialize its spell
+	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
+
+	/// Creates single instance of requested artifact
+	/// Does NOT creates components for combined artifacts
+	/// Does NOT initializes spell when spell scroll artifact is created
+	CArtifactInstance * createArtifactComponent(const ArtifactID & artId);
+
+	/// Returns pointer to requested Artifact Instance. Throws on invalid ID
 	CArtifactInstance * getArtifactInstance(const ArtifactInstanceID & artifactID);
+	/// Returns pointer to requested Artifact Instance. Throws on invalid ID
 	const CArtifactInstance * getArtifactInstance(const ArtifactInstanceID & artifactID) const;
 
+	/// Completely removes artifact instance from the game
 	void eraseArtifactInstance(const ArtifactInstanceID art);
+
 	void moveArtifactInstance(CArtifactSet & srcSet, const ArtifactPosition & srcSlot, CArtifactSet & dstSet, const ArtifactPosition & dstSlot);
 	void putArtifactInstance(CArtifactSet & set, const ArtifactInstanceID art, const ArtifactPosition & slot);
 	void removeArtifactInstance(CArtifactSet & set, const ArtifactPosition & slot);
 
+	/// Generates unique string identifier for provided object instance
 	void generateUniqueInstanceName(CGObjectInstance * target);
+
+	/// Generates new, unique numeric identifier that can be used for creation of a new object
 	ObjectInstanceID allocateUniqueInstanceID();
 
-	///Use only this method when creating new map object instances
+	/// Adds provided object to the map
+	/// Throws on error, for example if object is already on map
 	void addNewObject(std::shared_ptr<CGObjectInstance> obj);
+
+	/// Moves anchor position of requested object to specified coordinates and updates map state
+	/// Throws in invalid object instance ID
 	void moveObject(ObjectInstanceID target, const int3 & dst);
 
+	/// Hides object from map without actually removing it from object list
 	void hideObject(CGObjectInstance * obj);
+
+	/// Shows previously hiiden object on map
 	void showObject(CGObjectInstance * obj);
 
 	/// Remove objects and shifts object indicies.
@@ -137,9 +161,17 @@ public:
 	void townAddedToMap(const CGTownInstance * town);
 	void townRemovedFromMap(const CGTownInstance * town);
 
+	/// Adds provided hero to map pool. Hero with same identity must not exist
 	void addToHeroPool(std::shared_ptr<CGHeroInstance> hero);
+
+	/// Attempts to take hero of specified identity from pool. Returns nullptr on failure
+	/// Hero is removed from pool on success
 	std::shared_ptr<CGHeroInstance> tryTakeFromHeroPool(HeroTypeID hero);
+
+	/// Attempts to access hero of specified identity in pool. Returns nullptr on failure
 	CGHeroInstance * tryGetFromHeroPool(HeroTypeID hero);
+
+	/// Returns list of identities of heroes currently present in pool
 	std::vector<HeroTypeID> getHeroesInPool() const;
 
 	CGObjectInstance * getObject(ObjectInstanceID obj);
@@ -147,6 +179,7 @@ public:
 
 	void attachToBonusSystem(CGameState & gs);
 
+	/// Returns all valid objects of specified class present on map
 	template<typename ObjectType = CGObjectInstance>
 	std::vector<const ObjectType *> getObjects() const
 	{
@@ -160,6 +193,7 @@ public:
 		return result;
 	}
 
+	/// Returns all valid objects of specified class present on map
 	template<typename ObjectType = CGObjectInstance>
 	std::vector<ObjectType *> getObjects()
 	{
@@ -173,6 +207,7 @@ public:
 		return result;
 	}
 
+	/// Returns all valid artifacts present on map
 	std::vector<CArtifactInstance *> getArtifacts()
 	{
 		std::vector<CArtifactInstance *> result;
@@ -242,7 +277,6 @@ public:
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
 	const IGameSettings & getSettings() const;
 
-	void postInitialize();
 	void saveCompatibilityStoreAllocatedArtifactID();
 
 private:

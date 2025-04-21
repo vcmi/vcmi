@@ -1121,8 +1121,6 @@ void CMapLoaderJson::readObjects()
 	for(auto & ptr : loaders)
 		ptr->configure();
 
-	map->postInitialize();
-
 	std::set<HeroTypeID> debugHeroesOnMap;
 	for (auto const & hero : map->getObjects<CGHeroInstance>())
 	{

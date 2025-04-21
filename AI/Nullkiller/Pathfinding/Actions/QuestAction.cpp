@@ -52,7 +52,7 @@ namespace AIPathfinding
 
 	void QuestAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
-		ai->moveHeroToTile(questInfo.getObject(cb)->visitablePos(), hero);
+		ai->moveHeroToTile(questInfo.getObject(ai->myCb.get())->visitablePos(), hero);
 	}
 
 	std::string QuestAction::toString() const
