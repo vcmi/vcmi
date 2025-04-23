@@ -14,6 +14,7 @@
 
 ### General
 
+* Fixed not working check for hypnotize spell effect presence
 * Fixed calculation of the total cost of the hero's movement path when the hero has spent some of his movement points today.
 * Fixed Launcher not closing after game start on Mac OS.
 * Launcher will no longer tracks clipboard state on mobile systems to prevent OS notifications
