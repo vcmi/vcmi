@@ -1479,7 +1479,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 
 	setRedrawParent(true);
 
-	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _text);
+	text = std::make_shared<CLabel>(pos.w/2, pos.h/2, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _text, 256);
 	select(index == parent->selected);
 }
 

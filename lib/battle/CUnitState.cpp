@@ -698,12 +698,12 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 
 bool CUnitState::isHypnotized() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::HYPNOTIZED);
 }
 
 bool CUnitState::isInvincible() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::INVINCIBLE);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::INVINCIBLE);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const
