@@ -372,7 +372,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
 
-	if (systemMemoryMb < 2048)
+	if (systemMemoryMb <= 4096)
 		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
 
 	// Only using xbrz2 for autoselection.

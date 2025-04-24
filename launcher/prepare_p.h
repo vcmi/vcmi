@@ -1,5 +1,5 @@
 /*
- * prepare.cpp, part of VCMI engine
+ * prepare_p.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,21 +7,13 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#include "StdInc.h"
-#include "prepare.h"
-#include "prepare_p.h"
-#include "../vcmiqt/launcherdirs.h"
+#pragma once
 
 namespace launcher
 {
-void prepare()
-{
 #ifdef VCMI_ANDROID
-	prepareAndroid();
+void prepareAndroid();
 #elif defined(VCMI_IOS)
-	prepareIos();
+void prepareIos();
 #endif
-
-	CLauncherDirs::prepare();
-}
 }

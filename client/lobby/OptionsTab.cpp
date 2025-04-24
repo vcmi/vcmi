@@ -68,13 +68,14 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto tooltipWindow : GH.windows().findWindows<CPlayerOptionTooltipBox>())
+		tooltipWindow->close();
+
 	for (auto heroOverview : GH.windows().findWindows<CHeroOverview>())
 		heroOverview->close();
 
 	for (auto selectionWindow : GH.windows().findWindows<SelectionWindow>())
-	{
 		selectionWindow->reopen();
-	}
 
 	OBJECT_CONSTRUCTION;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)

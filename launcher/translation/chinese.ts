@@ -310,17 +310,20 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">上下文菜单</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">打开目录</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">打开存储库</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -506,7 +509,8 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="533"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">允许纵向模式</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
@@ -521,7 +525,8 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">将返回键作为鼠标右键</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1125"/>
@@ -853,7 +858,8 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">英雄无敌历代记 %1 - %2</translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">英雄编年史 %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1268,7 +1274,8 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Czech</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">捷克语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
@@ -1278,77 +1285,92 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>English</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">英语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Finnish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">芬兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>French</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">法语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>German</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">德语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>Hungarian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">匈牙利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Italian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">意大利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Korean</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">韩语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Polish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">波兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Portuguese</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">葡萄牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Russian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">俄语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Spanish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">西班牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Swedish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">瑞典语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Turkish</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">土耳其语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Ukrainian</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">乌克兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Vietnamese</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">越南语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="61"/>
@@ -1386,6 +1408,7 @@ Bin (%n字节):
     <message>
         <location filename="../mainwindow_moc.cpp" line="46"/>
         <source>Error starting executable</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">启动可执行文件时出错</translation>
     </message>
     <message>
@@ -1483,7 +1506,8 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="251"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">未找到模组数据</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="255"/>

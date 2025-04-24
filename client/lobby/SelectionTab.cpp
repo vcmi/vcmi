@@ -617,7 +617,13 @@ void SelectionTab::sort()
 	if(!sortModeAscending)
 	{
 		if(firstMapIndex)
-			std::reverse(std::next(curItems.begin(), boost::starts_with(curItems[0]->folderName, "..") ? 1 : 0), std::next(curItems.begin(), firstMapIndex - 1));
+		{
+			auto startIt = std::next(curItems.begin(), boost::starts_with(curItems[0]->folderName, "..") ? 1 : 0);
+			auto endIt = std::next(curItems.begin(), firstMapIndex - 1);
+			if(startIt > endIt)
+				std::swap(startIt, endIt);
+			std::reverse(startIt, endIt);
+		}
 		std::reverse(std::next(curItems.begin(), firstMapIndex), curItems.end());
 	}
 

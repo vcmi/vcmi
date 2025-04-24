@@ -1,5 +1,26 @@
 # VCMI Project Changelog
 
+## 1.6.7 -> 1.6.8
+
+### Stability
+
+* Fixed crash when visiting Cannon Yard from HotA mod that was occuring on some systems
+* Fixed crash when moving through an event that gives enough experience to level up if the player is using instant movement speed
+* Fixed crash when trying to sort maps in reverse order that was occurring on some systems when there were multiple folders containing maps
+* Fixed crash when using one-click upgrade when unit upgrade cost is zero
+* Fixed crash on opening town screen with invisible buildings from mods
+* Fixed crash when a player changes their starting hero in multiplayer game while another player has town or starting bonus right-click popup open
+* Fixed crash when merging two units located in town garrison without a hero if both units are equipped with artifacts (WoG feature)
+
+### General
+
+* Fixed not working check for hypnotize spell effect presence
+* Fixed calculation of the total cost of the hero's movement path when the hero has spent some of his movement points today.
+* Fixed Launcher not closing after game start on Mac OS.
+* Launcher will no longer tracks clipboard state on mobile systems to prevent OS notifications
+* Automatic selection of xbrz2 upscaler now only happens on systems with 4GB of RAM
+* Game will now detect broken internal mod left over from VCMI 0.99 installations and notify player on startup instead of crashing
+
 ## 1.6.6 -> 1.6.7
 
 ### Stability

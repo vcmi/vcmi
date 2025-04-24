@@ -50,9 +50,11 @@ StartGameTab::StartGameTab(QWidget * parent)
 	ui->buttonGameEditor->hide();
 #endif
 
-	auto clipboard = QGuiApplication::clipboard();
-
-	connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	if (settings["launcher"]["trackClipboardState"].Bool())
+	{
+		auto clipboard = QGuiApplication::clipboard();
+		connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
+	}
 }
 
 void StartGameTab::clipboardDataChanged()
@@ -103,7 +105,8 @@ void StartGameTab::refreshState()
 	refreshPresets();
 	refreshMods();
 
-	clipboardDataChanged();
+	if (settings["launcher"]["trackClipboardState"].Bool())
+		clipboardDataChanged();
 }
 
 void StartGameTab::refreshPresets()
@@ -405,8 +408,21 @@ void StartGameTab::on_buttonPresetExport_clicked()
 void StartGameTab::on_buttonPresetImport_clicked()
 {
 	QString presetString = QGuiApplication::clipboard()->text();
+
+	if (!presetString.startsWith("{"))
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
+
 	QByteArray presetBytes(presetString.toUtf8());
 	JsonNode presetJson(reinterpret_cast<const std::byte*>(presetBytes.data()), presetBytes.size(), "imported preset");
+
+	if (presetJson["name"].String().empty() || presetJson["mods"].Vector().empty())
+	{
+		MessageBoxCustom::information(this, tr("Preset import failed"), tr("Failed to import preset - data in clipboard does not looks like mod preset!"));
+		return;
+	}
 
 	getMainWindow()->getModView()->importPreset(presetJson);
 	getMainWindow()->switchToModsTab();

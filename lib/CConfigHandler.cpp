@@ -55,6 +55,13 @@ SettingsStorage::SettingsStorage():
 {
 }
 
+SettingsStorage::~SettingsStorage()
+{
+	// hack for possible crash due to static destruction order (setting storage can be destroyed before all listeners have died)
+	for(SettingsListener * listener : listeners)
+		listener->terminate();
+}
+
 void SettingsStorage::init(const std::string & dataFilename, const std::string & schema)
 {
 	this->dataFilename = dataFilename;
@@ -132,9 +139,15 @@ SettingsListener::SettingsListener(const SettingsListener &sl):
 	parent.listeners.insert(this);
 }
 
+void SettingsListener::terminate()
+{
+	wasTerminated = true;
+}
+
 SettingsListener::~SettingsListener()
 {
-	parent.listeners.erase(this);
+	if (!wasTerminated)
+		parent.listeners.erase(this);
 }
 
 void SettingsListener::nodeInvalidated(const std::vector<std::string> &changedPath)

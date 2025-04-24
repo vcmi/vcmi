@@ -398,6 +398,8 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 		std::vector<std::shared_ptr<CComponent>> resComps;
 		for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+		if(resComps.empty())
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, static_cast<GameResID>(GameResID::GOLD), 0)); // add at least gold, when there are no costs
 		resComps.back()->newLine = true;
 		for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->count));
