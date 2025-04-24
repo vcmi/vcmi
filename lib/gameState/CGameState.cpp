@@ -543,14 +543,18 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		}
 	}
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
-	auto object = handler->create(cb, handler->getTemplates().front());
-	auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
+	auto hero = map->tryTakeFromHeroPool(heroTypeId);
 
-	hero->ID = Obj::HERO;
-	hero->setHeroType(heroTypeId);
+	if (!hero)
+	{
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
+		auto object = handler->create(cb, handler->getTemplates().front());
+		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
+		hero->ID = Obj::HERO;
+		hero->setHeroType(heroTypeId);
+	}
+
 	hero->tempOwner = playerColor;
-
 	hero->setAnchorPos(townPos + hero->getVisitableOffset());
 	map->getEditManager()->insertObject(hero);
 }

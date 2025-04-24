@@ -1190,19 +1190,10 @@ void RemoveObject::applyGs(CGameState *gs)
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
-		auto beatenObject = gs->getMap().eraseObject(obj->id);
-		auto beatenHero = std::dynamic_pointer_cast<CGHeroInstance>(beatenObject);
+		auto beatenHero = dynamic_cast<CGHeroInstance*>(obj);
 		assert(beatenHero);
 
 		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
-
-		// FIXME: workaround:
-		// hero should be attached to siegeNode after battle
-		// however this code might also be called on dismissing hero while in town
-		if (siegeNode && vstd::contains(beatenHero->getParentNodes(), siegeNode))
-				beatenHero->detachFrom(*siegeNode);
-
-		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
 			return asi.getArt()->getTypeId() == ArtifactID::GRAIL;
@@ -1210,17 +1201,21 @@ void RemoveObject::applyGs(CGameState *gs)
 
 		if(beatenHero->getVisitedTown())
 		{
-			if(beatenHero->getVisitedTown()->getGarrisonHero() == beatenHero.get())
+			if(beatenHero->getVisitedTown()->getGarrisonHero() == beatenHero)
 				beatenHero->getVisitedTown()->setGarrisonedHero(nullptr);
 			else
 				beatenHero->getVisitedTown()->setVisitingHero(nullptr);
 
 			beatenHero->setVisitedTown(nullptr, false);
 		}
+		beatenHero->detachFromBonusSystem(*gs);
+		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 
-		//return hero to the pool, so he may reappear in tavern
-		gs->heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
-		gs->getMap().addToHeroPool(beatenHero);
+		// FIXME: workaround:
+		// hero should be attached to siegeNode after battle
+		// however this code might also be called on dismissing hero while in town
+		if (siegeNode && vstd::contains(beatenHero->getParentNodes(), siegeNode))
+			beatenHero->detachFrom(*siegeNode);
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->inBoat())
@@ -1229,6 +1224,13 @@ void RemoveObject::applyGs(CGameState *gs)
 			beatenHero->setBoat(nullptr);
 			gs->getMap().eraseObject(boat->id);
 		}
+
+		auto beatenObject = gs->getMap().eraseObject(obj->id);
+
+		//return hero to the pool, so he may reappear in tavern
+		gs->heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
+		gs->getMap().addToHeroPool(std::dynamic_pointer_cast<CGHeroInstance>(beatenObject));
+
 		return;
 	}
 
