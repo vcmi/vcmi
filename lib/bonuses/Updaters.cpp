@@ -229,7 +229,8 @@ std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bo
 	std::shared_ptr<Bonus> updated =
 		std::make_shared<Bonus>(*b);
 	updated->limiter = b->limiter;
-	updated->limiter->acceptUpdater(*this);
+	if (updated->limiter)
+		updated->limiter->acceptUpdater(*this);
 	return updated;
 }
 
