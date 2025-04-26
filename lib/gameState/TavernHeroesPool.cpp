@@ -24,7 +24,8 @@ std::map<HeroTypeID, CGHeroInstance*> TavernHeroesPool::unusedHeroesFromPool() c
 {
 	std::map<HeroTypeID, CGHeroInstance*> pool = heroesPool;
 	for(const auto & slot : currentTavern)
-		pool.erase(slot.hero->getHeroTypeID());
+		if (slot.hero)
+			pool.erase(slot.hero->getHeroTypeID());
 
 	return pool;
 }
@@ -33,7 +34,7 @@ TavernSlotRole TavernHeroesPool::getSlotRole(HeroTypeID hero) const
 {
 	for (auto const & slot : currentTavern)
 	{
-		if (slot.hero->getHeroTypeID() == hero)
+		if (slot.hero && slot.hero->getHeroTypeID() == hero)
 			return slot.role;
 	}
 	return TavernSlotRole::NONE;
@@ -90,7 +91,7 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 
 	for(const auto & slot : currentTavern)
 	{
-		if (slot.player == color)
+		if (slot.player == color && slot.hero)
 			result.push_back(slot.hero);
 	}
 
@@ -105,7 +106,7 @@ CGHeroInstance * TavernHeroesPool::takeHeroFromPool(HeroTypeID hero)
 	heroesPool.erase(hero);
 
 	vstd::erase_if(currentTavern, [&](const TavernSlot & entry){
-		return entry.hero->getHeroTypeID() == hero;
+		return entry.hero && entry.hero->getHeroTypeID() == hero;
 	});
 
 	assert(result);
