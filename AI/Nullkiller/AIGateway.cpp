@@ -1039,6 +1039,8 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
+		int swapCount = 0;
+		const int maxSwapCount = 100;
 		do
 		{
 			changeMade = false;
@@ -1100,6 +1102,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 						cb->swapArtifacts(location, destLocation); //just put into empty slot
 						emptySlotFound = true;
 						changeMade = true;
+						swapCount++;
 						break;
 					}
 				}
@@ -1138,6 +1141,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								}
 
 								changeMade = true;
+								swapCount++;
 								break;
 							}
 						}
@@ -1147,7 +1151,9 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 					break; //start evaluating artifacts from scratch
 			}
 		}
-		while(changeMade);
+		while(changeMade && swapCount < maxSwapCount);
+		if (swapCount >= maxSwapCount)
+			logAi->warn("Maximum artifact swap count exceeded!");
 	};
 
 	equipBest(h, other, true);
