@@ -32,9 +32,9 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
 	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
 	
 	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
+	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
 	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
+	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
 		throw std::runtime_error("Cannot open map from this folder");
@@ -65,9 +65,9 @@ std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & file
 	ResourcePath resId("MAPEDITOR/" + fname, EResType::CAMPAIGN);
 	
 	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto * mapEditorFilesystem = new CFilesystemLoader("MAPEDITOR/", fdir, 0);
+	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
 	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", mapEditorFilesystem);
+	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
 		throw std::runtime_error("Cannot open campaign from this folder");

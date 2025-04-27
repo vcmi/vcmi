@@ -24,7 +24,7 @@ class DLL_LINKAGE CFilesystemGenerator
 	using TLoadFunctor = std::function<void(const std::string &, const JsonNode &)>;
 	using TLoadFunctorMap = std::map<std::string, TLoadFunctor>;
 
-	CFilesystemList * filesystem;
+	std::unique_ptr<CFilesystemList> filesystem;
 	std::string prefix;
 
 	template<EResType archiveType>
@@ -44,7 +44,7 @@ public:
 	void loadConfig(const JsonNode & config);
 
 	/// returns generated filesystem
-	CFilesystemList * getFilesystem();
+	std::unique_ptr<CFilesystemList> acquireFilesystem();
 
 	/** Specifies if Original H3 archives should be extracted to a separate folder **/
 	bool extractArchives;
@@ -61,7 +61,7 @@ class DLL_LINKAGE CResourceHandler
 	 * @brief createInitial - creates instance of initial loader
 	 * that contains data necessary to load main FS
 	 */
-	static ISimpleResourceLoader * createInitial();
+	static std::unique_ptr<ISimpleResourceLoader> createInitial();
 
 public:
 	/**
@@ -98,7 +98,7 @@ public:
 	 * @param identifier name of this loader by which it can be retrieved later
 	 * @param loader resource loader to add
 	 */
-	static void addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader);
+	static void addFilesystem(const std::string & parent, const std::string & identifier, std::unique_ptr<ISimpleResourceLoader> loader);
 	
 	/**
 	 * @brief removeFilesystem removes previously added filesystem from global resource holder
@@ -114,7 +114,7 @@ public:
 	 * @param fsConfig - configuration to load
 	 * @return generated filesystem that contains all config entries
 	 */
-	static ISimpleResourceLoader * createFileSystem(const std::string &prefix, const JsonNode & fsConfig, bool extractArchives = false);
+	static std::unique_ptr<ISimpleResourceLoader> createFileSystem(const std::string &prefix, const JsonNode & fsConfig, bool extractArchives = false);
 
 	~CResourceHandler() = default;
 private:
