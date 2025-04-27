@@ -1039,6 +1039,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
+		std::set<std::pair<CArtifactInstance *, CArtifactInstance *> > swappedSet;
 		do
 		{
 			changeMade = false;
@@ -1119,6 +1120,15 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 							//combined artifacts are not always allowed to move
 							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
 							{
+								auto swapPair = std::minmax(artifact, otherSlot->artifact);
+								if (swappedSet.find(swapPair) != swappedSet.end())
+								{
+									logAi->warn(
+										"Artifacts % s < -> % s have already swapped before, ignored.",
+										artifact->getType()->getJsonKey(),
+										otherSlot->artifact->getType()->getJsonKey());
+									continue;
+								}
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
 									artifact->getType()->getJsonKey(),
@@ -1138,6 +1148,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								}
 
 								changeMade = true;
+								swappedSet.insert(swapPair);
 								break;
 							}
 						}
