@@ -71,10 +71,10 @@ void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
 
 void InfoAboutHero::assign(const InfoAboutHero & iah)
 {
-	vstd::clear_pointer(details);
+	details.reset();;
 	InfoAboutArmy::operator = (iah);
 
-	details = (iah.details ? new Details(*iah.details) : nullptr);
+	details = iah.details;
 	hclass = iah.hclass;
 	portraitSource = iah.portraitSource;
 }
@@ -92,11 +92,6 @@ InfoAboutHero::InfoAboutHero(const CGHeroInstance * h, InfoAboutHero::EInfoLevel
 	initFromHero(h, infoLevel);
 }
 
-InfoAboutHero::~InfoAboutHero()
-{
-	vstd::clear_pointer(details);
-}
-
 InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 {
 	assign(iah);
@@ -110,7 +105,7 @@ int32_t InfoAboutHero::getIconIndex() const
 
 void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLevel infoLevel)
 {
-	vstd::clear_pointer(details);
+	details.reset();
 	if(!h)
 		return;
 
@@ -125,7 +120,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 	if(detailed)
 	{
 		//include details about hero
-		details = new Details();
+		details = Details();
 		details->luck = h->luckVal();
 		details->morale = h->moraleVal();
 		details->mana = h->mana;
@@ -143,7 +138,6 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, InfoAboutHero::EInfoLe
 }
 
 InfoAboutTown::InfoAboutTown():
-	details(nullptr),
 	tType(nullptr),
 	built(0),
 	fortLevel(0)
@@ -152,17 +146,11 @@ InfoAboutTown::InfoAboutTown():
 }
 
 InfoAboutTown::InfoAboutTown(const CGTownInstance *t, bool detailed):
-	details(nullptr),
 	tType(nullptr),
 	built(0),
 	fortLevel(0)
 {
 	initFromTown(t, detailed);
-}
-
-InfoAboutTown::~InfoAboutTown()
-{
-	vstd::clear_pointer(details);
 }
 
 void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
@@ -174,12 +162,12 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 	name = t->getNameTranslated();
 	tType = t->getTown();
 
-	vstd::clear_pointer(details);
+	details.reset();
 
 	if(detailed)
 	{
 		//include details about hero
-		details = new Details();
+		details = Details();
 		TResources income = t->dailyIncome();
 		details->goldIncome = income[EGameResID::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);

@@ -17,14 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CFaction::~CFaction()
-{
-	if (town)
-	{
-		delete town;
-		town = nullptr;
-	}
-}
+CFaction::~CFaction() = default;
 
 int32_t CFaction::getIndex() const
 {

@@ -100,7 +100,7 @@ int main(int argc, const char * argv[])
 	}
 
 	logConfigurator.deconfigure();
-	vstd::clear_pointer(LIBRARY);
 
+	delete LIBRARY;
 	return 0;
 }

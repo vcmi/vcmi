@@ -38,19 +38,15 @@ const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Js
 
 CTownHandler::CTownHandler()
 	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
-	, randomTown(new CTown())
-	, randomFaction(new CFaction())
+	, randomFaction(std::make_unique<CFaction>())
 {
-	randomFaction->town = randomTown;
-	randomTown->faction = randomFaction;
+	randomFaction->town = std::make_unique<CTown>();
+	randomFaction->town->faction = randomFaction.get();
 	randomFaction->identifier = "random";
 	randomFaction->modScope = "core";
 }
 
-CTownHandler::~CTownHandler()
-{
-	delete randomFaction; // will also delete randomTown
-}
+CTownHandler::~CTownHandler() = default;
 
 JsonNode readBuilding(CLegacyConfigParser & parser)
 {
@@ -767,9 +763,9 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 
 	if (!source["town"].isNull())
 	{
-		faction->town = new CTown();
+		faction->town = std::make_unique<CTown>();
 		faction->town->faction = faction.get();
-		loadTown(faction->town, source["town"]);
+		loadTown(faction->town.get(), source["town"]);
 	}
 	else
 		faction->town = nullptr;
@@ -854,7 +850,7 @@ void CTownHandler::loadRandomFaction()
 {
 	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
 	randomFactionJson.setModScope(ModScope::scopeBuiltin(), true);
-	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
+	loadBuildings(randomFaction->town.get(), randomFactionJson["random"]["town"]["buildings"]);
 }
 
 void CTownHandler::loadCustom()

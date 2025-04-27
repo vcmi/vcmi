@@ -51,7 +51,7 @@ public:
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
 	BoatId boatType = BoatId::CASTLE;
 
-	CTown * town = nullptr; //NOTE: can be null
+	std::unique_ptr<CTown> town; //NOTE: can be null
 
 	ImagePath creatureBg120;
 	ImagePath creatureBg130;
