@@ -357,7 +357,7 @@ bool MovementAnimation::init()
 
 	if (moveSoundHandler == -1)
 	{
-		moveSoundHandler = ENGINE->sound().playSound(stack->unitType()->sounds.move, -1);
+		moveSoundHandler = ENGINE->sound().playSoundLooped(stack->unitType()->sounds.move);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);

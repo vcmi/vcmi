@@ -312,7 +312,7 @@ void HeroMovementController::updateMovementSound(const CGHeroInstance * h, int3 
 			ENGINE->sound().stopSound(currentMovementSoundChannel);
 
 		if(!currentMovementSoundName.empty())
-			currentMovementSoundChannel = ENGINE->sound().playSound(currentMovementSoundName, -1, true);
+			currentMovementSoundChannel = ENGINE->sound().playSoundLooped(currentMovementSoundName);
 		else
 			currentMovementSoundChannel = -1;
 	}
