@@ -361,7 +361,7 @@
      </widget>
      <widget class="QWidget" name="tabSecondarySkill">
       <attribute name="title">
-       <string>Scondary skill</string>
+       <string>Secondary skill</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
