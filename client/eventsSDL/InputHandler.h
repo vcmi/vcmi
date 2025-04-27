@@ -12,6 +12,8 @@
 
 #include "../lib/Rect.h"
 
+#include <tbb/concurrent_queue.h>
+
 enum class EUserEvent;
 enum class MouseButton;
 union SDL_Event;
@@ -33,6 +35,7 @@ enum class InputMode
 class InputHandler
 {
 	std::vector<SDL_Event> eventsQueue;
+	tbb::concurrent_queue<std::unique_ptr<std::function<void()>>> dispatchedTasks;
 	std::mutex eventsMutex;
 
 	Point cursorPosition;
