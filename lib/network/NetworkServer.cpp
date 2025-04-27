@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkServer::NetworkServer(INetworkServerListener & listener, const std::shared_ptr<NetworkContext> & context)
+NetworkServer::NetworkServer(INetworkServerListener & listener, NetworkContext & context)
 	: io(context)
 	, listener(listener)
 {
@@ -21,13 +21,13 @@ NetworkServer::NetworkServer(INetworkServerListener & listener, const std::share
 
 uint16_t NetworkServer::start(uint16_t port)
 {
-	acceptor = std::make_shared<NetworkAcceptor>(*io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+	acceptor = std::make_shared<NetworkAcceptor>(io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 	return startAsyncAccept();
 }
 
 uint16_t NetworkServer::startAsyncAccept()
 {
-	auto upcomingConnection = std::make_shared<NetworkSocket>(*io);
+	auto upcomingConnection = std::make_shared<NetworkSocket>(io);
 	acceptor->async_accept(*upcomingConnection, [this, upcomingConnection](const auto & ec) { connectionAccepted(upcomingConnection, ec); });
 	return acceptor->local_endpoint().port();
 }

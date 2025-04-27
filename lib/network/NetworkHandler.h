@@ -15,7 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class NetworkHandler : public INetworkHandler
 {
-	std::shared_ptr<NetworkContext> io;
+	std::unique_ptr<NetworkContext> io;
 
 public:
 	NetworkHandler();
