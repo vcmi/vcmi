@@ -40,13 +40,19 @@ CMapInfo::~CMapInfo()
 	vstd::clear_pointer(scenarioOptionsOfSave);
 }
 
+std::string CMapInfo::getFullFileURI(const ResourcePath & file) const
+{
+	auto path = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file));
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
 void CMapInfo::mapInit(const std::string & fname)
 {
 	fileURI = fname;
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -62,7 +68,7 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	lf >> *(mapHeader) >> scenarioOptionsOfSave;
 	fileURI = file.getName();
 	originalFileURI = file.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
+	fullFileURI = getFullFileURI(file);
 	countPlayers();
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -76,7 +82,7 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);

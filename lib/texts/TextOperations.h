@@ -84,6 +84,13 @@ namespace TextOperations
 	/// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
 	DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
 
+	/// This function is mainly used to avoid garbled text when reading or writing files
+	/// with non-ASCII (e.g. Chinese) characters in the path, especially on Windows.
+	/// Call this before passing the path to file I/O functions that take std::string.
+	DLL_LINKAGE std::string filesystemPathToUtf8(const boost::filesystem::path& path);
+
+	// Used for handling paths with non-ASCII characters.
+	DLL_LINKAGE boost::filesystem::path Utf8TofilesystemPath(const std::string& path);
 };
 
 template<typename Arithmetic>
