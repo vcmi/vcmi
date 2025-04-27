@@ -1492,8 +1492,8 @@ void CGameHandler::throwNotAllowedAction(const std::shared_ptr<CConnection> & co
 void CGameHandler::wrongPlayerMessage(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer)
 {
 	auto str = MetaString::createFromTextID("vcmi.server.errors.wrongIdentified");
-	str.appendName(pack->player);
-	str.appendName(expectedplayer);
+	str.replaceName(pack->player);
+	str.replaceName(expectedplayer);
 	logNetwork->error(str.toString());
 
 	playerMessages->sendSystemMessage(connection, str);
