@@ -67,6 +67,7 @@ struct SetGlobalState
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
 AIGateway::AIGateway()
+	:status(this)
 {
 	LOG_TRACE(logAi);
 	destinationTeleport = ObjectInstanceID();
@@ -1676,7 +1677,8 @@ void AIGateway::validateObject(ObjectIdRef obj)
 	}
 }
 
-AIStatus::AIStatus()
+AIStatus::AIStatus(AIGateway * gateway)
+	: gateway(gateway)
 {
 	battle = NO_BATTLE;
 	havingTurn = false;
@@ -1758,7 +1760,10 @@ void AIStatus::waitTillFree()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
+	{
 		cv.wait_for(lock, std::chrono::milliseconds(10));
+		gateway->nullkiller->makingTurnInterrupption.interruptionPoint();
+	}
 }
 
 bool AIStatus::haveTurn()
