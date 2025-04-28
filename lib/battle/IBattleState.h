@@ -10,6 +10,7 @@
 
 #pragma once
 #include "CBattleInfoEssentials.h"
+#include "BattleUnitTurnReason.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -80,7 +81,7 @@ class DLL_LINKAGE IBattleState : public IBattleInfo
 {
 public:
 	virtual void nextRound() = 0;
-	virtual void nextTurn(uint32_t unitId) = 0;
+	virtual void nextTurn(uint32_t unitId, BattleUnitTurnReason reason) = 0;
 
 	virtual void addUnit(uint32_t id, const JsonNode & data) = 0;
 	virtual void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) = 0;

@@ -12,9 +12,10 @@
 #include "NetPacksBase.h"
 #include "BattleChanges.h"
 #include "PacksForClient.h"
-#include "../battle/BattleHexArray.h"
 #include "../battle/BattleAction.h"
 #include "../battle/BattleInfo.h"
+#include "../battle/BattleHexArray.h"
+#include "../battle/BattleUnitTurnReason.h"
 #include "../texts/MetaString.h"
 
 class CClient;
@@ -63,8 +64,8 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	void applyGs(CGameState * gs) override;
 
 	BattleID battleID = BattleID::NONE;
-	ui32 stack = 0;
-	ui8 askPlayerInterface = true;
+	uint32_t stack = 0;
+	BattleUnitTurnReason reason;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -72,7 +73,7 @@ struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 	{
 		h & battleID;
 		h & stack;
-		h & askPlayerInterface;
+		h & reason;
 		assert(battleID != BattleID::NONE);
 	}
 };
