@@ -497,18 +497,6 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	//handle victory/loss of engaged players
 	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
-	if (result.result == EBattleResult::SURRENDER)
-	{
-		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
-		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
-	}
-
-	if (result.result == EBattleResult::ESCAPE)
-	{
-		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
-		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
-	}
-
 	// Remove beaten hero
 	if(loserHero)
 	{
@@ -522,6 +510,18 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		gameHandler->sendAndApply(ro);
 		if(gameHandler->getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
+	}
+
+	if (result.result == EBattleResult::SURRENDER)
+	{
+		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
+		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
+	}
+
+	if (result.result == EBattleResult::ESCAPE)
+	{
+		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
+		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
 
 	finishingBattles.erase(battleID);

@@ -59,11 +59,12 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 		return;
 
 	auto h = owner->getMap().tryGetFromHeroPool(hero);
+	assert(h != nullptr);
 
-	if (h && army)
+	if (army)
 		h->setToArmy(army);
 
-	if (h && replenishPoints)
+	if (replenishPoints)
 	{
 		h->setMovementPoints(h->movementPointsLimit(true));
 		h->mana = h->manaLimit();
@@ -100,6 +101,7 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 
 	for(const auto & slot : currentTavern)
 	{
+		assert(slot.hero != nullptr);
 		if (slot.player == color)
 			result.push_back(owner->getMap().tryGetFromHeroPool(slot.hero));
 	}
