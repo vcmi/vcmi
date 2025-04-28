@@ -448,5 +448,6 @@ void SDLImageShared::savePalette()
 SDLImageShared::~SDLImageShared()
 {
 	SDL_FreeSurface(surf);
-	SDL_FreePalette(originalPalette);
+	if (originalPalette)
+		SDL_FreePalette(originalPalette);
 }

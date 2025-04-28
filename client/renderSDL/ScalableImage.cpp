@@ -90,7 +90,8 @@ ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPal
 
 ScalableImageParameters::~ScalableImageParameters()
 {
-	SDL_FreePalette(palette);
+	if (palette)
+		SDL_FreePalette(palette);
 }
 
 void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode)

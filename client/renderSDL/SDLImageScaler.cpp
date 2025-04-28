@@ -236,8 +236,8 @@ SDLImageScaler::~SDLImageScaler()
 {
 	ENGINE->dispatchMainThread([surface = intermediate]()
 	{
-		// potentially SDL bug, execute SDL_FreeSurface in main thread to avoid thread races to its internal state
-		// may be fixed somewhere between 2.26.5 - 2.30
+		// SDL_FreeSurface must be executed in main thread to avoid thread races to its internal state
+		// will be no longer necessary in SDL 3
 		SDL_FreeSurface(surface);
 	});
 }

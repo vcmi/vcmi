@@ -410,7 +410,7 @@ void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 	SDL_Event event;
 	event.user.type = SDL_USEREVENT;
 	event.user.code = 0;
-	event.user.data1 = static_cast <void*>(heapFunctor.get());
+	event.user.data1 = nullptr;
 	event.user.data2 = nullptr;
 	SDL_PushEvent(&event);
 
@@ -425,9 +425,6 @@ void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 
 	if (!dispatchedTasks.try_pop(task))
 		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
-
-	if (current.data1 != task.get())
-		throw std::runtime_error("InputHandler::handleUserEvent received unknown pointer!");
 
 	(*task)();
 }
