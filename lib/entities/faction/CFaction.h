@@ -58,7 +58,7 @@ public:
 
 	std::vector<SPuzzleInfo> puzzleMap;
 
-	CFaction() = default;
+	CFaction();
 	~CFaction();
 
 	int32_t getIndex() const override;
