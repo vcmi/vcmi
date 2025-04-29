@@ -1974,13 +1974,13 @@ Pro vyřešení tohoto problému ručně zkopírujte chybějící datové soubor
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation>Import kofigurace se nezdařil</translation>
+        <translation>Import konfigurace se nezdařil</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation>Nepodařilo se importovat ´konfiguraci – data ve schránce nevypadají jako konfigurace modifikací!</translation>
+        <translation>Nepodařilo se importovat konfiguraci – data ve schránce nevypadají jako konfigurace modifikací!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>
