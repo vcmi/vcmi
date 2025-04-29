@@ -17,7 +17,6 @@
 #include "SThievesGuildInfo.h"
 #include "QuestInfo.h"
 
-#include "../ArtifactUtils.h"
 #include "../GameSettings.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CPlayerState.h"
@@ -33,6 +32,8 @@
 #include "../battle/BattleInfo.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
+#include "../entities/artifact/ArtifactUtils.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
@@ -722,7 +723,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), CArtifact::ART_TREASURE).toEntity(LIBRARY);
+				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), EArtifactClass::ART_TREASURE).toEntity(LIBRARY);
 
 				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -1678,18 +1679,18 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::func
 
 		auto const * artifact = artifactID.toArtifact();
 
-		assert(artifact->aClass != CArtifact::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
+		assert(artifact->aClass != EArtifactClass::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
-		if ((flags & CArtifact::ART_TREASURE) == 0 && artifact->aClass == CArtifact::ART_TREASURE)
+		if ((flags & EArtifactClass::ART_TREASURE) == 0 && artifact->aClass == EArtifactClass::ART_TREASURE)
 			continue;
 
-		if ((flags & CArtifact::ART_MINOR) == 0 && artifact->aClass == CArtifact::ART_MINOR)
+		if ((flags & EArtifactClass::ART_MINOR) == 0 && artifact->aClass == EArtifactClass::ART_MINOR)
 			continue;
 
-		if ((flags & CArtifact::ART_MAJOR) == 0 && artifact->aClass == CArtifact::ART_MAJOR)
+		if ((flags & EArtifactClass::ART_MAJOR) == 0 && artifact->aClass == EArtifactClass::ART_MAJOR)
 			continue;
 
-		if ((flags & CArtifact::ART_RELIC) == 0 && artifact->aClass == CArtifact::ART_RELIC)
+		if ((flags & EArtifactClass::ART_RELIC) == 0 && artifact->aClass == EArtifactClass::ART_RELIC)
 			continue;
 
 		if (!accepts(artifact->getId()))

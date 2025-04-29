@@ -20,12 +20,12 @@
 
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
@@ -147,7 +147,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	{
 		assert(value.isStruct());
 
-		std::set<CArtifact::EartClass> allowedClasses;
+		std::set<EArtifactClass::Type> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
 		ui32 minValue = 0;
 		ui32 maxValue = std::numeric_limits<ui32>::max();

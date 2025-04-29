@@ -42,6 +42,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

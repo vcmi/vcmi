@@ -15,6 +15,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
 #include "../GameLibrary.h"

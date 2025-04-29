@@ -18,6 +18,7 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"

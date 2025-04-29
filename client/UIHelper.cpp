@@ -13,8 +13,6 @@
 
 #include "widgets/CComponent.h"
 
-#include "../lib/CArtHandler.h"
-#include "../lib/CArtifactInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/ArtifactLocation.h"
 #include "../lib/CRandomGenerator.h"

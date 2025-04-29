@@ -11,9 +11,10 @@
 #include "StdInc.h"
 #include "MiscObjects.h"
 
-#include "../ArtifactUtils.h"
 #include "../bonuses/Propagators.h"
 #include "../constants/StringConstants.h"
+#include "../entities/artifact/ArtifactUtils.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSoundBase.h"
@@ -630,19 +631,19 @@ void CGArtifact::pickRandomObject(vstd::RNG & rand)
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC);
+			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE | EArtifactClass::ART_MINOR | EArtifactClass::ART_MAJOR | EArtifactClass::ART_RELIC);
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE);
+			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_MINOR);
+			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_MAJOR);
+			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, CArtifact::ART_RELIC);
+			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_RELIC);
 			break;
 	}
 

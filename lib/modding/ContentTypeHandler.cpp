@@ -16,9 +16,9 @@
 #include "ModScope.h"
 
 #include "../BattleFieldHandler.h"
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CConfigHandler.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClassHandler.h"
 #include "../entities/hero/CHeroHandler.h"

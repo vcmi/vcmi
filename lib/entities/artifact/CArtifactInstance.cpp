@@ -11,12 +11,11 @@
 #include "StdInc.h"
 #include "CArtifactInstance.h"
 
+#include "CArtifact.h"
 #include "CArtifactSet.h"
-#include "ArtifactUtils.h"
-#include "CArtHandler.h"
-#include "IGameCallback.h"
-#include "gameState/CGameState.h"
-#include "networkPacks/ArtifactLocation.h"
+
+#include "../../IGameCallback.h"
+#include "../../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

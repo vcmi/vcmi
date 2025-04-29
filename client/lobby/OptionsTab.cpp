@@ -44,7 +44,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"

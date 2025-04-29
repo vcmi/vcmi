@@ -15,6 +15,7 @@
 #include "TreasurePlacer.h"
 #include "../CZonePlacer.h"
 #include "../../GameLibrary.h"
+#include "../../entities/artifact/CArtHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/MapObjects.h"

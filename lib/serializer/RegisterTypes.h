@@ -17,6 +17,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../campaign/CampaignState.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"

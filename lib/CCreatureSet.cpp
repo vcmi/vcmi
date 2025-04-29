@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CCreatureSet.h"
 
-#include "ArtifactUtils.h"
 #include "CConfigHandler.h"
 #include "CCreatureHandler.h"
 #include "GameLibrary.h"

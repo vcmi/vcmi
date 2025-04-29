@@ -15,7 +15,6 @@
 #include "Goals/Goals.h"
 #include "Goals/CompleteQuest.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/UnlockGuard.h"
@@ -29,6 +28,8 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/networkPacks/PacksForClient.h"

@@ -17,11 +17,12 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/SideInBattle.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"

@@ -11,6 +11,7 @@
 #include "AbstractGoal.h"
 #include "../AIGateway.h"
 #include "../../../lib/constants/StringConstants.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 
 namespace NKAI
 {
@@ -55,7 +56,7 @@ std::string AbstractGoal::toString() const
 		desc = "GATHER TROOPS";
 		break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + LIBRARY->artifacts()->getByIndex(aid)->getNameTranslated();
+		desc = "GET ARTIFACT OF TYPE " + ArtifactID(aid).toEntity(LIBRARY)->getNameTranslated();
 		break;
 	case DIG_AT_TILE:
 		desc = "DIG AT TILE " + tile.toString();

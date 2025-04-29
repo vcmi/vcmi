@@ -24,7 +24,8 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
@@ -34,8 +35,6 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CArtHandler.h"
-#include "../../lib/CArtifactInstance.h"
 #include "../../lib/GameLibrary.h"
 
 #include <vcmi/spells/Service.h>

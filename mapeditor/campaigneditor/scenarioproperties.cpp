@@ -13,9 +13,9 @@
 #include "startingbonus.h"
 
 #include "../../lib/GameLibrary.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"

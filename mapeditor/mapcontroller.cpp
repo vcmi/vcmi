@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "mapcontroller.h"
 
-#include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
+#include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"

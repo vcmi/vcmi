@@ -9,10 +9,11 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"

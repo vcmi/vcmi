@@ -27,9 +27,10 @@
 
 #include "../CPlayerInterface.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

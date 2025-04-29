@@ -8,13 +8,18 @@
  *
  */
 
+#include "StdInc.h"
 #include "ArtifactUtils.h"
 
-#include "CArtHandler.h"
-#include "IGameSettings.h"
-#include "spells/CSpellHandler.h"
-#include "GameLibrary.h"
-#include "mapObjects/CGHeroInstance.h"
+#include "ArtBearer.h"
+#include "CArtifact.h"
+#include "CArtifactFittingSet.h"
+
+#include "../../IGameSettings.h"
+#include "../../GameLibrary.h"
+#include "../../mapObjects/CGHeroInstance.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -234,7 +239,7 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	if(nameStart != std::string::npos && nameEnd != std::string::npos)
 	{
 		if(sid.getNum() >= 0)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY->spells())->getNameTranslated());
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY)->getNameTranslated());
 		else
 			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}

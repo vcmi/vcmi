@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "GameLibrary.h"
 
-#include "CArtHandler.h"
 #include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
 #include "CConfigHandler.h"
@@ -21,6 +20,7 @@
 #include "spells/CSpellHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
+#include "entities/artifact/CArtHandler.h"
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"

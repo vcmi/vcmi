@@ -45,7 +45,6 @@
 #include "../adventureMap/CResDataBar.h"
 
 #include "../../CCallback.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSoundBase.h"
 #include "../../lib/CCreatureHandler.h"
@@ -57,6 +56,7 @@
 #include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"

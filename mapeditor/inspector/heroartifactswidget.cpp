@@ -15,8 +15,9 @@
 #include "mapeditorroles.h"
 #include "../mapcontroller.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/mapping/CMap.h"
 
 HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInstance & h, QWidget * parent) :

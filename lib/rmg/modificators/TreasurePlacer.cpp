@@ -21,7 +21,6 @@
 #include "../CZonePlacer.h"
 #include "PrisonHeroPlacer.h"
 #include "QuestArtifactPlacer.h"
-#include "../../ArtifactUtils.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjectConstructors/DwellingInstanceConstructor.h"

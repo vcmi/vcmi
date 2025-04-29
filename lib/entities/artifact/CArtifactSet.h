@@ -1,5 +1,5 @@
 /*
- * CArtHandler.h, part of VCMI engine
+ * CArtifactSet.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,46 +9,17 @@
  */
 #pragma once
 
-#include "CArtHandler.h"
-#include "GameCallbackHolder.h"
-#include "constants/EntityIdentifiers.h"
-
-#include "CArtifactInstance.h"
+#include "ArtBearer.h"
+#include "ArtSlotInfo.h"
+#include "../../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
-{
-	ArtifactInstanceID artifactID;
-	bool locked = false; //if locked, then artifact points to the combined artifact
-
-	explicit ArtSlotInfo(IGameCallback * cb);
-	ArtSlotInfo(const CArtifactInstance * artifact, bool locked);
-
-	const CArtifactInstance * getArt() const;
-	ArtifactInstanceID getID() const;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
-		{
-			h & artifactID;
-		}
-		else
-		{
-			std::shared_ptr<CArtifactInstance> pointer;
-			h & pointer;
-			if (pointer->getId() == ArtifactInstanceID())
-				CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
-			artifactID = pointer->getId();
-		}
-		h & locked;
-	}
-};
+class CArtifactInstance;
+class CMap;
 
 class DLL_LINKAGE CArtifactSet : public virtual Serializeable
 {
-
 public:
 	using ArtPlacementMap = std::map<const CArtifactInstance*, ArtifactPosition>;
 
@@ -91,19 +62,6 @@ private:
 	void serializeJsonCommander(JsonSerializeFormat & handler);
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
-};
-
-// Used to try on artifacts before the claimed changes have been applied
-class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallbackHolder
-{
-	IGameCallback * getCallback() const final { return cb; }
-public:
-	CArtifactFittingSet(IGameCallback *cb, ArtBearer::ArtBearer Bearer);
-	explicit CArtifactFittingSet(const CArtifactSet & artSet);
-	ArtBearer::ArtBearer bearerType() const override;
-
-protected:
-	ArtBearer::ArtBearer bearer;
 };
 
 VCMI_LIB_NAMESPACE_END
