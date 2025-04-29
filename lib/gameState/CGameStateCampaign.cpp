@@ -505,7 +505,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			if (!gameState->players.at(placeholder->getOwner()).isHuman())
 				continue;
 
-			CGHeroInstance * hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
+			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTranslated());

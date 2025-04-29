@@ -101,7 +101,7 @@ std::vector<const CGHeroInstance *> TavernHeroesPool::getHeroesFor(PlayerColor c
 
 	for(const auto & slot : currentTavern)
 	{
-		assert(slot.hero != nullptr);
+		assert(slot.hero.hasValue());
 		if (slot.player == color)
 			result.push_back(owner->getMap().tryGetFromHeroPool(slot.hero));
 	}
