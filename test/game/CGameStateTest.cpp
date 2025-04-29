@@ -48,9 +48,9 @@ public:
 
 	void SetUp() override
 	{
-		gameState = std::make_shared<CGameState>();
-		gameCallback->setGameState(gameState.get());
-		gameState->preInit(&services, gameCallback.get());
+		gameState = std::make_shared<CGameState>(gameCallback.get());
+		gameCallback->setGameState(gameState);
+		gameState->preInit(&services);
 	}
 
 	void TearDown() override
@@ -178,14 +178,12 @@ public:
 			}
 		}
 
-
 		Load::ProgressAccumulator progressTracker;
 		gameState->init(&mapService, &si, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
-		ASSERT_EQ(map->heroesOnMap.size(), 2);
+		ASSERT_EQ(map->getHeroesOnMap().size(), 2);
 	}
-
 
 	void startTestBattle(const CGHeroInstance * attacker, const CGHeroInstance * defender)
 	{
@@ -198,14 +196,14 @@ public:
 
 		auto terrain = t.getTerrainID();
 		BattleField terType(0);
-		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->callback, attacker, defender);
+		BattleLayout layout = BattleLayout::createDefaultLayout(gameState->cb, attacker, defender);
 
 		//send info about battles
 
-		BattleInfo * battle = BattleInfo::setupBattle(tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
+		auto battle = BattleInfo::setupBattle(gameState->cb, tile, terrain, terType, armedInstancies, heroes, layout, nullptr);
 
 		BattleStart bs;
-		bs.info = battle;
+		bs.info = std::move(battle);
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
@@ -226,8 +224,11 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 {
 	startTestGame();
 
-	CGHeroInstance * attacker = map->heroesOnMap[0];
-	CGHeroInstance * defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
@@ -259,12 +260,12 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 	const CStack * att = nullptr;
 	const CStack * def = nullptr;
 
-	for(const CStack * s : gameState->currentBattles.front()->stacks)
+	for(const auto & s : gameState->currentBattles.front()->stacks)
 	{
 		if(s->unitType()->getId() == CreatureID::BALLISTA && s->unitSide() == BattleSide::DEFENDER)
-			def = s;
+			def = s.get();
 		else if(s->unitType()->getId() == CreatureID(69) && s->unitSide() == BattleSide::ATTACKER)
-			att = s;
+			att = s.get();
 	}
 	ASSERT_NE(att, nullptr);
 	ASSERT_NE(def, nullptr);
@@ -308,8 +309,11 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 {
 	startTestGame();
 
-	CGHeroInstance * attacker = map->heroesOnMap[0];
-	CGHeroInstance * defender = map->heroesOnMap[1];
+	auto attackerID = map->getHeroesOnMap()[0];
+	auto defenderID = map->getHeroesOnMap()[1];
+
+	auto attacker = dynamic_cast<CGHeroInstance *>(map->getObject(attackerID));
+	auto defender = dynamic_cast<CGHeroInstance *>(map->getObject(defenderID));
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 

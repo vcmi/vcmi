@@ -136,8 +136,8 @@ struct DLL_LINKAGE LobbyPrepareStartGame : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
-	std::shared_ptr<StartInfo> initializedStartInfo = nullptr;
-	CGameState * initializedGameState = nullptr;
+	std::shared_ptr<StartInfo> initializedStartInfo;
+	std::shared_ptr<CGameState> initializedGameState;
 	int clientId = -1; //-1 means to all clients
 
 	void visitTyped(ICPackVisitor & visitor) override;

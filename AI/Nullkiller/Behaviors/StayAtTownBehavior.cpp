@@ -43,7 +43,7 @@ Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 
 		for(auto & path : paths)
 		{
-			if(town->visitingHero && town->visitingHero.get() != path.targetHero)
+			if(town->getVisitingHero() && town->getVisitingHero() != path.targetHero)
 				continue;
 
 			if(!path.getFirstBlockedAction() && path.exchangeCount <= 1)

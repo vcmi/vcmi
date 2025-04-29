@@ -128,12 +128,17 @@ void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> 
 			for(int i = 0; i < map->width; ++i)
 			{
 				auto tl = map->getTile(int3(i, j, scene->level));
-				auto * obj = tl.topVisitableObj();
-				if(!obj && !tl.blockingObjects.empty())
-					obj = tl.blockingObjects.front();
+				ObjectInstanceID objID = tl.topVisitableObj();
+				if(!objID.hasValue() && !tl.blockingObjects.empty())
+					objID = tl.blockingObjects.front();
+
+				if (objID.hasValue())
+				{
+					const CGObjectInstance * obj = map->getObject(objID);
 				
-				if(obj && predicate(obj))
-					possibleObjects.insert(obj);
+					if(obj && predicate(obj))
+						possibleObjects.insert(obj);
+				}
 			}
 		}
 	}
@@ -455,8 +460,7 @@ void SelectionObjectsLayer::update()
 	selectedObjects.clear();
 	onSelection();
 	shift = QPoint();
-	delete newObject;
-	newObject = nullptr;
+	newObject.reset();
 	
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	//pixmap->fill(QColor(0, 0, 0, 0));
@@ -477,7 +481,7 @@ void SelectionObjectsLayer::draw()
 	
 	for(auto * obj : selectedObjects)
 	{
-		if(obj != newObject)
+		if(obj != newObject.get())
 		{
 			QRect bbox(obj->anchorPos().x, obj->anchorPos().y, 1, 1);
 			for(auto & t : obj->getBlockedPos())

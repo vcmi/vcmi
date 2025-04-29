@@ -32,8 +32,8 @@ struct DLL_LINKAGE ObjectInfo
 	ui16 probability = 0;
 	ui32 maxPerZone = 1;
 	//ui32 maxPerMap; //unused
-	std::function<CGObjectInstance *()> generateObject;
-	std::function<void(CGObjectInstance *)> destroyObject;
+	std::function<std::shared_ptr<CGObjectInstance>()> generateObject;
+	std::function<void(CGObjectInstance &)> destroyObject;
 	
 	void setAllTemplates(MapObjectID type, MapObjectSubID subtype);
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);

@@ -171,6 +171,9 @@ JsonNode TimesStackLevelUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const
 {
+	if (level == 0)
+		return b; // e.g. war machines & other special units
+
 	auto newBonus = std::make_shared<Bonus>(*b);
 	newBonus->val /= level;
 	newBonus->updater = nullptr; // prevent double-apply

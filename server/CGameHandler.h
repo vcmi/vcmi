@@ -65,6 +65,7 @@ public:
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
+	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
 	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
@@ -87,18 +88,20 @@ public:
 	events::EventBus * eventBus() const override;
 	CVCMIServer & gameLobby() const;
 
-	bool isValidObject(const CGObjectInstance *obj) const;
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
+	CGameState & gameState() final { return *gs; }
+	const CGameState & gameState() const final { return *gs; }
+
 	// Helpers to create new object of specified type
 
-	CGObjectInstance * createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID);
+	std::shared_ptr<CGObjectInstance> createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID);
 	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature);
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
 	void createHole(const int3 & visitablePosition, PlayerColor initiator);
-	void newObject(CGObjectInstance * object, PlayerColor initiator);
+	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
 
 	explicit CGameHandler(CVCMIServer * lobby);
 	~CGameHandler();
@@ -235,7 +238,7 @@ public:
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
-	void objectVisitEnded(const CGHeroInstance *h, PlayerColor player);
+	void objectVisitEnded(const ObjectInstanceID & heroObjectID, PlayerColor player);
 	bool dig(const CGHeroInstance *h);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 

@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "ShipyardInstanceConstructor.h"
 
+#include "../GameLibrary.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../modding/IdentifierStorage.h"
 

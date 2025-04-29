@@ -184,7 +184,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::AIR)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::AIR)
 			break;
 
 		if(!hasFlyingMovement())
@@ -193,7 +193,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::WATER)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::WATER)
 			break;
 
 		if(!hasWaterWalking())

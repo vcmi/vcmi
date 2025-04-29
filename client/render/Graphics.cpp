@@ -129,7 +129,7 @@ void Graphics::setPlayerPalette(SDL_Palette * targetPalette, PlayerColor player)
 	if(player.isValidPlayer())
 	{
 		for(int i=0; i<32; ++i)
-			palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
+			palette[i] = CSDL_Ext::toSDL(playerColorPalette[player.getNum()][i]);
 	}
 	else
 	{

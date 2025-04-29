@@ -16,6 +16,7 @@
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../GameLibrary.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMapDefines.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -35,7 +36,7 @@ void CArmedInstance::randomizeArmy(FactionID type)
 			elem.second->randomStack = std::nullopt;
 		}
 		assert(elem.second->valid(false));
-		assert(elem.second->armyObj == this);
+		assert(elem.second->getArmy() == this);
 	}
 }
 
@@ -73,15 +74,14 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	for(const auto & slot : Slots())
 	{
-		const CStackInstance * inst = slot.second;
-		const auto * creature  = inst->getCreatureID().toEntity(LIBRARY);
+		const auto * creature  = slot.second->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
 		if (!hasUndead)
 		{
 			//this is costly check, let's skip it at first undead
-			hasUndead |= inst->hasBonus(undeadSelector, undeadCacheKey);
+			hasUndead |= slot.second->hasBonus(undeadSelector, undeadCacheKey);
 		}
 	}
 
@@ -139,18 +139,43 @@ void CArmedInstance::armyChanged()
 	updateMoraleBonusFromArmy();
 }
 
-CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(tempOwner.isValidPlayer())
-		if(auto * where = gs->getPlayerState(tempOwner))
+		if(auto * where = gs.getPlayerState(tempOwner))
 			return *where;
 
-	return gs->globalEffects;
+	return gs.globalEffects;
 }
 
 CBonusSystemNode & CArmedInstance::whatShouldBeAttached()
 {
 	return *this;
+}
+
+void CArmedInstance::attachToBonusSystem(CGameState & gs)
+{
+	whatShouldBeAttached().attachTo(whereShouldBeAttached(gs));
+}
+
+void CArmedInstance::restoreBonusSystem(CGameState & gs)
+{
+	whatShouldBeAttached().attachTo(whereShouldBeAttached(gs));
+	for(const auto & elem : stacks)
+		elem.second->artDeserializationFix(gs, elem.second.get());
+}
+
+void CArmedInstance::detachFromBonusSystem(CGameState & gs)
+{
+	whatShouldBeAttached().detachFrom(whereShouldBeAttached(gs));
+}
+
+void CArmedInstance::attachUnitsToArmy()
+{
+	assert(getArmy() != nullptr);
+
+	for(const auto & elem : stacks)
+		elem.second->attachTo(*getArmy());
 }
 
 const IBonusBearer* CArmedInstance::getBonusBearer() const

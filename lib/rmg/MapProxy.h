@@ -24,8 +24,8 @@ class MapProxy
 public:
 	MapProxy(RmgMap & map);
 
-	void insertObject(CGObjectInstance * obj);
-	void insertObjects(std::set<CGObjectInstance*>& objects);
+	void insertObject(std::shared_ptr<CGObjectInstance> obj);
+	void insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects);
 	void removeObject(CGObjectInstance* obj);
 
 	void drawTerrain(vstd::RNG & generator, std::vector<int3> & tiles, TerrainId terrain);

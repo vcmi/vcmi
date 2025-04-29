@@ -10,73 +10,58 @@
 #pragma once
 
 #include "CSerializer.h"
-#include "SerializerReflection.h"
 #include "ESerializationVersion.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "SerializerReflection.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE CLoaderBase
-{
-protected:
-	IBinaryReader * reader;
-public:
-	CLoaderBase(IBinaryReader * r): reader(r){};
-
-	inline void read(void * data, unsigned size, bool reverseEndianness)
-	{
-		auto bytePtr = reinterpret_cast<std::byte*>(data);
-
-		reader->read(bytePtr, size);
-		if(reverseEndianness)
-			std::reverse(bytePtr, bytePtr + size);
-	};
-};
-
 /// Main class for deserialization of classes from binary form
 /// Effectively revesed version of BinarySerializer
-class BinaryDeserializer : public CLoaderBase
+class BinaryDeserializer
 {
-	template<typename Fake, typename T>
-	static bool loadIfStackInstance(T &data)
+public:
+	using Version = ESerializationVersion;
+	static constexpr bool saving = false;
+
+	IGameCallback * cb = nullptr;
+	Version version = Version::NONE;
+	bool loadingGamestate = false;
+	bool reverseEndianness = false; //if source has different endianness than us, we reverse bytes
+
+	BinaryDeserializer(IBinaryReader * r)
+		: reader(r)
 	{
-		return false;
 	}
 
-	template<typename Fake>
-	bool loadIfStackInstance(const CStackInstance* &data)
+	template<class T>
+	BinaryDeserializer & operator&(T & t)
 	{
-		CArmedInstance * armyPtr = nullptr;
-		ObjectInstanceID armyID;
-		SlotID slot;
-		load(armyID);
-		load(slot);
-
-		if (armyID == ObjectInstanceID::NONE)
-			return false;
-
-		if(reader->smartVectorMembersSerialization)
-		{
-			if(const auto *info = reader->getVectorizedTypeInfo<CArmedInstance, ObjectInstanceID>())
-				armyPtr = reader->getVectorItemFromId<CArmedInstance, ObjectInstanceID>(*info, armyID);
-		}
-
-		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
-		{
-			assert(armyPtr->hasStackAtSlot(slot));
-			data = armyPtr->stacks[slot];
-		}
-		else
-		{
-			auto * hero = dynamic_cast<CGHeroInstance *>(armyPtr);
-			assert(hero);
-			assert(hero->commander);
-			data = hero->commander;
-		}
-		return true;
+		this->load(t);
+		return *this;
 	}
 
-	STRONG_INLINE uint32_t readAndCheckLength()
+	void clear()
+	{
+		loadedPointers.clear();
+		loadedSharedPointers.clear();
+		loadedUniquePointers.clear();
+	}
+
+	bool hasFeature(Version v) const
+	{
+		return version >= v;
+	}
+
+private:
+	static constexpr bool trackSerializedPointers = true;
+
+	std::vector<std::string> loadedStrings;
+	std::map<uint32_t, Serializeable *> loadedPointers;
+	std::set<Serializeable *> loadedUniquePointers;
+	std::map<const Serializeable *, std::shared_ptr<Serializeable>> loadedSharedPointers;
+	IBinaryReader * reader;
+
+	uint32_t readAndCheckLength()
 	{
 		uint32_t length;
 		load(length);
@@ -84,52 +69,30 @@ class BinaryDeserializer : public CLoaderBase
 		if(length > 1000000)
 		{
 			logGlobal->warn("Warning: very big length: %d", length);
-			reader->reportState(logGlobal);
 		};
 		return length;
 	}
 
-	int write(const void * data, unsigned size);
-
-public:
-	using Version = ESerializationVersion;
-
-	bool reverseEndianness; //if source has different endianness than us, we reverse bytes
-	Version version;
-
-	std::vector<std::string> loadedStrings;
-	std::map<uint32_t, Serializeable*> loadedPointers;
-	std::map<const Serializeable*, std::shared_ptr<Serializeable>> loadedSharedPointers;
-	IGameCallback * cb = nullptr;
-	static constexpr bool trackSerializedPointers = true;
-	static constexpr bool saving = false;
-	bool loadingGamestate = false;
-
-	bool hasFeature(Version what) const
+	void read(void * data, unsigned size)
 	{
-		return version >= what;
+		auto bytePtr = reinterpret_cast<std::byte *>(data);
+
+		reader->read(bytePtr, size);
+		if(reverseEndianness)
+			std::reverse(bytePtr, bytePtr + size);
 	};
-
-	DLL_LINKAGE BinaryDeserializer(IBinaryReader * r);
-
-	template<class T>
-	BinaryDeserializer & operator&(T & t)
-	{
-		this->load(t);
-		return * this;
-	}
 
 	int64_t loadEncodedInteger()
 	{
 		uint64_t valueUnsigned = 0;
 		uint_fast8_t offset = 0;
 
-		for (;;)
+		for(;;)
 		{
 			uint8_t byteValue;
 			load(byteValue);
 
-			if ((byteValue & 0x80) != 0)
+			if((byteValue & 0x80) != 0)
 			{
 				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x7f) << offset;
 				offset += 7;
@@ -138,7 +101,7 @@ public:
 			{
 				valueUnsigned |= static_cast<uint64_t>(byteValue & 0x3f) << offset;
 				bool isNegative = (byteValue & 0x40) != 0;
-				if (isNegative)
+				if(isNegative)
 					return -static_cast<int64_t>(valueUnsigned);
 				else
 					return valueUnsigned;
@@ -146,18 +109,18 @@ public:
 		}
 	}
 
-	template < class T, typename std::enable_if_t < std::is_floating_point_v<T>, int  > = 0 >
-	void load(T &data)
+	template<class T, typename std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
+	void load(T & data)
 	{
-		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		this->read(static_cast<void *>(&data), sizeof(data));
 	}
 
-	template < class T, typename std::enable_if_t < std::is_integral_v<T> && !std::is_same_v<T, bool>, int  > = 0 >
-	void load(T &data)
+	template<class T, typename std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>, int> = 0>
+	void load(T & data)
 	{
-		if constexpr (sizeof(T) == 1)
+		if constexpr(sizeof(T) == 1)
 		{
-			this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+			this->read(static_cast<void *>(&data), sizeof(data));
 		}
 		else
 		{
@@ -166,48 +129,54 @@ public:
 		}
 	}
 
-	template < typename T, typename std::enable_if_t < is_serializeable<BinaryDeserializer, T>::value, int  > = 0 >
-	void load(T &data)
+	template<typename T, typename std::enable_if_t<is_serializeable<BinaryDeserializer, T>::value, int> = 0>
+	void load(T & data)
 	{
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const_t<T> nonConstT;
 		auto & hlp = const_cast<nonConstT &>(data);
 		hlp.serialize(*this);
 	}
-	template < typename T, typename std::enable_if_t < std::is_array_v<T>, int  > = 0 >
-	void load(T &data)
+	template<typename T, typename std::enable_if_t<std::is_array_v<T>, int> = 0>
+	void load(T & data)
 	{
 		uint32_t size = std::size(data);
 		for(uint32_t i = 0; i < size; i++)
 			load(data[i]);
 	}
 
-	void load(Version &data)
+	void load(Version & data)
 	{
-		this->read(static_cast<void *>(&data), sizeof(data), reverseEndianness);
+		this->read(static_cast<void *>(&data), sizeof(data));
 	}
 
-	template < typename T, typename std::enable_if_t < std::is_enum_v<T>, int  > = 0 >
-	void load(T &data)
+	template<typename T, typename std::enable_if_t<std::is_enum_v<T>, int> = 0>
+	void load(T & data)
 	{
 		int32_t read;
-		load( read );
+		load(read);
 		data = static_cast<T>(read);
 	}
 
-	template < typename T, typename std::enable_if_t < std::is_same_v<T, bool>, int > = 0 >
-	void load(T &data)
+	template<typename T, typename std::enable_if_t<std::is_same_v<T, bool>, int> = 0>
+	void load(T & data)
 	{
 		uint8_t read;
-		load( read );
+		load(read);
+		assert(read == 0 || read == 1);
 		data = static_cast<bool>(read);
 	}
 
-	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
-	void load(std::vector<T> &data)
+	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
+	void load(std::vector<T> & data)
 	{
 		uint32_t length = readAndCheckLength();
-		data.resize(length);
+
+		if constexpr(std::is_base_of_v<GameCallbackHolder, T>)
+			data.resize(length, T(cb));
+		else
+			data.resize(length);
+
 		for(uint32_t i=0;i<length;i++)
 			load( data[i]);
 	}
@@ -221,7 +190,7 @@ public:
 			load(data[i]);
 	}
 
-	template <typename T, typename std::enable_if_t < !std::is_same_v<T, bool >, int  > = 0>
+	template<typename T, typename std::enable_if_t<!std::is_same_v<T, bool>, int> = 0>
 	void load(std::deque<T> & data)
 	{
 		uint32_t length = readAndCheckLength();
@@ -230,45 +199,21 @@ public:
 			load(data[i]);
 	}
 
-	template < typename T, typename std::enable_if_t < std::is_pointer_v<T>, int  > = 0 >
-	void load(T &data)
+	template<typename T>
+	void loadRawPointer(T & data)
 	{
 		bool isNull;
-		load( isNull );
+		load(isNull);
 		if(isNull)
 		{
 			data = nullptr;
 			return;
 		}
 
-		if(reader->smartVectorMembersSerialization)
-		{
-			typedef typename std::remove_const_t<typename std::remove_pointer_t<T>> TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
-			typedef typename VectorizedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
-			typedef typename VectorizedIDType<TObjectType>::type IDType;
-			if(const auto *info = reader->getVectorizedTypeInfo<VType, IDType>())
-			{
-				IDType id;
-				load(id);
-				if(id != IDType(-1))
-				{
-					data = static_cast<T>(reader->getVectorItemFromId<VType, IDType>(*info, id));
-					return;
-				}
-			}
-		}
-
-		if(reader->sendStackInstanceByIds)
-		{
-			bool gotLoaded = loadIfStackInstance<void>(data);
-			if(gotLoaded)
-				return;
-		}
-
 		uint32_t pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(trackSerializedPointers)
 		{
-			load( pid ); //get the id
+			load(pid); //get the id
 			auto i = loadedPointers.find(pid); //lookup
 
 			if(i != loadedPointers.end())
@@ -276,12 +221,15 @@ public:
 				// We already got this pointer
 				// Cast it in case we are loading it to a non-first base pointer
 				data = dynamic_cast<T>(i->second);
+				if (vstd::contains(loadedUniquePointers, data))
+					throw std::runtime_error("Attempt to deserialize duplicated unique_ptr!");
+
 				return;
 			}
 		}
 		//get type id
 		uint16_t tid;
-		load( tid );
+		load(tid);
 
 		typedef typename std::remove_pointer_t<T> npT;
 		typedef typename std::remove_const_t<npT> ncpT;
@@ -300,28 +248,31 @@ public:
 				data = nullptr;
 				return;
 			}
-			auto dataNonConst = dynamic_cast<ncpT*>(app->createPtr(*this, cb));
+			auto createdPtr = app->createPtr(*this, cb);
+			auto dataNonConst = dynamic_cast<ncpT *>(createdPtr);
+			assert(createdPtr);
+			assert(dataNonConst);
 			data = dataNonConst;
 			ptrAllocated(data, pid);
 			app->loadPtr(*this, cb, dataNonConst);
 		}
 	}
 
-	template <typename T>
-	void ptrAllocated(T *ptr, uint32_t pid)
+	template<typename T>
+	void ptrAllocated(T * ptr, uint32_t pid)
 	{
 		if(trackSerializedPointers && pid != 0xffffffff)
 			loadedPointers[pid] = const_cast<Serializeable*>(dynamic_cast<const Serializeable*>(ptr)); //add loaded pointer to our lookup map; cast is to avoid errors with const T* pt
 	}
 
-	template <typename T>
-	void load(std::shared_ptr<T> &data)
+	template<typename T>
+	void load(std::shared_ptr<T> & data)
 	{
 		typedef typename std::remove_const_t<T> NonConstT;
-		NonConstT *internalPtr;
-		load(internalPtr);
+		NonConstT * internalPtr;
+		loadRawPointer(internalPtr);
 
-		const auto * internalPtrDerived = static_cast<Serializeable*>(internalPtr);
+		const auto * internalPtrDerived = static_cast<Serializeable *>(internalPtr);
 
 		if(internalPtr)
 		{
@@ -330,7 +281,7 @@ public:
 			{
 				// This pointers is already loaded. The "data" needs to be pointed to it,
 				// so their shared state is actually shared.
-				data = std::static_pointer_cast<T>(itr->second);
+				data = std::dynamic_pointer_cast<T>(itr->second);
 			}
 			else
 			{
@@ -348,7 +299,7 @@ public:
 		// no-op
 	}
 
-	template <typename T>
+	template<typename T>
 	void load(std::shared_ptr<const T> & data)
 	{
 		std::shared_ptr<T> nonConstData;
@@ -358,28 +309,31 @@ public:
 		data = nonConstData;
 	}
 
-	template <typename T>
-	void load(std::unique_ptr<T> &data)
+	template<typename T>
+	void load(std::unique_ptr<T> & data)
 	{
-		T *internalPtr;
-		load( internalPtr );
+		T * internalPtr;
+		loadRawPointer(internalPtr);
 		data.reset(internalPtr);
+		loadedUniquePointers.insert(internalPtr);
 	}
-	template <typename T, size_t N>
-	void load(std::array<T, N> &data)
+
+	template<typename T, size_t N>
+	void load(std::array<T, N> & data)
 	{
 		for(uint32_t i = 0; i < N; i++)
-			load( data[i] );
+			load(data[i]);
 	}
-	template <typename T>
-	void load(std::set<T> &data)
+
+	template<typename T>
+	void load(std::set<T> & data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(uint32_t i=0;i<length;i++)
+		for(uint32_t i = 0; i < length; i++)
 		{
-			load( ins );
+			load(ins);
 			data.insert(ins);
 		}
 	}
@@ -389,74 +343,84 @@ public:
 		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(uint32_t i=0;i<length;i++)
+		for(uint32_t i = 0; i < length; i++)
 		{
 			load(ins);
 			data.insert(ins);
 		}
 	}
-	template <typename T>
-	void load(std::list<T> &data)
+
+	template<typename T>
+	void load(std::list<T> & data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.clear();
 		T ins;
-		for(uint32_t i=0;i<length;i++)
+		for(uint32_t i = 0; i < length; i++)
 		{
 			load(ins);
 			data.push_back(ins);
 		}
 	}
-	template <typename T1, typename T2>
-	void load(std::pair<T1,T2> &data)
+
+	template<typename T1, typename T2>
+	void load(std::pair<T1, T2> & data)
 	{
 		load(data.first);
 		load(data.second);
 	}
 
-	template <typename T1, typename T2>
-	void load(std::unordered_map<T1,T2> &data)
+	template<typename T1, typename T2>
+	void load(std::unordered_map<T1, T2> & data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		for(uint32_t i=0;i<length;i++)
+		for(uint32_t i = 0; i < length; i++)
 		{
 			load(key);
 			load(data[key]);
 		}
 	}
 
-	template <typename T1, typename T2>
-	void load(std::map<T1,T2> &data)
+	template<typename T1, typename T2>
+	void load(std::map<T1, T2> & data)
 	{
 		uint32_t length = readAndCheckLength();
 		data.clear();
 		T1 key;
-		for(uint32_t i=0;i<length;i++)
+		for(uint32_t i = 0; i < length; i++)
 		{
 			load(key);
-			load(data[key]);
+
+			if constexpr(std::is_base_of_v<GameCallbackHolder, T2>)
+			{
+				data.try_emplace(key, cb);
+				load(data.at(key));
+			}
+			else
+				load(data[key]);
 		}
 	}
-	void load(std::string &data)
+
+	void load(std::string & data)
 	{
 		int32_t length;
 		load(length);
 
-		if (length < 0)
+		if(length < 0)
 		{
 			int32_t stringID = -length - 1; // -1, -2 ... -> 0, 1 ...
 			data = loadedStrings[stringID];
 		}
-		if (length == 0)
+		if(length == 0)
 		{
 			data = {};
 		}
-		if (length > 0)
+		if(length > 0)
 		{
 			data.resize(length);
-			this->read(static_cast<void *>(data.data()), length, false);
+			this->read(static_cast<void *>(data.data()), length);
 			loadedStrings.push_back(data);
 		}
 	}
@@ -465,7 +429,7 @@ public:
 	void load(std::variant<TN...> & data)
 	{
 		int32_t which;
-		load( which );
+		load(which);
 		assert(which < sizeof...(TN));
 
 		// Create array of variants that contains all default-constructed alternatives
@@ -480,7 +444,7 @@ public:
 	void load(std::optional<T> & data)
 	{
 		uint8_t present;
-		load( present );
+		load(present);
 		if(present)
 		{
 			//TODO: replace with emplace once we start request Boost 1.56+, see PR360
@@ -494,7 +458,7 @@ public:
 		}
 	}
 
-	template <typename T>
+	template<typename T>
 	void load(boost::multi_array<T, 3> & data)
 	{
 		uint32_t length = readAndCheckLength();
@@ -509,23 +473,23 @@ public:
 		for(uint32_t i = 0; i < length; i++)
 			load(data.data()[i]);
 	}
-	template <std::size_t T>
-	void load(std::bitset<T> &data)
+	template<std::size_t T>
+	void load(std::bitset<T> & data)
 	{
 		static_assert(T <= 64);
-		if constexpr (T <= 16)
+		if constexpr(T <= 16)
 		{
 			uint16_t read;
 			load(read);
 			data = read;
 		}
-		else if constexpr (T <= 32)
+		else if constexpr(T <= 32)
 		{
 			uint32_t read;
 			load(read);
 			data = read;
 		}
-		else if constexpr (T <= 64)
+		else if constexpr(T <= 64)
 		{
 			uint64_t read;
 			load(read);

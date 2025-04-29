@@ -320,7 +320,7 @@ bool MarketInstanceConstructor::hasDescription() const
 	return !descriptionTextID.empty();
 }
 
-CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
+std::shared_ptr<CGMarket> MarketInstanceConstructor::createObject(IGameCallback * cb) const
 {
 	if(marketModes.size() == 1)
 	{
@@ -328,13 +328,13 @@ CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
 		{
 			case EMarketMode::ARTIFACT_RESOURCE:
 			case EMarketMode::RESOURCE_ARTIFACT:
-				return new CGBlackMarket(cb);
+				return std::make_shared<CGBlackMarket>(cb);
 
 			case EMarketMode::RESOURCE_SKILL:
-				return new CGUniversity(cb);
+				return std::make_shared<CGUniversity>(cb);
 		}
 	}
-	return new CGMarket(cb);
+	return std::make_shared<CGMarket>(cb);
 }
 
 const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const

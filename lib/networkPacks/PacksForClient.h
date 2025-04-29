@@ -806,7 +806,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	void applyGs(CGameState * gs) override;
 
 	/// Object ID to create
-	CGObjectInstance * newObject;
+	std::shared_ptr<CGObjectInstance> newObject;
 	/// Which player initiated creation of this object
 	PlayerColor initiator;
 

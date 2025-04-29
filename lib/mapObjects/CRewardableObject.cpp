@@ -361,7 +361,7 @@ void CRewardableObject::initializeGuards()
 			if (!slotID.validSlot())
 				return;
 
-			putStack(slotID, new CStackInstance(guard.getId(), guard.getCount()));
+			putStack(slotID, std::make_unique<CStackInstance>(cb, guard.getId(), guard.getCount()));
 		}
 	}
 }

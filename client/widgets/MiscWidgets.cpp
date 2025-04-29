@@ -33,6 +33,7 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -448,7 +449,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	OBJECT_CONSTRUCTION;
 
 	const InfoAboutTown townInfo = InfoAboutTown(town, true);
-	int townId = town->id;
+	ObjectInstanceID townId = town->id;
 
 	//order of icons in def: fort, citadel, castle, no fort
 	size_t fortIndex = townInfo.fortLevel ? townInfo.fortLevel - 1 : 3;

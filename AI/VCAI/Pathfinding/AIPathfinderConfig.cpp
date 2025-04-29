@@ -39,7 +39,7 @@ namespace AIPathfinding
 		CPlayerSpecificInfoCallback * cb,
 		VCAI * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
-		:PathfinderConfig(nodeStorage, cb, makeRuleset(cb, ai, nodeStorage)), hero(nodeStorage->getHero())
+		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, ai, nodeStorage)), hero(nodeStorage->getHero())
 	{
 		options.ignoreGuards = false;
 		options.useEmbarkAndDisembark = true;
@@ -51,7 +51,7 @@ namespace AIPathfinding
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
-	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
+	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
 	{
 		if(!helper)
 		{

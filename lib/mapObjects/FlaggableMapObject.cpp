@@ -88,7 +88,7 @@ void FlaggableMapObject::giveBonusTo(const PlayerColor & player, bool onInit) co
 		// Proper fix would be to make FlaggableMapObject into bonus system node
 		// Unfortunately this will cause saves breakage
 		if(onInit)
-			gb.applyGs(cb->gameState());
+			gb.applyGs(&cb->gameState());
 		else
 			cb->sendAndApply(gb);
 	}

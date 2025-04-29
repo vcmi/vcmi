@@ -17,6 +17,7 @@
 #include "../CStack.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../BattleFieldHandler.h"
@@ -40,24 +41,22 @@ SideInBattle & BattleInfo::getSide(BattleSide side)
 }
 
 ///BattleInfo
-CStack * BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position)
+void BattleInfo::generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position)
 {
 	PlayerColor owner = getSide(side).color;
-	assert(!owner.isValidPlayer() || (base.armyObj && base.armyObj->tempOwner == owner));
+	assert(!owner.isValidPlayer() || (base.getArmy() && base.getArmy()->tempOwner == owner));
 
-	auto * ret = new CStack(&base, owner, id, side, slot);
+	auto ret = std::make_unique<CStack>(&base, owner, id, side, slot);
 	ret->initialPosition = getAvailableHex(base.getCreatureID(), side, position.toInt()); //TODO: what if no free tile on battlefield was found?
-	stacks.push_back(ret);
-	return ret;
+	stacks.push_back(std::move(ret));
 }
 
-CStack * BattleInfo::generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position)
+void BattleInfo::generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position)
 {
 	PlayerColor owner = getSide(side).color;
-	auto * ret = new CStack(&base, owner, id, side, slot);
+	auto ret = std::make_unique<CStack>(&base, owner, id, side, slot);
 	ret->initialPosition = position;
-	stacks.push_back(ret);
-	return ret;
+	stacks.push_back(std::move(ret));
 }
 
 void BattleInfo::localInit()
@@ -69,7 +68,7 @@ void BattleInfo::localInit()
 		armyObj->attachTo(*this);
 	}
 
-	for(CStack * s : stacks)
+	for(auto & s : stacks)
 		s->localInit(this);
 
 	exportBonuses();
@@ -158,15 +157,13 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
+std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
-	auto * currentBattle = new BattleInfo(layout);
+	auto currentBattle = std::make_unique<BattleInfo>(cb, layout);
 
 	for(auto i : { BattleSide::LEFT_SIDE, BattleSide::RIGHT_SIDE})
 		currentBattle->sides[i].init(heroes[i], armies[i]);
-
-	std::vector<CStack*> & stacks = (currentBattle->stacks);
 
 	currentBattle->tile = tile;
 	currentBattle->terrainType = terrain;
@@ -174,7 +171,8 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	currentBattle->round = -2;
 	currentBattle->activeStack = -1;
 	currentBattle->replayAllowed = false;
-	currentBattle->town = town;
+	if (town)
+		currentBattle->townID = town->id;
 
 	//setting up siege obstacles
 	if (town && town->fortificationsLevel().wallsHealth != 0)
@@ -351,27 +349,27 @@ BattleInfo * BattleInfo::setupBattle(const int3 & tile, TerrainId terrain, const
 	//adding commanders
 	for(BattleSide i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		if (heroes[i] && heroes[i]->commander && heroes[i]->commander->alive)
+		if (heroes[i] && heroes[i]->getCommander() && heroes[i]->getCommander()->alive)
 		{
-			currentBattle->generateNewStack(currentBattle->nextUnitId(), *heroes[i]->commander, i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
+			currentBattle->generateNewStack(currentBattle->nextUnitId(), *heroes[i]->getCommander(), i, SlotID::COMMANDER_SLOT_PLACEHOLDER, layout.commanders.at(i));
 		}
 	}
 
-	if (currentBattle->town)
+	if (currentBattle->townID.hasValue())
 	{
-		if (currentBattle->town->fortificationsLevel().citadelHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().citadelHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (currentBattle->town->fortificationsLevel().upperTowerHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().upperTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
-		if (currentBattle->town->fortificationsLevel().lowerTowerHealth != 0)
+		if (currentBattle->getTown()->fortificationsLevel().lowerTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 
 		//Moat generating is done on server
 	}
 
-	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+	std::stable_sort(currentBattle->stacks.begin(), currentBattle->stacks.end(), [cmpst](const auto & left, const auto & right){ return cmpst(left.get(), right.get());});
 
 	auto neutral = std::make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL);
 	auto good = std::make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD);
@@ -440,7 +438,7 @@ const CGHeroInstance * BattleInfo::getHero(const PlayerColor & player) const
 {
 	for(const auto & side : sides)
 		if(side.color == player)
-			return side.hero;
+			return side.getHero();
 
 	logGlobal->error("Player %s is not in battle!", player.toString());
 	return nullptr;
@@ -461,17 +459,18 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo(const BattleLayout & layout):
-	BattleInfo()
+BattleInfo::BattleInfo(IGameCallback *cb, const BattleLayout & layout):
+	BattleInfo(cb)
 {
 	*this->layout = layout;
 }
 
-BattleInfo::BattleInfo():
+BattleInfo::BattleInfo(IGameCallback *cb)
+	:GameCallbackHolder(cb),
+	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),
 	round(-1),
 	activeStack(-1),
-	town(nullptr),
 	tile(-1,-1,-1),
 	battlefieldType(BattleField::NONE),
 	tacticsSide(BattleSide::NONE),
@@ -502,8 +501,7 @@ std::optional<PlayerColor> BattleInfo::getPlayerID() const
 
 BattleInfo::~BattleInfo()
 {
-	for (auto & elem : stacks)
-		delete elem;
+	stacks.clear();
 
 	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 		if(auto * _armyObj = battleGetArmyObject(i))
@@ -518,14 +516,18 @@ int32_t BattleInfo::getActiveStackID() const
 TStacks BattleInfo::getStacksIf(const TStackFilter & predicate) const
 {
 	TStacks ret;
-	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
+	for (const auto & stack : stacks)
+		if (predicate(stack.get()))
+			ret.push_back(stack.get());
 	return ret;
 }
 
 battle::Units BattleInfo::getUnitsIf(const battle::UnitFilter & predicate) const
 {
 	battle::Units ret;
-	vstd::copy_if(stacks, std::back_inserter(ret), predicate);
+	for (const auto & stack : stacks)
+		if (predicate(stack.get()))
+			ret.push_back(stack.get());
 	return ret;
 }
 
@@ -557,12 +559,19 @@ PlayerColor BattleInfo::getSidePlayer(BattleSide side) const
 
 const CArmedInstance * BattleInfo::getSideArmy(BattleSide side) const
 {
-	return getSide(side).armyObject;
+	return getSide(side).getArmy();
 }
 
 const CGHeroInstance * BattleInfo::getSideHero(BattleSide side) const
 {
-	return getSide(side).hero;
+	return getSide(side).getHero();
+}
+
+const CGTownInstance * BattleInfo::getTown() const
+{
+	if (townID.hasValue())
+		return cb->getTown(townID);
+	return nullptr;
 }
 
 uint8_t BattleInfo::getTacticDist() const
@@ -577,7 +586,9 @@ BattleSide BattleInfo::getTacticsSide() const
 
 const CGTownInstance * BattleInfo::getDefendedTown() const
 {
-	return town;
+	if (townID.hasValue())
+		return cb->getTown(townID);
+	return nullptr;
 }
 
 EWallState BattleInfo::getWallState(EWallPart partOfWall) const
@@ -643,7 +654,7 @@ void BattleInfo::nextRound()
 	}
 	round += 1;
 
-	for(CStack * s : stacks)
+	for(auto & s : stacks)
 	{
 		// new turn effects
 		s->reduceBonusDurations(Bonus::NTurns);
@@ -675,11 +686,11 @@ void BattleInfo::addUnit(uint32_t id, const JsonNode & data)
 
 	PlayerColor owner = getSidePlayer(info.side);
 
-	auto * ret = new CStack(&base, owner, info.id, info.side, SlotID::SUMMONED_SLOT_PLACEHOLDER);
+	auto ret = std::make_unique<CStack>(&base, owner, info.id, info.side, SlotID::SUMMONED_SLOT_PLACEHOLDER);
 	ret->initialPosition = info.position;
-	stacks.push_back(ret);
-	ret->localInit(this);
-	ret->summoned = info.summoned;
+	stacks.push_back(std::move(ret));
+	stacks.back()->localInit(this);
+	stacks.back()->summoned = info.summoned;
 }
 
 void BattleInfo::moveUnit(uint32_t id, const BattleHex & destination)
@@ -755,7 +766,7 @@ void BattleInfo::setUnitState(uint32_t id, const JsonNode & data, int64_t health
 
 	if(!changedStack->alive() && changedStack->isClone())
 	{
-		for(CStack * s : stacks)
+		for(auto & s : stacks)
 		{
 			if(s->cloneID == changedStack->unitId())
 				s->cloneID = -1;
@@ -793,7 +804,7 @@ void BattleInfo::removeUnit(uint32_t id)
 			}
 
 			//cleanup remaining clone links if any
-			for(auto * s : stacks)
+			for(const auto & s : stacks)
 			{
 				if(s->cloneID == toRemoveId)
 					s->cloneID = -1;
@@ -946,6 +957,12 @@ CArmedInstance * BattleInfo::battleGetArmyObject(BattleSide side) const
 CGHeroInstance * BattleInfo::battleGetFightingHero(BattleSide side) const
 {
 	return const_cast<CGHeroInstance*>(CBattleInfoEssentials::battleGetFightingHero(side));
+}
+
+void BattleInfo::postDeserialize()
+{
+	for (const auto & unit : stacks)
+		unit->postDeserialize(getSideArmy(unit->unitSide()));
 }
 
 #if SCRIPTING_ENABLED

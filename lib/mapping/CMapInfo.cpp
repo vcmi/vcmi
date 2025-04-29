@@ -19,6 +19,7 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../serializer/CLoadFile.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -30,15 +31,12 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapInfo::CMapInfo()
-	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
+	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
 
 }
 
-CMapInfo::~CMapInfo()
-{
-	vstd::clear_pointer(scenarioOptionsOfSave);
-}
+CMapInfo::~CMapInfo() = default;
 
 std::string CMapInfo::getFullFileURI(const ResourcePath & file) const
 {
@@ -61,11 +59,16 @@ void CMapInfo::mapInit(const std::string & fname)
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), ESerializationVersion::MINIMAL);
-	lf.checkMagicBytes(SAVEGAME_MAGIC);
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), nullptr);
 
 	mapHeader = std::make_unique<CMapHeader>();
-	lf >> *(mapHeader) >> scenarioOptionsOfSave;
+	scenarioOptionsOfSave = std::make_unique<StartInfo>();
+	lf.load(*mapHeader);
+	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
+		lf.load(*scenarioOptionsOfSave);
+	else
+		lf.load(scenarioOptionsOfSave);
+
 	fileURI = file.getName();
 	originalFileURI = file.getOriginalName();
 	fullFileURI = getFullFileURI(file);

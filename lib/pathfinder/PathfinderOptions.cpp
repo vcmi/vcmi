@@ -19,16 +19,16 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-PathfinderOptions::PathfinderOptions(const CGameInfoCallback * cb)
+PathfinderOptions::PathfinderOptions(const CGameInfoCallback & cb)
 	: useFlying(true)
 	, useWaterWalking(true)
-	, ignoreGuards(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_IGNORE_GUARDS))
-	, useEmbarkAndDisembark(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_USE_BOAT))
-	, useTeleportTwoWay(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY))
-	, useTeleportOneWay(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE))
-	, useTeleportOneWayRandom(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM))
-	, useTeleportWhirlpool(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_USE_WHIRLPOOL))
-	, originalFlyRules(cb->getSettings().getBoolean(EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES))
+	, ignoreGuards(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_IGNORE_GUARDS))
+	, useEmbarkAndDisembark(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_USE_BOAT))
+	, useTeleportTwoWay(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_TWO_WAY))
+	, useTeleportOneWay(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_UNIQUE))
+	, useTeleportOneWayRandom(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_USE_MONOLITH_ONE_WAY_RANDOM))
+	, useTeleportWhirlpool(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_USE_WHIRLPOOL))
+	, originalFlyRules(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_ORIGINAL_FLY_RULES))
 	, useCastleGate(false)
 	, lightweightFlyingMode(false)
 	, oneTurnSpecialLayersLimit(true)
@@ -39,7 +39,7 @@ PathfinderOptions::PathfinderOptions(const CGameInfoCallback * cb)
 {
 }
 
-PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const CGameInfoCallback * callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
+PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const CGameInfoCallback & callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
 	nodeStorage(std::move(nodeStorage)),
 	rules(std::move(rules)),
 	options(callback)
@@ -59,13 +59,13 @@ std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::build
 
 SingleHeroPathfinderConfig::~SingleHeroPathfinderConfig() = default;
 
-SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback * gs, const CGHeroInstance * hero)
+SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback & gs, const CGHeroInstance * hero)
 	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), gs, buildRuleSet())
 	, hero(hero)
 {
 }
 
-CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState * gs)
+CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
 {
 	if (!pathfinderHelper)
 		pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);

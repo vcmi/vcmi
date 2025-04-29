@@ -28,7 +28,7 @@ class DLL_LINKAGE CMapInfo : public Serializeable
 public:
 	std::unique_ptr<CMapHeader> mapHeader; //may be nullptr if campaign
 	std::unique_ptr<Campaign> campaign; //may be nullptr if scenario
-	StartInfo * scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
+	std::unique_ptr<StartInfo> scenarioOptionsOfSave; // Options with which scenario has been started (used only with saved games)
 	std::string fileURI;
 	std::string originalFileURI; // no need to serialize
 	std::string fullFileURI; // no need to serialize

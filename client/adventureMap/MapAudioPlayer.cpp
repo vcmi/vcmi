@@ -132,7 +132,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 
 	for(auto & objectID : objects[tile.z][tile.x][tile.y])
 	{
-		const auto & object = GAME->map().getMap()->objects[objectID.getNum()];
+		const auto & object = GAME->map().getMap()->getObject(objectID);
 
 		assert(object);
 		if (!object)
@@ -206,10 +206,9 @@ MapAudioPlayer::MapAudioPlayer()
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	for(const auto & obj : GAME->map().getMap()->objects)
+	for(const auto & obj : GAME->map().getMap()->getObjects())
 	{
-		if (obj)
-			addObject(obj);
+		addObject(obj);
 	}
 }
 

@@ -407,7 +407,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 
-		return cb->gameState()->pickRandomArtifact(rng, potentialPicks);
+		return cb->gameState().pickRandomArtifact(rng, potentialPicks);
 	}
 
 	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, vstd::RNG & rng, const Variables & variables)

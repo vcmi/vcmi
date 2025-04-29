@@ -23,12 +23,14 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+
 #include "../../lib/ArtifactUtils.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CComponentHolder::CComponentHolder(const Rect & area, const Point & selectionOversize)
 	: SelectableSlot(area, selectionOversize)

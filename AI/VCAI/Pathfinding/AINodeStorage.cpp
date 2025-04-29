@@ -88,7 +88,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
-	auto chains = nodes[layer][pos.z][pos.x][pos.y];
+	auto chains = nodes[layer.getNum()][pos.z][pos.x][pos.y];
 
 	for(AIPathNode & node : chains)
 	{
@@ -111,7 +111,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, con
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
-	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
+	auto initialNode = getOrCreateNode(hpos, hero->inBoat() ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movementPointsRemaining();
@@ -125,7 +125,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPath
 {
 	for(int i = 0; i < NUM_CHAINS; i++)
 	{
-		AIPathNode & heroNode = nodes[layer][coord.z][coord.x][coord.y][i];
+		AIPathNode & heroNode = nodes[layer.getNum()][coord.z][coord.x][coord.y][i];
 
 		heroNode.chainMask = 0;
 		heroNode.danger = 0;
@@ -267,7 +267,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero)
+			if(targetTown->getVisitingHero())
 				continue;
 
 			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->chainMask | CAST_CHAIN);
@@ -326,7 +326,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const
 {
-	return nodes[layer][pos.z][pos.x][pos.y][0].action != EPathNodeAction::UNKNOWN;
+	return nodes[layer.getNum()][pos.z][pos.x][pos.y][0].action != EPathNodeAction::UNKNOWN;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const

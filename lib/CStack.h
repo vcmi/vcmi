@@ -37,8 +37,9 @@ private:
 
 	bool doubleWideCached = false;
 
-	void postDeserialize(const CArmedInstance * army, const SlotID & extSlot);
 public:
+	void postDeserialize(const CArmedInstance * army);
+
 	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
@@ -108,22 +109,6 @@ public:
 		h & slot;
 		h & side;
 		h & initialPosition;
-
-		const CArmedInstance * army = (base ? base->armyObj : nullptr);
-		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
-
-		if(h.saving)
-		{
-			h & army;
-			h & extSlot;
-		}
-		else
-		{
-			h & army;
-			h & extSlot;
-
-			postDeserialize(army, extSlot);
-		}
 	}
 
 private:

@@ -13,7 +13,7 @@
 #include "CArtHandler.h"
 #include "IGameSettings.h"
 #include "spells/CSpellHandler.h"
-
+#include "GameLibrary.h"
 #include "mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -151,7 +151,7 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots(
 
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
-	return slot.second.artifact
+	return slot.second.getArt()
 		&& !slot.second.locked
 		&& !vstd::contains(unmovableSlots(), slot.first);
 }
@@ -221,49 +221,6 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 			arts.push_back(combinedArt);
 	}
 	return arts;
-}
-
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & spellId)
-{
-	return ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellId);
-}
-
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(const ArtifactID & artId, const SpellID & spellId)
-{
-	const std::function<CArtifactInstance*(const CArtifact*)> createArtInst =
-		[&createArtInst, &spellId](const CArtifact * art) -> CArtifactInstance*
-	{
-		assert(art);
-
-		auto * artInst = new CArtifactInstance(art);
-		if(art->isCombined() && !art->isFused())
-		{
-			for(const auto & part : art->getConstituents())
-				artInst->addPart(createArtInst(part), ArtifactPosition::PRE_FIRST);
-		}
-		if(art->isGrowing())
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::LEVEL_COUNTER;
-			bonus->val = 0;
-			artInst->addNewBonus(bonus);
-		}
-		if(art->isScroll())
-		{
-			artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
-				BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
-		}
-		return artInst;
-	};
-
-	if(artId.getNum() >= 0)
-	{
-		return createArtInst(artId.toArtifact());
-	}
-	else
-	{
-		return new CArtifactInstance(); // random, empty
-	}
 }
 
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)

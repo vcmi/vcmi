@@ -165,7 +165,8 @@ class CStackWindow : public CWindowObject
 	std::shared_ptr<CButton> stackArtifactButton;
 
 
-	std::shared_ptr<UnitView> info;
+	std::unique_ptr<UnitView> info;
+	std::unique_ptr<CStackInstance> fakeNode;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
 	std::shared_ptr<CTabbedInt> commanderTab;

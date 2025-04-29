@@ -106,7 +106,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 				if(c)
 				{
 					auto h = dynamic_cast <const CGHeroInstance *>(army);
-					if(h && h->commander == c && (st->getCount() == 0 || !st->alive()))
+					if(h && h->getCommander() == c && (st->getCount() == 0 || !st->alive()))
 					{
 						logGlobal->debug("Commander is dead.");
 						heroWithDeadCommander = army->id; //TODO: unify commander handling
@@ -217,7 +217,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 		r.exp[BattleSide::DEFENDER] = 0;
 		for (auto i = r.casualties[battle.otherSide(r.winner)].begin(); i!=r.casualties[battle.otherSide(r.winner)].end(); i++)
 		{
-			r.exp[r.winner] += LIBRARY->creh->objects.at(i->first)->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
+			r.exp[r.winner] += i->first.toCreature()->valOfBonuses(BonusType::STACK_HEALTH) * i->second;
 		}
 	};
 
@@ -323,11 +323,11 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	if(battleResult->winner == BattleSide::DEFENDER
 	   && winnerHero
-	   && winnerHero->visitedTown
-	   && !winnerHero->inTownGarrison
-	   && winnerHero->visitedTown->garrisonHero == winnerHero)
+	   && winnerHero->getVisitedTown()
+	   && !winnerHero->isGarrisoned()
+	   && winnerHero->getVisitedTown()->getGarrisonHero() == winnerHero)
 	{
-		gameHandler->swapGarrisonOnSiege(winnerHero->visitedTown->id); //return defending visitor from garrison to its rightful place
+		gameHandler->swapGarrisonOnSiege(winnerHero->getVisitedTown()->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && winnerHero)
@@ -336,34 +336,34 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// Add statistics
 	if(loserHero && !finishingBattle->isDraw())
 	{
-		ConstTransitivePtr<CGHeroInstance> strongestHero = nullptr;
-		for(auto & hero : gameHandler->gameState()->getPlayerState(finishingBattle->loser)->getHeroes())
+		const CGHeroInstance * strongestHero = nullptr;
+		for(auto & hero : gameHandler->gameState().getPlayerState(finishingBattle->loser)->getHeroes())
 			if(!strongestHero || hero->exp > strongestHero->exp)
 				strongestHero = hero;
 		if(strongestHero->id == finishingBattle->loserId && strongestHero->level > 5)
-			gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState()->getDate(Date::DAY);
+			gameHandler->gameState().statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
 	}
 	if(battle.sideToPlayer(BattleSide::ATTACKER) == PlayerColor::NEUTRAL || battle.sideToPlayer(BattleSide::DEFENDER) == PlayerColor::NEUTRAL)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
+		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
+		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
+			gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
 	}
 	else
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
-		gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
+		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
+		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState()->statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
+			gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
 	}
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[finishingBattle->winnerSide].heroId = winnerHero ? winnerHero->id : ObjectInstanceID::NONE;
-	raccepted.heroResult[CBattleInfoEssentials::otherSide(finishingBattle->winnerSide)].heroId = loserHero ? loserHero->id : ObjectInstanceID::NONE;
-	raccepted.heroResult[BattleSide::ATTACKER].armyId = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
-	raccepted.heroResult[BattleSide::DEFENDER].armyId = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
+	raccepted.heroResult[finishingBattle->winnerSide].heroID = winnerHero ? winnerHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[CBattleInfoEssentials::otherSide(finishingBattle->winnerSide)].heroID = loserHero ? loserHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::ATTACKER].armyID = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
+	raccepted.heroResult[BattleSide::DEFENDER].armyID = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
 	raccepted.heroResult[BattleSide::DEFENDER].exp = battleResult->exp[BattleSide::DEFENDER];
 	raccepted.winnerSide = finishingBattle->winnerSide;
@@ -394,12 +394,12 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	// but the battle consequences are applied after final player is unblocked. Hard to abuse...
 	// Still, it looks like a hole.
 
-	const auto battle = std::find_if(gameHandler->gameState()->currentBattles.begin(), gameHandler->gameState()->currentBattles.end(),
+	const auto battle = std::find_if(gameHandler->gameState().currentBattles.begin(), gameHandler->gameState().currentBattles.end(),
 		[battleID](const auto & desiredBattle)
 		{
 			return desiredBattle->battleID == battleID;
 		});
-	assert(battle != gameHandler->gameState()->currentBattles.end());
+	assert(battle != gameHandler->gameState().currentBattles.end());
 
 	const auto winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
 	const auto loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
@@ -460,11 +460,11 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 					addArtifactToTransfer(packHero, loserHero->getArtPos(art), art);
 			}
 
-			if(loserHero->commander)
+			if(loserHero->getCommander())
 			{
 				auto & packCommander = resultsApplied.artifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
-				packCommander.srcCreature = loserHero->findStack(loserHero->commander);
-				for(const auto & artSlot : loserHero->commander->artifactsWorn)
+				packCommander.srcCreature = loserHero->findStack(loserHero->getCommander());
+				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
 			}
 			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->getObj(finishingBattle->loserId));
@@ -499,13 +499,13 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
+		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
 	}
 
 	if (result.result == EBattleResult::ESCAPE)
 	{
-		gameHandler->gameState()->statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
+		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
 

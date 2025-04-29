@@ -59,7 +59,7 @@ public:
 	void pasteFromClipboard(int level);
 	
 	bool discardObject(int level) const;
-	void createObject(int level, CGObjectInstance * obj) const;
+	void createObject(int level, std::shared_ptr<CGObjectInstance> obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
 	
 	static ModCompatibilityInfo modAssessmentAll();

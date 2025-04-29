@@ -241,7 +241,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 	JsonNode node;
 	node["map"].String() = scenario.mapName;
 	for(auto & g : scenario.preconditionRegions)
-		node["preconditions"].Vector().push_back(JsonNode(static_cast<ui32>(g)));
+		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
 	node["regionText"].String() = scenario.regionText.toString();

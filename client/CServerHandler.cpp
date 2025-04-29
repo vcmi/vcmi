@@ -606,7 +606,7 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
-void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
+void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
@@ -634,11 +634,11 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
 
-	if(victory && client->gameState()->getStartInfo()->campState)
+	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
+		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{

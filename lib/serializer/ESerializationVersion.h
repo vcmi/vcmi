@@ -35,6 +35,9 @@ enum class ESerializationVersion : int32_t
 	MINIMAL = RELEASE_160,
 
 	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
+	NO_RAW_POINTERS_IN_SERIALIZER, // large rework that removed all non-owning pointers from serializer
 	
-	CURRENT = MAP_HEADER_DISPOSED_HEROES
+	CURRENT = NO_RAW_POINTERS_IN_SERIALIZER,
 };
+
+static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

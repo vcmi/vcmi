@@ -39,8 +39,6 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
 	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped = false);
-	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & spellId);
-	DLL_LINKAGE CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
 

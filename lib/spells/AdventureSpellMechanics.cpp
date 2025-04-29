@@ -43,7 +43,7 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const CGameIn
 
 	if (heroCaster)
 	{
-		if(heroCaster->inTownGarrison)
+		if(heroCaster->isGarrisoned())
 			return false;
 
 		const auto level = heroCaster->getSpellSchoolLevel(owner);
@@ -162,7 +162,7 @@ bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const CGameIn
 	if(!caster->getHeroCaster())
 		return false;
 
-	if(caster->getHeroCaster()->boat)
+	if(caster->getHeroCaster()->inBoat())
 	{
 		MetaString message = MetaString::createFromTextID("core.genrltxt.333");
 		caster->getCasterName(message);
@@ -201,20 +201,16 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
 	double dist = 0;
-	for(const CGObjectInstance * obj : env->getMap()->objects)
+	for(const auto & b : env->getMap()->getObjects<CGBoat>())
 	{
-		if(obj && obj->ID == Obj::BOAT)
-		{
-			const auto * b = dynamic_cast<const CGBoat *>(obj);
-			if(b->hero || b->layer != EPathfindingLayer::SAIL)
-				continue; //we're looking for unoccupied boat
+		if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
+			continue; //we're looking for unoccupied boat
 
-			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
-			if(!nearest || nDist < dist) //it's first boat or closer than previous
-			{
-				nearest = b;
-				dist = nDist;
-			}
+		double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
+		if(!nearest || nDist < dist) //it's first boat or closer than previous
+		{
+			nearest = b;
+			dist = nDist;
 		}
 	}
 
@@ -266,7 +262,11 @@ bool ScuttleBoatMechanics::canBeCastAtImpl(spells::Problem & problem, const CGam
 		return false;
 
 	const TerrainTile * t = cb->getTile(pos);
-	if(!t || t->visitableObjects.empty() || t->visitableObjects.back()->ID != Obj::BOAT)
+	if(!t || t->visitableObjects.empty())
+		return false;
+
+	const CGObjectInstance * topObject = cb->getObj(t->visitableObjects.back());
+	if (topObject->ID != Obj::BOAT)
 		return false;
 
 	return true;
@@ -290,7 +290,7 @@ ESpellCastResult ScuttleBoatMechanics::applyAdventureEffects(SpellCastEnvironmen
 
 	RemoveObject ro;
 	ro.initiator = parameters.caster->getCasterOwner();
-	ro.objectID = t.visitableObjects.back()->id;
+	ro.objectID = t.visitableObjects.back();
 	env->apply(ro);
 	return ESpellCastResult::OK;
 }
@@ -467,7 +467,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
 			return ESpellCastResult::ERROR;
 
-		if(destination->visitingHero)
+		if(destination->getVisitingHero())
 		{
 			InfoWindow iw;
 			iw.player = parameters.caster->getCasterOwner();
@@ -480,7 +480,8 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
 
-		auto * const topObj = tile.topVisitableObj(false);
+		ObjectInstanceID topObjID = tile.topVisitableObj(false);
+		const CGObjectInstance * topObj = env->getMap()->getObject(topObjID);
 
 		if(!topObj)
 		{
@@ -520,7 +521,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if(destination->visitingHero)
+		if(destination->getVisitingHero())
 		{
 			env->complain("[Internal error] Can't teleport to occupied town");
 			return ESpellCastResult::ERROR;
@@ -560,7 +561,9 @@ void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpe
 	else
 	{
 		const TerrainTile & tile = env->getMap()->getTile(parameters.pos);
-		auto * const topObj = tile.topVisitableObj(false);
+		ObjectInstanceID topObjID = tile.topVisitableObj(false);
+		const CGObjectInstance * topObj = env->getMap()->getObject(topObjID);
+
 		destination = dynamic_cast<const CGTownInstance*>(topObj);
 	}
 
@@ -635,7 +638,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 		for(const auto * t : towns)
 		{
-			if(t->visitingHero == nullptr) //empty town
+			if(t->getVisitingHero() == nullptr) //empty town
 				request.objects.push_back(t->id);
 		}
 
@@ -726,7 +729,7 @@ ESpellCastResult ViewMechanics::applyAdventureEffects(SpellCastEnvironment * env
 
 	const auto & fowMap = env->getCb()->getPlayerTeam(parameters.caster->getCasterOwner())->fogOfWarMap;
 
-	for(const CGObjectInstance * obj : env->getMap()->objects)
+	for(const auto & obj : env->getMap()->getObjects())
 	{
 		//deleted object remain as empty pointer
 		if(obj && filterObject(obj, spellLevel))

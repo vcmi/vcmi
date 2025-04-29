@@ -20,13 +20,17 @@
 
 class GameCallbackMock : public IGameCallback
 {
+	std::shared_ptr<CGameState> gamestate;
 public:
 	using UpperCallback = ::ServerCallback;
 
 	GameCallbackMock(UpperCallback * upperCallback_);
 	virtual ~GameCallbackMock();
 
-	void setGameState(CGameState * gameState);
+	void setGameState(std::shared_ptr<CGameState> gameState);
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
+
 
 	///STUBS, to be removed as long as same methods moved from GameHandler
 

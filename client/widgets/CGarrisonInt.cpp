@@ -30,6 +30,7 @@
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/gameState/CGameState.h"
@@ -81,7 +82,7 @@ void CGarrisonSlot::hover (bool on)
 				const bool isHeroOnMap = owner->upperArmy() // Hero is not a visitor and not a garrison defender
 					&& owner->upperArmy()->ID == Obj::HERO
 					&& (!owner->lowerArmy() || owner->lowerArmy()->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
-					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->inTownGarrison;
+					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->isGarrisoned();
 
 				if(isHeroOnMap)
 				{

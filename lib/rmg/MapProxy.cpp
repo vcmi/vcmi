@@ -19,13 +19,13 @@ MapProxy::MapProxy(RmgMap & map):
 {
 }
 
-void MapProxy::insertObject(CGObjectInstance * obj)
+void MapProxy::insertObject(std::shared_ptr<CGObjectInstance> obj)
 {
 	Lock lock(mx);
 	map.getEditManager()->insertObject(obj);
 }
 
-void MapProxy::insertObjects(std::set<CGObjectInstance*>& objects)
+void MapProxy::insertObjects(const std::set<std::shared_ptr<CGObjectInstance>> & objects)
 {
 	Lock lock(mx);
 	map.getEditManager()->insertObjects(objects);

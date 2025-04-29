@@ -26,6 +26,7 @@
 #include "../battle/Unit.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"

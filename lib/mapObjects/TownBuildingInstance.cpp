@@ -106,7 +106,7 @@ void TownRewardableBuildingInstance::newTurn(vstd::RNG & rand) const
 
 		if(configuration.resetParameters.visitors)
 		{
-			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, getBuildingType());
+			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, getBuildingType().getNum());
 		}
 	}
 }
@@ -212,7 +212,7 @@ bool TownRewardableBuildingInstance::wasVisited(PlayerColor player) const
 
 void TownRewardableBuildingInstance::markAsVisited(const CGHeroInstance * hero) const
 {
-	town->addHeroToStructureVisitors(hero, getBuildingType());
+	town->addHeroToStructureVisitors(hero, getBuildingType().getNum());
 }
 
 void TownRewardableBuildingInstance::markAsScouted(const CGHeroInstance * hero) const

@@ -90,10 +90,10 @@ protected:
 
 class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
+	ArtifactInstanceID storedArtifact;
 public:
 	using CArmedInstance::CArmedInstance;
 
-	CArtifactInstance * storedArtifact = nullptr;
 	MetaString message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -109,16 +109,28 @@ public:
 	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
 
-	void afterAddToMap(CMap * map) override;
 	BattleField getBattlefield() const override;
 
-	ArtifactID getArtifact() const;
+	ArtifactID getArtifactType() const;
+	const CArtifactInstance * getArtifactInstance() const;
+	void setArtifactInstance(const CArtifactInstance *);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & message;
-		h & storedArtifact;
+		if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & storedArtifact;
+		}
+		else
+		{
+			std::shared_ptr<CArtifactInstance> pointer;
+			h & pointer;
+			if (pointer->getId() == ArtifactInstanceID())
+				CArtifactInstance::saveCompatibilityFixArtifactID(pointer);
+			storedArtifact = pointer->getId();
+		}
 	}
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -208,8 +220,8 @@ public:
 	static bool isConnected(const CGTeleport * src, const CGTeleport * dst);
 	static bool isConnected(const CGObjectInstance * src, const CGObjectInstance * dst);
 	static void addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
-	static std::vector<ObjectInstanceID> getPassableExits(CGameState * gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
-	static bool isExitPassable(CGameState * gs, const CGHeroInstance * h, const CGObjectInstance * obj);
+	static std::vector<ObjectInstanceID> getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
+	static bool isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -285,11 +297,12 @@ public:
 
 class DLL_LINKAGE CGBoat : public CGObjectInstance, public CBonusSystemNode
 {
+	ObjectInstanceID boardedHeroID;
+
 public:
 	using CGObjectInstance::CGObjectInstance;
 
 	ui8 direction;
-	const CGHeroInstance *hero;  //hero on board
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport
 	EPathfindingLayer layer;
@@ -302,12 +315,25 @@ public:
 	CGBoat(IGameCallback * cb);
 	bool isCoastVisitable() const override;
 
+	void setBoardedHero(const CGHeroInstance * hero);
+	const CGHeroInstance * getBoardedHero() const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & direction;
-		h & hero;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & boardedHeroID;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptr;
+			h & ptr;
+			boardedHeroID = ptr ? ptr->id : ObjectInstanceID();
+		}
+
 		h & layer;
 		h & onboardAssaultAllowed;
 		h & onboardVisitAllowed;

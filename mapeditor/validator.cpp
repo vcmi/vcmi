@@ -90,13 +90,9 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{
-				if(dynamic_cast<CGMine *>(o.get()) ||
-				   dynamic_cast<CGDwelling *>(o.get()) ||
-				   dynamic_cast<CGTownInstance *>(o.get()) ||
-				   dynamic_cast<CGGarrison *>(o.get()) ||
-				   dynamic_cast<CGHeroInstance *>(o.get()))
+				if(o->asOwnable())
 				{
-					issues.insert({ tr("Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(o->instanceName.c_str()), true });
+					issues.insert({ tr("Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner").arg(o->instanceName.c_str()), true });
 				}
 			}
 			if(o->getOwner() != PlayerColor::NEUTRAL && o->getOwner().getNum() < map->players.size())
@@ -141,17 +137,17 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			{
 				if(ins->ID == Obj::SPELL_SCROLL)
 				{
-					if (ins->storedArtifact)
+					if (ins->getArtifactInstance())
 					{
-						if (map->allowedSpells.count(ins->storedArtifact->getScrollSpellID()) == 0)
-							issues.insert({ tr("Spell scroll %1 is prohibited by map settings").arg(ins->storedArtifact->getScrollSpellID().toEntity(LIBRARY->spells())->getNameTranslated().c_str()), false });
+						if (map->allowedSpells.count(ins->getArtifactInstance()->getScrollSpellID()) == 0)
+							issues.insert({ tr("Spell scroll %1 is prohibited by map settings").arg(ins->getArtifactInstance()->getScrollSpellID().toEntity(LIBRARY->spells())->getNameTranslated().c_str()), false });
 					}
 					else
 						issues.insert({ tr("Spell scroll %1 doesn't have instance assigned and must be removed").arg(ins->instanceName.c_str()), true });
 				}
 				else
 				{
-					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifact()) == 0)
+					if(ins->ID == Obj::ARTIFACT && map->allowedArtifact.count(ins->getArtifactType()) == 0)
 					{
 						issues.insert({ tr("Artifact %1 is prohibited by map settings").arg(ins->getObjectName().c_str()), false });
 					}

@@ -443,11 +443,6 @@ std::string CBonusSystemNode::nodeShortInfo() const
 	return str.str();
 }
 
-void CBonusSystemNode::deserializationFix()
-{
-	exportBonuses();
-}
-
 void CBonusSystemNode::getRedParents(TCNodes & out) const
 {
 	TCNodes lparents;

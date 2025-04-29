@@ -11,6 +11,7 @@
 
 #include "../bonuses/CBonusSystemNode.h"
 #include "../IGameCallback.h"
+#include "../GameCallbackHolder.h"
 #include "../LoadProgress.h"
 
 #include "RumorState.h"
@@ -27,6 +28,8 @@ class EVictoryLossCheckResult;
 class Services;
 class IMapService;
 class CMap;
+class CSaveFile;
+class CLoadFile;
 struct CPack;
 class CHeroClass;
 struct EventCondition;
@@ -42,14 +45,19 @@ class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
-class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
+class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable, public GameCallbackHolder
 {
 	friend class CGameStateCampaign;
 
-	std::unique_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
-	std::unique_ptr<StartInfo> scenarioOps;
+	std::shared_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
+	std::shared_ptr<StartInfo> scenarioOps;
 	std::unique_ptr<CMap> map;
+
+	void saveCompatibilityRegisterMissingArtifacts();
 public:
+	ArtifactInstanceID saveCompatibilityLastAllocatedArtifactID;
+	std::vector<std::shared_ptr<CArtifactInstance>> saveCompatibilityUnregisteredArtifacts;
+
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
 
@@ -64,12 +72,13 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	IGameCallback * callback;
-
-	CGameState();
+	CGameState(IGameCallback * callback);
 	virtual ~CGameState();
 
-	void preInit(Services * services, IGameCallback * callback);
+	CGameState & gameState() final { return *this; }
+	const CGameState & gameState() const final { return *this; }
+
+	void preInit(Services * services);
 
 	void init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
@@ -99,13 +108,21 @@ public:
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	int3 guardingCreaturePosition (int3 pos) const override;
-	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
+	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
+
+	/// Creates instance of spell scroll artifact with provided spell
+	CArtifactInstance * createScroll(const SpellID & spellId);
+
+	/// Creates instance of requested artifact
+	/// For combined artifact this method will also create alll required components
+	/// For scrolls this method will also initialize its spell
+	CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 
 	/// Returns battle in which selected player is engaged, or nullptr if none.
 	/// Can NOT be used with neutral player, use battle by ID instead
@@ -163,6 +180,9 @@ public:
 	/// Any server-side code outside of GH must use vstd::RNG::getDefault
 	vstd::RNG & getRandomGenerator();
 
+	void saveGame(CSaveFile & file) const;
+	void loadGame(CLoadFile & file);
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & scenarioOps;
@@ -170,16 +190,22 @@ public:
 		h & actingPlayers;
 		h & day;
 		h & map;
+		if (!h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			saveCompatibilityRegisterMissingArtifacts();
 		h & players;
 		h & teams;
-		h & heroesPool;
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+			h & *heroesPool;
+		else
+			h & heroesPool;
 		h & globalEffects;
 		h & currentRumor;
 		h & campaign;
 		h & allocatedArtifacts;
 		h & statistic;
 
-		BONUS_TREE_DESERIALIZATION_FIX
+		if(!h.saving && h.loadingGamestate)
+			restoreBonusSystemTree();
 	}
 
 private:
@@ -208,9 +234,8 @@ private:
 	// ----- bonus system handling -----
 
 	void buildBonusSystemTree();
-	void attachArmedObjects();
 	void buildGlobalTeamPlayerTree();
-	void deserializationFix();
+	void restoreBonusSystemTree();
 
 	// ---- misc helpers -----
 

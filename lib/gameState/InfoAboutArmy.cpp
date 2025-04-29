@@ -12,6 +12,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../GameLibrary.h"
 
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroType.h>
@@ -183,7 +184,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		details->goldIncome = income[EGameResID::GOLD];
 		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
-		details->garrisonedHero = t->garrisonHero;
+		details->garrisonedHero = t->getGarrisonHero();
 	}
 }
 

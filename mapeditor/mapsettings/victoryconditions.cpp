@@ -559,7 +559,7 @@ void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 			continue;
 		
 		auto data = controller->map()->objects.at(w->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			w->setCurrentIndex(i);
 			break;

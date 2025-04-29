@@ -23,15 +23,15 @@ class CMap;
 
 struct CampaignHeroReplacement
 {
-	CampaignHeroReplacement(CGHeroInstance * hero, const ObjectInstanceID & heroPlaceholderId);
-	CGHeroInstance * hero;
+	CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId);
+	std::shared_ptr<CGHeroInstance> hero;
 	ObjectInstanceID heroPlaceholderId;
 	std::vector<ArtifactPosition> transferrableArtifacts;
 };
 
 class CGameStateCampaign : public Serializeable
 {
-	CGameState * gameState;
+	CGameState * gameState = nullptr;
 
 	/// Contains list of heroes that may be available in this scenario
 	/// temporary helper for game initialization, not serialized
@@ -54,8 +54,9 @@ class CGameStateCampaign : public Serializeable
 	void giveCampaignBonusToHero(CGHeroInstance * hero);
 
 public:
-	CGameStateCampaign() = default;
+	CGameStateCampaign();
 	CGameStateCampaign(CGameState * owner);
+	void setGamestate(CGameState * owner);
 
 	void placeCampaignHeroes();
 	void initStartingResources();
@@ -67,7 +68,20 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & gameState;
+		if (h.saving || h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			// no-op, but needed to auto-create this class if gamestate had it during serialization
+		}
+		else
+		{
+			bool dummyA = false;
+			uint32_t dummyB = 0;
+			uint16_t dummyC = 0;
+
+			h & dummyA;
+			h & dummyB;
+			h & dummyC;
+		}
 	}
 };
 

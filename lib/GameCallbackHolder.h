@@ -16,7 +16,7 @@ class IGameCallback;
 class DLL_LINKAGE GameCallbackHolder
 {
 public:
-	IGameCallback * const cb;
+	IGameCallback * cb;
 
 	explicit GameCallbackHolder(IGameCallback *cb):
 		cb(cb)

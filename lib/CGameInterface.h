@@ -51,8 +51,6 @@ class CStackInstance;
 class CCommanderInstance;
 class CStack;
 class CCreature;
-class CLoadFile;
-class CSaveFile;
 class BattleStateInfo;
 struct ArtifactLocation;
 class BattleStateInfoForRetreat;

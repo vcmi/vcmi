@@ -180,7 +180,7 @@ public:
 	{
 		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
 		CMapLoaderJson * owner;
-		CGObjectInstance * instance;
+		std::shared_ptr<CGObjectInstance> instance;
 		ObjectInstanceID id;
 		std::string jsonKey;//full id defined by map creator
 		JsonNode & configuration;

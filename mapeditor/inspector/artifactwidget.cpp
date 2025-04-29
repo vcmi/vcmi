@@ -11,7 +11,9 @@
 #include "artifactwidget.h"
 #include "ui_artifactwidget.h"
 #include "inspector.h"
+
 #include "../../lib/ArtifactUtils.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
 
 ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * parent) :

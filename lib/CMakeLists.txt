@@ -107,6 +107,7 @@ set(lib_MAIN_SRCS
 	gameState/CGameStateCampaign.cpp
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/QuestInfo.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -217,13 +218,10 @@ set(lib_MAIN_SRCS
 	rmg/modificators/TerrainPainter.cpp
 	rmg/MapProxy.cpp
 
-	serializer/BinaryDeserializer.cpp
-	serializer/BinarySerializer.cpp
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
 	serializer/Connection.cpp
 	serializer/CSaveFile.cpp
-	serializer/CSerializer.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp
@@ -694,13 +692,13 @@ set(lib_MAIN_HEADERS
 	CAndroidVMHelper.h
 	CArtHandler.h
 	CArtifactInstance.h
+	CArtifactSet.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
 	ConditionalWait.h
-	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
 	CRandomGenerator.h

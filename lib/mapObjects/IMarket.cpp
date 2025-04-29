@@ -140,8 +140,8 @@ int IMarket::availableUnits(const EMarketMode mode, const int marketItemSerial) 
 	}
 }
 
-IMarket::IMarket()
-	:altarArtifactsStorage(std::make_unique<CArtifactSetAltar>())
+IMarket::IMarket(IGameCallback *cb)
+	:altarArtifactsStorage(std::make_unique<CArtifactSetAltar>(cb))
 {
 }
 

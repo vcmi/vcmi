@@ -238,7 +238,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::SPELL_SCROLL:
 		//FALL_THROUGH
 	case Obj::ARTIFACT:
-		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->storedArtifact->getType());
+		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
 	case Obj::HERO:
 		return  relations == PlayerRelations::ENEMIES
 			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->getArmyStrength()
@@ -380,7 +380,7 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 	return std::min(1.5f, objectValue * 0.9f + (1.5f - (1.5f / (1 + enemy->level))));
 }
 
-float RewardEvaluator::getResourceRequirementStrength(int resType) const
+float RewardEvaluator::getResourceRequirementStrength(GameResID resType) const
 {
 	TResources requiredResources = ai->buildAnalyzer->getResourcesRequiredNow();
 	TResources dailyIncome = ai->buildAnalyzer->getDailyIncome();
@@ -396,7 +396,7 @@ float RewardEvaluator::getResourceRequirementStrength(int resType) const
 	return std::min(ratio, 1.0f);
 }
 
-float RewardEvaluator::getTotalResourceRequirementStrength(int resType) const
+float RewardEvaluator::getTotalResourceRequirementStrength(GameResID resType) const
 {
 	TResources requiredResources = ai->buildAnalyzer->getTotalResourcesRequired();
 	TResources dailyIncome = ai->buildAnalyzer->getDailyIncome();
@@ -696,7 +696,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 {
 	int32_t value = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		value += stack.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * stack.second->count;
 	}
@@ -987,12 +987,12 @@ public:
 		float totalPower = 0;
 
 		// Map to store the aggregated power of creatures by CreatureID
-		std::map<int, float> totalPowerByCreatureID;
+		std::map<CreatureID, float> totalPowerByCreatureID;
 
 		// Calculate hero power and total power by CreatureID
-		for (auto slot : hero->Slots())
+		for (const auto & slot : hero->Slots())
 		{
-			int creatureID = slot.second->getCreatureID();
+			CreatureID creatureID = slot.second->getCreatureID();
 			float slotPower = slot.second->getPower();
 
 			// Add the power of this slot to the heroPower
@@ -1220,7 +1220,7 @@ public:
 		}
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
-			evaluationContext.skillReward += 2 * (bi.id - BuildingID::MAGES_GUILD_1);
+			evaluationContext.skillReward += 2 * bi.id.getMagesGuildLevel();
 			if (!alreadyOwn && evaluationContext.evaluator.ai->cb->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
 			{
 				for (auto hero : evaluationContext.evaluator.ai->cb->getHeroesInfo())

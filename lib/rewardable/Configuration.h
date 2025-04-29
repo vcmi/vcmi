@@ -12,6 +12,8 @@
 
 #include "Limiter.h"
 #include "Reward.h"
+
+#include "../json/JsonNode.h"
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../texts/MetaString.h"
 

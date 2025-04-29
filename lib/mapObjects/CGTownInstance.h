@@ -11,7 +11,6 @@
 
 #include "IMarket.h"
 #include "CGDwelling.h"
-#include "../ConstTransitivePtr.h"
 #include "../entities/faction/CFaction.h" // TODO: remove
 #include "../entities/faction/CTown.h" // TODO: remove
 
@@ -57,17 +56,18 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
 
+	ObjectInstanceID garrisonHero;
+	ObjectInstanceID visitingHero;
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
 	CTownAndVisitingHero townAndVis;
 	si32 built; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
-	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	std::set<BuildingID> forbiddenBuildings;
-	std::map<BuildingID, TownRewardableBuildingInstance*> rewardableBuildings;
+	std::map<BuildingID, std::unique_ptr<TownRewardableBuildingInstance>> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::vector<CCastleEvent> events;
@@ -84,8 +84,23 @@ public:
 		h & built;
 		h & destroyed;
 		h & identifier;
-		h & garrisonHero;
-		h & visitingHero;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & garrisonHero;
+			h & visitingHero;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrGarr;
+			std::shared_ptr<CGObjectInstance> ptrVisit;
+			h & ptrGarr;
+			h & ptrVisit;
+
+			garrisonHero = ptrGarr ? ptrGarr->id : ObjectInstanceID();
+			visitingHero = ptrVisit ? ptrVisit->id : ObjectInstanceID();
+		}
+
 		h & alignmentToPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;
@@ -99,7 +114,6 @@ public:
 		h & spellResearchAllowed;
 		h & rewardableBuildings;
 		h & townAndVis;
-		BONUS_TREE_DESERIALIZATION_FIX
 
 		if(!h.saving)
 			postDeserialize();
@@ -109,12 +123,13 @@ public:
 	CBonusSystemNode & whatShouldBeAttached() override;
 	std::string nodeName() const override;
 	void updateMoraleBonusFromArmy() override;
-	void deserializationFix();
 	void postDeserialize();
 	void recreateBuildingsBonuses();
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
+	const CGHeroInstance * getVisitingHero() const;
+	const CGHeroInstance * getGarrisonHero() const;
 
 	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
@@ -211,7 +226,7 @@ public:
 
 	inline bool isBattleOutsideTown(const CGHeroInstance * defendingHero) const
 	{
-		return defendingHero && garrisonHero && defendingHero != garrisonHero;
+		return defendingHero && getGarrisonHero() && defendingHero != getGarrisonHero();
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;

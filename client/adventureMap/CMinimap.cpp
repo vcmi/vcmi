@@ -39,8 +39,9 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 		return Colors::BLACK;
 
 	// if object at tile is owned - it will be colored as its owner
-	for (const CGObjectInstance *obj : tile->blockingObjects)
+	for (const ObjectInstanceID objectID : tile->blockingObjects)
 	{
+		const auto * obj = GAME->interface()->cb->getObj(objectID);
 		PlayerColor player = obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;

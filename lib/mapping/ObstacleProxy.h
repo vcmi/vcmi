@@ -41,13 +41,13 @@ public:
 
 	virtual std::pair<bool, bool> verifyCoverage(const int3 & t) const;
 
-	virtual void placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances);
+	virtual void placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances);
 
-	virtual std::set<CGObjectInstance*> createObstacles(vstd::RNG & rand, IGameCallback * cb);
+	virtual std::set<std::shared_ptr<CGObjectInstance>> createObstacles(vstd::RNG & rand, IGameCallback * cb);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
-	void finalInsertion(CMapEditManager * manager, std::set<CGObjectInstance*> & instances);
+	void finalInsertion(CMapEditManager * manager, const std::set<std::shared_ptr<CGObjectInstance>> & instances);
 
 	virtual void postProcess(const rmg::Object& object) {};
 
@@ -70,7 +70,7 @@ public:
 
 	bool isInTheMap(const int3& tile) override;
 
-	std::set<CGObjectInstance*> placeObstacles(vstd::RNG& rand);
+	std::set<std::shared_ptr<CGObjectInstance>> placeObstacles(vstd::RNG& rand);
 
 private:
 	CMap* map;

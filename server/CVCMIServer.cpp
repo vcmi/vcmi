@@ -294,7 +294,7 @@ bool CVCMIServer::prepareToStartGame()
 void CVCMIServer::startGameImmediately()
 {
 	for(auto activeConnection : activeConnections)
-		activeConnection->enterGameplayConnectionMode(gh->gs);
+		activeConnection->enterGameplayConnectionMode(*gh->gs);
 
 	gh->start(si->mode == EStartMode::LOAD_GAME);
 	setState(EServerState::GAMEPLAY);
@@ -953,10 +953,10 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 	if (!ID.hasValue())
 		return false;
 
-	if (ID >= LIBRARY->heroh->size())
+	if (ID.getNum() >= LIBRARY->heroh->size())
 		return false;
 
-	if (si->playerInfos[player].castle != LIBRARY->heroh->objects[ID]->heroClass->faction)
+	if (si->playerInfos[player].castle != ID.toHeroType()->heroClass->faction)
 		return false;
 
 	if (vstd::contains(getUsedHeroes(), ID))
@@ -979,7 +979,7 @@ std::vector<HeroTypeID> CVCMIServer::getUsedHeroes()
 	{
 		const auto & heroes = getPlayerInfo(p.first).heroesNames;
 		for(auto & hero : heroes)
-			if(hero.heroId >= 0) //in VCMI map format heroId = -1 means random hero
+			if(hero.heroId.hasValue())
 				heroIds.push_back(hero.heroId);
 
 		if(p.second.hero != HeroTypeID::RANDOM)

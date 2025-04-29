@@ -33,13 +33,15 @@
 #include "../render/IFont.h"
 
 #include "../../CCallback.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/battle/BattleAction.h"
-#include "../../lib/battle/BattleHex.h"
-#include "../../lib/texts/TextOperations.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/texts/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -262,7 +264,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = LIBRARY->spells()->getByIndex(spellID)->getPositiveness();
+		auto positiveness = spellID.toEntity(LIBRARY)->getPositiveness();
 		if(!boost::logic::indeterminate(positiveness))
 		{
 			if(positiveness)
