@@ -270,7 +270,7 @@ void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 		callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::askToAssembleArtifact, pack.al);
 }
 
-void ApplyClientNetPackVisitor::visitEraseArtifact(BulkEraseArtifacts & pack)
+void ApplyClientNetPackVisitor::visitBulkEraseArtifacts(BulkEraseArtifacts & pack)
 {
 	for(const auto & slotErase : pack.posPack)
 		callInterfaceIfPresent(cl, cl.getOwner(pack.artHolder), &IGameEventsReceiver::artifactRemoved, ArtifactLocation(pack.artHolder, slotErase));

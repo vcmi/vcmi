@@ -46,7 +46,7 @@ public:
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}
-	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
+	virtual void visitSetAvailableHero(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
@@ -78,7 +78,7 @@ public:
 	virtual void visitRebalanceStacks(RebalanceStacks & pack) {}
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
-	virtual void visitEraseArtifact(BulkEraseArtifacts & pack) {}
+	virtual void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}
@@ -123,7 +123,7 @@ public:
 	virtual void visitBulkMoveArmy(BulkMoveArmy & pack) {}
 	virtual void visitBulkSplitStack(BulkSplitStack & pack) {}
 	virtual void visitBulkMergeStacks(BulkMergeStacks & pack) {}
-	virtual void visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack) {}
+	virtual void visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
 	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}
@@ -178,6 +178,9 @@ public:
 	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
 	virtual void visitLobbyDelete(LobbyDelete & pack) {}
 	virtual void visitSaveLocalState(SaveLocalState & pack) {}
+	virtual void visitBattleCancelled(BattleCancelled & pack) {}
+	virtual void visitBattleResultAccepted(BattleResultAccepted & pack) {}
+	virtual void visitBattleStackMoved(BattleLogMessage & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

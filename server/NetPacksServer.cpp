@@ -124,7 +124,7 @@ void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
-void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack)
+void ApplyGhNetPackVisitor::visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
