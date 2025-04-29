@@ -19,7 +19,7 @@ class CFilesystemList;
 class JsonNode;
 
 /// Helper class that allows generation of a ISimpleResourceLoader entry out of Json config(s)
-class DLL_LINKAGE CFilesystemGenerator
+class DLL_LINKAGE CFilesystemGenerator : boost::noncopyable
 {
 	using TLoadFunctor = std::function<void(const std::string &, const JsonNode &)>;
 	using TLoadFunctorMap = std::map<std::string, TLoadFunctor>;
@@ -38,6 +38,7 @@ public:
 	/// prefix = prefix that will be given to file entries in all nodes of this filesystem
 	/// extractArchives = Specifies if Original H3 archives should be extracted to a separate folder
 	CFilesystemGenerator(std::string prefix, bool extractArchives = false);
+	~CFilesystemGenerator();
 
 	/// loads configuration from json
 	/// config - configuration to load, using format of "filesystem" entry in config/filesystem.json

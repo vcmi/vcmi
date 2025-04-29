@@ -34,6 +34,8 @@ CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchi
 {
 }
 
+CFilesystemGenerator::~CFilesystemGenerator() = default;
+
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 {
 	TLoadFunctorMap map;
