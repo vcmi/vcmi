@@ -325,6 +325,8 @@ void CSoundHandler::soundFinishedCallback(int channel)
 {
 	std::scoped_lock lockGuard(mutexCallbacks);
 
+	uncachedPlayingChunks.erase(channel);
+
 	if(callbacks.count(channel) == 0)
 		return;
 
