@@ -472,12 +472,12 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor konfigurací</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít editor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
@@ -579,7 +579,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorovat přepínač ztlumení</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
@@ -609,7 +609,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="963"/>
         <source>Show Tutorial again</source>
-        <translation>Znovu zobrazi Tutoriál</translation>
+        <translation>Znovu zobrazit Tutoriál</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="153"/>
@@ -871,37 +871,37 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Uložit</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">Zavřít</translation>
+        <translation>Zavřít</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor konfigurací</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuložené změny</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Chcete zahodit změny?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="122"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor JSON není platný!</translation>
     </message>
 </context>
 <context>
@@ -1033,7 +1033,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
 
 Než začnete hrát, je třeba dokončit několik kroků.
 
-Pamatujte, že pro používání VCMI musíte vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
+Pro použití VCMI je nutné vlastnit originální herní soubory pro Heroes® of Might and Magic® III: Complete nebo The Shadow of Death.
 
 Heroes® of Might and Magic® III HD není podporována!</translation>
     </message>
@@ -1166,7 +1166,7 @@ Vyberte prosím adresář s Heroes III: Complete Edition nebo Heroes III: Shadow
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se otevřít soubor: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
@@ -1323,12 +1323,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translation>Běloruština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Bulharština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
@@ -1363,7 +1363,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>Řečtina</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
@@ -1378,7 +1378,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japonština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
@@ -1388,7 +1388,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>Norština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
@@ -1403,7 +1403,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumunština</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1674,7 +1674,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Kampaně</translation>
+        <translation>Kampaně</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1974,13 +1974,13 @@ Pro vyřešení tohoto problému ručně zkopírujte chybějící datové soubor
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Import kofigurace se nezdařil</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se importovat ´konfiguraci – data ve schránce nevypadají jako konfigurace modifikací!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>
