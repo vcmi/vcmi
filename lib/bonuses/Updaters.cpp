@@ -175,6 +175,7 @@ std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonu
 		return b; // e.g. war machines & other special units
 
 	auto newBonus = std::make_shared<Bonus>(*b);
+	level = std::max(1, level);
 	newBonus->val /= level;
 	newBonus->updater = nullptr; // prevent double-apply
 	return newBonus;
