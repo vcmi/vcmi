@@ -820,32 +820,28 @@ ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) 
 
 CArmedInstance * CStackInstance::getArmy()
 {
-	if (armyInstanceID.hasValue())
-		return dynamic_cast<CArmedInstance*>(cb->gameState().getObjInstance(armyInstanceID));
-	return nullptr;
+	return armyInstance;
 }
 
 const CArmedInstance * CStackInstance::getArmy() const
 {
-	if (armyInstanceID.hasValue())
-		return dynamic_cast<const CArmedInstance*>(cb->getObjInstance(armyInstanceID));
-	return nullptr;
+	return armyInstance;
 }
 
-void CStackInstance::setArmy(const CArmedInstance * ArmyObj)
+void CStackInstance::setArmy(CArmedInstance * ArmyObj)
 {
 	auto oldArmy = getArmy();
 
 	if(oldArmy)
 	{
 		detachFrom(*oldArmy);
-		armyInstanceID = {};
+		armyInstance = nullptr;
 	}
 
 	if(ArmyObj)
 	{
 		attachTo(const_cast<CArmedInstance&>(*ArmyObj));
-		armyInstanceID = ArmyObj->id;
+		armyInstance = ArmyObj;
 	}
 }
 
@@ -907,11 +903,12 @@ TerrainId CStackInstance::getNativeTerrain() const
 
 	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
+
 TerrainId CStackInstance::getCurrentTerrain() const
 {
+	assert(getArmy() != nullptr);
 	return getArmy()->getCurrentTerrain();
 }
-
 
 CreatureID CStackInstance::getCreatureID() const
 {
