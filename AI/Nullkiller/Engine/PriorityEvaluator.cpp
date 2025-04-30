@@ -11,6 +11,7 @@
 #include <limits>
 
 #include "Nullkiller.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
@@ -268,7 +269,7 @@ uint64_t RewardEvaluator::getArmyReward(
 			{
 				for(auto artID : info.reward.artifacts)
 				{
-					const auto * art = dynamic_cast<const CArtifact *>(LIBRARY->artifacts()->getById(artID));
+					const auto * art = artID.toArtifact();
 
 					rewardValue += evaluateArtifactArmyValue(art);
 				}

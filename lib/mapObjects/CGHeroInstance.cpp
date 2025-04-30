@@ -16,7 +16,6 @@
 #include <vstd/RNG.h>
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../ArtifactUtils.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -30,6 +29,8 @@
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../entities/artifact/ArtifactUtils.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/hero/CHeroClass.h"

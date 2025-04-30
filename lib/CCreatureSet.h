@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include "CArtifactSet.h"
-#include "CArtifactInstance.h"
 #include "CCreatureHandler.h"
 #include "GameCallbackHolder.h"
 #include "GameConstants.h"
@@ -19,6 +17,7 @@
 #include "bonuses/CBonusSystemNode.h"
 #include "serializer/Serializeable.h"
 #include "mapObjects/CGObjectInstance.h"
+#include "entities/artifact/CArtifactSet.h"
 
 #include <vcmi/Entity.h>
 

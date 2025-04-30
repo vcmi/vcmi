@@ -10,9 +10,9 @@
 #include "StdInc.h"
 #include "MetaString.h"
 
-#include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "texts/CGeneralTextHandler.h"

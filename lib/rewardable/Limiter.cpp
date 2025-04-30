@@ -13,12 +13,12 @@
 
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
+#include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
-#include "../ArtifactUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -15,7 +15,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 

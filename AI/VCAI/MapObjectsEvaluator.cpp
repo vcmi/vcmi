@@ -12,6 +12,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CompoundMapObjectID.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -94,15 +95,15 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
 		switch(artifactObject->getArtifactInstance()->getType()->aClass)
 		{
-		case CArtifact::EartClass::ART_TREASURE:
+		case EArtifactClass::ART_TREASURE:
 			return 2000;
-		case CArtifact::EartClass::ART_MINOR:
+		case EArtifactClass::ART_MINOR:
 			return 5000;
-		case CArtifact::EartClass::ART_MAJOR:
+		case EArtifactClass::ART_MAJOR:
 			return 10000;
-		case CArtifact::EartClass::ART_RELIC:
+		case EArtifactClass::ART_RELIC:
 			return 20000;
-		case CArtifact::EartClass::ART_SPECIAL:
+		case EArtifactClass::ART_SPECIAL:
 			return 20000;
 		default:
 			return 0; //invalid artifact class

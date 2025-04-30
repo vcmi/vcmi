@@ -9,17 +9,12 @@
  */
 #pragma once
 
-#include "StdInc.h"
-
-#include "GameConstants.h"
+#include "../../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CArtHandler;
-class CArtifact;
 class CGHeroInstance;
 class CArtifactSet;
-class CArtifactInstance;
 struct ArtSlotInfo;
 
 namespace ArtifactUtils

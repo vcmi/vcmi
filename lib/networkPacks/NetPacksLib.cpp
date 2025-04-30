@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include "ArtifactUtils.h"
 #include "PacksForClient.h"
 #include "PacksForClientBattle.h"
 #include "PacksForServer.h"
@@ -19,7 +18,6 @@
 #include "SetStackEffect.h"
 #include "NetPackVisitor.h"
 #include "texts/CGeneralTextHandler.h"
-#include "CArtHandler.h"
 #include "GameLibrary.h"
 #include "mapping/CMap.h"
 #include "spells/CSpellHandler.h"
@@ -32,6 +30,9 @@
 #include "StartInfo.h"
 #include "CPlayerState.h"
 #include "TerrainHandler.h"
+#include "entities/artifact/ArtifactUtils.h"
+#include "entities/artifact/CArtifact.h"
+#include "entities/artifact/CArtifactFittingSet.h"
 #include "entities/building/CBuilding.h"
 #include "entities/building/TownFortifications.h"
 #include "mapObjects/CGCreature.h"
@@ -2445,30 +2446,6 @@ void SetRewardableConfiguration::applyGs(CGameState *gs)
 		assert(rewardablePtr);
 		rewardablePtr->configuration = configuration;
 	}
-}
-
-ArtSlotInfo::ArtSlotInfo(IGameCallback * cb)
-	: GameCallbackHolder(cb)
-{
-}
-
-ArtSlotInfo::ArtSlotInfo(const CArtifactInstance * artifact, bool locked)
-	: GameCallbackHolder(artifact->cb)
-	, artifactID(artifact->getId())
-	, locked(locked)
-{
-}
-
-const CArtifactInstance * ArtSlotInfo::getArt() const
-{
-	if(!artifactID.hasValue())
-		return nullptr;
-	return cb->getArtInstance(artifactID);
-}
-
-ArtifactInstanceID ArtSlotInfo::getID() const
-{
-	return artifactID;
 }
 
 VCMI_LIB_NAMESPACE_END

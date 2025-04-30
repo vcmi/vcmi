@@ -14,7 +14,6 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CSkillHandler.h"

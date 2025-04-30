@@ -25,7 +25,6 @@
 
 #include "../../CCallback.h"
 
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/QuestInfo.h"

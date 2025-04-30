@@ -13,6 +13,7 @@
 #include "../mapcontroller.h"
 
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

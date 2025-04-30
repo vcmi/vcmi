@@ -29,7 +29,6 @@
 #include "../windows/InfoWindows.h"
 #include "../windows/CWindowObject.h"
 
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"

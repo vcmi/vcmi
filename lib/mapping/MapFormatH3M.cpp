@@ -15,7 +15,6 @@
 #include "MapReaderH3M.h"
 #include "MapFormat.h"
 
-#include "../ArtifactUtils.h"
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
@@ -26,6 +25,7 @@
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/Filesystem.h"

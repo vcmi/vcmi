@@ -11,7 +11,6 @@
 
 #include "CGObjectInstance.h"
 #include "IMarket.h"
-#include "../CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

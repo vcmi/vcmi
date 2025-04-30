@@ -14,6 +14,8 @@
 #include "QuestInfo.h"
 
 #include "../campaign/CampaignState.h"
+#include "../entities/artifact/ArtifactUtils.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/building/CBuildingHandler.h"
 #include "../entities/hero/CHeroClass.h"
@@ -26,7 +28,6 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
-#include "../ArtifactUtils.h"
 #include "../CPlayerState.h"
 
 #include <vstd/RNG.h>

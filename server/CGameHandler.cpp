@@ -23,8 +23,6 @@
 #include "queries/MapQueries.h"
 #include "queries/VisitQueries.h"
 
-#include "../lib/ArtifactUtils.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CCreatureSet.h"
@@ -45,6 +43,9 @@
 
 #include "../lib/battle/BattleInfo.h"
 
+#include "../lib/entities/artifact/ArtifactUtils.h"
+#include "../lib/entities/artifact/CArtifact.h"
+#include "../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"

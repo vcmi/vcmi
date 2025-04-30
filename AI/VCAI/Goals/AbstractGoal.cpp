@@ -15,6 +15,7 @@
 #include "../ResourceManager.h"
 #include "../BuildingManager.h"
 #include "../../../lib/constants/StringConstants.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 
 using namespace Goals;
 
@@ -85,7 +86,7 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	}
 	break;
 	case GET_ART_TYPE:
-		desc = "GET ARTIFACT OF TYPE " + LIBRARY->artifacts()->getByIndex(aid)->getNameTranslated();
+		desc = "GET ARTIFACT OF TYPE " + ArtifactID(aid).toEntity(LIBRARY)->getNameTranslated();
 		break;
 	case VISIT_TILE:
 		desc = "VISIT TILE " + tile.toString();

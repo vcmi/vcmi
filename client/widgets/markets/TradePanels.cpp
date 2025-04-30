@@ -21,6 +21,7 @@
 #include "../../../CCallback.h"
 
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/entities/artifact/CArtHandler.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 

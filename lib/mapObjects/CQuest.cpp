@@ -13,11 +13,11 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "../ArtifactUtils.h"
 #include "../CSoundBase.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"

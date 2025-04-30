@@ -13,7 +13,6 @@
 #include "CMapEditManager.h"
 #include "CMapOperation.h"
 
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CSkillHandler.h"
 #include "../GameLibrary.h"
@@ -23,6 +22,7 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"

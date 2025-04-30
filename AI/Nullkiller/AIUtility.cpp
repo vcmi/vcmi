@@ -14,6 +14,7 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/CMapDefines.h"

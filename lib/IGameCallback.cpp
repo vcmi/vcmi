@@ -18,6 +18,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Propagators.h"
 #include "bonuses/Updaters.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/building/CBuilding.h"
 #include "entities/hero/CHero.h"
 #include "networkPacks/ArtifactLocation.h"
@@ -151,11 +152,11 @@ void CPrivilegedInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std:
 void CPrivilegedInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand)
 {
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_TREASURE));
+		out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE));
 	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_MINOR));
+		out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR));
 
-	out.push_back(gameState().pickRandomArtifact(rand, CArtifact::ART_MAJOR));
+	out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR));
 }
 
 void CPrivilegedInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)

@@ -16,7 +16,6 @@
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
-#include "../CArtHandler.h" // For CArtifactSet
 
 VCMI_LIB_NAMESPACE_BEGIN
 
