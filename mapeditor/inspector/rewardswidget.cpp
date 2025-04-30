@@ -297,11 +297,11 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 			vinfo.reward.resources[i] = widget->value();
 	}
 	
-	vinfo.reward.artifacts.clear();
+	vinfo.reward.grantedArtifacts.clear();
 	for(int i = 0; i < ui->rArtifacts->count(); ++i)
 	{
 		if(ui->rArtifacts->item(i)->checkState() == Qt::Checked)
-			vinfo.reward.artifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
+			vinfo.reward.grantedArtifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
 	}
 	vinfo.reward.spells.clear();
 	for(int i = 0; i < ui->rSpells->count(); ++i)
@@ -336,13 +336,13 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		vinfo.reward.spellCast.second = ui->castLevel->currentIndex();
 	}
 	
-	vinfo.reward.bonuses.clear();
+	vinfo.reward.heroBonuses.clear();
 	for(int i = 0; i < ui->bonuses->rowCount(); ++i)
 	{
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
 		auto typ = bonusNameMap.at(ui->bonuses->item(i, 1)->text().toStdString());
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
-		vinfo.reward.bonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
+		vinfo.reward.heroBonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
 	}
 	
 	vinfo.limiter.dayOfWeek = ui->lDayOfWeek->currentIndex();
@@ -452,7 +452,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			widget->setValue(vinfo.reward.resources[i]);
 	}
 	
-	for(auto i : vinfo.reward.artifacts)
+	for(auto i : vinfo.reward.grantedArtifacts)
 		ui->rArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
 	for(auto i : vinfo.reward.spells)
 		ui->rArtifacts->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
@@ -478,7 +478,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 		ui->castLevel->setCurrentIndex(vinfo.reward.spellCast.second);
 	}
 	
-	for(auto & i : vinfo.reward.bonuses)
+	for(auto & i : vinfo.reward.heroBonuses)
 	{
 		auto dur = vstd::findKey(bonusDurationMap, i.duration);
 		for(int i = 0; i < ui->bonusDuration->count(); ++i)
@@ -786,7 +786,7 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		}
 		textList += QObject::tr("Resources: %1").arg(resourcesList.join(", "));
 		QStringList artifactsList;
-		for (auto artifact : vinfo.reward.artifacts)
+		for (auto artifact : vinfo.reward.grantedArtifacts)
 		{
 			artifactsList += QString::fromStdString(LIBRARY->artifacts()->getById(artifact)->getNameTranslated());
 		}
@@ -814,7 +814,7 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 			textList += QObject::tr("Spell Cast: %1 (%2)").arg(QString::fromStdString(LIBRARY->spells()->getById(vinfo.reward.spellCast.first)->getNameTranslated())).arg(vinfo.reward.spellCast.second);
 		}
 		QStringList bonusesList;
-		for (auto & bonus : vinfo.reward.bonuses)
+		for (auto & bonus : vinfo.reward.heroBonuses)
 		{
 			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(vstd::findKey(bonusNameMap, bonus.type))).arg(bonus.val);
 		}

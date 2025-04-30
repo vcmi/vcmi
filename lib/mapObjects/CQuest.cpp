@@ -714,9 +714,9 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "mana")
 			reward.manaDiff = val;
 		if(metaTypeName == "morale")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		if(metaTypeName == "luck")
-			reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		if(metaTypeName == "resource")
 		{
 			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
@@ -735,7 +735,7 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(metaTypeName == "artifact")
 		{
 			auto rawId = *LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), fullIdentifier, false);
-			reward.artifacts.push_back(rawId);
+			reward.grantedArtifacts.push_back(rawId);
 		}
 		if(metaTypeName == "spell")
 		{

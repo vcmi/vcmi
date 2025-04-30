@@ -48,6 +48,9 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// Number of free secondary slots that hero needs to have
 	bool canLearnSkills;
 
+	/// Hero has commander, and commander is currently alive
+	bool commanderAlive;
+
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
 
@@ -58,6 +61,12 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// artifacts that hero needs to have (equipped or in backpack) to trigger this
 	/// checks for artifacts copies if same artifact id is included multiple times
 	std::vector<ArtifactID> artifacts;
+
+	/// artifact slots that hero needs to have available (not locked and without any artifact) to pass the limiter
+	std::vector<ArtifactPosition> availableSlots;
+
+	/// Spell scrolls that hero must have in inventory (equipped or in backpack)
+	std::vector<SpellID> scrolls;
 
 	/// Spells that hero must have in the spellbook
 	std::vector<SpellID> spells;
@@ -102,10 +111,17 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & manaPoints;
 		h & manaPercentage;
 		h & canLearnSkills;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & commanderAlive;
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & availableSlots;
+			h & scrolls;
+		}
 		h & spells;
 		h & canLearnSpells;
 		h & creatures;

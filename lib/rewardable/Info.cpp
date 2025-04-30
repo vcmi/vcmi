@@ -174,14 +174,15 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.movePercentage = randomizer.loadValue(source["movePercentage"], rng, variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
-	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
+	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);
+	reward.playerBonuses = randomizer.loadBonuses(source["playerBonuses"]);
 
 	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
 
 	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
-	reward.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
 	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
@@ -293,7 +294,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			}
 		}
 
-		for (const auto & artifact : info.reward.artifacts )
+		for (const auto & artifact : info.reward.grantedArtifacts )
 		{
 			loot.appendRawString("%s");
 			loot.replaceName(artifact);
@@ -315,7 +316,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 	}
 	else
 	{
-		for (const auto & artifact : info.reward.artifacts )
+		for (const auto & artifact : info.reward.grantedArtifacts )
 			target.replaceName(artifact);
 
 		for (const auto & spell : info.reward.spells )

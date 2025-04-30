@@ -408,6 +408,7 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
+	using VariantType = VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID>;
 	enum class ETarget : int8_t { OBJECT, PLAYER, BATTLE };
 	
 	explicit GiveBonus(ETarget Who = ETarget::OBJECT)
@@ -415,10 +416,17 @@ struct DLL_LINKAGE GiveBonus : public CPackForClient
 	{
 	}
 
+	GiveBonus(ETarget who, const VariantType & id, const Bonus & bonus)
+		: who(who)
+		, id(id)
+		, bonus(bonus)
+	{
+	}
+
 	void applyGs(CGameState * gs) override;
 
 	ETarget who = ETarget::OBJECT;
-	VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID> id;
+	VariantType id;
 	Bonus bonus;
 
 	void visitTyped(ICPackVisitor & visitor) override;

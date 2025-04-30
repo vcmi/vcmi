@@ -151,16 +151,19 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		cb->setMovePoints(&smp);
 	}
 
-	for(const Bonus & bonus : info.reward.bonuses)
+	for(const Bonus & bonus : info.reward.heroBonuses)
 	{
-		GiveBonus gb;
-		gb.who = GiveBonus::ETarget::OBJECT;
-		gb.bonus = bonus;
-		gb.id = hero->id;
+		GiveBonus gb(GiveBonus::ETarget::OBJECT, hero->id, bonus);
 		cb->giveHeroBonus(&gb);
 	}
 
-	for(const ArtifactID & art : info.reward.artifacts)
+	for(const Bonus & bonus : info.reward.playerBonuses)
+	{
+		GiveBonus gb(GiveBonus::ETarget::PLAYER, hero->getOwner(), bonus);
+		cb->giveHeroBonus(&gb);
+	}
+
+	for(const ArtifactID & art : info.reward.grantedArtifacts)
 		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())

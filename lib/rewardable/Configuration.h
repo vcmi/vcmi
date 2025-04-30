@@ -29,7 +29,8 @@ enum EVisitMode
 	VISIT_HERO,      // every hero can visit object once
 	VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 	VISIT_LIMITER,   // can be visited by heroes that don't fulfill provided limiter
-	VISIT_PLAYER     // every player can visit object once
+	VISIT_PLAYER,     // every player can visit object once
+	VISIT_PLAYER_GLOBAL // every player can visit object once. All objects of the same type will be considered as visited
 };
 
 /// controls selection of reward granted to player
@@ -70,6 +71,9 @@ struct DLL_LINKAGE ResetInfo
 	/// if true - re-randomize rewards on a new week
 	bool rewards;
 	
+	/// Reset object after visit by a hero, whether hero accepted reward or not
+	bool resetAfterVisit = false;
+
 	void serializeJson(JsonSerializeFormat & handler);
 	
 	template <typename Handler> void serialize(Handler &h)
@@ -77,6 +81,8 @@ struct DLL_LINKAGE ResetInfo
 		h & period;
 		h & visitors;
 		h & rewards;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & resetAfterVisit;
 	}
 };
 

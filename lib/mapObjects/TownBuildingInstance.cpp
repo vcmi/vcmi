@@ -72,6 +72,25 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * 
 	configuration = generateConfiguration(rand);
 }
 
+void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses) const
+{
+	const auto & building = town->getTown()->buildings.at(getBuildingType());
+
+	for (auto & bonus : bonuses)
+	{
+		if (building->mapObjectLikeBonuses.hasValue())
+		{
+			bonus.source = BonusSource::OBJECT_TYPE;
+			bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
+		}
+		else
+		{
+			bonus.source = BonusSource::TOWN_STRUCTURE;
+			bonus.sid = BonusSourceID(building->getUniqueTypeID());
+		}
+	}
+}
+
 Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
@@ -82,19 +101,8 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)
 	{
-		for (auto & bonus : rewardInfo.reward.bonuses)
-		{
-			if (building->mapObjectLikeBonuses.hasValue())
-			{
-				bonus.source = BonusSource::OBJECT_TYPE;
-				bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
-			}
-			else
-			{
-				bonus.source = BonusSource::TOWN_STRUCTURE;
-				bonus.sid = BonusSourceID(building->getUniqueTypeID());
-			}
-		}
+		assignBonuses(rewardInfo.reward.heroBonuses);
+		assignBonuses(rewardInfo.reward.playerBonuses);
 	}
 	return result;
 }

@@ -65,6 +65,8 @@ struct DLL_LINKAGE Reward final
 
 	/// received experience
 	si32 heroExperience;
+	si32 commanderExperience;
+	si32 unitsExperience;
 	/// received levels (converted into XP during grant)
 	si32 heroLevel;
 
@@ -86,7 +88,8 @@ struct DLL_LINKAGE Reward final
 	std::vector<CStackBasicDescriptor> guards;
 
 	/// list of bonuses, e.g. morale/luck
-	std::vector<Bonus> bonuses;
+	std::vector<Bonus> heroBonuses;
+	std::vector<Bonus> playerBonuses;
 
 	/// skills that hero may receive or lose
 	std::vector<si32> primary;
@@ -96,7 +99,10 @@ struct DLL_LINKAGE Reward final
 	std::map<CreatureID, CreatureID> creaturesChange;
 
 	/// objects that hero may receive
-	std::vector<ArtifactID> artifacts;
+	std::vector<ArtifactID> grantedArtifacts;
+	std::vector<ArtifactID> takenArtifacts;
+	std::vector<ArtifactPosition> takenArtifactSlots;
+	std::vector<SpellID> scrolls;
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
 	
@@ -131,14 +137,29 @@ struct DLL_LINKAGE Reward final
 		h & movePercentage;
 		h & guards;
 		h & heroExperience;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & commanderExperience;
+			h & unitsExperience;
+		}
 		h & heroLevel;
 		h & manaDiff;
 		h & manaOverflowFactor;
 		h & movePoints;
 		h & primary;
 		h & secondary;
-		h & bonuses;
-		h & artifacts;
+		h & heroBonuses;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & playerBonuses;
+		}
+		h & grantedArtifacts;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & takenArtifacts;
+			h & takenArtifactSlots;
+			h & scrolls;
+		}
 		h & spells;
 		h & creatures;
 		h & creaturesChange;

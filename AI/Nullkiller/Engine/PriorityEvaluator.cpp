@@ -265,9 +265,9 @@ uint64_t RewardEvaluator::getArmyReward(
 
 			auto rewardValue = 0;
 
-			if(!info.reward.artifacts.empty())
+			if(!info.reward.grantedArtifacts.empty())
 			{
-				for(auto artID : info.reward.artifacts)
+				for(auto artID : info.reward.grantedArtifacts)
 				{
 					const auto * art = artID.toArtifact();
 
@@ -283,7 +283,7 @@ uint64_t RewardEvaluator::getArmyReward(
 				}
 			}
 
-			totalValue += rewardValue > 0 ? rewardValue / (info.reward.artifacts.size() + info.reward.creatures.size()) : 0;
+			totalValue += rewardValue > 0 ? rewardValue / (info.reward.grantedArtifacts.size() + info.reward.creatures.size()) : 0;
 		}
 
 		return totalValue;

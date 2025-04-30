@@ -47,6 +47,15 @@ std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameCallback *
 	return ret;
 }
 
+void CRewardableConstructor::assignBonuses(std::vector<Bonus> & bonuses, MapObjectID objectID) const
+{
+	for (auto & bonus : bonuses)
+	{
+		bonus.source = BonusSource::OBJECT_TYPE;
+		bonus.sid = BonusSourceID(objectID);
+	}
+}
+
 Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
 	Rewardable::Configuration result;
@@ -62,11 +71,8 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCal
 
 	for(auto & rewardInfo : result.info)
 	{
-		for (auto & bonus : rewardInfo.reward.bonuses)
-		{
-			bonus.source = BonusSource::OBJECT_TYPE;
-			bonus.sid = BonusSourceID(objectID);
-		}
+		assignBonuses(rewardInfo.reward.heroBonuses, objectID);
+		assignBonuses(rewardInfo.reward.playerBonuses, objectID);
 	}
 
 	return result;

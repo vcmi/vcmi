@@ -79,7 +79,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
 	
-	for (auto & bonus : bonuses)
+	for (auto & bonus : heroBonuses)
 	{
 		if (bonus.type == BonusType::MORALE)
 			comps.emplace_back(ComponentType::MORALE, bonus.val);
@@ -111,7 +111,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, finalLevel);
 	}
 
-	for(const auto & entry : artifacts)
+	for(const auto & entry : grantedArtifacts)
 		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
 	for(const auto & entry : spells)
@@ -141,7 +141,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaDiff", manaDiff);
 	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
 	handler.serializeInt("movePoints", movePoints);
-	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("artifacts", grantedArtifacts);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);
