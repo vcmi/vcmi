@@ -56,6 +56,7 @@ public:
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	void garrisonDialogClosed(const CGHeroInstance *hero) const override;
 
 	///possibly resets object state
 	void newTurn(vstd::RNG & rand) const override;

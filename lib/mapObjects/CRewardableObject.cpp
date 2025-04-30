@@ -21,6 +21,7 @@
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
+#include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 #include <vstd/RNG.h>
@@ -81,6 +82,14 @@ void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleR
 	{
 		doHeroVisit(hero);
 	}
+}
+
+void CRewardableObject::garrisonDialogClosed(const CGHeroInstance *hero) const
+{
+	// if visitor received creatures as rewards, but does not have free slots, he will leave some units
+	// inside rewardable object, which might get treated as guards later
+	while(!stacks.empty())
+		cb->eraseStack(StackLocation(id, stacks.begin()->first));
 }
 
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
