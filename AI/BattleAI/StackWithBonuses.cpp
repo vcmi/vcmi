@@ -342,14 +342,14 @@ void HypotheticBattle::nextRound()
 	}
 }
 
-void HypotheticBattle::nextTurn(uint32_t unitId)
+void HypotheticBattle::nextTurn(uint32_t unitId, BattleUnitTurnReason reason)
 {
 	activeUnitId = unitId;
 	auto unit = getForUpdate(unitId);
 
 	unit->removeUnitBonus(Bonus::UntilGetsTurn);
 
-	unit->afterGetsTurn();
+	unit->afterGetsTurn(reason);
 }
 
 void HypotheticBattle::addUnit(uint32_t id, const JsonNode & data)

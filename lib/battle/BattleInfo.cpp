@@ -666,7 +666,7 @@ void BattleInfo::nextRound()
 		obst->battleTurnPassed();
 }
 
-void BattleInfo::nextTurn(uint32_t unitId)
+void BattleInfo::nextTurn(uint32_t unitId, BattleUnitTurnReason reason)
 {
 	activeStack = unitId;
 
@@ -675,7 +675,7 @@ void BattleInfo::nextTurn(uint32_t unitId)
 	//remove bonuses that last until when stack gets new turn
 	st->removeBonusesRecursive(Bonus::UntilGetsTurn);
 
-	st->afterGetsTurn();
+	st->afterGetsTurn(reason);
 }
 
 void BattleInfo::addUnit(uint32_t id, const JsonNode & data)

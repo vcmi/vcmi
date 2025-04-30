@@ -920,11 +920,13 @@ void CUnitState::afterNewRound()
 		makeGhost();
 }
 
-void CUnitState::afterGetsTurn()
+void CUnitState::afterGetsTurn(BattleUnitTurnReason reason)
 {
-	//if moving second time this round it must be high morale bonus
-	if(movedThisRound)
+	if(reason == BattleUnitTurnReason::MORALE)
+	{
 		hadMorale = true;
+		castSpellThisTurn = false;
+	}
 }
 
 void CUnitState::makeGhost()

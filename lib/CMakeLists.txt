@@ -418,6 +418,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
+	battle/BattleUnitTurnReason.h
 	battle/CBattleInfoCallback.h
 	battle/CBattleInfoEssentials.h
 	battle/CObstacleInstance.h

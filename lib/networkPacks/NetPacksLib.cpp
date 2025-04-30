@@ -2007,7 +2007,7 @@ void BattleNextRound::applyGs(CGameState *gs)
 
 void BattleSetActiveStack::applyGs(CGameState *gs)
 {
-	gs->getBattle(battleID)->nextTurn(stack);
+	gs->getBattle(battleID)->nextTurn(stack, reason);
 }
 
 void BattleTriggerEffect::applyGs(CGameState *gs)

@@ -568,7 +568,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ourTurnSpan++;
 				}
 
-				state->nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId(), BattleUnitTurnReason::TURN_QUEUE);
 
 				PotentialTargets potentialTargets(unit, damageCache, state);
 

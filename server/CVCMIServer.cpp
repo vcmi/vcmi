@@ -835,7 +835,7 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 
 	const CampaignScenario & scenario = si->campState->scenario(campaignMap);
 	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CampaignBonusType::HERO)
+	if(bonDescs[bonusId].type == CampaignBonusType::HERO || bonDescs[bonusId].type == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
 		for(auto & elem : si->playerInfos)
 		{

@@ -495,6 +495,16 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			if (nodeListIter == nodeList.end())
 				break;
 
+			if (!gameState->players.count(placeholder->getOwner()))
+				continue; // illegal?
+
+			// It looks like heroes placeholder by power can only be replaced for human player
+			// Example where this is important: Spoils of War -> Greed
+			// Meanwhile, placeholders by hero ID can be replaced for AI as well
+			// Example: Armageddon's Blade -> To Kill A Hero
+			if (!gameState->players.at(placeholder->getOwner()).isHuman())
+				continue;
+
 			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 

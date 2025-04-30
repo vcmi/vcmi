@@ -769,7 +769,7 @@ void ApplyClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)
 
 void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack & pack)
 {
-	if(!pack.askPlayerInterface)
+	if(pack.reason == BattleUnitTurnReason::AUTOMATIC_ACTION)
 		return;
 
 	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);

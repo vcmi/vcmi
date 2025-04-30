@@ -31,6 +31,7 @@ namespace NKAI
 
 class AIStatus
 {
+	AIGateway * gateway;
 	std::mutex mx;
 	std::condition_variable cv;
 
@@ -44,7 +45,7 @@ class AIStatus
 	bool havingTurn;
 
 public:
-	AIStatus();
+	AIStatus(AIGateway * gateway);
 	~AIStatus();
 	void setBattle(BattleState BS);
 	void setMove(bool ongoing);

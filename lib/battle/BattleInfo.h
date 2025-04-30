@@ -128,7 +128,7 @@ public:
 	// IBattleState
 
 	void nextRound() override;
-	void nextTurn(uint32_t unitId) override;
+	void nextTurn(uint32_t unitId, BattleUnitTurnReason reason) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void moveUnit(uint32_t id, const BattleHex & destination) override;

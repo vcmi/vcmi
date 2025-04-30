@@ -42,7 +42,7 @@ public:
 	MOCK_CONST_METHOD1(getUsedSpells, std::vector<SpellID>(BattleSide));
 
 	MOCK_METHOD0(nextRound, void());
-	MOCK_METHOD1(nextTurn, void(uint32_t));
+	MOCK_METHOD2(nextTurn, void(uint32_t, BattleUnitTurnReason));
 	MOCK_METHOD2(addUnit, void(uint32_t, const JsonNode &));
 	MOCK_METHOD3(setUnitState, void(uint32_t, const JsonNode &, int64_t));
 	MOCK_METHOD2(moveUnit, void(uint32_t, const BattleHex &));
