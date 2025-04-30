@@ -77,6 +77,8 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	Rewardable::Configuration result;
 	const auto & building = town->getTown()->buildings.at(getBuildingType());
 
+	// force modal info window instead of displaying in inactive info box on adventure map
+	result.infoWindowType = EInfoWindowMode::MODAL;
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)
 	{
