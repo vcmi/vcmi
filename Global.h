@@ -465,14 +465,6 @@ namespace vstd
 		}
 	};
 
-	//deleted pointer and sets it to nullptr
-	template <typename T>
-	void clear_pointer(T* &ptr)
-	{
-		delete ptr;
-		ptr = nullptr;
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{

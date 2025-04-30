@@ -416,7 +416,8 @@ int main(int argc, char * argv[])
 	if(!settings["session"]["headless"].Bool())
 	{
 		CMessage::dispose();
-		vstd::clear_pointer(graphics);
+		delete graphics;
+		graphics = nullptr;
 	}
 
 	// must be executed before reset - since unique_ptr resets pointer to null before calling destructor
@@ -424,7 +425,8 @@ int main(int argc, char * argv[])
 
 	ENGINE.reset();
 
-	vstd::clear_pointer(LIBRARY);
+	delete LIBRARY;
+	LIBRARY = nullptr;
 	logConfigurator.deconfigure();
 
 	std::cout << "Ending...\n";

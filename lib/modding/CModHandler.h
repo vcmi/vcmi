@@ -27,7 +27,7 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	std::set<std::string> validationPassed;
 
 	void loadTranslation(const TModID & modName);
-	void checkModFilesystemsConflicts(const std::map<TModID, ISimpleResourceLoader *> & modFilesystems);
+	void checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems);
 
 	bool isModValidationNeeded(const ModDescription & mod) const;
 

@@ -28,11 +28,13 @@ std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = s
 CResourceHandler CResourceHandler::globalResourceHandler;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
-	filesystem(new CFilesystemList()),
+	filesystem(std::make_unique<CFilesystemList>()),
 	prefix(std::move(prefix)),
 	extractArchives(extractArchives)
 {
 }
+
+CFilesystemGenerator::~CFilesystemGenerator() = default;
 
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 {
@@ -72,9 +74,9 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 	}
 }
 
-CFilesystemList * CFilesystemGenerator::getFilesystem()
+std::unique_ptr<CFilesystemList> CFilesystemGenerator::acquireFilesystem()
 {
-	return filesystem;
+	return std::move(filesystem);
 }
 
 void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const JsonNode & config)
@@ -89,7 +91,7 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	for(auto & loader : CResourceHandler::get("initial")->getResourcesWithName(resID))
 	{
 		auto filename = loader->getResourceName(resID);
-		filesystem->addLoader(new CFilesystemLoader(mountPoint, *filename, depth), false);
+		filesystem->addLoader(std::make_unique<CFilesystemLoader>(mountPoint, *filename, depth), false);
 	}
 }
 
@@ -98,7 +100,7 @@ void CFilesystemGenerator::loadZipArchive(const std::string &mountPoint, const J
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, EResType::ARCHIVE_ZIP));
 	if (filename)
-		filesystem->addLoader(new CZipLoader(mountPoint, *filename), false);
+		filesystem->addLoader(std::make_unique<CZipLoader>(mountPoint, *filename), false);
 }
 
 template<EResType archiveType>
@@ -107,7 +109,7 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 	std::string URI = prefix + config["path"].String();
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, archiveType));
 	if (filename)
-		filesystem->addLoader(new CArchiveLoader(mountPoint, *filename, extractArchives), false);
+		filesystem->addLoader(std::make_unique<CArchiveLoader>(mountPoint, *filename, extractArchives), false);
 }
 
 void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
@@ -118,15 +120,15 @@ void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const Json
 	{
 		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
 		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second, URI);
-		filesystem->addLoader(new CMappedFileLoader(mountPoint, configInitial), false);
+		filesystem->addLoader(std::make_unique<CMappedFileLoader>(mountPoint, configInitial), false);
 	}
 }
 
-ISimpleResourceLoader * CResourceHandler::createInitial()
+std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial()
 {
 	//temporary filesystem that will be used to initialize main one.
 	//used to solve several case-sensivity issues like Mp3 vs MP3
-	auto * initialLoader = new CFilesystemList();
+	auto initialLoader = std::make_unique<CFilesystemList>();
 
 	//recurse only into specific directories
 	auto recurseInDir = [&](const std::string & URI, int depth)
@@ -138,8 +140,8 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 			auto filename = loader->getResourceName(ID);
 			if (filename)
 			{
-				auto * dir = new CFilesystemLoader(URI + '/', *filename, depth, true);
-				initialLoader->addLoader(dir, false);
+				auto dir = std::make_unique<CFilesystemLoader>(URI + '/', *filename, depth, true);
+				initialLoader->addLoader(std::move(dir), false);
 			}
 		}
 	};
@@ -147,9 +149,9 @@ ISimpleResourceLoader * CResourceHandler::createInitial()
 	for (auto & path : VCMIDirs::get().dataPaths())
 	{
 		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
-			initialLoader->addLoader(new CFilesystemLoader("", path, 1, true), false);
+			initialLoader->addLoader(std::make_unique<CFilesystemLoader>("", path, 1, true), false);
 	}
-	initialLoader->addLoader(new CFilesystemLoader("", VCMIDirs::get().userDataPath(), 0, true), false);
+	initialLoader->addLoader(std::make_unique<CFilesystemLoader>("", VCMIDirs::get().userDataPath(), 0, true), false);
 
 	recurseInDir("CONFIG", 0);// look for configs
 	recurseInDir("DATA", 0); // look for archives
@@ -178,18 +180,21 @@ void CResourceHandler::initialize()
 	if (globalResourceHandler.rootLoader)
 		return;
 
+	auto savesLoader = std::make_unique<CFilesystemLoader>("SAVES/", VCMIDirs::get().userSavePath());
+	auto configLoader = std::make_unique<CFilesystemLoader>("CONFIG/", VCMIDirs::get().userConfigPath());
+
 	globalResourceHandler.rootLoader = std::make_unique<CFilesystemList>();
 	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
-	knownLoaders["saves"] = new CFilesystemLoader("SAVES/", VCMIDirs::get().userSavePath());
-	knownLoaders["config"] = new CFilesystemLoader("CONFIG/", VCMIDirs::get().userConfigPath());
+	knownLoaders["saves"] = savesLoader.get();
+	knownLoaders["config"] = configLoader.get();
 
-	auto * localFS = new CFilesystemList();
-	localFS->addLoader(knownLoaders["saves"], true);
-	localFS->addLoader(knownLoaders["config"], true);
+	auto localFS = std::make_unique<CFilesystemList>();
+	localFS->addLoader(std::move(savesLoader), true);
+	localFS->addLoader(std::move(configLoader), true);
 
 	addFilesystem("root", "initial", createInitial());
-	addFilesystem("root", "data", new CFilesystemList());
-	addFilesystem("root", "local", localFS);
+	addFilesystem("root", "data", std::make_unique<CFilesystemList>());
+	addFilesystem("root", "local", std::move(localFS));
 }
 
 void CResourceHandler::destroy()
@@ -218,26 +223,24 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 	addFilesystem("data", ModScope::scopeBuiltin(), createFileSystem("", fsConfig["filesystem"], extractArchives));
 }
 
-void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, ISimpleResourceLoader * loader)
+void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, std::unique_ptr<ISimpleResourceLoader> loader)
 {
 	if(knownLoaders.count(identifier) != 0)
 	{
 		logMod->error("[CRITICAL] Virtual filesystem %s already loaded!", identifier);
-		delete loader;
 		return;
 	}
 
 	if(knownLoaders.count(parent) == 0)
 	{
 		logMod->error("[CRITICAL] Parent virtual filesystem %s for %s not found!", parent, identifier);
-		delete loader;
 		return;
 	}
 
 	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
 	assert(list);
-	list->addLoader(loader, false);
-	knownLoaders[identifier] = loader;
+	knownLoaders[identifier] = loader.get();
+	list->addLoader(std::move(loader), false);
 }
 
 bool CResourceHandler::removeFilesystem(const std::string & parent, const std::string & identifier)
@@ -255,11 +258,11 @@ bool CResourceHandler::removeFilesystem(const std::string & parent, const std::s
 	return true;
 }
 
-ISimpleResourceLoader * CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig, bool extractArchives)
+std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createFileSystem(const std::string & prefix, const JsonNode &fsConfig, bool extractArchives)
 {
 	CFilesystemGenerator generator(prefix, extractArchives);
 	generator.loadConfig(fsConfig);
-	return generator.getFilesystem();
+	return generator.acquireFilesystem();
 }
 
 VCMI_LIB_NAMESPACE_END

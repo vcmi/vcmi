@@ -57,6 +57,7 @@
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
+#include <SDL_thread.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -114,9 +115,13 @@ void CServerHandler::threadRunNetwork()
 	}
 	catch (const TerminationRequestedException &)
 	{
+		// VCMI can run SDL methods on network thread, leading to usage of thread-local storage by SDL
+		// Such storage needs to be cleaned up manually for threads that were not created by SDL
+		SDL_TLSCleanup();
 		logGlobal->info("Terminating network thread");
 		return;
 	}
+	SDL_TLSCleanup();
 	logGlobal->info("Ending network thread");
 }
 

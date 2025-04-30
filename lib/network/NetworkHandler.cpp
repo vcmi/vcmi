@@ -21,12 +21,12 @@ std::unique_ptr<INetworkHandler> INetworkHandler::createHandler()
 }
 
 NetworkHandler::NetworkHandler()
-	: io(std::make_shared<NetworkContext>())
+	: io(std::make_unique<NetworkContext>())
 {}
 
 std::unique_ptr<INetworkServer> NetworkHandler::createServerTCP(INetworkServerListener & listener)
 {
-	return std::make_unique<NetworkServer>(listener, io);
+	return std::make_unique<NetworkServer>(listener, *io);
 }
 
 void NetworkHandler::connectToRemote(INetworkClientListener & listener, const std::string & host, uint16_t port)
@@ -50,7 +50,7 @@ void NetworkHandler::connectToRemote(INetworkClientListener & listener, const st
 				listener.onConnectionFailed(error.message());
 				return;
 			}
-			auto connection = std::make_shared<NetworkConnection>(listener, socket, io);
+			auto connection = std::make_shared<NetworkConnection>(listener, socket, *io);
 			connection->start();
 
 			listener.onConnectionEstablished(connection);
@@ -75,7 +75,7 @@ void NetworkHandler::createTimer(INetworkTimerListener & listener, std::chrono::
 
 void NetworkHandler::createInternalConnection(INetworkClientListener & listener, INetworkServer & server)
 {
-	auto localConnection = std::make_shared<InternalConnection>(listener, io);
+	auto localConnection = std::make_shared<InternalConnection>(listener, *io);
 
 	server.receiveInternalConnection(localConnection);
 

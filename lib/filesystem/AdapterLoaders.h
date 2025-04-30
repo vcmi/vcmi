@@ -85,8 +85,8 @@ public:
 	 * @param loader The simple resource loader object to add
 	 * @param writeable - resource shall be treated as writeable
 	 */
-	void addLoader(ISimpleResourceLoader * loader, bool writeable);
-	
+	void addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable);
+
 	/**
 	 * Removes loader from the loader list
 	 * Take care about memory deallocation

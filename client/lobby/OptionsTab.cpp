@@ -378,7 +378,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[79]);
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = (*LIBRARY->townh)[factionIndex]->town;
+	const CTown * town = (*LIBRARY->townh)[factionIndex]->town.get();
 
 	for(auto & elem : town->creatures)
 	{
