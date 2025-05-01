@@ -333,11 +333,6 @@ void BulkRebalanceStacks::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkRebalanceStacks(*this);
 }
 
-void BulkSmartRebalanceStacks::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitBulkSmartRebalanceStacks(*this);
-}
-
 void PutArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPutArtifact(*this);
@@ -573,7 +568,7 @@ void BulkMergeStacks::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkMergeStacks(*this);
 }
 
-void BulkSmartSplitStack::visitTyped(ICPackVisitor & visitor)
+void BulkSplitAndRebalanceStack::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBulkSmartSplitStack(*this);
 }
@@ -895,7 +890,7 @@ void SetCommanderProperty::applyGs(CGameState *gs)
 				commander->setAlive(false);
 			break;
 		case EXPERIENCE:
-			commander->giveStackExp(amount); //TODO: allow setting exp for stacks via netpacks
+			commander->giveTotalStackExperience(amount);
 			commander->nodeHasChanged();
 			break;
 	}
@@ -1560,17 +1555,15 @@ void RebalanceStacks::applyGs(CGameState *gs)
 	StackLocation src(srcObj->id, srcSlot);
 	StackLocation dst(dstObj->id, dstSlot);
 
-	const CCreature * srcType = srcObj->getCreature(src.slot);
+	[[maybe_unused]] const CCreature * srcType = srcObj->getCreature(src.slot);
+	const CCreature * dstType = dstObj->getCreature(dst.slot);
 	TQuantity srcCount = srcObj->getStackCount(src.slot);
-	bool stackExp = gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 
 	if(srcCount == count) //moving whole stack
 	{
-		const auto c = dstObj->getCreature(dst.slot);
-
-		if(c) //stack at dest -> merge
+		if(dstType) //stack at dest -> merge
 		{
-			assert(c == srcType);
+			assert(dstType == srcType);
 			
 			const auto srcHero = dynamic_cast<CGHeroInstance*>(srcObj);
 			const auto dstHero = dynamic_cast<CGHeroInstance*>(dstObj);
@@ -1609,50 +1602,28 @@ void RebalanceStacks::applyGs(CGameState *gs)
 					gs->getMap().moveArtifactInstance(*srcStack, ArtifactPosition::CREATURE_SLOT, *dstStack, ArtifactPosition::CREATURE_SLOT);
 				}
 			}
-			if (stackExp)
-			{
-				ui64 totalExp = srcCount * srcObj->getStackExperience(src.slot) + dstObj->getStackCount(dst.slot) * dstObj->getStackExperience(dst.slot);
-				srcObj->eraseStack(src.slot);
-				dstObj->changeStackCount(dst.slot, count);
-				dstObj->setStackExp(dst.slot, totalExp /(dstObj->getStackCount(dst.slot))); //mean
-			}
-			else
-			{
-				srcObj->eraseStack(src.slot);
-				dstObj->changeStackCount(dst.slot, count);
-			}
+
+			auto movedStack = srcObj->detachStack(src.slot);
+			dstObj->joinStack(dst.slot, std::move(movedStack));
 		}
-		else //move stack to an empty slot, no exp change needed
+		else
 		{
-			auto stackDetached = srcObj->detachStack(src.slot);
-			dstObj->putStack(dst.slot, std::move(stackDetached));
+			auto movedStack = srcObj->detachStack(src.slot);
+			dstObj->putStack(dst.slot, std::move(movedStack));
 		}
 	}
 	else
 	{
-		[[maybe_unused]] const CCreature *c = dstObj->getCreature(dst.slot);
-		if(c) //stack at dest -> rebalance
+		auto movedStack = srcObj->splitStack(src.slot, count);
+
+		if(dstType) //stack at dest -> rebalance
 		{
-			assert(c == srcType);
-			if (stackExp)
-			{
-				ui64 totalExp = srcCount * srcObj->getStackExperience(src.slot) + dstObj->getStackCount(dst.slot) * dstObj->getStackExperience(dst.slot);
-				srcObj->changeStackCount(src.slot, -count);
-				dstObj->changeStackCount(dst.slot, count);
-				dstObj->setStackExp(dst.slot, totalExp /(srcObj->getStackCount(src.slot) + dstObj->getStackCount(dst.slot))); //mean
-			}
-			else
-			{
-				srcObj->changeStackCount(src.slot, -count);
-				dstObj->changeStackCount(dst.slot, count);
-			}
+			assert(dstType == srcType);
+			dstObj->joinStack(dst.slot, std::move(movedStack));
 		}
-		else //split stack to an empty slot
+		else //move new stack to an empty slot
 		{
-			srcObj->changeStackCount(src.slot, -count);
-			dstObj->addToSlot(dst.slot, srcType->getId(), count, false);
-			if (stackExp)
-				dstObj->setStackExp(dst.slot, srcObj->getStackExperience(src.slot));
+			dstObj->putStack(dst.slot, std::move(movedStack));
 		}
 	}
 
@@ -1665,15 +1636,6 @@ void BulkRebalanceStacks::applyGs(CGameState *gs)
 {
 	for(auto & move : moves)
 		move.applyGs(gs);
-}
-
-void BulkSmartRebalanceStacks::applyGs(CGameState *gs)
-{
-	for(auto & move : moves)
-		move.applyGs(gs);
-
-	for(auto & change : changes)
-		change.applyGs(gs);
 }
 
 void PutArtifact::applyGs(CGameState *gs)
@@ -2094,15 +2056,10 @@ void BattleResultAccepted::applyGs(CGameState *gs)
 	if(gs->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(const auto attackerArmy = gs->getArmyInstance(heroResult[BattleSide::ATTACKER].armyID))
-		{
-			attackerArmy->giveStackExp(heroResult[BattleSide::ATTACKER].exp);
-			attackerArmy->nodeHasChanged();
-		}
+			attackerArmy->giveAverageStackExperience(heroResult[BattleSide::ATTACKER].exp);
+
 		if(const auto defenderArmy = gs->getArmyInstance(heroResult[BattleSide::DEFENDER].armyID))
-		{
-			defenderArmy->giveStackExp(heroResult[BattleSide::DEFENDER].exp);
-			defenderArmy->nodeHasChanged();
-		}
+			defenderArmy->giveAverageStackExperience(heroResult[BattleSide::DEFENDER].exp);
 	}
 }
 

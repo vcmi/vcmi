@@ -466,7 +466,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	{
 		int index = i.getType()->getIndex();
 		ui->rCreatureId->setCurrentIndex(index);
-		ui->rCreatureAmount->setValue(i.count);
+		ui->rCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
 	}
 	
@@ -534,7 +534,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	{
 		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
-		ui->lCreatureAmount->setValue(i.count);
+		ui->lCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
 	}
 	
@@ -806,7 +806,7 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		QStringList creaturesList;
 		for (auto & creature : vinfo.reward.creatures)
 		{
-			creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+			creaturesList += QString("%1 %2").arg(creature.getCount()).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
 		}
 		textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
 		if (vinfo.reward.spellCast.first != SpellID::NONE)

@@ -98,7 +98,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 
 			slotInfp.creature = cre;
 			slotInfp.power += i.second->getPower();
-			slotInfp.count += i.second->count;
+			slotInfp.count += i.second->getCount();
 		}
 	}
 
@@ -491,7 +491,7 @@ void ArmyManager::update()
 	{
 		for(const auto & slot : army->Slots())
 		{
-			totalArmy[slot.second->getCreatureID()].count += slot.second->count;
+			totalArmy[slot.second->getCreatureID()].count += slot.second->getCount();
 		}
 	}
 
@@ -511,7 +511,7 @@ std::vector<SlotInfo> ArmyManager::convertToSlots(const CCreatureSet * army) con
 		SlotInfo slotInfo;
 
 		slotInfo.creature = slot.second->getCreatureID().toCreature();
-		slotInfo.count = slot.second->count;
+		slotInfo.count = slot.second->getCount();
 		slotInfo.power = evaluateStackPower(slotInfo.creature, slotInfo.count);
 
 		result.push_back(slotInfo);
@@ -537,7 +537,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 			return cre.toCreature()->getAIValue();
 		});
 
-		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());
 
 		if(initial.toCreature()->getLevel() == 1)
 			upgrade.cost = TResources();
@@ -576,7 +576,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 			return cre.toCreature()->getAIValue();
 		});
 
-		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->count);
+		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());
 
 		upgrades.push_back(upgrade);
 	}

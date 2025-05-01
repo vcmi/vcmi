@@ -403,7 +403,7 @@ void CHeroGSlot::gesture(bool on, const Point & initialPosition, const Point & f
 			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, static_cast<GameResID>(GameResID::GOLD), 0)); // add at least gold, when there are no costs
 		resComps.back()->newLine = true;
 		for(auto & upgradeInfo : upgradableSlots.upgradeInfos)
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->count));
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::CREATURE, upgradeInfo.second.getUpgrade(), obj->Slots().at(upgradeInfo.first)->getCount()));
 			
 		std::string textID = upgradableSlots.canAffordAll ? "core.genrltxt.207" : "vcmi.townWindow.upgradeAll.notAllUpgradable";
 

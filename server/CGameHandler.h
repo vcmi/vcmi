@@ -227,7 +227,7 @@ public:
 	bool bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot);
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
-	bool bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner);
+	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
 	bool load(const std::string &fname);
 

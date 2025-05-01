@@ -791,10 +791,10 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 						{
 							return id.toCreature()->getAIValue();
 						});
-					if(cb->getResourceAmount().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
+					if(cb->getResourceAmount().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
 						cb->upgradeCreature(obj, SlotID(i), upgID);
-						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
+						logAi->debug("Upgraded %d %s to %s", s->getCount(), upgradeInfo.oldID.toCreature()->getNamePluralTranslated(),
 							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
 					}
 					else

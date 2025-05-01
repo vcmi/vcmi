@@ -360,13 +360,13 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 			doBasicDisguise(info);
 
 			for(auto & elem : info.army)
-				elem.second.count = 0;
+				elem.second.setCount(0);
 		};
 
 		auto doExpertDisguise = [this,h](InfoAboutHero & info)
 		{
 			for(auto & elem : info.army)
-				elem.second.count = 0;
+				elem.second.setCount(0);
 
 			const auto factionIndex = getStartInfo()->playerInfos.at(h->tempOwner).castle;
 

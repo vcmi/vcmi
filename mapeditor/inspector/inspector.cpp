@@ -423,7 +423,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
 	addProperty(QObject::tr("Artifact reward"), o->gainedArtifact); //TODO: implement in setProperty
 	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), true);
-	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->count, false);
+	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->getCount(), false);
 	//addProperty(QObject::tr("Resources reward"), o->resources); //TODO: implement in setProperty
 }
 
@@ -763,7 +763,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(key == QObject::tr("Not growing"))
 		o->notGrowingTeam = value.toBool();
 	if(key == QObject::tr("Amount"))
-		o->stacks[SlotID(0)]->count = value.toString().toInt();
+		o->stacks[SlotID(0)]->setCount(value.toString().toInt());
 }
 
 void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant & value)

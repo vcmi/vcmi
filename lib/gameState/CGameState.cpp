@@ -1304,7 +1304,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
 						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
-							total += elem.second->count;
+							total += elem.second->getCount();
 				}
 			}
 			return total >= condition.value;

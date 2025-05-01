@@ -362,7 +362,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 		{
 			const auto & targetSlot = target->getSlotFor(slot.second->getCreatureID());
 
-			target->addToSlot(targetSlot, slot.second->getCreatureID(), slot.second->count);
+			target->addToSlot(targetSlot, slot.second->getCreatureID(), slot.second->getCount());
 		}
 	}
 
@@ -422,7 +422,7 @@ DwellingActor::DwellingActor(const CGDwelling * dwelling, uint64_t chainMask, bo
 {
 	for(auto & slot : creatureSet->Slots())
 	{
-		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->count;
+		armyCost += slot.second->getCreatureID().toCreature()->getFullRecruitCost() * slot.second->getCount();
 	}
 }
 

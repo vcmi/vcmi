@@ -1191,7 +1191,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	}
 
 	auto hlp = std::make_unique<CStackInstance>(map->cb);
-	hlp->count = reader->readUInt16();
+	hlp->setCount(reader->readUInt16());
 
 	//type will be set during initialization
 	object->putStack(SlotID(0), std::move(hlp));
@@ -1975,7 +1975,7 @@ void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID
 			continue;
 
 		auto result = std::make_unique<CStackInstance>(map->cb);
-		result->count = count;
+		result->setCount(count);
 
 		if(creatureID < CreatureID::NONE)
 		{
@@ -2427,7 +2427,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
 				guard->getQuest().mission.creatures[hh].setType(reader->readCreature().toCreature());
-				guard->getQuest().mission.creatures[hh].count = reader->readUInt16();
+				guard->getQuest().mission.creatures[hh].setCount(reader->readUInt16());
 			}
 			break;
 		}

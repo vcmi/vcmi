@@ -699,7 +699,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 
 	for(const auto & stack : army->Slots())
 	{
-		value += stack.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * stack.second->count;
+		value += stack.second->getCreatureID().toCreature()->getFullRecruitCost().marketValue() * stack.second->getCount();
 	}
 
 	return value;

@@ -36,8 +36,9 @@ enum class ESerializationVersion : int32_t
 
 	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
 	NO_RAW_POINTERS_IN_SERIALIZER, // large rework that removed all non-owning pointers from serializer
+	STACK_INSTANCE_EXPERIENCE_FIX, // stack experience is stored as total, not as average
 	
-	CURRENT = NO_RAW_POINTERS_IN_SERIALIZER,
+	CURRENT = STACK_INSTANCE_EXPERIENCE_FIX,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
