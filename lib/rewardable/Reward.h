@@ -66,7 +66,7 @@ struct DLL_LINKAGE Reward final
 	/// received experience
 	si32 heroExperience;
 	si32 commanderExperience;
-	si32 unitsExperience;
+	si32 unitExperience;
 	/// received levels (converted into XP during grant)
 	si32 heroLevel;
 
@@ -105,6 +105,7 @@ struct DLL_LINKAGE Reward final
 	std::vector<SpellID> scrolls;
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
+	std::vector<CStackBasicDescriptor> takenCreatures;
 	
 	/// actions that hero may execute and object caster. Pair of spellID and school level
 	std::pair<SpellID, int> spellCast;
@@ -140,7 +141,7 @@ struct DLL_LINKAGE Reward final
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
 		{
 			h & commanderExperience;
-			h & unitsExperience;
+			h & unitExperience;
 		}
 		h & heroLevel;
 		h & manaDiff;
@@ -162,6 +163,8 @@ struct DLL_LINKAGE Reward final
 		}
 		h & spells;
 		h & creatures;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & takenCreatures;
 		h & creaturesChange;
 		h & revealTiles;
 		h & spellCast;

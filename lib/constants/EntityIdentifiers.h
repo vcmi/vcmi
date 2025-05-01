@@ -756,6 +756,7 @@ public:
 
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
+	DLL_LINKAGE static std::string entityType();
 };
 
 class ArtifactPosition : public StaticIdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>

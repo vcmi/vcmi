@@ -235,6 +235,20 @@ int32_t ArtifactPositionBase::decode(const std::string & slotName)
 		return PRE_FIRST;
 }
 
+std::string ArtifactPositionBase::encode(int32_t index)
+{
+#define ART_POS(x) #x ,
+	const std::vector<std::string> artSlots = { ART_POS_LIST };
+#undef ART_POS
+
+	return artSlots.at(index);
+}
+
+std::string ArtifactPositionBase::entityType()
+{
+	return "artifactSlot";
+}
+
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
 {
 	static const std::vector<ArtifactPosition> miscSlots =

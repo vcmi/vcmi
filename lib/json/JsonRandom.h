@@ -75,6 +75,7 @@ public:
 
 	ArtifactID loadArtifact(const JsonNode & value, vstd::RNG & rng, const Variables & variables);
 	std::vector<ArtifactID> loadArtifacts(const JsonNode & value, vstd::RNG & rng, const Variables & variables);
+	std::vector<ArtifactPosition> loadArtifactSlots(const JsonNode & value, vstd::RNG & rng, const Variables & variables);
 
 	SpellID loadSpell(const JsonNode & value, vstd::RNG & rng, const Variables & variables);
 	std::vector<SpellID> loadSpells(const JsonNode & value, vstd::RNG & rng, const Variables & variables);

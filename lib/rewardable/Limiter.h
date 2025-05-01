@@ -77,6 +77,12 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 	
+	/// creatures that hero needs to have
+	std::vector<CStackBasicDescriptor> canLoseCreatures;
+
+	/// creatures that hero needs to have
+	std::vector<CStackBasicDescriptor> canReceiveCreatures;
+
 	/// only heroes/hero classes from list could pass limiter
 	std::vector<HeroTypeID> heroes;
 	std::vector<HeroClassID> heroClasses;

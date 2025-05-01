@@ -184,6 +184,16 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 			cb->removeArtifact(ArtifactLocation(hero->id, hero->getArtPos(art, false)));
 	}
 
+	for(const ArtifactPosition & slot : info.reward.takenArtifactSlots)
+	{
+		const auto & slotContent = hero->getSlot(slot);
+
+		if (!slotContent->locked && slotContent->artifactID.hasValue())
+			cb->removeArtifact(ArtifactLocation(hero->id, slot));
+
+		// TODO: handle locked slots?
+	}
+
 	for(const SpellID & spell : info.reward.scrolls)
 		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
 
