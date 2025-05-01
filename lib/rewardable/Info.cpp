@@ -183,6 +183,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
 	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	reward.scrolls = randomizer.loadSpells(source["scrolls"], rng, variables);
 	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
@@ -300,6 +301,12 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			loot.replaceName(artifact);
 		}
 
+		for (const auto & scroll : info.reward.scrolls )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(scroll);
+		}
+
 		for (const auto & spell : info.reward.spells )
 		{
 			loot.appendRawString("%s");
@@ -318,6 +325,9 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 	{
 		for (const auto & artifact : info.reward.grantedArtifacts )
 			target.replaceName(artifact);
+
+		for (const auto & scroll : info.reward.scrolls )
+			target.replaceName(scroll);
 
 		for (const auto & spell : info.reward.spells )
 			target.replaceName(spell);

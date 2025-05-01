@@ -114,6 +114,9 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	for(const auto & entry : grantedArtifacts)
 		comps.emplace_back(ComponentType::ARTIFACT, entry);
 
+	for(const SpellID & spell : scrolls)
+		comps.emplace_back(ComponentType::SPELL, spell);
+
 	for(const auto & entry : spells)
 	{
 		bool learnable = !h || h->canLearnSpell(entry.toEntity(LIBRARY), true);
@@ -142,6 +145,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
 	handler.serializeInt("movePoints", movePoints);
 	handler.serializeIdArray("artifacts", grantedArtifacts);
+	handler.serializeIdArray("scrolls", scrolls);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);

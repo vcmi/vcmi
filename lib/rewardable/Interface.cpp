@@ -166,6 +166,9 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	for(const ArtifactID & art : info.reward.grantedArtifacts)
 		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
 
+	for(const SpellID & spell : info.reward.scrolls)
+		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
+
 	if(!info.reward.spells.empty())
 	{
 		std::set<SpellID> spellsToGive;

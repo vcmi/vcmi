@@ -1130,13 +1130,16 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	size_t gart = reader->readUInt8(); //number of gained artifacts
 	for(size_t oo = 0; oo < gart; ++oo)
 	{
-		reward.grantedArtifacts.push_back(reader->readArtifact());
+		ArtifactID grantedArtifact = reader->readArtifact();
+
 		if (features.levelHOTA5)
 		{
 			SpellID scrollSpell = reader->readSpell16();
-			if (reward.grantedArtifacts.back() == ArtifactID::SPELL_SCROLL)
-				logGlobal->warn("Map '%s': Pandora/Event at %s Option to give spell scroll (%s) via event or pandora is not implemented!", mapName, mapPosition.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
+			if (grantedArtifact == ArtifactID::SPELL_SCROLL)
+				reward.scrolls.push_back(scrollSpell);
 		}
+		else
+			reward.grantedArtifacts.push_back(grantedArtifact);
 	}
 
 	size_t gspel = reader->readUInt8(); //number of gained spells
@@ -2334,15 +2337,15 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::ARTIFACT:
 			{
-				reward.grantedArtifacts.push_back(reader->readArtifact());
+				ArtifactID grantedArtifact = reader->readArtifact();
 				if (features.levelHOTA5)
 				{
 					SpellID scrollSpell = reader->readSpell16();
-					if (reward.grantedArtifacts.back() == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Option to give spell scroll (%s) as a reward is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
-
+					if (grantedArtifact == ArtifactID::SPELL_SCROLL)
+						reward.scrolls.push_back(scrollSpell);
 				}
-
+				else
+					reward.grantedArtifacts.push_back(grantedArtifact);
 				break;
 			}
 			case ESeerHutRewardType::SPELL:
