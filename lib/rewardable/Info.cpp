@@ -183,6 +183,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 
 	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	reward.takenArtifacts = randomizer.loadArtifacts(source["takenArtifacts"], rng, variables);
 	reward.scrolls = randomizer.loadSpells(source["scrolls"], rng, variables);
 	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);

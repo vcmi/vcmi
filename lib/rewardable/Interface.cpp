@@ -166,6 +166,24 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	for(const ArtifactID & art : info.reward.grantedArtifacts)
 		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
 
+	for(const ArtifactID & art : info.reward.takenArtifacts)
+	{
+		// hero does not have such artifact alone, but he might have it as part of assembled artifact
+		if(!hero->hasArt(art))
+		{
+			const auto * assembly = hero->getCombinedArtWithPart(art);
+			if (assembly)
+			{
+				DisassembledArtifact da;
+				da.al = ArtifactLocation(hero->id, hero->getArtPos(assembly));
+				cb->sendAndApply(da);
+			}
+		}
+
+		if(hero->hasArt(art))
+			cb->removeArtifact(ArtifactLocation(hero->id, hero->getArtPos(art, false)));
+	}
+
 	for(const SpellID & spell : info.reward.scrolls)
 		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
 
