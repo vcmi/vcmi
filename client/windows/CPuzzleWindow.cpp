@@ -43,6 +43,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
 	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
+	mapView->needFullUpdate = true;
 
 	logo = std::make_shared<CPicture>(ImagePath::builtin("PUZZLOGO"), 607, 3);
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[463]);
@@ -93,4 +94,7 @@ void CPuzzleWindow::show(Canvas & to)
 		currentAlpha -= animSpeed;
 	}
 	CWindowObject::show(to);
+
+	if(mapView->needFullUpdate && piecesToRemove.empty())
+		mapView->needFullUpdate = false;
 }
