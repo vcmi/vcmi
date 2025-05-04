@@ -683,23 +683,7 @@ void MapController::modAssessmentObject(const CGObjectInstance * obj, ModCompati
 
 		for(const auto & spellID : town->obligatorySpells)
 		{
-			auto hero = dynamic_cast<CGHeroInstance *>(obj.get());
-			for(const auto & spellID : hero->getSpellsInSpellbook())
-			{
-				if(spellID == SpellID::PRESET || spellID == SpellID::SPELLBOOK_PRESET)
-					continue;
-				extractEntityMod(spellID.toEntity(LIBRARY));
-			}
-
-			for(const auto & [_, slotInfo] : hero->artifactsWorn)
-			{
-				extractEntityMod(slotInfo.getArt()->getTypeId().toEntity(LIBRARY));
-			}
-
-			for(const auto & art : hero->artifactsInBackpack)
-			{
-				extractEntityMod(art.getArt()->getTypeId().toEntity(LIBRARY));
-			}
+			extractEntityMod(spellID.toEntity(LIBRARY));
 		}
 	}
 
@@ -715,12 +699,12 @@ void MapController::modAssessmentObject(const CGObjectInstance * obj, ModCompati
 
 		for(const auto & [_, slotInfo] : hero->artifactsWorn)
 		{
-			extractEntityMod(slotInfo.artifact->getTypeId().toEntity(LIBRARY));
+			extractEntityMod(slotInfo.getArt()->getTypeId().toEntity(LIBRARY));
 		}
 
 		for(const auto & art : hero->artifactsInBackpack)
 		{
-			extractEntityMod(art.artifact->getTypeId().toEntity(LIBRARY));
+			extractEntityMod(art.getArt()->getTypeId().toEntity(LIBRARY));
 		}
 	}
 
