@@ -280,10 +280,12 @@ public:
 	void saveCompatibilityStoreAllocatedArtifactID();
 
 private:
+	void parseUidCounter();
+
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
 
-	si32 uidCounter; //TODO: initialize when loading an old map
+	si32 uidCounter; 
 
 public:
 	template <typename Handler>
@@ -346,6 +348,8 @@ public:
 
 		h & instanceNames;
 		h & *gameSettings;
+		if (!h.saving)
+			parseUidCounter();
 	}
 };
 
