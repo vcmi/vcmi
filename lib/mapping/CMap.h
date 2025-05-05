@@ -278,9 +278,9 @@ public:
 	const IGameSettings & getSettings() const;
 
 	void saveCompatibilityStoreAllocatedArtifactID();
+	void parseUidCounter();
 
 private:
-	void parseUidCounter();
 
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
