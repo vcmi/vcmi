@@ -664,7 +664,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			area->component.value = commander->getExpRank();
 			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
 			boost::replace_first(area->text, "%d", std::to_string(LIBRARY->heroh->reqExp(commander->getExpRank() + 1)));
-			boost::replace_first(area->text, "%d", std::to_string(commander->experience));
+			boost::replace_first(area->text, "%d", std::to_string(commander->getAverageExperience()));
 		}
 		else
 		{
@@ -674,7 +674,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		expLabel = std::make_shared<CLabel>(
 				pos.x + 21, pos.y + 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-				TextOperations::formatMetric(stack->experience, 6));
+				TextOperations::formatMetric(stack->getAverageExperience(), 6));
 	}
 
 	if(showArt)
@@ -764,7 +764,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 {
 	info->stackNode = stack;
 	info->creature = stack->getCreature();
-	info->creatureCount = stack->count;
+	info->creatureCount = stack->getCount();
 	info->popupWindow = popup;
 	info->owner = dynamic_cast<const CGHeroInstance *> (stack->getArmy());
 	init();
@@ -776,7 +776,7 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 {
 	info->stackNode = stack;
 	info->creature = stack->getCreature();
-	info->creatureCount = stack->count;
+	info->creatureCount = stack->getCount();
 
 	if(upgradeInfo.canUpgrade())
 	{
@@ -968,8 +968,8 @@ std::string CStackWindow::generateStackExpDescription()
 	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", LIBRARY->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", std::to_string(rank));
-	boost::replace_first(expText, "%i", std::to_string(stack->experience));
-	number = static_cast<int>(LIBRARY->creh->expRanks[tier][rank] - stack->experience);
+	boost::replace_first(expText, "%i", std::to_string(stack->getAverageExperience()));
+	number = static_cast<int>(LIBRARY->creh->expRanks[tier][rank] - stack->getAverageExperience());
 	boost::replace_first(expText, "%i", std::to_string(number));
 
 	number = LIBRARY->creh->maxExpPerBattle[tier]; //percent
@@ -977,10 +977,10 @@ std::string CStackWindow::generateStackExpDescription()
 	number *= LIBRARY->creh->expRanks[tier].back() / 100; //actual amount
 	boost::replace_first(expText, "%i", std::to_string(number));
 
-	boost::replace_first(expText, "%i", std::to_string(stack->count)); //Number of Creatures in stack
+	boost::replace_first(expText, "%i", std::to_string(stack->getCount())); //Number of Creatures in stack
 
 	int expmin = std::max(LIBRARY->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
-	number = static_cast<int>((stack->count * (stack->experience - expmin)) / expmin); //Maximum New Recruits without losing current Rank
+	number = stack->getTotalExperience() / expmin - stack->getCount(); //Maximum New Recruits without losing current Rank
 	boost::replace_first(expText, "%i", std::to_string(number)); //TODO
 
 	boost::replace_first(expText, "%.2f", std::to_string(1)); //TODO Experience Multiplier
@@ -991,7 +991,7 @@ std::string CStackWindow::generateStackExpDescription()
 	int expmax = LIBRARY->creh->expRanks[tier][10];
 	number = expmax - expmin;
 	boost::replace_first(expText, "%i", std::to_string(number)); //Experience after Rank 10
-	number = (stack->count * (expmax - expmin)) / expmin;
+	number = (stack->getCount() * (expmax - expmin)) / expmin;
 	boost::replace_first(expText, "%i", std::to_string(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
 
 	return expText;

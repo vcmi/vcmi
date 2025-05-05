@@ -487,7 +487,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		resultsApplied.raisedStack = winnerHero->calculateNecromancy(result);
 		const SlotID necroSlot = resultsApplied.raisedStack.getCreature() ? winnerHero->getSlotFor(resultsApplied.raisedStack.getCreature()) : SlotID();
 		if(necroSlot != SlotID() && !finishingBattle->isDraw())
-			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.count);
+			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.getCount());
 	}
 
 	resultsApplied.battleID = battleID;

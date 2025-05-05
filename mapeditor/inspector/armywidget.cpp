@@ -155,8 +155,8 @@ void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex
 	QStringList textList;
 	for(const auto & [_, stack] : army.stacks)
 	{
-		if(stack->count != 0 && stack->getCreature() != nullptr)
-			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
+		if(stack->getCount() != 0 && stack->getCreature() != nullptr)
+			textList += QString("%1 %2").arg(stack->getCount()).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
 	}
 
 	setModelTextData(model, index, textList);

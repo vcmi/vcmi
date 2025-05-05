@@ -43,12 +43,12 @@ int ArmyDescriptor::getStrength() const
 	if(isDetailed)
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.getType()->getAIValue() * elem.second.count;
+			ret += elem.second.getType()->getAIValue() * elem.second.getCount();
 	}
 	else
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.getType()->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
+			ret += elem.second.getType()->getAIValue() * CCreature::estimateCreatureCount(elem.second.getCount());
 	}
 	return static_cast<int>(ret);
 }

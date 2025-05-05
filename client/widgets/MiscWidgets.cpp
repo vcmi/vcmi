@@ -286,20 +286,20 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = TextOperations::formatMetric(slot.second.count, 4);
+			subtitle = TextOperations::formatMetric(slot.second.getCount(), 4);
 		}
 		else
 		{
 			//if =0 - we have no information about stack size at all
-			if(slot.second.count)
+			if(slot.second.getCount())
 			{
 				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 				{
-					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.getCount())];
 				}
 			}
 		}

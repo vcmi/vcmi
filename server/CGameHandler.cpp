@@ -1151,7 +1151,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	//first we move creatures to give to make them army of object-source
 	for (auto & elem : creatures.Slots())
 	{
-		addToSlot(StackLocation(obj->id, obj->getSlotFor(elem.second->getCreature())), elem.second->getCreature(), elem.second->count);
+		addToSlot(StackLocation(obj->id, obj->getSlotFor(elem.second->getCreature())), elem.second->getCreature(), elem.second->getCount());
 	}
 
 	tryJoiningArmy(obj, h, remove, true);
@@ -1167,14 +1167,14 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 	for (CStackBasicDescriptor &sbd : cres)
 	{
 		TQuantity collected = 0;
-		while(collected < sbd.count)
+		while(collected < sbd.getCount())
 		{
 			bool foundSth = false;
 			for (auto i = obj->Slots().begin(); i != obj->Slots().end(); i++)
 			{
 				if (i->second->getType() == sbd.getType())
 				{
-					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
+					TQuantity take = std::min(sbd.getCount() - collected, i->second->getCount()); //collect as much cres as we can
 					changeStackCount(StackLocation(obj->id, i->first), -take, false);
 					collected += take;
 					foundSth = true;
@@ -1789,7 +1789,7 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 	return true;
 }
 
-bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner)
+bool CGameHandler::bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner)
 {
 	if(!slotSrc.validSlot() && complain(complainInvalidSlot))
 		return false;
@@ -1811,8 +1811,8 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 	if(freeSlot == SlotID() && creatureSet.isCreatureBalanced(currentCreature))
 		return true;
 
-	auto creatureSlots = creatureSet.getCreatureSlots(currentCreature, SlotID(-1), 1); // Ignore slots where's only 1 creature, don't ignore slotSrc
-	TQuantity totalCreatures = 0;
+	auto creatureSlots = creatureSet.getCreatureSlots(currentCreature, slotSrc, 1); // Ignore slots where's only 1 creature
+	TQuantity totalCreatures = creatureSet.getStackCount(slotSrc);
 
 	for(auto slot : creatureSlots)
 		totalCreatures += creatureSet.getStackCount(slot);
@@ -1820,53 +1820,60 @@ bool CGameHandler::bulkSmartSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner
 	if(totalCreatures <= 1 && complain("Total creatures number is invalid"))
 		return false;
 
-	if(freeSlot != SlotID())
-		creatureSlots.push_back(freeSlot);
+	BulkRebalanceStacks bulkSRS;
 
-	if(creatureSlots.empty() && complain("No available slots for smart rebalancing"))
-		return false;
+	// 1) merge all but one creatures back into source slot
+	// single creature needs to be kept, to avoid stack artifact dropping to hero backpack
+	for(auto slot : creatureSlots)
+	{
+		RebalanceStacks rs;
+		rs.srcArmy = army->id;
+		rs.dstArmy = army->id;
+		rs.srcSlot = slot;
+		rs.dstSlot = slotSrc;
+		rs.count = creatureSet.getStackCount(slot) - 1;
 
-	const auto totalCreatureSlots = creatureSlots.size();
-	const auto rem = totalCreatures % totalCreatureSlots;
-	const auto quotient = totalCreatures / totalCreatureSlots;
+		if (rs.count > 0)
+			bulkSRS.moves.push_back(rs);
+	}
 
-	// totalCreatures == rem * (quotient + 1) + (totalCreatureSlots - rem) * quotient;
-	// Proof: r(q+1)+(s-r)q = rq+r+qs-rq = r+qs = total, where total/s = q+r/s
-
-	BulkSmartRebalanceStacks bulkSRS;
-
+	// 2) split off single creature into new slot, if any
+	// strictly speaking, not needed, but more convenient
 	if(freeSlot != SlotID())
 	{
 		RebalanceStacks rs;
-		rs.srcArmy = rs.dstArmy = army->id;
+		rs.srcArmy = army->id;
+		rs.dstArmy = army->id;
 		rs.srcSlot = slotSrc;
 		rs.dstSlot = freeSlot;
 		rs.count = 1;
 		bulkSRS.moves.push_back(rs);
-	}
-	auto currSlot = 0;
-	auto check = 0;
 
+		creatureSlots.push_back(freeSlot);
+	}
+
+	if(creatureSlots.empty() && complain("No available slots for smart rebalancing"))
+		return false;
+
+	int slotsLeft = creatureSlots.size() + 1; // + srcSlot
+	TQuantity unitsToMove = totalCreatures - slotsLeft;
+
+	// 3) re-split creatures in a balanced way
 	for(auto slot : creatureSlots)
 	{
-		ChangeStackCount csc;
+		RebalanceStacks rs;
 
-		csc.army = army->id;
-		csc.slot = slot;
-		csc.count = (currSlot < rem)
-			? quotient + 1
-			: quotient;
-		csc.absoluteValue = true;
-		bulkSRS.changes.push_back(csc);
-		currSlot++;
-		check += csc.count;
+		rs.srcArmy = army->id;
+		rs.dstArmy = army->id;
+		rs.srcSlot = slotSrc;
+		rs.dstSlot = slot;
+		rs.count = vstd::divideAndCeil(unitsToMove, slotsLeft);
+		bulkSRS.moves.push_back(rs);
+
+		unitsToMove -= rs.count;
+		slotsLeft -= 1;
 	}
 
-	if(check != totalCreatures)
-	{
-		complain((boost::format("Failure: totalCreatures=%d but check=%d") % totalCreatures % check).str());
-		return false;
-	}
 	sendAndApply(bulkSRS);
 	return true;
 }
@@ -2435,7 +2442,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 	fillUpgradeInfo(obj, pos, upgradeInfo);
 	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayerState(player);
-	int crQuantity = obj->stacks.at(pos)->count;
+	int crQuantity = obj->stacks.at(pos)->getCount();
 
 	//check if upgrade is possible
 	if (!upgradeInfo.hasUpgrades() && complain("That upgrade is not possible!"))
@@ -3167,8 +3174,8 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 
 	const CStackInstance &s = hero->getStack(slot);
 
-	if (s.count < (TQuantity)count //can't sell more creatures than have
-		|| (hero->stacksCount() == 1 && hero->needsLastStack() && s.count == count)) //can't sell last stack
+	if (s.getCount() < static_cast<TQuantity>(count) //can't sell more creatures than have
+		|| (hero->stacksCount() == 1 && hero->needsLastStack() && s.getCount() == count)) //can't sell last stack
 	{
 		COMPLAIN_RET("Not enough creatures in army!");
 	}

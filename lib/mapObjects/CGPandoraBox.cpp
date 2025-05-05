@@ -138,7 +138,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 			loot.replaceName(c);
 		}
 		
-		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)
+		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].getCount() == 1)
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
 		else
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);

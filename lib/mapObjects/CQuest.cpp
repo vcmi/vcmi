@@ -112,15 +112,15 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 		{
 			if(it->second->getType() == cre->getType())
 			{
-				count += it->second->count;
+				count += it->second->getCount();
 				slotsCount++;
 			}
 		}
 
-		if(static_cast<TQuantity>(count) < cre->count) //not enough creatures of this kind
+		if(static_cast<TQuantity>(count) < cre->getCount()) //not enough creatures of this kind
 			return false;
 
-		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->count;
+		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->getCount();
 	}
 
 	return hasExtraCreatures || slotsCount < army->Slots().size();

@@ -609,7 +609,7 @@ void CGWhirlpool::teleportDialogAnswered(const CGHeroInstance *hero, ui32 answer
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)
 {
 	return h->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION)
-		|| (h->stacksCount() == 1 && h->Slots().begin()->second->count == 1)
+		|| (h->stacksCount() == 1 && h->Slots().begin()->second->getCount() == 1)
 		|| (h->stacksCount() == 0 && h->getCommander() && h->getCommander()->alive);
 }
 
@@ -1040,11 +1040,11 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		for (auto i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
 			// 1-sized stacks are not affected by sirens
-			if (i->second->count == 1)
+			if (i->second->getCount() == 1)
 				continue;
 
 			// tested H3 behavior: 30% (rounded up) of stack drowns
-			TQuantity drown = std::ceil(i->second->count * 0.3);
+			TQuantity drown = std::ceil(i->second->getCount() * 0.3);
 
 			if(drown)
 			{
