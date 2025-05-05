@@ -1163,7 +1163,7 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 	if (remainerForTaking.empty())
 		return;
 
-	const CArmedInstance* army = static_cast<const CArmedInstance*>(getObj(objid));
+	const auto * army = dynamic_cast<const CArmedInstance*>(getObj(objid));
 
 	for (const CStackBasicDescriptor &stackToTake : remainerForTaking)
 	{
@@ -2844,7 +2844,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-				return inf.getArt()->getType()->aClass;
+									return static_cast<int32_t>(inf.getArt()->getType()->aClass);
 			});
 	}
 	else
@@ -4058,7 +4058,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 		tile = tiles.begin();
 		logGlobal->trace("\tSpawning monster at %s", tile->toString());
 		{
-			auto count = cre->getRandomAmount(std::rand);
+			auto count = cre->getRandomAmount(getRandomGenerator());
 
 			createWanderingMonster(*tile, creatureID);
 			auto monsterId = getTopObj(*tile)->id;
@@ -4115,7 +4115,7 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 	}
 
 	//If we haven't returned so far, there is no query and no visit, call was wrong
-	assert("This function needs to be called during the object visit!");
+	throw std::runtime_error("This function needs to be called during the object visit!");
 }
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)

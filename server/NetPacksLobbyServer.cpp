@@ -382,7 +382,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
 			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
-			txt.appendRawString(" - " + std::to_string(std::rand()%2));
+			txt.appendRawString(" - " + std::to_string(srv.gh->getRandomGenerator().nextInt(1)));
 			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:

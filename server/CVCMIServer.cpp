@@ -606,7 +606,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 	}
 
 	LobbyUpdateState lus;
-	lus.state = *this;
+	lus.state = *static_cast<LobbyState*>(this);
 	announcePack(lus);
 }
 

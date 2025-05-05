@@ -77,10 +77,10 @@ class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode, pu
 	uint32_t price;
 	CreatureID warMachine;
 	// Bearer Type => ids of slots where artifact can be placed
-	std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
+	std::map<ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
 
 public:
-	EArtifactClass::Type aClass = EArtifactClass::ART_SPECIAL;
+	EArtifactClass aClass = EArtifactClass::ART_SPECIAL;
 	bool onlyOnWaterMap;
 
 	int32_t getIndex() const override;
@@ -107,12 +107,12 @@ public:
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
 	void addNewBonus(const std::shared_ptr<Bonus> & b) override;
-	const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
+	const std::map<ArtBearer, std::vector<ArtifactPosition>> & getPossibleSlots() const;
 
 	virtual bool canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot = ArtifactPosition::FIRST_AVAILABLE, bool assumeDestRemoved = false) const;
 	void updateFrom(const JsonNode & data);
 	// Is used for testing purposes only
-	void setImage(int32_t iconIndex, std::string image, std::string large);
+	void setImage(int32_t iconIndex, const std::string & image, const std::string & large);
 
 	CArtifact();
 	~CArtifact();
