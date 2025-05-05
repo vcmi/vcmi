@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CArtifactFittingSet::CArtifactFittingSet(IGameCallback *cb, ArtBearer::ArtBearer bearer)
+CArtifactFittingSet::CArtifactFittingSet(IGameCallback *cb, ArtBearer bearer)
 	: CArtifactSet(cb)
 	, GameCallbackHolder(cb)
 	, bearer(bearer)
@@ -28,7 +28,7 @@ CArtifactFittingSet::CArtifactFittingSet(const CArtifactSet & artSet)
 	artifactsTransitionPos = artSet.artifactsTransitionPos;
 }
 
-ArtBearer::ArtBearer CArtifactFittingSet::bearerType() const
+ArtBearer CArtifactFittingSet::bearerType() const
 {
 	return this->bearer;
 }

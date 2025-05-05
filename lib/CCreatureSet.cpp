@@ -967,7 +967,7 @@ ui64 CStackInstance::getMarketValue() const
 	return getType()->getFullRecruitCost().marketValue() * getCount();
 }
 
-ArtBearer::ArtBearer CStackInstance::bearerType() const
+ArtBearer CStackInstance::bearerType() const
 {
 	return ArtBearer::CREATURE;
 }
@@ -1086,7 +1086,7 @@ void CCommanderInstance::levelUp ()
 	}
 }
 
-ArtBearer::ArtBearer CCommanderInstance::bearerType() const
+ArtBearer CCommanderInstance::bearerType() const
 {
 	return ArtBearer::COMMANDER;
 }

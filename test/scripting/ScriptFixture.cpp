@@ -40,11 +40,11 @@ void ScriptFixture::loadScript(const JsonNode & scriptConfig)
 	EXPECT_CALL(*pool, getContext(Eq(subject.get()))).WillRepeatedly(Return(context));
 }
 
-void ScriptFixture::loadScript(ModulePtr module, const std::string & scriptSource)
+void ScriptFixture::loadScript(ModulePtr modulePtr, const std::string & scriptSource)
 {
 	subject = std::make_shared<ScriptImpl>(LIBRARY->scriptHandler.get());
 
-	subject->host = module;
+	subject->host = modulePtr;
 	subject->sourceText = scriptSource;
 	subject->identifier = "test";
 	subject->compile(&loggerMock);
@@ -54,11 +54,11 @@ void ScriptFixture::loadScript(ModulePtr module, const std::string & scriptSourc
 	EXPECT_CALL(*pool, getContext(Eq(subject.get()))).WillRepeatedly(Return(context));
 }
 
-void ScriptFixture::loadScript(ModulePtr module, const std::vector<std::string> & scriptSource)
+void ScriptFixture::loadScript(ModulePtr modulePtr, const std::vector<std::string> & scriptSource)
 {
 	std::string source = boost::algorithm::join(scriptSource, "\n");
 
-	loadScript(module, source);
+	loadScript(modulePtr, source);
 }
 
 void ScriptFixture::setUp()
@@ -83,9 +83,9 @@ JsonNode ScriptFixture::runServer(const JsonNode & scriptState)
 	return context->saveState();
 }
 
-JsonNode ScriptFixture::runScript(ModulePtr module, const std::string & scriptSource, const JsonNode & scriptState)
+JsonNode ScriptFixture::runScript(ModulePtr modulePtr, const std::string & scriptSource, const JsonNode & scriptState)
 {
-	loadScript(module, scriptSource);
+	loadScript(modulePtr, scriptSource);
 	return runClientServer(scriptState);
 }
 

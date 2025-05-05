@@ -287,7 +287,7 @@ public:
 	PlayerColor getOwner() const override;
 
 	///ArtBearer
-	ArtBearer::ArtBearer bearerType() const override;
+	ArtBearer bearerType() const override;
 
 	///IBonusBearer
 	CBonusSystemNode & whereShouldBeAttached(CGameState & gs) override;
