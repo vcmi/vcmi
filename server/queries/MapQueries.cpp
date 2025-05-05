@@ -73,7 +73,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto stacks = dynamic_cast<const BulkMergeStacks*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_cast<const BulkSmartSplitStack*>(pack))
+	if(auto stacks = dynamic_cast<const BulkSplitAndRebalanceStack*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
 	if(auto stacks = dynamic_cast<const BulkMoveArmy*>(pack))

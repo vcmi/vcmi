@@ -468,7 +468,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	{
 		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
 		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
-		commander->giveStackExp (exp); //after our exp is set
+		commander->giveTotalStackExperience(exp); //after our exp is set
 	}
 
 	skillsInfo = SecondarySkillsInfo();
@@ -1608,6 +1608,11 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 
 	//update specialty and other bonuses that scale with level
 	nodeHasChanged();
+}
+
+void CGHeroInstance::attachCommanderToArmy()
+{
+	commander->setArmy(this);
 }
 
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)

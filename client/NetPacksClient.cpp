@@ -263,19 +263,6 @@ void ApplyClientNetPackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & p
 	}
 }
 
-void ApplyClientNetPackVisitor::visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack)
-{
-	if(!pack.moves.empty())
-	{
-		assert(pack.moves[0].srcArmy == pack.moves[0].dstArmy);
-		dispatchGarrisonChange(cl, pack.moves[0].srcArmy, ObjectInstanceID());
-	}
-	else if(!pack.changes.empty())
-	{
-		dispatchGarrisonChange(cl, pack.changes[0].army, ObjectInstanceID());
-	}
-}
-
 void ApplyClientNetPackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	callInterfaceIfPresent(cl, cl.getOwner(pack.al.artHolder), &IGameEventsReceiver::artifactPut, pack.al);
@@ -880,7 +867,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 	if(pack.raisedStack.getCreature())
 		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::AUTO,
 			UIHelper::getNecromancyInfoWindowText(pack.raisedStack), std::vector<Component>{Component(ComponentType::CREATURE, pack.raisedStack.getId(),
-			pack.raisedStack.count)}, UIHelper::getNecromancyInfoWindowSound());
+			pack.raisedStack.getCount())}, UIHelper::getNecromancyInfoWindowSound());
 
 	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleResultsApplied);

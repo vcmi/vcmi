@@ -1304,7 +1304,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
 						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
-							total += elem.second->count;
+							total += elem.second->getCount();
 				}
 			}
 			return total >= condition.value;
@@ -1766,13 +1766,13 @@ void CGameState::loadGame(CLoadFile & file)
 	logGlobal->info("Loading game state...");
 
 	CMapHeader dummyHeader;
-	auto startInfo = std::make_shared<StartInfo>();
+	StartInfo dummyStartInfo;
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
 	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
 	{
-		file.load(startInfo);
+		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(*this);
 	}
@@ -1781,7 +1781,7 @@ void CGameState::loadGame(CLoadFile & file)
 		bool dummyA = false;
 		uint32_t dummyB = 0;
 		uint16_t dummyC = 0;
-		file.load(startInfo);
+		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(dummyA);
 		file.load(dummyB);

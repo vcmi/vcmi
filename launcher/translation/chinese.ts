@@ -481,12 +481,12 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>配置编辑器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translation>打开编辑器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
@@ -588,7 +588,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略静音开关</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
@@ -876,37 +876,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>文件：</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">关闭</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>配置编辑器</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>未保存的改动</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否放弃更改？</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="122"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON文件格式错误！</translation>
     </message>
 </context>
 <context>
@@ -1168,7 +1168,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件失败：%1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
@@ -1318,18 +1318,19 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translation>
+白俄罗斯语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translation>保加利亚语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>Czech</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">捷克语</translation>
+        <translation>捷克语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
@@ -1340,111 +1341,100 @@ Bin (%n字节):
         <location filename="../languages.cpp" line="27"/>
         <source>English</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">英语</translation>
+        <translation>英语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Finnish</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">芬兰语</translation>
+        <translation>芬兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>French</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">法语</translation>
+        <translation>法语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>German</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">德语</translation>
+        <translation>德语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>希腊语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Hungarian</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">匈牙利语</translation>
+        <translation>匈牙利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Italian</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">意大利语</translation>
+        <translation>意大利语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>日本语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Korean</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">韩语</translation>
+        <translation>朝鲜语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>挪威语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Polish</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">波兰语</translation>
+        <translation>波兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Portuguese</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">葡萄牙语</translation>
+        <translation>葡萄牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>罗马尼亚语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Russian</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">俄语</translation>
+        <translation>俄语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Spanish</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">西班牙语</translation>
+        <translation>西班牙语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Swedish</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">瑞典语</translation>
+        <translation>瑞典语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="43"/>
         <source>Turkish</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">土耳其语</translation>
+        <translation>土耳其语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Ukrainian</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">乌克兰语</translation>
+        <translation>乌克兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
         <source>Vietnamese</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">越南语</translation>
+        <translation>越南语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="67"/>
@@ -1685,7 +1675,7 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">战役</translation>
+        <translation>战役</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1979,13 +1969,13 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translation>预设导入失败</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translation>导入预设失败——剪切板中的数据并非模组预设数据！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>

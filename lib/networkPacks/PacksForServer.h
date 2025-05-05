@@ -214,14 +214,14 @@ struct DLL_LINKAGE BulkMergeStacks : public CPackForServer
 	}
 };
 
-struct DLL_LINKAGE BulkSmartSplitStack : public CPackForServer
+struct DLL_LINKAGE BulkSplitAndRebalanceStack : public CPackForServer
 {
 	SlotID src;
 	ObjectInstanceID srcOwner;
 
-	BulkSmartSplitStack() = default;
+	BulkSplitAndRebalanceStack() = default;
 
-	BulkSmartSplitStack(const ObjectInstanceID & srcOwner, const SlotID & src)
+	BulkSplitAndRebalanceStack(const ObjectInstanceID & srcOwner, const SlotID & src)
 		: src(src)
 		, srcOwner(srcOwner)
 	{

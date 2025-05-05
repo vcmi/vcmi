@@ -131,9 +131,9 @@ int CCallback::bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMa
 	return 0;
 }
 
-int CCallback::bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot)
+int CCallback::bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot)
 {
-	BulkSmartSplitStack pack(armyId, srcSlot);
+	BulkSplitAndRebalanceStack pack(armyId, srcSlot);
 	sendRequest(pack);
 	return 0;
 }

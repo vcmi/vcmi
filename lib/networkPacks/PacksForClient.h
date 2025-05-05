@@ -968,22 +968,6 @@ struct DLL_LINKAGE BulkRebalanceStacks : CGarrisonOperationPack
 	}
 };
 
-struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
-{
-	std::vector<RebalanceStacks> moves;
-	std::vector<ChangeStackCount> changes;
-
-	void applyGs(CGameState * gs) override;
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & moves;
-		h & changes;
-	}
-};
-
 struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 {
 };

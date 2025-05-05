@@ -41,7 +41,7 @@ public:
 	void visitBulkMoveArmy(BulkMoveArmy & pack) override;
 	void visitBulkSplitStack(BulkSplitStack & pack) override;
 	void visitBulkMergeStacks(BulkMergeStacks & pack) override;
-	void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) override;
+	void visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack) override;
 	void visitDisbandCreature(DisbandCreature & pack) override;
 	void visitBuildStructure(BuildStructure & pack) override;
 	void visitSpellResearch(SpellResearch & pack) override;

@@ -36,7 +36,10 @@ enum class ESerializationVersion : int32_t
 
 	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
 	NO_RAW_POINTERS_IN_SERIALIZER, // large rework that removed all non-owning pointers from serializer
-	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
+	STACK_INSTANCE_EXPERIENCE_FIX, // stack experience is stored as total, not as average
+	STACK_INSTANCE_ARMY_FIX, // remove serialization of army that owns stack instance
+  STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
+
 	
 	CURRENT = STORE_UID_COUNTER_IN_CMAP,
 };

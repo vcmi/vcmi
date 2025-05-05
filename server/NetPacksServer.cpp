@@ -124,12 +124,12 @@ void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
-void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSmartSplitStack & pack)
+void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	result = gh.bulkSmartSplitStack(pack.src, pack.srcOwner);
+	result = gh.bulkSplitAndRebalanceStack(pack.src, pack.srcOwner);
 }
 
 void ApplyGhNetPackVisitor::visitDisbandCreature(DisbandCreature & pack)

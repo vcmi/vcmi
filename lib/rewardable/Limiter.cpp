@@ -85,9 +85,9 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		{
 			const auto & heroStack = slot.second;
 			if (heroStack->getType() == reqStack.getType())
-				count += heroStack->count;
+				count += heroStack->getCount();
 		}
-		if (count < reqStack.count) //not enough creatures of this kind
+		if (count < reqStack.getCount()) //not enough creatures of this kind
 			return false;
 	}
 
@@ -233,7 +233,7 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.count);
+		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.getCount());
 	
 	for(const auto & entry : players)
 		comps.emplace_back(ComponentType::FLAG, entry);

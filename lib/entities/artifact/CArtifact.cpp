@@ -207,6 +207,8 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 				auto possibleSlot = ArtifactUtils::getArtAnyPosition(&fittingSet, art->getId());
 				if(ArtifactUtils::isSlotEquipment(possibleSlot))
 				{
+					if (fittingSet.getSlot(possibleSlot) == nullptr)
+						fittingSet.artifactsWorn.insert(std::make_pair(possibleSlot, ArtSlotInfo(fittingSet.cb)));
 					fittingSet.lockSlot(possibleSlot);
 				}
 				else

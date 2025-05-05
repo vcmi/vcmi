@@ -125,7 +125,7 @@ std::vector<SlotID> CCreatureSet::getCreatureSlots(const CCreature * c, const Sl
 		if(!elem.second || !elem.second->getType() || elem.second->getType() != c)
 			continue;
 
-		if(elem.second->count == ignoreAmount || elem.second->count < 1)
+		if(elem.second->getCount() == ignoreAmount || elem.second->getCount() < 1)
 			continue;
 
 		result.push_back(elem.first);
@@ -144,7 +144,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 		if(!elem.second || !elem.second->getType() || elem.second->getType() != c)
 			continue;
 
-		const auto count = elem.second->count;
+		const auto count = elem.second->getCount();
 
 		if(count == ignoreAmount || count < 1)
 			continue;
@@ -236,20 +236,19 @@ TCreatureQueue CCreatureSet::getCreatureQueue(const SlotID & exclude) const
 
 TQuantity CCreatureSet::getStackCount(const SlotID & slot) const
 {
-	auto i = stacks.find(slot);
-	if (i != stacks.end())
-		return i->second->count;
-	else
-		return 0; //TODO? consider issuing a warning
+	if (!hasStackAtSlot(slot))
+		return 0;
+	return stacks.at(slot)->getCount();
 }
 
-TExpType CCreatureSet::getStackExperience(const SlotID & slot) const
+TExpType CCreatureSet::getStackTotalExperience(const SlotID & slot) const
 {
-	auto i = stacks.find(slot);
-	if (i != stacks.end())
-		return i->second->experience;
-	else
-		return 0; //TODO? consider issuing a warning
+	return stacks.at(slot)->getTotalExperience();
+}
+
+TExpType CCreatureSet::getStackAverageExperience(const SlotID & slot) const
+{
+	return stacks.at(slot)->getAverageExperience();
 }
 
 bool CCreatureSet::mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable) const /*looks for two same stacks, returns slot positions */
@@ -282,19 +281,6 @@ bool CCreatureSet::mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID
 		}
 	}
 	return false;
-}
-
-void CCreatureSet::sweep()
-{
-	for(auto i=stacks.begin(); i!=stacks.end(); ++i)
-	{
-		if(!i->second->count)
-		{
-			stacks.erase(i);
-			sweep();
-			break;
-		}
-	}
 }
 
 void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
@@ -437,23 +423,24 @@ void CCreatureSet::setFormation(EArmyFormation mode)
 
 void CCreatureSet::setStackCount(const SlotID & slot, TQuantity count)
 {
-	assert(hasStackAtSlot(slot));
-	assert(stacks[slot]->count + count > 0);
-	if (count > stacks[slot]->count)
-		stacks[slot]->experience = static_cast<TExpType>(stacks[slot]->experience * (count / static_cast<double>(stacks[slot]->count)));
-	stacks[slot]->count = count;
+	stacks.at(slot)->setCount(count);
 	armyChanged();
 }
 
-void CCreatureSet::giveStackExp(TExpType exp)
+void CCreatureSet::giveAverageStackExperience(TExpType exp)
 {
-	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
-		i->second->giveStackExp(exp);
+	for(const auto & stack : stacks)
+	{
+		stack.second->giveAverageStackExperience(exp);
+		stack.second->nodeHasChanged();
+	}
 }
-void CCreatureSet::setStackExp(const SlotID & slot, TExpType exp)
+
+void CCreatureSet::giveTotalStackExperience(const SlotID & slot, TExpType exp)
 {
 	assert(hasStackAtSlot(slot));
-	stacks[slot]->experience = exp;
+	stacks[slot]->giveTotalStackExperience(exp);
+	stacks[slot]->nodeHasChanged();
 }
 
 void CCreatureSet::clearSlots()
@@ -528,7 +515,23 @@ void CCreatureSet::joinStack(const SlotID & slot, std::unique_ptr<CStackInstance
 	assert(c);
 
 	//TODO move stuff
-	changeStackCount(slot, stack->count);
+	changeStackCount(slot, stack->getCount());
+	giveTotalStackExperience(slot, stack->getTotalExperience());
+}
+
+std::unique_ptr<CStackInstance> CCreatureSet::splitStack(const SlotID & slot, TQuantity toSplit)
+{
+	auto & currentStack = stacks.at(slot);
+	assert(currentStack->getCount() > toSplit);
+
+	TExpType experienceBefore = currentStack->getTotalExperience();
+	currentStack->setCount(currentStack->getCount() - toSplit);
+	TExpType experienceAfter = currentStack->getTotalExperience();
+
+	auto newStack = std::make_unique<CStackInstance>(currentStack->cb, currentStack->getCreatureID(), toSplit);
+	newStack->giveTotalStackExperience(experienceBefore - experienceAfter);
+
+	return newStack;
 }
 
 void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
@@ -674,14 +677,13 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 
 CStackInstance::CStackInstance(IGameCallback *cb, bool isHypothetic)
 	: CBonusSystemNode(isHypothetic)
+	, CStackBasicDescriptor(nullptr, 0)
 	, CArtifactSet(cb)
 	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
 	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
+	, totalExperience(0)
 {
-	experience = 0;
-	count = 0;
-	setType(nullptr);
 	setNodeType(STACK_INSTANCE);
 }
 
@@ -689,12 +691,12 @@ CStackInstance::CStackInstance(IGameCallback *cb, const CreatureID & id, TQuanti
 	: CStackInstance(cb, false)
 {
 	setType(id);
-	count = Count;
+	setCount(Count);
 }
 
 CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 {
-	return CCreature::getQuantityID(count);
+	return CCreature::getQuantityID(getCount());
 }
 
 int CStackInstance::getExpRank() const
@@ -706,7 +708,7 @@ int CStackInstance::getExpRank() const
 	{
 		for(int i = static_cast<int>(LIBRARY->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
 		{ //exp values vary from 1st level to max exp at 11th level
-			if (experience >= LIBRARY->creh->expRanks[tier][i])
+			if (getAverageExperience() >= LIBRARY->creh->expRanks[tier][i])
 				return ++i; //faster, but confusing - 0 index mean 1st level of experience
 		}
 		return 0;
@@ -715,7 +717,7 @@ int CStackInstance::getExpRank() const
 	{
 		for(int i = static_cast<int>(LIBRARY->creh->expRanks[0].size()) - 2; i > -1; --i)
 		{
-			if (experience >= LIBRARY->creh->expRanks[0][i])
+			if (getAverageExperience() >= LIBRARY->creh->expRanks[0][i])
 				return ++i;
 		}
 		return 0;
@@ -727,17 +729,47 @@ int CStackInstance::getLevel() const
 	return std::max(1, getType()->getLevel());
 }
 
-void CStackInstance::giveStackExp(TExpType exp)
+void CStackInstance::giveAverageStackExperience(TExpType desiredAmountPerUnit)
 {
-	int level = getType()->getLevel();
-	if (!vstd::iswithin(level, 1, 7))
-		level = 0;
+	if (!canGainExperience())
+		return;
 
-	ui32 maxExp = LIBRARY->creh->expRanks[level].back();
+	int level = std::clamp(getLevel(), 1, 7);
+	TExpType maxAmountPerUnit = LIBRARY->creh->expRanks[level].back();
+	TExpType actualAmountPerUnit = std::min(desiredAmountPerUnit, maxAmountPerUnit * LIBRARY->creh->maxExpPerBattle[level]/100);
+	TExpType maxExperience = maxAmountPerUnit * getCount();
+	TExpType maxExperienceToGain = maxExperience - totalExperience;
+	TExpType actualGainedExperience = std::min(maxExperienceToGain, actualAmountPerUnit * getCount());
 
-	vstd::amin(exp, static_cast<TExpType>(maxExp)); //prevent exp overflow due to different types
-	vstd::amin(exp, (maxExp * LIBRARY->creh->maxExpPerBattle[level])/100);
-	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
+	totalExperience	+= actualGainedExperience;
+}
+
+void CStackInstance::giveTotalStackExperience(TExpType experienceToGive)
+{
+	if (!canGainExperience())
+		return;
+
+	int level = std::clamp(getLevel(), 1, 7);
+	TExpType maxAmountPerUnit = LIBRARY->creh->expRanks[level].back();
+	TExpType maxExperience = maxAmountPerUnit * getCount();
+	TExpType maxExperienceToGain = maxExperience - totalExperience;
+	TExpType actualGainedExperience = std::min(maxExperienceToGain, experienceToGive);
+	totalExperience	+= actualGainedExperience;
+}
+
+TExpType CStackInstance::getTotalExperience() const
+{
+	return totalExperience;
+}
+
+TExpType CStackInstance::getAverageExperience() const
+{
+	return totalExperience / getCount();
+}
+
+bool CStackInstance::canGainExperience() const
+{
+	return cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 }
 
 void CStackInstance::setType(const CreatureID & creID)
@@ -753,8 +785,8 @@ void CStackInstance::setType(const CCreature *c)
 	if(getCreature())
 	{
 		detachFromSource(*getCreature());
-		if (getCreature()->isMyUpgrade(c) && LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-			experience = static_cast<TExpType>(experience * LIBRARY->creh->expAfterUpgrade / 100.0);
+		if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+			totalExperience = totalExperience * LIBRARY->creh->expAfterUpgrade / 100;
 	}
 
 	CStackBasicDescriptor::setType(c);
@@ -762,6 +794,20 @@ void CStackInstance::setType(const CCreature *c)
 	if(getCreature())
 		attachToSource(*getCreature());
 }
+
+void CStackInstance::setCount(TQuantity newCount)
+{
+	assert(newCount >= 0);
+
+	if (newCount < getCount())
+	{
+		TExpType averageExperience = totalExperience / getCount();
+		totalExperience = averageExperience * newCount;
+	}
+
+	CStackBasicDescriptor::setCount(newCount);
+}
+
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
 	return LIBRARY->getBth()->bonusToString(bonus, this, description);
@@ -774,32 +820,28 @@ ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) 
 
 CArmedInstance * CStackInstance::getArmy()
 {
-	if (armyInstanceID.hasValue())
-		return dynamic_cast<CArmedInstance*>(cb->gameState().getObjInstance(armyInstanceID));
-	return nullptr;
+	return armyInstance;
 }
 
 const CArmedInstance * CStackInstance::getArmy() const
 {
-	if (armyInstanceID.hasValue())
-		return dynamic_cast<const CArmedInstance*>(cb->getObjInstance(armyInstanceID));
-	return nullptr;
+	return armyInstance;
 }
 
-void CStackInstance::setArmy(const CArmedInstance * ArmyObj)
+void CStackInstance::setArmy(CArmedInstance * ArmyObj)
 {
 	auto oldArmy = getArmy();
 
 	if(oldArmy)
 	{
 		detachFrom(*oldArmy);
-		armyInstanceID = {};
+		armyInstance = nullptr;
 	}
 
 	if(ArmyObj)
 	{
 		attachTo(const_cast<CArmedInstance&>(*ArmyObj));
-		armyInstanceID = ArmyObj->id;
+		armyInstance = ArmyObj;
 	}
 }
 
@@ -831,7 +873,7 @@ bool CStackInstance::valid(bool allowUnrandomized) const
 std::string CStackInstance::nodeName() const
 {
 	std::ostringstream oss;
-	oss << "Stack of " << count << " of ";
+	oss << "Stack of " << getCount() << " of ";
 	if(getType())
 		oss << getType()->getNamePluralTextID();
 	else
@@ -861,11 +903,12 @@ TerrainId CStackInstance::getNativeTerrain() const
 
 	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
 }
+
 TerrainId CStackInstance::getCurrentTerrain() const
 {
+	assert(getArmy() != nullptr);
 	return getArmy()->getCurrentTerrain();
 }
-
 
 CreatureID CStackInstance::getCreatureID() const
 {
@@ -877,19 +920,19 @@ CreatureID CStackInstance::getCreatureID() const
 
 std::string CStackInstance::getName() const
 {
-	return (count > 1) ? getType()->getNamePluralTranslated() : getType()->getNameSingularTranslated();
+	return (getCount() > 1) ? getType()->getNamePluralTranslated() : getType()->getNameSingularTranslated();
 }
 
 ui64 CStackInstance::getPower() const
 {
 	assert(getType());
-	return static_cast<ui64>(getType()->getAIValue()) * count;
+	return static_cast<ui64>(getType()->getAIValue()) * getCount();
 }
 
 ui64 CStackInstance::getMarketValue() const
 {
 	assert(getType());
-	return getType()->getFullRecruitCost().marketValue() * count;
+	return getType()->getFullRecruitCost().marketValue() * getCount();
 }
 
 ArtBearer::ArtBearer CStackInstance::bearerType() const
@@ -968,9 +1011,8 @@ CCommanderInstance::CCommanderInstance(IGameCallback *cb, const CreatureID & id)
 	, name("Commando")
 {
 	alive = true;
-	experience = 0;
 	level = 1;
-	count = 1;
+	setCount(1);
 	setType(nullptr);
 	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
@@ -988,15 +1030,14 @@ void CCommanderInstance::setAlive (bool Alive)
 	}
 }
 
-void CCommanderInstance::giveStackExp (TExpType exp)
+bool CCommanderInstance::canGainExperience() const
 {
-	if (alive)
-		experience += exp;
+	return alive && CStackInstance::canGainExperience();
 }
 
 int CCommanderInstance::getExpRank() const
 {
-	return LIBRARY->heroh->level (experience);
+	return LIBRARY->heroh->level (getTotalExperience());
 }
 
 int CCommanderInstance::getLevel() const
@@ -1020,7 +1061,7 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return experience >= LIBRARY->heroh->reqExp(level + 1);
+	return getTotalExperience() >= LIBRARY->heroh->reqExp(level + 1);
 }
 
 //This constructor should be placed here to avoid side effects
@@ -1060,6 +1101,12 @@ TQuantity CStackBasicDescriptor::getCount() const
 void CStackBasicDescriptor::setType(const CCreature * c)
 {
 	typeID = c ? c->getId() : CreatureID();
+}
+
+void CStackBasicDescriptor::setCount(TQuantity newCount)
+{
+	assert(newCount >= 0);
+	count = newCount;
 }
 
 bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)

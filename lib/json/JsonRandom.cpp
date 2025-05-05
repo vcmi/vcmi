@@ -504,7 +504,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			throw JsonRandomizationException("Invalid creature picked!", value);
 
 		stack.setType(pickedCreature.toCreature());
-		stack.count = loadValue(value, rng, variables);
+		stack.setCount(loadValue(value, rng, variables));
 		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade
