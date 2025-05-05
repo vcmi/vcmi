@@ -49,105 +49,105 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="134"/>
         <source>VCMI Campaign Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Campanhas VCMI</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">Arquivo</translation>
+        <translation>Arquivo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">Editar</translation>
+        <translation>Editar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
         <source>View</source>
-        <translation type="unfinished">Visualizar</translation>
+        <translation>Visualizar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Barra de Ferramentas</translation>
+        <translation>Barra de Ferramentas</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
         <source>Open</source>
-        <translation type="unfinished">Abrir</translation>
+        <translation>Abrir</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
         <source>Save</source>
-        <translation type="unfinished">Salvar</translation>
+        <translation>Salvar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
         <source>New</source>
-        <translation type="unfinished">Novo</translation>
+        <translation>Novo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
         <source>Save as...</source>
-        <translation type="unfinished">Salvar como...</translation>
+        <translation>Salvar como...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades da Campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades do Cenário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
         <source>Show full background</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar fundo completo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="99"/>
         <source>Scenario editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Cenário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="122"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Confirmação</translation>
+        <translation>Confirmação</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="122"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">As alterações não salvas serão perdidas, tem certeza?</translation>
+        <translation>As alterações não salvas serão perdidas, tem certeza?</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="165"/>
         <source>Open map</source>
-        <translation type="unfinished">Abrir mapa</translation>
+        <translation>Abrir mapa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="167"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translation>Todas as campanhas suportadas (*.vcmp *.h3c);;Campanhas VCMI (*.vcmp);;Campanhas HoMM3 (*.h3c)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
         <source>Save campaign</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished">Campanhas VCMI (*.vcmp)</translation>
+        <translation>Campanhas VCMI (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -156,158 +156,158 @@
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
         <location filename="../campaigneditor/campaignproperties.cpp" line="27"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades da Campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
         <source>General</source>
-        <translation type="unfinished">Geral</translation>
+        <translation>Geral</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
         <source>Campaign name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome da Campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="46"/>
         <source>Campaign description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrição da Campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
         <source>Author contact (e.g. e-mail)</source>
-        <translation type="unfinished"></translation>
+        <translation>Contato do autor (ex: e-mail)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="76"/>
         <source>Campaign creation date</source>
-        <translation type="unfinished"></translation>
+        <translation>Data de criação da campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="86"/>
         <source>Campaign version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versão da campanha</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="96"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Música</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="106"/>
         <source>Scenario difficulty is user selectable</source>
-        <translation type="unfinished"></translation>
+        <translation>Dificuldade do cenário selecionável pelo usuário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished"></translation>
+        <translation>Regiões</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinição de Regiões</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>Fundo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="147"/>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation>Sufixo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="173"/>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefixo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="183"/>
         <source>Color suffix length</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimento do sufixo de cor</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
         <source>Add</source>
-        <translation type="unfinished">Adicionar</translation>
+        <translation>Adicionar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="233"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
         <source>Misc</source>
-        <translation type="unfinished"></translation>
+        <translation>Diversos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="264"/>
         <source>Loading background image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagem de fundo do carregamento</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="274"/>
         <source>Video rim image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagem da borda do vídeo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
         <source>Intro video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo de introdução</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
         <source>Outro video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo de finalização</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="45"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Infix</source>
-        <translation type="unfinished"></translation>
+        <translation>Infixo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos X</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição X do Rótulo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição Y do Rótulo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished"></translation>
+        <translation>Menos Cenários</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>A nova configuração de Região suporta menos cenários do que antes. Alguns serão removidos. Continuar?</translation>
     </message>
 </context>
 <context>
@@ -661,7 +661,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1033"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1043"/>
@@ -676,7 +676,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1054"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1059"/>
@@ -686,7 +686,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1062"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1067"/>
@@ -702,7 +702,7 @@
         <location filename="../mainwindow.ui" line="1075"/>
         <location filename="../mainwindow.ui" line="1078"/>
         <source>Campaign editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de Campanha</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1083"/>
@@ -715,7 +715,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1089"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+U</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1097"/>
@@ -725,7 +725,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1100"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1105"/>
@@ -735,7 +735,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1108"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+X</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1113"/>
@@ -745,7 +745,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1121"/>
@@ -755,7 +755,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1124"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1129"/>
@@ -775,7 +775,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1146"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1154"/>
@@ -790,7 +790,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1160"/>
         <source>Ctrl+Enter</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Enter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1168"/>
@@ -800,7 +800,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1171"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1179"/>
@@ -811,7 +811,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1185"/>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Z</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1196"/>
@@ -821,7 +821,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1199"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1210"/>
@@ -831,7 +831,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1213"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1221"/>
@@ -841,7 +841,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1224"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+0</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1229"/>
@@ -851,7 +851,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1232"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1240"/>
@@ -874,7 +874,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+1</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1273"/>
@@ -884,7 +884,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+2</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1284"/>
@@ -894,7 +894,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1287"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+3</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1295"/>
@@ -904,7 +904,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1298"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+4</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1306"/>
@@ -914,7 +914,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1309"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+5</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1317"/>
@@ -924,7 +924,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1320"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+6</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1328"/>
@@ -934,7 +934,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1331"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+7</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1339"/>
@@ -944,7 +944,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+8</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1347"/>
@@ -954,7 +954,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1350"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
@@ -975,7 +975,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1372"/>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -986,7 +986,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1383"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1388"/>
@@ -1026,7 +1026,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1413"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
@@ -2524,287 +2524,287 @@
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades do Cenário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="30"/>
         <source>General</source>
-        <translation type="unfinished">Geral</translation>
+        <translation>Geral</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
         <source>Region name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome da Região</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="50"/>
         <source>Region color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor da Região</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="60"/>
         <source>Scenario name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome do Cenário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="74"/>
         <source>Map file</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo do mapa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="90"/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="97"/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="104"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="113"/>
         <source>Default difficulty</source>
-        <translation type="unfinished"></translation>
+        <translation>Dificuldade padrão</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="123"/>
         <source>Prerequisites</source>
-        <translation type="unfinished"></translation>
+        <translation>Pré-requisitos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="133"/>
         <source>Region right-click text</source>
-        <translation type="unfinished"></translation>
+        <translation>Texto do clique direito da Região</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="144"/>
         <source>Prologue/Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translation>Prólogo/Epílogo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="150"/>
         <source>Prologue</source>
-        <translation type="unfinished"></translation>
+        <translation>Prólogo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="156"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="233"/>
         <source>Enabled</source>
-        <translation type="unfinished">Ativado</translation>
+        <translation>Ativado</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="245"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Vídeo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="262"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translation>Música</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Voice</source>
-        <translation type="unfinished"></translation>
+        <translation>Voz</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="214"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="291"/>
         <source>Text</source>
-        <translation type="unfinished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="227"/>
         <source>Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translation>Epílogo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="305"/>
         <source>Crossover</source>
-        <translation type="unfinished"></translation>
+        <translation>Passagem</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="311"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished"></translation>
+        <translation>Heróis mantêm na passagem</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="317"/>
         <source>Experience</source>
-        <translation type="unfinished">Experiência</translation>
+        <translation>Experiência</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="324"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Habilidades primárias</translation>
+        <translation>Habilidades primárias</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="331"/>
         <source>Secondary skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidades secundárias</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="338"/>
         <source>Spells</source>
-        <translation type="unfinished">Feitiços</translation>
+        <translation>Feitiços</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="345"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefatos</translation>
+        <translation>Artefatos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="378"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="385"/>
         <source>None</source>
-        <translation type="unfinished">Nenhum</translation>
+        <translation>Nenhum</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefatos de passagem</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="441"/>
         <source>Starting</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="447"/>
         <source>Starting options are</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções iniciais são</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="454"/>
         <source>Starting bonus options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções de bônus inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="461"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções de passagem de herói</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="468"/>
         <source>Starting hero options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções de herói inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="486"/>
         <source>Bonus</source>
-        <translation type="unfinished"></translation>
+        <translation>Bônus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="492"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Player position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posição do jogador</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="502"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished"></translation>
+        <translation>Opção de bônus inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="513"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Herói de passagem/inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="531"/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="538"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="115"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translation>Mais forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="116"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerado</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="117"/>
         <source>Random</source>
-        <translation type="unfinished">Aleatório</translation>
+        <translation>Aleatório</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="134"/>
         <source>No map</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem mapa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="177"/>
         <source>Player</source>
-        <translation type="unfinished">Jogador</translation>
+        <translation>Jogador</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="369"/>
         <source>Open map</source>
-        <translation type="unfinished">Abrir mapa</translation>
+        <translation>Abrir mapa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="369"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished">Todos os mapas suportados (*.vmap *.h3m);;Mapas do VCMI (*.vmap);;Mapas do HoMM3 (*.h3m)</translation>
+        <translation>Todos os mapas suportados (*.vmap *.h3m);;Mapas VCMI (*.vmap);;Mapas HoMM3 (*.h3m)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Could not open the file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível abrir o arquivo.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>Save map</source>
-        <translation type="unfinished">Salvar mapa</translation>
+        <translation>Salvar mapa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>VCMI maps (*.vmap);</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapas VCMI (*.vmap);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>HoMM3 maps (*.h3m);</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapas HoMM3 (*.h3m);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Source scenario</source>
-        <translation type="unfinished"></translation>
+        <translation>Cenário de origem</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Hero</source>
-        <translation type="unfinished"></translation>
+        <translation>Herói</translation>
     </message>
 </context>
 <context>
@@ -2812,12 +2812,12 @@
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="14"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades do Cenário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="20"/>
         <source>Select a bonus type</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione um tipo de bônus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="27"/>
@@ -2825,13 +2825,13 @@
         <location filename="../campaigneditor/startingbonus.ui" line="110"/>
         <location filename="../campaigneditor/startingbonus.ui" line="270"/>
         <source>Spell</source>
-        <translation type="unfinished">Feitiço</translation>
+        <translation>Feitiço</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished"></translation>
+        <translation>Criatura</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
@@ -2839,26 +2839,26 @@
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="326"/>
         <source>Building</source>
-        <translation type="unfinished"></translation>
+        <translation>Construção</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="48"/>
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation type="unfinished">Artefato</translation>
+        <translation>Artefato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
         <location filename="../campaigneditor/startingbonus.ui" line="254"/>
         <source>Spell scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Pergaminho de feitiço</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidade primária</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
@@ -2866,14 +2866,14 @@
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="334"/>
         <source>Secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidade secundária</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="336"/>
         <source>Resource</source>
-        <translation type="unfinished">Recurso</translation>
+        <translation>Recurso</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="100"/>
@@ -2883,118 +2883,118 @@
         <location filename="../campaigneditor/startingbonus.ui" line="300"/>
         <location filename="../campaigneditor/startingbonus.ui" line="370"/>
         <source>Recipient</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinatário</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de criatura</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
         <location filename="../campaigneditor/startingbonus.ui" line="430"/>
         <source>Quantity</source>
-        <translation type="unfinished"></translation>
+        <translation>Quantidade</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="310"/>
         <source>Attack skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidade de Ataque</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="320"/>
         <source>Defense skill</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidade de Defesa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
         <source>Spell power</source>
-        <translation type="unfinished">Poder mágico</translation>
+        <translation>Poder Mágico</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="340"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Conhecimento</translation>
+        <translation>Conhecimento</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
         <source>Mastery</source>
-        <translation type="unfinished"></translation>
+        <translation>Maestria</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="420"/>
         <source>Resource type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de recurso</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="34"/>
         <source>Edit Starting Bonus</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar Bônus Inicial</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="59"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translation>Mais forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="60"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerado</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="61"/>
         <source>Random</source>
-        <translation type="unfinished">Aleatório</translation>
+        <translation>Aleatório</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="112"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Comum (%1 e %2)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="117"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished"></translation>
+        <translation>Raro (%1, %2, %3, %4)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="289"/>
         <source>strongest hero</source>
-        <translation type="unfinished"></translation>
+        <translation>herói mais forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="291"/>
         <source>generated hero</source>
-        <translation type="unfinished"></translation>
+        <translation>herói gerado</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="293"/>
         <source>random hero</source>
-        <translation type="unfinished"></translation>
+        <translation>herói aleatório</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
         <source>%1 spell for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Feitiço %1 para %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
         <source>%1 %2 for %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 %2 para %3</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="328"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Artefato %1 para %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="330"/>
         <source>%1 spell scroll for %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Pergaminho de feitiço %1 para %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="332"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilidade primária (Ataque: %1, Defesa: %2, Poder Mágico: %3, Conhecimento: %4) para %5</translation>
     </message>
 </context>
 <context>
