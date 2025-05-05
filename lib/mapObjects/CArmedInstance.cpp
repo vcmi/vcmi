@@ -175,7 +175,7 @@ void CArmedInstance::attachUnitsToArmy()
 	assert(getArmy() != nullptr);
 
 	for(const auto & elem : stacks)
-		elem.second->attachTo(*getArmy());
+		elem.second->setArmy(getArmy());
 }
 
 const IBonusBearer* CArmedInstance::getBonusBearer() const

@@ -352,6 +352,7 @@ protected:
 
 private:
 	void levelUpAutomatically(vstd::RNG & rand);
+	void attachCommanderToArmy();
 
 public:
 	std::string getHeroTypeName() const;
@@ -396,6 +397,9 @@ public:
 
 		h & commander;
 		h & visitedObjects;
+
+		if(!h.saving && h.loadingGamestate)
+			attachCommanderToArmy();
 	}
 };
 

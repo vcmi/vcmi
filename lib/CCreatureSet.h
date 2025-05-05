@@ -76,7 +76,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 	BonusValueCache nativeTerrain;
 	BonusValueCache initiative;
 
-	ObjectInstanceID armyInstanceID; //stack must be part of some army, army must be part of some object
+	CArmedInstance * armyInstance = nullptr; //stack must be part of some army, army must be part of some object
 
 	IGameCallback * getCallback() const final { return cb; }
 
@@ -92,7 +92,7 @@ public:
 
 	CArmedInstance * getArmy();
 	const CArmedInstance * getArmy() const; //stack must be part of some army, army must be part of some object
-	void setArmy(const CArmedInstance *ArmyObj);
+	void setArmy(CArmedInstance *ArmyObj);
 
 	TExpType getTotalExperience() const;
 	TExpType getAverageExperience() const;
@@ -104,15 +104,19 @@ public:
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
 
+		if (h.hasFeature(Handler::Version::STACK_INSTANCE_ARMY_FIX))
+		{
+			// no-op
+		}
 		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 		{
-			h & armyInstanceID;
+			ObjectInstanceID dummyID;
+			h & dummyID;
 		}
 		else
 		{
 			std::shared_ptr<CGObjectInstance> army;
 			h & army;
-			armyInstanceID = army->id;
 		}
 
 		h & totalExperience;
