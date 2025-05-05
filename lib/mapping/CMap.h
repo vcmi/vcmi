@@ -348,8 +348,15 @@ public:
 
 		h & instanceNames;
 		h & *gameSettings;
-		if (!h.saving)
-			parseUidCounter();
+		if (!h.hasFeature(Handler::Version::STORE_UID_COUNTER_IN_CMAP)
+		{
+			if (!h.saving)
+				parseUidCounter();
+		}
+		else
+		{
+			h & uidCounter;
+		}
 	}
 };
 

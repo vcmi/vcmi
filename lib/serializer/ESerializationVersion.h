@@ -36,8 +36,9 @@ enum class ESerializationVersion : int32_t
 
 	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
 	NO_RAW_POINTERS_IN_SERIALIZER, // large rework that removed all non-owning pointers from serializer
+	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
 	
-	CURRENT = NO_RAW_POINTERS_IN_SERIALIZER,
+	CURRENT = STORE_UID_COUNTER_IN_CMAP,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
