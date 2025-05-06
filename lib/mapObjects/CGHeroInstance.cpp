@@ -1337,7 +1337,8 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 {
 	CArmedInstance::restoreBonusSystem(gs);
 	artDeserializationFix(gs, this);
-	this->commander->artDeserializationFix(gs, this->commander.get());
+	if (commander)
+		commander->artDeserializationFix(gs, this->commander.get());
 	if (boardedBoat.hasValue())
 	{
 		auto boat = gs.getObjInstance(boardedBoat);
@@ -1613,7 +1614,8 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 
 void CGHeroInstance::attachCommanderToArmy()
 {
-	commander->setArmy(this);
+	if (commander)
+		commander->setArmy(this);
 }
 
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
