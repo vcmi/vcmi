@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
+#include <filesystem>
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
@@ -65,14 +66,6 @@ void IVCMIDirs::init()
 
 #ifdef VCMI_WINDOWS
 
-#ifdef __MINGW32__
-    #define _WIN32_IE 0x0500
-
-	#ifndef CSIDL_MYDOCUMENTS
-	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif
-#endif // __MINGW32__
-
 #include <windows.h>
 #include <shlobj.h>
 
@@ -100,11 +93,11 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
 
+		std::wstring GetRawMyDocumentsPath() const;
 		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
 		bfs::path getDefaultUserDataPath() const;
 
 		std::wstring utf8ToWstring(const std::string& str) const;
-		std::string pathToUtf8(const bfs::path& path) const;
 };
 
 
@@ -112,27 +105,19 @@ VCMIDirsWIN32::VCMIDirsWIN32()
 {
 	wchar_t currentPath[MAX_PATH];
 	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
-	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
+	auto configPath = std::filesystem::path(currentPath).parent_path() / "config" / "dirs.json";
 
-	if (!bfs::exists(configPath))
+	if (!std::filesystem::exists(configPath))
 		return;
 
-	std::ifstream in(pathToUtf8(configPath), std::ios::binary);
+	std::ifstream in(configPath, std::ios::binary);
 	if (!in)
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
+	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), configPath.u8string());
 }
 
-std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
-{
-	std::wstring wstr = path.wstring();
-	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string result(size - 1, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
-	return result;
-}
 
 std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 {
@@ -146,6 +131,14 @@ std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
 	return result;
 }
 
+std::wstring VCMIDirsWIN32::GetRawMyDocumentsPath() const{
+	wchar_t path[MAX_PATH];
+	if (SHGetFolderPathW(nullptr, CSIDL_PERSONAL, nullptr, SHGFP_TYPE_CURRENT, path) == S_OK) {
+		return path;
+	}
+	return L""; 
+}
+
 bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
 {
 	if (!dirsConfig || !dirsConfig->isStruct())
@@ -156,6 +149,16 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return fallbackFunc();
 
 	std::wstring raw = utf8ToWstring(node.String());
+
+	const std::wstring placeholder = L"%USERDOCUMENTS%";
+	size_t pos = raw.find(placeholder);
+	if (pos != std::wstring::npos) {
+		std::wstring docPath = GetRawMyDocumentsPath();
+		if (!docPath.empty()) {
+			raw.replace(pos, placeholder.length(), docPath);
+		}
+	}
+
 	wchar_t expanded[MAX_PATH];
 	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
 		return bfs::path(expanded);
@@ -165,10 +168,8 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
-	wchar_t profileDir[MAX_PATH];
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
-	return bfs::path(".");
+	std::wstring profileDir = GetRawMyDocumentsPath();
+	return profileDir.empty() ? bfs::path(".") : bfs::path(profileDir) / "My Games" / "vcmi";
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
