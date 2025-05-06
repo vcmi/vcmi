@@ -1215,7 +1215,6 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	{
 		VISITOR_ADD_HERO,   // mark hero as one that have visited this object
 		VISITOR_ADD_PLAYER, // mark player as one that have visited this object instance
-		VISITOR_GLOBAL,     // mark player as one that have visited object of this type
 		VISITOR_SCOUTED,    // marks targeted team as having scouted this object
 		VISITOR_CLEAR,      // clear all visitors from this object (object reset)
 	};

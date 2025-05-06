@@ -815,7 +815,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
 		ChangeObjectVisitors cow;
-		cow.mode = ChangeObjectVisitors::VISITOR_GLOBAL;
+		cow.mode = ChangeObjectVisitors::VISITOR_ADD_PLAYER;
 		cow.hero = h->id;
 		cow.object = id;
 		cb->sendAndApply(cow);

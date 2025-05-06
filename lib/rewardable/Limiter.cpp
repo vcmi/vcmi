@@ -30,6 +30,8 @@ Rewardable::Limiter::Limiter()
 	, manaPercentage(0)
 	, manaPoints(0)
 	, canLearnSkills(false)
+	, commanderAlive(false)
+	, hasExtraCreatures(false)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
 }

@@ -137,7 +137,9 @@ bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) con
 		case Rewardable::VISIT_ONCE:
 			return onceVisitableObjectCleared;
 		case Rewardable::VISIT_PLAYER:
-			return vstd::contains(cb->getPlayerState(contextHero->getOwner())->visitedObjects, ObjectInstanceID(id));
+			return cb->getPlayerState(contextHero->getOwner())->visitedObjects.count(ObjectInstanceID(id)) != 0;
+		case Rewardable::VISIT_PLAYER_GLOBAL:
+			return cb->getPlayerState(contextHero->getOwner())->visitedObjectsGlobal.count({ID, subID}) != 0;
 		case Rewardable::VISIT_BONUS:
 			return contextHero->hasBonusFrom(BonusSource::OBJECT_TYPE, BonusSourceID(ID));
 		case Rewardable::VISIT_HERO:
@@ -160,7 +162,9 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 			return false;
 		case Rewardable::VISIT_ONCE:
 		case Rewardable::VISIT_PLAYER:
-			return vstd::contains(cb->getPlayerState(player)->visitedObjects, ObjectInstanceID(id));
+			return cb->getPlayerState(player)->visitedObjects.count(ObjectInstanceID(id)) != 0;
+		case Rewardable::VISIT_PLAYER_GLOBAL:
+			return cb->getPlayerState(player)->visitedObjectsGlobal.count({ID, subID}) != 0;
 		default:
 			return false;
 	}
@@ -205,7 +209,7 @@ std::string CRewardableObject::getDisplayTextImpl(PlayerColor player, const CGHe
 	}
 	else
 	{
-		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE)
+		if(configuration.visitMode == Rewardable::VISIT_PLAYER || configuration.visitMode == Rewardable::VISIT_ONCE || configuration.visitMode == Rewardable::VISIT_PLAYER_GLOBAL)
 		{
 			if (wasVisited(player))
 				result += "\n" + configuration.visitedTooltip.toString();

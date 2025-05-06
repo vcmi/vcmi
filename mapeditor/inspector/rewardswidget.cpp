@@ -249,8 +249,8 @@ void RewardsWidget::obtainData()
 bool RewardsWidget::commitChanges()
 {
 	//common parameters
-	object.configuration.visitMode = ui->visitMode->currentIndex();
-	object.configuration.selectMode = ui->selectMode->currentIndex();
+	object.configuration.visitMode = static_cast<Rewardable::EVisitMode>(ui->visitMode->currentIndex());
+	object.configuration.selectMode = static_cast<Rewardable::ESelectMode>(ui->selectMode->currentIndex());
 	object.configuration.infoWindowType = EInfoWindowMode(ui->windowMode->currentIndex());
 	if(ui->onSelectText->text().isEmpty())
 		object.configuration.onSelect.clear();

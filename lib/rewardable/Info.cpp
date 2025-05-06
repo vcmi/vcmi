@@ -471,7 +471,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 	{
 		if(Rewardable::VisitModeString[i] == visitMode)
 		{
-			object.visitMode = i;
+			object.visitMode = static_cast<EVisitMode>(i);
 			break;
 		}
 	}
@@ -481,7 +481,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 	{
 		if(Rewardable::SelectModeString[i] == selectMode)
 		{
-			object.selectMode = i;
+			object.selectMode = static_cast<ESelectMode>(i);
 			break;
 		}
 	}
