@@ -1337,6 +1337,7 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 {
 	CArmedInstance::restoreBonusSystem(gs);
 	artDeserializationFix(gs, this);
+	this->commander->artDeserializationFix(gs, this->commander.get());
 	if (boardedBoat.hasValue())
 	{
 		auto boat = gs.getObjInstance(boardedBoat);
