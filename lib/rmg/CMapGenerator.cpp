@@ -328,6 +328,8 @@ void CMapGenerator::genZones()
 {
 	placer->placeZones(rand.get());
 	placer->assignZones(rand.get());
+	placer->RemoveRoadsForWideConnections();
+	placer->dropRandomRoads(rand.get());
 
 	logGlobal->info("Zones generated successfully");
 }
