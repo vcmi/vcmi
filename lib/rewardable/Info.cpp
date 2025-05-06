@@ -164,8 +164,6 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.resources = randomizer.loadResources(source["resources"], rng, variables);
 
 	reward.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
-	reward.unitExperience = randomizer.loadValue(source["unitExperience"], rng, variables);
-	reward.commanderExperience = randomizer.loadValue(source["commanderExperience"], rng, variables);
 	reward.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 
 	reward.manaDiff = randomizer.loadValue(source["manaPoints"], rng, variables);
@@ -187,7 +185,8 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
 	reward.takenArtifacts = randomizer.loadArtifacts(source["takenArtifacts"], rng, variables);
 	reward.takenArtifactSlots = randomizer.loadArtifactSlots(source["takenArtifactsSlots"], rng, variables);
-	reward.scrolls = randomizer.loadSpells(source["scrolls"], rng, variables);
+	reward.grantedScrolls = randomizer.loadSpells(source["scrolls"], rng, variables);
+	reward.takenScrolls = randomizer.loadSpells(source["takenScrolls"], rng, variables);
 	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
@@ -305,7 +304,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			loot.replaceName(artifact);
 		}
 
-		for (const auto & scroll : info.reward.scrolls )
+		for (const auto & scroll : info.reward.grantedScrolls )
 		{
 			loot.appendRawString("%s");
 			loot.replaceName(scroll);
@@ -330,7 +329,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 		for (const auto & artifact : info.reward.grantedArtifacts )
 			target.replaceName(artifact);
 
-		for (const auto & scroll : info.reward.scrolls )
+		for (const auto & scroll : info.reward.grantedScrolls )
 			target.replaceName(scroll);
 
 		for (const auto & spell : info.reward.spells )

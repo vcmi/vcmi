@@ -194,8 +194,15 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		// TODO: handle locked slots?
 	}
 
-	for(const SpellID & spell : info.reward.scrolls)
+	for(const SpellID & spell : info.reward.grantedScrolls)
 		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
+
+
+	for(const SpellID & spell : info.reward.takenScrolls)
+	{
+		if(hero->hasScroll(spell, false))
+			cb->removeArtifact(ArtifactLocation(hero->id, hero->getScrollPos(spell, false)));
+	}
 
 	if(!info.reward.spells.empty())
 	{
@@ -207,6 +214,11 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 		if (!spellsToGive.empty())
 			cb->changeSpells(hero, true, spellsToGive);
+	}
+
+	if (!info.reward.takenCreatures.empty())
+	{
+		cb->takeCreatures(hero->id, info.reward.takenCreatures);
 	}
 
 	if(!info.reward.creaturesChange.empty())

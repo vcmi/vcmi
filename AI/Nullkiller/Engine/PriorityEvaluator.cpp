@@ -242,7 +242,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::CREATURE_GENERATOR4:
 		return getDwellingArmyValue(ai->cb.get(), target, checkGold);
 	case Obj::SPELL_SCROLL:
-		//FALL_THROUGH
+		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getScrollSpellID());
 	case Obj::ARTIFACT:
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
 	case Obj::HERO:
@@ -273,7 +273,7 @@ uint64_t RewardEvaluator::getArmyReward(
 			for(auto artID : info.reward.grantedArtifacts)
 				rewardValue += evaluateArtifactArmyValue(artID.toArtifact());
 
-			for(auto scroll : info.reward.scrolls)
+			for(auto scroll : info.reward.grantedScrolls)
 				rewardValue += evaluateSpellScrollArmyValue(scroll);
 
 			for(const auto & stackInfo : info.reward.creatures)

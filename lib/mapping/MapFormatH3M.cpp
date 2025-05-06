@@ -1136,7 +1136,7 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 		{
 			SpellID scrollSpell = reader->readSpell16();
 			if (grantedArtifact == ArtifactID::SPELL_SCROLL)
-				reward.scrolls.push_back(scrollSpell);
+				reward.grantedScrolls.push_back(scrollSpell);
 		}
 		else
 			reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2342,7 +2342,7 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 				{
 					SpellID scrollSpell = reader->readSpell16();
 					if (grantedArtifact == ArtifactID::SPELL_SCROLL)
-						reward.scrolls.push_back(scrollSpell);
+						reward.grantedScrolls.push_back(scrollSpell);
 				}
 				else
 					reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2410,16 +2410,18 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			size_t artNumber = reader->readUInt8();
 			for(size_t yy = 0; yy < artNumber; ++yy)
 			{
-				auto artid = reader->readArtifact();
+				ArtifactID requiredArtifact = reader->readArtifact();
+
 				if (features.levelHOTA5)
 				{
 					SpellID scrollSpell = reader->readSpell16();
-					if (artid == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Quest to find scroll '%s' is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
-
+					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
+						guard->getQuest().mission.scrolls.push_back(scrollSpell);
 				}
-				guard->getQuest().mission.artifacts.push_back(artid);
-				map->allowedArtifact.erase(artid); //these are unavailable for random generation
+				else
+					guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+
+				map->allowedArtifact.erase(requiredArtifact); //these are unavailable for random generation
 			}
 			break;
 		}

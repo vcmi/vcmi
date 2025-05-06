@@ -33,9 +33,11 @@ public:
 	ArtifactInstanceID getArtID(const ArtifactPosition & pos, bool excludeLocked = true) const;
 	/// Looks for first artifact with given ID
 	ArtifactPosition getArtPos(const ArtifactID & aid, bool onlyWorn = true, bool allowLocked = true) const;
+	ArtifactPosition getScrollPos(const SpellID & aid, bool onlyWorn = true) const;
 	ArtifactPosition getArtPos(const CArtifactInstance * art) const;
 	const CArtifactInstance * getArtByInstanceId(const ArtifactInstanceID & artInstId) const;
 	bool hasArt(const ArtifactID & aid, bool onlyWorn = false, bool searchCombinedParts = false) const;
+	bool hasScroll(const SpellID & aid, bool onlyWorn = false) const;
 	bool isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck = false) const;
 
 	virtual IGameCallback * getCallback() const = 0;

@@ -78,6 +78,14 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
+	if (commanderAlive)
+	{
+		if (!hero->getCommander() || !hero->getCommander()->alive)
+			return false;
+	}
+
+	bool foundExtraCreatures = false;
+	int testedSlots = 0;
 	for(const auto & reqStack : creatures)
 	{
 		size_t count = 0;
@@ -85,9 +93,31 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		{
 			const auto & heroStack = slot.second;
 			if (heroStack->getType() == reqStack.getType())
+			{
 				count += heroStack->getCount();
+				testedSlots += 1;
+			}
 		}
+		if (count > reqStack.getCount())
+			foundExtraCreatures = true;
+
 		if (count < reqStack.getCount()) //not enough creatures of this kind
+			return false;
+	}
+
+	if (hasExtraCreatures)
+	{
+		if (!foundExtraCreatures && testedSlots >= hero->Slots().size())
+			return false;
+	}
+
+	if (!canReceiveCreatures.empty())
+	{
+		CCreatureSet setToTest;
+		for (const auto & unitToGive : canReceiveCreatures)
+			setToTest.addToSlot(setToTest.getSlotFor(unitToGive.getCreature()), unitToGive.getId(), unitToGive.getCount());
+
+		if (!hero->canBeMergedWith(setToTest))
 			return false;
 	}
 
@@ -130,6 +160,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 	for(const auto & spell : canLearnSpells)
 	{
 		if (!hero->canLearnSpell(spell.toEntity(LIBRARY), true))
+			return false;
+	}
+
+	for(const auto & scroll : scrolls)
+	{
+		if (!hero->hasScroll(scroll, false))
+			return false;
+	}
+
+	for(const auto & slot : availableSlots)
+	{
+		if (hero->getSlot(slot)->artifactID.hasValue())
 			return false;
 	}
 

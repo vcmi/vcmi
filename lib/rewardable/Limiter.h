@@ -51,6 +51,10 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// Hero has commander, and commander is currently alive
 	bool commanderAlive;
 
+	/// Hero has creatures other than those requested in 'creatures' field
+	/// In other words, it is possible to take requested creatures from hero
+	bool hasExtraCreatures;
+
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
 
@@ -77,9 +81,6 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 	
-	/// creatures that hero needs to have
-	std::vector<CStackBasicDescriptor> canLoseCreatures;
-
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> canReceiveCreatures;
 
@@ -118,7 +119,10 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & manaPercentage;
 		h & canLearnSkills;
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
 			h & commanderAlive;
+			h & hasExtraCreatures;
+		}
 		h & resources;
 		h & primary;
 		h & secondary;

@@ -127,7 +127,10 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		}
 	}
 
-	for(const SpellID & spell : scrolls)
+	for(const SpellID & spell : grantedScrolls)
+		comps.emplace_back(ComponentType::SPELL, spell);
+
+	for(const SpellID & spell : takenScrolls)
 		comps.emplace_back(ComponentType::SPELL, spell);
 
 	for(const auto & entry : spells)
@@ -160,7 +163,8 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeIdArray("artifacts", grantedArtifacts);
 	handler.serializeIdArray("takenArtifacts", takenArtifacts);
 	handler.serializeIdArray("takenArtifactSlots", takenArtifactSlots);
-	handler.serializeIdArray("scrolls", scrolls);
+	handler.serializeIdArray("scrolls", grantedScrolls);
+	handler.serializeIdArray("takenScrolls", takenScrolls);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);

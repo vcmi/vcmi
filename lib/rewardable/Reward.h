@@ -57,7 +57,6 @@ struct RewardRevealTiles
 };
 
 /// Reward that can be granted to a hero
-/// NOTE: eventually should replace seer hut rewards and events/pandoras
 struct DLL_LINKAGE Reward final
 {
 	/// resources that will be given to player
@@ -65,8 +64,7 @@ struct DLL_LINKAGE Reward final
 
 	/// received experience
 	si32 heroExperience;
-	si32 commanderExperience;
-	si32 unitExperience;
+
 	/// received levels (converted into XP during grant)
 	si32 heroLevel;
 
@@ -102,7 +100,8 @@ struct DLL_LINKAGE Reward final
 	std::vector<ArtifactID> grantedArtifacts;
 	std::vector<ArtifactID> takenArtifacts;
 	std::vector<ArtifactPosition> takenArtifactSlots;
-	std::vector<SpellID> scrolls;
+	std::vector<SpellID> grantedScrolls;
+	std::vector<SpellID> takenScrolls;
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
 	std::vector<CStackBasicDescriptor> takenCreatures;
@@ -138,11 +137,6 @@ struct DLL_LINKAGE Reward final
 		h & movePercentage;
 		h & guards;
 		h & heroExperience;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-		{
-			h & commanderExperience;
-			h & unitExperience;
-		}
 		h & heroLevel;
 		h & manaDiff;
 		h & manaOverflowFactor;
@@ -159,7 +153,8 @@ struct DLL_LINKAGE Reward final
 		{
 			h & takenArtifacts;
 			h & takenArtifactSlots;
-			h & scrolls;
+			h & grantedScrolls;
+			h & takenScrolls;
 		}
 		h & spells;
 		h & creatures;
