@@ -169,6 +169,9 @@ struct DLL_LINKAGE Configuration
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
 
+	/// if set to true and object is guarded, then hero visit will immediately start combat without confirmation
+	bool forceCombat = false;
+
 	/// if true - right-clicking object will show preview of object rewards
 	bool showScoutedPreview = false;
 
@@ -200,6 +203,8 @@ struct DLL_LINKAGE Configuration
 		h & variables;
 		h & visitLimiter;
 		h & canRefuse;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & forceCombat;
 		h & showScoutedPreview;
 		h & infoWindowType;
 		h & coastVisitable;

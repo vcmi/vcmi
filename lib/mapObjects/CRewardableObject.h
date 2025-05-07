@@ -25,6 +25,8 @@ protected:
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
+	void doStartBattle(const CGHeroInstance * hero) const;
+
 	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
 	void markAsVisited(const CGHeroInstance * hero) const override;
 

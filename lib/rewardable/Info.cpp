@@ -458,6 +458,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 
 	object.canRefuse = parameters["canRefuse"].Bool();
 	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
+	object.forceCombat = parameters["forceCombat"].Bool();
 	object.guardsLayout = parameters["guardsLayout"].String();
 	object.coastVisitable = parameters["coastVisitable"].Bool();
 

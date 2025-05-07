@@ -52,7 +52,14 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		cb->sendAndApply(cov);
 	}
 
-	if (isGuarded())
+	if (!isGuarded())
+		doHeroVisit(hero);
+
+	if (configuration.forceCombat)
+	{
+		doStartBattle(hero);
+	}
+	else
 	{
 		auto guardedIndexes = getAvailableRewards(hero, Rewardable::EEventType::EVENT_GUARDED);
 		auto guardedReward = configuration.info.at(guardedIndexes.at(0));
@@ -64,10 +71,6 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		bd.components = getPopupComponents(hero->getOwner());
 
 		cb->showBlockingDialog(this, &bd);
-	}
-	else
-	{
-		doHeroVisit(hero);
 	}
 }
 
@@ -92,15 +95,18 @@ void CRewardableObject::garrisonDialogClosed(const CGHeroInstance *hero) const
 		cb->eraseStack(StackLocation(id, stacks.begin()->first));
 }
 
+void CRewardableObject::doStartBattle(const CGHeroInstance * hero) const
+{
+	auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
+	cb->startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
+}
+
 void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
 {
 	if(isGuarded())
 	{
 		if (answer)
-		{
-			auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
-			cb->startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
-		}
+			doStartBattle(hero);
 	}
 	else
 	{
