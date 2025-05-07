@@ -383,6 +383,9 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 		gameHandler->sendAndApply(giveBonus);
 	}
 
+	giveBonus.bonus = Bonus(BonusDuration::PERMANENT, BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN, BonusSource::OTHER, 99, BonusSourceID());
+	gameHandler->sendAndApply(giveBonus);
+
 	///Give mana
 	SetMana sm;
 	sm.hid = hero->id;

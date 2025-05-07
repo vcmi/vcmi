@@ -256,7 +256,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(BattleSide side) const
 	return InfoAboutHero(hero, infoLevel);
 }
 
-uint32_t CBattleInfoEssentials::battleCastSpells(BattleSide side) const
+int32_t CBattleInfoEssentials::battleCastSpells(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	return getBattle()->getCastSpells(side);
