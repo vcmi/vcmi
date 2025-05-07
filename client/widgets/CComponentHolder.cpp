@@ -117,7 +117,7 @@ void CArtPlace::setArtifact(const ArtifactID & newArtId, const SpellID & newSpel
 	if(artId == ArtifactID::SPELL_SCROLL)
 	{
 		spellId = newSpellId;
-		assert(spellId.num > 0);
+		assert(spellId != SpellID::NONE);
 
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{
