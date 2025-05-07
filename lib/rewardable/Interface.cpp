@@ -218,7 +218,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 	if (!info.reward.takenCreatures.empty())
 	{
-		cb->takeCreatures(hero->id, info.reward.takenCreatures);
+		cb->takeCreatures(hero->id, info.reward.takenCreatures, !info.reward.creatures.empty());
 	}
 
 	if(!info.reward.creaturesChange.empty())

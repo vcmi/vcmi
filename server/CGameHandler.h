@@ -125,7 +125,7 @@ public:
 	void giveResources(PlayerColor player, TResources resources) override;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
-	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) override;
+	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval) override;
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override;
 	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override;
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override;

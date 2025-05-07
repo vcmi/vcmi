@@ -1157,26 +1157,36 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	tryJoiningArmy(obj, h, remove, true);
 }
 
-void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures)
+void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval)
 {
-	std::vector<CStackBasicDescriptor> cres = creatures;
-	if (cres.size() <= 0)
+	std::vector<CStackBasicDescriptor> remainerForTaking = creatures;
+	if (remainerForTaking.empty())
 		return;
-	const CArmedInstance* obj = static_cast<const CArmedInstance*>(getObj(objid));
 
-	for (CStackBasicDescriptor &sbd : cres)
+	const CArmedInstance* army = static_cast<const CArmedInstance*>(getObj(objid));
+
+	for (const CStackBasicDescriptor &stackToTake : remainerForTaking)
 	{
 		TQuantity collected = 0;
-		while(collected < sbd.getCount())
+		while(collected < stackToTake.getCount())
 		{
 			bool foundSth = false;
-			for (auto i = obj->Slots().begin(); i != obj->Slots().end(); i++)
+			for (const auto & armySlot : army->Slots())
 			{
-				if (i->second->getType() == sbd.getType())
+				if (armySlot.second->getType() == stackToTake.getType())
 				{
-					TQuantity take = std::min(sbd.getCount() - collected, i->second->getCount()); //collect as much cres as we can
-					changeStackCount(StackLocation(obj->id, i->first), -take, false);
-					collected += take;
+					if (stackToTake.getCount() - collected >= armySlot.second->getCount())
+					{
+						// take entire stack
+						collected += armySlot.second->getCount();
+						eraseStack(StackLocation(army->id, armySlot.first), forceRemoval);
+					}
+					else
+					{
+						// take part of the stack
+						collected = stackToTake.getCount();
+						changeStackCount(StackLocation(army->id, armySlot.first), collected - stackToTake.getCount(), false);
+					}
 					foundSth = true;
 					break;
 				}
