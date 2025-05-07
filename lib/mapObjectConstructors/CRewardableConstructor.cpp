@@ -72,6 +72,7 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameCal
 	for(auto & rewardInfo : result.info)
 	{
 		assignBonuses(rewardInfo.reward.heroBonuses, objectID);
+		assignBonuses(rewardInfo.reward.commanderBonuses, objectID);
 		assignBonuses(rewardInfo.reward.playerBonuses, objectID);
 	}
 

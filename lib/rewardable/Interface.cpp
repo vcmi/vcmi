@@ -157,6 +157,15 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		cb->giveHeroBonus(&gb);
 	}
 
+	if (hero->getCommander())
+	{
+		for(const Bonus & bonus : info.reward.commanderBonuses)
+		{
+			GiveBonus gb(GiveBonus::ETarget::HERO_COMMANDER, hero->id, bonus);
+			cb->giveHeroBonus(&gb);
+		}
+	}
+
 	for(const Bonus & bonus : info.reward.playerBonuses)
 	{
 		GiveBonus gb(GiveBonus::ETarget::PLAYER, hero->getOwner(), bonus);

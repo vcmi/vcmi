@@ -409,8 +409,14 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
 	using VariantType = VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID>;
-	enum class ETarget : int8_t { OBJECT, PLAYER, BATTLE };
-	
+	enum class ETarget : int8_t
+	{
+		OBJECT,
+		PLAYER,
+		BATTLE,
+		HERO_COMMANDER
+	};
+
 	explicit GiveBonus(ETarget Who = ETarget::OBJECT)
 		:who(Who)
 	{

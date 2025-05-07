@@ -102,6 +102,7 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	for(auto & rewardInfo : result.info)
 	{
 		assignBonuses(rewardInfo.reward.heroBonuses);
+		assignBonuses(rewardInfo.reward.commanderBonuses);
 		assignBonuses(rewardInfo.reward.playerBonuses);
 	}
 	return result;

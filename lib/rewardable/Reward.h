@@ -87,6 +87,7 @@ struct DLL_LINKAGE Reward final
 
 	/// list of bonuses, e.g. morale/luck
 	std::vector<Bonus> heroBonuses;
+	std::vector<Bonus> commanderBonuses;
 	std::vector<Bonus> playerBonuses;
 
 	/// skills that hero may receive or lose
@@ -147,6 +148,7 @@ struct DLL_LINKAGE Reward final
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
 		{
 			h & playerBonuses;
+			h & commanderBonuses;
 		}
 		h & grantedArtifacts;
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)

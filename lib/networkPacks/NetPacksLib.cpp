@@ -1014,6 +1014,9 @@ void GiveBonus::applyGs(CGameState *gs)
 	case ETarget::OBJECT:
 		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getObjInstance(id.as<ObjectInstanceID>()));
 		break;
+	case ETarget::HERO_COMMANDER:
+		cbsn = gs->getHero(id.as<ObjectInstanceID>())->getCommander();
+		break;
 	case ETarget::PLAYER:
 		cbsn = gs->getPlayerState(id.as<PlayerColor>());
 		break;

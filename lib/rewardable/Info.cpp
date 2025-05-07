@@ -175,6 +175,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 
 	reward.removeObject = source["removeObject"].Bool();
 	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);
+	reward.commanderBonuses = randomizer.loadBonuses(source["commanderBonuses"]);
 	reward.playerBonuses = randomizer.loadBonuses(source["playerBonuses"]);
 
 	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
