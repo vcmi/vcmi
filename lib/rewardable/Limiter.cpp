@@ -86,30 +86,9 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	bool foundExtraCreatures = false;
-	int testedSlots = 0;
-	for(const auto & reqStack : creatures)
+	if (!creatures.empty())
 	{
-		size_t count = 0;
-		for(const auto & slot : hero->Slots())
-		{
-			const auto & heroStack = slot.second;
-			if (heroStack->getType() == reqStack.getType())
-			{
-				count += heroStack->getCount();
-				testedSlots += 1;
-			}
-		}
-		if (count > reqStack.getCount())
-			foundExtraCreatures = true;
-
-		if (count < reqStack.getCount()) //not enough creatures of this kind
-			return false;
-	}
-
-	if (hasExtraCreatures)
-	{
-		if (!foundExtraCreatures && testedSlots >= hero->Slots().size())
+		if (!hero->hasUnits(creatures, hasExtraCreatures))
 			return false;
 	}
 

@@ -101,29 +101,7 @@ const std::string & CQuest::missionState(int state)
 
 bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 {
-	std::vector<CStackBasicDescriptor>::const_iterator cre;
-	TSlots::const_iterator it;
-	ui32 count = 0;
-	ui32 slotsCount = 0;
-	bool hasExtraCreatures = false;
-	for(cre = q->mission.creatures.begin(); cre != q->mission.creatures.end(); ++cre)
-	{
-		for(count = 0, it = army->Slots().begin(); it != army->Slots().end(); ++it)
-		{
-			if(it->second->getType() == cre->getType())
-			{
-				count += it->second->getCount();
-				slotsCount++;
-			}
-		}
-
-		if(static_cast<TQuantity>(count) < cre->getCount()) //not enough creatures of this kind
-			return false;
-
-		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->getCount();
-	}
-
-	return hasExtraCreatures || slotsCount < army->Slots().size();
+	return army->hasUnits(q->mission.creatures, true);
 }
 
 bool CQuest::checkQuest(const CGHeroInstance * h) const

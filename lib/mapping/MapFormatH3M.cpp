@@ -2429,6 +2429,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		{
 			size_t typeNumber = reader->readUInt8();
 			guard->getQuest().mission.creatures.resize(typeNumber);
+			guard->getQuest().mission.hasExtraCreatures = true;
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
 				guard->getQuest().mission.creatures[hh].setType(reader->readCreature().toCreature());
