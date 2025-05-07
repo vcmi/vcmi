@@ -19,22 +19,22 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CCombinedArtifactInstance::PartInfo::PartInfo(IGameCallback * cb)
-	:GameCallbackHolder(cb)
-{}
-
 CCombinedArtifactInstance::PartInfo::PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot)
-	: GameCallbackHolder(artifact->cb)
-	, artifactID(artifact->getId())
+	: artifactID(artifact->getId())
+	, artifactPtr(artifact)
 	, slot(slot)
 {
 }
 
 const CArtifactInstance * CCombinedArtifactInstance::PartInfo::getArtifact() const
 {
-	if (artifactID.hasValue())
-		return cb->getArtInstance(artifactID);
-	return nullptr;
+	assert(artifactPtr != nullptr || !artifactID.hasValue());
+	return artifactPtr;
+}
+
+ArtifactInstanceID CCombinedArtifactInstance::PartInfo::getArtifactID() const
+{
+	return artifactID;
 }
 
 void CCombinedArtifactInstance::addPart(const CArtifactInstance * art, const ArtifactPosition & slot)
@@ -57,7 +57,7 @@ bool CCombinedArtifactInstance::isPart(const CArtifactInstance * supposedPart) c
 
 	for(const PartInfo & constituent : partsInfo)
 	{
-		if(constituent.artifactID == supposedPart->getId())
+		if(constituent.getArtifactID() == supposedPart->getId())
 			return true;
 	}
 
@@ -186,7 +186,10 @@ bool CArtifactInstance::isScroll() const
 void CArtifactInstance::attachToBonusSystem(CGameState & gs)
 {
 	for(PartInfo & part : partsInfo)
-		attachToSource(*gs.getArtInstance(part.artifactID));
+	{
+		part = PartInfo(gs.getArtInstance(part.getArtifactID()), part.slot);
+		attachToSource(*gs.getArtInstance(part.getArtifactID()));
+	}
 }
 
 void CArtifactInstance::saveCompatibilityFixArtifactID(std::shared_ptr<CArtifactInstance> self)

@@ -281,7 +281,7 @@ bool CArtifactSet::isPositionFree(const ArtifactPosition & pos, bool onlyLockChe
 		return artifactsInBackpack.size() < GameConstants::ALTAR_ARTIFACTS_SLOTS;
 
 	if(const ArtSlotInfo *s = getSlot(pos))
-		return (onlyLockCheck || !s->getArt()) && !s->locked;
+		return (onlyLockCheck || !s->getID().hasValue()) && !s->locked;
 
 	return true; //no slot means not used
 }
