@@ -1,0 +1,26 @@
+{% import 'vars.jinja' as vars %}
+
+include(common)
+
+[settings]
+compiler=msvc
+compiler.cppstd={{ vars.cppstd }}
+compiler.runtime=dynamic
+compiler.version=194
+os=Windows
+
+[conf]
+# https://walbourn.github.io/a-brief-history-of-windows-sdks/
+# https://learn.microsoft.com/en-us/cpp/porting/modifying-winver-and-win32-winnt
+# https://learn.microsoft.com/en-us/windows/win32/WinProg/using-the-windows-headers
+{% set _WIN32_WINNT_WIN7 = '0x0601' %}
+{% set NTDDI_WIN7 = '0x06010000' %}
+{% set win7_defines = [
+    '_WIN32_WINNT={}'.format(_WIN32_WINNT_WIN7),
+    'WINVER={}'.format(_WIN32_WINNT_WIN7),
+    'NTDDI_VERSION={}'.format(NTDDI_WIN7),
+] %}
+tools.build:defines={{ win7_defines }}
+
+[options]
+ffmpeg/*:shared=True

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-sudo apt-get update
-sudo apt-get install ninja-build
+# for LuaJIT 32-bit
+sudo apt-get install libc6-dev-i386

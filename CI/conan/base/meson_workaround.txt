@@ -1,0 +1,2 @@
+[properties]
+sys_root = ''
