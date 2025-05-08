@@ -9,17 +9,12 @@
  */
 #pragma once
 
-#include "StdInc.h"
-
-#include "GameConstants.h"
+#include "../../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CArtHandler;
-class CArtifact;
 class CGHeroInstance;
 class CArtifactSet;
-class CArtifactInstance;
 struct ArtSlotInfo;
 
 namespace ArtifactUtils
@@ -39,8 +34,6 @@ namespace ArtifactUtils
 	DLL_LINKAGE bool isSlotEquipment(const ArtifactPosition & slot);
 	DLL_LINKAGE bool isBackpackFreeSlots(const CArtifactSet * target, const size_t reqSlots = 1);
 	DLL_LINKAGE std::vector<const CArtifact*> assemblyPossibilities(const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped = false);
-	DLL_LINKAGE CArtifactInstance * createScroll(const SpellID & spellId);
-	DLL_LINKAGE CArtifactInstance * createArtifact(const ArtifactID & artId, const SpellID & spellId = SpellID::NONE);
 	DLL_LINKAGE void insertScrrollSpellName(std::string & description, const SpellID & sid);
 }
 

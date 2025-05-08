@@ -93,7 +93,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(const Rewardable::VisitInfo
 
 		if (props.hide)
 		{
-			for (auto & player : cb->gameState()->players)
+			for (auto & player : cb->gameState().players)
 			{
 				if (cb->getPlayerStatus(player.first) == EPlayerStatus::INGAME && cb->getPlayerRelations(player.first, hero->getOwner()) == PlayerRelations::ENEMIES)
 					cb->changeFogOfWar(tiles, player.first, ETileVisibility::HIDDEN);
@@ -145,7 +145,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		smp.val = hero->movementPointsRemaining();
 
 		if (info.reward.movePercentage >= 0) // percent from max
-			smp.val = hero->movementPointsLimit(hero->boat && hero->boat->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
+			smp.val = hero->movementPointsLimit(hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::SAIL) * info.reward.movePercentage / 100;
 		smp.val = std::max<si32>(0, smp.val + info.reward.movePoints);
 
 		cb->setMovePoints(&smp);
@@ -179,7 +179,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	{
 		for(const auto & slot : hero->Slots())
 		{
-			const CStackInstance * heroStack = slot.second;
+			const auto & heroStack = slot.second;
 
 			for(const auto & change : info.reward.creaturesChange)
 			{
@@ -197,7 +197,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 	{
 		CCreatureSet creatures;
 		for(const auto & crea : info.reward.creatures)
-			creatures.addToSlot(creatures.getFreeSlot(), new CStackInstance(crea.getCreature(), crea.count));
+			creatures.addToSlot(creatures.getFreeSlot(), std::make_unique<CStackInstance>(cb, crea.getId(), crea.getCount()));
 
 		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
 			cb->giveCreatures(army, hero, creatures, false);
@@ -212,7 +212,7 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 	if(info.reward.removeObject)
 		if(auto * instance = dynamic_cast<const CGObjectInstance*>(this))
-			cb->removeAfterVisit(instance);
+			cb->removeAfterVisit(instance->id);
 }
 
 void Rewardable::Interface::serializeJson(JsonSerializeFormat & handler)

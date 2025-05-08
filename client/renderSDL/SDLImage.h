@@ -49,9 +49,10 @@ public:
 	SDLImageShared(const ImagePath & filename);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImageShared(SDL_Surface * from);
-	/// Creates image at specified scaling factor from source image
-	SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm);
 	~SDLImageShared();
+
+	/// Creates image at specified scaling factor from source image
+	static std::shared_ptr<SDLImageShared> createScaled(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm);
 
 	void scaledDraw(SDL_Surface * where, SDL_Palette * palette, const Point & scaling, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;
 	void draw(SDL_Surface * where, SDL_Palette * palette, const Point & dest, const Rect * src, const ColorRGBA & colorMultiplier, uint8_t alpha, EImageBlitMode mode) const override;

@@ -19,6 +19,7 @@
 
 #include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
 #include "../serializer/CLoadFile.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -30,14 +31,17 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapInfo::CMapInfo()
-	: scenarioOptionsOfSave(nullptr), amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
+	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
 {
 
 }
 
-CMapInfo::~CMapInfo()
+CMapInfo::~CMapInfo() = default;
+
+std::string CMapInfo::getFullFileURI(const ResourcePath & file) const
 {
-	vstd::clear_pointer(scenarioOptionsOfSave);
+	auto path = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file));
+	return TextOperations::filesystemPathToUtf8(path);
 }
 
 void CMapInfo::mapInit(const std::string & fname)
@@ -46,7 +50,7 @@ void CMapInfo::mapInit(const std::string & fname)
 	CMapService mapService;
 	ResourcePath resource = ResourcePath(fname, EResType::MAP);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = getFullFileURI(resource);
 	mapHeader = mapService.loadMapHeader(resource);
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -55,14 +59,19 @@ void CMapInfo::mapInit(const std::string & fname)
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), ESerializationVersion::MINIMAL);
-	lf.checkMagicBytes(SAVEGAME_MAGIC);
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), nullptr);
 
 	mapHeader = std::make_unique<CMapHeader>();
-	lf >> *(mapHeader) >> scenarioOptionsOfSave;
+	scenarioOptionsOfSave = std::make_unique<StartInfo>();
+	lf.load(*mapHeader);
+	if (lf.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
+		lf.load(*scenarioOptionsOfSave);
+	else
+		lf.load(scenarioOptionsOfSave);
+
 	fileURI = file.getName();
 	originalFileURI = file.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(file)).string();
+	fullFileURI = getFullFileURI(file);
 	countPlayers();
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(file));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
@@ -76,7 +85,7 @@ void CMapInfo::campaignInit()
 {
 	ResourcePath resource = ResourcePath(fileURI, EResType::CAMPAIGN);
 	originalFileURI = resource.getOriginalName();
-	fullFileURI = boost::filesystem::canonical(*CResourceHandler::get()->getResourceName(resource)).string();
+	fullFileURI = getFullFileURI(resource);
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = boost::filesystem::last_write_time(*CResourceHandler::get()->getResourceName(resource));
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);

@@ -38,7 +38,7 @@ class NetworkConnection final : public INetworkConnection, public std::enable_sh
 	void onDataSent(const boost::system::error_code & ec);
 
 public:
-	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, const std::shared_ptr<NetworkContext> & context);
+	NetworkConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkSocket> & socket, NetworkContext & context);
 
 	void start();
 	void close() override;
@@ -49,11 +49,11 @@ public:
 class InternalConnection final : public IInternalConnection, public std::enable_shared_from_this<InternalConnection>
 {
 	std::weak_ptr<IInternalConnection> otherSideWeak;
-	std::shared_ptr<NetworkContext> io;
+	NetworkContext & io;
 	INetworkConnectionListener & listener;
 	bool connectionActive = false;
 public:
-	InternalConnection(INetworkConnectionListener & listener, const std::shared_ptr<NetworkContext> & context);
+	InternalConnection(INetworkConnectionListener & listener, NetworkContext & context);
 
 	void receivePacket(const std::vector<std::byte> & message) override;
 	void disconnect() override;

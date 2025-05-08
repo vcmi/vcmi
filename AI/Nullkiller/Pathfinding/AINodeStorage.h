@@ -286,12 +286,12 @@ public:
 
 	inline EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const
 	{
-		return (*this->accessibility)[tile.z][tile.x][tile.y][layer];
+		return (*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()];
 	}
 
 	inline void resetTile(const int3 & tile, EPathfindingLayer layer, EPathAccessibility tileAccessibility)
 	{
-		(*this->accessibility)[tile.z][tile.x][tile.y][layer] = tileAccessibility;
+		(*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()] = tileAccessibility;
 	}
 
 	inline int getBucket(const ChainActor * actor) const

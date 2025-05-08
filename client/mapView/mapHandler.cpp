@@ -57,9 +57,9 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
-	for(const auto & object : map->objects)
+	for(const auto & object : map->getObjects())
 	{
-		if(object && object->coveringAt(pos) && object->isTile2Terrain())
+		if(object->coveringAt(pos) && object->isTile2Terrain())
 		{
 			result = object->getObjectName();
 			break;

@@ -62,7 +62,7 @@ void BuyArmy::accept(AIGateway * ai)
 			{
 				SlotID lowestValueSlot;
 				int lowestValue = std::numeric_limits<int>::max();
-				for (auto slot : town->getUpperArmy()->Slots())
+				for (const auto & slot : town->getUpperArmy()->Slots())
 				{
 					if (slot.second->getCreatureID() != CreatureID::NONE)
 					{
@@ -97,9 +97,9 @@ void BuyArmy::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
-	if(town->visitingHero && !town->garrisonHero)
+	if(town->getVisitingHero() && !town->getGarrisonHero())
 	{
-		ai->moveHeroToTile(town->visitablePos(), town->visitingHero.get());
+		ai->moveHeroToTile(town->visitablePos(), town->getVisitingHero());
 	}
 }
 

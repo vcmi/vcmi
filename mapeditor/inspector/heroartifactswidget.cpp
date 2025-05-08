@@ -13,12 +13,17 @@
 #include "ui_heroartifactswidget.h"
 #include "inspector.h"
 #include "mapeditorroles.h"
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/constants/StringConstants.h"
+#include "../mapcontroller.h"
 
-HeroArtifactsWidget::HeroArtifactsWidget(CGHeroInstance & h, QWidget * parent) :
+#include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/mapping/CMap.h"
+
+HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInstance & h, QWidget * parent) :
 	QDialog(parent),
 	ui(new Ui::HeroArtifactsWidget),
+	controller(controller),
 	hero(h),
 	fittingSet(CArtifactFittingSet(h))
 {
@@ -52,7 +57,7 @@ void HeroArtifactsWidget::on_removeButton_clicked()
 
 void HeroArtifactsWidget::onSaveArtifact(int32_t artifactIndex, ArtifactPosition slot) 
 {
-	auto artifact = ArtifactUtils::createArtifact(LIBRARY->arth->getByIndex(artifactIndex)->getId());
+	auto artifact = controller.map()->createArtifact(LIBRARY->arth->getByIndex(artifactIndex)->getId());
 	fittingSet.putArtifact(slot, artifact);
 	addArtifactToTable(artifactIndex, slot);
 }
@@ -79,11 +84,11 @@ void HeroArtifactsWidget::obtainData()
 	std::vector<const CArtifact *> combinedArtifactsParts;
 	for (const auto & [artPosition, artSlotInfo] : fittingSet.artifactsWorn)
 	{
-		addArtifactToTable(LIBRARY->arth->getById(artSlotInfo.artifact->getTypeId())->getIndex(), artPosition);
+		addArtifactToTable(LIBRARY->arth->getById(artSlotInfo.getArt()->getTypeId())->getIndex(), artPosition);
 	}
 	for (const auto & art : hero.artifactsInBackpack)
 	{
-		addArtifactToTable(LIBRARY->arth->getById(art.artifact->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
+		addArtifactToTable(LIBRARY->arth->getById(art.getArt()->getTypeId())->getIndex(), ArtifactPosition::BACKPACK_START);
 	}
 }
 
@@ -101,22 +106,25 @@ void HeroArtifactsWidget::commitChanges()
 
 	for(const auto & [artPosition, artSlotInfo] : fittingSet.artifactsWorn)
 	{
-		hero.putArtifact(artPosition, artSlotInfo.artifact);
+		hero.putArtifact(artPosition, artSlotInfo.getArt());
 	}
 
 	for(const auto & art : fittingSet.artifactsInBackpack)
 	{
-		hero.putArtifact(ArtifactPosition::BACKPACK_START + static_cast<int>(hero.artifactsInBackpack.size()), art.artifact);
+		hero.putArtifact(ArtifactPosition::BACKPACK_START + static_cast<int>(hero.artifactsInBackpack.size()), art.getArt());
 	}
 }
 
-HeroArtifactsDelegate::HeroArtifactsDelegate(CGHeroInstance & h) : BaseInspectorItemDelegate(), hero(h)
+HeroArtifactsDelegate::HeroArtifactsDelegate(MapController & controller, CGHeroInstance & h)
+	: BaseInspectorItemDelegate()
+	, controller(controller)
+	, hero(h)
 {
 }
 
 QWidget * HeroArtifactsDelegate::createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
-	return new HeroArtifactsWidget(hero, parent);
+	return new HeroArtifactsWidget(controller, hero, parent);
 }
 
 void HeroArtifactsDelegate::setEditorData(QWidget * editor, const QModelIndex & index) const
@@ -150,12 +158,12 @@ void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QM
 	for(const auto & [artPosition, artSlotInfo] : hero.artifactsWorn)
 	{
 		auto slotText = NArtifactPosition::namesHero[artPosition.num];
-		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.artifact->getType()->getNameTranslated()));
+		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.getArt()->getType()->getNameTranslated()));
 	}
 	textList += QString("%1:").arg(QString::fromStdString(NArtifactPosition::backpack));
 	for(const auto & art : hero.artifactsInBackpack)
 	{
-		textList += QString::fromStdString(art.artifact->getType()->getNameTranslated());
+		textList += QString::fromStdString(art.getArt()->getType()->getNameTranslated());
 	}
 	setModelTextData(model, index, textList);
 }

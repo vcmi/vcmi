@@ -180,7 +180,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
+	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % ai->settings->getPathfinderBucketsCount();
 	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
@@ -284,7 +284,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 					return;
 				}
 
-				auto weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](std::pair<SlotID, const CStackInstance *> pair) -> int
+				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
 						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
 					});
@@ -958,7 +958,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 	{
 		// do not allow our own heroes in garrison to act on map
 		if(hero.first->getOwner() == ai->playerID
-			&& hero.first->inTownGarrison
+			&& hero.first->isGarrisoned()
 			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
 		{
 			continue;
@@ -969,7 +969,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 		if(actor->hero->tempOwner != ai->playerID)
 		{
-			bool onLand = !actor->hero->boat || actor->hero->boat->layer != EPathfindingLayer::SAIL;
+			bool onLand = !actor->hero->inBoat() || actor->hero->getBoat()->layer != EPathfindingLayer::SAIL;
 			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
 		}
 
@@ -987,9 +987,9 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = FirstActorMask << actors.size();
 
-		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE
+		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->getGarrisonHero()) != HeroLockedReason::DEFENCE
 		// check defence imrove
-		if(!town->garrisonHero)
+		if(!town->getGarrisonHero())
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
@@ -1185,19 +1185,19 @@ void AINodeStorage::calculateTownPortal(
 	{
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero
+			if(targetTown->getVisitingHero()
 				&& targetTown->getUpperArmy()->stacksCount()
-				&& maskMap.find(targetTown->visitingHero.get()) != maskMap.end())
+				&& maskMap.find(targetTown->getVisitingHero()) != maskMap.end())
 			{
-				auto basicMask = maskMap.at(targetTown->visitingHero.get());
+				auto basicMask = maskMap.at(targetTown->getVisitingHero());
 				bool sameActorInTown = actor->chainMask == basicMask;
 
 				if(!sameActorInTown)
 					continue;
 			}
 
-			if (targetTown->visitingHero
-				&& (targetTown->visitingHero.get()->getFactionID() != actor->hero->getFactionID()
+			if (targetTown->getVisitingHero()
+				&& (targetTown->getVisitingHero()->getFactionID() != actor->hero->getFactionID()
 					|| targetTown->getUpperArmy()->stacksCount()))
 				continue;
 

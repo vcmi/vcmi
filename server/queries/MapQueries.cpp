@@ -73,7 +73,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto stacks = dynamic_cast<const BulkMergeStacks*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_cast<const BulkSmartSplitStack*>(pack))
+	if(auto stacks = dynamic_cast<const BulkSplitAndRebalanceStack*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
 	if(auto stacks = dynamic_cast<const BulkMoveArmy*>(pack))
@@ -81,13 +81,14 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
-		if(auto id1 = arts->src.artHolder)
-			if(!vstd::contains(ourIds, id1))
-				return true;
+		auto id1 = arts->src.artHolder;
+		if(id1.hasValue() && !vstd::contains(ourIds, id1))
+			return true;
 
-		if(auto id2 = arts->dst.artHolder)
-			if(!vstd::contains(ourIds, id2))
-				return true;
+		auto id2 = arts->dst.artHolder;
+		if(id2.hasValue() && !vstd::contains(ourIds, id2))
+			return true;
+
 		return false;
 	}
 	if(auto dismiss = dynamic_cast<const DisbandCreature*>(pack))
@@ -101,7 +102,8 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto art = dynamic_cast<const EraseArtifactByClient*>(pack))
 	{
-		if(auto id = art->al.artHolder)
+		auto id = art->al.artHolder;
+		if(id.hasValue())
 			return !vstd::contains(ourIds, id);
 	}
 
@@ -237,7 +239,7 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
 	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
-	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
+	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const

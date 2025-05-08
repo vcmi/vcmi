@@ -11,19 +11,26 @@
 
 #include "../networkPacks/TradeItem.h"
 #include "../constants/Enumerations.h"
-#include "../CArtHandler.h"
+#include "../entities/artifact/CArtifactSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE IMarket : public virtual Serializeable, boost::noncopyable
 {
 public:
-	IMarket();
+	explicit IMarket(IGameCallback *cb);
 	~IMarket();
 
 	class CArtifactSetAltar : public CArtifactSet
 	{
+		IGameCallback *cb;
 	public:
+		CArtifactSetAltar(IGameCallback *cb)
+			: CArtifactSet(cb)
+			, cb(cb)
+		{}
+
+		IGameCallback * getCallback() const override {return cb;};
 		ArtBearer::ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 

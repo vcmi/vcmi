@@ -13,11 +13,11 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "../ArtifactUtils.h"
 #include "../CSoundBase.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
 #include "../IGameCallback.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -112,15 +112,15 @@ bool CQuest::checkMissionArmy(const CQuest * q, const CCreatureSet * army)
 		{
 			if(it->second->getType() == cre->getType())
 			{
-				count += it->second->count;
+				count += it->second->getCount();
 				slotsCount++;
 			}
 		}
 
-		if(static_cast<TQuantity>(count) < cre->count) //not enough creatures of this kind
+		if(static_cast<TQuantity>(count) < cre->getCount()) //not enough creatures of this kind
 			return false;
 
-		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->count;
+		hasExtraCreatures |= static_cast<TQuantity>(count) > cre->getCount();
 	}
 
 	return hasExtraCreatures || slotsCount < army->Slots().size();
@@ -164,8 +164,8 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 			// Disassemble this backpack artifact
 			for(const auto & ci : parts)
 			{
-				if(ci.art->getTypeId() != elem)
-					cb->giveHeroNewArtifact(h, ci.art->getTypeId(), ArtifactPosition::BACKPACK_START);
+				if(ci.getArtifact()->getTypeId() != elem)
+					cb->giveHeroNewArtifact(h, ci.getArtifact()->getTypeId(), ArtifactPosition::BACKPACK_START);
 			}
 
 			continue;
@@ -178,7 +178,7 @@ void CQuest::completeQuest(IGameCallback * cb, const CGHeroInstance *h) const
 	cb->giveResources(h->getOwner(), -mission.resources);
 }
 
-void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -277,7 +277,7 @@ void CQuest::addTextReplacements(IGameCallback * cb, MetaString & text, std::vec
 		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(IGameCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(const CGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -293,7 +293,7 @@ void CQuest::getVisitText(IGameCallback * cb, MetaString &iwText, std::vector<Co
 	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(IGameCallback * cb, MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(const CGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -306,7 +306,7 @@ void CQuest::getRolloverText(IGameCallback * cb, MetaString &ms, bool onHover) c
 	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(IGameCallback * cb, MetaString &iwText) const
+void CQuest::getCompletionText(const CGameInfoCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	
@@ -415,36 +415,37 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 
 }
 
+IQuestObject::IQuestObject()
+	:quest(std::make_shared<CQuest>())
+{}
+
+IQuestObject::~IQuestObject() = default;
+
 bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 {
-	return quest->checkQuest(h);
+	return getQuest().checkQuest(h);
 }
 
 void CGSeerHut::getVisitText(MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest->getVisitText(cb, text, components, FirstVisit, h);
-}
-
-void IQuestObject::afterAddToMapCommon(CMap * map) const
-{
-	map->addNewQuestInstance(quest);
+	getQuest().getVisitText(cb, text, components, FirstVisit, h);
 }
 
 void CGSeerHut::setObjToKill()
 {
-	if(quest->killTarget == ObjectInstanceID::NONE)
+	if(getQuest().killTarget == ObjectInstanceID::NONE)
 		return;
 	
 	if(getCreatureToKill(true))
 	{
-		quest->stackToKill = getCreatureToKill(false)->getCreatureID();
-		assert(quest->stackToKill != CreatureID::NONE);
-		quest->stackDirection = checkDirection();
+		getQuest().stackToKill = getCreatureToKill(false)->getCreatureID();
+		assert(getQuest().stackToKill != CreatureID::NONE);
+		getQuest().stackDirection = checkDirection();
 	}
 	else if(getHeroToKill(true))
 	{
-		quest->heroName = getHeroToKill(false)->getNameTranslated();
-		quest->heroPortrait = getHeroToKill(false)->getPortraitSource();
+		getQuest().heroName = getHeroToKill(false)->getNameTranslated();
+		getQuest().heroPortrait = getHeroToKill(false)->getPortraitSource();
 	}
 }
 
@@ -454,8 +455,8 @@ void CGSeerHut::init(vstd::RNG & rand)
 
 	auto seerNameID = *RandomGeneratorUtil::nextItem(names, rand);
 	seerName = LIBRARY->generaltexth->translate(seerNameID);
-	quest->textOption = rand.nextInt(2);
-	quest->completedOption = rand.nextInt(1, 3);
+	getQuest().textOption = rand.nextInt(2);
+	getQuest().completedOption = rand.nextInt(1, 3);
 	
 	configuration.canRefuse = true;
 	configuration.visitMode = Rewardable::EVisitMode::VISIT_ONCE;
@@ -469,33 +470,33 @@ void CGSeerHut::initObj(vstd::RNG & rand)
 	CRewardableObject::initObj(rand);
 	
 	setObjToKill();
-	quest->defineQuestName();
+	getQuest().defineQuestName();
 	
-	if(quest->mission == Rewardable::Limiter{} && quest->killTarget == ObjectInstanceID::NONE)
-		quest->isCompleted = true;
+	if(getQuest().mission == Rewardable::Limiter{} && getQuest().killTarget == ObjectInstanceID::NONE)
+		getQuest().isCompleted = true;
 	
-	if(quest->questName == quest->missionName(EQuestMission::NONE))
+	if(getQuest().questName == getQuest().missionName(EQuestMission::NONE))
 	{
-		quest->firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", quest->completedOption).get());
+		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", getQuest().completedOption).get());
 	}
 	else
 	{
-		if(!quest->isCustomFirst)
-			quest->firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(0), quest->textOption).get());
-		if(!quest->isCustomNext)
-			quest->nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest->questName, quest->missionState(1), quest->textOption).get());
-		if(!quest->isCustomComplete)
-			quest->completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", quest-> questName, quest->missionState(2), quest->textOption).get());
+		if(!getQuest().isCustomFirst)
+			getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest().questName, getQuest().missionState(0), getQuest().textOption).get());
+		if(!getQuest().isCustomNext)
+			getQuest().nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest().questName, getQuest().missionState(1), getQuest().textOption).get());
+		if(!getQuest().isCustomComplete)
+			getQuest().completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", getQuest(). questName, getQuest().missionState(2), getQuest().textOption).get());
 	}
 	
-	quest->getCompletionText(cb, configuration.onSelect);
+	getQuest().getCompletionText(cb, configuration.onSelect);
 	for(auto & i : configuration.info)
-		quest->getCompletionText(cb, i.message);
+		getQuest().getCompletionText(cb, i.message);
 }
 
 void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 {
-	quest->getRolloverText(cb, text, onHover);//TODO: simplify?
+	getQuest().getRolloverText(cb, text, onHover);
 	if(!onHover)
 		text.replaceRawString(seerName);
 }
@@ -503,15 +504,15 @@ void CGSeerHut::getRolloverText(MetaString &text, bool onHover) const
 std::string CGSeerHut::getHoverText(PlayerColor player) const
 {
 	std::string hoverName = getObjectName();
-	if(ID == Obj::SEER_HUT && quest->activeForPlayers.count(player))
+	if(ID == Obj::SEER_HUT && getQuest().activeForPlayers.count(player))
 	{
 		hoverName = LIBRARY->generaltexth->allTexts[347];
 		boost::algorithm::replace_first(hoverName, "%s", seerName);
 	}
 
-	if(quest->activeForPlayers.count(player)
-	   && (quest->mission != Rewardable::Limiter{}
-		   || quest->killTarget != ObjectInstanceID::NONE)) //rollover when the quest is active
+	if(getQuest().activeForPlayers.count(player)
+	   && (getQuest().mission != Rewardable::Limiter{}
+		   || getQuest().killTarget != ObjectInstanceID::NONE)) //rollover when the quest is active
 	{
 		MetaString ms;
 		getRolloverText (ms, true);
@@ -538,16 +539,16 @@ std::string CGSeerHut::getPopupText(const CGHeroInstance * hero) const
 std::vector<Component> CGSeerHut::getPopupComponents(PlayerColor player) const
 {
 	std::vector<Component> result;
-	if (quest->activeForPlayers.count(player))
-		quest->mission.loadComponents(result, nullptr);
+	if (getQuest().activeForPlayers.count(player))
+		getQuest().mission.loadComponents(result, nullptr);
 	return result;
 }
 
 std::vector<Component> CGSeerHut::getPopupComponents(const CGHeroInstance * hero) const
 {
 	std::vector<Component> result;
-	if (quest->activeForPlayers.count(hero->getOwner()))
-		quest->mission.loadComponents(result, hero);
+	if (getQuest().activeForPlayers.count(hero->getOwner()))
+		getQuest().mission.loadComponents(result, hero);
 	return result;
 }
 
@@ -557,13 +558,13 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	{
 		case ObjProperty::SEERHUT_VISITED:
 		{
-			quest->activeForPlayers.emplace(identifier.as<PlayerColor>());
+			getQuest().activeForPlayers.emplace(identifier.as<PlayerColor>());
 			break;
 		}
 		case ObjProperty::SEERHUT_COMPLETE:
 		{
-			quest->isCompleted = identifier.getNum();
-			quest->activeForPlayers.clear();
+			getQuest().isCompleted = identifier.getNum();
+			getQuest().activeForPlayers.clear();
 			break;
 		}
 	}
@@ -572,7 +573,7 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 void CGSeerHut::newTurn(vstd::RNG & rand) const
 {
 	CRewardableObject::newTurn(rand);
-	if(quest->lastDay >= 0 && quest->lastDay <= cb->getDate() - 1) //time is up
+	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getDate() - 1) //time is up
 	{
 		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
 	}
@@ -582,9 +583,9 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if(!quest->isCompleted)
+	if(!getQuest().isCompleted)
 	{
-		bool firstVisit = !quest->activeForPlayers.count(h->getOwner());
+		bool firstVisit = !getQuest().activeForPlayers.count(h->getOwner());
 		bool failRequirements = !checkQuest(h);
 
 		if(firstVisit)
@@ -592,7 +593,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 			cb->setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 			AddQuest aq;
-			aq.quest = QuestInfo (quest, this, visitablePos());
+			aq.quest = QuestInfo(id);
 			aq.player = h->tempOwner;
 			cb->sendAndApply(aq); //TODO: merge with setObjProperty?
 		}
@@ -611,7 +612,7 @@ void CGSeerHut::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 	{
-		iw.text.appendRawString(LIBRARY->generaltexth->seerEmpty[quest->completedOption]);
+		iw.text.appendRawString(LIBRARY->generaltexth->seerEmpty[getQuest().completedOption]);
 		if (ID == Obj::SEER_HUT)
 			iw.text.replaceRawString(seerName);
 		cb->showInfoDialog(&iw);
@@ -652,7 +653,7 @@ int CGSeerHut::checkDirection() const
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObj(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(getQuest().killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGHeroInstance *>(o);
@@ -660,7 +661,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObj(quest->killTarget);
+	const CGObjectInstance *o = cb->getObj(getQuest().killTarget);
 	if(allowNull && !o)
 		return nullptr;
 	return dynamic_cast<const CGCreature *>(o);
@@ -671,21 +672,16 @@ void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answe
 	CRewardableObject::blockingDialogAnswered(hero, answer);
 	if(answer)
 	{
-		quest->completeQuest(cb, hero);
-		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !quest->repeatedQuest); //mission complete
+		getQuest().completeQuest(cb, hero);
+		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, !getQuest().repeatedQuest); //mission complete
 	}
-}
-
-void CGSeerHut::afterAddToMap(CMap* map)
-{
-	IQuestObject::afterAddToMapCommon(map);
 }
 
 void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
-	quest->serializeJson(handler, "quest");
+	getQuest().serializeJson(handler, "quest");
 	
 	if(!handler.saving)
 	{
@@ -760,8 +756,8 @@ void CGSeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 void CGQuestGuard::init(vstd::RNG & rand)
 {
 	blockVisit = true;
-	quest->textOption = rand.nextInt(3, 5);
-	quest->completedOption = rand.nextInt(4, 5);
+	getQuest().textOption = rand.nextInt(3, 5);
+	getQuest().completedOption = rand.nextInt(4, 5);
 	
 	configuration.info.push_back({});
 	configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
@@ -771,7 +767,7 @@ void CGQuestGuard::init(vstd::RNG & rand)
 
 void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(!quest->isCompleted)
+	if(!getQuest().isCompleted)
 		CGSeerHut::onHeroVisit(h);
 	else
 		cb->setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, false);
@@ -779,13 +775,13 @@ void CGQuestGuard::onHeroVisit(const CGHeroInstance * h) const
 
 bool CGQuestGuard::passableFor(PlayerColor color) const
 {
-	return quest->isCompleted;
+	return getQuest().isCompleted;
 }
 
 void CGQuestGuard::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	//quest only, do not call base class
-	quest->serializeJson(handler, "quest");
+	getQuest().serializeJson(handler, "quest");
 }
 
 bool CGKeys::wasMyColorVisited(const PlayerColor & player) const
@@ -869,7 +865,7 @@ void CGBorderGuard::onHeroVisit(const CGHeroInstance * h) const
 		h->showInfoDialog(18);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (quest, this, visitablePos());
+		aq.quest = QuestInfo(id);
 		aq.player = h->tempOwner;
 		cb->sendAndApply(aq);
 		//TODO: add this quest only once OR check for multiple instances later
@@ -882,11 +878,6 @@ void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, int32_t a
 		cb->removeObject(this, hero->getOwner());
 }
 
-void CGBorderGuard::afterAddToMap(CMap * map)
-{
-	IQuestObject::afterAddToMapCommon(map);
-}
-
 void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passability
 {
 	if (!wasMyColorVisited (h->getOwner()) )
@@ -894,7 +885,7 @@ void CGBorderGate::onHeroVisit(const CGHeroInstance * h) const //TODO: passabili
 		h->showInfoDialog(18);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (quest, this, visitablePos());
+		aq.quest = QuestInfo(id);
 		aq.player = h->tempOwner;
 		cb->sendAndApply(aq);
 	}

@@ -29,17 +29,19 @@
 #include "../battle/BattleInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/CStack.h"
+
 #include "../../lib/CBonusTypeHandler.h"
+#include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/bonuses/Propagators.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/UpgradeInfo.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/bonuses/Propagators.h"
 
 class CCreatureArtifactInstance;
 class CSelectableSkill;
@@ -487,7 +489,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 	for(auto equippedArtifact : parent->info->commander->artifactsWorn)
 	{
 		Point artPos = getArtifactPos(equippedArtifact.first);
-		const auto commanderArt = equippedArtifact.second.artifact;
+		const auto commanderArt = equippedArtifact.second.getArt();
 		assert(commanderArt);
 		auto artPlace = std::make_shared<CCommanderArtPlace>(artPos, parent->info->owner, equippedArtifact.first, commanderArt->getTypeId());
 		artifacts.push_back(artPlace);
@@ -592,18 +594,17 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	name = std::make_shared<CLabel>(215, 13, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW, parent->info->getName());
 
-	const BattleInterface* battleInterface = GAME->interface()->battleInt.get();
 	const CStack* battleStack = parent->info->stack;
 
 	int dmgMultiply = 1;
-	if (battleInterface && battleInterface->getBattle() != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
+	if (battleStack != nullptr && battleStack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
-		// Determine the relevant hero based on the unit side
-		const auto hero = (battleStack->unitSide() == BattleSide::ATTACKER)
-			? battleInterface->attackingHeroInstance
-			: battleInterface->defendingHeroInstance;
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
 
-		dmgMultiply += hero->getPrimSkillLevel(PrimarySkill::ATTACK);
+		dmgMultiply += battleStack->valOfBonuses(bonusSelector);
 	}
 		
 	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
@@ -663,7 +664,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			area->component.value = commander->getExpRank();
 			boost::replace_first(area->text, "%d", std::to_string(commander->getExpRank()));
 			boost::replace_first(area->text, "%d", std::to_string(LIBRARY->heroh->reqExp(commander->getExpRank() + 1)));
-			boost::replace_first(area->text, "%d", std::to_string(commander->experience));
+			boost::replace_first(area->text, "%d", std::to_string(commander->getAverageExperience()));
 		}
 		else
 		{
@@ -673,7 +674,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		expLabel = std::make_shared<CLabel>(
 				pos.x + 21, pos.y + 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-				TextOperations::formatMetric(stack->experience, 6));
+				TextOperations::formatMetric(stack->getAverageExperience(), 6));
 	}
 
 	if(showArt)
@@ -737,7 +738,7 @@ void CStackWindow::MainSection::addStatLabel(EStat index, int64_t value)
 
 CStackWindow::CStackWindow(const CStack * stack, bool popup)
 	: CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->stack = stack;
 	info->stackNode = stack->base;
@@ -750,7 +751,7 @@ CStackWindow::CStackWindow(const CStack * stack, bool popup)
 
 CStackWindow::CStackWindow(const CCreature * creature, bool popup)
 	: CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->creature = creature;
 	info->popupWindow = popup;
@@ -759,23 +760,23 @@ CStackWindow::CStackWindow(const CCreature * creature, bool popup)
 
 CStackWindow::CStackWindow(const CStackInstance * stack, bool popup)
 	: CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->stackNode = stack;
 	info->creature = stack->getCreature();
-	info->creatureCount = stack->count;
+	info->creatureCount = stack->getCount();
 	info->popupWindow = popup;
-	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->getArmy());
 	init();
 }
 
 CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> dismiss, const UpgradeInfo & upgradeInfo, std::function<void(CreatureID)> callback)
 	: CWindowObject(BORDERED),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->stackNode = stack;
 	info->creature = stack->getCreature();
-	info->creatureCount = stack->count;
+	info->creatureCount = stack->getCount();
 
 	if(upgradeInfo.canUpgrade())
 	{
@@ -785,26 +786,26 @@ CStackWindow::CStackWindow(const CStackInstance * stack, std::function<void()> d
 	
 	info->dismissInfo = std::make_optional(UnitView::StackDismissInfo());
 	info->dismissInfo->callback = dismiss;
-	info->owner = dynamic_cast<const CGHeroInstance *> (stack->armyObj);
+	info->owner = dynamic_cast<const CGHeroInstance *> (stack->getArmy());
 	init();
 }
 
 CStackWindow::CStackWindow(const CCommanderInstance * commander, bool popup)
 	: CWindowObject(BORDERED | (popup ? RCLICK_POPUP : 0)),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->stackNode = commander;
 	info->creature = commander->getCreature();
 	info->commander = commander;
 	info->creatureCount = 1;
 	info->popupWindow = popup;
-	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
 	init();
 }
 
 CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback)
 	: CWindowObject(BORDERED),
-	info(new UnitView())
+	info(std::make_unique<UnitView>())
 {
 	info->stackNode = commander;
 	info->creature = commander->getCreature();
@@ -813,7 +814,7 @@ CStackWindow::CStackWindow(const CCommanderInstance * commander, std::vector<ui3
 	info->levelupInfo = std::make_optional(UnitView::CommanderLevelInfo());
 	info->levelupInfo->skills = skills;
 	info->levelupInfo->callback = callback;
-	info->owner = dynamic_cast<const CGHeroInstance *> (commander->armyObj);
+	info->owner = dynamic_cast<const CGHeroInstance *> (commander->getArmy());
 	init();
 }
 
@@ -828,7 +829,10 @@ void CStackWindow::init()
 	OBJECT_CONSTRUCTION;
 
 	if(!info->stackNode)
-		info->stackNode = new CStackInstance(info->creature, 1, true);// FIXME: free data
+	{
+		fakeNode = std::make_unique<CStackInstance>(nullptr, info->creature->getId(), 1, true);
+		info->stackNode = fakeNode.get();
+	}
 
 	selectedIcon = nullptr;
 	selectedSkill = -1;
@@ -875,7 +879,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 
-		if(b->sid.getNum() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
+		if(b->sid.as<CreatureID>() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
 			continue;
 
 		//if it's possible to give any description or image for this kind of bonus
@@ -964,8 +968,8 @@ std::string CStackWindow::generateStackExpDescription()
 	boost::replace_first(expText, "%s", creature->getNamePluralTranslated());
 	boost::replace_first(expText, "%s", LIBRARY->generaltexth->translate("vcmi.stackExperience.rank", rank));
 	boost::replace_first(expText, "%i", std::to_string(rank));
-	boost::replace_first(expText, "%i", std::to_string(stack->experience));
-	number = static_cast<int>(LIBRARY->creh->expRanks[tier][rank] - stack->experience);
+	boost::replace_first(expText, "%i", std::to_string(stack->getAverageExperience()));
+	number = static_cast<int>(LIBRARY->creh->expRanks[tier][rank] - stack->getAverageExperience());
 	boost::replace_first(expText, "%i", std::to_string(number));
 
 	number = LIBRARY->creh->maxExpPerBattle[tier]; //percent
@@ -973,10 +977,10 @@ std::string CStackWindow::generateStackExpDescription()
 	number *= LIBRARY->creh->expRanks[tier].back() / 100; //actual amount
 	boost::replace_first(expText, "%i", std::to_string(number));
 
-	boost::replace_first(expText, "%i", std::to_string(stack->count)); //Number of Creatures in stack
+	boost::replace_first(expText, "%i", std::to_string(stack->getCount())); //Number of Creatures in stack
 
 	int expmin = std::max(LIBRARY->creh->expRanks[tier][std::max(rank-1, 0)], (ui32)1);
-	number = static_cast<int>((stack->count * (stack->experience - expmin)) / expmin); //Maximum New Recruits without losing current Rank
+	number = stack->getTotalExperience() / expmin - stack->getCount(); //Maximum New Recruits without losing current Rank
 	boost::replace_first(expText, "%i", std::to_string(number)); //TODO
 
 	boost::replace_first(expText, "%.2f", std::to_string(1)); //TODO Experience Multiplier
@@ -987,7 +991,7 @@ std::string CStackWindow::generateStackExpDescription()
 	int expmax = LIBRARY->creh->expRanks[tier][10];
 	number = expmax - expmin;
 	boost::replace_first(expText, "%i", std::to_string(number)); //Experience after Rank 10
-	number = (stack->count * (expmax - expmin)) / expmin;
+	number = (stack->getCount() * (expmax - expmin)) / expmin;
 	boost::replace_first(expText, "%i", std::to_string(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
 
 	return expText;
@@ -1088,7 +1092,7 @@ void CStackWindow::removeStackArtifact(ArtifactPosition pos)
 	if(slot != ArtifactPosition::PRE_FIRST)
 	{
 		auto artLoc = ArtifactLocation(info->owner->id, pos);
-		artLoc.creature = info->stackNode->armyObj->findStack(info->stackNode);
+		artLoc.creature = info->stackNode->getArmy()->findStack(info->stackNode);
 		GAME->interface()->cb->swapArtifacts(artLoc, ArtifactLocation(info->owner->id, slot));
 		stackArtifactButton.reset();
 		stackArtifact.reset();

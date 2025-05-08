@@ -16,7 +16,6 @@
 #include <vstd/RNG.h>
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../ArtifactUtils.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -30,6 +29,8 @@
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
 #include "CGTownInstance.h"
+#include "../entities/artifact/ArtifactUtils.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/hero/CHeroClass.h"
@@ -254,6 +255,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 
 CGHeroInstance::CGHeroInstance(IGameCallback * cb)
 	: CArmedInstance(cb),
+	CArtifactSet(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
 	moveDir(4),
@@ -308,6 +310,47 @@ void CGHeroInstance::setHeroType(HeroTypeID heroType)
 	subID = heroType;
 }
 
+bool CGHeroInstance::isGarrisoned() const
+{
+	return inTownGarrison;
+}
+
+const CGTownInstance * CGHeroInstance::getVisitedTown() const
+{
+	if (!visitedTown.hasValue())
+		return nullptr;
+
+	return cb->getTown(visitedTown);
+}
+
+CGTownInstance * CGHeroInstance::getVisitedTown()
+{
+	if (!visitedTown.hasValue())
+		return nullptr;
+
+	return dynamic_cast<CGTownInstance*>(cb->gameState().getObjInstance(visitedTown));
+}
+
+void CGHeroInstance::setVisitedTown(const CGTownInstance * town, bool garrisoned)
+{
+	if (town)
+		visitedTown = town->id;
+	else
+		visitedTown = {};
+
+	inTownGarrison = garrisoned;
+}
+
+const CCommanderInstance * CGHeroInstance::getCommander() const
+{
+	return commander.get();
+}
+
+CCommanderInstance * CGHeroInstance::getCommander()
+{
+	return commander.get();
+}
+
 void CGHeroInstance::initObj(vstd::RNG & rand)
 {
 	if (ID == Obj::HERO)
@@ -331,7 +374,7 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 void CGHeroInstance::updateAppearance()
 {
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
 		appearance = app;
@@ -364,7 +407,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		// hero starts with default spellbook presence status
 		if(!getArt(ArtifactPosition::SPELLBOOK) && getHeroType()->haveSpellBook)
 		{
-			auto artifact = ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK);
+			auto artifact = cb->gameState().createArtifact(ArtifactID::SPELLBOOK);
 			putArtifact(ArtifactPosition::SPELLBOOK, artifact);
 		}
 	}
@@ -373,7 +416,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(!getArt(ArtifactPosition::MACH4))
 	{
-		auto artifact = ArtifactUtils::createArtifact(ArtifactID::CATAPULT);
+		auto artifact = cb->gameState().createArtifact(ArtifactID::CATAPULT);
 		putArtifact(ArtifactPosition::MACH4, artifact); //everyone has a catapult
 	}
 
@@ -423,9 +466,9 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if (cb->getSettings().getBoolean(EGameSettings::MODULE_COMMANDERS) && !commander && getHeroClass()->commander.hasValue())
 	{
-		commander = new CCommanderInstance(getHeroClass()->commander);
-		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
-		commander->giveStackExp (exp); //after our exp is set
+		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
+		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
+		commander->giveTotalStackExperience(exp); //after our exp is set
 	}
 
 	skillsInfo = SecondarySkillsInfo();
@@ -486,7 +529,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 
 				if(!getArt(slot))
 				{
-					auto artifact = ArtifactUtils::createArtifact(aid);
+					auto artifact = cb->gameState().createArtifact(aid);
 					putArtifact(slot, artifact);
 				}
 				else
@@ -504,10 +547,7 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 	}
 }
 
-CGHeroInstance::~CGHeroInstance()
-{
-	commander.dellNull();
-}
+CGHeroInstance::~CGHeroInstance() = default;
 
 bool CGHeroInstance::needsLastStack() const
 {
@@ -520,15 +560,15 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 
 	if (ID == Obj::HERO)
 	{
-		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
+		if( cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
 			cb->heroExchange(h->id, id);
 		}
 		else //battle
 		{
-			if(visitedTown) //we're in town
-				visitedTown->onHeroVisit(h); //town will handle attacking
+			if(getVisitedTown()) //we're in town
+				getVisitedTown()->onHeroVisit(h); //town will handle attacking
 			else
 				cb->startBattle(h,	this);
 		}
@@ -545,10 +585,10 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
-			if (cb->gameState()->getMap().getTile(boatPos).isWater())
+			if (cb->gameState().getMap().getTile(boatPos).isWater())
 			{
 				smp.val = movementPointsLimit(false);
-				if (!boat)
+				if (!inBoat())
 				{
 					//Create a new boat for hero
 					cb->createBoat(boatPos, getBoatType(), h->getOwner());
@@ -597,7 +637,7 @@ std::string CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) con
 	if(player == getOwner())
 	{
 		output += " " + LIBRARY->generaltexth->translate("vcmi.adventureMap.movementPointsHeroInfo");
-		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!boat)));
+		boost::replace_first(output, "%POINTS", std::to_string(movementPointsLimit(!inBoat())));
 		boost::replace_first(output, "%REMAINING", std::to_string(movementPointsRemaining()));
 	}
 
@@ -633,7 +673,7 @@ void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
 
 	if (ID == Obj::RANDOM_HERO)
 	{
-		auto selectedHero = cb->gameState()->pickNextHeroType(getOwner());
+		auto selectedHero = cb->gameState().pickNextHeroType(getOwner());
 
 		ID = Obj::HERO;
 		subID = selectedHero;
@@ -682,13 +722,13 @@ void CGHeroInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 
 int CGHeroInstance::getPrimSkillLevel(PrimarySkill id) const
 {
-	return primarySkills.getSkills()[id];
+	return primarySkills.getSkill(id);
 }
 
 double CGHeroInstance::getFightingStrength() const
 {
 	const auto & skillValues = primarySkills.getSkills();
-	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::ATTACK]) * (1.0 + 0.05*skillValues[PrimarySkill::DEFENSE]));
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::ATTACK.getNum()]) * (1.0 + 0.05*skillValues[PrimarySkill::DEFENSE.getNum()]));
 }
 
 double CGHeroInstance::getMagicStrength() const
@@ -707,7 +747,7 @@ double CGHeroInstance::getMagicStrength() const
 	}
 	if (!atLeastOneCombatSpell)
 		return 1;
-	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::KNOWLEDGE] * mana / manaLimit()) * (1.0 + 0.05*skillValues[PrimarySkill::SPELL_POWER] * mana / manaLimit()));
+	return sqrt((1.0 + 0.05*skillValues[PrimarySkill::KNOWLEDGE.getNum()] * mana / manaLimit()) * (1.0 + 0.05*skillValues[PrimarySkill::SPELL_POWER.getNum()] * mana / manaLimit()));
 }
 
 double CGHeroInstance::getHeroStrength() const
@@ -969,11 +1009,13 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
+        if(casualties.empty())
+            return CStackBasicDescriptor();
 		// figure out what to raise - pick strongest creature meeting requirements
 		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
 		int requiredCasualtyLevel = 1;
 		TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
-		if(!improvedNecromancy->empty())
+        if(!improvedNecromancy->empty())
 		{
 			int maxCasualtyLevel = 1;
 			for(const auto & casualty : casualties)
@@ -1037,32 +1079,6 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	return CStackBasicDescriptor();
 }
 
-/**
- * Show the necromancy dialog with information about units raised.
- * @param raisedStack Pair where the first element represents ID of the raised creature
- * and the second element the amount.
- */
-void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const
-{
-	InfoWindow iw;
-	iw.type = EInfoWindowMode::AUTO;
-	iw.soundID = soundBase::pickup01 + rand.nextInt(6);
-	iw.player = tempOwner;
-	iw.components.emplace_back(ComponentType::CREATURE, raisedStack.getId(), raisedStack.count);
-
-	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
-	{
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 145);
-		iw.text.replaceNumber(raisedStack.count);
-	}
-	else // Practicing the dark arts of necromancy, ... (singular)
-	{
-		iw.text.appendLocalString(EMetaText::GENERAL_TXT, 146);
-	}
-	iw.text.replaceName(raisedStack);
-
-	cb->showInfoDialog(&iw);
-}
 /*
 int3 CGHeroInstance::getSightCenter() const
 {
@@ -1084,7 +1100,7 @@ si32 CGHeroInstance::manaRegain() const
 
 si32 CGHeroInstance::getManaNewTurn() const
 {
-	if(visitedTown && visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+	if(getVisitedTown() && getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		//if hero starts turn in town with mage guild - restore all mana
 		return std::max(mana, manaLimit());
@@ -1222,12 +1238,12 @@ std::string CGHeroInstance::getBiographyTextID() const
 	return ""; //for random hero
 }
 
-CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, CArtifactInstance * art)
+CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art)
 {
 	assert(art->canBePutAt(this, pos));
 
 	if(ArtifactUtils::isSlotEquipment(pos))
-		attachTo(*art);
+		attachToSource(*art);
 	return CArtifactSet::putArtifact(pos, art);
 }
 
@@ -1238,7 +1254,7 @@ void CGHeroInstance::removeArtifact(const ArtifactPosition & pos)
 
 	CArtifactSet::removeArtifact(pos);
 	if(ArtifactUtils::isSlotEquipment(pos))
-		detachFrom(*art);
+		detachFromSource(*art);
 }
 
 bool CGHeroInstance::hasSpellbook() const
@@ -1267,7 +1283,7 @@ void CGHeroInstance::removeSpellbook()
 
 	if(hasSpellbook())
 	{
-		cb->gameState()->getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
+		cb->gameState().getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
 }
 
@@ -1281,53 +1297,105 @@ int CGHeroInstance::maxSpellLevel() const
 	return std::min(GameConstants::SPELL_LEVELS, valOfBonuses(BonusType::MAX_LEARNABLE_SPELL_LEVEL));
 }
 
-void CGHeroInstance::attachToBoat(CGBoat* newBoat)
+bool CGHeroInstance::inBoat() const
 {
-	assert(newBoat);
-	boat = newBoat;
-	attachTo(const_cast<CGBoat&>(*boat));
-	const_cast<CGBoat*>(boat)->hero = this;
+	return boardedBoat.hasValue();
 }
 
-
-void CGHeroInstance::deserializationFix()
+const CGBoat * CGHeroInstance::getBoat() const
 {
-	artDeserializationFix(this);
-	boatDeserializationFix();
+	if (boardedBoat.hasValue())
+		return dynamic_cast<const CGBoat*>(cb->getObjInstance(boardedBoat));
+	return nullptr;
 }
 
-void CGHeroInstance::boatDeserializationFix()
+CGBoat * CGHeroInstance::getBoat()
 {
-	if (boat)
-		attachTo(const_cast<CGBoat&>(*boat));
+	if (boardedBoat.hasValue())
+		return dynamic_cast<CGBoat*>(cb->gameState().getObjInstance(boardedBoat));
+	return nullptr;
+}
+
+void CGHeroInstance::setBoat(CGBoat* newBoat)
+{
+	if (newBoat)
+	{
+		boardedBoat = newBoat->id;
+		attachTo(*newBoat);
+		newBoat->setBoardedHero(this);
+	}
+	else if (boardedBoat.hasValue())
+	{
+		auto oldBoat = getBoat();
+		boardedBoat = {};
+		detachFrom(*oldBoat);
+		oldBoat->setBoardedHero(nullptr);
+	}
+}
+
+void CGHeroInstance::restoreBonusSystem(CGameState & gs)
+{
+	CArmedInstance::restoreBonusSystem(gs);
+	artDeserializationFix(gs, this);
+	this->commander->artDeserializationFix(gs, this->commander.get());
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs.getObjInstance(boardedBoat);
+		if (boat)
+			attachTo(dynamic_cast<CGBoat&>(*boat));
+	}
+}
+
+void CGHeroInstance::attachToBonusSystem(CGameState & gs)
+{
+	CArmedInstance::attachToBonusSystem(gs);
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs.getObjInstance(boardedBoat);
+		if (boat)
+			attachTo(dynamic_cast<CGBoat&>(*boat));
+	}
+}
+
+void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
+{
+	CArmedInstance::detachFromBonusSystem(gs);
+	if (boardedBoat.hasValue())
+	{
+		auto boat = gs.getObjInstance(boardedBoat);
+		if (boat)
+			detachFrom(dynamic_cast<CGBoat&>(*boat));
+	}
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
 {
-	if(!visitedTown)
+	if(!getVisitedTown())
 		return nullptr;
 
-	return isBattleOutsideTown ? (CBonusSystemNode *)(& visitedTown->townAndVis)
-		: (CBonusSystemNode *)(visitedTown.get());
+	if (isBattleOutsideTown)
+		return const_cast<CTownAndVisitingHero *>(&getVisitedTown()->townAndVis);
 
+	return const_cast<CGTownInstance*>(getVisitedTown());
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState * gs)
+CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState & gs)
 {
-	if(visitedTown)
-		return whereShouldBeAttachedOnSiege(visitedTown->isBattleOutsideTown(this));
+	if(getVisitedTown())
+		return whereShouldBeAttachedOnSiege(getVisitedTown()->isBattleOutsideTown(this));
 
 	return &CArmedInstance::whereShouldBeAttached(gs);
 }
 
-CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState * gs)
+CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
-	if(visitedTown)
+	if(visitedTown.hasValue())
 	{
-		if(inTownGarrison)
-			return *visitedTown;
+		auto town = gs.getTown(visitedTown);
+		if(isGarrisoned())
+			return *town;
 		else
-			return visitedTown->townAndVis;
+			return town->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);
@@ -1338,7 +1406,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
 	
-	auto boatLayer = boat ? boat->layer : EPathfindingLayer::SAIL;
+	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
 
 	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
 	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);
@@ -1543,6 +1611,11 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 	nodeHasChanged();
 }
 
+void CGHeroInstance::attachCommanderToArmy()
+{
+	commander->setArmy(this);
+}
+
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
 {
 	while(gainsLevel())
@@ -1590,13 +1663,12 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
-	if(ID != Obj::PRISON)
-		map->heroesOnMap.emplace_back(this);
+	map->heroAddedToMap(this);
 }
+
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
-	if (ID == Obj::PRISON)
-		vstd::erase_if_present(map->heroesOnMap, this);
+	map->heroRemovedFromMap(this);
 }
 
 void CGHeroInstance::setHeroTypeName(const std::string & identifier)
@@ -1754,7 +1826,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts");
+		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1911,7 +1983,7 @@ const IOwnableObject * CGHeroInstance::asOwnable() const
 
 int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 {
-	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(static_cast<int>(which));
+	std::string cachingStr = "CGHeroInstance::getBasePrimarySkillValue" + std::to_string(which.getNum());
 	auto selector = Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(which)).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL));
 	auto minSkillValue = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, which.getNum());
 	return std::max(valOfBonuses(selector, cachingStr), minSkillValue);

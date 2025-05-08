@@ -33,8 +33,8 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	pos.h = 600;
 	pos = center();
 
-	localSi = new StartInfo(*GAME->interface()->cb->getStartInfo());
-	localMi = new CMapInfo();
+	localSi = std::make_unique<StartInfo>(*GAME->interface()->cb->getStartInfo());
+	localMi = std::make_unique<CMapInfo>();
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*GAME->interface()->cb->getMapHeader()));
 
 	screenType = ESelectionScreen::scenarioInfo;
@@ -49,18 +49,14 @@ CScenarioInfoScreen::CScenarioInfoScreen()
 	buttonBack = std::make_shared<CButton>(Point(584, 535), AnimationPath::builtin("SCNRBACK.DEF"), LIBRARY->generaltexth->zelp[105], [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 }
 
-CScenarioInfoScreen::~CScenarioInfoScreen()
-{
-	vstd::clear_pointer(localSi);
-	vstd::clear_pointer(localMi);
-}
+CScenarioInfoScreen::~CScenarioInfoScreen() = default;
 
 const CMapInfo * CScenarioInfoScreen::getMapInfo()
 {
-	return localMi;
+	return localMi.get();
 }
 
 const StartInfo * CScenarioInfoScreen::getStartInfo()
 {
-	return localSi;
+	return localSi.get();
 }

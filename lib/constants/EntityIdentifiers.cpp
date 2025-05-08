@@ -29,10 +29,10 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
-#include "CArtHandler.h"//todo: remove
 #include "CCreatureHandler.h"//todo: remove
 #include "spells/CSpellHandler.h" //todo: remove
 #include "CSkillHandler.h"//todo: remove
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "entities/hero/CHeroClass.h"
@@ -56,6 +56,9 @@ const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
 const HeroTypeID HeroTypeID::GEM(27);
 const HeroTypeID HeroTypeID::SOLMYR(45);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(0xFFFD);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(0xFFFE);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(0xFFFF);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 

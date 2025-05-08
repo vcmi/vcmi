@@ -18,11 +18,13 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/mapping/CMap.h"
@@ -126,12 +128,12 @@ void PlayerMessageProcessor::commandSave(PlayerColor player, const std::vector<s
 void PlayerMessageProcessor::commandCheaters(PlayerColor player, const std::vector<std::string> & words)
 {
 	int playersCheated = 0;
-	for(const auto & player : gameHandler->gameState()->players)
+	for(const auto & playerState : gameHandler->gameState().players)
 	{
-		if(player.second.cheated)
+		if(playerState.second.cheated)
 		{
 			auto str = MetaString::createFromTextID("vcmi.broadcast.playerCheater");
-			str.replaceName(player.first);
+			str.replaceName(playerState.first);
 			broadcastSystemMessage(str);
 			playersCheated++;
 		}
@@ -147,7 +149,7 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	std::string path = gameHandler->gameState()->statistic.writeCsv();
+	std::string path = gameHandler->gameState().statistic.writeCsv();
 
 	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
 	str.replaceRawString(path);
@@ -483,7 +485,7 @@ void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroIn
 		return;
 
 	for(const auto & spell : LIBRARY->spellh->objects)
-		if(gameHandler->gameState()->isAllowed(spell->getId()) && !spell->isSpecial())
+		if(gameHandler->gameState().isAllowed(spell->getId()) && !spell->isSpecial())
 		{
 			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
 		}
@@ -605,8 +607,8 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 	FoWChange fc;
 	fc.mode = reveal ? ETileVisibility::REVEALED : ETileVisibility::HIDDEN;
 	fc.player = player;
-	const auto & fowMap = gameHandler->gameState()->getPlayerTeam(player)->fogOfWarMap;
-	const auto & mapSize = gameHandler->gameState()->getMapSize();
+	const auto & fowMap = gameHandler->gameState().getPlayerTeam(player)->fogOfWarMap;
+	const auto & mapSize = gameHandler->gameState().getMapSize();
 	auto hlp_tab = new int3[mapSize.x * mapSize.y * mapSize.z];
 	int lastUnc = 0;
 
@@ -625,11 +627,11 @@ void PlayerMessageProcessor::cheatMapReveal(PlayerColor player, bool reveal)
 
 void PlayerMessageProcessor::cheatPuzzleReveal(PlayerColor player)
 {
-	TeamState *t = gameHandler->gameState()->getPlayerTeam(player);
+	const TeamState * t = gameHandler->gameState().getPlayerTeam(player);
 
-	for(auto & obj : gameHandler->gameState()->getMap().objects)
+	for(auto & obj : gameHandler->gameState().getMap().getObjects<CGObelisk>())
 	{
-		if(obj && obj->ID == Obj::OBELISK && !obj->wasVisited(player))
+		if(!obj->wasVisited(player))
 		{
 			gameHandler->setObjPropertyID(obj->id, ObjProperty::OBELISK_VISITED, t->id);
 			for(const auto & color : t->players)
@@ -723,7 +725,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 	bool playerTargetedCheat = false;
 
-	for (const auto & i : gameHandler->gameState()->players)
+	for (const auto & i : gameHandler->gameState().players)
 	{
 		if (words.empty())
 			break;
@@ -773,7 +775,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	const CGHeroInstance * hero = gameHandler->getHero(currObj);
 	const CGTownInstance * town = gameHandler->getTown(currObj);
 	if (!town && hero)
-		town = hero->visitedTown;
+		town = hero->getVisitedTown();
 
 	const auto & doCheatGiveSpells = [&]() { cheatGiveSpells(player, hero); };
 	const auto & doCheatBuildTown = [&]() { cheatBuildTown(player, town); };

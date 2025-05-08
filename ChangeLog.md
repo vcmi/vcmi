@@ -1,12 +1,104 @@
 # VCMI Project Changelog
 
-## 1.6.7 -> 1.7.0
+## 1.6.8 -> 1.7.0 (in development)
 
-* Added support for configuring icons for bonus icons in creature window per bonus subtype or per bonus value
-* Heroes that are marked as unavailable for specific player will now be correctly blocked from use as starting heroes
+### General
+
 * Added support for loading h3m maps from HotA 1.7 (also needs support from HotA mod)
-* Added BASE_TILE_MOVEMENT_COST bonus that allows configuring minimal cost for moving between tiles for heroes
+* It is now possible to change default directory paths used by VCMI on Windows
+* Added option for VCMI to honor mute switch on iOS
+
+### Stability
+
+* Fixed possible crash when player with Chinese localization attack with Vampire Lords, causing one of them to resurrect
+* Fixed possible crash on combining Drain Life with area-targeted attack by units from mods
+* Fixed multiple possible crashes on game shutdown
+
+### Interface
+
+* Fixed not functioning keybindings when non-lating keyboard layout is in use
+* Fixed bonuses from terrain (such as Holy Grounds) not showing up in unit window
+* Improved handling of non-latin texts in spell search and adventure map object search
+* Maps with non-latin names will now be sorted correctly according to selected language
+* It is now possible to skip campaign and main menu video with Esc or Enter keyboard keys, in addition to mouse click
+* Fixed possible overflow of unit health bar if unit health is different from max health of unit type
+* Fixed no replaced text placeholders in visitation message for unique dwellings with single available unit
+* Fixed text alignment on hero status window popup
+* Added option to toggle video subtitles
+
+### Mechanics
+
+* Heroes that are marked as unavailable for specific player will now be correctly blocked from use as starting heroes
 * Commanders will now automatically gain no melee penalty bonus on receiving ranged attack
+* Attack skill provided by equipped artifact will now correctly modify damage range of Ballista
+* Lord Haart is now available instead of Sir Mullich on random maps, in line with H3
+* Hypnotized units with multi-target attacks such as Cerberi or Hydra will now attack all units that they view as enemy
+* Fixed functionality of Adela specialty
+* Fixed inability to use ranged attack if enemy clone that was blocking unit was killed in this round before
+* Fixed inability of creatures to cast spells when controlled by defending player in hotseat mode
+* Fixed miss chance for catapult not computed correctly when hero has no ballistics skill
+* Winning combat with no enemy casualties will no longer result in raising of a single skeleton when victor has Necromancy
+
+## AI
+
+* Fixed possible infinite loop when hero can't decide whether to equip mana regeneration artifact or knowledge boosting artifact
+
+### Random Maps Generator
+
+* Placement of main town in center of zone will now account for water tiles
+* Added support for town type hints `likeZone`, `notLikeZone`, `relatedToZoneTerrain`
+* Map generator will now place curved roads
+
+### Launcher
+
+* Added built-in editor for configuration file
+
+### Modding
+
+* It is now possible to replace or append individual entries in json lists (`[ 1, 2, 3 ]`) without replacing entire list
+* It is now possible to specify both nominator and denominator (roll difficulty & dice size) for luck and morale probabilities
+* Added support for configuring icons for bonus icons in creature window per bonus subtype or per bonus value
+* Added BASE_TILE_MOVEMENT_COST bonus that allows configuring minimal cost for moving between tiles for heroes
+* Owner updater now correctly works with opposite side limiter when composite limiters `noneOf` or `anyOf` are used
+* Bonuses with terrain limiter will now correctly update on hero stepping onto different terrain
+* Creature terrain limiter will now correctly evaluate outside of combat
+* Creature terrain limiter applied to hero primary skills now works as expected when combined with noneOf limiter
+* HAS_ANOTHER_BONUS_LIMITER now accepts null in place of bonus type
+* Added DIVIDE_STACK_LEVEL updater that functions similar to TIMES_STACK_LEVEL
+* Added TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL updater that combines effects of TIMES_HERO_LEVEL and DIVIDE_STACK_LEVEL updaters
+* It is now possible to completely remove skill as part of reward of a configureable adventure map object
+* Added option to show additional images in main menu, scenario selection, and loading screen
+* It is now possible to add additional campaign sets without causing mod conflicts
+* Game will now automatically generate campaign screen backgrounds, depending on number of campaigns in set
+* Added "Campaigns" mod type
+
+### Map Editor
+
+* Added initial version of campaign editor, available from map editor
+* Added support for drag-and-drop of maps into map editor
+* Added new keyboard shortcuts
+* Keyboard shortcuts are now visible in menu
+
+## 1.6.7 -> 1.6.8
+
+### Stability
+
+* Fixed crash when visiting Cannon Yard from HotA mod that was occuring on some systems
+* Fixed crash when moving through an event that gives enough experience to level up if the player is using instant movement speed
+* Fixed crash when trying to sort maps in reverse order that was occurring on some systems when there were multiple folders containing maps
+* Fixed crash when using one-click upgrade when unit upgrade cost is zero
+* Fixed crash on opening town screen with invisible buildings from mods
+* Fixed crash when a player changes their starting hero in multiplayer game while another player has town or starting bonus right-click popup open
+* Fixed crash when merging two units located in town garrison without a hero if both units are equipped with artifacts (WoG feature)
+
+### General
+
+* Fixed not working check for hypnotize spell effect presence
+* Fixed calculation of the total cost of the hero's movement path when the hero has spent some of his movement points today.
+* Fixed Launcher not closing after game start on Mac OS.
+* Launcher will no longer tracks clipboard state on mobile systems to prevent OS notifications
+* Automatic selection of xbrz2 upscaler now only happens on systems with 4GB of RAM
+* Game will now detect broken internal mod left over from VCMI 0.99 installations and notify player on startup instead of crashing
 
 ## 1.6.6 -> 1.6.7
 

@@ -11,8 +11,12 @@
 #include "artifactwidget.h"
 #include "ui_artifactwidget.h"
 #include "inspector.h"
-#include "../../lib/ArtifactUtils.h"
+
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 
 ArtifactWidget::ArtifactWidget(CArtifactFittingSet & fittingSet, QWidget * parent) :
 	QDialog(parent),

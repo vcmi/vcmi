@@ -34,7 +34,10 @@ namespace PathfinderUtil
 		case ELayer::SAIL:
 			if(tinfo.visitable())
 			{
-				if(tinfo.visitableObjects.front()->ID == Obj::SANCTUARY && tinfo.visitableObjects.back()->ID == Obj::HERO && tinfo.visitableObjects.back()->tempOwner != player) //non-owned hero stands on Sanctuary
+				auto frontVisitable = gs->getObjInstance(tinfo.visitableObjects.front());
+				auto backVisitable = gs->getObjInstance(tinfo.visitableObjects.front());
+
+				if(frontVisitable->ID == Obj::SANCTUARY && backVisitable->ID == Obj::HERO && backVisitable->getOwner() != player) //non-owned hero stands on Sanctuary
 				{
 					return EPathAccessibility::BLOCKED;
 				}
@@ -43,8 +46,10 @@ namespace PathfinderUtil
 					bool hasBlockedVisitable = false;
 					bool hasVisitable = false;
 
-					for(const CGObjectInstance * obj : tinfo.visitableObjects)
+					for(const auto objID : tinfo.visitableObjects)
 					{
+						auto obj = gs->getObjInstance(objID);
+
 						if(obj->isBlockedVisitable())
 							hasBlockedVisitable = true;
 						else if(!obj->passableFor(player) && obj->ID != Obj::EVENT)

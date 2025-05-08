@@ -38,11 +38,11 @@ public:
 	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
-	float getResourceRequirementStrength(int resType) const;
+	float getResourceRequirementStrength(GameResID resType) const;
 	float getResourceRequirementStrength(const TResources & res) const;
 	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
 	float getConquestValue(const CGObjectInstance* target) const;
-	float getTotalResourceRequirementStrength(int resType) const;
+	float getTotalResourceRequirementStrength(GameResID resType) const;
 	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
 	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
 	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;

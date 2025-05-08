@@ -65,7 +65,7 @@ void CBattleQuery::onRemoval(PlayerColor color)
 	assert(result);
 
 	if(result)
-		gh->battles->battleAfterLevelUp(battleID, *result);
+		gh->battles->battleFinalize(battleID, *result);
 }
 
 void CBattleQuery::onExposure(QueryPtr topQuery)

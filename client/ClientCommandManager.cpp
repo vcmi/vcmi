@@ -140,7 +140,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	if(GAME->interface())
 		color = GAME->interface()->playerID;
 
-	for(auto & elem : GAME->server().client->gameState()->players)
+	for(auto & elem : GAME->server().client->gameState().players)
 	{
 		if(!elem.first.isValidPlayer()
 			|| elem.second.human
@@ -557,7 +557,7 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	yt.player = colorIdentifier;
 	yt.queryID = QueryID::NONE;
 
-	ApplyClientNetPackVisitor visitor(*GAME->server().client, *GAME->server().client->gameState());
+	ApplyClientNetPackVisitor visitor(*GAME->server().client, GAME->server().client->gameState());
 	yt.visit(visitor);
 }
 

@@ -244,8 +244,8 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 		for(const auto & temp : shuffledObstacles)
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto * obj = handler->create(nullptr, temp);
-			allObjects.emplace_back(*obj);
+			auto obj = handler->create(cb, temp);
+			allObjects.emplace_back(obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())
 			{
@@ -311,12 +311,12 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 	return maxWeight;
 }
 
-std::set<CGObjectInstance*> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameCallback * cb)
+std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameCallback * cb)
 {
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();
 	int tilePos = 0;
-	std::set<CGObjectInstance*> objs;
+	std::set<std::shared_ptr<CGObjectInstance>> objs;
 
 	while(!blockedArea.empty() && tilePos < blockedArea.getTilesVector().size())
 	{
@@ -356,7 +356,7 @@ std::set<CGObjectInstance*> ObstacleProxy::createObstacles(vstd::RNG & rand, IGa
 
 //FIXME: Only editor placer obstacles directly
 
-void ObstacleProxy::finalInsertion(CMapEditManager * manager, std::set<CGObjectInstance*> & instances)
+void ObstacleProxy::finalInsertion(CMapEditManager * manager, const std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
 	manager->insertObjects(instances); //insert as one operation - for undo purposes
 }
@@ -366,11 +366,11 @@ std::pair<bool, bool> ObstacleProxy::verifyCoverage(const int3 & t) const
 	return {blockedArea.contains(t), false};
 }
 
-void ObstacleProxy::placeObject(rmg::Object & object, std::set<CGObjectInstance*> & instances)
+void ObstacleProxy::placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances)
 {
-	for (auto * instance : object.instances())
+	for (const auto * instance : object.instances())
 	{
-		instances.insert(&instance->object());
+		instances.insert(instance->pointer());
 	}
 }
 
@@ -384,7 +384,7 @@ bool EditorObstaclePlacer::isInTheMap(const int3& tile)
 	return map->isInTheMap(tile);
 }
 
-std::set<CGObjectInstance*> EditorObstaclePlacer::placeObstacles(vstd::RNG & rand)
+std::set<std::shared_ptr<CGObjectInstance>> EditorObstaclePlacer::placeObstacles(vstd::RNG & rand)
 {
 	auto obstacles = createObstacles(rand, map->cb);
 	finalInsertion(map->getEditManager(), obstacles);

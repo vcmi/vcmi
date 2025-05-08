@@ -63,8 +63,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	void loadRandomFaction();
 
 public:
-	CTown * randomTown;
-	CFaction * randomFaction;
+	std::unique_ptr<CFaction> randomFaction;
 
 	CTownHandler();
 	~CTownHandler();

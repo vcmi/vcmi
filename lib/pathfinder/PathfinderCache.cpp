@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInstance * h, CPathsInfo & out)
 {
-	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, cb, h);
+	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, *cb, h);
 	config->options = options;
 
 	return config;

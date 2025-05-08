@@ -21,6 +21,8 @@
 
 #include "../../../CCallback.h"
 
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/networkPacks/ArtifactLocation.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -155,7 +157,7 @@ void CAltarArtifacts::updateAltarSlots()
 	{
 		newArtsFromBulkMove.erase(std::remove_if(newArtsFromBulkMove.begin(), newArtsFromBulkMove.end(), [artForRemove = art](auto & slotInfo)
 			{
-				return slotInfo.artifact == artForRemove;
+				return slotInfo.artifactID == artForRemove->getId();
 			}));
 	}
 	for(const auto & slotInfo : newArtsFromBulkMove)
@@ -163,9 +165,9 @@ void CAltarArtifacts::updateAltarSlots()
 		for(const auto & altarSlot : offerTradePanel->slots)
 			if(altarSlot->id == -1)
 			{
-				altarSlot->setID(slotInfo.artifact->getTypeId().num);
-				altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.artifact->getTypeId())));
-				tradeSlotsMap.try_emplace(altarSlot, slotInfo.artifact);
+				altarSlot->setID(slotInfo.getArt()->getTypeId().num);
+				altarSlot->subtitle->setText(std::to_string(calcExpCost(slotInfo.getArt()->getTypeId())));
+				tradeSlotsMap.try_emplace(altarSlot, slotInfo.getArt());
 				break;
 			}
 	}
@@ -188,7 +190,7 @@ CMarketBase::MarketShowcasesParams CAltarArtifacts::getShowcasesParams() const
 		return MarketShowcasesParams
 		{
 			std::nullopt,
-			ShowcaseParams {std::to_string(offerQty), LIBRARY->artifacts()->getByIndex(art->getTypeId())->getIconIndex()}
+			ShowcaseParams {std::to_string(offerQty), art->getType()->getIconIndex()}
 		};
 	return MarketShowcasesParams {std::nullopt, std::nullopt};
 }

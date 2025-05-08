@@ -23,6 +23,7 @@
 
 #include "../../CCallback.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

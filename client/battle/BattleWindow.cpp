@@ -32,18 +32,21 @@
 #include "../render/IRenderHandler.h"
 #include "../adventureMap/CInGameConsole.h"
 #include "../adventureMap/TurnTimerWidget.h"
+#include "../windows/settings/SettingsMainWindow.h"
 
 #include "../../CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/gameState/InfoAboutArmy.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CStack.h"
+
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
-#include "../../lib/CPlayerState.h"
-#include "../windows/settings/SettingsMainWindow.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleWindow::BattleWindow(BattleInterface & Owner):
 	owner(Owner),

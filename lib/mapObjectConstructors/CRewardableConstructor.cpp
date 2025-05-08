@@ -16,6 +16,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../IGameCallback.h"
 #include "../CConfigHandler.h"
+#include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -37,10 +38,10 @@ bool CRewardableConstructor::hasNameTextID() const
 	return !objectInfo.getParameters()["name"].isNull();
 }
 
-CGObjectInstance * CRewardableConstructor::create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
+std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
-	auto * ret = new CRewardableObject(cb);
-	preInitObject(ret);
+	auto ret = std::make_shared<CRewardableObject>(cb);
+	preInitObject(ret.get());
 	ret->appearance = tmpl;
 	ret->blockVisit = blockVisit;
 	return ret;

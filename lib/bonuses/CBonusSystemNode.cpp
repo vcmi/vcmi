@@ -55,6 +55,10 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 {
 	for(auto * parent : parentsToInherit)
 	{
+		// Diamond found! One of the parents of the targeted node can be discovered in two ways.
+		// For example, a hero has been attached to both the player node and the global node (to which the player node is also attached).
+		// This is illegal and can be a source of duplicate bonuses.
+		assert(out.count(parent) == 0);
 		out.insert(parent);
 		parent->getAllParents(out);
 	}
@@ -63,13 +67,10 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & selector) const
 {
 	BonusList beforeUpdate;
-	TCNodes lparents;
-	getAllParents(lparents);
 
-	for(const auto * parent : lparents)
-	{
+	for(const auto * parent : parentsToInherit)
 		parent->getAllBonusesRec(beforeUpdate, selector);
-	}
+
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(const auto & b : beforeUpdate)
@@ -79,18 +80,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & select
 			? getUpdatedBonus(b, b->updater)
 			: b;
 
-		//do not add bonus with updater
-		bool bonusExists = false;
-		for(const auto & bonus : out)
-		{
-			if (bonus == updated)
-				bonusExists = true;
-			if (bonus->updater && bonus->updater == updated->updater)
-				bonusExists = true;
-		}
-
-		if (!bonusExists)
-			out.push_back(updated);
+		out.push_back(updated);
 	}
 }
 
@@ -453,11 +443,6 @@ std::string CBonusSystemNode::nodeShortInfo() const
 	return str.str();
 }
 
-void CBonusSystemNode::deserializationFix()
-{
-	exportBonuses();
-}
-
 void CBonusSystemNode::getRedParents(TCNodes & out) const
 {
 	TCNodes lparents;
@@ -605,7 +590,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 			auto b = undecided[i];
 			BonusLimitationContext context = {*b, *this, out, undecided};
 			auto decision = b->limiter ? b->limiter->limit(context) : ILimiter::EDecision::ACCEPT; //bonuses without limiters will be accepted by default
-			if(decision == ILimiter::EDecision::DISCARD)
+			if(decision == ILimiter::EDecision::DISCARD || decision == ILimiter::EDecision::NOT_APPLICABLE)
 			{
 				undecided.erase(i);
 				i--; continue;

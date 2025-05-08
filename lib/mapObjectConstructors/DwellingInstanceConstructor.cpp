@@ -104,7 +104,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 		JsonRandom::Variables emptyVariables;
 		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(stack.getId(), stack.count));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), std::make_unique<CStackInstance>(dwelling->cb, stack.getId(), stack.getCount()));
 		}
 	}
 	else if (dwelling->ID == Obj::CREATURE_GENERATOR1 || dwelling->ID == Obj::CREATURE_GENERATOR4)
@@ -125,7 +125,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 		for(auto creatureEntry : availableCreatures)
 		{
 			const CCreature * crea = creatureEntry.at(0);
-			dwelling->putStack(SlotID(dwelling->stacksCount()), new CStackInstance(crea->getId(), crea->getGrowth() * 3));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), std::make_unique<CStackInstance>(dwelling->cb, crea->getId(), crea->getGrowth() * 3));
 		}
 	}
 }

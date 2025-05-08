@@ -9,10 +9,11 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -67,6 +68,7 @@ struct SetGlobalState
 #define MAKING_TURN SET_GLOBAL_STATE(this)
 
 AIGateway::AIGateway()
+	:status(this)
 {
 	LOG_TRACE(logAi);
 	destinationTeleport = ObjectInstanceID();
@@ -124,7 +126,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
 		//make sure AI not attempt to visit used boat
-		validateObject(hero->boat);
+		validateObject(hero->getBoat());
 	}
 	else if(details.result == TryMoveHero::DISEMBARK && o1)
 	{
@@ -325,7 +327,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -628,7 +630,7 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
+	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % (int)commander->level));
 	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
@@ -816,11 +818,11 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 					int oldValue = s->getCreature()->getAIValue();
 					int newValue = upgID.toCreature()->getAIValue();
 
-					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
+					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
 						myCb->upgradeCreature(obj, SlotID(i), upgID);
 						upgraded = true;
-						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
+						logAi->debug("Upgraded %d %s to %s", s->getCount(), upgradeInfo.oldID.toCreature()->getNamePluralTranslated(),
 							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
 					}
 					else
@@ -904,19 +906,19 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	switch(obj->ID)
 	{
 	case Obj::TOWN:
-		if(h->visitedTown) //we are inside, not just attacking
+		if(h->getVisitedTown()) //we are inside, not just attacking
 		{
 			makePossibleUpgrades(h.get());
 
 			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
-			if(!h->visitedTown->garrisonHero || !nullkiller->isHeroLocked(h->visitedTown->garrisonHero))
-				moveCreaturesToHero(h->visitedTown);
+			if(!h->getVisitedTown()->getGarrisonHero() || !nullkiller->isHeroLocked(h->getVisitedTown()->getGarrisonHero()))
+				moveCreaturesToHero(h->getVisitedTown());
 
 			if(nullkiller->heroManager->getHeroRole(h) == HeroRole::MAIN && !h->hasSpellbook()
 				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
-				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
@@ -929,9 +931,9 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 
 void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
 	{
-		pickBestCreatures(t->visitingHero, t->getUpperArmy());
+		pickBestCreatures(t->getVisitingHero(), t->getUpperArmy());
 	}
 }
 
@@ -1039,6 +1041,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
+		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID> > swappedSet;
 		do
 		{
 			changeMade = false;
@@ -1049,22 +1052,22 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 			{
 				for(auto p : h->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.artifact)));
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.artifact)));
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1086,7 +1089,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				auto s = artHolder->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
-				auto artifact = s->artifact;
+				auto artifact = s->getArt();
 				if(!artifact)
 					continue;
 				//FIXME: why are the above possible to be null?
@@ -1110,21 +1113,30 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
-						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
+						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
 						{
-							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->artifact);
-							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->artifact->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->getArt());
+							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey(), artifactScore, otherArtifactScore);
 
 							//if that artifact is better than what we have, pick it
 							//combined artifacts are not always allowed to move
 							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
 							{
+								std::pair swapPair = std::minmax<ArtifactInstanceID>({artifact->getId(), otherSlot->artifactID});
+								if (swappedSet.find(swapPair) != swappedSet.end())
+								{
+									logAi->warn(
+										"Artifacts % s < -> % s have already swapped before, ignored.",
+										artifact->getType()->getJsonKey(),
+										otherSlot->getArt()->getType()->getJsonKey());
+									continue;
+								}
 								logAi->trace(
 									"Exchange artifacts %s <-> %s",
 									artifact->getType()->getJsonKey(),
-									otherSlot->artifact->getType()->getJsonKey());
+									otherSlot->getArt()->getType()->getJsonKey());
 
-								if(!otherSlot->artifact->canBePutAt(artHolder, location.slot, true))
+								if(!otherSlot->getArt()->canBePutAt(artHolder, location.slot, true))
 								{
 									ArtifactLocation destLocation(target->id, slot);
 									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
@@ -1134,10 +1146,11 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								}
 								else
 								{
-									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
 								}
 
 								changeMade = true;
+								swappedSet.insert(swapPair);
 								break;
 							}
 						}
@@ -1169,7 +1182,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 		if(!recruiter->getSlotFor(creID).validSlot())
 		{
-			for(auto stack : recruiter->Slots())
+			for(const auto & stack : recruiter->Slots())
 			{
 				if(!stack.second->getType())
 					continue;
@@ -1271,10 +1284,10 @@ void AIGateway::addVisitableObj(const CGObjectInstance * obj)
 
 bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 {
-	if(h->inTownGarrison && h->visitedTown)
+	if(h->isGarrisoned() && h->getVisitedTown())
 	{
-		cb->swapGarrisonHero(h->visitedTown);
-		moveCreaturesToHero(h->visitedTown);
+		cb->swapGarrisonHero(h->getVisitedTown());
+		moveCreaturesToHero(h->getVisitedTown());
 	}
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
@@ -1321,8 +1334,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		{
 			auto tile = cb->getTile(coord, false);
 			assert(tile);
-			return tile->topVisitableObj(ignoreHero);
-			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			return cb->getObj(tile->topVisitableObj(ignoreHero), false);
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool
@@ -1532,7 +1544,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 
 				int toGive;
 				int toGet;
-				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				m->getOffer(res.getNum(), g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
@@ -1585,7 +1597,7 @@ void AIGateway::endTurn()
 
 void AIGateway::buildArmyIn(const CGTownInstance * t)
 {
-	makePossibleUpgrades(t->visitingHero);
+	makePossibleUpgrades(t->getVisitingHero());
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
@@ -1666,7 +1678,8 @@ void AIGateway::validateObject(ObjectIdRef obj)
 	}
 }
 
-AIStatus::AIStatus()
+AIStatus::AIStatus(AIGateway * gateway)
+	: gateway(gateway)
 {
 	battle = NO_BATTLE;
 	havingTurn = false;
@@ -1748,7 +1761,10 @@ void AIStatus::waitTillFree()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
+	{
 		cv.wait_for(lock, std::chrono::milliseconds(10));
+		gateway->nullkiller->makingTurnInterrupption.interruptionPoint();
+	}
 }
 
 bool AIStatus::haveTurn()

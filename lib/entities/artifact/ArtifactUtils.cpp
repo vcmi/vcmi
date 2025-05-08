@@ -8,13 +8,18 @@
  *
  */
 
+#include "StdInc.h"
 #include "ArtifactUtils.h"
 
-#include "CArtHandler.h"
-#include "IGameSettings.h"
-#include "spells/CSpellHandler.h"
+#include "ArtBearer.h"
+#include "CArtifact.h"
+#include "CArtifactFittingSet.h"
 
-#include "mapObjects/CGHeroInstance.h"
+#include "../../IGameSettings.h"
+#include "../../GameLibrary.h"
+#include "../../mapObjects/CGHeroInstance.h"
+
+#include <vcmi/spells/Spell.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -67,7 +72,7 @@ DLL_LINKAGE ArtifactPosition ArtifactUtils::getArtBackpackPosition(const CArtifa
 	if(target->bearerType() == ArtBearer::HERO)
 		if(art->canBePutAt(target, ArtifactPosition::BACKPACK_START))
 		{
-			return ArtifactPosition::BACKPACK_START;
+			return ArtifactPosition::BACKPACK_START + target->artifactsInBackpack.size();
 		}
 	return ArtifactPosition::PRE_FIRST;
 }
@@ -151,7 +156,7 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots(
 
 DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition, ArtSlotInfo> & slot)
 {
-	return slot.second.artifact
+	return slot.second.getArt()
 		&& !slot.second.locked
 		&& !vstd::contains(unmovableSlots(), slot.first);
 }
@@ -223,49 +228,6 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 	return arts;
 }
 
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createScroll(const SpellID & spellId)
-{
-	return ArtifactUtils::createArtifact(ArtifactID::SPELL_SCROLL, spellId);
-}
-
-DLL_LINKAGE CArtifactInstance * ArtifactUtils::createArtifact(const ArtifactID & artId, const SpellID & spellId)
-{
-	const std::function<CArtifactInstance*(const CArtifact*)> createArtInst =
-		[&createArtInst, &spellId](const CArtifact * art) -> CArtifactInstance*
-	{
-		assert(art);
-
-		auto * artInst = new CArtifactInstance(art);
-		if(art->isCombined() && !art->isFused())
-		{
-			for(const auto & part : art->getConstituents())
-				artInst->addPart(createArtInst(part), ArtifactPosition::PRE_FIRST);
-		}
-		if(art->isGrowing())
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::LEVEL_COUNTER;
-			bonus->val = 0;
-			artInst->addNewBonus(bonus);
-		}
-		if(art->isScroll())
-		{
-			artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
-				BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
-		}
-		return artInst;
-	};
-
-	if(artId.getNum() >= 0)
-	{
-		return createArtInst(artId.toArtifact());
-	}
-	else
-	{
-		return new CArtifactInstance(); // random, empty
-	}
-}
-
 DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description, const SpellID & sid)
 {
 	// We expect scroll description to be like this: This scroll contains the [spell name] spell which is added
@@ -277,7 +239,7 @@ DLL_LINKAGE void ArtifactUtils::insertScrrollSpellName(std::string & description
 	if(nameStart != std::string::npos && nameEnd != std::string::npos)
 	{
 		if(sid.getNum() >= 0)
-			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY->spells())->getNameTranslated());
+			description = description.replace(nameStart, nameEnd - nameStart + 1, sid.toEntity(LIBRARY)->getNameTranslated());
 		else
 			description = description.erase(nameStart, nameEnd - nameStart + 2); // erase "[spell name] " - including space
 	}

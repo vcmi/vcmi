@@ -55,9 +55,9 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
 	{
 		MetaString ms;
-		ms.appendNumber(stacks.begin()->second->count);
+		ms.appendNumber(stacks.begin()->second->getCount());
 		ms.appendRawString(" ");
-		ms.appendName(getCreatureID(), stacks.begin()->second->count);
+		ms.appendName(getCreatureID(), stacks.begin()->second->getCount());
 		return ms.toString();
 	}
 	else
@@ -288,20 +288,19 @@ void CGCreature::initObj(vstd::RNG & rand)
 	}
 
 	stacks[SlotID(0)]->setType(getCreature());
-	TQuantity &amount = stacks[SlotID(0)]->count;
 	const Creature * c = getCreature();
-	if(amount == 0)
+	if(stacks[SlotID(0)]->getCount() == 0)
 	{
-		amount = rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax());
+		stacks[SlotID(0)]->setCount(rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax()));
 
-		if(amount == 0) //armies with 0 creatures are illegal
+		if(stacks[SlotID(0)]->getCount() == 0) //armies with 0 creatures are illegal
 		{
 			logGlobal->warn("Stack cannot have 0 creatures. Check properties of %s", c->getJsonKey());
-			amount = 1;
+			stacks[SlotID(0)]->setCount(1);
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * static_cast<int64_t>(1000);
+	temppower = stacks[SlotID(0)]->getCount() * static_cast<int64_t>(1000);
 	refusedJoining = false;
 }
 
@@ -309,7 +308,7 @@ void CGCreature::newTurn(vstd::RNG & rand) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->getCount() < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
 			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
 			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
@@ -324,13 +323,13 @@ void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	switch (what)
 	{
 		case ObjProperty::MONSTER_COUNT:
-			stacks[SlotID(0)]->count = identifier.getNum();
+			stacks[SlotID(0)]->setCount(identifier.getNum());
 			break;
 		case ObjProperty::MONSTER_POWER:
 			temppower = identifier.getNum();
 			break;
 		case ObjProperty::MONSTER_EXP:
-			giveStackExp(identifier.getNum());
+			giveAverageStackExperience(identifier.getNum());
 			break;
 		case ObjProperty::MONSTER_REFUSED_JOIN:
 			refusedJoining = identifier.getNum();
@@ -367,8 +366,8 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		bool isOurDowngrade = vstd::contains(elem.second->getCreature()->upgrades, getCreatureID());
 
 		if(isOurUpgrade || isOurDowngrade)
-			count += elem.second->count;
-		totalCount += elem.second->count;
+			count += elem.second->getCount();
+		totalCount += elem.second->getCount();
 	}
 
 	int sympathy = 0; // 0 if hero have no similar creatures
@@ -454,8 +453,8 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 		giveReward(h);
 
-		for(std::pair<const SlotID, CStackInstance*> stack : this->stacks)
-			stack.second->count = getJoiningAmount();
+		for(auto & stack : this->stacks)
+			stack.second->setCount(getJoiningAmount());
 
 		cb->tryJoiningArmy(this, h, true, true);
 	}
@@ -492,7 +491,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			const auto & upgrades = getStack(slotID).getCreature()->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState().getRandomGenerator());
 				cb->changeStackType(StackLocation(id, slotID), it->toCreature());
 			}
 		}
@@ -538,7 +537,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 
 		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
 		if(!hasStackAtSlot(SlotID(0)))
-			cb->moveStack(StackLocation(id, stacks.begin()->first), StackLocation(id, SlotID(0)), stacks.begin()->second->count);
+			cb->moveStack(StackLocation(id, stacks.begin()->first), StackLocation(id, SlotID(0)), stacks.begin()->second->getCount());
 
 		while(stacks.size() > 1) //hopefully that's enough
 		{
@@ -549,10 +548,10 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
-				cb->moveStack(StackLocation(id, i->first), StackLocation(id, slot), i->second->count);
+				cb->moveStack(StackLocation(id, i->first), StackLocation(id, slot), i->second->getCount());
 		}
 
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
+		cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->getCount() * 1000); //remember casualties
 	}
 }
 
@@ -615,7 +614,7 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	else if (R4 >= 80)
 		split += 1;
 
-	vstd::amin(split, getStack(SlotID(0)).count); //can't divide into more stacks than creatures total
+	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total
 	vstd::amin(split, 7); //can't have more than 7 stacks
 
 	return split;
@@ -664,7 +663,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		if(hasStackAtSlot(SlotID(0)))
 		{
-			si32 amount = getStack(SlotID(0)).count;
+			si32 amount = getStack(SlotID(0)).getCount();
 			handler.serializeInt("amount", amount, 0);
 		}
 	}
@@ -672,10 +671,10 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		si32 amount = 0;
 		handler.serializeInt("amount", amount);
-		auto * hlp = new CStackInstance();
-		hlp->count = amount;
+		auto hlp = std::make_unique<CStackInstance>(cb);
+		hlp->setCount(amount);
 		//type will be set during initialization
-		putStack(SlotID(0), hlp);
+		putStack(SlotID(0), std::move(hlp));
 	}
 
 	resources.serializeJson(handler, "rewardResources");

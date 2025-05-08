@@ -58,7 +58,7 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
-	auto battle = gameHandler->gameState()->getBattle(battleID);
+	auto battle = gameHandler->gameState().getBattle(battleID);
 
 	auto lastBattleQuery = std::dynamic_pointer_cast<CBattleQuery>(gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color));
 	if(!lastBattleQuery)
@@ -84,8 +84,8 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 
 		lastBattleQuery->result = std::nullopt;
 
-		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSide(BattleSide::ATTACKER).armyObject);
-		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSide(BattleSide::DEFENDER).armyObject);
+		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
+		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
 	}
 
 	BattleCancelled bc;
@@ -98,15 +98,15 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
-	assert(gameHandler->gameState()->getBattle(army1->getOwner()) == nullptr);
-	assert(gameHandler->gameState()->getBattle(army2->getOwner()) == nullptr);
+	assert(gameHandler->gameState().getBattle(army1->getOwner()) == nullptr);
+	assert(gameHandler->gameState().getBattle(army2->getOwner()) == nullptr);
 
 	BattleSideArray<const CArmedInstance *> armies{army1, army2};
 	BattleSideArray<const CGHeroInstance*>heroes{hero1, hero2};
 
 	auto battleID = setupBattle(tile, armies, heroes, layout, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 
-	const auto * battle = gameHandler->gameState()->getBattle(battleID);
+	const auto * battle = gameHandler->gameState().getBattle(battleID);
 	assert(battle);
 	
 	//add battle bonuses based from player state only when attacks neutral creatures
@@ -160,23 +160,23 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	TerrainId terrain = t.getTerrainID();
 	if (town)
 		terrain = town->getNativeTerrain();
-	else if (gameHandler->gameState()->getMap().isCoastalTile(tile)) //coastal tile is always ground
+	else if (gameHandler->gameState().getMap().isCoastalTile(tile)) //coastal tile is always ground
 		terrain = ETerrainId::SAND;
 
-	BattleField battlefieldType = gameHandler->gameState()->battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
+	BattleField battlefieldType = gameHandler->gameState().battleGetBattlefieldType(tile, gameHandler->getRandomGenerator());
 
 	if (town)
 	{
 		const TerrainType* terrainData = LIBRARY->terrainTypeHandler->getById(terrain);
 		battlefieldType = BattleField(*RandomGeneratorUtil::nextItem(terrainData->battleFields, gameHandler->getRandomGenerator()));
 	}
-	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->boat && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->boat)
+	else if (heroes[BattleSide::ATTACKER] && heroes[BattleSide::ATTACKER]->inBoat() && heroes[BattleSide::DEFENDER] && heroes[BattleSide::DEFENDER]->inBoat())
 		battlefieldType = BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.ship_to_ship"));
 
 	//send info about battles
 	BattleStart bs;
-	bs.info = BattleInfo::setupBattle(tile, terrain, battlefieldType, armies, heroes, layout, town);
-	bs.battleID = gameHandler->gameState()->nextBattleID;
+	bs.info = BattleInfo::setupBattle(gameHandler->gameState().cb, tile, terrain, battlefieldType, armies, heroes, layout, town);
+	bs.battleID = gameHandler->gameState().nextBattleID;
 
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
 	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
@@ -273,13 +273,13 @@ void BattleProcessor::updateGateState(const CBattleInfoCallback & battle)
 
 bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction &ba)
 {
-	const auto * battle = gameHandler->gameState()->getBattle(battleID);
+	const auto * battle = gameHandler->gameState().getBattle(battleID);
 
 	if (!battle)
 		return false;
 
 	bool result = actionsProcessor->makePlayerBattleAction(*battle, player, ba);
-	if (gameHandler->gameState()->getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
+	if (gameHandler->gameState().getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
 		flowProcessor->onActionMade(*battle, ba);
 	return result;
 }
@@ -297,7 +297,7 @@ bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & batt
 
 void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 {
-	auto battle = gameHandler->gameState()->getBattle(battleID);
+	auto battle = gameHandler->gameState().getBattle(battleID);
 	assert(battle);
 
 	if (!battle)
@@ -306,7 +306,7 @@ void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 	resultProcessor->endBattleConfirm(*battle);
 }
 
-void BattleProcessor::battleAfterLevelUp(const BattleID & battleID, const BattleResult &result)
+void BattleProcessor::battleFinalize(const BattleID & battleID, const BattleResult &result)
 {
-	resultProcessor->battleAfterLevelUp(battleID, result);
+	resultProcessor->battleFinalize(battleID, result);
 }

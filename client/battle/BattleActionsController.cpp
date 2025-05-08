@@ -28,6 +28,7 @@
 
 #include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
@@ -262,8 +263,8 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 				if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && targetStack != nullptr)
 				{
 					PlayerColor stackOwner = owner.getBattle()->battleGetOwner(targetStack);
-					bool enemyTargetingPositiveSpellcast = item.spell().toSpell()->isPositive() && stackOwner != GAME->interface()->playerID;
-					bool friendTargetingNegativeSpellcast = item.spell().toSpell()->isNegative() && stackOwner == GAME->interface()->playerID;
+					bool enemyTargetingPositiveSpellcast = item.spell().toSpell()->isPositive() && stackOwner != owner.curInt->playerID;
+					bool friendTargetingNegativeSpellcast = item.spell().toSpell()->isNegative() && stackOwner == owner.curInt->playerID;
 
 					if(!enemyTargetingPositiveSpellcast && !friendTargetingNegativeSpellcast)
 						return 1;

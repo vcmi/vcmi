@@ -33,13 +33,15 @@
 #include "../render/IFont.h"
 
 #include "../../CCallback.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/battle/BattleAction.h"
-#include "../../lib/battle/BattleHex.h"
-#include "../../lib/texts/TextOperations.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/BattleHex.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/texts/TextOperations.h"
 
 static void onAnimationFinished(const CStack *stack, std::weak_ptr<CreatureAnimation> anim)
 {
@@ -262,7 +264,7 @@ std::shared_ptr<IImage> BattleStacksController::getStackAmountBox(const CStack *
 
 	for(const auto & spellID : activeSpells)
 	{
-		auto positiveness = LIBRARY->spells()->getByIndex(spellID)->getPositiveness();
+		auto positiveness = spellID.toEntity(LIBRARY)->getPositiveness();
 		if(!boost::logic::indeterminate(positiveness))
 		{
 			if(positiveness)
@@ -321,7 +323,7 @@ void BattleStacksController::showStackAmountBox(Canvas & canvas, const CStack * 
 	{
 		double healthMaxType = stack->unitType()->getMaxHealth();
 		double healthMaxStack = stack->getMaxHealth();
-		double healthMaxRatio = healthMaxStack / healthMaxType;
+		double healthMaxRatio = std::min(healthMaxStack / healthMaxType, 1.0);
 		double healthRemaining = std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * healthMaxStack, .0) * healthMaxRatio;
 		Rect r(boxPosition.x, boxPosition.y - 3, amountBG->width(), 4);
 		canvas.drawColor(r, Colors::RED);

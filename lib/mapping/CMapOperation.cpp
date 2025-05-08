@@ -579,7 +579,7 @@ std::string CClearTerrainOperation::getLabel() const
 	return "Clear Terrain";
 }
 
-CInsertObjectOperation::CInsertObjectOperation(CMap* map, CGObjectInstance* obj)
+CInsertObjectOperation::CInsertObjectOperation(CMap* map, std::shared_ptr<CGObjectInstance> obj)
 	: CMapOperation(map), obj(obj)
 {
 
@@ -587,19 +587,13 @@ CInsertObjectOperation::CInsertObjectOperation(CMap* map, CGObjectInstance* obj)
 
 void CInsertObjectOperation::execute()
 {
-	obj->id = ObjectInstanceID(map->objects.size());
-
-	do
-	{
-		map->setUniqueInstanceName(obj);
-	} while(vstd::contains(map->instanceNames, obj->instanceName));
-
+	map->generateUniqueInstanceName(obj.get());
 	map->addNewObject(obj);
 }
 
 void CInsertObjectOperation::undo()
 {
-	map->removeObject(obj);
+	map->removeObject(obj->id);
 }
 
 void CInsertObjectOperation::redo()
@@ -612,7 +606,7 @@ std::string CInsertObjectOperation::getLabel() const
 	return "Insert Object";
 }
 
-CMoveObjectOperation::CMoveObjectOperation(CMap* map, CGObjectInstance* obj, const int3& targetPosition)
+CMoveObjectOperation::CMoveObjectOperation(CMap* map, CGObjectInstance * obj, const int3& targetPosition)
 	: CMapOperation(map),
 	obj(obj),
 	initialPos(obj->anchorPos()),
@@ -622,12 +616,12 @@ CMoveObjectOperation::CMoveObjectOperation(CMap* map, CGObjectInstance* obj, con
 
 void CMoveObjectOperation::execute()
 {
-	map->moveObject(obj, targetPos);
+	map->moveObject(obj->id, targetPos);
 }
 
 void CMoveObjectOperation::undo()
 {
-	map->moveObject(obj, initialPos);
+	map->moveObject(obj->id, initialPos);
 }
 
 void CMoveObjectOperation::redo()
@@ -640,46 +634,21 @@ std::string CMoveObjectOperation::getLabel() const
 	return "Move Object";
 }
 
-CRemoveObjectOperation::CRemoveObjectOperation(CMap* map, CGObjectInstance* obj)
-	: CMapOperation(map), obj(obj)
+CRemoveObjectOperation::CRemoveObjectOperation(CMap* map, CGObjectInstance * obj)
+	: CMapOperation(map), targetedObject(obj)
 {
 
-}
-
-CRemoveObjectOperation::~CRemoveObjectOperation()
-{
-	//when operation is destroyed and wasn't undone, the object is lost forever
-
-	if(!obj)
-	{
-		return;
-	}
-
-	//do not destroy an object that belongs to map
-	if(!vstd::contains(map->instanceNames, obj->instanceName))
-	{
-		delete obj;
-		obj = nullptr;
-	}
 }
 
 void CRemoveObjectOperation::execute()
 {
-	map->removeObject(obj);
+	removedObject = map->removeObject(targetedObject->id);
 }
 
 void CRemoveObjectOperation::undo()
 {
-	try
-	{
-		//set new id, but do not rename object
-		obj->id = ObjectInstanceID(static_cast<si32>(map->objects.size()));
-		map->addNewObject(obj);
-	}
-	catch(const std::exception& e)
-	{
-		logGlobal->error(e.what());
-	}
+	assert(removedObject != nullptr);
+	map->addNewObject(removedObject);
 }
 
 void CRemoveObjectOperation::redo()

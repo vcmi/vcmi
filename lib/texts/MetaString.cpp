@@ -10,10 +10,11 @@
 #include "StdInc.h"
 #include "MetaString.h"
 
-#include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CCreatureSet.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
+#include "entities/hero/CHero.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
@@ -35,6 +36,13 @@ MetaString MetaString::createFromTextID(const std::string & value)
 {
 	MetaString result;
 	result.appendTextID(value);
+	return result;
+}
+
+MetaString MetaString::createFromName(const GameResID& id)
+{
+	MetaString result;
+	result.appendName(id);
 	return result;
 }
 
@@ -438,7 +446,7 @@ void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing
 
 void MetaString::replaceName(const CStackBasicDescriptor & stack)
 {
-	replaceName(stack.getId(), stack.count);
+	replaceName(stack.getId(), stack.getCount());
 }
 
 VCMI_LIB_NAMESPACE_END

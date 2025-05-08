@@ -32,8 +32,6 @@ struct BattleLayout;
 class CCreatureSet;
 class CStackBasicDescriptor;
 class CGCreature;
-class CSaveFile;
-class CLoadFile;
 class IObjectInterface;
 enum class EOpenWindowMode : uint8_t;
 
@@ -58,7 +56,7 @@ namespace scripting
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
-	CGameState *gameState();
+	using CGameInfoCallback::gameState; // make public
 
 	//used for random spawns
 	void getFreeTiles(std::vector<int3> &tiles) const;
@@ -77,9 +75,6 @@ public:
 	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
-
-	void saveCommonState(CSaveFile &out) const; //stores GS and LIBRARY
-	void loadCommonState(CLoadFile &in); //loads GS and LIBRARY
 };
 
 class DLL_LINKAGE IGameEventCallback
@@ -118,7 +113,7 @@ public:
 	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) =0; //merges army from src do dst or opens a garrison window
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 
-	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
+	virtual void removeAfterVisit(const ObjectInstanceID & id) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
 	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;

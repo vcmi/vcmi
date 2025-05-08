@@ -327,13 +327,12 @@ std::set<HeroTypeID> CampaignState::getReservedHeroes() const
 	return result;
 }
 
-const CGHeroInstance * CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
+std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const
 {
 	std::function<bool(const JsonNode & node)> isOwned = [&](const JsonNode & node)
 	{
-		auto * h = CampaignState::crossoverDeserialize(node, nullptr);
+		auto h = CampaignState::crossoverDeserialize(node, nullptr);
 		bool result = h->tempOwner == owner;
-		vstd::clear_pointer(h);
 		return result;
 	};
 	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | boost::adaptors::filtered(isOwned);
@@ -431,6 +430,10 @@ std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGame
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
 	scenarioName += ':' + std::to_string(scenarioId.getNum());
+
+	if(!mapPieces.count(scenarioId))
+		return nullptr;
+
 	const auto & mapContent = mapPieces.find(scenarioId)->second;
 	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
 
@@ -471,16 +474,15 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 	return node;
 }
 
-CGHeroInstance * CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
+std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
 {
 	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
-	auto * hero = new CGHeroInstance(map ? map->cb : nullptr);
+	auto hero = std::make_shared<CGHeroInstance>(map ? map->cb : nullptr);
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);
 	if (map)
 	{
-		hero->serializeJsonArtifacts(handler, "artifacts");
-		map->addNewArtifactInstance(*hero);
+		hero->serializeJsonArtifacts(handler, "artifacts", map);
 	}
 	return hero;
 }

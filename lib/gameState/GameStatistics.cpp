@@ -188,34 +188,6 @@ std::string StatisticDataSet::writeCsv()
 	return filePath.string();
 }
 
-std::vector<const CGMine *> Statistic::getMines(const CGameState * gs, const PlayerState * ps)
-{
-	std::vector<const CGMine *> tmp;
-
-	std::vector<const CGObjectInstance *> ownedObjects;
-	for(const CGObjectInstance * obj : gs->getMap().objects)
-	{
-		if(obj && obj->tempOwner == ps->color)
-			ownedObjects.push_back(obj);
-	}
-	/// This is code from CPlayerSpecificInfoCallback::getMyObjects
-	/// I'm really need to find out about callback interface design...
-
-	for(const auto * object : ownedObjects)
-	{
-		//Mines
-		if ( object->ID == Obj::MINE )
-		{
-			const auto * mine = dynamic_cast<const CGMine *>(object);
-			assert(mine);
-
-			tmp.push_back(mine);
-		}
-	}
-
-	return tmp;
-}
-
 //calculates total number of artifacts that belong to given player
 int Statistic::getNumberOfArts(const PlayerState * ps)
 {
@@ -244,7 +216,7 @@ si64 Statistic::getArmyStrength(const PlayerState * ps, bool withTownGarrison)
 
 	for(auto h : ps->getHeroes())
 	{
-		if(!h->inTownGarrison || withTownGarrison)		//original h3 behavior
+		if(!h->isGarrisoned() || withTownGarrison)		//original h3 behavior
 			str += h->getArmyStrength();
 	}
 	return str;
@@ -267,15 +239,8 @@ int Statistic::getIncome(const CGameState * gs, const PlayerState * ps)
 	int totalIncome = 0;
 
 	//Heroes can produce gold as well - skill, specialty or arts
-	for(const auto & h : ps->getHeroes())
-		totalIncome += h->dailyIncome()[EGameResID::GOLD];
-
-	//Add town income of all towns
-	for(const auto & t : ps->getTowns())
-		totalIncome += t->dailyIncome()[EGameResID::GOLD];
-
-	for(const CGMine * mine : getMines(gs, ps))
-			totalIncome += mine->dailyIncome()[EGameResID::GOLD];
+	for(const auto & object : ps->getOwnedObjects())
+		totalIncome += object->asOwnable()->dailyIncome()[EGameResID::GOLD];
 
 	return totalIncome;
 }
@@ -366,9 +331,16 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 	for(auto & res : EGameResID::ALL_RESOURCES())
 		tmp[res] = 0;
 
-	for(const CGMine * mine : getMines(gs, ps))
-		tmp[mine->producedResource]++;
-	
+	for(const auto * object : ps->getOwnedObjects())
+	{
+		//Mines
+		if(object->ID == Obj::MINE || object->ID == Obj::ABANDONED_MINE)
+		{
+			const auto * mine = dynamic_cast<const CGMine *>(object);
+			assert(mine);
+			tmp[mine->producedResource]++;
+		}
+	}
 	return tmp;
 }
 

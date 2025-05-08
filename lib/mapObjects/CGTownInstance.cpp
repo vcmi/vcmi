@@ -59,13 +59,13 @@ void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	switch (what)
 	{
 		case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
-			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, visitingHero->id);
+			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, getVisitingHero()->id);
 			break;
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::STRUCTURE_CLEAR_VISITORS, NumericID(0));
 			break;
 		case ObjProperty::STRUCTURE_ADD_GARRISONED_HERO: //add garrisoned hero to visitors
-			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, garrisonHero->id);
+			rewardableBuildings.at(identifier.getNum())->setProperty(ObjProperty::VISITORS, getGarrisonHero()->id);
 			break;
 		case ObjProperty::BONUS_VALUE_FIRST:
 			bonusValue.first = identifier.getNum();
@@ -265,6 +265,7 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 
 CGTownInstance::CGTownInstance(IGameCallback *cb):
 	CGDwelling(cb),
+	IMarket(cb),
 	built(0),
 	destroyed(0),
 	identifier(0),
@@ -273,14 +274,11 @@ CGTownInstance::CGTownInstance(IGameCallback *cb):
 	spellResearchAcceptedCounter(0),
 	spellResearchAllowed(true)
 {
-	this->setNodeType(CBonusSystemNode::TOWN);
+	setNodeType(CBonusSystemNode::TOWN);
+	attachTo(townAndVis);
 }
 
-CGTownInstance::~CGTownInstance()
-{
-	for (auto & elem : rewardableBuildings)
-		delete elem.second;
-}
+CGTownInstance::~CGTownInstance() = default;
 
 int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 {
@@ -296,7 +294,7 @@ int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 
 bool CGTownInstance::needsLastStack() const
 {
-	return garrisonHero != nullptr;
+	return getGarrisonHero() != nullptr;
 }
 
 void CGTownInstance::setOwner(const PlayerColor & player) const
@@ -307,15 +305,15 @@ void CGTownInstance::setOwner(const PlayerColor & player) const
 
 void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if(cb->gameState()->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
+	if(cb->gameState().getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
-		if(armedGarrison() || visitingHero)
+		if(armedGarrison() || getVisitingHero())
 		{
-			const CGHeroInstance * defendingHero = visitingHero ? visitingHero : garrisonHero;
+			const CGHeroInstance * defendingHero = getVisitingHero() ? getVisitingHero() : getGarrisonHero();
 			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : this;
 			const bool isBattleOutside = isBattleOutsideTown(defendingHero);
 
-			if(!isBattleOutside && visitingHero && defendingHero == visitingHero)
+			if(!isBattleOutside && getVisitingHero() && defendingHero == getVisitingHero())
 			{
 				//we have two approaches to merge armies: mergeGarrisonOnSiege() and used in the CGameHandler::garrisonSwap(ObjectInstanceID tid)
 				auto * nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
@@ -323,7 +321,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 				if(nodeSiege == (CBonusSystemNode *)this)
 					cb->swapGarrisonOnSiege(this->id);
 
-				const_cast<CGHeroInstance *>(defendingHero)->inTownGarrison = false; //hack to return visitor from garrison after battle
+				const_cast<CGHeroInstance *>(defendingHero)->setVisitedTown(this, false); //hack to return visitor from garrison after battle
 			}
 			cb->startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
@@ -332,7 +330,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			auto heroColor = h->getOwner();
 			onTownCaptured(heroColor);
 
-			if(cb->gameState()->getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
+			if(cb->gameState().getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
 			{
 				return; //we just won game, we do not need to perform any extra actions
 				//TODO: check how does H3 behave, visiting town on victory can affect campaigns (spells learned, +1 stat building visited)
@@ -343,7 +341,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 	else
 	{
 		assert(h->visitablePos() == this->visitablePos());
-		bool commander_recover = h->commander && !h->commander->alive;
+		bool commander_recover = h->getCommander() && !h->getCommander()->alive;
 		if (commander_recover) // rise commander from dead
 		{
 			SetCommanderProperty scp;
@@ -358,8 +356,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
-			iw.text.appendRawString(h->commander->getName());
-			iw.components.emplace_back(ComponentType::CREATURE, h->commander->getId(), h->commander->getCount());
+			iw.text.appendRawString(h->getCommander()->getName());
+			iw.components.emplace_back(ComponentType::CREATURE, h->getCommander()->getId(), h->getCommander()->getCount());
 			cb->showInfoDialog(&iw);
 		}
 	}
@@ -368,7 +366,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 {
 	//FIXME: find out why this issue appears on random maps
-	if(visitingHero == h)
+	if(getVisitingHero() == h)
 	{
 		cb->stopHeroVisitCastle(this, h);
 		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
@@ -398,7 +396,7 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 			continue;
 
 		try {
-			rewardableBuildings[kvp.first] = new TownRewardableBuildingInstance(this, kvp.second->bid, rand);
+			rewardableBuildings[kvp.first] = std::make_unique<TownRewardableBuildingInstance>(this, kvp.second->bid, rand);
 		}
 		catch (std::runtime_error & e)
 		{
@@ -533,7 +531,7 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 		CreatureID guardID = getTown()->creatures[guard.tier].at(0);
 		int guardSize = rand.nextInt(guard.min, guard.max);
 
-		putStack(getFreeSlot(), new CStackInstance(guardID, guardSize));
+		putStack(getFreeSlot(), std::make_unique<CStackInstance>(cb, guardID, guardSize));
 	}
 }
 
@@ -583,49 +581,41 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 {
 	auto getWeakestStackSlot = [&](ui64 powerLimit)
 	{
-		std::vector<SlotID> weakSlots;
-		auto stacksList = visitingHero->stacks;
-		std::pair<SlotID, CStackInstance *> pair;
-		while(!stacksList.empty())
+		SlotID weakestSlot;
+
+		for ( const auto & pair : getVisitingHero()->stacks)
 		{
-			pair = *vstd::minElementByFun(stacksList, [&](const std::pair<SlotID, CStackInstance *> & elem) { return elem.second->getPower(); });
 			if(powerLimit > pair.second->getPower() &&
-				(weakSlots.empty() || pair.second->getPower() == visitingHero->getStack(weakSlots.front()).getPower()))
+			   (weakestSlot == SlotID() || pair.second->getPower() < getVisitingHero()->getStack(weakestSlot).getPower()))
 			{
-				weakSlots.push_back(pair.first);
-				stacksList.erase(pair.first);
+				weakestSlot = pair.first;
 			}
-			else
-				break;
 		}
 
-		if(!weakSlots.empty())
-			return *std::max_element(weakSlots.begin(), weakSlots.end());
-
-		return SlotID();
+		return weakestSlot;
 	};
 
 	auto count = static_cast<int>(stacks.size());
 
 	for(int i = 0; i < count; i++)
 	{
-		auto pair = *vstd::maxElementByFun(stacks, [&](const std::pair<SlotID, CStackInstance *> & elem)
+		const auto & pair = *vstd::maxElementByFun(stacks, [&](const auto & elem)
 		{
 			ui64 power = elem.second->getPower();
-			auto dst = visitingHero->getSlotFor(elem.second->getCreatureID());
-			if(dst.validSlot() && visitingHero->hasStackAtSlot(dst))
-				power += visitingHero->getStack(dst).getPower();
+			auto dst = getVisitingHero()->getSlotFor(elem.second->getCreatureID());
+			if(dst.validSlot() && getVisitingHero()->hasStackAtSlot(dst))
+				power += getVisitingHero()->getStack(dst).getPower();
 
 			return power;
 		});
-		auto dst = visitingHero->getSlotFor(pair.second->getCreatureID());
+		auto dst = getVisitingHero()->getSlotFor(pair.second->getCreatureID());
 		if(dst.validSlot())
-			cb->moveStack(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst), -1);
+			cb->moveStack(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst), -1);
 		else
 		{
 			dst = getWeakestStackSlot(static_cast<int>(pair.second->getPower()));
 			if(dst.validSlot())
-				cb->swapStacks(StackLocation(id, pair.first), StackLocation(visitingHero->id, dst));
+				cb->swapStacks(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst));
 		}
 	}
 }
@@ -634,7 +624,7 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
-		PlayerState* state = cb->gameState()->getPlayerState(owner); //get all towns owned by player
+		PlayerState* state = cb->gameState().getPlayerState(owner); //get all towns owned by player
 		for (const auto & otherTown : state->getTowns())
 		{
 			if (otherTown != this && otherTown->hasCapitol())
@@ -654,7 +644,7 @@ void CGTownInstance::clearArmy() const
 {
 	while(!stacks.empty())
 	{
-		cb->eraseStack(StackLocation(id, stacks.begin()->first));
+		cb->eraseStack(StackLocation(id, stacks.begin()->first), true);
 	}
 }
 
@@ -684,14 +674,14 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<TradeItemBuy> ret;
-		for(const ArtifactID a : cb->gameState()->getMap().townMerchantArtifacts)
+		for(const ArtifactID a : cb->gameState().getMap().townMerchantArtifacts)
 			ret.push_back(a);
 
 		return ret;
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState()->getMap().townUniversitySkills;
+		return cb->gameState().getMap().townUniversitySkills;
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -704,7 +694,7 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState()->getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
 	//FIXME: not the best way to do this
 	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)
@@ -716,18 +706,6 @@ std::string CGTownInstance::nodeName() const
 	return "Town (" + getTown()->faction->getNameTranslated() + ") of " + getNameTranslated();
 }
 
-void CGTownInstance::deserializationFix()
-{
-	attachTo(townAndVis);
-
-	//Hero is already handled by CGameState::attachArmedObjects
-
-// 	if(visitingHero)
-// 		visitingHero->attachTo(&townAndVis);
-// 	if(garrisonHero)
-// 		garrisonHero->attachTo(this);
-}
-
 void CGTownInstance::updateMoraleBonusFromArmy()
 {
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
@@ -737,7 +715,7 @@ void CGTownInstance::updateMoraleBonusFromArmy()
 		addNewBonus(b);
 	}
 
-	if (garrisonHero)
+	if (getGarrisonHero())
 	{
 		b->val = 0;
 		nodeHasChanged();
@@ -786,59 +764,68 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	if(visitingHero.get() == h)
+	if(getVisitingHero() == h)
 		return;
 	
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
-		assert(p);
-		h->detachFrom(*p);
-		h->attachTo(townAndVis);
-		visitingHero = h;
-		h->visitedTown = this;
-		h->inTownGarrison = false;
+		h->detachFromBonusSystem(cb->gameState());
+		h->setVisitedTown(this, false);
+		h->attachToBonusSystem(cb->gameState());
+		visitingHero = h->id;
 	}
-	else
+	else if (visitingHero.hasValue())
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(visitingHero->tempOwner);
-		visitingHero->visitedTown = nullptr;
-		visitingHero->detachFrom(townAndVis);
-		visitingHero->attachTo(*p);
-		visitingHero = nullptr;
+		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(visitingHero));
+		oldVisitor->detachFromBonusSystem(cb->gameState());
+		oldVisitor->setVisitedTown(nullptr, false);
+		oldVisitor->attachToBonusSystem(cb->gameState());
+		visitingHero = {};
 	}
 }
 
 void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 {
-	if(garrisonHero.get() == h)
+	if(getGarrisonHero() == h)
 		return;
 	
 	if(h)
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(h->tempOwner);
-		assert(p);
-		h->detachFrom(*p);
-		h->attachTo(*this);
-		garrisonHero = h;
-		h->visitedTown = this;
-		h->inTownGarrison = true;
+		h->detachFromBonusSystem(cb->gameState());
+		h->setVisitedTown(this, true);
+		h->attachToBonusSystem(cb->gameState());
+		garrisonHero = h->id;
 	}
-	else
+	else if (garrisonHero.hasValue())
 	{
-		PlayerState *p = cb->gameState()->getPlayerState(garrisonHero->tempOwner);
-		garrisonHero->visitedTown = nullptr;
-		garrisonHero->inTownGarrison = false;
-		garrisonHero->detachFrom(*this);
-		garrisonHero->attachTo(*p);
-		garrisonHero = nullptr;
+		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(garrisonHero));
+		oldVisitor->detachFromBonusSystem(cb->gameState());
+		oldVisitor->setVisitedTown(nullptr, false);
+		oldVisitor->attachToBonusSystem(cb->gameState());
+		garrisonHero = {};
 	}
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
 }
 
+const CGHeroInstance * CGTownInstance::getVisitingHero() const
+{
+	if (!visitingHero.hasValue())
+		return nullptr;
+
+	return cb->getHero(visitingHero);
+}
+
+const CGHeroInstance * CGTownInstance::getGarrisonHero() const
+{
+	if (!garrisonHero.hasValue())
+		return nullptr;
+
+	return cb->getHero(garrisonHero);
+}
+
 bool CGTownInstance::armedGarrison() const
 {
-	return !stacks.empty() || garrisonHero;
+	return !stacks.empty() || getGarrisonHero();
 }
 
 int CGTownInstance::getTownLevel() const
@@ -876,8 +863,8 @@ void CGTownInstance::setNameTextId( const std::string & newName )
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const
 {
-	if(garrisonHero)
-		return garrisonHero;
+	if(getGarrisonHero())
+		return getGarrisonHero();
 	return this;
 }
 
@@ -1014,9 +1001,9 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 
 void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID ) const
 {
-	if(visitingHero == h)
+	if(getVisitingHero() == h)
 		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
-	else if(garrisonHero == h)
+	else if(getGarrisonHero() == h)
 		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
 	else
 	{
@@ -1043,12 +1030,12 @@ void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
 
 void CGTownInstance::afterAddToMap(CMap * map)
 {
-	map->towns.emplace_back(this);
+	map->townAddedToMap(this);
 }
 
 void CGTownInstance::afterRemoveFromMap(CMap * map)
 {
-	vstd::erase_if_present(map->towns, this);
+	map->townRemovedFromMap(this);
 }
 
 void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1158,9 +1145,9 @@ const CFaction * CGTownInstance::getFaction() const
 const CTown * CGTownInstance::getTown() const
 {
 	if(ID == Obj::RANDOM_TOWN)
-		return LIBRARY->townh->randomTown;
+		return LIBRARY->townh->randomFaction->town.get();
 
-	return getFaction()->town;
+	return getFaction()->town.get();
 }
 
 FactionID CGTownInstance::getFactionID() const
@@ -1258,7 +1245,6 @@ void CGTownInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &s
 
 void CGTownInstance::postDeserialize()
 {
-	setNodeType(CBonusSystemNode::TOWN);
 	for(auto & building : rewardableBuildings)
 		building.second->town = this;
 

@@ -13,8 +13,8 @@
 #include "ResourceManager.h"
 #include "BuildingManager.h"
 #include "Goals/Goals.h"
+#include "Goals/CompleteQuest.h"
 
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/UnlockGuard.h"
@@ -28,7 +28,10 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Updaters.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -136,7 +139,7 @@ void VCAI::heroMoved(const TryMoveHero & details, bool verbose)
 	else if(details.result == TryMoveHero::EMBARK && hero)
 	{
 		//make sure AI not attempt to visit used boat
-		validateObject(hero->boat);
+		validateObject(hero->getBoat());
 	}
 	else if(details.result == TryMoveHero::DISEMBARK && o1)
 	{
@@ -362,7 +365,7 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, Q
 
 void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", static_cast<int>(which) % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -446,13 +449,13 @@ void VCAI::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initi
 	//TODO: Find better way to handle hero boat removal
 	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
-		if(hero->boat)
+		if(hero->inBoat())
 		{
-			vstd::erase_if_present(visitableObjs, hero->boat);
-			vstd::erase_if_present(alreadyVisited, hero->boat);
+			vstd::erase_if_present(visitableObjs, hero->getBoat());
+			vstd::erase_if_present(alreadyVisited, hero->getBoat());
 
 			for(auto h : cb->getHeroesInfo())
-				unreserveObject(h, hero->boat);
+				unreserveObject(h, hero->getBoat());
 		}
 	}
 
@@ -486,8 +489,8 @@ void VCAI::playerBonusChanged(const Bonus & bonus, bool gain)
 void VCAI::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
-	if(h->visitedTown)
-		townVisitsThisWeek[HeroPtr(h)].insert(h->visitedTown);
+	if(h->getVisitedTown())
+		townVisitsThisWeek[HeroPtr(h)].insert(h->getVisitedTown());
 	NET_EVENT_HANDLER;
 }
 
@@ -625,7 +628,7 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
-	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(myCb.get()));
+	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(*myCb));
 
 	if(!fh)
 		fh = new FuzzyHelper();
@@ -671,7 +674,7 @@ void VCAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<u
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
+	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % static_cast<int>(commander->level)));
 	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
 
@@ -788,10 +791,10 @@ void makePossibleUpgrades(const CArmedInstance * obj)
 						{
 							return id.toCreature()->getAIValue();
 						});
-					if(cb->getResourceAmount().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->count))
+					if(cb->getResourceAmount().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
 						cb->upgradeCreature(obj, SlotID(i), upgID);
-						logAi->debug("Upgraded %d %s to %s", s->count, upgradeInfo.oldID.toCreature()->getNamePluralTranslated(), 
+						logAi->debug("Upgraded %d %s to %s", s->getCount(), upgradeInfo.oldID.toCreature()->getNamePluralTranslated(),
 							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
 					}
 					else
@@ -1073,12 +1076,12 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	{
 	case Obj::TOWN:
 		moveCreaturesToHero(dynamic_cast<const CGTownInstance *>(obj));
-		if(h->visitedTown) //we are inside, not just attacking
+		if(h->getVisitedTown()) //we are inside, not just attacking
 		{
-			townVisitsThisWeek[h].insert(h->visitedTown);
+			townVisitsThisWeek[h].insert(h->getVisitedTown());
 			if(!h->hasSpellbook() && ah->freeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
-				if(h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1))
+				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
@@ -1089,9 +1092,9 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->visitingHero && t->armedGarrison() && t->visitingHero->tempOwner == t->tempOwner)
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
 	{
-		pickBestCreatures(t->visitingHero, t);
+		pickBestCreatures(t->getVisitingHero(), t);
 	}
 }
 
@@ -1175,22 +1178,22 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 			{
 				for(auto p : h->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
 				}
 			}
 			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.artifact)));
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
 
 			if(otherh)
 			{
 				for(auto p : otherh->artifactsWorn)
 				{
-					if(p.second.artifact)
+					if(p.second.getArt())
 						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
 				}
 				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.artifact)));
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
 			}
 			//we give stuff to one hero or another, depending on giveStuffToFirstHero
 
@@ -1211,7 +1214,7 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 				auto s = cb->getHero(location.artHolder)->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
-				auto artifact = s->artifact;
+				auto artifact = s->getArt();
 				if(!artifact)
 					continue;
 				//FIXME: why are the above possible to be null?
@@ -1233,13 +1236,13 @@ void VCAI::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * ot
 					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
 					{
 						auto otherSlot = target->getSlot(slot);
-						if(otherSlot && otherSlot->artifact) //we need to exchange artifact for better one
+						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
 						{
 							//if that artifact is better than what we have, pick it
-							if(compareArtifacts(artifact, otherSlot->artifact) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+							if(compareArtifacts(artifact, otherSlot->getArt()) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 							{
 								ArtifactLocation destLocation(target->id, slot);
-								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->artifact)));
+								cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
 								changeMade = true;
 								break;
 							}
@@ -1363,10 +1366,10 @@ void VCAI::wander(HeroPtr h)
 {
 	auto visitTownIfAny = [this](HeroPtr h) -> bool
 	{
-		if (h->visitedTown)
+		if (h->getVisitedTown())
 		{
-			townVisitsThisWeek[h].insert(h->visitedTown);
-			buildArmyIn(h->visitedTown);
+			townVisitsThisWeek[h].insert(h->getVisitedTown());
+			buildArmyIn(h->getVisitedTown());
 			return true;
 		}
 		return false;
@@ -1434,7 +1437,7 @@ void VCAI::wander(HeroPtr h)
 			std::vector<const CGTownInstance *> townsNotReachable;
 			for(const CGTownInstance * t : cb->getTownsInfo())
 			{
-				if(!t->visitingHero && !vstd::contains(townVisitsThisWeek[h], t))
+				if(!t->getVisitingHero() && !vstd::contains(townVisitsThisWeek[h], t))
 				{
 					if(isAccessibleForHero(t->visitablePos(), h))
 						townsReachable.push_back(t);
@@ -1762,7 +1765,7 @@ const CGObjectInstance * VCAI::lookForArt(ArtifactID aid) const
 {
 	for(const CGObjectInstance * obj : ai->visitableObjs)
 	{
-		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifact()  == aid)
+		if(obj->ID == Obj::ARTIFACT && dynamic_cast<const CGArtifact *>(obj)->getArtifactType()  == aid)
 			return obj;
 	}
 
@@ -1866,10 +1869,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			auto tile = cb->getTile(coord, false);
-			assert(tile);
-			return tile->topVisitableObj(ignoreHero);
-			//return cb->getTile(coord,false)->topVisitableObj(ignoreHero);
+			return cb->getObj(cb->getTile(coord)->topVisitableObj(ignoreHero));
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool
@@ -2157,7 +2157,7 @@ void VCAI::tryRealize(Goals::Trade & g) //trade
 
 				int toGive;
 				int toGet;
-				m->getOffer(res, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
+				m->getOffer(res.getNum(), g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
@@ -2251,7 +2251,7 @@ void VCAI::tryRealize(Goals::AbstractGoal & g)
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
 	for(const CGTownInstance * t : cb->getTownsInfo())
-		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
+		if(t->hasBuilt(BuildingID::TAVERN) && !t->getVisitingHero())
 			return t;
 
 	return nullptr;
@@ -2455,7 +2455,7 @@ void VCAI::performTypicalActions()
 
 void VCAI::buildArmyIn(const CGTownInstance * t)
 {
-	makePossibleUpgrades(t->visitingHero);
+	makePossibleUpgrades(t->getVisitingHero());
 	makePossibleUpgrades(t);
 	recruitCreatures(t, t->getUpperArmy());
 	moveCreaturesToHero(t);
@@ -2808,7 +2808,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto q : ai->myCb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.getObject(cb) == obj)
 			{
 				return false; // do not visit guards or gates when wandering
 			}
@@ -2822,9 +2822,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		for(auto q : ai->myCb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.getObject(cb) == obj)
 			{
-				if(q.quest->checkQuest(h.h))
+				if(q.getQuest(cb)->checkQuest(h.h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest
@@ -2850,7 +2850,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	}
 	case Obj::HILL_FORT:
 	{
-		for(auto slot : h->Slots())
+		for(const auto & slot : h->Slots())
 		{
 			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?

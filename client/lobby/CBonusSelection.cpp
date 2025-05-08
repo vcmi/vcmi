@@ -43,7 +43,9 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/building/CBuildingHandler.h"
 #include "../../lib/entities/faction/CFaction.h"
@@ -51,14 +53,11 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-
-#include "../../lib/campaign/CampaignState.h"
-#include "../../lib/mapping/CMapService.h"
-#include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMapHeader.h"
-
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/CMapService.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
@@ -203,14 +202,14 @@ void CBonusSelection::createBonusesIcons()
 				}
 
 			}
-			assert(faction != -1);
+			assert(faction.hasValue());
 
 			BuildingID buildID;
 			if(getCampaign()->formatVCMI())
 				buildID = BuildingID(bonDescs[i].info1);
 			else
 				buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
-			picName = graphics->ERMUtoPicture[faction][buildID];
+			picName = graphics->ERMUtoPicture[faction.getNum()][buildID.getNum()];
 			picNumber = -1;
 
 			if(vstd::contains((*LIBRARY->townh)[faction]->town->buildings, buildID))
@@ -271,13 +270,13 @@ void CBonusSelection::createBonusesIcons()
 
 			switch(bonDescs[i].info1)
 			{
-				case 0xFD: //wood + ore
+				case EGameResID::COMMON: //wood + ore
 				{
 					desc.replaceLocalString(EMetaText::GENERAL_TXT, 721);
 					picNumber = 7;
 					break;
 				}
-				case 0xFE: //wood + ore
+				case EGameResID::RARE : //mercury + sulfur + crystal + gems
 				{
 					desc.replaceLocalString(EMetaText::GENERAL_TXT, 722);
 					picNumber = 8;
@@ -305,7 +304,7 @@ void CBonusSelection::createBonusesIcons()
 		}
 
 		case CampaignBonusType::HERO:
-			if(bonDescs[i].info2 == 0xFFFF)
+			if(bonDescs[i].info2 == HeroTypeID::CAMP_RANDOM.getNum())
 			{
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 720); // Start with random hero
 				picNumber = -1;
@@ -426,7 +425,7 @@ void CBonusSelection::startMap()
 	{
 		auto exitCb = []()
 		{
-			logGlobal->info("Starting scenario %d", static_cast<int>(GAME->server().campaignMap));
+			logGlobal->info("Starting scenario %d", GAME->server().campaignMap.getNum());
 			GAME->server().sendStartGame();
 		};
 

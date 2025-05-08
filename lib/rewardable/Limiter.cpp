@@ -13,12 +13,12 @@
 
 #include "../IGameCallback.h"
 #include "../CPlayerState.h"
+#include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../constants/StringConstants.h"
 #include "../CSkillHandler.h"
-#include "../ArtifactUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -83,11 +83,11 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 		size_t count = 0;
 		for(const auto & slot : hero->Slots())
 		{
-			const CStackInstance * heroStack = slot.second;
+			const auto & heroStack = slot.second;
 			if (heroStack->getType() == reqStack.getType())
-				count += heroStack->count;
+				count += heroStack->getCount();
 		}
-		if (count < reqStack.count) //not enough creatures of this kind
+		if (count < reqStack.getCount()) //not enough creatures of this kind
 			return false;
 	}
 
@@ -144,18 +144,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			// check required amount of artifacts
 			size_t artCnt = 0;
 			for(const auto & [slot, slotInfo] : hero->artifactsWorn)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 					artCnt++;
 
 			for(auto & slotInfo : hero->artifactsInBackpack)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 				{
 					artCnt++;
 				}
-				else if(slotInfo.artifact->isCombined())
+				else if(slotInfo.getArt()->isCombined())
 				{
-					for(const auto & partInfo : slotInfo.artifact->getPartsInfo())
-						if(partInfo.art->getTypeId() == elem.first)
+					for(const auto & partInfo : slotInfo.getArt()->getPartsInfo())
+						if(partInfo.getArtifact()->getTypeId() == elem.first)
 							artCnt++;
 				}
 
@@ -233,7 +233,7 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.count);
+		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.getCount());
 	
 	for(const auto & entry : players)
 		comps.emplace_back(ComponentType::FLAG, entry);

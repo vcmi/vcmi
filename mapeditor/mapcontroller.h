@@ -31,7 +31,7 @@ public:
 	void setMap(std::unique_ptr<CMap>);
 	void initObstaclePainters(CMap * map);
 	
-	void repairMap(CMap * map) const;
+	static void repairMap(CMap * map);
 	void repairMap();
 	
 	const std::unique_ptr<CMap> & getMapUniquePtr() const; //to be used for map saving
@@ -59,7 +59,7 @@ public:
 	void pasteFromClipboard(int level);
 	
 	bool discardObject(int level) const;
-	void createObject(int level, CGObjectInstance * obj) const;
+	void createObject(int level, std::shared_ptr<CGObjectInstance> obj) const;
 	bool canPlaceObject(int level, CGObjectInstance * obj, QString & error) const;
 	
 	static ModCompatibilityInfo modAssessmentAll();

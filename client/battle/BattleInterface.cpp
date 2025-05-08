@@ -35,16 +35,18 @@
 #include "../adventureMap/AdventureMapInterface.h"
 
 #include "../../CCallback.h"
+
 #include "../../lib/BattleFieldHandler.h"
-#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CStack.h"
+#include "../../lib/CThreadHelper.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/TerrainHandler.h"
+#include "../../lib/UnlockGuard.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
-#include "../../lib/UnlockGuard.h"
-#include "../../lib/TerrainHandler.h"
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,

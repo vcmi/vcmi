@@ -17,6 +17,8 @@
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
 
+#include "../../lib/GameLibrary.h"
+
 uint64_t averageDmg(const DamageRange & range)
 {
 	return (range.min + range.max) / 2;

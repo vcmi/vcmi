@@ -241,7 +241,7 @@ JsonNode CampaignHandler::writeScenarioToJson(const CampaignScenario & scenario)
 	JsonNode node;
 	node["map"].String() = scenario.mapName;
 	for(auto & g : scenario.preconditionRegions)
-		node["preconditions"].Vector().push_back(JsonNode(static_cast<ui32>(g)));
+		node["preconditions"].Vector().push_back(JsonNode(g.getNum()));
 	node["color"].Integer() = scenario.regionColor;
 	node["difficulty"].Integer() = scenario.difficulty;
 	node["regionText"].String() = scenario.regionText.toString();
@@ -281,23 +281,21 @@ static const std::map<std::string, ui32> primarySkillsMap = {
 };
 
 static const std::map<std::string, ui16> heroSpecialMap = {
-	{"strongest", 0xFFFD},
-	{"generated", 0xFFFE},
-	{"random", 0xFFFF}
+	{"strongest", HeroTypeID::CAMP_STRONGEST},
+	{"generated", HeroTypeID::CAMP_GENERATED},
+	{"random", HeroTypeID::CAMP_RANDOM}
 };
 
 static const std::map<std::string, ui8> resourceTypeMap = {
-	//FD - wood+ore
-	//FE - mercury+sulfur+crystal+gem
-	{"wood", 0},
-	{"mercury", 1},
-	{"ore", 2},
-	{"sulfur", 3},
-	{"crystal", 4},
-	{"gems", 5},
-	{"gold", 6},
-	{"common", 0xFD},
-	{"rare", 0xFE}
+	{"wood", EGameResID::WOOD},
+	{"mercury", EGameResID::MERCURY},
+	{"ore", EGameResID::ORE},
+	{"sulfur", EGameResID::SULFUR},
+	{"crystal", EGameResID::CRYSTAL},
+	{"gems", EGameResID::GEMS},
+	{"gold", EGameResID::GOLD},
+	{"common", EGameResID::COMMON},
+	{"rare", EGameResID::RARE}
 };
 
 CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)

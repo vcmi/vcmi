@@ -70,6 +70,15 @@ void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
 			result = false;
 			return;
 		}
+
+		// player got some query he has to reply to first for example, from triggered event
+		// ignore remaining path (if any), but handle this as success - since at least part of path was legal & was applied
+		auto query = gh.queries->topQuery(pack.player);
+		if (query && query->blocksPack(&pack))
+		{
+			result = true;
+			return;
+		}
 	}
 
 	result = true;
@@ -115,12 +124,12 @@ void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
 }
 
-void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSmartSplitStack & pack)
+void ApplyGhNetPackVisitor::visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	result = gh.bulkSmartSplitStack(pack.src, pack.srcOwner);
+	result = gh.bulkSplitAndRebalanceStack(pack.src, pack.srcOwner);
 }
 
 void ApplyGhNetPackVisitor::visitDisbandCreature(DisbandCreature & pack)
@@ -174,7 +183,7 @@ void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
 void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 {
 	const CGTownInstance * town = gh.getTown(pack.tid);
-	if(!gh.isPlayerOwns(connection, &pack, pack.tid) && !(town->garrisonHero && gh.isPlayerOwns(connection, &pack, town->garrisonHero->id)))
+	if(!gh.isPlayerOwns(connection, &pack, pack.tid) && !(town->getGarrisonHero() && gh.isPlayerOwns(connection, &pack, town->getGarrisonHero()->id)))
 		gh.throwNotAllowedAction(connection); //neither town nor garrisoned hero (if present) is ours
 	gh.throwIfPlayerNotActive(connection, &pack);
 
@@ -388,7 +397,7 @@ void ApplyGhNetPackVisitor::visitQueryReply(QueryReply & pack)
 void ApplyGhNetPackVisitor::visitSaveLocalState(SaveLocalState & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
-	*gh.gameState()->getPlayerState(pack.player)->playerLocalSettings = pack.data;
+	*gh.gameState().getPlayerState(pack.player)->playerLocalSettings = pack.data;
 	result = true;
 }
 

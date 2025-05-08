@@ -20,13 +20,13 @@ namespace AIPathfinding
 {
 	void BuyArmyAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 	{
-		if(!hero->visitedTown)
+		if(!hero->getVisitedTown())
 		{
 			throw cannotFulfillGoalException(
 				hero->getNameTranslated() + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
 		}
 
-		ai->recruitCreatures(hero->visitedTown, hero);
+		ai->recruitCreatures(hero->getVisitedTown(), hero);
 	}
 
 	std::string BuyArmyAction::toString() const

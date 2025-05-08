@@ -14,7 +14,9 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/MapObjects.h"
+#include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/IGameSettings.h"
@@ -201,7 +203,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT)
+		if(t->visitableObjects.size() == 1 && cb->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
 			return true;
 	}
 	return false;
@@ -374,10 +376,10 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 	switch (bonus->type)
 	{
 		case BonusType::MOVEMENT:
-			if (hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementSea)
+			if (hero->getBoat() && bonus->subtype == BonusCustomSubtype::heroMovementSea)
 				return veryRelevant;
 
-			if (!hero->boat && bonus->subtype == BonusCustomSubtype::heroMovementLand)
+			if (!hero->getBoat() && bonus->subtype == BonusCustomSubtype::heroMovementLand)
 				return relevant;
 			return notRelevant;
 		case BonusType::STACKS_SPEED:
@@ -394,9 +396,9 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 				return relevant; // spellpower / knowledge - always relevant
 		case BonusType::WATER_WALKING:
 		case BonusType::FLYING_MOVEMENT:
-			return hero->boat ? notRelevant : relevant; // boat can't fly
+			return hero->getBoat() ? notRelevant : relevant; // boat can't fly
 		case BonusType::WHIRLPOOL_PROTECTION:
-			return hero->boat ? relevant : notRelevant;
+			return hero->getBoat() ? relevant : notRelevant;
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return hero->hasBonusOfType(BonusType::IMPROVED_NECROMANCY) ? veryRelevant : notRelevant;
 		case BonusType::SPELL_DAMAGE:
@@ -632,7 +634,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 {
 	int duplicatingSlots = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		if(stack.second->getCreature() && army->getSlotFor(stack.second->getCreature()) != stack.first)
 			duplicatingSlots++;
@@ -656,7 +658,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto q : ai->cb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.obj == obj->id)
 			{
 				return false; // do not visit guards or gates when wandering
 			}
@@ -669,9 +671,9 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	{
 		for(auto q : ai->cb->getMyQuests())
 		{
-			if(q.obj == obj)
+			if(q.obj == obj->id)
 			{
-				if(q.quest->checkQuest(h))
+				if(q.getQuest(ai->cb.get())->checkQuest(h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest
@@ -707,7 +709,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	}
 	case Obj::HILL_FORT:
 	{
-		for(auto slot : h->Slots())
+		for(const auto & slot : h->Slots())
 		{
 			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
@@ -767,7 +769,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 bool townHasFreeTavern(const CGTownInstance * town)
 {
 	if(!town->hasBuilt(BuildingID::TAVERN)) return false;
-	if(!town->visitingHero) return true;
+	if(!town->getVisitingHero()) return true;
 
 	bool canMoveVisitingHeroToGarrison = !town->getUpperArmy()->stacksCount();
 
@@ -778,9 +780,9 @@ uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCr
 {
 	auto armyStrength = heroArmy->getArmyStrength(fortLevel);
 
-	if(hero && hero->commander && hero->commander->alive)
+	if(hero && hero->getCommander() && hero->getCommander()->alive)
 	{
-		armyStrength += 100 * hero->commander->level;
+		armyStrength += 100 * hero->getCommander()->level;
 	}
 
 	return armyStrength;

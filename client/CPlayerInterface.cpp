@@ -118,18 +118,6 @@
 
 std::shared_ptr<BattleInterface> CPlayerInterface::battleInt;
 
-struct HeroObjectRetriever
-{
-	const CGHeroInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
-	{
-		return h;
-	}
-	const CGHeroInstance * operator()(const ConstTransitivePtr<CStackInstance> &s) const
-	{
-		return nullptr;
-	}
-};
-
 CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	localState(std::make_unique<PlayerLocalState>(*this)),
 	movementController(std::make_unique<HeroMovementController>()),
@@ -165,7 +153,7 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 	cb = CB;
 	env = ENV;
 
-	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(cb.get()));
+	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
 	initializeHeroTownList();
 
@@ -542,18 +530,18 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	if(town->garrisonHero) //wandering hero moved to the garrison
+	if(town->getGarrisonHero()) //wandering hero moved to the garrison
 	{
 		// This method also gets called on hero recruitment -> garrisoned hero is already in garrison
-		if(town->garrisonHero->tempOwner == playerID && vstd::contains(localState->getWanderingHeroes(), town->garrisonHero))
-			localState->removeWanderingHero(town->garrisonHero);
+		if(town->getGarrisonHero()->tempOwner == playerID && vstd::contains(localState->getWanderingHeroes(), town->getGarrisonHero()))
+			localState->removeWanderingHero(town->getGarrisonHero());
 	}
 
-	if(town->visitingHero) //hero leaves garrison
+	if(town->getVisitingHero()) //hero leaves garrison
 	{
 		// This method also gets called on hero recruitment -> wandering heroes already contains new hero
-		if(town->visitingHero->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->visitingHero))
-			localState->addWanderingHero(town->visitingHero);
+		if(town->getVisitingHero()->tempOwner == playerID && !vstd::contains(localState->getWanderingHeroes(), town->getVisitingHero()))
+			localState->addWanderingHero(town->getVisitingHero());
 	}
 	adventureInt->onHeroChanged(nullptr);
 	adventureInt->onTownChanged(town);
@@ -611,8 +599,8 @@ void CPlayerInterface::garrisonsChanged(std::vector<const CArmedInstance *> objs
 			localState->verifyPath(hero);
 
 			adventureInt->onHeroChanged(hero);
-			if(hero->inTownGarrison && hero->visitedTown != town)
-				adventureInt->onTownChanged(hero->visitedTown);
+			if(hero->isGarrisoned() && hero->getVisitedTown() != town)
+				adventureInt->onTownChanged(hero->getVisitedTown());
 		}
 	}
 
@@ -1072,6 +1060,7 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 
 void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components)
 {
+	waitWhileDialog();
 	movementController->requestMovementAbort();
 	GAME->interface()->showingDialog->setBusy();
 	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID);
@@ -1362,7 +1351,7 @@ void CPlayerInterface::initializeHeroTownList()
 	{
 		for(auto & hero : cb->getHeroesInfo())
 		{
-			if(!hero->inTownGarrison)
+			if(!hero->isGarrisoned())
 				localState->addWanderingHero(hero);
 		}
 	}

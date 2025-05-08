@@ -247,8 +247,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #  define DLL_LINKAGE DLL_IMPORT
 #endif
 
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
-
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
 #include <AvailabilityVersions.h>
@@ -467,14 +465,6 @@ namespace vstd
 		}
 	};
 
-	//deleted pointer and sets it to nullptr
-	template <typename T>
-	void clear_pointer(T* &ptr)
-	{
-		delete ptr;
-		ptr = nullptr;
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -574,7 +564,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
-	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
@@ -589,7 +579,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
-	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744

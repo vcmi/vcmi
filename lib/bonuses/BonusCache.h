@@ -160,6 +160,10 @@ public:
 	PrimarySkillsCache(const IBonusBearer * target);
 
 	const std::array<std::atomic<int32_t>, 4> & getSkills() const;
+	const std::atomic<int32_t> & getSkill(PrimarySkill id) const
+	{
+		return getSkills()[id.getNum()];
+	}
 };
 
 /// Cache that tracks values of spell school mastery in bonus system

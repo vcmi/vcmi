@@ -12,14 +12,13 @@
 
 #include "Updaters.h"
 #include "Limiters.h"
-
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../CStack.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> IUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	return b;
 }
@@ -34,11 +33,27 @@ JsonNode IUpdater::toJsonNode() const
 	return JsonNode();
 }
 
+void IUpdater::visitLimiter(AggregateLimiter& limiter)
+{
+	for (auto& limit : limiter.limiters)
+		limit->acceptUpdater(*this);
+}
+
+void IUpdater::visitLimiter(CCreatureTypeLimiter& limiter) {}
+void IUpdater::visitLimiter(HasAnotherBonusLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureTerrainLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureLevelLimiter& limiter) {}
+void IUpdater::visitLimiter(FactionLimiter& limiter) {}
+void IUpdater::visitLimiter(CreatureAlignmentLimiter& limiter) {}
+void IUpdater::visitLimiter(OppositeSideLimiter& limiter) {}
+void IUpdater::visitLimiter(RankRangeLimiter& limiter) {}
+void IUpdater::visitLimiter(UnitOnHexLimiter& limiter) {}
+
 GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
 {
 }
 
-std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -71,7 +86,7 @@ JsonNode GrowsWithLevelUpdater::toJsonNode() const
 	return root;
 }
 
-std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::HERO)
 	{
@@ -93,72 +108,53 @@ JsonNode TimesHeroLevelUpdater::toJsonNode() const
 	return JsonNode("TIMES_HERO_LEVEL");
 }
 
-ArmyMovementUpdater::ArmyMovementUpdater():
-	base(20),
-	divider(3),
-	multiplier(10),
-	max(700)
+std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
-}
-
-ArmyMovementUpdater::ArmyMovementUpdater(int base, int divider, int multiplier, int max):
-	base(base),
-	divider(divider),
-	multiplier(multiplier),
-	max(max)
-{
-}
-
-std::shared_ptr<Bonus> ArmyMovementUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
-{
+	if(context.getNodeType() == CBonusSystemNode::HERO)
+	{
+		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
+		newBonus->updater = divideStackLevel;
+		return newBonus;
+	}
 	return b;
 }
 
-std::string ArmyMovementUpdater::toString() const
+std::string TimesHeroLevelDivideStackLevelUpdater::toString() const
 {
-	return "ArmyMovementUpdater";
+	return "TimesHeroLevelDivideStackLevelUpdater";
 }
 
-JsonNode ArmyMovementUpdater::toJsonNode() const
+JsonNode TimesHeroLevelDivideStackLevelUpdater::toJsonNode() const
 {
-	JsonNode root;
-
-	root["type"].String() = "ARMY_MOVEMENT";
-	root["parameters"].Vector().emplace_back(base);
-	root["parameters"].Vector().emplace_back(divider);
-	root["parameters"].Vector().emplace_back(multiplier);
-	root["parameters"].Vector().emplace_back(max);
-
-	return root;
+	return JsonNode("TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL");
 }
-std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+
+std::shared_ptr<Bonus> TimesStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const
+{
+	auto newBonus = std::make_shared<Bonus>(*b);
+	newBonus->val *= level;
+	newBonus->updater = nullptr; // prevent double-apply
+	return newBonus;
+}
+
+std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
 	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
 	{
 		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
-		auto newBonus = std::make_shared<Bonus>(*b);
-		newBonus->val *= level;
-		return newBonus;
+		return apply(b, level);
 	}
-	else if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+
+	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
 	{
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		//update if stack doesn't have an instance (summons, war machines)
 		if(stack.base == nullptr)
-		{
-			int level = stack.unitType()->getLevel();
-			auto newBonus = std::make_shared<Bonus>(*b);
-			newBonus->val *= level;
-			return newBonus;
-		}
+			return apply(b, stack.unitType()->getLevel());
+
 		// If these are not handled here, the final outcome may potentially be incorrect.
-		else
-		{
-			int level = dynamic_cast<const CStackInstance*>(stack.base)->getLevel();
-			auto newBonus = std::make_shared<Bonus>(*b);
-			newBonus->val *= level;
-			return newBonus;
-		}
+		int level = dynamic_cast<const CStackInstance*>(stack.base)->getLevel();
+		return apply(b, level);
 	}
 	return b;
 }
@@ -173,6 +169,50 @@ JsonNode TimesStackLevelUpdater::toJsonNode() const
 	return JsonNode("TIMES_STACK_LEVEL");
 }
 
+std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const
+{
+	if (level == 0)
+		return b; // e.g. war machines & other special units
+
+	auto newBonus = std::make_shared<Bonus>(*b);
+	level = std::max(1, level);
+	newBonus->val /= level;
+	newBonus->updater = nullptr; // prevent double-apply
+	return newBonus;
+}
+
+std::shared_ptr<Bonus> DivideStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
+{
+	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
+	{
+		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
+		return apply(b, level);
+	}
+
+	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	{
+		const auto & stack = dynamic_cast<const CStack &>(context);
+		//update if stack doesn't have an instance (summons, war machines)
+		if(stack.base == nullptr)
+			return apply(b, stack.unitType()->getLevel());
+
+		// If these are not handled here, the final outcome may potentially be incorrect.
+		int level = dynamic_cast<const CStackInstance*>(stack.base)->getLevel();
+		return apply(b, level);
+	}
+	return b;
+}
+
+std::string DivideStackLevelUpdater::toString() const
+{
+	return "DivideStackLevelUpdater";
+}
+
+JsonNode DivideStackLevelUpdater::toJsonNode() const
+{
+	return JsonNode("DIVIDE_STACK_LEVEL");
+}
+
 std::string OwnerUpdater::toString() const
 {
 	return "OwnerUpdater";
@@ -183,17 +223,24 @@ JsonNode OwnerUpdater::toJsonNode() const
 	return JsonNode("BONUS_OWNER_UPDATER");
 }
 
-std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+std::shared_ptr<Bonus> OwnerUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context)
 {
-	auto owner = context.getOwner();
-
+	owner = context.getOwner();
+	
 	if(owner == PlayerColor::UNFLAGGABLE)
 		owner = PlayerColor::NEUTRAL;
 
 	std::shared_ptr<Bonus> updated =
 		std::make_shared<Bonus>(*b);
-	updated->limiter = std::make_shared<OppositeSideLimiter>(owner);
+	updated->limiter = b->limiter;
+	if (updated->limiter)
+		updated->limiter->acceptUpdater(*this);
 	return updated;
+}
+
+void OwnerUpdater::visitLimiter(OppositeSideLimiter& limiter)
+{
+	limiter.owner = owner;
 }
 
 VCMI_LIB_NAMESPACE_END

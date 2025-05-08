@@ -293,7 +293,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 			|| existingHero->getArmyStrength() >armyLimit
 			|| getHeroRole(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
-			|| (townToSpare != nullptr && existingHero->visitedTown == townToSpare)
+			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)
 			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))
 		{
 			continue;

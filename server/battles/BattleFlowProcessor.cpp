@@ -334,7 +334,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 		if (!tryMakeAutomaticAction(battle, next))
 		{
 			if(next->alive()) {
-				setActiveStack(battle, next);
+				setActiveStack(battle, next, BattleUnitTurnReason::TURN_QUEUE);
 				break;
 			}
 		}
@@ -576,7 +576,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		// NOTE: in case of random spellcaster, (e.g. Master Genie) spell has been selected by server and was not present in action received from player
 		if(actedStack->castSpellThisTurn && ba.spell.hasValue() && ba.spell.toSpell()->canCastWithoutSkip())
 		{
-			setActiveStack(battle, actedStack);
+			setActiveStack(battle, actedStack, BattleUnitTurnReason::UNIT_SPELLCAST);
 			return;
 		}
 	}
@@ -589,7 +589,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		if (rollGoodMorale(battle, actedStack))
 		{
 			// Good morale - same stack makes 2nd turn
-			setActiveStack(battle, actedStack);
+			setActiveStack(battle, actedStack, BattleUnitTurnReason::MORALE);
 			return;
 		}
 	}
@@ -599,7 +599,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		{
 			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
 			// keep current active stack for next action
-			setActiveStack(battle, activeStack);
+			setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
 			return;
 		}
 	}
@@ -622,7 +622,7 @@ bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle
 	BattleSetActiveStack bsa;
 	bsa.battleID = battle.getBattle()->getBattleID();
 	bsa.stack = stack->unitId();
-	bsa.askPlayerInterface = false;
+	bsa.reason = BattleUnitTurnReason::AUTOMATIC_ACTION;
 	gameHandler->sendAndApply(bsa);
 
 	bool ret = owner->makeAutomaticBattleAction(battle, ba);
@@ -809,12 +809,13 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	}
 }
 
-void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack)
+void BattleFlowProcessor::setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason)
 {
 	assert(stack);
 
 	BattleSetActiveStack sas;
 	sas.battleID = battle.getBattle()->getBattleID();
 	sas.stack = stack->unitId();
+	sas.reason = reason;
 	gameHandler->sendAndApply(sas);
 }

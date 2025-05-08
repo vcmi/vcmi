@@ -17,6 +17,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../campaign/CampaignState.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"
@@ -104,7 +105,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<TimesHeroLevelUpdater>(44);
 	s.template registerType<TimesStackLevelUpdater>(45);
 	s.template registerType<OwnerUpdater>(46);
-	s.template registerType<ArmyMovementUpdater>(47);
 	s.template registerType<ILimiter>(48);
 	s.template registerType<AnyOfLimiter>(49);
 	s.template registerType<NoneOfLimiter>(50);
@@ -226,7 +226,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkMoveArtifacts>(173);
 	s.template registerType<PlayerMessageClient>(174);
 	s.template registerType<BulkRebalanceStacks>(175);
-	s.template registerType<BulkSmartRebalanceStacks>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);
@@ -255,7 +254,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<PlayerMessage>(203);
 	s.template registerType<BulkSplitStack>(204);
 	s.template registerType<BulkMergeStacks>(205);
-	s.template registerType<BulkSmartSplitStack>(206);
+	s.template registerType<BulkSplitAndRebalanceStack>(206);
 	s.template registerType<BulkMoveArmy>(207);
 	s.template registerType<BulkExchangeArtifacts>(208);
 	s.template registerType<ManageBackpackArtifacts>(209);
@@ -294,6 +293,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetResearchedSpells>(242);
 	s.template registerType<SaveLocalState>(243);
 	s.template registerType<LobbyDelete>(244);
+	s.template registerType<TimesHeroLevelDivideStackLevelUpdater>(245);
+	s.template registerType<DivideStackLevelUpdater>(246);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -96,9 +96,12 @@ int3 IBoatGenerator::bestLocation() const
 		if (tile->blocked())
 		{
 			bool hasBoat = false;
-			for (auto const * object : tile->blockingObjects)
+			for (auto const & objectID : tile->blockingObjects)
+			{
+				const auto * object = getObject()->cb->getObj(objectID);
 				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
 					hasBoat = true;
+			}
 
 			if (!hasBoat)
 				continue; // tile is blocked, but not by boat -> check next potential position
@@ -122,7 +125,9 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(t->blockingObjects.empty())
 		return GOOD; //OK
 
-	if(t->blockingObjects.front()->ID == Obj::BOAT || t->blockingObjects.front()->ID == Obj::HERO)
+	auto blockerObject = getObject()->cb->getObjInstance(t->blockingObjects.front());
+
+	if(blockerObject->ID == Obj::BOAT || blockerObject->ID == Obj::HERO)
 		return BOAT_ALREADY_BUILT; //blocked with boat
 
 	return TILE_BLOCKED; //blocked

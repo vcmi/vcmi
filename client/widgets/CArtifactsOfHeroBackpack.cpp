@@ -18,7 +18,8 @@
 #include "ObjectLists.h"
 
 #include "../CPlayerInterface.h"
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -152,10 +153,10 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 
 		std::map<const ArtifactID, const CArtifactInstance*> filteredArts;
 		for(auto & slotInfo : curHero->artifactsInBackpack)
-			if(slotInfo.artifact->getTypeId() != artInSlotId &&	!slotInfo.artifact->isScroll() &&
-				slotInfo.artifact->getType()->canBePutAt(curHero, filterBySlot, true))
+			if(slotInfo.getArt()->getTypeId() != artInSlotId &&	!slotInfo.getArt()->isScroll() &&
+				slotInfo.getArt()->getType()->canBePutAt(curHero, filterBySlot, true))
 			{
-				filteredArts.insert(std::pair(slotInfo.artifact->getTypeId(), slotInfo.artifact));
+				filteredArts.insert(std::pair(slotInfo.getArt()->getTypeId(), slotInfo.getArt()));
 			}
 
 		std::map<const SpellID, const CArtifactInstance*> filteredScrolls;
@@ -164,8 +165,8 @@ void CArtifactsOfHeroQuickBackpack::setHero(const CGHeroInstance * hero)
 		{
 			for(auto & slotInfo : curHero->artifactsInBackpack)
 			{
-				if(slotInfo.artifact->isScroll() && slotInfo.artifact->getScrollSpellID() != scrollInSlotSpellId)
-					filteredScrolls.insert(std::pair(slotInfo.artifact->getScrollSpellID(), slotInfo.artifact));
+				if(slotInfo.getArt()->isScroll() && slotInfo.getArt()->getScrollSpellID() != scrollInSlotSpellId)
+					filteredScrolls.insert(std::pair(slotInfo.getArt()->getScrollSpellID(), slotInfo.getArt()));
 			}
 		}
 

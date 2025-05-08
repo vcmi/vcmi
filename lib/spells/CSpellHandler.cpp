@@ -26,6 +26,7 @@
 #include "../battle/Unit.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/CGHeroInstance.h" //todo: remove
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
@@ -310,7 +311,7 @@ bool CSpell::canCastWithoutSkip() const
 	return castWithoutSkip;
 }
 
-const std::string & CSpell::getIconImmune() const
+const ImagePath & CSpell::getIconImmune() const
 {
 	return iconImmune;
 }
@@ -948,7 +949,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 	const JsonNode & graphicsNode = json["graphics"];
 
-	spell->iconImmune = graphicsNode["iconImmune"].String();
+	spell->iconImmune = ImagePath::fromJson(graphicsNode["iconImmune"]);
 	spell->iconBook = graphicsNode["iconBook"].String();
 	spell->iconEffect = graphicsNode["iconEffect"].String();
 	spell->iconScenarioBonus = graphicsNode["iconScenarioBonus"].String();

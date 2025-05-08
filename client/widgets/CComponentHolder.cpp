@@ -23,12 +23,15 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/networkPacks/ArtifactLocation.h"
+
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/networkPacks/ArtifactLocation.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CComponentHolder::CComponentHolder(const Rect & area, const Point & selectionOversize)
 	: SelectableSlot(area, selectionOversize)
@@ -114,7 +117,7 @@ void CArtPlace::setArtifact(const ArtifactID & newArtId, const SpellID & newSpel
 	if(artId == ArtifactID::SPELL_SCROLL)
 	{
 		spellId = newSpellId;
-		assert(spellId.num > 0);
+		assert(spellId != SpellID::NONE);
 
 		if(settings["general"]["enableUiEnhancements"].Bool())
 		{

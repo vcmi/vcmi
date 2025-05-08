@@ -27,14 +27,8 @@ CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceI
 
 void CExchangeController::swapArmy()
 {
-	auto getStacks = [](const CArmedInstance * source) -> std::vector<std::pair<SlotID, CStackInstance*>>
-	{
-		auto slots = source->Slots();
-		return std::vector<std::pair<SlotID, CStackInstance*>>(slots.begin(), slots.end());
-	};
-
-	auto leftSlots = getStacks(left);
-	auto rightSlots = getStacks(right);
+	const auto & leftSlots = left->Slots();
+	const auto & rightSlots = right->Slots();
 
 	auto i = leftSlots.begin();
 	auto j = rightSlots.begin();
@@ -73,8 +67,8 @@ void CExchangeController::moveArmy(bool leftToRight, std::optional<SlotID> heldS
 
 	if(!heldSlot.has_value())
 	{
-		auto weakestSlot = vstd::minElementByFun(source->Slots(),
-			[](const std::pair<SlotID, CStackInstance*> & s) -> int
+		const auto & weakestSlot = vstd::minElementByFun(source->Slots(),
+			[](const auto & s) -> int
 			{
 				return s.second->getCreatureID().toCreature()->getAIValue();
 			});

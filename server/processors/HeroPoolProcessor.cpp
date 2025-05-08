@@ -34,7 +34,7 @@ HeroPoolProcessor::HeroPoolProcessor(CGameHandler * gameHandler)
 
 TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, TavernSlotRole roleID)
 {
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	const auto & heroes = heroesPool->getHeroesFor(player);
 
@@ -109,7 +109,9 @@ void HeroPoolProcessor::selectNewHeroForSlot(const PlayerColor & color, TavernHe
 	sah.slotID = slot;
 	sah.replenishPoints = true;
 
-	CGHeroInstance *newHero = (nextHero == HeroTypeID::NONE) ? pickHeroFor(needNativeHero, color) : gameHandler->gameState()->heroesPool->unusedHeroesFromPool()[nextHero];
+	CGHeroInstance *newHero = nextHero.hasValue()?
+		gameHandler->gameState().heroesPool->unusedHeroesFromPool()[nextHero]:
+		pickHeroFor(needNativeHero, color);
 
 	if (newHero)
 	{
@@ -148,7 +150,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	const PlayerState * playerState = gameHandler->getPlayerState(player);
 	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
 	const CGTownInstance * town = gameHandler->getTown(objectID);
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
 		return false;
@@ -185,7 +187,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 		if(!town->hasBuilt(BuildingID::TAVERN) && gameHandler->complain("No tavern!"))
 			return false;
 
-		if(town->visitingHero && gameHandler->complain("There is visiting hero - no place!"))
+		if(town->getVisitingHero() && gameHandler->complain("There is visiting hero - no place!"))
 			return false;
 	}
 
@@ -199,7 +201,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 		}
 
-		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject && gameHandler->complain("Tavern entry must be unoccupied!"))
+		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject->id && gameHandler->complain("Tavern entry must be unoccupied!"))
 			return false;
 	}
 
@@ -225,7 +227,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	hr.hid = recruitedHero->getHeroTypeID();
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
-	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->boat)
+	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->inBoat())
 	{
 		//Create a new boat for hero
 		gameHandler->createBoat(targetPos, recruitedHero->getBoatType(), player);
@@ -254,7 +256,7 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 {
 	std::vector<const CHeroClass *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
@@ -276,7 +278,7 @@ std::vector<CGHeroInstance *> HeroPoolProcessor::findAvailableHeroesFor(const Pl
 {
 	std::vector<CGHeroInstance *> result;
 
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
@@ -301,7 +303,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 	}
 
 	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
-	const auto & heroesPool = gameHandler->gameState()->heroesPool;
+	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	const auto & currentTavern = heroesPool->getHeroesFor(player);
 
 	std::vector<const CHeroClass *> potentialClasses = findAvailableClassesFor(player);

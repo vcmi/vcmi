@@ -20,13 +20,17 @@
 
 class GameCallbackMock : public IGameCallback
 {
+	std::shared_ptr<CGameState> gamestate;
 public:
 	using UpperCallback = ::ServerCallback;
 
 	GameCallbackMock(UpperCallback * upperCallback_);
 	virtual ~GameCallbackMock();
 
-	void setGameState(CGameState * gameState);
+	void setGameState(std::shared_ptr<CGameState> gameState);
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
+
 
 	///STUBS, to be removed as long as same methods moved from GameHandler
 
@@ -68,7 +72,7 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {} //merges army from src do dst or opens a garrison window
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) override {return false;}
 
-	void removeAfterVisit(const CGObjectInstance *object) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
+	void removeAfterVisit(const ObjectInstanceID & id) override {} //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;}
 	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;}

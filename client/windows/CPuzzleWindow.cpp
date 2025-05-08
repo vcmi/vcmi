@@ -43,14 +43,15 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
 	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
+	mapView->needFullUpdate = true;
 
 	logo = std::make_shared<CPicture>(ImagePath::builtin("PUZZLOGO"), 607, 3);
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[463]);
 	resDataBar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR.bmp"), 3, 575, 32, 2, 85, 85);
 
-	int faction = GAME->interface()->cb->getStartInfo()->playerInfos.find(GAME->interface()->playerID)->second.castle;
+	FactionID faction = GAME->interface()->cb->getStartInfo()->playerInfos.find(GAME->interface()->playerID)->second.castle;
 
-	auto & puzzleMap = (*LIBRARY->townh)[faction]->puzzleMap;
+	auto & puzzleMap = faction.toFaction()->puzzleMap;
 
 	for(auto & elem : puzzleMap)
 	{
@@ -93,4 +94,7 @@ void CPuzzleWindow::show(Canvas & to)
 		currentAlpha -= animSpeed;
 	}
 	CWindowObject::show(to);
+
+	if(mapView->needFullUpdate && piecesToRemove.empty())
+		mapView->needFullUpdate = false;
 }

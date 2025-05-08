@@ -157,11 +157,12 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 	return ret;
 }
 
-void CFilesystemList::addLoader(ISimpleResourceLoader * loader, bool writeable)
+void CFilesystemList::addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable)
 {
-	loaders.push_back(std::unique_ptr<ISimpleResourceLoader>(loader));
 	if (writeable)
-		writeableLoaders.insert(loader);
+		writeableLoaders.insert(loader.get());
+
+	loaders.push_back(std::move(loader));
 }
 
 bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)

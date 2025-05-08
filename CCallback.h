@@ -113,7 +113,7 @@ public:
 	// To implement high-level army management bulk actions
 	virtual int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) = 0;
 	virtual int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) = 0;
-	virtual int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+	virtual int bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 	virtual int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 	
 	
@@ -150,8 +150,13 @@ public:
 
 class CCallback : public CPlayerSpecificInfoCallback, public CBattleCallback, public IGameActionCallback
 {
+	std::shared_ptr<CGameState> gamestate;
+
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
+
 public:
-	CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C);
+	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
@@ -176,7 +181,7 @@ public:
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val) override;
 	int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) override;
 	int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) override;
-	int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) override;
+	int bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot) override;
 	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;

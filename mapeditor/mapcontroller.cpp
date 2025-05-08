@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "mapcontroller.h"
 
-#include "../lib/ArtifactUtils.h"
 #include "../lib/GameConstants.h"
+#include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -93,7 +93,7 @@ void MapController::repairMap()
 	repairMap(map());
 }
 
-void MapController::repairMap(CMap * map) const
+void MapController::repairMap(CMap * map)
 {
 	if(!map)
 		return;
@@ -109,24 +109,23 @@ void MapController::repairMap(CMap * map) const
 			e.name = "rumor_" + std::to_string(emptyNameId++);
 	
 	//fix owners for objects
-	auto allImpactedObjects(map->objects);
-	allImpactedObjects.insert(allImpactedObjects.end(), map->predefinedHeroes.begin(), map->predefinedHeroes.end());
+	std::vector<CGObjectInstance*> allImpactedObjects;
+
+	for (const auto & object : map->objects)
+		allImpactedObjects.push_back(object.get());
+
+	for (const auto & hero : map->getHeroesInPool())
+		allImpactedObjects.push_back(map->tryGetFromHeroPool(hero));
+
 	for(auto obj : allImpactedObjects)
 	{
 		//fix flags
-		if(obj->getOwner() == PlayerColor::UNFLAGGABLE)
+		if(obj->asOwnable() != nullptr && obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			if(dynamic_cast<CGMine*>(obj.get()) ||
-			   dynamic_cast<CGDwelling*>(obj.get()) ||
-			   dynamic_cast<CGTownInstance*>(obj.get()) ||
-			   dynamic_cast<CGGarrison*>(obj.get()) ||
-			   dynamic_cast<CGShipyard*>(obj.get()) ||
-			   dynamic_cast<FlaggableMapObject*>(obj.get()) ||
-			   dynamic_cast<CGHeroInstance*>(obj.get()))
-				obj->tempOwner = PlayerColor::NEUTRAL;
+			obj->tempOwner = PlayerColor::NEUTRAL;
 		}
 		//fix hero instance
-		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj.get()))
+		if(auto * nih = dynamic_cast<CGHeroInstance*>(obj))
 		{
 			// All heroes present on map or in prisons need to be allowed to rehire them after they are defeated
 
@@ -144,12 +143,12 @@ void MapController::repairMap(CMap * map) const
 			{
 				nih->removeSpellFromSpellbook(SpellID::SPELLBOOK_PRESET);
 				if(!nih->getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook)
-					nih->putArtifact(ArtifactPosition::SPELLBOOK, ArtifactUtils::createArtifact(ArtifactID::SPELLBOOK));
+					nih->putArtifact(ArtifactPosition::SPELLBOOK, map->createArtifact(ArtifactID::SPELLBOOK));
 			}
 			
 		}
 		//fix town instance
-		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj.get()))
+		if(auto * tnh = dynamic_cast<CGTownInstance*>(obj))
 		{
 			if(tnh->getTown())
 			{
@@ -165,9 +164,9 @@ void MapController::repairMap(CMap * map) const
 			}
 		}
 		//fix spell scrolls
-		if(auto * art = dynamic_cast<CGArtifact*>(obj.get()))
+		if(auto * art = dynamic_cast<CGArtifact*>(obj))
 		{
-			if(art->ID == Obj::SPELL_SCROLL && !art->storedArtifact)
+			if(art->ID == Obj::SPELL_SCROLL && !art->getArtifactInstance())
 			{
 				std::vector<SpellID> out;
 				for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
@@ -177,12 +176,12 @@ void MapController::repairMap(CMap * map) const
 						out.push_back(spell->id);
 					}
 				}
-				auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-				art->storedArtifact = a;
+				auto a = map->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+				art->setArtifactInstance(a);
 			}
 		}
 		//fix mines 
-		if(auto * mine = dynamic_cast<CGMine*>(obj.get()))
+		if(auto * mine = dynamic_cast<CGMine*>(obj))
 		{
 			if(!mine->isAbandoned())
 			{
@@ -364,9 +363,9 @@ void MapController::pasteFromClipboard(int level)
 	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
-		auto * obj = CMemorySerializer::deepCopy(*objUniquePtr).release();
+		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr);
 		QString errorMsg;
-		if (!canPlaceObject(level, obj, errorMsg))
+		if (!canPlaceObject(level, obj.get(), errorMsg))
 		{
 			errors.push_back(std::move(errorMsg));
 			continue;
@@ -376,10 +375,10 @@ void MapController::pasteFromClipboard(int level)
 			obj->pos = newPos;
 		obj->pos.z = level;
 		
-		Initializer init(obj, defaultPlayer);
+		Initializer init(*this, obj.get(), defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
-		_scenes[level]->selectionObjectsView.selectObject(obj);
-		_mapHandler->invalidate(obj);
+		_scenes[level]->selectionObjectsView.selectObject(obj.get());
+		_mapHandler->invalidate(obj.get());
 	}
 	if(!errors.isEmpty())
 		QMessageBox::warning(main, QObject::tr("Can't place object"), errors.join('\n'));
@@ -397,8 +396,7 @@ bool MapController::discardObject(int level) const
 	_scenes[level]->selectionObjectsView.clear();
 	if(_scenes[level]->selectionObjectsView.newObject)
 	{
-		delete _scenes[level]->selectionObjectsView.newObject;
-		_scenes[level]->selectionObjectsView.newObject = nullptr;
+		_scenes[level]->selectionObjectsView.newObject.reset();
 		_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
 		_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
 		_scenes[level]->selectionObjectsView.draw();
@@ -407,7 +405,7 @@ bool MapController::discardObject(int level) const
 	return false;
 }
 
-void MapController::createObject(int level, CGObjectInstance * obj) const
+void MapController::createObject(int level, std::shared_ptr<CGObjectInstance> obj) const
 {
 	_scenes[level]->selectionObjectsView.newObject = obj;
 	_scenes[level]->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
@@ -438,10 +436,10 @@ void MapController::commitObstacleFill(int level)
 	
 	for(auto & sel : _obstaclePainters)
 	{
-		for(auto * o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
+		for(auto o : sel.second->placeObstacles(CRandomGenerator::getDefault()))
 		{
-			_mapHandler->invalidate(o);
-			_scenes[level]->objectsView.setDirty(o);
+			_mapHandler->invalidate(o.get());
+			_scenes[level]->objectsView.setDirty(o.get());
 		}
 	}
 	
@@ -509,7 +507,7 @@ void MapController::commitObjectShift(int level)
 
 void MapController::commitObjectCreate(int level)
 {
-	auto * newObj = _scenes[level]->selectionObjectsView.newObject;
+	auto newObj = _scenes[level]->selectionObjectsView.newObject;
 	if(!newObj)
 		return;
 	
@@ -521,11 +519,11 @@ void MapController::commitObjectCreate(int level)
 	
 	newObj->pos = pos;
 	
-	Initializer init(newObj, defaultPlayer);
+	Initializer init(*this, newObj.get(), defaultPlayer);
 	
 	_map->getEditManager()->insertObject(newObj);
-	_mapHandler->invalidate(newObj);
-	_scenes[level]->objectsView.setDirty(newObj);
+	_mapHandler->invalidate(newObj.get());
+	_scenes[level]->objectsView.setDirty(newObj.get());
 	
 	_scenes[level]->selectionObjectsView.newObject = nullptr;
 	_scenes[level]->selectionObjectsView.shift = QPoint(0, 0);
@@ -643,12 +641,12 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 
 			for(const auto & [_, slotInfo] : hero->artifactsWorn)
 			{
-				extractEntityMod(slotInfo.artifact->getTypeId().toEntity(LIBRARY));
+				extractEntityMod(slotInfo.getArt()->getTypeId().toEntity(LIBRARY));
 			}
 
 			for(const auto & art : hero->artifactsInBackpack)
 			{
-				extractEntityMod(art.artifact->getTypeId().toEntity(LIBRARY));
+				extractEntityMod(art.getArt()->getTypeId().toEntity(LIBRARY));
 			}
 		}
 	}

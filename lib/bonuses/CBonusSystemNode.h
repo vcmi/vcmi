@@ -127,8 +127,6 @@ public:
 	virtual std::string nodeName() const;
 	bool isHypothetic() const { return isHypotheticNode; }
 
-	void deserializationFix();
-
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;
 	CBonusSystemNode::ENodeTypes getNodeType() const;
@@ -148,7 +146,9 @@ public:
 	{
 		h & nodeType;
 		h & exportedBonuses;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving && h.loadingGamestate)
+			exportBonuses();
 	}
 
 	friend class CBonusProxy;

@@ -328,8 +328,9 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	const std::map<std::string, std::function<TUpdaterPtr()>> bonusUpdaterMap =
 	{
 			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>},
+			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>},
+			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>},
 			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>},
-			{"ARMY_MOVEMENT", std::make_shared<ArmyMovementUpdater>},
 			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>}
 	};
 
@@ -353,24 +354,6 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			if(param.size() > 1)
 				updater->stepSize = static_cast<int>(param[1].Integer());
 			return updater;
-		}
-		else if (updaterJson["type"].String() == "ARMY_MOVEMENT")
-		{
-			auto updater = std::make_shared<ArmyMovementUpdater>();
-			if(updaterJson["parameters"].isVector())
-			{
-				const auto & param = updaterJson["parameters"].Vector();
-				if(param.size() < 4)
-					logMod->warn("Invalid ARMY_MOVEMENT parameters, using default!");
-				else
-				{
-					updater->base = static_cast<si32>(param.at(0).Integer());
-					updater->divider = static_cast<si32>(param.at(1).Integer());
-					updater->multiplier = static_cast<si32>(param.at(2).Integer());
-					updater->max = static_cast<si32>(param.at(3).Integer());
-				}
-				return updater;
-			}
 		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
@@ -522,47 +505,52 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 			}
 			else if(limiterType == "HAS_ANOTHER_BONUS_LIMITER")
 			{
-				std::string anotherBonusType = parameters[0].String();
-				auto it = bonusNameMap.find(anotherBonusType);
-				if(it == bonusNameMap.end())
+				auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
+
+				if (!parameters[0].isNull())
 				{
-					logMod->error("Error: invalid ability type %s.", anotherBonusType);
-				}
-				else
-				{
-					auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
-					bonusLimiter->type = it->second;
-					auto findSource = [&](const JsonNode & parameter)
+					std::string anotherBonusType = parameters[0].String();
+					auto it = bonusNameMap.find(anotherBonusType);
+					if(it != bonusNameMap.end())
 					{
-						if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+						bonusLimiter->type = it->second;
+					}
+					else
+					{
+						logMod->error("Error: invalid ability type %s.", anotherBonusType);
+					}
+				}
+
+				auto findSource = [&](const JsonNode & parameter)
+				{
+					if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+					{
+						auto sourceIt = bonusSourceMap.find(parameter["type"].String());
+						if(sourceIt != bonusSourceMap.end())
 						{
-							auto sourceIt = bonusSourceMap.find(parameter["type"].String());
-							if(sourceIt != bonusSourceMap.end())
-							{
-								bonusLimiter->source = sourceIt->second;
-								bonusLimiter->isSourceRelevant = true;
-								if(!parameter["id"].isNull()) {
-									loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
-									bonusLimiter->isSourceIDRelevant = true;
-								}
+							bonusLimiter->source = sourceIt->second;
+							bonusLimiter->isSourceRelevant = true;
+							if(!parameter["id"].isNull()) {
+								loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
+								bonusLimiter->isSourceIDRelevant = true;
 							}
 						}
-						return false;
-					};
-					if(parameters.size() > 1)
-					{
-						if(findSource(parameters[1]) && parameters.size() == 2)
-							return bonusLimiter;
-						else
-						{
-							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
-							bonusLimiter->isSubtypeRelevant = true;
-							if(parameters.size() > 2)
-								findSource(parameters[2]);
-						}
 					}
-					return bonusLimiter;
+					return false;
+				};
+				if(parameters.size() > 1)
+				{
+					if(findSource(parameters[1]) && parameters.size() == 2)
+						return bonusLimiter;
+					else
+					{
+						loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
+						bonusLimiter->isSubtypeRelevant = true;
+						if(parameters.size() > 2)
+							findSource(parameters[2]);
+					}
 				}
+				return bonusLimiter;
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
 			{

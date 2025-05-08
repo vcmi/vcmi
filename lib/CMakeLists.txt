@@ -83,6 +83,13 @@ set(lib_MAIN_SRCS
 
 	constants/EntityIdentifiers.cpp
 
+	entities/artifact/ArtifactUtils.cpp
+	entities/artifact/ArtSlotInfo.cpp
+	entities/artifact/CArtHandler.cpp
+	entities/artifact/CArtifact.cpp
+	entities/artifact/CArtifactFittingSet.cpp
+	entities/artifact/CArtifactInstance.cpp
+	entities/artifact/CArtifactSet.cpp
 	entities/building/CBuilding.cpp
 	entities/building/CBuildingHandler.cpp
 	entities/faction/CFaction.cpp
@@ -107,6 +114,7 @@ set(lib_MAIN_SRCS
 	gameState/CGameStateCampaign.cpp
 	gameState/HighScore.cpp
 	gameState/InfoAboutArmy.cpp
+	gameState/QuestInfo.cpp
 	gameState/RumorState.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -217,13 +225,10 @@ set(lib_MAIN_SRCS
 	rmg/modificators/TerrainPainter.cpp
 	rmg/MapProxy.cpp
 
-	serializer/BinaryDeserializer.cpp
-	serializer/BinarySerializer.cpp
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
 	serializer/Connection.cpp
 	serializer/CSaveFile.cpp
-	serializer/CSerializer.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp
@@ -268,12 +273,9 @@ set(lib_MAIN_SRCS
 	texts/MetaString.cpp
 	texts/TextLocalizationContainer.cpp
 
-	ArtifactUtils.cpp
 	BasicTypes.cpp
 	BattleFieldHandler.cpp
 	CAndroidVMHelper.cpp
-	CArtHandler.cpp
-	CArtifactInstance.cpp
 	CBonusTypeHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
@@ -420,6 +422,7 @@ set(lib_MAIN_HEADERS
 	battle/BattleSide.h
 	battle/BattleStateInfoForRetreat.h
 	battle/BattleProxy.h
+	battle/BattleUnitTurnReason.h
 	battle/CBattleInfoCallback.h
 	battle/CBattleInfoEssentials.h
 	battle/CObstacleInstance.h
@@ -461,6 +464,15 @@ set(lib_MAIN_HEADERS
 	constants/NumericConstants.h
 	constants/StringConstants.h
 
+	entities/artifact/ArtBearer.h
+	entities/artifact/ArtifactUtils.h
+	entities/artifact/ArtSlotInfo.h
+	entities/artifact/CArtHandler.h
+	entities/artifact/CArtifact.h
+	entities/artifact/CArtifactInstance.h
+	entities/artifact/CArtifactFittingSet.h
+	entities/artifact/CArtifactSet.h
+	entities/artifact/EArtifactClass.h
 	entities/building/CBuilding.h
 	entities/building/CBuildingHandler.h
 	entities/building/TownFortifications.h
@@ -688,19 +700,15 @@ set(lib_MAIN_HEADERS
 	texts/TextLocalizationContainer.h
 
 	AI_Base.h
-	ArtifactUtils.h
 	AsyncRunner.h
 	BattleFieldHandler.h
 	CAndroidVMHelper.h
-	CArtHandler.h
-	CArtifactInstance.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
 	CGameInfoCallback.h
 	CGameInterface.h
 	ConditionalWait.h
-	ConstTransitivePtr.h
 	Color.h
 	CPlayerState.h
 	CRandomGenerator.h

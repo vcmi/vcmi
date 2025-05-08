@@ -29,7 +29,7 @@ BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
 		tid,
 		nullptr);
 
-	bid = Bid;
+	bid = Bid.getNum();
 	town = tid;
 }
 

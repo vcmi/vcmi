@@ -11,12 +11,12 @@
 #include "StdInc.h"
 #include "IMarket.h"
 
-#include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CGObjectInstance.h"
 #include "CObjectHandler.h"
 
 #include "../GameLibrary.h"
+#include "../entities/artifact/CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -140,8 +140,8 @@ int IMarket::availableUnits(const EMarketMode mode, const int marketItemSerial) 
 	}
 }
 
-IMarket::IMarket()
-	:altarArtifactsStorage(std::make_unique<CArtifactSetAltar>())
+IMarket::IMarket(IGameCallback *cb)
+	:altarArtifactsStorage(std::make_unique<CArtifactSetAltar>(cb))
 {
 }
 

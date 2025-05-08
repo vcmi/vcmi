@@ -13,8 +13,8 @@
 #include "ui_mapsettings.h"
 #include "mainwindow.h"
 
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/spells/CSpellHandler.h"
 

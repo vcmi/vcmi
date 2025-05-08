@@ -42,6 +42,12 @@ set(editor_SRCS
 		inspector/portraitwidget.cpp
 		inspector/playerselectionwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
+		helper.cpp
+		campaigneditor/campaigneditor.cpp
+		campaigneditor/campaignproperties.cpp
+		campaigneditor/scenarioproperties.cpp
+		campaigneditor/startingbonus.cpp
+		campaigneditor/campaignview.cpp
 )
 
 set(editor_HEADERS
@@ -89,6 +95,12 @@ set(editor_HEADERS
 		inspector/playerselectionwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
+		helper.h
+		campaigneditor/campaigneditor.h
+		campaigneditor/campaignproperties.h
+		campaigneditor/scenarioproperties.h
+		campaigneditor/startingbonus.h
+		campaigneditor/campaignview.h
 )
 
 set(editor_FORMS
@@ -121,6 +133,10 @@ set(editor_FORMS
 		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
 		inspector/playerselectionwidget.ui
+		campaigneditor/campaigneditor.ui
+		campaigneditor/campaignproperties.ui
+		campaigneditor/scenarioproperties.ui
+		campaigneditor/startingbonus.ui
 )
 
 set(editor_RESOURCES

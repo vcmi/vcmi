@@ -1557,7 +1557,12 @@ void BattleActionProcessor::addGenericDrainedLifeLog(BattleLogMessage& blm, cons
 	attackerState->addText(text, EMetaText::GENERAL_TXT, 361);
 	attackerState->addNameReplacement(text);
 	text.replaceNumber(drainedLife);
-	defender->addNameReplacement(text);
+
+	if (defender)
+		defender->addNameReplacement(text);
+	else
+		text.replaceTextID("core.genrltxt.43"); // creatures
+
 	blm.lines.push_back(std::move(text));
 }
 
@@ -1565,9 +1570,8 @@ void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, cons
 {
 	if (resurrected > 0)
 	{
-		auto text = blm.lines.back().toString();
-		text.pop_back();	// erase '.' at the end of line with life drain info
-		MetaString ms = MetaString::createFromRawString(text);
+		MetaString & ms = blm.lines.back();
+
 		if (resurrected == 1)
 		{
 			ms.appendLocalString(EMetaText::GENERAL_TXT, 363);		// "\n and one rises from the dead."
@@ -1577,9 +1581,7 @@ void BattleActionProcessor::addGenericResurrectedLog(BattleLogMessage& blm, cons
 			ms.appendLocalString(EMetaText::GENERAL_TXT, 364);		// "\n and %d rise from the dead."
 			ms.replaceNumber(resurrected);
 		}
-		blm.lines[blm.lines.size() - 1] = std::move(ms);
-	}	
-
+	}
 }
 
 bool BattleActionProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)

@@ -9,8 +9,12 @@
  */
 #pragma once
 
-#include "../CArtifactsOfHeroAltar.h"
 #include "CMarketBase.h"
+#include "../CArtifactsOfHeroAltar.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CArtifactSet;
+VCMI_LIB_NAMESPACE_END
 
 class CAltarArtifacts : public CExperienceAltar
 {

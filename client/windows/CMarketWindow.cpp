@@ -27,11 +27,12 @@
 
 #include "../CPlayerInterface.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/entities/building/CBuilding.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapObjects/CGMarket.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGMarket.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../../CCallback.h"
 

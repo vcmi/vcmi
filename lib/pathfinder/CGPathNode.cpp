@@ -100,50 +100,53 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState * gs, CGPathNode * n)
+void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 {
 	node = n;
+	guarded = false;
 
 	if(coord != node->coord)
 	{
 		assert(node->coord.isValid());
 
 		coord = node->coord;
-		tile = gs->getTile(coord);
-		nodeObject = tile->topVisitableObj();
+		tile = gs.getTile(coord);
+		nodeObject = nullptr;
+		nodeHero = nullptr;
 
-		if(nodeObject && nodeObject->ID == Obj::HERO)
+		ObjectInstanceID topObjectID = tile->topVisitableObj();
+		if (topObjectID.hasValue())
 		{
-			nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
-			nodeObject = tile->topVisitableObj(true);
+			nodeObject = gs.getObjInstance(topObjectID);
 
-			if(!nodeObject)
-				nodeObject = nodeHero;
-		}
-		else
-		{
-			nodeHero = nullptr;
+			if (nodeObject->ID == Obj::HERO)
+			{
+				nodeHero = dynamic_cast<const CGHeroInstance *>(nodeObject);
+				ObjectInstanceID bottomObjectID = tile->topVisitableObj(true);
+
+				if (bottomObjectID.hasValue())
+					nodeObject = gs.getObjInstance(bottomObjectID);
+			}
 		}
 	}
 
-	guarded = false;
 }
 
-void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState * gs)
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState & gs)
 {
-	if(gs->guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
+	if(gs.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
 		guarded = true;
 	}
 
 	if(nodeObject)
 	{
-		objectRelations = gs->getPlayerRelations(hlp->owner, nodeObject->tempOwner);
+		objectRelations = gs.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
 	}
 
 	if(nodeHero)
 	{
-		heroRelations = gs->getPlayerRelations(hlp->owner, nodeHero->tempOwner);
+		heroRelations = gs.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
 	}
 }
 
@@ -161,7 +164,7 @@ CDestinationNodeInfo::CDestinationNodeInfo():
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState * gs, CGPathNode * n)
+void CDestinationNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 {
 	PathNodeInfo::setNode(gs, n);
 

@@ -77,7 +77,6 @@ public:
 	virtual void visitInsertNewStack(InsertNewStack & pack) {}
 	virtual void visitRebalanceStacks(RebalanceStacks & pack) {}
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
-	virtual void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
 	virtual void visitEraseArtifact(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
@@ -124,7 +123,7 @@ public:
 	virtual void visitBulkMoveArmy(BulkMoveArmy & pack) {}
 	virtual void visitBulkSplitStack(BulkSplitStack & pack) {}
 	virtual void visitBulkMergeStacks(BulkMergeStacks & pack) {}
-	virtual void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) {}
+	virtual void visitBulkSmartSplitStack(BulkSplitAndRebalanceStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
 	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}

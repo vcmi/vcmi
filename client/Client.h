@@ -122,6 +122,7 @@ public:
 /// Class which handles client - server logic
 class CClient : public IGameCallback, public Environment
 {
+	std::shared_ptr<CGameState> gamestate;
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
 	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
@@ -139,8 +140,11 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	void newGame(CGameState * gameState);
-	void loadGame(CGameState * gameState);
+	CGameState & gameState() final { return *gamestate; }
+	const CGameState & gameState() const final { return *gamestate; }
+
+	void newGame(std::shared_ptr<CGameState> gameState);
+	void loadGame(std::shared_ptr<CGameState> gameState);
 
 	void save(const std::string & fname);
 	void endNetwork();
@@ -160,7 +164,7 @@ public:
 	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
 	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request
 
-	void battleStarted(const BattleInfo * info);
+	void battleStarted(const BattleID & battle);
 	void battleFinished(const BattleID & battleID);
 	void startPlayerBattleAction(const BattleID & battleID, PlayerColor color);
 
@@ -194,7 +198,7 @@ public:
 	void tryJoiningArmy(const CArmedInstance * src, const CArmedInstance * dst, bool removeObjWhenFinished, bool allowMerging) override {}
 	bool moveStack(const StackLocation & src, const StackLocation & dst, TQuantity count = -1) override {return false;}
 
-	void removeAfterVisit(const CGObjectInstance * object) override {};
+	void removeAfterVisit(const ObjectInstanceID & id) override {};
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;};
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override {return false;};
 	bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) override {return false;};

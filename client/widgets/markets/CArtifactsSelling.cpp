@@ -21,7 +21,8 @@
 
 #include "../../../CCallback.h"
 
-#include "../../../lib/CArtifactInstance.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
@@ -90,7 +91,7 @@ void CArtifactsSelling::updateShowcases()
 	{
 		bidSelectedSlot->image->enable();
 		bidSelectedSlot->setID(art->getTypeId().num);
-		bidSelectedSlot->image->setFrame(LIBRARY->artifacts()->getByIndex(art->getTypeId())->getIconIndex());
+		bidSelectedSlot->image->setFrame(art->getTypeId().toEntity(LIBRARY)->getIconIndex());
 		bidSelectedSlot->subtitle->setText(std::to_string(bidQty));
 	}
 	else

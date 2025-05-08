@@ -19,7 +19,9 @@
 #include "../CPlayerInterface.h"
 
 #include "../../CCallback.h"
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -268,13 +270,13 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->artifact->getTypeId(), slotInfo->artifact->getScrollSpellID());
-		if(slotInfo->locked || slotInfo->artifact->isCombined())
+		artPlace->setArtifact(slotInfo->getArt()->getTypeId(), slotInfo->getArt()->getScrollSpellID());
+		if(slotInfo->locked || slotInfo->getArt()->isCombined())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
-		for(const auto combinedArt : slotInfo->artifact->getType()->getPartOf())
+		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
 			arts.try_emplace(combinedArt->getId());

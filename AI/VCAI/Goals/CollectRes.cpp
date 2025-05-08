@@ -41,7 +41,7 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 		switch (obj->ID.num)
 		{
 		case Obj::TREASURE_CHEST:
-			return resID == GameResID(EGameResID::GOLD);
+			return resID == GameResID(EGameResID::GOLD).getNum();
 			break;
 		case Obj::RESOURCE:
 			return dynamic_cast<const CGResource*>(obj)->resourceID() == GameResID(resID);
@@ -62,13 +62,13 @@ TGoalVec CollectRes::getAllPossibleSubgoals()
 			}
 			break;
 		case Obj::MYSTICAL_GARDEN:
-			if ((resID != GameResID(EGameResID::GOLD)) && (resID != GameResID(EGameResID::GEMS)))
+			if (resID != GameResID(EGameResID::GOLD).getNum() && resID != GameResID(EGameResID::GEMS).getNum())
 				return false;
 			break;
 		case Obj::WATER_WHEEL:
 		case Obj::LEAN_TO:
 		case Obj::WAGON:
-			if (resID != GameResID(EGameResID::GOLD))
+			if (resID != GameResID(EGameResID::GOLD).getNum())
 				return false;
 			break;
 		default:
@@ -177,7 +177,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 				continue;
 			int toGive = -1;
 			int toReceive = -1;
-			m->getOffer(i, resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
+			m->getOffer(i.getNum(), resID, toGive, toReceive, EMarketMode::RESOURCE_RESOURCE);
 			assert(toGive > 0 && toReceive > 0);
 			howManyCanWeBuy += toReceive * (ai->ah->freeResources()[i] / toGive);
 		}

@@ -16,8 +16,6 @@
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
-#include "../CArtHandler.h" // For CArtifactSet
-#include "../ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -61,17 +59,22 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 
-private:
 	PrimarySkillsCache primarySkills;
 	MagicSchoolMasteryCache magicSchoolMastery;
 	BonusValueCache manaPerKnowledgeCached;
 	std::unique_ptr<TurnInfoCache> turnInfoCache;
+	std::unique_ptr<CCommanderInstance> commander;
 
 	std::set<SpellID> spells; //known spells (spell IDs)
+	ObjectInstanceID visitedTown; //set if hero is visiting town or in the town garrison
+	ObjectInstanceID boardedBoat; //set to CGBoat when sailing
+
 	ui32 movement; //remaining movement points
+	bool inTownGarrison; // if hero is in town garrison
+
+	IGameCallback * getCallback() const final { return cb; }
 
 public:
-
 	//////////////////////////////////////////////////////////////////////////
 	//format:   123
 	//          8 4
@@ -93,18 +96,11 @@ public:
 	std::string nameCustomTextId;
 	std::string biographyCustomTextId;
 
-	bool inTownGarrison; // if hero is in town garrison
-	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
-	ConstTransitivePtr<CCommanderInstance> commander;
-	const CGBoat * boat = nullptr; //set to CGBoat when sailing
-
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
 	static constexpr auto UNINITIALIZED_EXPERIENCE = std::numeric_limits<TExpType>::max();
 	static const ui32 NO_PATROLLING;
 
-	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
-	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ObjectInstanceID> visitedObjects;
 
 	struct DLL_LINKAGE Patrol
@@ -163,6 +159,11 @@ public:
 
 	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
+
+	bool inBoat() const;
+	CGBoat * getBoat();
+	const CGBoat * getBoat() const;
+	void setBoat(CGBoat * getBoat);
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
@@ -241,7 +242,6 @@ public:
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
 
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -253,11 +253,19 @@ public:
 	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
 
+	bool isGarrisoned() const;
+	const CGTownInstance * getVisitedTown() const;
+	CGTownInstance * getVisitedTown();
+	void setVisitedTown(const CGTownInstance * town, bool garrisoned);
+
+	const CCommanderInstance * getCommander() const;
+	CCommanderInstance * getCommander();
+
 	void initObj(vstd::RNG & rand) override;
 	void initHero(vstd::RNG & rand);
 	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
 	void initExp(vstd::RNG & rand);
 	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);
@@ -282,7 +290,7 @@ public:
 	ArtBearer::ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
+	CBonusSystemNode & whereShouldBeAttached(CGameState & gs) override;
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
@@ -290,7 +298,7 @@ public:
 	const IBonusBearer* getBonusBearer() const override;
 
 	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);
+	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState & gs);
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
@@ -310,9 +318,6 @@ public:
 	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
-	void attachToBoat(CGBoat* newBoat);
-	void boatDeserializationFix();
-	void deserializationFix();
 	void updateAppearance();
 
 	void pickRandomObject(vstd::RNG & rand) override;
@@ -325,6 +330,9 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
+	void attachToBonusSystem(CGameState & gs) override;
+	void detachFromBonusSystem(CGameState & gs) override;
+	void restoreBonusSystem(CGameState & gs) override;
 
 	void updateFrom(const JsonNode & data) override;
 
@@ -344,6 +352,7 @@ protected:
 
 private:
 	void levelUpAutomatically(vstd::RNG & rand);
+	void attachCommanderToArmy();
 
 public:
 	std::string getHeroTypeName() const;
@@ -369,11 +378,28 @@ public:
 		h & patrol;
 		h & moveDir;
 		h & skillsInfo;
-		h & visitedTown;
-		h & boat;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & visitedTown;
+			h & boardedBoat;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrTown;
+			std::shared_ptr<CGObjectInstance> ptrBoat;
+			h & ptrTown;
+			h & ptrBoat;
+
+			visitedTown = ptrTown ? ptrTown->id : ObjectInstanceID();
+			boardedBoat = ptrBoat ? ptrBoat->id : ObjectInstanceID();
+		}
+
 		h & commander;
 		h & visitedObjects;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving && h.loadingGamestate)
+			attachCommanderToArmy();
 	}
 };
 

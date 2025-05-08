@@ -18,7 +18,6 @@
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapObjects/CGTownInstance.h"
 #include "lib/texts/CGeneralTextHandler.h"
-#include "lib/CArtHandler.h"
 #include "lib/GameConstants.h"
 #include "lib/CPlayerState.h"
 #include "lib/UnlockGuard.h"
@@ -132,9 +131,9 @@ int CCallback::bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMa
 	return 0;
 }
 
-int CCallback::bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot)
+int CCallback::bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot)
 {
-	BulkSmartSplitStack pack(armyId, srcSlot);
+	BulkSplitAndRebalanceStack pack(armyId, srcSlot);
 	sendRequest(pack);
 	return 0;
 }
@@ -273,7 +272,7 @@ void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, 
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner == *player || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
+	if(town->tempOwner == *player || (town->getGarrisonHero() && town->getGarrisonHero()->tempOwner == *player ))
 	{
 		GarrisonHeroSwap pack(town->id);
 		sendRequest(pack);
@@ -365,11 +364,10 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(bb);
 }
 
-CCallback::CCallback(CGameState * GS, std::optional<PlayerColor> Player, CClient * C)
+CCallback::CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C)
 	: CBattleCallback(Player, C)
+	, gamestate(gamestate)
 {
-	gs = GS;
-
 	waitTillRealize = false;
 	unlockGsWhenWaiting = false;
 }
@@ -379,7 +377,7 @@ CCallback::~CCallback() = default;
 bool CCallback::canMoveBetween(const int3 &a, const int3 &b)
 {
 	//bidirectional
-	return gs->getMap().canMoveBetween(a, b);
+	return gameState().getMap().canMoveBetween(a, b);
 }
 
 std::optional<PlayerColor> CCallback::getPlayerID() const
@@ -389,10 +387,10 @@ std::optional<PlayerColor> CCallback::getPlayerID() const
 
 int3 CCallback::getGuardingCreaturePosition(int3 tile)
 {
-	if (!gs->getMap().isInTheMap(tile))
+	if (!gameState().getMap().isInTheMap(tile))
 		return int3(-1,-1,-1);
 
-	return gs->getMap().guardingCreaturePositions[tile.z][tile.x][tile.y];
+	return gameState().getMap().guardingCreaturePositions[tile.z][tile.x][tile.y];
 }
 
 void CCallback::dig( const CGObjectInstance *hero )
@@ -437,7 +435,6 @@ CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, CClient * C)
 
 void CBattleCallback::battleMakeUnitAction(const BattleID & battleID, const BattleAction & action)
 {
-	assert(!cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
 	ma.battleID = battleID;
@@ -446,7 +443,6 @@ void CBattleCallback::battleMakeUnitAction(const BattleID & battleID, const Batt
 
 void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const BattleAction & action )
 {
-	assert(cl->gs->getBattle(battleID)->tacticDistance);
 	MakeAction ma;
 	ma.ba = action;
 	ma.battleID = battleID;

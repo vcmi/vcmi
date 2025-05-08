@@ -806,7 +806,7 @@ struct DLL_LINKAGE NewObject : public CPackForClient
 	void applyGs(CGameState * gs) override;
 
 	/// Object ID to create
-	CGObjectInstance * newObject;
+	std::shared_ptr<CGObjectInstance> newObject;
 	/// Which player initiated creation of this object
 	PlayerColor initiator;
 
@@ -968,22 +968,6 @@ struct DLL_LINKAGE BulkRebalanceStacks : CGarrisonOperationPack
 	}
 };
 
-struct DLL_LINKAGE BulkSmartRebalanceStacks : CGarrisonOperationPack
-{
-	std::vector<RebalanceStacks> moves;
-	std::vector<ChangeStackCount> changes;
-
-	void applyGs(CGameState * gs) override;
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & moves;
-		h & changes;
-	}
-};
-
 struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 {
 };
@@ -1049,27 +1033,6 @@ struct DLL_LINKAGE BulkEraseArtifacts : CArtifactOperationPack
 
 struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 {
-	struct LinkedSlots
-	{
-		ArtifactPosition srcPos;
-		ArtifactPosition dstPos;
-		bool askAssemble;
-
-		LinkedSlots() = default;
-		LinkedSlots(const ArtifactPosition & srcPos, const ArtifactPosition & dstPos, bool askAssemble = false)
-			: srcPos(srcPos)
-			, dstPos(dstPos)
-			, askAssemble(askAssemble)
-		{
-		}
-		template <typename Handler> void serialize(Handler & h)
-		{
-			h & srcPos;
-			h & dstPos;
-			h & askAssemble;
-		}
-	};
-
 	PlayerColor interfaceOwner;
 	ObjectInstanceID srcArtHolder;
 	ObjectInstanceID dstArtHolder;
@@ -1095,8 +1058,8 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 
 	void applyGs(CGameState * gs) override;
 
-	std::vector<LinkedSlots> artsPack0;
-	std::vector<LinkedSlots> artsPack1;
+	std::vector<MoveArtifactInfo> artsPack0;
+	std::vector<MoveArtifactInfo> artsPack1;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 

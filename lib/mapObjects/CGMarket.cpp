@@ -77,8 +77,9 @@ std::set<EMarketMode> CGMarket::availableModes() const
 	return getMarketHandler()->availableModes();
 }
 
-CGMarket::CGMarket(IGameCallback *cb):
-	CGObjectInstance(cb)
+CGMarket::CGMarket(IGameCallback *cb)
+	: CGObjectInstance(cb)
+	, IMarket(cb)
 {}
 
 std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) const

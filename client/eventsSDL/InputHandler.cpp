@@ -237,7 +237,7 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-#ifdef VCMI_ANDROID
+#ifdef VCMI_MOBILE
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				ENGINE->onScreenResize(true);
@@ -405,23 +405,28 @@ int InputHandler::getNumTouchFingers() const
 
 void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 {
-	auto heapFunctor = new std::function<void()>(functor);
+	auto heapFunctor = std::make_unique<std::function<void()>>(functor);
 
 	SDL_Event event;
 	event.user.type = SDL_USEREVENT;
 	event.user.code = 0;
-	event.user.data1 = static_cast <void*>(heapFunctor);
+	event.user.data1 = nullptr;
 	event.user.data2 = nullptr;
 	SDL_PushEvent(&event);
+
+	// NOTE: approach with dispatchedTasks container is a bit excessive
+	// used mostly to prevent false-positives leaks in analyzers
+	dispatchedTasks.push(std::move(heapFunctor));
 }
 
 void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 {
-	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
+	std::unique_ptr<std::function<void()>> task;
 
-	(*heapFunctor)();
+	if (!dispatchedTasks.try_pop(task))
+		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
 
-	delete heapFunctor;
+	(*task)();
 }
 
 const Point & InputHandler::getCursorPosition() const

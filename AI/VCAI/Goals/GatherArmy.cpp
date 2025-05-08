@@ -56,14 +56,14 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		if(waysToVisit.size())
 		{
 			//grab army from town
-			if(!t->visitingHero && ai->ah->howManyReinforcementsCanGet(hero.get(), t))
+			if(!t->getVisitingHero() && ai->ah->howManyReinforcementsCanGet(hero.get(), t))
 			{
 				if(!vstd::contains(ai->townVisitsThisWeek[hero], t))
 					vstd::concatenate(ret, waysToVisit);
 			}
 
 			//buy army in town
-			if (!t->visitingHero || t->visitingHero == hero.get(true))
+			if (!t->getVisitingHero() || t->getVisitingHero() == hero.get(true))
 			{
 				std::vector<int> values = {
 					value,

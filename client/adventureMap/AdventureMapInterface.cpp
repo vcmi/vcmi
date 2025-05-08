@@ -606,7 +606,7 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-		switch(spellBeingCasted->id)
+		switch(spellBeingCasted->id.toEnum())
 		{
 		case SpellID::SCUTTLE_BOAT:
 			if(isValidAdventureSpellTarget(targetPosition))
@@ -775,8 +775,8 @@ void AdventureMapInterface::showMoveDetailsInStatusbar(const CGHeroInstance & he
 	const int movementPointsLastTurnCost = maxMovementPointsAtStartOfLastTurn - pathNode.moveRemains;
 	const int remainingPointsAfterMove = pathNode.moveRemains;
 
-	int totalMovementCost = 0;
-	for (int i = 0; i <= pathNode.turns; ++i)
+	int totalMovementCost = hero.movementPointsRemaining();
+	for (int i = 1; i <= pathNode.turns; ++i)
 	{
 		auto turnInfo = hero.getTurnInfo(i);
 		if (pathNode.layer == EPathfindingLayer::SAIL)

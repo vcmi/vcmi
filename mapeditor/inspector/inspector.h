@@ -18,6 +18,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGResource.h"
+#include "../lib/mapObjects/CQuest.h"
 #include "../lib/mapObjects/MapObjects.h"
 #include "../lib/mapObjects/FlaggableMapObject.h"
 #include "../lib/mapObjects/CRewardableObject.h"
@@ -56,9 +57,10 @@ public:
 	//DECLARE_OBJ_TYPE(CGPandoraBox);
 	//DECLARE_OBJ_TYPE(CGSeerHut);
 	
-	Initializer(CGObjectInstance *, const PlayerColor &);
+	Initializer(MapController & controller, CGObjectInstance *, const PlayerColor &);
 
 private:
+	MapController & controller;
 	PlayerColor defaultPlayer;
 };
 

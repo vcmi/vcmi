@@ -20,12 +20,12 @@
 
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
-#include "../CArtHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../IGameCallback.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
@@ -147,7 +147,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	{
 		assert(value.isStruct());
 
-		std::set<CArtifact::EartClass> allowedClasses;
+		std::set<EArtifactClass::Type> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
 		ui32 minValue = 0;
 		ui32 maxValue = std::numeric_limits<ui32>::max();
@@ -407,7 +407,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 
 		std::set<ArtifactID> potentialPicks = filterKeys(value, allowedArts, variables);
 
-		return cb->gameState()->pickRandomArtifact(rng, potentialPicks);
+		return cb->gameState().pickRandomArtifact(rng, potentialPicks);
 	}
 
 	std::vector<ArtifactID> JsonRandom::loadArtifacts(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
@@ -504,7 +504,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 			throw JsonRandomizationException("Invalid creature picked!", value);
 
 		stack.setType(pickedCreature.toCreature());
-		stack.count = loadValue(value, rng, variables);
+		stack.setCount(loadValue(value, rng, variables));
 		if (!value["upgradeChance"].isNull() && !stack.getCreature()->upgrades.empty())
 		{
 			if (int(value["upgradeChance"].Float()) > rng.nextInt(99)) // select random upgrade

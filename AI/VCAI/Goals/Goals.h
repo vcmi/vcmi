@@ -30,5 +30,4 @@
 #include "ClearWayTo.h"
 #include "DigAtTile.h"
 #include "FindObj.h"
-#include "CompleteQuest.h"
 #include "AdventureSpellCast.h"

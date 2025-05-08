@@ -32,6 +32,11 @@ class IGameCallback;
 
 class DLL_LINKAGE CampaignRegions
 {
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	std::string campPrefix;
 	std::vector<std::string> campSuffix;
 	std::string campBackground;
@@ -84,6 +89,11 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
 	friend class CampaignHandler;
 	friend class Campaign;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -251,6 +261,11 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
 
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 
 public:
@@ -273,6 +288,12 @@ public:
 class DLL_LINKAGE CampaignState : public Campaign
 {
 	friend class CampaignHandler;
+
+	// Campaign editor
+	friend class CampaignEditor;
+	friend class CampaignProperties;
+	friend class ScenarioProperties;
+
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;
 	using GlobalPoolType = std::map<HeroTypeID, JsonNode>;
@@ -329,7 +350,7 @@ public:
 	std::set<HeroTypeID> getReservedHeroes() const;
 
 	/// Returns strongest hero from specified scenario, or null if none found
-	const CGHeroInstance * strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
+	std::shared_ptr<CGHeroInstance> strongestHero(CampaignScenarioID scenarioId, const PlayerColor & owner) const;
 
 	/// Returns heroes that can be instantiated as hero placeholders by power
 	const std::vector<JsonNode> & getHeroesByPower(CampaignScenarioID scenarioId) const;
@@ -339,7 +360,7 @@ public:
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
 	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
-	CGHeroInstance * crossoverDeserialize(const JsonNode & node, CMap * map) const;
+	std::shared_ptr<CGHeroInstance> crossoverDeserialize(const JsonNode & node, CMap * map) const;
 
 	std::string campaignSet;
 

@@ -78,7 +78,6 @@
 		"index": 4,
 		"class" : "knight",
 		"female": false,
-		"special" : true, // Lord Haart in his living form. Disabled in H3 expansions
 		"skills":
 		[
 			{ "skill" : "leadership", "level": "basic" },
@@ -182,7 +181,7 @@
 						{
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
 							"parameters" : [
-								"GENERAL_DAMAGE_PREMY",
+								null,
 								null,
 								{
 									"type" : "SPELL_EFFECT",
@@ -191,7 +190,7 @@
 							]
 						}
 					],
-					"updater" : "TIMES_HERO_LEVEL",
+					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",
 					"val" : 3
 				}
 			}

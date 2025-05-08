@@ -221,7 +221,7 @@ public:
 
 	void registerIcons(const IconRegistar & cb) const override;
 
-	const std::string & getIconImmune() const; ///< Returns resource name of icon for SPELL_IMMUNITY bonus
+	const ImagePath & getIconImmune() const; ///< Returns resource name of icon for SPELL_IMMUNITY bonus
 	const std::string & getIconBook() const;
 	const std::string & getIconEffect() const;
 	const std::string & getIconScenarioBonus() const;
@@ -280,7 +280,7 @@ private:
 	spells::AimType targetType;
 
 	///graphics related stuff
-	std::string iconImmune;
+	ImagePath iconImmune;
 	std::string iconBook;
 	std::string iconEffect;
 	std::string iconScenarioBonus;
