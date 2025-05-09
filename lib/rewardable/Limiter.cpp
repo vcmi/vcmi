@@ -42,20 +42,25 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 {
 	return l.dayOfWeek == r.dayOfWeek
 	&& l.daysPassed == r.daysPassed
-	&& l.heroLevel == r.heroLevel
 	&& l.heroExperience == r.heroExperience
+	&& l.heroLevel == r.heroLevel
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
-	&& l.secondary == r.secondary
 	&& l.canLearnSkills == r.canLearnSkills
-	&& l.creatures == r.creatures
-	&& l.spells == r.spells
-	&& l.artifacts == r.artifacts
-	&& l.players == r.players
-	&& l.heroes == r.heroes
-	&& l.heroClasses == r.heroClasses
+	&& l.commanderAlive == r.commanderAlive
+	&& l.hasExtraCreatures == r.hasExtraCreatures
 	&& l.resources == r.resources
 	&& l.primary == r.primary
+	&& l.secondary == r.secondary
+	&& l.artifacts == r.artifacts
+	&& l.availableSlots == r.availableSlots
+	&& l.scrolls == r.scrolls
+	&& l.spells == r.spells
+	&& l.canLearnSpells == r.canLearnSpells
+	&& l.creatures == r.creatures
+	&& l.heroes == r.heroes
+	&& l.heroClasses == r.heroClasses
+	&& l.players == r.players
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;

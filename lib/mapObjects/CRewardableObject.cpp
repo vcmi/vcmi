@@ -53,9 +53,10 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 	}
 
 	if (!isGuarded())
+	{
 		doHeroVisit(hero);
-
-	if (configuration.forceCombat)
+	}
+	else if (configuration.forceCombat)
 	{
 		doStartBattle(hero);
 	}

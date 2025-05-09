@@ -71,9 +71,6 @@ struct DLL_LINKAGE ResetInfo
 	/// if true - re-randomize rewards on a new week
 	bool rewards;
 	
-	/// Reset object after visit by a hero, whether hero accepted reward or not
-	bool resetAfterVisit = false;
-
 	void serializeJson(JsonSerializeFormat & handler);
 	
 	template <typename Handler> void serialize(Handler &h)
@@ -81,8 +78,6 @@ struct DLL_LINKAGE ResetInfo
 		h & period;
 		h & visitors;
 		h & rewards;
-		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
-			h & resetAfterVisit;
 	}
 };
 

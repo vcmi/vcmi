@@ -134,6 +134,8 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd
 	limiter.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
 	limiter.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
 	limiter.canLearnSkills = source["canLearnSkills"].Bool();
+	limiter.commanderAlive = source["commanderAlive"].Bool();
+	limiter.hasExtraCreatures = source["hasExtraCreatures"].Bool();
 
 	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables);
 	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], rng, variables);
@@ -143,9 +145,12 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd
 	limiter.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
 	limiter.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
 	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
+	limiter.availableSlots = randomizer.loadArtifactSlots(source["availableSlots"], rng, variables);
 	limiter.spells  = randomizer.loadSpells(source["spells"], rng, variables);
+	limiter.scrolls  = randomizer.loadSpells(source["scrolls"], rng, variables);
 	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], rng, variables);
 	limiter.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
+	limiter.canReceiveCreatures = randomizer.loadCreatures(source["canReceiveCreatures"], rng, variables);
 	
 	limiter.players = randomizer.loadColors(source["colors"], rng, variables);
 	limiter.heroes = randomizer.loadHeroes(source["heroes"], rng);
@@ -185,11 +190,12 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 
 	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
 	reward.takenArtifacts = randomizer.loadArtifacts(source["takenArtifacts"], rng, variables);
-	reward.takenArtifactSlots = randomizer.loadArtifactSlots(source["takenArtifactsSlots"], rng, variables);
+	reward.takenArtifactSlots = randomizer.loadArtifactSlots(source["takenArtifactSlots"], rng, variables);
 	reward.grantedScrolls = randomizer.loadSpells(source["scrolls"], rng, variables);
 	reward.takenScrolls = randomizer.loadSpells(source["takenScrolls"], rng, variables);
 	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
+	reward.takenCreatures = randomizer.loadCreatures(source["takenCreatures"], rng, variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
 		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], rng, variables);

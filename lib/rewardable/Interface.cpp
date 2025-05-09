@@ -172,9 +172,6 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		cb->giveHeroBonus(&gb);
 	}
 
-	for(const ArtifactID & art : info.reward.grantedArtifacts)
-		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
-
 	for(const ArtifactID & art : info.reward.takenArtifacts)
 	{
 		// hero does not have such artifact alone, but he might have it as part of assembled artifact
@@ -203,15 +200,17 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		// TODO: handle locked slots?
 	}
 
-	for(const SpellID & spell : info.reward.grantedScrolls)
-		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
-
-
 	for(const SpellID & spell : info.reward.takenScrolls)
 	{
 		if(hero->hasScroll(spell, false))
 			cb->removeArtifact(ArtifactLocation(hero->id, hero->getScrollPos(spell, false)));
 	}
+
+	for(const ArtifactID & art : info.reward.grantedArtifacts)
+		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
+
+	for(const SpellID & spell : info.reward.grantedScrolls)
+		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{

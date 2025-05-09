@@ -135,6 +135,10 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & spells;
 		h & canLearnSpells;
 		h & creatures;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & canReceiveCreatures;
+		}
 		h & heroes;
 		h & heroClasses;
 		h & players;
