@@ -1613,7 +1613,8 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 
 void CGHeroInstance::attachCommanderToArmy()
 {
-	commander->setArmy(this);
+	if (commander)
+		commander->setArmy(this);
 }
 
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
