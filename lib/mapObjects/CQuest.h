@@ -80,7 +80,7 @@ public:
 	void getVisitText(const CGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 	void getCompletionText(const CGameInfoCallback * cb, MetaString &text) const;
 	void getRolloverText (const CGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
-	void completeQuest(IGameCallback *, const CGHeroInstance * h) const;
+	void completeQuest(IGameCallback *, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
 	void addTextReplacements(const CGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
@@ -166,6 +166,7 @@ public:
 		h & seerName;
 	}
 protected:
+	bool allowsFullArmyRemoval() const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

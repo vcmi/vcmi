@@ -408,17 +408,31 @@ struct DLL_LINKAGE SetAvailableHero : public CPackForClient
 
 struct DLL_LINKAGE GiveBonus : public CPackForClient
 {
-	enum class ETarget : int8_t { OBJECT, PLAYER, BATTLE };
-	
+	using VariantType = VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID>;
+	enum class ETarget : int8_t
+	{
+		OBJECT,
+		PLAYER,
+		BATTLE,
+		HERO_COMMANDER
+	};
+
 	explicit GiveBonus(ETarget Who = ETarget::OBJECT)
 		:who(Who)
+	{
+	}
+
+	GiveBonus(ETarget who, const VariantType & id, const Bonus & bonus)
+		: who(who)
+		, id(id)
+		, bonus(bonus)
 	{
 	}
 
 	void applyGs(CGameState * gs) override;
 
 	ETarget who = ETarget::OBJECT;
-	VariantIdentifier<ObjectInstanceID, PlayerColor, BattleID> id;
+	VariantType id;
 	Bonus bonus;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -1207,7 +1221,6 @@ struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 	{
 		VISITOR_ADD_HERO,   // mark hero as one that have visited this object
 		VISITOR_ADD_PLAYER, // mark player as one that have visited this object instance
-		VISITOR_GLOBAL,     // mark player as one that have visited object of this type
 		VISITOR_SCOUTED,    // marks targeted team as having scouted this object
 		VISITOR_CLEAR,      // clear all visitors from this object (object reset)
 	};

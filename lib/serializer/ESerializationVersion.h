@@ -39,9 +39,9 @@ enum class ESerializationVersion : int32_t
 	STACK_INSTANCE_EXPERIENCE_FIX, // stack experience is stored as total, not as average
 	STACK_INSTANCE_ARMY_FIX, // remove serialization of army that owns stack instance
 	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
+	REWARDABLE_EXTENSIONS, // new functionality for rewardable objects
 
-	
-	CURRENT = STORE_UID_COUNTER_IN_CMAP,
+	CURRENT = REWARDABLE_EXTENSIONS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

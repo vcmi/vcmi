@@ -1569,9 +1569,6 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	for(auto & armed : map->getObjects<CArmedInstance>())
 		armed->attachToBonusSystem(*this);
-
-	for(auto & art : map->getArtifacts())
-		art->attachToBonusSystem(*this);
 }
 
 void CGameState::restoreBonusSystemTree()

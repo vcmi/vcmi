@@ -1014,6 +1014,9 @@ void GiveBonus::applyGs(CGameState *gs)
 	case ETarget::OBJECT:
 		cbsn = dynamic_cast<CBonusSystemNode*>(gs->getObjInstance(id.as<ObjectInstanceID>()));
 		break;
+	case ETarget::HERO_COMMANDER:
+		cbsn = gs->getHero(id.as<ObjectInstanceID>())->getCommander();
+		break;
 	case ETarget::PLAYER:
 		cbsn = gs->getPlayerState(id.as<PlayerColor>());
 		break;
@@ -1045,16 +1048,16 @@ void ChangeObjPos::applyGs(CGameState *gs)
 
 void ChangeObjectVisitors::applyGs(CGameState *gs)
 {
+	auto objectPtr = gs->getObjInstance(object);
+
 	switch (mode) {
 		case VISITOR_ADD_HERO:
-			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 			gs->getHero(hero)->visitedObjects.insert(object);
-			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
-			break;
+			[[fallthrough]];
 		case VISITOR_ADD_PLAYER:
 			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
-			for(const auto & color : gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->players)
-				gs->getPlayerState(color)->visitedObjects.insert(object);
+			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjects.insert(object);
+			gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
 
 			break;
 		case VISITOR_CLEAR:
@@ -1076,12 +1079,6 @@ void ChangeObjectVisitors::applyGs(CGameState *gs)
 			gs->getPlayerTeam(gs->getHero(hero)->tempOwner)->scoutedObjects.insert(object);
 
 			break;
-		case VISITOR_GLOBAL:
-			{
-				CGObjectInstance * objectPtr = gs->getObjInstance(object);
-				gs->getPlayerState(gs->getHero(hero)->tempOwner)->visitedObjectsGlobal.insert({objectPtr->ID, objectPtr->subID});
-				break;
-			}
 	}
 }
 

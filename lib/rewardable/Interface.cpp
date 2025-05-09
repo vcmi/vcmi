@@ -151,17 +151,66 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 		cb->setMovePoints(&smp);
 	}
 
-	for(const Bonus & bonus : info.reward.bonuses)
+	for(const Bonus & bonus : info.reward.heroBonuses)
 	{
-		GiveBonus gb;
-		gb.who = GiveBonus::ETarget::OBJECT;
-		gb.bonus = bonus;
-		gb.id = hero->id;
+		GiveBonus gb(GiveBonus::ETarget::OBJECT, hero->id, bonus);
 		cb->giveHeroBonus(&gb);
 	}
 
-	for(const ArtifactID & art : info.reward.artifacts)
+	if (hero->getCommander())
+	{
+		for(const Bonus & bonus : info.reward.commanderBonuses)
+		{
+			GiveBonus gb(GiveBonus::ETarget::HERO_COMMANDER, hero->id, bonus);
+			cb->giveHeroBonus(&gb);
+		}
+	}
+
+	for(const Bonus & bonus : info.reward.playerBonuses)
+	{
+		GiveBonus gb(GiveBonus::ETarget::PLAYER, hero->getOwner(), bonus);
+		cb->giveHeroBonus(&gb);
+	}
+
+	for(const ArtifactID & art : info.reward.takenArtifacts)
+	{
+		// hero does not have such artifact alone, but he might have it as part of assembled artifact
+		if(!hero->hasArt(art))
+		{
+			const auto * assembly = hero->getCombinedArtWithPart(art);
+			if (assembly)
+			{
+				DisassembledArtifact da;
+				da.al = ArtifactLocation(hero->id, hero->getArtPos(assembly));
+				cb->sendAndApply(da);
+			}
+		}
+
+		if(hero->hasArt(art))
+			cb->removeArtifact(ArtifactLocation(hero->id, hero->getArtPos(art, false)));
+	}
+
+	for(const ArtifactPosition & slot : info.reward.takenArtifactSlots)
+	{
+		const auto & slotContent = hero->getSlot(slot);
+
+		if (!slotContent->locked && slotContent->artifactID.hasValue())
+			cb->removeArtifact(ArtifactLocation(hero->id, slot));
+
+		// TODO: handle locked slots?
+	}
+
+	for(const SpellID & spell : info.reward.takenScrolls)
+	{
+		if(hero->hasScroll(spell, false))
+			cb->removeArtifact(ArtifactLocation(hero->id, hero->getScrollPos(spell, false)));
+	}
+
+	for(const ArtifactID & art : info.reward.grantedArtifacts)
 		cb->giveHeroNewArtifact(hero, art, ArtifactPosition::FIRST_AVAILABLE);
+
+	for(const SpellID & spell : info.reward.grantedScrolls)
+		cb->giveHeroNewScroll(hero, spell, ArtifactPosition::FIRST_AVAILABLE);
 
 	if(!info.reward.spells.empty())
 	{
@@ -173,6 +222,11 @@ void Rewardable::Interface::grantRewardAfterLevelup(const Rewardable::VisitInfo 
 
 		if (!spellsToGive.empty())
 			cb->changeSpells(hero, true, spellsToGive);
+	}
+
+	if (!info.reward.takenCreatures.empty())
+	{
+		cb->takeCreatures(hero->id, info.reward.takenCreatures, !info.reward.creatures.empty());
 	}
 
 	if(!info.reward.creaturesChange.empty())

@@ -873,7 +873,7 @@ const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap()
 void CMap::addToHeroPool(std::shared_ptr<CGHeroInstance> hero)
 {
 	assert(hero->getHeroTypeID().isValid());
-	assert(!vstd::contains(heroesOnMap, hero->getHeroTypeID()));
+	assert(!vstd::contains(heroesOnMap, hero->id));
 	assert(heroesPool.at(hero->getHeroTypeID().getNum()) == nullptr);
 
 	heroesPool.at(hero->getHeroTypeID().getNum()) = hero;

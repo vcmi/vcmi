@@ -58,6 +58,7 @@ class DLL_LINKAGE TownRewardableBuildingInstance : public TownBuildingInstance, 
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
 	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
 	Rewardable::Configuration generateConfiguration(vstd::RNG & rand) const;
+	void assignBonuses(std::vector<Bonus> & bonuses) const;
 
 	const IObjectInterface * getObject() const override;
 	bool wasVisited(PlayerColor player) const override;

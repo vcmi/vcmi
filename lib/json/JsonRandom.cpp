@@ -114,6 +114,12 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	}
 
 	template<>
+	ArtifactPosition JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
+	{
+		return ArtifactPosition::decode(value.String());
+	}
+
+	template<>
 	PlayerColor JsonRandom::decodeKey(const JsonNode & value, const Variables & variables)
 	{
 		return PlayerColor(*LIBRARY->identifiers()->getIdentifier("playerColor", value));
@@ -416,6 +422,21 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 		for (const JsonNode & entry : value.Vector())
 		{
 			ret.push_back(loadArtifact(entry, rng, variables));
+		}
+		return ret;
+	}
+
+	std::vector<ArtifactPosition> JsonRandom::loadArtifactSlots(const JsonNode & value, vstd::RNG & rng, const Variables & variables)
+	{
+		std::set<ArtifactPosition> allowedSlots;
+		for(ArtifactPosition pos(0); pos < ArtifactPosition::BACKPACK_START; ++pos)
+			allowedSlots.insert(pos);
+
+		std::vector<ArtifactPosition> ret;
+		for (const JsonNode & entry : value.Vector())
+		{
+			std::set<ArtifactPosition> potentialPicks = filterKeys(entry, allowedSlots, variables);
+			ret.push_back(*RandomGeneratorUtil::nextItem(potentialPicks, rng));
 		}
 		return ret;
 	}

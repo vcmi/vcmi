@@ -206,6 +206,11 @@ int getDwellingArmyCost(const CGObjectInstance * target)
 	return cost;
 }
 
+static uint64_t evaluateSpellScrollArmyValue(const SpellID &)
+{
+	return 1500;
+}
+
 static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 {
 	if(art->getId() == ArtifactID::SPELL_SCROLL)
@@ -237,7 +242,7 @@ uint64_t RewardEvaluator::getArmyReward(
 	case Obj::CREATURE_GENERATOR4:
 		return getDwellingArmyValue(ai->cb.get(), target, checkGold);
 	case Obj::SPELL_SCROLL:
-		//FALL_THROUGH
+		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getScrollSpellID());
 	case Obj::ARTIFACT:
 		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
 	case Obj::HERO:
@@ -265,25 +270,16 @@ uint64_t RewardEvaluator::getArmyReward(
 
 			auto rewardValue = 0;
 
-			if(!info.reward.artifacts.empty())
-			{
-				for(auto artID : info.reward.artifacts)
-				{
-					const auto * art = artID.toArtifact();
+			for(auto artID : info.reward.grantedArtifacts)
+				rewardValue += evaluateArtifactArmyValue(artID.toArtifact());
 
-					rewardValue += evaluateArtifactArmyValue(art);
-				}
-			}
+			for(auto scroll : info.reward.grantedScrolls)
+				rewardValue += evaluateSpellScrollArmyValue(scroll);
 
-			if(!info.reward.creatures.empty())
-			{
-				for(const auto & stackInfo : info.reward.creatures)
-				{
-					rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
-				}
-			}
+			for(const auto & stackInfo : info.reward.creatures)
+				rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
 
-			totalValue += rewardValue > 0 ? rewardValue / (info.reward.artifacts.size() + info.reward.creatures.size()) : 0;
+			totalValue += rewardValue > 0 ? rewardValue / (info.reward.grantedArtifacts.size() + info.reward.creatures.size()) : 0;
 		}
 
 		return totalValue;

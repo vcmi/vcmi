@@ -22,18 +22,24 @@ class DLL_LINKAGE CCombinedArtifactInstance : public GameCallbackHolder
 {
 protected:
 	using GameCallbackHolder::GameCallbackHolder;
-public:
-	using ArtPlacementMap = std::map<const CArtifactInstance*, ArtifactPosition>;
 
-	struct PartInfo : public GameCallbackHolder
+public:
+	using ArtPlacementMap = std::map<const CArtifactInstance *, ArtifactPosition>;
+
+	struct PartInfo
 	{
-		explicit PartInfo(IGameCallback * cb);
+	private:
+		const CArtifactInstance * artifactPtr = nullptr;
+		ArtifactInstanceID artifactID;
+	public:
+
+		PartInfo() = default;
 		PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot);
 
-		ArtifactInstanceID artifactID;
 		ArtifactPosition slot;
 
 		const CArtifactInstance * getArtifact() const;
+		ArtifactInstanceID getArtifactID() const;
 
 		template <typename Handler>
 		void serialize(Handler & h);
