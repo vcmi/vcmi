@@ -99,17 +99,16 @@ void CGrowingArtifactInstance::growingUp()
 	
 	if(artInst->getType()->isGrowing())
 	{
-
-		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
-		bonus->val = 1;
-		bonus->duration = BonusDuration::COMMANDER_KILLED;
-		artInst->accumulateBonus(bonus);
+		auto growingBonus = std::make_shared<Bonus>();
+		growingBonus->type = BonusType::ARTIFACT_GROWING;
+		growingBonus->val = 1;
+		growingBonus->duration = BonusDuration::PERMANENT;
+		artInst->accumulateBonus(growingBonus);
 
 		for(const auto & bonus : artInst->getType()->getBonusesPerLevel())
 		{
 			// Every n levels
-			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
+			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) % bonus.first == 0)
 			{
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}
@@ -117,7 +116,7 @@ void CGrowingArtifactInstance::growingUp()
 		for(const auto & bonus : artInst->getType()->getThresholdBonuses())
 		{
 			// At n level
-			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first)
+			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) == bonus.first)
 			{
 				artInst->addNewBonus(std::make_shared<Bonus>(bonus.second));
 			}

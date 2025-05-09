@@ -22,6 +22,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -427,7 +428,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		}
 	}
 
-	// Artifacts handling
+	// Moving artifacts handling
 	if(result.result == EBattleResult::NORMAL && !finishingBattle->isDraw() && winnerHero)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
@@ -446,7 +447,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 		if(loserHero)
 		{
-			auto & packHero = resultsApplied.artifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+			auto & packHero = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 			packHero.srcArtHolder = finishingBattle->loserId;
 			for(const auto & slot : ArtifactUtils::commonWornSlots())
 			{
@@ -463,7 +464,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 			if(loserHero->getCommander())
 			{
-				auto & packCommander = resultsApplied.artifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				auto & packCommander = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 				packCommander.srcCreature = loserHero->findStack(loserHero->getCommander());
 				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
@@ -471,13 +472,32 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->getObj(finishingBattle->loserId));
 			for(const auto & armySlot : armyObj->stacks)
 			{
-				auto & packsArmy = resultsApplied.artifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				auto & packsArmy = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 				packsArmy.srcArtHolder = armyObj->id;
 				packsArmy.srcCreature = armySlot.first;
 				for(const auto & artSlot : armySlot.second->artifactsWorn)
 					addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
 			}
 		}
+	}
+
+	// Growing artifacts handling
+	if(!finishingBattle->isDraw() && winnerHero)
+	{
+		const auto addArtifactToGrowing = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
+		{
+			for(const auto & [slot, slotInfo] : artMap)
+			{
+				const auto artInst = slotInfo.getArt();
+				assert(artInst);
+				if(artInst->getType()->isGrowing())
+					resultsApplied.growingArtifacts.emplace_back(artInst->getId());
+			}
+		};
+
+		if(const auto commander = winnerHero->getCommander(); commander && commander->alive)
+			addArtifactToGrowing(commander->artifactsWorn);
+		addArtifactToGrowing(winnerHero->artifactsWorn);
 	}
 
 	// Necromancy handling

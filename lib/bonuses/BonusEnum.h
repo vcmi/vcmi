@@ -16,7 +16,7 @@ class JsonNode;
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
-	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
+	BONUS_NAME(ARTIFACT_GROWING) \
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \

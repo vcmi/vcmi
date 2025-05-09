@@ -838,7 +838,7 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	if(art->isGrowing())
 	{
 		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
+		bonus->type = BonusType::ARTIFACT_GROWING;
 		bonus->val = 0;
 		artInst->addNewBonus(bonus);
 	}

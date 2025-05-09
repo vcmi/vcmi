@@ -847,12 +847,12 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 			UIHelper::getEagleEyeInfoWindowText(*hero, pack.learnedSpells.spells), UIHelper::getSpellsComponents(pack.learnedSpells.spells), soundBase::soundID(0));
 	}
 
-	if(!pack.artifacts.empty())
+	if(!pack.movingArtifacts.empty())
 	{
-		const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.artifacts.front().dstArtHolder));
+		const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.movingArtifacts.front().dstArtHolder));
 		assert(artSet);
 		std::vector<Component> artComponents;
-		for(const auto & artPack : pack.artifacts)
+		for(const auto & artPack : pack.movingArtifacts)
 		{
 			auto packComponents = UIHelper::getArtifactsComponents(*artSet, artPack.artsPack0);
 			artComponents.insert(artComponents.end(), std::make_move_iterator(packComponents.begin()), std::make_move_iterator(packComponents.end()));
@@ -861,7 +861,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 			artComponents, soundBase::soundID(0));
 	}
 
-	for(auto & artPack : pack.artifacts)
+	for(auto & artPack : pack.movingArtifacts)
 		visitBulkMoveArtifacts(artPack);
 
 	if(pack.raisedStack.getCreature())
