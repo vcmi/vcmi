@@ -119,13 +119,28 @@
 					"description": "List of bonuses that will be granted to visiting hero",
 					"items": { "$ref" : "bonusInstance.json" }
 				},
+				"commanderBonuses" : {
+					"type":"array",
+					"description": "List of bonuses that will be granted to commander of a visiting hero",
+					"items": { "$ref" : "bonusInstance.json" }
+				},
+				"playerBonuses" : {
+					"type":"array",
+					"description": "List of bonuses that will be granted to player that owns visiting hero",
+					"items": { "$ref" : "bonusInstance.json" }
+				},
 
 				"resources" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"secondary" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"creatures" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"takenCreatures" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"primary" : { "$ref" : "#/definitions/identifierWithValueList" },
 
 				"artifacts" : { "$ref" : "#/definitions/identifierList" },
+				"takenArtifacts" : { "$ref" : "#/definitions/identifierList" },
+				"takenArtifactSlots" : { "$ref" : "#/definitions/identifierList" },
+				"scrolls" : { "$ref" : "#/definitions/identifierList" },
+				"takenScrolls" : { "$ref" : "#/definitions/identifierList" },
 				"spells" : { "$ref" : "#/definitions/identifierList" },
 
 				"spellCast" : {
@@ -166,18 +181,23 @@
 				"manaPoints" : { "$ref" : "#/definitions/value" },
 
 				"canLearnSkills" : { "type" : "boolean" },
+				"commanderAlive" : { "type" : "boolean" },
+				"hasExtraCreatures" : { "type" : "boolean" },
 
 				"resources" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"secondary" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"creatures" : { "$ref" : "#/definitions/identifierWithValueList" },
+				"canReceiveCreatures" : { "$ref" : "#/definitions/identifierWithValueList" },
 				"primary" : { "$ref" : "#/definitions/identifierWithValueList" },
 
 				"canLearnSpells" : { "$ref" : "#/definitions/identifierList" },
 				"heroClasses" : { "$ref" : "#/definitions/identifierList" },
 				"artifacts" : { "$ref" : "#/definitions/identifierList" },
+				"scrolls" : { "$ref" : "#/definitions/identifierList" },
 				"spells" : { "$ref" : "#/definitions/identifierList" },
 				"colors" : { "$ref" : "#/definitions/identifierList" },
 				"heroes" : { "$ref" : "#/definitions/identifierList" },
+				"availableSlots" : { "$ref" : "#/definitions/identifierList" },
 				
 				"anyOf" : {
 					"type" : "array",
@@ -285,6 +305,10 @@
 			"type" : "boolean"
 		},
 		
+		"forceCombat": {
+			"type" : "boolean"
+		},
+		
 		"showScoutedPreview": {
 			"type" : "boolean"
 		},
@@ -298,7 +322,7 @@
 		},
 		
 		"visitMode": {
-			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player" ],
+			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal" ],
 			"type" : "string"
 		},
 		
