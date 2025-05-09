@@ -485,13 +485,14 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - Can be used as a reward, to remove artifact that is present in slot
 - Components of a combined artifact can not be removed in this way
 
-```
+```json
 "takenArtifactSlots" : [
 	"LEFT_HAND"
 ],
 ```
 
 List of supported slots names:
+
 - `HEAD` - helmet slot
 - `SHOULDERS` - slot used by capes
 - `NECK` - slot used by neclaces artifacts
