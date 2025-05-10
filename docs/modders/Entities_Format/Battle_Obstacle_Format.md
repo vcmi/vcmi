@@ -38,10 +38,10 @@ Non-absolute obstacles specify their coordinates relative to bottom-left corner 
 
 For example, obstacle that blocks tiles `[1, 2, 3, -15, -16, -31]` would result in following layout on the battlefield:
 
-![Battlefield Relative Obstacle Example](../Battle_Field_Relative_Obstacle.svg)
+![Battlefield Relative Obstacle Example](../../images/Battle_Field_Relative_Obstacle.svg)
 
 ### Absolute obstacles
 
 Absolute obstacles operate in absolute coordinates. Because of that, blocked tiles contains list of indexes of blocked tiles. For reference on tiles indexes see image below:
 
-![Battlefield Hexes Layout](../Battle_Field_Hexes.svg)
+![Battlefield Hexes Layout](../../images/Battle_Field_Hexes.svg)
