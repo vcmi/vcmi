@@ -140,59 +140,39 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 }
 
 /// creates standard H3 hero specialty for creatures
-static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID baseCreatureID)
+static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid)
 {
 	std::vector<std::shared_ptr<Bonus>> result;
-	std::set<CreatureID> targets;
-	targets.insert(baseCreatureID);
 
-	// go through entire upgrade chain and collect all creatures to which baseCreatureID can be upgraded
-	for (;;)
+	const auto & specCreature = *cid.toCreature();
+	int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
+
 	{
-		std::set<CreatureID> oldTargets = targets;
-
-		for(const auto & upgradeSourceID : oldTargets)
-		{
-			const CCreature * upgradeSource = upgradeSourceID.toCreature();
-			targets.insert(upgradeSource->upgrades.begin(), upgradeSource->upgrades.end());
-		}
-
-		if (oldTargets.size() == targets.size())
-			break;
+		auto bonus = std::make_shared<Bonus>();
+		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
+		bonus->type = BonusType::STACKS_SPEED;
+		bonus->val = 1;
+		result.push_back(bonus);
 	}
 
-	for(CreatureID cid : targets)
 	{
-		const auto & specCreature = *cid.toCreature();
-		int stepSize = specCreature.getLevel() ? specCreature.getLevel() : 5;
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::PRIMARY_SKILL;
+		bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
+		bonus->val = 0;
+		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
+		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
+		result.push_back(bonus);
+	}
 
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
-			bonus->type = BonusType::STACKS_SPEED;
-			bonus->val = 1;
-			result.push_back(bonus);
-		}
-
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = BonusSubtypeID(PrimarySkill::ATTACK);
-			bonus->val = 0;
-			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
-			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getAttack(false), stepSize));
-			result.push_back(bonus);
-		}
-
-		{
-			auto bonus = std::make_shared<Bonus>();
-			bonus->type = BonusType::PRIMARY_SKILL;
-			bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
-			bonus->val = 0;
-			bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, false));
-			bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
-			result.push_back(bonus);
-		}
+	{
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::PRIMARY_SKILL;
+		bonus->subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
+		bonus->val = 0;
+		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
+		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
+		result.push_back(bonus);
 	}
 
 	return result;

@@ -163,7 +163,13 @@ public:
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
-	bool isMyUpgrade(const CCreature *anotherCre) const;
+
+	/// Returns true if this creature can be directly upgraded to target
+	bool isMyDirectUpgrade(const CCreature * target) const;
+
+	/// Returns true if this creature can be upgraded to target
+	/// Performs full search through potential upgrades of upgrades
+	bool isMyDirectOrIndirectUpgrade(const CCreature *target) const;
 
 	void addBonus(int val, BonusType type);
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);

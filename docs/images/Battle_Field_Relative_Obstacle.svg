@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="255" height="150" viewBox="10 75 255 150">
+	<polygon fill="white" stroke="black" stroke-width="1" points="37, 96, 37, 128, 59, 138, 81, 128, 81, 96, 59, 86"/><text x="59" y="118" text-anchor="middle" fill="black" font-size="20">-34</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="81, 96, 81, 128, 103, 138, 125, 128, 125, 96, 103, 86"/><text x="103" y="118" text-anchor="middle" fill="black" font-size="20">-33</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="125, 96, 125, 128, 147, 138, 169, 128, 169, 96, 147, 86"/><text x="147" y="118" text-anchor="middle" fill="black" font-size="20">-32</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="169, 96, 169, 128, 191, 138, 213, 128, 213, 96, 191, 86"/><text x="191" y="118" text-anchor="middle" fill="black" font-size="20">-31</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="213, 96, 213, 128, 235, 138, 257, 128, 257, 96, 235, 86"/><text x="235" y="118" text-anchor="middle" fill="black" font-size="20">-30</text>
+
+	<polygon fill="white" stroke="black" stroke-width="1" points="15, 138, 15, 170, 37, 180, 59, 170, 59, 138, 37, 128"/><text x="37" y="160" text-anchor="middle" fill="black" font-size="20">-17</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="59, 138, 59, 170, 81, 180, 103, 170, 103, 138, 81, 128"/><text x="81" y="160" text-anchor="middle" fill="black" font-size="20">-16</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="103, 138, 103, 170, 125, 180, 147, 170, 147, 138, 125, 128"/><text x="125" y="160" text-anchor="middle" fill="black" font-size="20">-15</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="147, 138, 147, 170, 169, 180, 191, 170, 191, 138, 169, 128"/><text x="169" y="160" text-anchor="middle" fill="black" font-size="20">-14</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="191, 138, 191, 170, 213, 180, 235, 170, 235, 138, 213, 128"/><text x="213" y="160" text-anchor="middle" fill="black" font-size="20">-13</text>
+
+	<polygon fill="white" stroke="black" stroke-width="1" points="37, 180, 37, 212, 59, 222, 81, 212, 81, 180, 59, 170"/><text x="59" y="202" text-anchor="middle" fill="black" font-size="20">0</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="81, 180, 81, 212, 103, 222, 125, 212, 125, 180, 103, 170"/><text x="103" y="202" text-anchor="middle" fill="black" font-size="20">1</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="125, 180, 125, 212, 147, 222, 169, 212, 169, 180, 147, 170"/><text x="147" y="202" text-anchor="middle" fill="black" font-size="20">2</text>
+	<polygon fill="gray" stroke="black" stroke-width="1" points="169, 180, 169, 212, 191, 222, 213, 212, 213, 180, 191, 170"/><text x="191" y="202" text-anchor="middle" fill="black" font-size="20">3</text>
+	<polygon fill="white" stroke="black" stroke-width="1" points="213, 180, 213, 212, 235, 222, 257, 212, 257, 180, 235, 170"/><text x="235" y="202" text-anchor="middle" fill="black" font-size="20">4</text>
+</svg>

@@ -529,7 +529,7 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if(cre->isMyUpgrade(i->second->getCreature()))
+			if(cre->isMyDirectUpgrade(i->second->getCreature()))
 			{
 				cb->changeStackType(StackLocation(id, i->first), cre); //un-upgrade creatures
 			}

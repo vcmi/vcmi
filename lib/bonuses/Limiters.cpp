@@ -105,7 +105,7 @@ ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &co
 	if(!c)
 		return ILimiter::EDecision::NOT_APPLICABLE;
 	
-	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyUpgrade(c));
+	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyDirectOrIndirectUpgrade(c));
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
