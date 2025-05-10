@@ -83,7 +83,7 @@ namespace NFaction
 
 namespace NArtifactPosition
 {
-	const std::string namesHero [19] =
+	const std::array namesHero =
 	{
 		"head", "shoulders", "neck", "rightHand", "leftHand", "torso", //5
 		"rightRing", "leftRing", "feet", //8
@@ -92,12 +92,12 @@ namespace NArtifactPosition
 		"spellbook", "misc5" //18
 	};
 
-	const std::string namesCreature[1] =
+	const std::array namesCreature =
 	{
 		"creature1"
 	};
 
-	const std::string namesCommander[6] =
+	const std::array namesCommander =
 	{
 		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6",
 	};

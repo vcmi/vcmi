@@ -904,6 +904,7 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	candidate.setCost(carrierParentNode->getCost() + otherParentNode->getCost() / 1000.0);
 	candidate.moveRemains = carrierParentNode->moveRemains;
 	candidate.danger = carrierParentNode->danger;
+	candidate.version = carrierParentNode->version;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
 	{

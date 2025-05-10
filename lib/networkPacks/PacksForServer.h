@@ -657,7 +657,6 @@ struct DLL_LINKAGE QueryReply : public CPackForServer
 	{
 	}
 	QueryID qid;
-	PlayerColor player;
 	std::optional<int32_t> reply;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -666,7 +665,6 @@ struct DLL_LINKAGE QueryReply : public CPackForServer
 	{
 		h & static_cast<CPackForServer &>(*this);
 		h & qid;
-		h & player;
 		h & reply;
 	}
 };

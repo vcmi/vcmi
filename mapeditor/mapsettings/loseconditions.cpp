@@ -103,8 +103,9 @@ void LoseConditions::initialize(MapController & c)
 							assert(loseValueWidget);
 							loseValueWidget->setText(QString::number(json["value"].Integer()));
 							break;
+						}
 
-						case EventCondition::IS_HUMAN:
+						case EventCondition::IS_HUMAN: {
 							break; //ignore because always applicable for defeat conditions
 						}
 

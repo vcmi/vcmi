@@ -80,8 +80,7 @@ public:
 	void waitWhileContains(const T & item)
 	{
 		TLock lock(mx);
-		while(vstd::contains(items, item))
-			cond.wait(lock);
+		cond.wait(lock, [this, &item](){ return !vstd::contains(items, item);});
 
 		if (isTerminating)
 			throw TerminationRequestedException();

@@ -169,15 +169,7 @@ public:
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
 
-	template<typename RanGen>
-	int getRandomAmount(RanGen ranGen) const
-	{
-		if(ammMax == ammMin)
-			return ammMax;
-		else
-			return ammMin + (ranGen() % (ammMax - ammMin));
-	}
-
+	int getRandomAmount(vstd::RNG & ranGen) const;
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 

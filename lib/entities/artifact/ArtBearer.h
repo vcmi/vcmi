@@ -17,14 +17,11 @@ ART_BEARER(HERO)\
 	ART_BEARER(COMMANDER)\
 	ART_BEARER(ALTAR)
 
-namespace ArtBearer
+enum class ArtBearer
 {
-	enum ArtBearer
-	{
 #define ART_BEARER(x) x,
 		ART_BEARER_LIST
 #undef ART_BEARER
-	};
-}
+};
 
 VCMI_LIB_NAMESPACE_END

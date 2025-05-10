@@ -23,7 +23,7 @@ class DLL_LINKAGE CArtHandler : public CHandlerBase<ArtifactID, Artifact, CArtif
 public:
 	void addBonuses(CArtifact * art, const JsonNode & bonusList);
 
-	static EArtifactClass::Type stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
+	static EArtifactClass stringToClass(const std::string & className); //TODO: rework EartClass to make this a constructor
 
 	bool legalArtifact(const ArtifactID & id) const;
 	static void makeItCreatureArt(CArtifact * a, bool onlyCreature = true);

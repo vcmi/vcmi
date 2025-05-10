@@ -631,7 +631,7 @@ void CGArtifact::pickRandomObject(vstd::RNG & rand)
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE | EArtifactClass::ART_MINOR | EArtifactClass::ART_MAJOR | EArtifactClass::ART_RELIC);
+			subID = cb->gameState().pickRandomArtifact(rand, std::nullopt);
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
 			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE);

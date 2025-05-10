@@ -376,12 +376,12 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 		if(info != nullptr && !info->locked)
 		{
 			artifactID = info->getArt()->getTypeId();
-			handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
+			handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
 		}
 	}
 	else
 	{
-		handler.serializeId(NArtifactPosition::namesHero[slot.num], artifactID, ArtifactID::NONE);
+		handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
 
 		if(artifactID != ArtifactID::NONE)
 		{

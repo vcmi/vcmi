@@ -65,13 +65,13 @@ public:
 
 	void loadScriptFromFile(const std::string & path);
 	void loadScript(const JsonNode & scriptConfig);
-	void loadScript(ModulePtr module, const std::string & scriptSource);
-	void loadScript(ModulePtr module, const std::vector<std::string> & scriptSource);
+	void loadScript(ModulePtr modulePtr, const std::string & scriptSource);
+	void loadScript(ModulePtr modulePtr, const std::vector<std::string> & scriptSource);
 
 	JsonNode runClientServer(const JsonNode & scriptState = JsonNode());
 	JsonNode runServer(const JsonNode & scriptState = JsonNode());
 
-	JsonNode runScript(ModulePtr module, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
+	JsonNode runScript(ModulePtr modulePtr, const std::string & scriptSource, const JsonNode & scriptState = JsonNode());
 
 protected:
 	void setUp();

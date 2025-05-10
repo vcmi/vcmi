@@ -31,7 +31,7 @@ public:
 		{}
 
 		IGameCallback * getCallback() const override {return cb;};
-		ArtBearer::ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
+		ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 
 	virtual ObjectInstanceID getObjInstanceID() const = 0;	// The market is always an object on the map

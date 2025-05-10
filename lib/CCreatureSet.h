@@ -161,7 +161,7 @@ public:
 	bool valid(bool allowUnrandomized) const;
 	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;//from CArtifactSet
 	void removeArtifact(const ArtifactPosition & pos) override;
-	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
+	ArtBearer bearerType() const override; //from CArtifactSet
 	std::string nodeName() const override; //from CBonusSystemnode
 	PlayerColor getOwner() const override;
 
@@ -192,7 +192,7 @@ public:
 	ui64 getPower() const override {return 0;};
 	int getExpRank() const override;
 	int getLevel() const override;
-	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
+	ArtBearer bearerType() const override; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h)
 	{
