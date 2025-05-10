@@ -14,6 +14,7 @@
 #include "InfoAboutArmy.h"
 #include "TavernHeroesPool.h"
 #include "CGameStateCampaign.h"
+#include "GameStatePackVisitor.h"
 #include "SThievesGuildInfo.h"
 #include "QuestInfo.h"
 
@@ -1119,7 +1120,8 @@ PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor 
 
 void CGameState::apply(CPackForClient & pack)
 {
-	pack.applyGs(this);
+	GameStatePackVisitor visitor(*this);
+	pack.visit(visitor);
 }
 
 void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const

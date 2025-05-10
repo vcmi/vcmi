@@ -15,6 +15,7 @@
 #include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 #include "../../lib/ScriptHandler.h"
+#include "../../lib/gameState/GameStatePackVisitor.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 
@@ -538,37 +539,44 @@ void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient & pack)
 
 void HypotheticBattle::HypotheticServerCallback::apply(BattleLogMessage & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(BattleStackMoved & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(BattleUnitsChanged & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(SetStackEffect & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(StacksInjured & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(BattleObstaclesChanged & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 void HypotheticBattle::HypotheticServerCallback::apply(CatapultAttack & pack)
 {
-	pack.applyBattle(owner);
+	BattleStatePackVisitor visitor(*owner);
+	pack.visit(visitor);
 }
 
 HypotheticBattle::HypotheticEnvironment::HypotheticEnvironment(HypotheticBattle * owner_, const Environment * upperEnvironment)

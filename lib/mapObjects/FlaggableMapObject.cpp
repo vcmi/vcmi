@@ -15,6 +15,7 @@
 #include "CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
+#include "../gameState/GameStatePackVisitor.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -88,7 +89,10 @@ void FlaggableMapObject::giveBonusTo(const PlayerColor & player, bool onInit) co
 		// Proper fix would be to make FlaggableMapObject into bonus system node
 		// Unfortunately this will cause saves breakage
 		if(onInit)
-			gb.applyGs(&cb->gameState());
+		{
+			GameStatePackVisitor visitor(cb->gameState());
+			gb.visit(visitor);
+		}
 		else
 			cb->sendAndApply(gb);
 	}

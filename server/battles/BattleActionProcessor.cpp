@@ -1037,9 +1037,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if (healInfo.healedHealthPoints > 0)
 		bat.flags |= BattleAttack::LIFE_DRAIN;
 
-	for (BattleStackAttacked & bsa : bat.bsa)
-		bsa.battleID = battle.getBattle()->getBattleID();
-
 	gameHandler->sendAndApply(bat);
 
 	{
@@ -1097,7 +1094,6 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		{
 			BattleStackAttacked bsa;
 
-			bsa.battleID = battle.getBattle()->getBattleID();
 			bsa.flags |= BattleStackAttacked::FIRE_SHIELD;
 			bsa.stackAttacked = attacker->unitId(); //invert
 			bsa.attackerID = defender->unitId();

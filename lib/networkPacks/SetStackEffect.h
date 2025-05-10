@@ -19,9 +19,6 @@ class IBattleState;
 
 struct DLL_LINKAGE SetStackEffect : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
-	void applyBattle(IBattleState * battleState);
-
 	BattleID battleID = BattleID::NONE;
 	std::vector<std::pair<ui32, std::vector<Bonus>>> toAdd;
 	std::vector<std::pair<ui32, std::vector<Bonus>>> toUpdate;

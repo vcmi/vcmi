@@ -17,7 +17,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 struct DLL_LINKAGE SetRewardableConfiguration : public CPackForClient
 {
-	void applyGs(CGameState * gs) override;
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	ObjectInstanceID objectID;

@@ -53,7 +53,6 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		if(unit && unit->alive())
 		{
 			BattleStackAttacked bsa;
-			bsa.battleID = m->battle()->getBattle()->getBattleID();
 			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
 			bsa.stackAttacked = unit->unitId();
 			bsa.attackerID = -1;
