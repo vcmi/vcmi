@@ -27,6 +27,8 @@ class CGameInterface;
 class BattleAction;
 class BattleInfo;
 struct BankConfig;
+class CCallback;
+class CBattleCallback;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -42,8 +44,6 @@ namespace events
 
 VCMI_LIB_NAMESPACE_END
 
-class CBattleCallback;
-class CCallback;
 class CClient;
 class CBaseForCLApply;
 

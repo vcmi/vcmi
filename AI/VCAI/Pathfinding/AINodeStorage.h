@@ -18,8 +18,6 @@
 #include "../Goals/AbstractGoal.h"
 #include "Actions/ISpecialAction.h"
 
-class CCallback;
-
 struct AIPathNode : public CGPathNode
 {
 	uint32_t chainMask;

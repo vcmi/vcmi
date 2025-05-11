@@ -17,7 +17,6 @@
 #include "../../lib/callback/CCallback.h"
 
 class VCAI;
-class CCallback;
 struct creInfo;
 
 using crint3 = const int3 &;
