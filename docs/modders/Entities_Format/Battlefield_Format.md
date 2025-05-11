@@ -29,4 +29,3 @@
 Impassable hexes operate in absolute coordinates. For reference on tiles indexes see image below:
 
 ![Battlefield Hexes Layout](../../images/Battle_Field_Hexes.svg)
-

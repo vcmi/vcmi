@@ -5,6 +5,7 @@
 ![Battlefield Hexes Layout](../images/Battle_Field_Hexes.svg)
 
 Legend:
+
 - gray (0/16/17...): inaccessible hexes located on both sides of the battlefield. Units can't normally move onto them, and they can't be targeted via spells. These hexes are used as back tile for war machines
 - green (1/15/35...): starting locations for units. Defined in `config/gameConfig.json`
 - yellow (18/32/52...): starting locations for war machines. Defined in `config/gameConfig.json`
