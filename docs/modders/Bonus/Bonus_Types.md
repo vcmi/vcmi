@@ -1031,9 +1031,15 @@ Increases amount of information available in affected thieves guild (in town or 
 
 - val: additional number of 'levels' of information to grant access to
 
-### LEVEL_COUNTER
+### ARTIFACT_GROWING
 
 Internal bonus, do not use
+
+### ARTIFACT_CHARGE
+
+Consumable bonus. Used to perform actions specified by a specific artifact.
+
+- val: number of charges
 
 ### DISINTEGRATE
 

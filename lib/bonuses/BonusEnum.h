@@ -17,6 +17,7 @@ class JsonNode;
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
 	BONUS_NAME(ARTIFACT_GROWING) \
+	BONUS_NAME(ARTIFACT_CHARGE) \
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
