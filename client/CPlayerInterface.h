@@ -11,8 +11,8 @@
 
 #include "ArtifactsUIController.h"
 
+#include "../lib/callback/CGameInterface.h"
 #include "../lib/FunctionList.h"
-#include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

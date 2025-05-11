@@ -14,7 +14,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 class VCAI;
 class CCallback;

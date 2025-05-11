@@ -19,8 +19,7 @@
 
 #include "adventureMap/CInGameConsole.h"
 
-#include "../CCallback.h"
-
+#include "../lib/callback/CCallback.h"
 #include "../lib/networkPacks/PacksForLobby.h"
 #include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"

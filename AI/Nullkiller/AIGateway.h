@@ -11,12 +11,11 @@
 
 #include "AIUtility.h"
 #include "Goals/AbstractGoal.h"
-#include "../../lib/AI_Base.h"
-#include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"

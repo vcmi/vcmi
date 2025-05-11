@@ -15,7 +15,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../IGameSettings.h"
-#include "../IGameCallback.h"
+#include "../callback/IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"

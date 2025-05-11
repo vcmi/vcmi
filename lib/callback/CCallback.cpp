@@ -10,20 +10,17 @@
 #include "StdInc.h"
 #include "CCallback.h"
 
-#include "lib/CCreatureHandler.h"
-#include "lib/gameState/CGameState.h"
-#include "client/CPlayerInterface.h"
-#include "client/Client.h"
-#include "lib/mapping/CMap.h"
-#include "lib/mapObjects/CGHeroInstance.h"
-#include "lib/mapObjects/CGTownInstance.h"
-#include "lib/texts/CGeneralTextHandler.h"
-#include "lib/GameConstants.h"
-#include "lib/CPlayerState.h"
-#include "lib/UnlockGuard.h"
-#include "lib/battle/BattleInfo.h"
-#include "lib/networkPacks/PacksForServer.h"
-#include "lib/networkPacks/SaveLocalState.h"
+#include "../UnlockGuard.h"
+#include "../gameState/CGameState.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapping/CMap.h"
+#include "../networkPacks/PacksForServer.h"
+#include "../networkPacks/SaveLocalState.h"
+
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 bool CCallback::teleportHero(const CGHeroInstance *who, const CGTownInstance *where)
 {
@@ -427,60 +424,4 @@ void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver>
 	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
-CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, CClient * C):
-	cl(C),
-	player(player)
-{
-}
-
-void CBattleCallback::battleMakeUnitAction(const BattleID & battleID, const BattleAction & action)
-{
-	MakeAction ma;
-	ma.ba = action;
-	ma.battleID = battleID;
-	sendRequest(ma);
-}
-
-void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const BattleAction & action )
-{
-	MakeAction ma;
-	ma.ba = action;
-	ma.battleID = battleID;
-	sendRequest(ma);
-}
-
-std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
-{
-	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleID, battleState);
-}
-
-std::shared_ptr<CPlayerBattleCallback> CBattleCallback::getBattle(const BattleID & battleID)
-{
-	if (activeBattles.count(battleID))
-		return activeBattles.at(battleID);
-
-	throw std::runtime_error("Failed to find battle " + std::to_string(battleID.getNum()) + " of player " + player->toString() + ". Number of ongoing battles: " + std::to_string(activeBattles.size()));
-}
-
-std::optional<PlayerColor> CBattleCallback::getPlayerID() const
-{
-	return player;
-}
-
-void CBattleCallback::onBattleStarted(const IBattleInfo * info)
-{
-	if (activeBattles.count(info->getBattleID()) > 0)
-		throw std::runtime_error("Player " + player->toString() + " is already engaged in battle " + std::to_string(info->getBattleID().getNum()));
-
-	logGlobal->debug("Battle %d started for player %s", info->getBattleID(), player->toString());
-	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, *getPlayerID());
-}
-
-void CBattleCallback::onBattleEnded(const BattleID & battleID)
-{
-	if (activeBattles.count(battleID) == 0)
-		throw std::runtime_error("Player " + player->toString() + " is not engaged in battle " + std::to_string(battleID.getNum()));
-
-	logGlobal->debug("Battle %d ended for player %s", battleID, player->toString());
-	activeBattles.erase(battleID);
-}
+VCMI_LIB_NAMESPACE_END

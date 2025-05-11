@@ -12,7 +12,7 @@
 #include "TownBuildingInstance.h"
 
 #include "CGTownInstance.h"
-#include "../IGameCallback.h"
+#include "../callback/IGameCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../entities/building/CBuilding.h"
 

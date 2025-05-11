@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "ArmyManager.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/IGameSettings.h"

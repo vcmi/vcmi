@@ -27,8 +27,6 @@
 #include "../render/Colors.h"
 #include "../globalLobby/GlobalLobbyClient.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"

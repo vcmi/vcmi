@@ -14,8 +14,8 @@
 #include "CGTownInstance.h"
 #include "MiscObjects.h"
 
-#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
+#include "../callback/IGameCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 

@@ -25,12 +25,10 @@
 #include "../render/CAnimation.h"
 #include "../render/Graphics.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
-#include "../../lib/IGameEventsReceiver.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/texts/CGeneralTextHandler.h"

@@ -20,7 +20,6 @@
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/StartInfo.h"
-#include "../../../CCallback.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"

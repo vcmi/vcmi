@@ -15,9 +15,9 @@
 #include "CSpellHandler.h"
 #include "Problem.h"
 
-#include "../CGameInfoCallback.h"
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"

@@ -11,7 +11,7 @@
 
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/battle/ReachabilityInfo.h"
-#include "../../lib/CGameInterface.h"
+#include "../../lib/callback/CBattleGameInterface.h"
 
 class EnemyInfo;
 

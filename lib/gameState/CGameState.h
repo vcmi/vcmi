@@ -10,9 +10,9 @@
 #pragma once
 
 #include "../bonuses/CBonusSystemNode.h"
+#include "../callback/CNonConstInfoCallback.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../entities/artifact/EArtifactClass.h"
-#include "../IGameCallback.h"
-#include "../GameCallbackHolder.h"
 #include "../LoadProgress.h"
 
 #include "RumorState.h"
@@ -31,7 +31,7 @@ class IMapService;
 class CMap;
 class CSaveFile;
 class CLoadFile;
-struct CPack;
+struct CPackForClient;
 class CHeroClass;
 struct EventCondition;
 struct CampaignTravel;

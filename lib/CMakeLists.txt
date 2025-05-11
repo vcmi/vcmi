@@ -78,6 +78,15 @@ set(lib_MAIN_SRCS
 	bonuses/Propagators.cpp
 	bonuses/Updaters.cpp
 
+	callback/CAdventureAI.cpp
+	callback/CBattleCallback.cpp
+	callback/CCallback.cpp
+	callback/CDynLibHandler.cpp
+	callback/CGameInfoCallback.cpp
+	callback/CNonConstInfoCallback.cpp
+	callback/CPlayerSpecificInfoCallback.cpp
+	callback/CPrivilegedInfoCallback.cpp
+
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
 
@@ -279,15 +288,12 @@ set(lib_MAIN_SRCS
 	CBonusTypeHandler.cpp
 	CCreatureHandler.cpp
 	CCreatureSet.cpp
-	CGameInfoCallback.cpp
-	CGameInterface.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
 	CSkillHandler.cpp
 	CStack.cpp
 	GameSettings.cpp
-	IGameCallback.cpp
 	IHandlerBase.cpp
 	LoadProgress.cpp
 	LogicalExpression.cpp
@@ -451,6 +457,26 @@ set(lib_MAIN_HEADERS
 	bonuses/Limiters.h
 	bonuses/Propagators.h
 	bonuses/Updaters.h
+
+	callback/CAdventureAI.h
+	callback/CBattleCallback.h
+	callback/CBattleGameInterface.h
+	callback/CCallback.h
+	callback/CDynLibHandler.h
+	callback/CGameInfoCallback.h
+	callback/CGameInterface.h
+	callback/CGlobalAI.h
+	callback/CNonConstInfoCallback.h
+	callback/CPlayerSpecificInfoCallback.h
+	callback/CPrivilegedInfoCallback.h
+	callback/GameCallbackHolder.h
+	callback/IBattleCallback.h
+	callback/IBattleEventsReceiver.h
+	callback/IGameActionCallback.h
+	callback/IGameCallback.h
+	callback/IGameEventCallback.h
+	callback/IGameEventsReceiver.h
+	callback/IGameInfoCallback.h
 
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
@@ -699,15 +725,12 @@ set(lib_MAIN_HEADERS
 	texts/TextIdentifier.h
 	texts/TextLocalizationContainer.h
 
-	AI_Base.h
 	AsyncRunner.h
 	BattleFieldHandler.h
 	CAndroidVMHelper.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
 	CCreatureSet.h
-	CGameInfoCallback.h
-	CGameInterface.h
 	ConditionalWait.h
 	Color.h
 	CPlayerState.h
@@ -720,12 +743,9 @@ set(lib_MAIN_HEADERS
 	ExceptionsCommon.h
 	ExtraOptionsInfo.h
 	FunctionList.h
-	GameCallbackHolder.h
 	GameConstants.h
 	GameSettings.h
 	IBonusTypeHandler.h
-	IGameCallback.h
-	IGameEventsReceiver.h
 	IGameSettings.h
 	IHandlerBase.h
 	int3.h

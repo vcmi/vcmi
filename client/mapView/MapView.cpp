@@ -26,8 +26,7 @@
 #include "../render/IImage.h"
 #include "../eventsSDL/InputHandler.h"
 
-#include "../../CCallback.h"
-
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 

@@ -13,7 +13,7 @@
 #include "CGPathNode.h"
 #include "PathfinderOptions.h"
 
-#include "../CGameInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

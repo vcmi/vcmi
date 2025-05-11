@@ -11,7 +11,6 @@
 #include "Actors.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../CCallback.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/pathfinder/TurnInfo.h"

@@ -13,6 +13,7 @@
 
 #include "../CCreatureHandler.h"
 #include "../CPlayerState.h"
+#include "../callback/IGameCallback.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
 #include "../entities/faction/CTownHandler.h"

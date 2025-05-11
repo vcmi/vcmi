@@ -15,6 +15,7 @@
 
 #include "../LuaCallWrapper.h"
 
+#include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

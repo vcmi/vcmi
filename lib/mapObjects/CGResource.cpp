@@ -11,11 +11,11 @@
 #include "StdInc.h"
 #include "CGResource.h"
 
+#include "../callback/IGameCallback.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../CSoundBase.h"

@@ -33,8 +33,6 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"

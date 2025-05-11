@@ -1,5 +1,5 @@
 /*
- * AI_Base.h, part of VCMI engine
+ * CGlobalAI.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,4 +11,13 @@
 
 #include "CGameInterface.h"
 
-#define AI_INTERFACE_VER 1
+VCMI_LIB_NAMESPACE_BEGIN
+
+class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
+{
+public:
+	std::shared_ptr<Environment> env;
+	CGlobalAI();
+};
+
+VCMI_LIB_NAMESPACE_END

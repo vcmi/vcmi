@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../networkPacks/ObjProperty.h"

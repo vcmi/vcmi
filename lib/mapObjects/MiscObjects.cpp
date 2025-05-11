@@ -12,6 +12,7 @@
 #include "MiscObjects.h"
 
 #include "../bonuses/Propagators.h"
+#include "../callback/IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -20,7 +21,6 @@
 #include "../CSoundBase.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"

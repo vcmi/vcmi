@@ -17,11 +17,11 @@
 #include "../CSkillHandler.h"
 #include "../GameLibrary.h"
 #include "../GameSettings.h"
-#include "../IGameCallback.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 
+#include "../callback/IGameCallback.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"

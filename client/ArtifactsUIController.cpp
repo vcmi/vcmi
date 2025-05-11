@@ -18,8 +18,8 @@
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
 
-#include "../CCallback.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/entities/artifact/ArtifactUtils.h"
 #include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/mapObjects/CGHeroInstance.h"

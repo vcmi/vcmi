@@ -36,7 +36,6 @@
 
 #include "CSpellHandler.h"
 
-#include "../IGameCallback.h"//todo: remove
 #include "../BattleFieldHandler.h"
 
 #include <vstd/RNG.h>

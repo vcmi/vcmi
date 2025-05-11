@@ -45,8 +45,6 @@
 #include "../Client.h"
 #include "../CMT.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/filesystem/Filesystem.h"

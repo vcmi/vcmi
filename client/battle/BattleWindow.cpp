@@ -34,14 +34,15 @@
 #include "../adventureMap/TurnTimerWidget.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/callback/CDynLibHandler.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"

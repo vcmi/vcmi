@@ -28,13 +28,12 @@
 #include "../gui/Shortcut.h"
 #include "../battle/BattleInterface.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/bonuses/Propagators.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/gameState/CGameState.h"

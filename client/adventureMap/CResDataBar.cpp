@@ -19,8 +19,8 @@
 #include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/GameLibrary.h"

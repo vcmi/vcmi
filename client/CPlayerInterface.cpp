@@ -64,8 +64,7 @@
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../CCallback.h"
-
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CPlayerState.h"
@@ -80,9 +79,13 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/VCMIDirs.h"
 
+#include "../lib/battle/CPlayerBattleCallback.h"
+
 #include "../lib/bonuses/Limiters.h"
 #include "../lib/bonuses/Propagators.h"
 #include "../lib/bonuses/Updaters.h"
+
+#include "../lib/callback/CCallback.h"
 
 #include "../lib/gameState/CGameState.h"
 

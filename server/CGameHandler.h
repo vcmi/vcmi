@@ -11,7 +11,7 @@
 
 #include <vcmi/Environment.h>
 
-#include "../lib/IGameCallback.h"
+#include "../lib/callback/IGameCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"

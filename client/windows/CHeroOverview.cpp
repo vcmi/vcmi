@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CHeroOverview.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../render/Canvas.h"

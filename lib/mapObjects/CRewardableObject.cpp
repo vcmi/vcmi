@@ -12,9 +12,9 @@
 #include "CRewardableObject.h"
 
 #include "../CPlayerState.h"
-#include "../IGameCallback.h"
 #include "../IGameSettings.h"
 #include "../battle/BattleLayout.h"
+#include "../callback/IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"

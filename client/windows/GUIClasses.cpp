@@ -41,9 +41,8 @@
 #include "../render/IImage.h"
 #include "../render/IFont.h"
 
-#include "../../CCallback.h"
-
 #include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"

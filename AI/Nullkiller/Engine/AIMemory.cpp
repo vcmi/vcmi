@@ -9,7 +9,6 @@
 */
 #include "../StdInc.h"
 #include "AIMemory.h"
-#include "../../../CCallback.h"
 
 namespace NKAI
 {

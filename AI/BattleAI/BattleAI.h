@@ -8,8 +8,8 @@
  *
  */
 #pragma once
-#include "../../lib/AI_Base.h"
 #include "../../lib/battle/ReachabilityInfo.h"
+#include "../../lib/callback/CGameInterface.h"
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
 

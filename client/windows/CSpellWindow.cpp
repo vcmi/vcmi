@@ -33,11 +33,12 @@
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"

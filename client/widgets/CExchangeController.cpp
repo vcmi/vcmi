@@ -15,8 +15,7 @@
 
 #include "../widgets/CGarrisonInt.h"
 
-#include "../../CCallback.h"
-
+#include "../lib/callback/CCallback.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 
 CExchangeController::CExchangeController(ObjectInstanceID hero1, ObjectInstanceID hero2)

@@ -11,7 +11,7 @@
 
 #include "CPlayerState.h"
 #include "GameLibrary.h"
-#include "IGameCallback.h"
+#include "callback/IGameCallback.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "gameState/CGameState.h"

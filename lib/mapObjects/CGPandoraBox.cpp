@@ -18,7 +18,7 @@
 
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
-#include "../IGameCallback.h"
+#include "../callback/IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"

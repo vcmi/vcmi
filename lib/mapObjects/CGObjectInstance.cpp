@@ -14,9 +14,9 @@
 #include "CGHeroInstance.h"
 #include "ObjectTemplate.h"
 
+#include "../callback/IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"

@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "FlaggableMapObject.h"
 
-#include "../IGameCallback.h"
 #include "CGHeroInstance.h"
+#include "../callback/IGameCallback.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 

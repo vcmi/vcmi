@@ -14,7 +14,7 @@
 #include "SideInBattle.h"
 #include "SiegeInfo.h"
 
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../bonuses/Bonus.h"
 #include "../bonuses/CBonusSystemNode.h"
 #include "../int3.h"

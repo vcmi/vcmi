@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "ArmyManager.h"
 
-#include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
 void ArmyManager::init(CPlayerSpecificInfoCallback * CB)

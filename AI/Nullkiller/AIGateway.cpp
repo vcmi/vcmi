@@ -12,6 +12,7 @@
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"

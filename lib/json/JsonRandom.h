@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "GameCallbackHolder.h"
+#include "callback/GameCallbackHolder.h"
 #include "GameConstants.h"
 #include "ResourceSet.h"
 

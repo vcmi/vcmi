@@ -14,12 +14,12 @@
 #include "MapRendererContextState.h"
 #include "mapHandler.h"
 
-#include "../../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../GameInstance.h"
 
 #include "../../lib/Point.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"

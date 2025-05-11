@@ -8,13 +8,13 @@
  *
  */
 #include "StdInc.h"
-#include "../../lib/AI_Base.h"
 #include "StupidAI.h"
 #include "../../lib/CStack.h"
-#include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/CRandomGenerator.h"
 
 CStupidAI::CStupidAI()

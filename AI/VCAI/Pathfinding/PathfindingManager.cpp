@@ -13,7 +13,6 @@
 #include "AIPathfinderConfig.h"
 #include "../Goals/Goals.h"
 #include "../Goals/CompleteQuest.h"
-#include "../../../lib/CGameInfoCallback.h"
 #include "../../../lib/gameState/QuestInfo.h"
 #include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/mapObjects/CQuest.h"

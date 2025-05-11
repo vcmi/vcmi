@@ -1,6 +1,5 @@
 set(vcmiclientcommon_SRCS
 	StdInc.cpp
-	../CCallback.cpp
 
 	adventureMap/AdventureMapInterface.cpp
 	adventureMap/AdventureMapShortcuts.cpp

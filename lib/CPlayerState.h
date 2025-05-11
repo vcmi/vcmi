@@ -12,7 +12,7 @@
 #include <vcmi/Player.h>
 #include <vcmi/Team.h>
 
-#include "GameCallbackHolder.h"
+#include "callback/GameCallbackHolder.h"
 #include "ResourceSet.h"
 #include "TurnTimerInfo.h"
 #include "bonuses/Bonus.h"
