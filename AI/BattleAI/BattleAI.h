@@ -60,7 +60,6 @@ class CBattleAI : public CBattleGameInterface
 
 	//Previous setting of cb
 	bool wasWaitingForRealize;
-	bool wasUnlockingGs;
 	int movesSkippedByDefense;
 
 public:

@@ -628,7 +628,6 @@ void VCAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_ptr<C
 	NET_EVENT_HANDLER; //sets ah->rm->cb
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
-	myCb->unlockGsWhenWaiting = true;
 	pathfinderCache = std::make_unique<PathfinderCache>(myCb.get(), PathfinderOptions(*myCb));
 
 	if(!fh)

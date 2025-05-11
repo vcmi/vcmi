@@ -577,7 +577,6 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	NET_EVENT_HANDLER;
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
-	myCb->unlockGsWhenWaiting = true;
 
 	nullkiller->init(CB, this);
 	

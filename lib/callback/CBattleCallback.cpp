@@ -11,14 +11,17 @@
 #include "CBattleCallback.h"
 
 #include "CGameInterface.h"
+#include "IClient.h"
 
+#include "../UnlockGuard.h"
 #include "../battle/CPlayerBattleCallback.h"
 #include "../battle/IBattleState.h"
+#include "../gameState/CGameState.h"
 #include "../networkPacks/PacksForServer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, CClient * C):
+CBattleCallback::CBattleCallback(std::optional<PlayerColor> player, IClient * C):
 	cl(C),
 	player(player)
 {
@@ -42,7 +45,7 @@ void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const Ba
 
 std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
-	return cl->playerint[getPlayerID().value()]->makeSurrenderRetreatDecision(battleID, battleState);
+	return cl->makeSurrenderRetreatDecision(*getPlayerID(), battleID, battleState);
 }
 
 std::shared_ptr<CPlayerBattleCallback> CBattleCallback::getBattle(const BattleID & battleID)
@@ -74,6 +77,19 @@ void CBattleCallback::onBattleEnded(const BattleID & battleID)
 
 	logGlobal->debug("Battle %d ended for player %s", battleID, player->toString());
 	activeBattles.erase(battleID);
+}
+
+void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const BattleAction & action)
+{
+	assert(action.actionType == EActionType::HERO_SPELL);
+	MakeAction mca(action);
+	mca.battleID = battleID;
+	sendRequest(mca);
+}
+
+int CBattleCallback::sendRequest(const CPackForServer & request)
+{
+	return cl->sendRequest(request, *getPlayerID(), waitTillRealize);
 }
 
 VCMI_LIB_NAMESPACE_END

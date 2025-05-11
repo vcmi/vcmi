@@ -472,6 +472,7 @@ set(lib_MAIN_HEADERS
 	callback/GameCallbackHolder.h
 	callback/IBattleCallback.h
 	callback/IBattleEventsReceiver.h
+	callback/IClient.h
 	callback/IGameActionCallback.h
 	callback/IGameCallback.h
 	callback/IGameEventCallback.h

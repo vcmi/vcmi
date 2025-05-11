@@ -36,8 +36,6 @@ class CGTeleport;
 class CGTownInstance;
 class IMarket;
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
 {
 protected:

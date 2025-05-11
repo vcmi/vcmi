@@ -12,6 +12,8 @@
 #include "CPrivilegedInfoCallback.h"
 #include "IGameEventCallback.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {

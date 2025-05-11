@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "CCallback.h"
 
-#include "../UnlockGuard.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -56,14 +55,14 @@ int CCallback::sendQueryReply(std::optional<int32_t> reply, QueryID queryID)
 	}
 
 	QueryReply pack(queryID, reply);
-	pack.player = *player;
+	pack.player = *getPlayerID();
 	return sendRequest(pack);
 }
 
 void CCallback::recruitCreatures(const CGDwelling * obj, const CArmedInstance * dst, CreatureID ID, ui32 amount, si32 level)
 {
 	// TODO exception for neutral dwellings shouldn't be hardcoded
-	if(player != obj->tempOwner && obj->ID != Obj::WAR_MACHINE_FACTORY && obj->ID != Obj::REFUGEE_CAMP)
+	if(getPlayerID() != obj->tempOwner && obj->ID != Obj::WAR_MACHINE_FACTORY && obj->ID != Obj::REFUGEE_CAMP)
 		return;
 
 	RecruitCreatures pack(obj->id, dst->id, ID, amount, level);
@@ -72,7 +71,7 @@ void CCallback::recruitCreatures(const CGDwelling * obj, const CArmedInstance * 
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
 {
-	if((player && obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
+	if((getPlayerID() && obj->tempOwner != getPlayerID()) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);
@@ -89,7 +88,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	logGlobal->trace("Player %d ended his turn.", player->getNum());
+	logGlobal->trace("Player %d ended his turn.", getPlayerID()->getNum());
 	EndTurn pack;
 	sendRequest(pack);
 }
@@ -144,7 +143,7 @@ int CCallback::bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot)
 
 bool CCallback::dismissHero(const CGHeroInstance *hero)
 {
-	if(player!=hero->tempOwner) return false;
+	if(getPlayerID()!=hero->tempOwner) return false;
 
 	DismissHero pack(hero->id);
 	sendRequest(pack);
@@ -220,7 +219,7 @@ void CCallback::eraseArtifactByClient(const ArtifactLocation & al)
 
 bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
-	if(town->tempOwner!=player)
+	if(town->tempOwner!=getPlayerID())
 		return false;
 
 	if(canBuildStructure(town, buildingID) != EBuildingState::ALLOWED)
@@ -233,32 +232,12 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 
 bool CCallback::visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
-	if(town->tempOwner!=player)
+	if(town->tempOwner!=getPlayerID())
 		return false;
 
 	VisitTownBuilding pack(town->id, buildingID);
 	sendRequest(pack);
 	return true;
-}
-
-void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const BattleAction & action)
-{
-	assert(action.actionType == EActionType::HERO_SPELL);
-	MakeAction mca(action);
-	mca.battleID = battleID;
-	sendRequest(mca);
-}
-
-int CBattleCallback::sendRequest(const CPackForServer & request)
-{
-	int requestID = cl->sendRequest(request, *getPlayerID());
-	if(waitTillRealize)
-	{
-		logGlobal->trace("We'll wait till request %d is answered.\n", requestID);
-		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(CGameState::mutex, unlockGsWhenWaiting);
-		cl->waitingRequest.waitWhileContains(requestID);
-	}
-	return requestID;
 }
 
 void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, bool accepted )
@@ -269,7 +248,7 @@ void CCallback::spellResearch( const CGTownInstance *town, SpellID spellAtSlot, 
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner == *player || (town->getGarrisonHero() && town->getGarrisonHero()->tempOwner == *player ))
+	if(town->tempOwner == getPlayerID() || (town->getGarrisonHero() && town->getGarrisonHero()->tempOwner == getPlayerID() ))
 	{
 		GarrisonHeroSwap pack(town->id);
 		sendRequest(pack);
@@ -278,7 +257,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 
 void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 {
-	if(hero->tempOwner != *player) return;
+	if(hero->tempOwner != getPlayerID()) return;
 
 	BuyArtifact pack(hero->id,aid);
 	sendRequest(pack);
@@ -313,7 +292,7 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(hero);
 
 	HireHero pack(hero->getHeroTypeID(), townOrTavern->id, nextHero);
-	pack.player = *player;
+	pack.player = *getPlayerID();
 	sendRequest(pack);
 }
 
@@ -321,14 +300,15 @@ void CCallback::saveLocalState(const JsonNode & data)
 {
 	SaveLocalState state;
 	state.data = data;
-	state.player = *player;
+	state.player = *getPlayerID();
 
 	sendRequest(state);
 }
 
 void CCallback::save( const std::string &fname )
 {
-	cl->save(fname);
+	SaveGame save_game(fname);
+	sendRequest(save_game);
 }
 
 void CCallback::gamePause(bool pause)
@@ -336,7 +316,7 @@ void CCallback::gamePause(bool pause)
 	if(pause)
 	{
 		GamePause pack;
-		pack.player = *player;
+		pack.player = *getPlayerID();
 		sendRequest(pack);
 	}
 	else
@@ -349,8 +329,8 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	PlayerMessage pm(mess, currentObject? currentObject->id : ObjectInstanceID(-1));
-	if(player)
-		pm.player = *player;
+	if(getPlayerID())
+		pm.player = *getPlayerID();
 	sendRequest(pm);
 }
 
@@ -361,7 +341,7 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(bb);
 }
 
-CCallback::CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C)
+CCallback::CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, IClient * C)
 	: CBattleCallback(Player, C)
 	, gamestate(gamestate)
 {
@@ -412,16 +392,6 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return mergeStacks(s1, s2, p1, p2);
 	else
 		return swapCreatures(s1, s2, p1, p2);
-}
-
-void CCallback::registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents)
-{
-	cl->additionalBattleInts[*player].push_back(battleEvents);
-}
-
-void CCallback::unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents)
-{
-	cl->additionalBattleInts[*player] -= battleEvents;
 }
 
 VCMI_LIB_NAMESPACE_END

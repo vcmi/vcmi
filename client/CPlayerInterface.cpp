@@ -12,6 +12,7 @@
 
 #include <vcmi/Artifact.h>
 
+#include "Client.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -668,7 +669,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
 		autofightingAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
-		cb->registerBattleInterface(autofightingAI);
+		registerBattleInterface(autofightingAI);
 	}
 
 	waitForAllDialogs();
@@ -805,9 +806,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
-
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 	}
 
 	assert(battleInt);
@@ -826,8 +825,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 	if(isAutoFightOn || autofightingAI)
 	{
 		isAutoFightOn = false;
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 
 		if(!battleInt)
 		{
@@ -1831,3 +1829,17 @@ std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const
 {
 	return std::nullopt;
 }
+
+void CPlayerInterface::registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	autofightingAI = battleEvents;
+	GAME->server().client->registerBattleInterface(battleEvents, playerID);
+}
+
+void CPlayerInterface::unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	assert(battleEvents == autofightingAI);
+	GAME->server().client->unregisterBattleInterface(autofightingAI, playerID);
+	autofightingAI.reset();
+}
+

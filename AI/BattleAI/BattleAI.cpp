@@ -37,8 +37,7 @@
 
 CBattleAI::CBattleAI()
 	: side(BattleSide::NONE),
-	wasWaitingForRealize(false),
-	wasUnlockingGs(false)
+	wasWaitingForRealize(false)
 {
 }
 
@@ -48,7 +47,6 @@ CBattleAI::~CBattleAI()
 	{
 		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
 		cb->waitTillRealize = wasWaitingForRealize;
-		cb->unlockGsWhenWaiting = wasUnlockingGs;
 	}
 }
 
@@ -69,9 +67,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	cb = CB;
 	playerID = *CB->getPlayerID();
 	wasWaitingForRealize = CB->waitTillRealize;
-	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
-	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
 
 	logHexNumbers();

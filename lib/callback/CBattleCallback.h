@@ -16,20 +16,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct CPackForServer;
 
 class IBattleInfo;
-class CClient;
+class IClient;
 
 class DLL_LINKAGE CBattleCallback : public IBattleCallback
 {
 	std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> activeBattles;
-
 	std::optional<PlayerColor> player;
+	IClient *cl;
 
 protected:
 	int sendRequest(const CPackForServer & request); //returns requestID (that'll be matched to requestID in PackageApplied)
-	CClient *cl;
 
 public:
-	CBattleCallback(std::optional<PlayerColor> player, CClient * C);
+	CBattleCallback(std::optional<PlayerColor> player, IClient * C);
 	void battleMakeSpellAction(const BattleID & battleID, const BattleAction & action) override;//for casting spells by hero - DO NOT use it for moving active stack
 	void battleMakeUnitAction(const BattleID & battleID, const BattleAction & action) override;
 	void battleMakeTacticAction(const BattleID & battleID, const BattleAction & action) override; // performs tactic phase actions
@@ -40,9 +39,6 @@ public:
 
 	void onBattleStarted(const IBattleInfo * info);
 	void onBattleEnded(const BattleID & battleID);
-
-	friend class CCallback;
-	friend class CClient;
 };
 
 VCMI_LIB_NAMESPACE_END

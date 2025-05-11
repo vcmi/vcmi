@@ -30,7 +30,7 @@ class DLL_LINKAGE CCallback : public CPlayerSpecificInfoCallback, public CBattle
 	const CGameState & gameState() const final { return *gamestate; }
 
 public:
-	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, CClient * C);
+	CCallback(std::shared_ptr<CGameState> gamestate, std::optional<PlayerColor> Player, IClient * C);
 	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
@@ -38,10 +38,6 @@ public:
 	virtual int3 getGuardingCreaturePosition(int3 tile);
 
 	std::optional<PlayerColor> getPlayerID() const override;
-
-	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
-	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
-	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents);
 
 //commands
 	void moveHero(const CGHeroInstance *h, const std::vector<int3> & path, bool transit) override;

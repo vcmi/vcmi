@@ -61,7 +61,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->server().client->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 

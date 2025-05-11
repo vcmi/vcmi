@@ -22,7 +22,6 @@ class CStupidAI : public CBattleGameInterface
 	std::shared_ptr<Environment> env;
 
 	bool wasWaitingForRealize;
-	bool wasUnlockingGs;
 
 	void print(const std::string &text) const;
 public:
