@@ -45,6 +45,7 @@ public:
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
 	virtual void acceptUpdater(IUpdater & visitor);
+	virtual TLimiterPtr clone() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -77,6 +78,7 @@ public:
 	AllOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
+	TLimiterPtr clone() const override;
 };
 
 class DLL_LINKAGE AnyOfLimiter : public AggregateLimiter
@@ -87,6 +89,7 @@ public:
 	AnyOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
+	TLimiterPtr clone() const override;
 };
 
 class DLL_LINKAGE NoneOfLimiter : public AggregateLimiter
@@ -97,6 +100,7 @@ public:
 	NoneOfLimiter(std::vector<TLimiterPtr> limiters = {});
 	static const std::string aggregator;
 	EDecision limit(const BonusLimitationContext & context) const override;
+	TLimiterPtr clone() const override;
 };
 
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
@@ -113,6 +117,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -142,6 +147,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -167,6 +173,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -187,6 +194,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -206,6 +214,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -224,6 +233,7 @@ public:
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -240,6 +250,7 @@ public:
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -258,6 +269,7 @@ public:
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
 	EDecision limit(const BonusLimitationContext &context) const override;
 	void acceptUpdater(IUpdater & visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -276,6 +288,7 @@ public:
 	EDecision limit(const BonusLimitationContext &context) const override;
 	JsonNode toJsonNode() const override;
 	void acceptUpdater(IUpdater& visitor) override;
+	TLimiterPtr clone() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
