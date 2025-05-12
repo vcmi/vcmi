@@ -121,7 +121,7 @@ const std::set<int3> & CGObjectInstance::getBlockedOffsets() const
 void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
-	auto oldOffset = getVisitableOffset();
+	auto oldOffset = appearance->getCornerOffset();
 	auto &tile = cb->gameState().getMap().getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
@@ -144,11 +144,12 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	// instead, appearance update & pos adjustment occurs in GiveHero::applyGs
 	needToAdjustOffset |= this->ID == Obj::PRISON && newID == Obj::HERO;
 	needToAdjustOffset |= newID == Obj::MONSTER;
+	needToAdjustOffset |= newID == Obj::CREATURE_GENERATOR1 || newID == Obj::CREATURE_GENERATOR2 || newID == Obj::CREATURE_GENERATOR3 || newID == Obj::CREATURE_GENERATOR4;
 
 	if(needToAdjustOffset)
 	{
 		// adjust position since object visitable offset might have changed
-		auto newOffset = getVisitableOffset();
+		auto newOffset = appearance->getCornerOffset();
 		pos = pos - oldOffset + newOffset;
 	}
 
