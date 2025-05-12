@@ -500,6 +500,30 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		addArtifactToGrowing(winnerHero->artifactsWorn);
 	}
 
+	// Charged artifacts handling
+	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
+	{
+		for(const auto & [slot, slotInfo] : artMap)
+		{
+			auto artInst = slotInfo.getArt();
+			assert(artInst);
+			if(const auto condition = artInst->getType()->getDischargeCondition(); condition && condition.value() == DischargeArtifactCondition::BATTLE)
+				resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
+		}
+	};
+	if(winnerHero)
+	{
+		addArtifactToDischarging(winnerHero->artifactsWorn);
+		if(const auto commander = winnerHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn);
+	}
+	if(loserHero)
+	{
+		addArtifactToDischarging(loserHero->artifactsWorn);
+		if(const auto commander = loserHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn);
+	}
+
 	// Necromancy handling
 	// Give raised units to winner, if any were raised, units will be given after casualties are taken
 	if(winnerHero)

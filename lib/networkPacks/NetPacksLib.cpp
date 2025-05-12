@@ -302,6 +302,11 @@ void BulkRebalanceStacks::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkRebalanceStacks(*this);
 }
 
+void GrowUpArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGrowUpArtifact(*this);
+}
+
 void PutArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPutArtifact(*this);
@@ -320,6 +325,11 @@ void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
 void AssembledArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAssembledArtifact(*this);
+}
+
+void DischargeArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDischargeArtifact(*this);
 }
 
 void DisassembledArtifact::visitTyped(ICPackVisitor & visitor)

@@ -9,10 +9,13 @@
  */
 #pragma once
 
+#include "StdInc.h"
+
 #include "ArtBearer.h"
 #include "EArtifactClass.h"
 
 #include "../../bonuses/CBonusSystemNode.h"
+#include "../../networkPacks/ArtifactLocation.h"
 
 #include <vcmi/Artifact.h>
 
@@ -64,8 +67,28 @@ public:
 	const std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses() const;
 };
 
+class DLL_LINKAGE CChargedArtifact
+{
+	std::optional<DischargeArtifactCondition> condition;
+	bool removeOnDepletion;
+	uint16_t defaultStartCharges;
+
+protected:
+	CChargedArtifact();
+
+public:
+	bool isCharged() const;
+
+	void setCondition(const DischargeArtifactCondition & condition);
+	void setRemoveOnDepletion(const bool remove);
+	void setDefaultStartCharges(const uint16_t charges);
+	uint16_t getDefaultStartCharges() const;
+	std::optional<DischargeArtifactCondition> getDischargeCondition() const;
+};
+
 // Container for artifacts. Not for instances.
-class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode, public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact
+class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode,
+		public CCombinedArtifact, public CScrollArtifact, public CGrowingArtifact, public CChargedArtifact
 {
 	ArtifactID id;
 	std::string image;

@@ -124,10 +124,45 @@ void CGrowingArtifactInstance::growingUp()
 	}
 }
 
+void CChargedArtifactInstance::discharge(const uint16_t charges)
+{
+	auto artInst = static_cast<CArtifactInstance*>(this);
+
+	if(const auto chargeBonuses = artInst->getAllBonuses(Selector::type()(BonusType::ARTIFACT_CHARGE), nullptr))
+	{
+		if(chargeBonuses->front()->val > charges)
+			chargeBonuses->front()->val -= charges;
+		else
+			chargeBonuses->front()->val = 0;
+	}
+}
+
+void CChargedArtifactInstance::addCharges(const uint16_t charges)
+{
+	auto artInst = static_cast<CArtifactInstance*>(this);
+
+	if(artInst->getType()->isCharged())
+	{
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::ARTIFACT_CHARGE;
+		bonus->val = charges;
+		bonus->duration = BonusDuration::PERMANENT;
+		artInst->accumulateBonus(bonus);
+	}
+}
+
+uint16_t CChargedArtifactInstance::getCharges() const
+{
+	auto artInst = static_cast<const CArtifactInstance*>(this);
+
+	return artInst->valOfBonuses(BonusType::ARTIFACT_CHARGE);
+}
+
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb, const CArtifact * art)
 	:CArtifactInstance(cb)
 {
 	setType(art);
+	addCharges(getType()->getDefaultStartCharges());
 }
 
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb)

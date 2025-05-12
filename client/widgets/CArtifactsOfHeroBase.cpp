@@ -276,7 +276,8 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 
 		const auto curArt = slotInfo->getArt();
 		// If the artifact has charges, add charges information
-		artPlace->addChargesArtInfo(curArt->valOfBonuses(BonusType::ARTIFACT_CHARGE));
+		if(curArt->getType()->isCharged())
+			artPlace->addChargedArtInfo(curArt->getCharges());
 
 		if(curArt->isCombined())
 			return;

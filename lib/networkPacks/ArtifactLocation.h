@@ -79,4 +79,11 @@ struct MoveArtifactInfo
 	}
 };
 
+enum class DischargeArtifactCondition
+{
+		SPELLCAST,
+		BATTLE,
+		BUILDING
+};
+
 VCMI_LIB_NAMESPACE_END

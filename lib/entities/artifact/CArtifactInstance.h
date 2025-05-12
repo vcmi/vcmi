@@ -75,8 +75,18 @@ public:
 	void growingUp();
 };
 
+class DLL_LINKAGE CChargedArtifactInstance
+{
+protected:
+	CChargedArtifactInstance() = default;
+public:
+	void discharge(const uint16_t charges);
+	void addCharges(const uint16_t charges);
+	uint16_t getCharges() const;
+};
+
 class DLL_LINKAGE CArtifactInstance final
-	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance
+	: public CBonusSystemNode, public CCombinedArtifactInstance, public CScrollArtifactInstance, public CGrowingArtifactInstance, public CChargedArtifactInstance
 {
 	ArtifactInstanceID id;
 	ArtifactID artTypeID;

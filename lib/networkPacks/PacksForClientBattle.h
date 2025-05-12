@@ -387,6 +387,7 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	ChangeSpells learnedSpells;
 	std::vector<BulkMoveArtifacts> movingArtifacts;
 	std::vector<GrowUpArtifact> growingArtifacts;
+	std::vector<DischargeArtifact> dischargingArtifacts;
 	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -398,6 +399,7 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 		h & learnedSpells;
 		h & movingArtifacts;
 		h & growingArtifacts;
+		h & dischargingArtifacts;
 		h & raisedStack;
 		assert(battleID != BattleID::NONE);
 	}

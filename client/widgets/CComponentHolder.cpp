@@ -263,16 +263,15 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 	}
 }
 
-void CArtPlace::addChargesArtInfo(const int charges)
+void CArtPlace::addChargedArtInfo(const uint16_t charges)
 {
-	if(charges > 0)
-	{
-		MetaString info;
-		info.appendTextID("vcmi.artifact.charges");
-		info.appendRawString(" %d");
-		info.replaceNumber(charges);
-		text += info.toString();
-	}
+	MetaString info;
+	info.appendEOL();
+	info.appendEOL();
+	info.appendTextID("vcmi.artifact.charges");
+	info.appendRawString(" %d");
+	info.replaceNumber(charges);
+	text += info.toString();
 }
 
 CSecSkillPlace::CSecSkillPlace(const Point & position, const ImageSize & imageSize, const SecondarySkill & newSkillId, const uint8_t level)

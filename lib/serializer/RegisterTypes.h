@@ -227,6 +227,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkMoveArtifacts>(173);
 	s.template registerType<PlayerMessageClient>(174);
 	s.template registerType<BulkRebalanceStacks>(175);
+	s.template registerType<DischargeArtifact>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);

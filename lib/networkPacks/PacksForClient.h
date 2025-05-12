@@ -916,7 +916,8 @@ struct DLL_LINKAGE GrowUpArtifact : CArtifactOperationPack
 		: id(id)
 	{
 	}
-	void applyGs(CGameState * gs) override;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -1019,6 +1020,27 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & dstArtHolder;
 		h & srcCreature;
 		h & dstCreature;
+	}
+};
+
+struct DLL_LINKAGE DischargeArtifact : CArtifactOperationPack
+{
+	ArtifactInstanceID id;
+	uint16_t charges;
+
+	DischargeArtifact() = default;
+	DischargeArtifact(const ArtifactInstanceID & id, const uint16_t charges)
+		: id(id)
+		, charges(charges)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
+		h & charges;
 	}
 };
 
