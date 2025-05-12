@@ -7,27 +7,48 @@
 * Added support for loading h3m maps from HotA 1.7 (also needs support from HotA mod)
 * It is now possible to change default directory paths used by VCMI on Windows
 * Added option for VCMI to honor mute switch on iOS
+* Added alternative versions of cheats from RoE and AB editions
+* Implemented nwcphisherprice and a new grayscale cheat
 
 ### Stability
 
 * Fixed possible crash when player with Chinese localization attack with Vampire Lords, causing one of them to resurrect
 * Fixed possible crash on combining Drain Life with area-targeted attack by units from mods
 * Fixed multiple possible crashes on game shutdown
+* Fixed memory leak on playing video file with embedded audio track
+* Fixed small memory leak on playing a video file
+* Fixed large number of small memory leaks when restating map or returning to main menu
+* Fixed crash on attempting to access map located in .zip archive
 
 ### Interface
 
 * Fixed not functioning keybindings when non-lating keyboard layout is in use
 * Fixed bonuses from terrain (such as Holy Grounds) not showing up in unit window
+* Right-click tooltip on list of spells affecting unit in unit window will now show full spell description
+* It is now possible to move double-wide unit one hex backwards
+* It is now possible to finish battle with autocombat during tactics phase
 * Improved handling of non-latin texts in spell search and adventure map object search
 * Maps with non-latin names will now be sorted correctly according to selected language
+* Angel, Devils, and Bone-Dragon battle-wide abilities that change luck and morale now show up in UI with proper description
+* Orb of Vulnerability effect now clearly displayed in unit window and only if unit has magic resistance, instead of displaying strange 0% resistance ability on all units
 * It is now possible to skip campaign and main menu video with Esc or Enter keyboard keys, in addition to mouse click
 * Fixed possible overflow of unit health bar if unit health is different from max health of unit type
 * Fixed no replaced text placeholders in visitation message for unique dwellings with single available unit
 * Fixed text alignment on hero status window popup
 * Added option to toggle video subtitles
+* Change scroll direction for horizontal slider when using mouse wheel to match HD mod
+* Game will now show correct visitation text for map dwellings from mods with 2 or 3 available creatures
+* Right-click tooltip on Refugee Camp will now show preview of available creatures if current player have visited it this week
 
 ### Mechanics
 
+* Luck, morale, and most of combat abilities with chance to trigger now use randomization with memory, preventing long streaks of "bad" rolls.
+* Fixed selection of starting faction in last scenario in Spoils of War campaign
+* Fixed inability of unit to cast spell after receiving morale
+* Fixed inability of unit to receive morale if hero casts a spell after unit receives turn
+* Fixed incorrect recalculation of stack experience when splitting-off a single unit via shortcut
+* It is no longer possible for a unit that ends its turn in moat or other obstacle to attack another unit
+* Implemented stacking of artifacts (e.g. resource-producing artifacts) in line with H3 - multiple such artifacts will all provide their bonuses
 * Heroes that are marked as unavailable for specific player will now be correctly blocked from use as starting heroes
 * Commanders will now automatically gain no melee penalty bonus on receiving ranged attack
 * Attack skill provided by equipped artifact will now correctly modify damage range of Ballista
@@ -38,10 +59,25 @@
 * Fixed inability of creatures to cast spells when controlled by defending player in hotseat mode
 * Fixed miss chance for catapult not computed correctly when hero has no ballistics skill
 * Winning combat with no enemy casualties will no longer result in raising of a single skeleton when victor has Necromancy
+* Added disabled by default option that allows quests that take entire army and leave hero without army to emulate H3 bug
+* Quests that take entire army can now be completed if quests give replacement units
+* Purchasing map from a cartographer will now correctly mark all cartographers of this type as visited
+* Implemented HotA 1.7 map feature: scrolls can be part of seer hut or pandora box reward
+* Implemented HotA 1.7 map feature: seer hut and quest guards can ask for specific scroll
+* vcmiistari cheat now also allows casting spell up to 100 times per combat round for ease of testing
+* Leaving units in cleared creature bank will no longer turn left creatures into guards of an empty bank
+* Visiting a configurable town building will now always show popup instead of displaying effect in inactive infobox of an adventure map
+* Fixed invalid positioning of Portal of Glory when selected as replacement for random dwelling on premade maps
+* Fixed bug that caused events that only contain text message to not trigger in premade .vmap's
+* Fixed commanders not receiving levelups once hero fills all his secondary skills
+* Removed default limit of 16 total heroes per player
+* It is now possible to flee the combat while having shackles of war when other side got no hero
+* If hero has Necromancy and no available slot, game will now also consider upgrades of upgrades as potentially rised creature
 
 ## AI
 
 * Fixed possible infinite loop when hero can't decide whether to equip mana regeneration artifact or knowledge boosting artifact
+* Fixed incorrect BattleAI estimation of multi-hex attacks when attacking from behind if at least one of the units is double-wide
 
 ### Random Maps Generator
 
@@ -52,13 +88,18 @@
 ### Launcher
 
 * Added built-in editor for configuration file
+* Correctly hide gog install button after successful install
 
 ### Modding
 
+* Added support for custom description and icons for creature abilities and artifacts
+* Added support for charged artifacts that can be used a limited number of times
+* It is now possible to have growing artifacts for heroes, not only for commanders
 * It is now possible to replace or append individual entries in json lists (`[ 1, 2, 3 ]`) without replacing entire list
 * It is now possible to specify both nominator and denominator (roll difficulty & dice size) for luck and morale probabilities
 * Added support for configuring icons for bonus icons in creature window per bonus subtype or per bonus value
 * Added BASE_TILE_MOVEMENT_COST bonus that allows configuring minimal cost for moving between tiles for heroes
+* Added support for instance bonuses for artifacts that stack if multiple copies of the same artifacts are equipped on hero
 * Owner updater now correctly works with opposite side limiter when composite limiters `noneOf` or `anyOf` are used
 * Bonuses with terrain limiter will now correctly update on hero stepping onto different terrain
 * Creature terrain limiter will now correctly evaluate outside of combat
@@ -66,11 +107,33 @@
 * HAS_ANOTHER_BONUS_LIMITER now accepts null in place of bonus type
 * Added DIVIDE_STACK_LEVEL updater that functions similar to TIMES_STACK_LEVEL
 * Added TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL updater that combines effects of TIMES_HERO_LEVEL and DIVIDE_STACK_LEVEL updaters
-* It is now possible to completely remove skill as part of reward of a configureable adventure map object
+* It is now possible to completely remove skill as part of reward of a configurable adventure map object
 * Added option to show additional images in main menu, scenario selection, and loading screen
 * It is now possible to add additional campaign sets without causing mod conflicts
 * Game will now automatically generate campaign screen backgrounds, depending on number of campaigns in set
+* Creature type limiter will now correctly handle upgrades of upgrades
+* ENCHANTER bonus will no longer cast mass spells by default. Spell would still be massive it is massive on specified school master level
+* Mod validation will now report map dwellings with invalid dimensions that were found in mods
 * Added "Campaigns" mod type
+* Added bonus MULTIHEX_UNIT_ATTACK - configurable version of Dragon Breath
+* Added bonus MULTIHEX_ENEMY_ATTACK - configurable version of Cerberi multi-headed attack that only hits enemies
+* Added bonus MULTIHEX_ANIMATION - optional bonus that does not affects gameplay, but allows to define in which cases game should use alternative attack animation
+* Added HERO_SPELL_CASTS_PER_COMBAT_TURN bonus
+* Added `playerGlobal` visit mode to configurable map objects. After visit of such object, all map objects of the same type are considered as visited by player
+* Added `forceCombat` property to configurable map objects. If such object is guarded, visiting it would immediately force combat without asking a player
+* Added `commanderBonuses` property to configurable map objects rewards that gives bonuses to hero commander (if exists)
+* Added `playerBonuses` property to configurable map objects rewards that gives bonuses to hero owner. Unlike propagator, this bonus will remain after hero is lost
+* Added `takenArtifacts` property to configurable map objects rewards that takes a specific artifact if hero has it
+* Added `takenArtifactsSlots` property to configurable map objects rewards that takes an artifact from specific slot, if slot is not empty
+* Added `scrolls` property to configurable map objects rewards that gives hero scroll with specific spell
+* Added `takenScrolls` property to configurable map objects rewards that takes a scroll with specifc spell if hero has it
+* Added `takenCreatures` property to configurable map objects rewards that takes specified amount of creatures if hero has them
+* Added `commanderAlive` property to configurable map objects limiter that requires hero to have alive commander
+* Added `hasExtraCreatures` property to configurable map objects limiter that requires hero to have any creatures other than ones requested (for purpose of removing them)
+* Added `canReceiveCreatures` property to configurable map objects limiter that requires hero to have enough free slots or same units to accept tested creatures
+* Added `scrolls` property to configurable map objects limiter that requires hero to have scroll with specific spell
+* Added `availableSlots` property to configurable map objects limiter that requires hero to have specific artifact slots empty
+* It is now possible to give units to visiting hero using configurable town building, but only if hero can accept these units into his army
 
 ### Map Editor
 
@@ -78,6 +141,9 @@
 * Added support for drag-and-drop of maps into map editor
 * Added new keyboard shortcuts
 * Keyboard shortcuts are now visible in menu
+* Map validation results window now dynamically adjusts its size based on message lengths
+* A valid map will now properly display an appropriate message in the map validation results
+* Added word wrap for item text activates only when the map validation window reaches a defined width limit
 
 ## 1.6.7 -> 1.6.8
 
