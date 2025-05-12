@@ -1664,7 +1664,7 @@ vstd::RNG & CGameState::getRandomGenerator()
 	return cb->getRandomGenerator();
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts)
 {
 	std::set<ArtifactID> potentialPicks;
 
@@ -1678,16 +1678,7 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::func
 
 		assert(artifact->aClass != EArtifactClass::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
-		if ((flags & EArtifactClass::ART_TREASURE) == 0 && artifact->aClass == EArtifactClass::ART_TREASURE)
-			continue;
-
-		if ((flags & EArtifactClass::ART_MINOR) == 0 && artifact->aClass == EArtifactClass::ART_MINOR)
-			continue;
-
-		if ((flags & EArtifactClass::ART_MAJOR) == 0 && artifact->aClass == EArtifactClass::ART_MAJOR)
-			continue;
-
-		if ((flags & EArtifactClass::ART_RELIC) == 0 && artifact->aClass == EArtifactClass::ART_RELIC)
+		if (type.has_value() && *type != artifact->aClass)
 			continue;
 
 		if (!accepts(artifact->getId()))
@@ -1730,12 +1721,12 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID>
 
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts)
 {
-	return pickRandomArtifact(rand, 0xff, std::move(accepts));
+	return pickRandomArtifact(rand, std::nullopt, std::move(accepts));
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type)
 {
-	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
+	return pickRandomArtifact(rand, type, [](const ArtifactID &) { return true; });
 }
 
 CArtifactInstance * CGameState::createScroll(const SpellID & spellId)

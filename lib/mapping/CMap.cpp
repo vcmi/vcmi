@@ -954,7 +954,7 @@ void CMap::parseUidCounter()
 			const int current_index = std::stoi(index_part);
 			max_index = std::max(max_index, current_index);
 		}
-		catch (const std::invalid_argument& e) {
+		catch (const std::invalid_argument&) {
 			logGlobal->error("Instance name %s contains non-numeric index part: %s", key, index_part);
 		}
 		catch (const std::out_of_range&) {

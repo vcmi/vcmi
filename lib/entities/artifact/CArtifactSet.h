@@ -41,7 +41,7 @@ public:
 	bool isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck = false) const;
 
 	virtual IGameCallback * getCallback() const = 0;
-	virtual ArtBearer::ArtBearer bearerType() const = 0;
+	virtual ArtBearer bearerType() const = 0;
 	virtual ArtPlacementMap putArtifact(const ArtifactPosition & slot, const CArtifactInstance * art);
 	virtual void removeArtifact(const ArtifactPosition & slot);
 	CArtifactSet(IGameCallback * cb);

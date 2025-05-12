@@ -153,7 +153,7 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	{
 		assert(value.isStruct());
 
-		std::set<EArtifactClass::Type> allowedClasses;
+		std::set<EArtifactClass> allowedClasses;
 		std::set<ArtifactPosition> allowedPositions;
 		ui32 minValue = 0;
 		ui32 maxValue = std::numeric_limits<ui32>::max();

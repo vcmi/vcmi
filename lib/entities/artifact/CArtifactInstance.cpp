@@ -20,8 +20,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CCombinedArtifactInstance::PartInfo::PartInfo(const CArtifactInstance * artifact, ArtifactPosition slot)
-	: artifactID(artifact->getId())
-	, artifactPtr(artifact)
+	: artifactPtr(artifact)
+	, artifactID(artifact->getId())
 	, slot(slot)
 {
 }

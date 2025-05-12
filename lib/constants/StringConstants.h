@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace GameConstants
 {
 	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
-	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
+		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 	};
 
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
@@ -50,7 +50,7 @@ namespace NSecondarySkill
 
 	const std::vector<std::string> levels =
 	{
-	    "none", "basic", "advanced", "expert"
+		"none", "basic", "advanced", "expert"
 	};
 }
 
@@ -83,7 +83,7 @@ namespace NFaction
 
 namespace NArtifactPosition
 {
-	const std::string namesHero [19] =
+	inline constexpr std::array namesHero =
 	{
 		"head", "shoulders", "neck", "rightHand", "leftHand", "torso", //5
 		"rightRing", "leftRing", "feet", //8
@@ -92,12 +92,12 @@ namespace NArtifactPosition
 		"spellbook", "misc5" //18
 	};
 
-	const std::string namesCreature[1] =
+	inline constexpr std::array namesCreature =
 	{
 		"creature1"
 	};
 
-	const std::string namesCommander[6] =
+	inline constexpr std::array namesCommander =
 	{
 		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6",
 	};
@@ -110,10 +110,10 @@ namespace NMetaclass
 {
     const std::string names [16] =
     {
-		"",
-		"artifact", "creature", "faction", "experience", "hero",
-		"heroClass", "luck", "mana", "morale", "movement",
-		"object", "primarySkill", "secondarySkill", "spell", "resource"
+        "",
+        "artifact", "creature", "faction", "experience", "hero",
+        "heroClass", "luck", "mana", "morale", "movement",
+        "object", "primarySkill", "secondarySkill", "spell", "resource"
     };
 }
 

@@ -1424,7 +1424,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	return cb->getTileDigStatus(visitablePos());
 }
 
-ArtBearer::ArtBearer CGHeroInstance::bearerType() const
+ArtBearer CGHeroInstance::bearerType() const
 {
 	return ArtBearer::HERO;
 }

@@ -25,7 +25,7 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	for(const auto & elem : army->Slots())
 	{
 		if(detailed)
-			(*this)[elem.first] = *elem.second;
+			(*this)[elem.first] = CStackBasicDescriptor(elem.second->getCreature(), elem.second->getCount());
 		else
 			(*this)[elem.first] = CStackBasicDescriptor(elem.second->getCreature(), (int)elem.second->getQuantityID());
 	}

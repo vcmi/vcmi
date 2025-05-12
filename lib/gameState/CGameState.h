@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../bonuses/CBonusSystemNode.h"
+#include "../entities/artifact/EArtifactClass.h"
 #include "../IGameCallback.h"
 #include "../GameCallbackHolder.h"
 #include "../LoadProgress.h"
@@ -111,9 +112,9 @@ public:
 	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts);
+	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts);
 	ArtifactID pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> filtered);
 
 	/// Creates instance of spell scroll artifact with provided spell
