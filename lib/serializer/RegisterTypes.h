@@ -226,7 +226,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkMoveArtifacts>(173);
 	s.template registerType<PlayerMessageClient>(174);
 	s.template registerType<BulkRebalanceStacks>(175);
-	s.template registerType<BulkSmartRebalanceStacks>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);
@@ -255,7 +254,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<PlayerMessage>(203);
 	s.template registerType<BulkSplitStack>(204);
 	s.template registerType<BulkMergeStacks>(205);
-	s.template registerType<BulkSmartSplitStack>(206);
+	s.template registerType<BulkSplitAndRebalanceStack>(206);
 	s.template registerType<BulkMoveArmy>(207);
 	s.template registerType<BulkExchangeArtifacts>(208);
 	s.template registerType<ManageBackpackArtifacts>(209);

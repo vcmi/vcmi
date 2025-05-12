@@ -287,7 +287,7 @@ public:
 	PlayerColor getOwner() const override;
 
 	///ArtBearer
-	ArtBearer::ArtBearer bearerType() const override;
+	ArtBearer bearerType() const override;
 
 	///IBonusBearer
 	CBonusSystemNode & whereShouldBeAttached(CGameState & gs) override;
@@ -352,6 +352,7 @@ protected:
 
 private:
 	void levelUpAutomatically(vstd::RNG & rand);
+	void attachCommanderToArmy();
 
 public:
 	std::string getHeroTypeName() const;
@@ -396,6 +397,9 @@ public:
 
 		h & commander;
 		h & visitedObjects;
+
+		if(!h.saving && h.loadingGamestate)
+			attachCommanderToArmy();
 	}
 };
 

@@ -307,20 +307,17 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
         <source>Context menu</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Menu de contexto</translation>
+        <translation>Menu de contexto</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
         <source>Open directory</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Abrir diretório</translation>
+        <translation>Abrir diretório</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
         <source>Open repository</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Abrir repositório</translation>
+        <translation>Abrir repositório</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
@@ -475,12 +472,12 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de configuração</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir editor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
@@ -510,8 +507,7 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
         <source>Allow portrait mode</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Permitir modo retrato</translation>
+        <translation>Permitir modo retrato</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="825"/>
@@ -583,7 +579,7 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorar botão de mudo</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
@@ -875,37 +871,37 @@ Modo de tela cheia exclusivo - o jogo cobrirá toda a sua tela e usará a resolu
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">Fechar</translation>
+        <translation>Fechar</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de configuração</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Alterações não salvas</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Deseja descartar as alterações?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="122"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo JSON não é válido!</translation>
     </message>
 </context>
 <context>
@@ -1171,7 +1167,7 @@ Por favor, selecione o diretório com Heroes III: Complete Edition ou Heroes III
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao abrir o arquivo: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
@@ -1322,12 +1318,12 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translation>Bielorrusso</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Búlgaro</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
@@ -1362,7 +1358,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>Grego</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
@@ -1377,7 +1373,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japonês</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
@@ -1387,7 +1383,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>Norueguês</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
@@ -1402,7 +1398,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Romeno</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1673,7 +1669,7 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Campanhas</translation>
+        <translation>Campanhas</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1969,13 +1965,13 @@ Para resolver esse problema, copie manualmente os arquivos de dados ausentes do 
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha na importação da predefinição</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao importar predefinição - os dados na área de transferência não parecem ser uma predefinição de mod!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>

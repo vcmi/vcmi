@@ -32,7 +32,7 @@ struct Configuration;
 struct Variables;
 struct VisitInfo;
 struct ResetInfo;
-enum class EEventType;
+enum class EEventType : uint8_t;
 
 class DLL_LINKAGE Info : public IObjectInfo
 {

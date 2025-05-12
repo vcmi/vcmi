@@ -46,7 +46,6 @@ public:
 	void visitInsertNewStack(InsertNewStack & pack) override;
 	void visitRebalanceStacks(RebalanceStacks & pack) override;
 	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
-	void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) override;
 	void visitPutArtifact(PutArtifact & pack) override;
 	void visitEraseArtifact(BulkEraseArtifacts & pack) override;
 	void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) override;

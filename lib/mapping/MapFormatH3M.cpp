@@ -1111,9 +1111,9 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
 	if(auto val = reader->readInt8Checked(-3, 3))
-		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
+		reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
 	if(auto val = reader->readInt8Checked(-3, 3))
-		reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
+		reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
 
 	reader->readResources(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
@@ -1130,13 +1130,16 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	size_t gart = reader->readUInt8(); //number of gained artifacts
 	for(size_t oo = 0; oo < gart; ++oo)
 	{
-		reward.artifacts.push_back(reader->readArtifact());
+		ArtifactID grantedArtifact = reader->readArtifact();
+
 		if (features.levelHOTA5)
 		{
 			SpellID scrollSpell = reader->readSpell16();
-			if (reward.artifacts.back() == ArtifactID::SPELL_SCROLL)
-				logGlobal->warn("Map '%s': Pandora/Event at %s Option to give spell scroll (%s) via event or pandora is not implemented!", mapName, mapPosition.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
+			if (grantedArtifact == ArtifactID::SPELL_SCROLL)
+				reward.grantedScrolls.push_back(scrollSpell);
 		}
+		else
+			reward.grantedArtifacts.push_back(grantedArtifact);
 	}
 
 	size_t gspel = reader->readUInt8(); //number of gained spells
@@ -1191,7 +1194,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 	}
 
 	auto hlp = std::make_unique<CStackInstance>(map->cb);
-	hlp->count = reader->readUInt16();
+	hlp->setCount(reader->readUInt16());
 
 	//type will be set during initialization
 	object->putStack(SlotID(0), std::move(hlp));
@@ -1975,7 +1978,7 @@ void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID
 			continue;
 
 		auto result = std::make_unique<CStackInstance>(map->cb);
-		result->count = count;
+		result->setCount(count);
 
 		if(creatureID < CreatureID::NONE)
 		{
@@ -2300,12 +2303,12 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::MORALE:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
+				reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::LUCK:
 			{
-				reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
+				reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
 				break;
 			}
 			case ESeerHutRewardType::RESOURCES:
@@ -2334,15 +2337,15 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::ARTIFACT:
 			{
-				reward.artifacts.push_back(reader->readArtifact());
+				ArtifactID grantedArtifact = reader->readArtifact();
 				if (features.levelHOTA5)
 				{
 					SpellID scrollSpell = reader->readSpell16();
-					if (reward.artifacts.back() == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Option to give spell scroll (%s) as a reward is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
-
+					if (grantedArtifact == ArtifactID::SPELL_SCROLL)
+						reward.grantedScrolls.push_back(scrollSpell);
 				}
-
+				else
+					reward.grantedArtifacts.push_back(grantedArtifact);
 				break;
 			}
 			case ESeerHutRewardType::SPELL:
@@ -2407,16 +2410,18 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			size_t artNumber = reader->readUInt8();
 			for(size_t yy = 0; yy < artNumber; ++yy)
 			{
-				auto artid = reader->readArtifact();
+				ArtifactID requiredArtifact = reader->readArtifact();
+
 				if (features.levelHOTA5)
 				{
 					SpellID scrollSpell = reader->readSpell16();
-					if (artid == ArtifactID::SPELL_SCROLL)
-						logGlobal->warn("Map '%s': Seer Hut at %s: Quest to find scroll '%s' is not implemented!", mapName, position.toString(), scrollSpell.toEntity(LIBRARY)->getJsonKey());
-
+					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
+						guard->getQuest().mission.scrolls.push_back(scrollSpell);
 				}
-				guard->getQuest().mission.artifacts.push_back(artid);
-				map->allowedArtifact.erase(artid); //these are unavailable for random generation
+				else
+					guard->getQuest().mission.artifacts.push_back(requiredArtifact);
+
+				map->allowedArtifact.erase(requiredArtifact); //these are unavailable for random generation
 			}
 			break;
 		}
@@ -2427,7 +2432,7 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
 				guard->getQuest().mission.creatures[hh].setType(reader->readCreature().toCreature());
-				guard->getQuest().mission.creatures[hh].count = reader->readUInt16();
+				guard->getQuest().mission.creatures[hh].setCount(reader->readUInt16());
 			}
 			break;
 		}

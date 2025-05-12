@@ -214,14 +214,14 @@ struct DLL_LINKAGE BulkMergeStacks : public CPackForServer
 	}
 };
 
-struct DLL_LINKAGE BulkSmartSplitStack : public CPackForServer
+struct DLL_LINKAGE BulkSplitAndRebalanceStack : public CPackForServer
 {
 	SlotID src;
 	ObjectInstanceID srcOwner;
 
-	BulkSmartSplitStack() = default;
+	BulkSplitAndRebalanceStack() = default;
 
-	BulkSmartSplitStack(const ObjectInstanceID & srcOwner, const SlotID & src)
+	BulkSplitAndRebalanceStack(const ObjectInstanceID & srcOwner, const SlotID & src)
 		: src(src)
 		, srcOwner(srcOwner)
 	{
@@ -657,7 +657,6 @@ struct DLL_LINKAGE QueryReply : public CPackForServer
 	{
 	}
 	QueryID qid;
-	PlayerColor player;
 	std::optional<int32_t> reply;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -666,7 +665,6 @@ struct DLL_LINKAGE QueryReply : public CPackForServer
 	{
 		h & static_cast<CPackForServer &>(*this);
 		h & qid;
-		h & player;
 		h & reply;
 	}
 };

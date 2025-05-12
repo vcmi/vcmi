@@ -29,7 +29,7 @@ public:
 	MOCK_CONST_METHOD1(getSidePlayer, PlayerColor(BattleSide));
 	MOCK_CONST_METHOD1(getSideArmy, const CArmedInstance *(BattleSide));
 	MOCK_CONST_METHOD1(getSideHero, const CGHeroInstance *(BattleSide));
-	MOCK_CONST_METHOD1(getCastSpells, uint32_t(BattleSide));
+	MOCK_CONST_METHOD1(getCastSpells, int32_t(BattleSide));
 	MOCK_CONST_METHOD1(getEnchanterCounter, int32_t(BattleSide));
 	MOCK_CONST_METHOD0(getTacticDist, ui8());
 	MOCK_CONST_METHOD0(getTacticsSide, BattleSide());

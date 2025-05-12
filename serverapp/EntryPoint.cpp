@@ -83,7 +83,6 @@ int main(int argc, const char * argv[])
 	logConfigurator.configure();
 
 	LIBRARY->initializeLibrary();
-	std::srand(static_cast<uint32_t>(time(nullptr)));
 
 	{
 		bool connectToLobby = opts.count("lobby");

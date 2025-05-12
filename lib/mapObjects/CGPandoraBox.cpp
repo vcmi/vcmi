@@ -83,7 +83,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.heroLevel = vi.reward.heroLevel;
 	temp.primary = vi.reward.primary;
 	temp.secondary = vi.reward.secondary;
-	temp.bonuses = vi.reward.bonuses;
+	temp.heroBonuses = vi.reward.heroBonuses;
 	temp.manaDiff = vi.reward.manaDiff;
 	temp.manaPercentage = vi.reward.manaPercentage;
 	
@@ -106,7 +106,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	if(vi.reward.manaDiff || vi.reward.manaPercentage >= 0)
 		txt = setText(temp.manaDiff > 0, 177, 176, h);
 	
-	for(auto b : vi.reward.bonuses)
+	for(auto b : vi.reward.heroBonuses)
 	{
 		if(b.val && b.type == BonusType::MORALE)
 			txt = setText(b.val > 0, 179, 178, h);
@@ -122,7 +122,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	
 	//artifacts message
 	temp = Rewardable::Reward{};
-	temp.artifacts = vi.reward.artifacts;
+	temp.grantedArtifacts = vi.reward.grantedArtifacts;
 	sendInfoWindow(setText(true, 183, 183, h), temp);
 	
 	//creatures message
@@ -138,7 +138,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 			loot.replaceName(c);
 		}
 		
-		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)
+		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].getCount() == 1)
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
 		else
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
@@ -160,8 +160,8 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.manaPercentage = -1;
 	temp.spells.clear();
 	temp.creatures.clear();
-	temp.bonuses.clear();
-	temp.artifacts.clear();
+	temp.heroBonuses.clear();
+	temp.grantedArtifacts.clear();
 	sendInfoWindow(setText(true, 175, 175, h), temp);
 	
 	// grant reward afterwards. Note that it may remove object
@@ -229,11 +229,11 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		int val = 0;
 		handler.serializeInt("morale", val, 0);
 		if(val)
-			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		
 		handler.serializeInt("luck", val, 0);
 		if(val)
-			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
 		
 		vinfo.reward.resources.serializeJson(handler, "resources");
 		{
@@ -246,7 +246,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			}
 		}
 		
-		handler.serializeIdArray("artifacts", vinfo.reward.artifacts);
+		handler.serializeIdArray("artifacts", vinfo.reward.grantedArtifacts);
 		handler.serializeIdArray("spells", vinfo.reward.spells);
 		handler.enterArray("creatures").serializeStruct(vinfo.reward.creatures);
 		
@@ -279,8 +279,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		|| vinfo.reward.heroExperience
 		|| vinfo.reward.manaDiff
 		|| vinfo.reward.resources.nonZero()
-		|| !vinfo.reward.artifacts.empty()
-		|| !vinfo.reward.bonuses.empty()
+		|| !vinfo.reward.grantedArtifacts.empty()
+		|| !vinfo.reward.heroBonuses.empty()
 		|| !vinfo.reward.creatures.empty()
 		|| !vinfo.reward.secondary.empty();
 		

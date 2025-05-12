@@ -51,6 +51,7 @@ BasicMapView::BasicMapView(const Point & offset, const Point & dimensions)
 	: model(createModel(dimensions))
 	, tilesCache(new MapViewCache(model))
 	, controller(new MapViewController(model, tilesCache))
+	, needFullUpdate(false)
 {
 	OBJECT_CONSTRUCTION;
 	pos += offset;
@@ -76,7 +77,7 @@ void BasicMapView::tick(uint32_t msPassed)
 void BasicMapView::show(Canvas & to)
 {
 	CanvasClipRectGuard guard(to, pos);
-	render(to, false);
+	render(to, needFullUpdate);
 
 	controller->afterRender();
 }

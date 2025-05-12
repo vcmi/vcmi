@@ -97,6 +97,9 @@ Rewardable object is defined similarly to other objects, with key difference bei
 // Object description that will be shown when player right-clicks object
 "description" : "",
 
+// If set to true, and objects is guarded, then combat will start immediately, without asking player for confirmation on whether to attack guardians
+"forceCombat" : true,
+
 // If set to true, right-clicking previously visited object would show preview of its content. For example, Witch Hut will show icon with provided skill
 "showScoutedPreview" : true,
 
@@ -152,12 +155,13 @@ Rewardable object is defined similarly to other objects, with key difference bei
 }
 
 // determines who can revisit object before reset
-// "once",     - object can only be visited once. First visitor takes it all.
-// "hero",     - object can be visited if this hero has not visited it before
-// "limiter",  - object can be visited if hero fails to fulfill provided limiter
-// "player",   - object can be visited if this player has not visited it before
-// "bonus"     - object can be visited if hero no longer has bonus from this object (including any other object of the same type)
-// "unlimited" - no restriction on revisiting.
+// "once",         - object can only be visited once. First visitor takes it all.
+// "hero",         - object can be visited if this hero has not visited it before
+// "limiter",      - object can be visited if hero fails to fulfill provided limiter
+// "player",       - object can be visited if this player has not visited it before
+// "playerGlobal", - object can be visited if this player has not visited this object or any other object of this type before
+// "bonus"         - object can be visited if hero no longer has bonus from this object (including any other object of the same type)
+// "unlimited"     - no restriction on revisiting.
 "visitMode" : "unlimited", 
 
 //determines way to select granted rewards if multiple options are available
@@ -303,7 +307,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ],
 ```
 
-### Experience
+### Hero Experience
 
 - Can be used as limiter
 - Can be used as reward to grant experience to hero
@@ -362,6 +366,15 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 ```json
 "movePercentage": 50,
+```
+
+### Commander
+
+- Can be used as limiter, hero must have alive commander
+- If hero does not have commander (for example, in games without them), limiter will always fail
+
+```json
+"commanderAlive" : true
 ```
 
 ### Primary Skills
@@ -457,6 +470,49 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ]
 ```
 
+### Artifact Slots
+
+- Can be used as limiter, hero must have listed slots empty to pass the limiter
+- Slots occupied by components of combined artifacts are considered to be full
+
+```json
+"artifactSlots": [
+    "LEFT_HAND",
+    "RIGHT_HAND"
+],
+```
+
+- Can be used as a reward, to remove artifact that is present in slot
+- Components of a combined artifact can not be removed in this way
+
+```json
+"takenArtifactSlots" : [
+	"LEFT_HAND"
+],
+```
+
+List of supported slots names:
+
+- `HEAD` - helmet slot
+- `SHOULDERS` - slot used by capes
+- `NECK` - slot used by neclaces artifacts
+- `RIGHT_HAND` - slot for weapons / swords
+- `LEFT_HAND` - slot for shields
+- `TORSO` - chest slot for armors
+- `RIGHT_RING` - ring slot located next to weapon slot
+- `LEFT_RING` - ring slot located next to shield slot
+- `FEET` - slot for boots
+- `MISC1` - top-most miscellaneous slot
+- `MISC2` - 2nd from top miscellaneous slot
+- `MISC3` - 3rd from top miscellaneous slot
+- `MISC4` - bottom-right miscellaneous slot
+- `MISC5` - bottom-left miscellaneous slot
+- `SPELLBOOK` - Hero's spellbook. Its removal is untested and may lead to unintended side effects
+- `MACH1` - Ballista, or alternative war machine from mod
+- `MACH2` - Ammo Cart, or alternative war machine from mod
+- `MACH3` - First Aid tent, or alternative war machine from mod
+- `MACH4` - Catapult slot. Its removal is untested and may lead to unintended side effects
+
 ### Artifacts
 
 - Can be used as limiter, hero must have artifact either equipped or in backpack
@@ -480,6 +536,42 @@ Keep in mind, that all randomization is performed on map load and on object rese
         "minValue" : 5000,
         "maxValue" : 10000
     }
+],
+```
+
+### Taking Artifacts
+
+- Can be used as reward, to take artifact from hero
+- Taking part of a combined artifact would disassemble it
+- Artifacts can be taken from either equipment or from backpack slots
+- Format is identical to [Artifacts](#artifacts)
+
+```json
+"takenArtifacts": [
+    "ribCage"
+],
+```
+
+### Scrolls
+
+- Can be used as limiter, hero must have scroll either equipped or in backpack
+- Can be used as reward, to give new scroll to a hero
+- Format is identical to [Spells](#spells)
+
+```json
+"scrolls": [
+    "magicArrow"
+],
+```
+
+### Taking Scrolls
+
+- Can be used as reward, to take scroll from hero
+- Format is identical to [Spells](#spells)
+
+```json
+"takenScrolls": [
+    "magicArrow"
 ],
 ```
 
@@ -533,6 +625,50 @@ Keep in mind, that all randomization is performed on map load and on object rese
     {
         "type" : "archer",
         "upgradeChance" : 30,
+        "amount" : 20,
+    }
+],
+```
+
+- Additionally, it is possible to check whether tested troops can be removed, in other words - whether hero has any creatures other than those specified in `creatures` field using `hasExtraCreatures` key
+- Following check will pass only if hero either has more archers than 20, or has exactly 20 archers and any creatures other than that
+
+```json
+"creatures" : [
+    {
+        "type" : "archer",
+        "amount" : 20,
+    }
+],
+"hasExtraCreatures" : true
+```
+
+### Taking Creatures
+
+- Can be used as reward, to take creatures from a hero
+- Attempting to take more creatures than hero has, or creatures that hero does not have is legal
+- It is not possible to take entire army, however it is possible to replace entire army by providing new creatures.
+- Format is identical to [Creatures](#creatures)
+
+```json
+"takenCreatures" : [
+    {
+        "type" : "archer",
+        "amount" : 20,
+    }
+],
+```
+
+### Creature receiving test
+
+- Can be used as limiter, to test whether hero can accept specified creatures without abandoning any units
+- Check will pass if hero has enough free slots to accept creatures, or if hero already has specified creatures, or if hero has units that can be merged to create space for new troops
+- Note that attempting to give more troops than hero can accept is legal, and will show unit selection dialog
+
+```json
+"canReceiveCreatures" : [
+    {
+        "type" : "archer",
         "amount" : 20,
     }
 ],

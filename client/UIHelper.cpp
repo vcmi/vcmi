@@ -50,10 +50,10 @@ soundBase::soundID UIHelper::getNecromancyInfoWindowSound()
 std::string UIHelper::getNecromancyInfoWindowText(const CStackBasicDescriptor & stack)
 {
     MetaString text;
-    if(stack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
+    if(stack.getCount() > 1) // Practicing the dark arts of necromancy, ... (plural)
     {
         text.appendLocalString(EMetaText::GENERAL_TXT, 145);
-        text.replaceNumber(stack.count);
+        text.replaceNumber(stack.getCount());
     }
     else // Practicing the dark arts of necromancy, ... (singular)
     {

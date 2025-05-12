@@ -63,7 +63,7 @@ public:
 	/// Returns list of all spells used by specified side (and that can be learned by opposite hero)
 	virtual std::vector<SpellID> getUsedSpells(BattleSide side) const = 0;
 
-	virtual uint32_t getCastSpells(BattleSide side) const = 0;
+	virtual int32_t getCastSpells(BattleSide side) const = 0;
 	virtual int32_t getEnchanterCounter(BattleSide side) const = 0;
 
 	virtual ui8 getTacticDist() const = 0;

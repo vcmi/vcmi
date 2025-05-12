@@ -79,7 +79,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
 	
-	for (auto & bonus : bonuses)
+	for (auto & bonus : heroBonuses)
 	{
 		if (bonus.type == BonusType::MORALE)
 			comps.emplace_back(ComponentType::MORALE, bonus.val);
@@ -111,8 +111,27 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, finalLevel);
 	}
 
-	for(const auto & entry : artifacts)
+	for(const auto & entry : grantedArtifacts)
 		comps.emplace_back(ComponentType::ARTIFACT, entry);
+
+	for(const auto & entry : takenArtifacts)
+		comps.emplace_back(ComponentType::ARTIFACT, entry);
+
+	for(const auto & entry : takenArtifactSlots)
+	{
+		if (h)
+		{
+			const auto & slotContent = h->getSlot(entry);
+			if (slotContent->artifactID.hasValue())
+				comps.emplace_back(ComponentType::ARTIFACT, slotContent->getArt()->getTypeId());
+		}
+	}
+
+	for(const SpellID & spell : grantedScrolls)
+		comps.emplace_back(ComponentType::SPELL, spell);
+
+	for(const SpellID & spell : takenScrolls)
+		comps.emplace_back(ComponentType::SPELL, spell);
 
 	for(const auto & entry : spells)
 	{
@@ -121,7 +140,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	}
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.count);
+		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.getCount());
 
 	for (size_t i=0; i<resources.size(); i++)
 	{
@@ -141,7 +160,11 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaDiff", manaDiff);
 	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
 	handler.serializeInt("movePoints", movePoints);
-	handler.serializeIdArray("artifacts", artifacts);
+	handler.serializeIdArray("artifacts", grantedArtifacts);
+	handler.serializeIdArray("takenArtifacts", takenArtifacts);
+	handler.serializeIdArray("takenArtifactSlots", takenArtifactSlots);
+	handler.serializeIdArray("scrolls", grantedScrolls);
+	handler.serializeIdArray("takenScrolls", takenScrolls);
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);

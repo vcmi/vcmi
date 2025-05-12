@@ -293,8 +293,6 @@ int main(int argc, char * argv[])
 	testFile("DATA/PLAYERS.PAL", "Heroes III data files (Data/H3Bitmap.lod) are incomplete or corruped!\n Please reinstall them.");
 	testFile("SPRITES/DEFAULT.DEF", "Heroes III data files (Data/H3Sprite.lod) are incomplete or corruped!\n Please reinstall them.");
 
-	srand ( (unsigned int)time(nullptr) );
-
 	if(!settings["session"]["headless"].Bool())
 		ENGINE = std::make_unique<GameEngine>();
 

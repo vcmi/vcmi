@@ -644,7 +644,7 @@ void CGTownInstance::clearArmy() const
 {
 	while(!stacks.empty())
 	{
-		cb->eraseStack(StackLocation(id, stacks.begin()->first));
+		cb->eraseStack(StackLocation(id, stacks.begin()->first), true);
 	}
 }
 

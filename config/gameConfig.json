@@ -463,6 +463,14 @@
 			"mergeOnRecruit" : true
 		},
 		
+		"mapObjects" : 
+		{
+			// Allow behavior that emulates h3 bug where quest from Seer Hut or Border Guard can take entire army from hero
+			// WARNING: handling of heroes without armies is not tested and may lead to bugs or crashes! Use at own risk!
+			// If this option is off, quests will only allow taking entire army if quest reward also gives creatures
+			"h3BugQuestTakesEntireArmy" : false
+		},
+
 		"markets" : 
 		{
 			// period between restocking of "Black Market" object found on adventure map
@@ -573,6 +581,12 @@
 				{
 					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
 					"val" : 1000,
+					"valueType" : "BASE_NUMBER"
+				},
+				"spellCastsPerTurn" :
+				{
+					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
+					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}

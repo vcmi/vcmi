@@ -191,7 +191,6 @@ void CClient::endGame()
 	removeGUI();
 
 	GAME->setMapInstance(nullptr);
-	gamestate.reset();
 
 	logNetwork->info("Deleted mapHandler and gameState.");
 
@@ -200,6 +199,11 @@ void CClient::endGame()
 	battleints.clear();
 	battleCallbacks.clear();
 	playerEnvironments.clear();
+
+	//FIXME: gamestate->currentBattles.clear() will use gamestate. So it shoule be callded before gamestate.reset()
+	gamestate->currentBattles.clear();
+	gamestate.reset();
+
 	logNetwork->info("Deleted playerInts.");
 	logNetwork->info("Client stopped.");
 }

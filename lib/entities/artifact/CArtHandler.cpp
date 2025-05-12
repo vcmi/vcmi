@@ -189,7 +189,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [=](si32 id)
+		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [art](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -198,7 +198,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		});
 	}
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [=](si32 index)
+	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [scope, art](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -233,6 +233,20 @@ int32_t ArtifactPositionBase::decode(const std::string & slotName)
 		return it->second;
 	else
 		return PRE_FIRST;
+}
+
+std::string ArtifactPositionBase::encode(int32_t index)
+{
+#define ART_POS(x) #x ,
+	const std::vector<std::string> artSlots = { ART_POS_LIST };
+#undef ART_POS
+
+	return artSlots.at(index);
+}
+
+std::string ArtifactPositionBase::entityType()
+{
+	return "artifactSlot";
 }
 
 void CArtHandler::addSlot(CArtifact * art, const std::string & slotID) const
@@ -278,9 +292,9 @@ void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node) const
 	}
 }
 
-EArtifactClass::Type CArtHandler::stringToClass(const std::string & className)
+EArtifactClass CArtHandler::stringToClass(const std::string & className)
 {
-	static const std::map<std::string, EArtifactClass::Type> artifactClassMap =
+	static const std::map<std::string, EArtifactClass> artifactClassMap =
 	{
 		{"TREASURE", EArtifactClass::ART_TREASURE},
 		{"MINOR", EArtifactClass::ART_MINOR},
@@ -305,7 +319,7 @@ void CArtHandler::loadClass(CArtifact * art, const JsonNode & node) const
 void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 {
 #define ART_BEARER(x) { #x, ArtBearer::x },
-	static const std::map<std::string, int> artifactBearerMap = { ART_BEARER_LIST };
+	static const std::map<std::string, ArtBearer> artifactBearerMap = { ART_BEARER_LIST };
 #undef ART_BEARER
 
 	for (const JsonNode & b : node["type"].Vector())
@@ -313,7 +327,7 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 		auto it = artifactBearerMap.find (b.String());
 		if (it != artifactBearerMap.end())
 		{
-			int bearerType = it->second;
+			ArtBearer bearerType = it->second;
 			switch (bearerType)
 			{
 				case ArtBearer::HERO://TODO: allow arts having several possible bearers
@@ -374,7 +388,6 @@ void CArtHandler::makeItCommanderArt(CArtifact * a, bool onlyCommander)
 bool CArtHandler::legalArtifact(const ArtifactID & id) const
 {
 	auto art = id.toArtifact();
-	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
 
 	if(art->isCombined())
 		return false; //no combo artifacts spawning

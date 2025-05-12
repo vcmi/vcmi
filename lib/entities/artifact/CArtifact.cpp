@@ -207,6 +207,8 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 				auto possibleSlot = ArtifactUtils::getArtAnyPosition(&fittingSet, art->getId());
 				if(ArtifactUtils::isSlotEquipment(possibleSlot))
 				{
+					if (fittingSet.getSlot(possibleSlot) == nullptr)
+						fittingSet.artifactsWorn.insert(std::make_pair(possibleSlot, ArtSlotInfo(fittingSet.cb)));
 					fittingSet.lockSlot(possibleSlot);
 				}
 				else
@@ -227,9 +229,9 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 
 	if(slot == ArtifactPosition::FIRST_AVAILABLE)
 	{
-		for(const auto & slot : possibleSlots.at(artSet->bearerType()))
+		for(const auto & possibleSlot : possibleSlots.at(artSet->bearerType()))
 		{
-			if(artCanBePutAt(artSet, slot, assumeDestRemoved))
+			if(artCanBePutAt(artSet, possibleSlot, assumeDestRemoved))
 				return true;
 		}
 		return artCanBePutAt(artSet, ArtifactPosition::BACKPACK_START, assumeDestRemoved);
@@ -293,7 +295,7 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 	CBonusSystemNode::addNewBonus(b);
 }
 
-const std::map<ArtBearer::ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibleSlots() const
+const std::map<ArtBearer, std::vector<ArtifactPosition>> & CArtifact::getPossibleSlots() const
 {
 	return possibleSlots;
 }
@@ -303,11 +305,11 @@ void CArtifact::updateFrom(const JsonNode& data)
 	//TODO:CArtifact::updateFrom
 }
 
-void CArtifact::setImage(int32_t iconIndex, std::string image, std::string large)
+void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, const std::string & newLargeImage)
 {
-	this->iconIndex = iconIndex;
-	this->image = image;
-	this->large = large;
+	iconIndex = newIconIndex;
+	image = newImage;
+	large = newLargeImage;
 }
 
 

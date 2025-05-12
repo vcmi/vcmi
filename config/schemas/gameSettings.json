@@ -111,6 +111,13 @@
 				"blackMarketRestockPeriod" : { "type" : "number" }
 			}
 		},
+		"mapObjects": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
+			}
+		},
 		"banks": {
 			"type" : "object",
 			"additionalProperties" : false,

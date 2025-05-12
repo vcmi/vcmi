@@ -278,12 +278,14 @@ public:
 	const IGameSettings & getSettings() const;
 
 	void saveCompatibilityStoreAllocatedArtifactID();
+	void parseUidCounter();
 
 private:
+
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
 	boost::multi_array<TerrainTile, 3> terrain;
 
-	si32 uidCounter; //TODO: initialize when loading an old map
+	si32 uidCounter; 
 
 public:
 	template <typename Handler>
@@ -346,6 +348,15 @@ public:
 
 		h & instanceNames;
 		h & *gameSettings;
+		if (!h.hasFeature(Handler::Version::STORE_UID_COUNTER_IN_CMAP))
+		{
+			if (!h.saving)
+				parseUidCounter();
+		}
+		else
+		{
+			h & uidCounter;
+		}
 	}
 };
 

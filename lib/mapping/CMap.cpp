@@ -873,7 +873,7 @@ const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap()
 void CMap::addToHeroPool(std::shared_ptr<CGHeroInstance> hero)
 {
 	assert(hero->getHeroTypeID().isValid());
-	assert(!vstd::contains(heroesOnMap, hero->getHeroTypeID()));
+	assert(!vstd::contains(heroesOnMap, hero->id));
 	assert(heroesPool.at(hero->getHeroTypeID().getNum()) == nullptr);
 
 	heroesPool.at(hero->getHeroTypeID().getNum()) = hero;
@@ -935,5 +935,36 @@ ObjectInstanceID CMap::allocateUniqueInstanceID()
 	objects.push_back(nullptr);
 	return ObjectInstanceID(objects.size() - 1);
 }
+
+void CMap::parseUidCounter()
+{
+	int max_index = -1;
+	for (const auto& entry : instanceNames) {
+		const std::string& key = entry.first;
+		const size_t pos = key.find_last_of('_');
+
+		// Validate underscore position
+		if (pos == std::string::npos || pos + 1 >= key.size()) {
+			logGlobal->error("Instance name '%s' is not valid.", key);
+			continue;
+		}
+
+		const std::string index_part = key.substr(pos + 1);
+		try {
+			const int current_index = std::stoi(index_part);
+			max_index = std::max(max_index, current_index);
+		}
+		catch (const std::invalid_argument&) {
+			logGlobal->error("Instance name %s contains non-numeric index part: %s", key, index_part);
+		}
+		catch (const std::out_of_range&) {
+			logGlobal->error("Instance name %s index part is overflow.", key);
+		}
+	}
+
+	// Directly set uidCounter using simplified logic
+	uidCounter = max_index + 1;  // Automatically 0 when max_index = -1
+}
+
 
 VCMI_LIB_NAMESPACE_END

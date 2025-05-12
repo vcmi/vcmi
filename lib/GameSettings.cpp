@@ -90,6 +90,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::MAP_FORMAT_JSON_VCMI,                             "mapFormat", "jsonVCMI"                             },
 		{EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA,                "mapFormat", "restorationOfErathia"                 },
 		{EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH,                       "mapFormat", "shadowOfDeath"                        },
+		{EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY,       "mapObjects","h3BugQuestTakesEntireArmy"            },
 		{EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD,              "markets",   "blackMarketRestockPeriod"             },
 		{EGameSettings::MODULE_COMMANDERS,                                "modules",   "commanders"                           },
 		{EGameSettings::MODULE_STACK_ARTIFACT,                            "modules",   "stackArtifact"                        },

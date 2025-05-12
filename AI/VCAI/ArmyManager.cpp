@@ -41,7 +41,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 
 			slotInfp.creature = cre;
 			slotInfp.power += i.second->getPower();
-			slotInfp.count += i.second->count;
+			slotInfp.count += i.second->getCount();
 		}
 	}
 

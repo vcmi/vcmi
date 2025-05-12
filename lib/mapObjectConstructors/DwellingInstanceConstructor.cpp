@@ -104,7 +104,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 		JsonRandom::Variables emptyVariables;
 		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
 		{
-			dwelling->putStack(SlotID(dwelling->stacksCount()), std::make_unique<CStackInstance>(dwelling->cb, stack.getId(), stack.count));
+			dwelling->putStack(SlotID(dwelling->stacksCount()), std::make_unique<CStackInstance>(dwelling->cb, stack.getId(), stack.getCount()));
 		}
 	}
 	else if (dwelling->ID == Obj::CREATURE_GENERATOR1 || dwelling->ID == Obj::CREATURE_GENERATOR4)

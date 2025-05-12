@@ -57,7 +57,6 @@ struct RewardRevealTiles
 };
 
 /// Reward that can be granted to a hero
-/// NOTE: eventually should replace seer hut rewards and events/pandoras
 struct DLL_LINKAGE Reward final
 {
 	/// resources that will be given to player
@@ -65,6 +64,7 @@ struct DLL_LINKAGE Reward final
 
 	/// received experience
 	si32 heroExperience;
+
 	/// received levels (converted into XP during grant)
 	si32 heroLevel;
 
@@ -86,7 +86,9 @@ struct DLL_LINKAGE Reward final
 	std::vector<CStackBasicDescriptor> guards;
 
 	/// list of bonuses, e.g. morale/luck
-	std::vector<Bonus> bonuses;
+	std::vector<Bonus> heroBonuses;
+	std::vector<Bonus> commanderBonuses;
+	std::vector<Bonus> playerBonuses;
 
 	/// skills that hero may receive or lose
 	std::vector<si32> primary;
@@ -96,9 +98,14 @@ struct DLL_LINKAGE Reward final
 	std::map<CreatureID, CreatureID> creaturesChange;
 
 	/// objects that hero may receive
-	std::vector<ArtifactID> artifacts;
+	std::vector<ArtifactID> grantedArtifacts;
+	std::vector<ArtifactID> takenArtifacts;
+	std::vector<ArtifactPosition> takenArtifactSlots;
+	std::vector<SpellID> grantedScrolls;
+	std::vector<SpellID> takenScrolls;
 	std::vector<SpellID> spells;
 	std::vector<CStackBasicDescriptor> creatures;
+	std::vector<CStackBasicDescriptor> takenCreatures;
 	
 	/// actions that hero may execute and object caster. Pair of spellID and school level
 	std::pair<SpellID, int> spellCast;
@@ -137,10 +144,24 @@ struct DLL_LINKAGE Reward final
 		h & movePoints;
 		h & primary;
 		h & secondary;
-		h & bonuses;
-		h & artifacts;
+		h & heroBonuses;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & playerBonuses;
+			h & commanderBonuses;
+		}
+		h & grantedArtifacts;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & takenArtifacts;
+			h & takenArtifactSlots;
+			h & grantedScrolls;
+			h & takenScrolls;
+		}
 		h & spells;
 		h & creatures;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & takenCreatures;
 		h & creaturesChange;
 		h & revealTiles;
 		h & spellCast;

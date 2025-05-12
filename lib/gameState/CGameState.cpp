@@ -1304,7 +1304,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 				{
 					for(const auto & elem : ai->Slots()) //iterate through army
 						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
-							total += elem.second->count;
+							total += elem.second->getCount();
 				}
 			}
 			return total >= condition.value;
@@ -1569,9 +1569,6 @@ void CGameState::buildBonusSystemTree()
 	buildGlobalTeamPlayerTree();
 	for(auto & armed : map->getObjects<CArmedInstance>())
 		armed->attachToBonusSystem(*this);
-
-	for(auto & art : map->getArtifacts())
-		art->attachToBonusSystem(*this);
 }
 
 void CGameState::restoreBonusSystemTree()
@@ -1667,7 +1664,7 @@ vstd::RNG & CGameState::getRandomGenerator()
 	return cb->getRandomGenerator();
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts)
 {
 	std::set<ArtifactID> potentialPicks;
 
@@ -1681,16 +1678,7 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags, std::func
 
 		assert(artifact->aClass != EArtifactClass::ART_SPECIAL); // should be filtered out when allowedArtifacts is initialized
 
-		if ((flags & EArtifactClass::ART_TREASURE) == 0 && artifact->aClass == EArtifactClass::ART_TREASURE)
-			continue;
-
-		if ((flags & EArtifactClass::ART_MINOR) == 0 && artifact->aClass == EArtifactClass::ART_MINOR)
-			continue;
-
-		if ((flags & EArtifactClass::ART_MAJOR) == 0 && artifact->aClass == EArtifactClass::ART_MAJOR)
-			continue;
-
-		if ((flags & EArtifactClass::ART_RELIC) == 0 && artifact->aClass == EArtifactClass::ART_RELIC)
+		if (type.has_value() && *type != artifact->aClass)
 			continue;
 
 		if (!accepts(artifact->getId()))
@@ -1733,12 +1721,12 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID>
 
 ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts)
 {
-	return pickRandomArtifact(rand, 0xff, std::move(accepts));
+	return pickRandomArtifact(rand, std::nullopt, std::move(accepts));
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, int flags)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type)
 {
-	return pickRandomArtifact(rand, flags, [](const ArtifactID &) { return true; });
+	return pickRandomArtifact(rand, type, [](const ArtifactID &) { return true; });
 }
 
 CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
@@ -1766,13 +1754,13 @@ void CGameState::loadGame(CLoadFile & file)
 	logGlobal->info("Loading game state...");
 
 	CMapHeader dummyHeader;
-	auto startInfo = std::make_shared<StartInfo>();
+	StartInfo dummyStartInfo;
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
 	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
 	{
-		file.load(startInfo);
+		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(*this);
 	}
@@ -1781,7 +1769,7 @@ void CGameState::loadGame(CLoadFile & file)
 		bool dummyA = false;
 		uint32_t dummyB = 0;
 		uint16_t dummyC = 0;
-		file.load(startInfo);
+		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(dummyA);
 		file.load(dummyB);

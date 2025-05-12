@@ -348,6 +348,14 @@ std::string CCreature::nodeName() const
 	return "\"" + getNamePluralTextID() + "\"";
 }
 
+int CCreature::getRandomAmount(vstd::RNG & ranGen) const
+{
+	if(ammMax > ammMin)
+		return ammMin + (ranGen.nextInt(ammMin, ammMax));
+	else
+		return ammMax;
+}
+
 void CCreature::updateFrom(const JsonNode & data)
 {
 	JsonUpdater handler(nullptr, data);

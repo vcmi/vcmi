@@ -25,6 +25,8 @@ protected:
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
+	void doStartBattle(const CGHeroInstance * hero) const;
+
 	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
 	void markAsVisited(const CGHeroInstance * hero) const override;
 
@@ -56,6 +58,7 @@ public:
 	void onHeroVisit(const CGHeroInstance *h) const override;
 
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	void garrisonDialogClosed(const CGHeroInstance *hero) const override;
 
 	///possibly resets object state
 	void newTurn(vstd::RNG & rand) const override;

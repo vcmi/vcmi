@@ -468,7 +468,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	{
 		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
 		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
-		commander->giveStackExp (exp); //after our exp is set
+		commander->giveTotalStackExperience(exp); //after our exp is set
 	}
 
 	skillsInfo = SecondarySkillsInfo();
@@ -1337,6 +1337,8 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 {
 	CArmedInstance::restoreBonusSystem(gs);
 	artDeserializationFix(gs, this);
+	if (commander)
+		commander->artDeserializationFix(gs, this->commander.get());
 	if (boardedBoat.hasValue())
 	{
 		auto boat = gs.getObjInstance(boardedBoat);
@@ -1422,7 +1424,7 @@ EDiggingStatus CGHeroInstance::diggingStatus() const
 	return cb->getTileDigStatus(visitablePos());
 }
 
-ArtBearer::ArtBearer CGHeroInstance::bearerType() const
+ArtBearer CGHeroInstance::bearerType() const
 {
 	return ArtBearer::HERO;
 }
@@ -1608,6 +1610,12 @@ void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
 
 	//update specialty and other bonuses that scale with level
 	nodeHasChanged();
+}
+
+void CGHeroInstance::attachCommanderToArmy()
+{
+	if (commander)
+		commander->setArmy(this);
 }
 
 void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)

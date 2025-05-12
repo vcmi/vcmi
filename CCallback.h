@@ -113,7 +113,7 @@ public:
 	// To implement high-level army management bulk actions
 	virtual int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) = 0;
 	virtual int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) = 0;
-	virtual int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
+	virtual int bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 	virtual int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) = 0;
 	
 	
@@ -181,7 +181,7 @@ public:
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val) override;
 	int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) override;
 	int bulkSplitStack(ObjectInstanceID armyId, SlotID srcSlot, int howMany = 1) override;
-	int bulkSmartSplitStack(ObjectInstanceID armyId, SlotID srcSlot) override;
+	int bulkSplitAndRebalanceStack(ObjectInstanceID armyId, SlotID srcSlot) override;
 	int bulkMergeStacks(ObjectInstanceID armyId, SlotID srcSlot) override;
 	bool dismissHero(const CGHeroInstance * hero) override;
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2) override;

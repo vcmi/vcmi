@@ -24,12 +24,12 @@ class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallback
 	}
 
 public:
-	CArtifactFittingSet(IGameCallback * cb, ArtBearer::ArtBearer Bearer);
+	CArtifactFittingSet(IGameCallback * cb, ArtBearer Bearer);
 	explicit CArtifactFittingSet(const CArtifactSet & artSet);
-	ArtBearer::ArtBearer bearerType() const override;
+	ArtBearer bearerType() const override;
 
 protected:
-	ArtBearer::ArtBearer bearer;
+	ArtBearer bearer;
 };
 
 VCMI_LIB_NAMESPACE_END

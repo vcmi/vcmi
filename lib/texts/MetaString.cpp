@@ -446,7 +446,7 @@ void MetaString::replaceName(const CreatureID & id, TQuantity count) //adds sing
 
 void MetaString::replaceName(const CStackBasicDescriptor & stack)
 {
-	replaceName(stack.getId(), stack.count);
+	replaceName(stack.getId(), stack.getCount());
 }
 
 VCMI_LIB_NAMESPACE_END

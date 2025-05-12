@@ -25,7 +25,7 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
 	for(const auto & elem : army->Slots())
 	{
 		if(detailed)
-			(*this)[elem.first] = *elem.second;
+			(*this)[elem.first] = CStackBasicDescriptor(elem.second->getCreature(), elem.second->getCount());
 		else
 			(*this)[elem.first] = CStackBasicDescriptor(elem.second->getCreature(), (int)elem.second->getQuantityID());
 	}
@@ -43,12 +43,12 @@ int ArmyDescriptor::getStrength() const
 	if(isDetailed)
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.getType()->getAIValue() * elem.second.count;
+			ret += elem.second.getType()->getAIValue() * elem.second.getCount();
 	}
 	else
 	{
 		for(const auto & elem : *this)
-			ret += elem.second.getType()->getAIValue() * CCreature::estimateCreatureCount(elem.second.count);
+			ret += elem.second.getType()->getAIValue() * CCreature::estimateCreatureCount(elem.second.getCount());
 	}
 	return static_cast<int>(ret);
 }

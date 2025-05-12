@@ -72,27 +72,38 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * 
 	configuration = generateConfiguration(rand);
 }
 
+void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses) const
+{
+	const auto & building = town->getTown()->buildings.at(getBuildingType());
+
+	for (auto & bonus : bonuses)
+	{
+		if (building->mapObjectLikeBonuses.hasValue())
+		{
+			bonus.source = BonusSource::OBJECT_TYPE;
+			bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
+		}
+		else
+		{
+			bonus.source = BonusSource::TOWN_STRUCTURE;
+			bonus.sid = BonusSourceID(building->getUniqueTypeID());
+		}
+	}
+}
+
 Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
 {
 	Rewardable::Configuration result;
 	const auto & building = town->getTown()->buildings.at(getBuildingType());
 
+	// force modal info window instead of displaying in inactive info box on adventure map
+	result.infoWindowType = EInfoWindowMode::MODAL;
 	building->rewardableObjectInfo.configureObject(result, rand, cb);
 	for(auto & rewardInfo : result.info)
 	{
-		for (auto & bonus : rewardInfo.reward.bonuses)
-		{
-			if (building->mapObjectLikeBonuses.hasValue())
-			{
-				bonus.source = BonusSource::OBJECT_TYPE;
-				bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
-			}
-			else
-			{
-				bonus.source = BonusSource::TOWN_STRUCTURE;
-				bonus.sid = BonusSourceID(building->getUniqueTypeID());
-			}
-		}
+		assignBonuses(rewardInfo.reward.heroBonuses);
+		assignBonuses(rewardInfo.reward.commanderBonuses);
+		assignBonuses(rewardInfo.reward.playerBonuses);
 	}
 	return result;
 }
@@ -162,6 +173,7 @@ bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * con
 		case Rewardable::VISIT_ONCE:
 			return !visitors.empty();
 		case Rewardable::VISIT_PLAYER:
+		case Rewardable::VISIT_PLAYER_GLOBAL:
 			return false; //not supported
 		case Rewardable::VISIT_BONUS:
 		{
@@ -201,6 +213,7 @@ bool TownRewardableBuildingInstance::wasVisited(PlayerColor player) const
 		case Rewardable::VISIT_BONUS:
 		case Rewardable::VISIT_HERO:
 		case Rewardable::VISIT_LIMITER:
+		case Rewardable::VISIT_PLAYER_GLOBAL:
 			return false;
 		case Rewardable::VISIT_ONCE:
 		case Rewardable::VISIT_PLAYER:

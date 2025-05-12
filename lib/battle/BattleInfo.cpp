@@ -602,7 +602,7 @@ EGateState BattleInfo::getGateState() const
 	return si.gateState;
 }
 
-uint32_t BattleInfo::getCastSpells(BattleSide side) const
+int32_t BattleInfo::getCastSpells(BattleSide side) const
 {
 	return getSide(side).castSpellsCount;
 }

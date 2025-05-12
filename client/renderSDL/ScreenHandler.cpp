@@ -34,7 +34,6 @@
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
 
-static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
@@ -436,7 +435,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
-	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	return SDL_CreateWindow(GameConstants::VCMI_VERSION.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
 SDL_Window * ScreenHandler::createWindow()
