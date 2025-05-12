@@ -567,6 +567,8 @@ OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
 ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & context) const
 {
 	auto contextOwner = context.node.getOwner();
+	if (contextOwner == PlayerColor::UNFLAGGABLE)
+		contextOwner = PlayerColor::NEUTRAL;
 	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
 	return decision;
 }
