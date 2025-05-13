@@ -454,7 +454,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 
 ### Bonus System
 
-- Can be used as reward, to grant bonus to player
+- Can be used as reward, to grant bonus to visiting hero
 - if present, MORALE and LUCK bonus will add corresponding image component to UI.
 - Note that unlike most values, parameter of bonuses can NOT be randomized
 - Description can be string or number of corresponding string from `arraytxt.txt`
@@ -470,13 +470,30 @@ Keep in mind, that all randomization is performed on map load and on object rese
 ]
 ```
 
+- Can be used as a reward, to grant bonuses to commander of a visiting hero
+- This option will have no effect if commander is not present, for example for players without WoG mod
+- Granting bonuses to dead commander is possible. use `commanderAlive` limiter if you want to avoid this
+- Syntax identical to regular `bonuses` field
+
+```json
+"commanderBonuses" : [ ]
+```
+
+- Can be used as a reward, to grant bonuses to player that commands visiting hero
+- Bonuses will remain even if hero is lost or fired. Use `bonuses` with `PLAYER_PROPAGATOR` if you wish for bonus to be removed when hero is lost
+- Syntax identical to regular `bonuses` field
+
+```json
+"playerBonuses" : [ ]
+```
+
 ### Artifact Slots
 
 - Can be used as limiter, hero must have listed slots empty to pass the limiter
 - Slots occupied by components of combined artifacts are considered to be full
 
 ```json
-"artifactSlots": [
+"availableSlots": [
     "LEFT_HAND",
     "RIGHT_HAND"
 ],
@@ -663,7 +680,7 @@ List of supported slots names:
 
 - Can be used as limiter, to test whether hero can accept specified creatures without abandoning any units
 - Check will pass if hero has enough free slots to accept creatures, or if hero already has specified creatures, or if hero has units that can be merged to create space for new troops
-- Note that attempting to give more troops than hero can accept is legal, and will show unit selection dialog
+- Note that attempting to give more troops than hero can accept is legal, and will show unit selection dialog on which hero will have to abandon some of his creatures
 
 ```json
 "canReceiveCreatures" : [
