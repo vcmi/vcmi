@@ -18,7 +18,7 @@
 
 #include "../CPlayerInterface.h"
 
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"

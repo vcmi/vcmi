@@ -24,9 +24,9 @@
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/ObstacleHandler.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/serializer/JsonDeserializer.h"
 
 BattleObstacleController::BattleObstacleController(BattleInterface & owner):

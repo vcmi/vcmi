@@ -10,8 +10,8 @@
 #include "StdInc.h"
 #include "QuestInfo.h"
 
+#include "../callback/CGameInfoCallback.h"
 #include "../mapObjects/CQuest.h"
-#include "../CGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

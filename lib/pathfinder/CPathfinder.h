@@ -10,8 +10,7 @@
 #pragma once
 
 #include "CGPathNode.h"
-#include "../IGameCallback.h"
-#include "../bonuses/BonusEnum.h"
+#include "../callback/CGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

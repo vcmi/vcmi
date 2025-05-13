@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "ArtSlotInfo.h"
 
-#include "../../IGameCallback.h"
+#include "../../callback/IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

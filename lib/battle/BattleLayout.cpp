@@ -11,8 +11,8 @@
 #include "BattleLayout.h"
 
 #include "../GameSettings.h"
-#include "../IGameCallback.h"
 #include "../GameLibrary.h"
+#include "../callback/IGameCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CArmedInstance.h"
 

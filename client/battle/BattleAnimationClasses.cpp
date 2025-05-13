@@ -26,7 +26,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/CStack.h"
 
 BattleAnimation::BattleAnimation(BattleInterface & owner)

@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "BuildingManager.h"
 
-#include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/entities/building/CBuilding.h"
 

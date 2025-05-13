@@ -11,8 +11,8 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
+#include "../callback/IGameCallback.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../CCreatureHandler.h"
 #include "CGTownInstance.h"
 #include "../IGameSettings.h"

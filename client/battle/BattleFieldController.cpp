@@ -32,10 +32,10 @@
 #include "../adventureMap/CInGameConsole.h"
 #include "../client/render/CAnimation.h"
 
-#include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
 namespace HexMasks

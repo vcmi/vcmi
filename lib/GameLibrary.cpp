@@ -28,7 +28,6 @@
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
-#include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/Filesystem.h"

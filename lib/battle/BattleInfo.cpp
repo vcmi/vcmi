@@ -15,6 +15,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
+#include "../callback/IGameCallback.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
@@ -25,9 +26,6 @@
 #include "../ObstacleHandler.h"
 
 #include <vstd/RNG.h>
-
-//TODO: remove
-#include "../IGameCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

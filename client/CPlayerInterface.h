@@ -11,8 +11,8 @@
 
 #include "ArtifactsUIController.h"
 
+#include "../lib/callback/CGameInterface.h"
 #include "../lib/FunctionList.h"
-#include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -205,6 +205,9 @@ public: // public interface for use by client via GAME->interface() access
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
+
+	void registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
+	void unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
 
 	CPlayerInterface(PlayerColor Player);
 	~CPlayerInterface();

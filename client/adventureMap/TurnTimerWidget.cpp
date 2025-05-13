@@ -21,10 +21,11 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 TurnTimerWidget::TurnTimerWidget(const Point & position)
 	: TurnTimerWidget(position, PlayerColor::NEUTRAL)

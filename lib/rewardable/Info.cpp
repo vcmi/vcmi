@@ -16,7 +16,6 @@
 #include "Reward.h"
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../GameLibrary.h"
 #include "../mapObjects/IObjectInterface.h"

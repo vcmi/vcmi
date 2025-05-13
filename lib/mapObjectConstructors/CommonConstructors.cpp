@@ -11,13 +11,13 @@
 #include "CommonConstructors.h"
 
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 
 #include "../CConfigHandler.h"
+#include "../callback/IGameCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../json/JsonUtils.h"
@@ -26,9 +26,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
-
 #include "../modding/IdentifierStorage.h"
-
 #include "../mapping/CMapDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

@@ -15,6 +15,7 @@
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
 
+#include "../callback/IGameCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -22,7 +23,6 @@
 #include "../CSoundBase.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
 #include "../CCreatureHandler.h"

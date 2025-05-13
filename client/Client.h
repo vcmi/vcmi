@@ -12,8 +12,10 @@
 #include <memory>
 #include <vcmi/Environment.h>
 
-#include "../lib/IGameCallback.h"
+#include "../lib/callback/IClient.h"
+#include "../lib/callback/IGameCallback.h"
 #include "../lib/ConditionalWait.h"
+#include "../lib/ResourceSet.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,6 +27,8 @@ class CGameInterface;
 class BattleAction;
 class BattleInfo;
 struct BankConfig;
+class CCallback;
+class CBattleCallback;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -40,8 +44,6 @@ namespace events
 
 VCMI_LIB_NAMESPACE_END
 
-class CBattleCallback;
-class CCallback;
 class CClient;
 class CBaseForCLApply;
 
@@ -119,7 +121,7 @@ public:
 };
 
 /// Class which handles client - server logic
-class CClient : public IGameCallback, public Environment
+class CClient : public IGameCallback, public Environment, public IClient
 {
 	std::shared_ptr<CGameState> gamestate;
 public:
@@ -145,7 +147,6 @@ public:
 	void newGame(std::shared_ptr<CGameState> gameState);
 	void loadGame(std::shared_ptr<CGameState> gameState);
 
-	void save(const std::string & fname);
 	void endNetwork();
 	void finishGameplay();
 	void endGame();
@@ -158,10 +159,15 @@ public:
 	void installNewPlayerInterface(std::shared_ptr<CGameInterface> gameInterface, PlayerColor color, bool battlecb = false);
 	void installNewBattleInterface(std::shared_ptr<CBattleGameInterface> battleInterface, PlayerColor color, bool needCallback = true);
 
+	//Set of metrhods that allows adding more interfaces for this player that'll receive game event call-ins.
+	void registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents, PlayerColor color);
+	void unregisterBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents, PlayerColor color);
+
 	ThreadSafeVector<int> waitingRequest;
 
 	void handlePack(CPackForClient & pack); //applies the given pack and deletes it
-	int sendRequest(const CPackForServer & request, PlayerColor player); //returns ID given to that request
+	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override; //returns ID given to that request
+	std::optional<BattleAction> makeSurrenderRetreatDecision(PlayerColor player, const BattleID & battleID, const BattleStateInfoForRetreat & battleState) override;
 
 	void battleStarted(const BattleID & battle);
 	void battleFinished(const BattleID & battleID);
@@ -184,7 +190,7 @@ public:
 	void showTeleportDialog(TeleportDialog * iw) override {};
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {};
-	void giveResources(PlayerColor player, TResources resources) override {};
+	void giveResources(PlayerColor player, ResourceSet resources) override {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet & creatures, bool remove) override {};
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures, bool forceRemoval) override {};

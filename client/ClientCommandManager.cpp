@@ -20,6 +20,9 @@
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/callback/CGlobalAI.h"
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -30,7 +33,6 @@
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
-#include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
@@ -59,7 +61,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->server().client->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 

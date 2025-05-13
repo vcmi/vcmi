@@ -10,11 +10,11 @@
 #pragma once
 
 #include "CCreatureHandler.h"
-#include "GameCallbackHolder.h"
 #include "GameConstants.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusCache.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "callback/GameCallbackHolder.h"
 #include "serializer/Serializeable.h"
 #include "mapObjects/CGObjectInstance.h"
 #include "entities/artifact/CArtifactSet.h"

@@ -28,7 +28,7 @@
 #include "CServerHandler.h"
 #include "UIHelper.h"
 
-#include "../CCallback.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
 #include "../lib/serializer/Connection.h"

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../../lib/CGameInfoCallback.h"
+#include "../../lib/callback/CGameInfoCallback.h"
 
 class IGameInfoCallbackMock : public IGameInfoCallback
 {

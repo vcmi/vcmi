@@ -18,13 +18,13 @@
 
 #include "JsonBonus.h"
 
+#include "../callback/IGameCallback.h"
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
-#include "../IGameCallback.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"

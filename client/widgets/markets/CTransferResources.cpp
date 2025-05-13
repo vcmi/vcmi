@@ -19,8 +19,7 @@
 
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/MetaString.h"

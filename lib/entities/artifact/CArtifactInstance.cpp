@@ -14,7 +14,7 @@
 #include "CArtifact.h"
 #include "CArtifactSet.h"
 
-#include "../../IGameCallback.h"
+#include "../../callback/IGameCallback.h"
 #include "../../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

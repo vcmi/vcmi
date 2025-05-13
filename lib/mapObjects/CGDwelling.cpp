@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "CGDwelling.h"
+#include "../callback/IGameCallback.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
@@ -21,7 +22,6 @@
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"

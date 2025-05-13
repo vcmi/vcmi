@@ -14,7 +14,6 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 

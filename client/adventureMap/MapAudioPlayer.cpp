@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "MapAudioPlayer.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
@@ -20,6 +19,7 @@
 
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"

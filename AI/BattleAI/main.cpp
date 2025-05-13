@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include "../../lib/AI_Base.h"
 #include "BattleAI.h"
 
 #ifdef __GNUC__

@@ -15,7 +15,6 @@
 #include "../CPlayerInterface.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-#include "../../CCallback.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroKingdom::CArtifactsOfHeroKingdom(ArtPlaceMap ArtWorn, std::vector<ArtPlacePtr> Backpack,

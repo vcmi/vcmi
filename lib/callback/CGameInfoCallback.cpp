@@ -10,24 +10,21 @@
 #include "StdInc.h"
 #include "CGameInfoCallback.h"
 
-#include "entities/building/CBuilding.h"
-#include "gameState/CGameState.h"
-#include "gameState/InfoAboutArmy.h"
-#include "gameState/SThievesGuildInfo.h"
-#include "gameState/TavernHeroesPool.h"
-#include "gameState/QuestInfo.h"
-#include "mapObjects/CGHeroInstance.h"
-#include "mapObjects/CGTownInstance.h"
-#include "mapObjects/MiscObjects.h"
-#include "networkPacks/ArtifactLocation.h"
-#include "texts/CGeneralTextHandler.h"
-#include "StartInfo.h" // for StartInfo
-#include "battle/BattleInfo.h" // for BattleInfo
-#include "IGameSettings.h"
-#include "TerrainHandler.h"
-#include "spells/CSpellHandler.h"
-#include "mapping/CMap.h"
-#include "CPlayerState.h"
+#include "../entities/building/CBuilding.h"
+#include "../gameState/CGameState.h"
+#include "../gameState/InfoAboutArmy.h"
+#include "../gameState/TavernHeroesPool.h"
+#include "../mapObjects/CGHeroInstance.h"
+#include "../mapObjects/CGTownInstance.h"
+#include "../mapObjects/MiscObjects.h"
+#include "../StartInfo.h"
+#include "../battle/BattleInfo.h"
+#include "../IGameSettings.h"
+#include "../spells/CSpellHandler.h"
+#include "../mapping/CMap.h"
+#include "../CPlayerState.h"
+
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -702,123 +699,6 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 bool CGameInfoCallback::isPlayerMakingTurn(PlayerColor player) const
 {
 	return gameState().actingPlayers.count(player);
-}
-
-int CPlayerSpecificInfoCallback::howManyTowns() const
-{
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return CGameInfoCallback::howManyTowns(*getPlayerID());
-}
-
-std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(bool onlyOur) const
-{
-	auto ret = std::vector < const CGTownInstance *>();
-	for(const auto & i : gameState().players)
-	{
-		for(const auto & town : i.second.getTowns())
-		{
-			if(i.first == getPlayerID() || (!onlyOur && isVisible(town, getPlayerID())))
-			{
-				ret.push_back(town);
-			}
-		}
-	} //	for ( std::map<int, PlayerState>::iterator i=gameState().players.begin() ; i!=gameState().players.end();i++)
-	return ret;
-}
-std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo() const
-{
-	const auto * playerState = gameState().getPlayerState(*getPlayerID());
-	return playerState->getHeroes();
-}
-
-int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned) const
-{
-	if (hero->isGarrisoned() && !includeGarrisoned)
-		return -1;
-
-	size_t index = 0;
-	const auto & heroes = gameState().players.at(*getPlayerID()).getHeroes();
-
-	for (auto & possibleHero : heroes)
-	{
-		if (includeGarrisoned || !possibleHero->isGarrisoned())
-			index++;
-
-		if (possibleHero == hero)
-			return static_cast<int>(index);
-	}
-	return -1;
-}
-
-int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
-{
-	if (!getPlayerID() || gameState().getMap().obeliskCount == 0)
-	{
-		*outKnownRatio = 0.0;
-	}
-	else
-	{
-		TeamID t = gameState().getPlayerTeam(*getPlayerID())->id;
-		double visited = 0.0;
-		if(gameState().getMap().obelisksVisited.count(t))
-			visited = static_cast<double>(gameState().getMap().obelisksVisited[t]);
-
-		*outKnownRatio = visited / gameState().getMap().obeliskCount;
-	}
-	return gameState().getMap().grailPos;
-}
-
-std::vector < const CGObjectInstance * > CPlayerSpecificInfoCallback::getMyObjects() const
-{
-	return gameState().getPlayerState(*getPlayerID())->getOwnedObjects();
-}
-
-std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
-{
-	return gameState().getPlayerState(*getPlayerID())->quests;
-}
-
-int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
-{
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return getHeroCount(*getPlayerID(), includeGarrisoned);
-}
-
-const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId, bool includeGarrisoned) const
-{
-	ASSERT_IF_CALLED_WITH_PLAYER
-	const PlayerState *p = getPlayerState(*getPlayerID());
-	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
-
-	if (!includeGarrisoned)
-	{
-		for(ui32 i = 0; i < p->getHeroes().size() && static_cast<int>(i) <= serialId; i++)
-			if(p->getHeroes()[i]->isGarrisoned())
-				serialId++;
-	}
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info", nullptr);
-	return p->getHeroes()[serialId];
-}
-
-const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId) const
-{
-	ASSERT_IF_CALLED_WITH_PLAYER
-	const PlayerState *p = getPlayerState(*getPlayerID());
-	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info", nullptr);
-	return p->getTowns()[serialId];
-}
-
-int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
-{
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return getResource(*getPlayerID(), type);
-}
-
-TResources CPlayerSpecificInfoCallback::getResourceAmount() const
-{
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", TResources());
-	return gameState().players.at(*getPlayerID()).resources;
 }
 
 const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const

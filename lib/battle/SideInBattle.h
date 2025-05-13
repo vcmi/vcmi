@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../GameConstants.h"
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

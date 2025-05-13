@@ -46,10 +46,11 @@
 #include "../adventureMap/CInGameConsole.h"
 #include "../eventsSDL/InputHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/entities/hero/CHero.h"
 #include "../../lib/GameLibrary.h"

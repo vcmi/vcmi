@@ -14,7 +14,7 @@
 #include "CMapHeader.h"
 
 #include "../mapObjects/CGObjectInstance.h"
-#include "../GameCallbackHolder.h"
+#include "../callback/GameCallbackHolder.h"
 #include "../networkPacks/TradeItem.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

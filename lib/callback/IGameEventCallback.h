@@ -1,5 +1,5 @@
 /*
- * IGameCallback.h, part of VCMI engine
+ * IGameEventCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,73 +9,47 @@
  */
 #pragma once
 
-#include <vcmi/Metatype.h>
-
-#include "CGameInfoCallback.h" // for CGameInfoCallback
-#include "networkPacks/ObjProperty.h"
+#include "../GameConstants.h"
+#include "../networkPacks/ObjProperty.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+class int3;
+struct GiveBonus;
+struct CPackForClient;
+struct SetMovePoints;
+struct BattleLayout;
+struct ArtifactLocation;
+struct InfoWindow;
+struct TeleportDialog;
+struct BlockingDialog;
+struct StackLocation;
+
+class CStackBasicDescriptor;
+class ResourceSet;
+class CGHeroInstance;
+class CArmedInstance;
+class CGTownInstance;
+class CCreatureSet;
+class CGObjectInstance;
+class IObjectInterface;
+
+enum class EOpenWindowMode : uint8_t;
+
+namespace Rewardable
+{
+struct Configuration;
+}
+
+namespace spells
+{
+class Caster;
+}
 
 namespace vstd
 {
 class RNG;
 }
-
-struct SetMovePoints;
-struct GiveBonus;
-struct BlockingDialog;
-struct TeleportDialog;
-struct StackLocation;
-struct ArtifactLocation;
-struct BankConfig;
-struct BattleLayout;
-class CCreatureSet;
-class CStackBasicDescriptor;
-class CGCreature;
-class IObjectInterface;
-enum class EOpenWindowMode : uint8_t;
-
-namespace spells
-{
-	class Caster;
-}
-
-namespace Rewardable
-{
-	struct Configuration;
-}
-
-#if SCRIPTING_ENABLED
-namespace scripting
-{
-	class Pool;
-}
-#endif
-
-
-class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
-{
-public:
-	using CGameInfoCallback::gameState; // make public
-
-	//used for random spawns
-	void getFreeTiles(std::vector<int3> &tiles) const;
-
-	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
-	void getTilesInRange(std::unordered_set<int3> & tiles,
-						 const int3 & pos,
-						 int radius,
-						 ETileVisibility mode,
-						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
-						 int3::EDistanceFormula formula = int3::DIST_2D) const;
-
-	//returns all tiles on given level (-1 - both levels, otherwise number of level)
-	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
-
-	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
-	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
-};
 
 class DLL_LINKAGE IGameEventCallback
 {
@@ -100,7 +74,7 @@ public:
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
-	virtual void giveResources(PlayerColor player, TResources resources)=0;
+	virtual void giveResources(PlayerColor player, ResourceSet resources)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval = false) =0;
@@ -138,58 +112,10 @@ public:
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
 	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
-	
+
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 
 	virtual vstd::RNG & getRandomGenerator() = 0;
-
 };
-
-class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback
-{
-public:
-	//keep const version of callback accessible
-	using CGameInfoCallback::getPlayerState;
-	using CGameInfoCallback::getTeam;
-	using CGameInfoCallback::getPlayerTeam;
-	using CGameInfoCallback::getHero;
-	using CGameInfoCallback::getTown;
-	using CGameInfoCallback::getTile;
-	using CGameInfoCallback::getArtInstance;
-	using CGameInfoCallback::getObjInstance;
-	using CGameInfoCallback::getArtSet;
-
-	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
-	TeamState * getTeam(const TeamID & teamID); //get team by team ID
-	TeamState * getPlayerTeam(const PlayerColor & color); // get team by player color
-	CGHeroInstance * getHero(const ObjectInstanceID & objid);
-	CGTownInstance * getTown(const ObjectInstanceID & objid);
-	TerrainTile * getTile(const int3 & pos);
-	CArtifactInstance * getArtInstance(const ArtifactInstanceID & aid);
-	CGObjectInstance * getObjInstance(const ObjectInstanceID & oid);
-	CArmedInstance * getArmyInstance(const ObjectInstanceID & oid);
-	CArtifactSet * getArtSet(const ArtifactLocation & loc);
-
-	virtual void updateEntity(Metatype metatype, int32_t index, const JsonNode & data) = 0;
-};
-
-/// Interface class for handling general game logic and actions
-class DLL_LINKAGE IGameCallback : public CPrivilegedInfoCallback, public IGameEventCallback
-{
-public:
-	virtual ~IGameCallback(){};
-
-#if SCRIPTING_ENABLED
-	virtual scripting::Pool * getGlobalContextPool() const = 0;
-#endif
-
-	//get info
-	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero);
-
-	friend struct CPack;
-	friend struct CPackForClient;
-	friend struct CPackForServer;
-};
-
 
 VCMI_LIB_NAMESPACE_END

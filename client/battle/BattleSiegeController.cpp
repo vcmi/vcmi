@@ -24,8 +24,8 @@
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"

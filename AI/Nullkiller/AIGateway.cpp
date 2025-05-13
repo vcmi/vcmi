@@ -12,6 +12,7 @@
 #include "../../lib/AsyncRunner.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
@@ -576,7 +577,6 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	NET_EVENT_HANDLER;
 	playerID = *myCb->getPlayerID();
 	myCb->waitTillRealize = true;
-	myCb->unlockGsWhenWaiting = true;
 
 	nullkiller->init(CB, this);
 	

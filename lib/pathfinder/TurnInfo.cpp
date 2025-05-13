@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "TurnInfo.h"
 
-#include "../IGameCallback.h"
 #include "../IGameSettings.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
+#include "../callback/IGameCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"

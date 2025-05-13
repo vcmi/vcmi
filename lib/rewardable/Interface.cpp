@@ -14,6 +14,7 @@
 #include "../TerrainHandler.h"
 #include "../CPlayerState.h"
 #include "../CSoundBase.h"
+#include "../callback/IGameCallback.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
 #include "../spells/CSpellHandler.h"
@@ -23,7 +24,6 @@
 #include "../mapping/CMapDefines.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
-#include "../IGameCallback.h"
 
 #include <vstd/RNG.h>
 

@@ -18,7 +18,6 @@
 #include "queries/QueriesProcessor.h"
 #include "queries/MapQueries.h"
 
-#include "../lib/IGameCallback.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"

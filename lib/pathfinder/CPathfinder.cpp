@@ -20,6 +20,7 @@
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
+#include "../callback/IGameCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"

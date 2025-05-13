@@ -14,11 +14,11 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
-#include "../../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 

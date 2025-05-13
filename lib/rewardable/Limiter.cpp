@@ -11,14 +11,14 @@
 #include "StdInc.h"
 #include "Limiter.h"
 
-#include "../IGameCallback.h"
 #include "../CPlayerState.h"
+#include "../CSkillHandler.h"
+#include "../callback/IGameCallback.h"
+#include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../constants/StringConstants.h"
-#include "../CSkillHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

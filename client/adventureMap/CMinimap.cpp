@@ -24,7 +24,7 @@
 #include "../render/Graphics.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"

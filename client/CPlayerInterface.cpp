@@ -12,6 +12,7 @@
 
 #include <vcmi/Artifact.h>
 
+#include "Client.h"
 #include "CServerHandler.h"
 #include "HeroMovementController.h"
 #include "PlayerLocalState.h"
@@ -64,8 +65,7 @@
 #include "windows/InfoWindows.h"
 #include "windows/settings/SettingsMainWindow.h"
 
-#include "../CCallback.h"
-
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CPlayerState.h"
@@ -80,9 +80,13 @@
 #include "../lib/UnlockGuard.h"
 #include "../lib/VCMIDirs.h"
 
+#include "../lib/battle/CPlayerBattleCallback.h"
+
 #include "../lib/bonuses/Limiters.h"
 #include "../lib/bonuses/Propagators.h"
 #include "../lib/bonuses/Updaters.h"
+
+#include "../lib/callback/CCallback.h"
 
 #include "../lib/gameState/CGameState.h"
 
@@ -665,7 +669,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 		autofightingAI->initBattleInterface(env, cb, autocombatPreferences);
 		autofightingAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, false);
 		isAutoFightOn = true;
-		cb->registerBattleInterface(autofightingAI);
+		registerBattleInterface(autofightingAI);
 	}
 
 	waitForAllDialogs();
@@ -802,9 +806,7 @@ void CPlayerInterface::activeStack(const BattleID & battleID, const CStack * sta
 			autofightingAI->activeStack(battleID, stack);
 			return;
 		}
-
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 	}
 
 	assert(battleInt);
@@ -823,8 +825,7 @@ void CPlayerInterface::battleEnd(const BattleID & battleID, const BattleResult *
 	if(isAutoFightOn || autofightingAI)
 	{
 		isAutoFightOn = false;
-		cb->unregisterBattleInterface(autofightingAI);
-		autofightingAI.reset();
+		unregisterBattleInterface(autofightingAI);
 
 		if(!battleInt)
 		{
@@ -1828,3 +1829,17 @@ std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const
 {
 	return std::nullopt;
 }
+
+void CPlayerInterface::registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	autofightingAI = battleEvents;
+	GAME->server().client->registerBattleInterface(battleEvents, playerID);
+}
+
+void CPlayerInterface::unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents)
+{
+	assert(battleEvents == autofightingAI);
+	GAME->server().client->unregisterBattleInterface(autofightingAI, playerID);
+	autofightingAI.reset();
+}
+

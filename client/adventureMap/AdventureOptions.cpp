@@ -21,9 +21,9 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 
-#include "../../CCallback.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 AdventureOptions::AdventureOptions()

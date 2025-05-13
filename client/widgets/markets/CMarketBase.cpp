@@ -21,9 +21,8 @@
 
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"

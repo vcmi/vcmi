@@ -16,7 +16,6 @@
 #include "MapViewCache.h"
 #include "MapViewModel.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
@@ -27,6 +26,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"

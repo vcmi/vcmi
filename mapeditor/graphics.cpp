@@ -25,7 +25,6 @@
 #include "Animation.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameLibrary.h"
-#include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "BitmapHandler.h"
 #include "../lib/CStopWatch.h"

@@ -34,14 +34,15 @@
 #include "../adventureMap/TurnTimerWidget.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/callback/CDynLibHandler.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
@@ -706,8 +707,7 @@ void BattleWindow::bAutofightf()
 
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
 		ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
-		owner.curInt->autofightingAI = ai;
-		owner.curInt->cb->registerBattleInterface(ai);
+		owner.curInt->registerBattleInterface(ai);
 
 		owner.requestAutofightingAIToTakeAction();
 	}
@@ -909,9 +909,7 @@ void BattleWindow::endWithAutocombat()
 			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
 
 			owner.curInt->isAutoFightOn = true;
-			owner.curInt->cb->registerBattleInterface(ai);
-			owner.curInt->autofightingAI = ai;
-
+			owner.curInt->registerBattleInterface(ai);
 			owner.requestAutofightingAIToTakeAction();
 
 			close();

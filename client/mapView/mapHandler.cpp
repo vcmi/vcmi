@@ -12,13 +12,14 @@
 #include "IMapRendererObserver.h"
 #include "mapHandler.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
