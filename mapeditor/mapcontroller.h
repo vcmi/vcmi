@@ -79,6 +79,10 @@ public:
 	static ModCompatibilityInfo modAssessmentAll();
 	static ModCompatibilityInfo modAssessmentMap(const CMap & map);
 
+	/// Returns formatted message string describing a missing mod requirement for the map.
+	/// Used in both warnings and confirmations related to required mod dependencies.
+	static QString modMissingMessage(const ModVerificationInfo & info);
+
 	void undo();
 	void redo();
 	

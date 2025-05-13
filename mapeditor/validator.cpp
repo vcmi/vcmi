@@ -171,16 +171,7 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 		for(auto & mod : MapController::modAssessmentMap(*map))
 		{
 			if(!map->mods.count(mod.first))
-			{
-				QString submod;
-				if(!mod.second.parent.empty())
-					submod = tr(" (submod of %1").arg(QString::fromStdString(mod.second.parent));
-				
-				issues.insert({
-						tr("Map contains object(s) from mod '%1'%2, but the mod is missing from the map's required mods list."
-						" Add it to the map's required mods in Map->General settings.", "should be consistent with Map->General menu entry translation")
-						.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name), submod), true });
-			}
+				issues.insert({ MapController::modMissingMessage(mod.second), true });
 		}
 	}
 	catch(const std::exception & e)
@@ -211,7 +202,7 @@ void Validator::showValidationResults(const CMap * map)
 
 	if(ui->listWidget->count() == 0)
 	{
-		QPixmap greenTick = QPixmap(":/icons/mod-enabled.png");
+		QPixmap greenTick(":/icons/mod-enabled.png");
 		QString validMessage = tr("The map is valid and has no issues.");
 		auto * item = new QListWidgetItem(QIcon(greenTick), validMessage, ui->listWidget);
 		ui->listWidget->addItem(item);

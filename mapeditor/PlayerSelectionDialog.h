@@ -26,13 +26,13 @@ class PlayerSelectionDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit PlayerSelectionDialog(MainWindow * mainWindow = nullptr);
+	explicit PlayerSelectionDialog(MainWindow * mainWindow);
 	PlayerColor getSelectedPlayer() const;
 
 private:
 	const int dialogWidth = 320;
 
-	QButtonGroup * buttonGroup = nullptr;
+	QButtonGroup * buttonGroup;
 	PlayerColor selectedPlayer;
 
 	QFont font;

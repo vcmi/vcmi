@@ -22,8 +22,6 @@
 PlayerSelectionDialog::PlayerSelectionDialog(MainWindow * mainWindow)
 	: QDialog(mainWindow), selectedPlayer(PlayerColor::NEUTRAL)
 {
-	assert(mainWindow);
-
 	setupDialogComponents();
 
 	int maxPlayers = 0;
@@ -88,22 +86,9 @@ void PlayerSelectionDialog::addRadioButton(QAction * action, PlayerColor player)
 		selectedPlayer = player;
 	}
 
+	radioButton->setToolTip(tr("Shortcut: %1").arg(action->shortcut().toString()));
 	buttonGroup->addButton(radioButton, player.getNum());
-
-	auto * shortcutLabel = new QLabel(action->shortcut().toString(), this);
-	QFont shortcutFont = font;
-	shortcutFont.setPointSize(9);
-	shortcutFont.setItalic(true);
-	shortcutLabel->setFont(shortcutFont);
-	shortcutLabel->setAlignment(Qt::AlignCenter | Qt::AlignVCenter);
-	shortcutLabel->setContentsMargins(0, 0, 6, 0); // Italic text was trimmed at the end
-
-	auto * rowWidget = new QWidget(this);
-	auto * rowLayout = new QGridLayout(rowWidget);
-	rowLayout->setContentsMargins(0, 0, 0, 0);
-	rowLayout->addWidget(radioButton, 0, 0, Qt::AlignCenter | Qt::AlignVCenter);
-	rowLayout->addWidget(shortcutLabel, 0, 1, Qt::AlignCenter | Qt::AlignVCenter);
-	radioButtonsLayout.addWidget(rowWidget);
+	radioButtonsLayout.addWidget(radioButton);
 
 	connect(radioButton, &QRadioButton::clicked, this, [this, player]()
 		{

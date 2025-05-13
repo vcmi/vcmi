@@ -601,20 +601,15 @@ bool MapController::checkRequiredMods(const CGObjectInstance * obj, QString & er
 	{
 		if(!_map->mods.count(mod.first))
 		{
-			QString submod;
-			if(!mod.second.parent.empty())
-				submod = tr(" (submod of %1)").arg(QString::fromStdString(mod.second.parent));
-
 			auto reply = QMessageBox::question(main,
-				tr("Missing Required Mod"),
-				tr("This object is from the mod '%1'%2.\n\n"
-					"The mod is currently not in the map's required modifications list.\n\n"
-					"Do you want to add this mod to the required modifications?\n")
-				.arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name), submod),
+				tr("Missing Required Mod"), modMissingMessage(mod.second) + tr("\n\nDo you want to do that now ?"),
 				QMessageBox::Yes | QMessageBox::No);
 
 			if(reply == QMessageBox::Yes)
+			{
+				_map->mods[mod.first] = LIBRARY->modh->getModInfo(mod.first).getVerificationInfo();
 				Q_EMIT requestModsUpdate(modsInfo, true); // signal for MapSettings
+			}
 			else
 			{
 				error = tr("This object's mod is mandatory for map to remain valid.");
@@ -623,6 +618,19 @@ bool MapController::checkRequiredMods(const CGObjectInstance * obj, QString & er
 		}
 	}
 	return true;
+}
+
+QString MapController::modMissingMessage(const ModVerificationInfo & info)
+{
+	QString modName = QString::fromStdString(info.name);
+	QString submod;
+	if(!info.parent.empty())
+		submod = QObject::tr(" (submod of %1)").arg(QString::fromStdString(info.parent));
+
+	return QObject::tr("The mod '%1'%2, is required by an object on the map.\n"
+		"Add it to the map's required mods in Map->General settings.",
+		"should be consistent with Map->General menu entry translation")
+		.arg(modName, submod);
 }
 
 void MapController::undo()
