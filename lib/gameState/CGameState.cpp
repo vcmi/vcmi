@@ -1571,7 +1571,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 void CGameState::buildBonusSystemTree()
 {
 	buildGlobalTeamPlayerTree();
-	for(auto & armed : map->getObjects<CArmedInstance>())
+	for(auto & armed : map->getObjects<CGObjectInstance>())
 		armed->attachToBonusSystem(*this);
 }
 
@@ -1580,7 +1580,7 @@ void CGameState::restoreBonusSystemTree()
 	heroesPool->setGameState(this);
 
 	buildGlobalTeamPlayerTree();
-	for(auto & armed : map->getObjects<CArmedInstance>())
+	for(auto & armed : map->getObjects<CGObjectInstance>())
 		armed->restoreBonusSystem(*this);
 
 	for(auto & art : map->getArtifacts())

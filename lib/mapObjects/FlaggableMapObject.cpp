@@ -12,11 +12,13 @@
 #include "FlaggableMapObject.h"
 
 #include "CGHeroInstance.h"
+
+#include "../CPlayerState.h"
 #include "../callback/CPrivilegedInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
-#include "../networkPacks/PacksForClient.h"
+#include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
-#include "../gameState/GameStatePackVisitor.h"
+#include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -40,32 +42,17 @@ void FlaggableMapObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHe
 	if (cb->getPlayerRelations(h->getOwner(), getOwner()) != PlayerRelations::ENEMIES)
 		return; // H3 behavior - revisiting owned Lighthouse is a no-op
 
-	if (getOwner().isValidPlayer())
-		takeBonusFrom(gameEvents, getOwner());
-
 	gameEvents.setOwner(this, h->getOwner()); //not ours? flag it!
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
 	iw.text.appendTextID(getFlaggableHandler()->getVisitMessageTextID());
 	gameEvents.showInfoDialog(&iw);
-
-	giveBonusTo(gameEvents, h->getOwner());
-}
-
-void FlaggableMapObject::markAsDeleted() const
-{
-//	if(getOwner().isValidPlayer())
-//		takeBonusFrom(gameEvents, getOwner());
 }
 
 void FlaggableMapObject::initObj(vstd::RNG & rand)
 {
-//	if(getOwner().isValidPlayer())
-//	{
-//		// FIXME: This is dirty hack
-//		giveBonusTo(gameEvents, getOwner(), true);
-//	}
+	initBonuses();
 }
 
 std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHandler() const
@@ -73,44 +60,32 @@ std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHa
 	return std::dynamic_pointer_cast<FlaggableInstanceConstructor>(getObjectHandler());
 }
 
-void FlaggableMapObject::giveBonusTo(IGameEventCallback & gameEvents, const PlayerColor & player, bool onInit) const
+void FlaggableMapObject::initBonuses()
 {
 	for (auto const & bonus : getFlaggableHandler()->getProvidedBonuses())
-	{
-		GiveBonus gb(GiveBonus::ETarget::PLAYER);
-		gb.id = player;
-		gb.bonus = *bonus;
-
-		// FIXME: better place for this code?
-		gb.bonus.duration = BonusDuration::PERMANENT;
-		gb.bonus.source = BonusSource::OBJECT_INSTANCE;
-		gb.bonus.sid = BonusSourceID(id);
-
-		// FIXME: This is really dirty hack
-		// Proper fix would be to make FlaggableMapObject into bonus system node
-		// Unfortunately this will cause saves breakage
-		if(onInit)
-		{
-			GameStatePackVisitor visitor(cb->gameState());
-			gb.visit(visitor);
-		}
-		else
-			gameEvents.sendAndApply(gb);
-	}
-}
-
-void FlaggableMapObject::takeBonusFrom(IGameEventCallback & gameEvents, const PlayerColor & player) const
-{
-	RemoveBonus rb(GiveBonus::ETarget::PLAYER);
-	rb.whoID = player;
-	rb.source = BonusSource::OBJECT_INSTANCE;
-	rb.id = BonusSourceID(id);
-	gameEvents.sendAndApply(rb);
+		addNewBonus(bonus);
 }
 
 void FlaggableMapObject::serializeJsonOptions(JsonSerializeFormat& handler)
 {
 	serializeJsonOwner(handler);
+}
+
+void FlaggableMapObject::attachToBonusSystem(CGameState & gs)
+{
+	if (getOwner().isValidPlayer())
+		attachTo(*gs.getPlayerState(getOwner()));
+}
+
+void FlaggableMapObject::detachFromBonusSystem(CGameState & gs)
+{
+	if (getOwner().isValidPlayer())
+		detachFrom(*gs.getPlayerState(getOwner()));
+}
+
+void FlaggableMapObject::restoreBonusSystem(CGameState & gs)
+{
+	attachToBonusSystem(gs);
 }
 
 VCMI_LIB_NAMESPACE_END

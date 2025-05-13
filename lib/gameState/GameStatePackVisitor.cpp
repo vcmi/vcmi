@@ -1093,7 +1093,7 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			gs.getPlayerState(newOwner)->addOwnedObject(obj);
 	}
 
-	if(pack.what == ObjProperty::OWNER && cai)
+	if(pack.what == ObjProperty::OWNER)
 	{
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1116,9 +1116,9 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			}
 		}
 
-		cai->detachFromBonusSystem(gs);
+		obj->detachFromBonusSystem(gs);
 		obj->setProperty(pack.what, pack.identifier);
-		cai->attachToBonusSystem(gs);
+		obj->attachToBonusSystem(gs);
 	}
 	else //not an armed instance
 	{
