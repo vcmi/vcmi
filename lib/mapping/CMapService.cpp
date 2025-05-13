@@ -30,7 +30,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 
-std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, IGameCallback * cb) const
+std::unique_ptr<CMap> CMapService::loadMap(const ResourcePath & name, CPrivilegedInfoCallback * cb) const
 {
 	std::string modName = LIBRARY->modh->findResourceOrigin(name);
 	std::string encoding = LIBRARY->modh->findResourceEncoding(name);
@@ -48,7 +48,7 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name
 	return getMapLoader(stream, name.getName(), modName, encoding)->loadMapHeader();
 }
 
-std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, IGameCallback * cb) const
+std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, CPrivilegedInfoCallback * cb) const
 {
 	auto stream = getStreamFromMem(buffer, size);
 	std::unique_ptr<CMap> map(getMapLoader(stream, name, modName, encoding)->loadMap(cb));

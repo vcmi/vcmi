@@ -12,7 +12,8 @@
 #include "FlaggableMapObject.h"
 
 #include "CGHeroInstance.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../gameState/GameStatePackVisitor.h"
@@ -34,37 +35,37 @@ std::vector<CreatureID> FlaggableMapObject::providedCreatures() const
 	return {};
 }
 
-void FlaggableMapObject::onHeroVisit( const CGHeroInstance * h ) const
+void FlaggableMapObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if (cb->getPlayerRelations(h->getOwner(), getOwner()) != PlayerRelations::ENEMIES)
 		return; // H3 behavior - revisiting owned Lighthouse is a no-op
 
 	if (getOwner().isValidPlayer())
-		takeBonusFrom(getOwner());
+		takeBonusFrom(gameEvents, getOwner());
 
-	cb->setOwner(this, h->getOwner()); //not ours? flag it!
+	gameEvents.setOwner(this, h->getOwner()); //not ours? flag it!
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
 	iw.text.appendTextID(getFlaggableHandler()->getVisitMessageTextID());
-	cb->showInfoDialog(&iw);
+	gameEvents.showInfoDialog(&iw);
 
-	giveBonusTo(h->getOwner());
+	giveBonusTo(gameEvents, h->getOwner());
 }
 
 void FlaggableMapObject::markAsDeleted() const
 {
-	if(getOwner().isValidPlayer())
-		takeBonusFrom(getOwner());
+//	if(getOwner().isValidPlayer())
+//		takeBonusFrom(gameEvents, getOwner());
 }
 
 void FlaggableMapObject::initObj(vstd::RNG & rand)
 {
-	if(getOwner().isValidPlayer())
-	{
-		// FIXME: This is dirty hack
-		giveBonusTo(getOwner(), true);
-	}
+//	if(getOwner().isValidPlayer())
+//	{
+//		// FIXME: This is dirty hack
+//		giveBonusTo(gameEvents, getOwner(), true);
+//	}
 }
 
 std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHandler() const
@@ -72,7 +73,7 @@ std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHa
 	return std::dynamic_pointer_cast<FlaggableInstanceConstructor>(getObjectHandler());
 }
 
-void FlaggableMapObject::giveBonusTo(const PlayerColor & player, bool onInit) const
+void FlaggableMapObject::giveBonusTo(IGameEventCallback & gameEvents, const PlayerColor & player, bool onInit) const
 {
 	for (auto const & bonus : getFlaggableHandler()->getProvidedBonuses())
 	{
@@ -94,17 +95,17 @@ void FlaggableMapObject::giveBonusTo(const PlayerColor & player, bool onInit) co
 			gb.visit(visitor);
 		}
 		else
-			cb->sendAndApply(gb);
+			gameEvents.sendAndApply(gb);
 	}
 }
 
-void FlaggableMapObject::takeBonusFrom(const PlayerColor & player) const
+void FlaggableMapObject::takeBonusFrom(IGameEventCallback & gameEvents, const PlayerColor & player) const
 {
 	RemoveBonus rb(GiveBonus::ETarget::PLAYER);
 	rb.whoID = player;
 	rb.source = BonusSource::OBJECT_INSTANCE;
 	rb.id = BonusSourceID(id);
-	cb->sendAndApply(rb);
+	gameEvents.sendAndApply(rb);
 }
 
 void FlaggableMapObject::serializeJsonOptions(JsonSerializeFormat& handler)

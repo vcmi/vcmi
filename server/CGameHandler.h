@@ -11,7 +11,8 @@
 
 #include <vcmi/Environment.h>
 
-#include "../lib/callback/IGameCallback.h"
+#include "../lib/callback/CPrivilegedInfoCallback.h"
+#include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"
@@ -53,7 +54,7 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 
-class CGameHandler : public IGameCallback, public Environment
+class CGameHandler : public CPrivilegedInfoCallback, public Environment, public IGameEventCallback
 {
 	CVCMIServer * lobby;
 
@@ -107,7 +108,7 @@ public:
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
-	//from IGameCallback
+	//from CPrivilegedInfoCallback
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;
@@ -172,7 +173,7 @@ public:
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
 	const CGObjectInstance * getVisitingObject(const CGHeroInstance *hero);
-	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
+	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero);
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override;

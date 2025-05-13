@@ -18,7 +18,8 @@
 
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../constants/StringConstants.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -48,12 +49,12 @@ void CGPandoraBox::initObj(vstd::RNG & rand)
 	CRewardableObject::initObj(rand);
 }
 
-void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, bool markAsVisit) const
+void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
 	if(!vi.message.empty())
 	{
-		CRewardableObject::grantRewardWithMessage(h, index, markAsVisit);
+		CRewardableObject::grantRewardWithMessage(gameEvents, h, index, markAsVisit);
 		return;
 	}
 	
@@ -74,7 +75,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		reward.loadComponents(iw.components, h);
 		iw.type = EInfoWindowMode::MODAL;
 		if(!iw.components.empty())
-			cb->showInfoDialog(&iw);
+			gameEvents.showInfoDialog(&iw);
 	};
 
 	Rewardable::Reward temp;
@@ -166,43 +167,43 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	
 	// grant reward afterwards. Note that it may remove object
 	if(markAsVisit)
-		markAsVisited(h);
-	grantReward(index, h);
+		markAsVisited(gameEvents, h);
+	grantReward(gameEvents, index, h);
 }
 
-void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
+void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
-	cb->showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(this, &bd);
 }
 
-void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGPandoraBox::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER)
 	{
-		CRewardableObject::onHeroVisit(hero);
+		CRewardableObject::onHeroVisit(gameEvents, hero);
 	}
 }
 
-void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 	{
 		if(stacksCount() > 0) //if pandora's box is protected by army
 		{
-			hero->showInfoDialog(16, 0, EInfoWindowMode::MODAL);
-			cb->startBattle(hero, this); //grants things after battle
+			hero->showInfoDialog(gameEvents, 16, 0, EInfoWindowMode::MODAL);
+			gameEvents.startBattle(hero, this); //grants things after battle
 		}
 		else if(getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
-			hero->showInfoDialog(15);
-			cb->removeObject(this, hero->getOwner());
+			hero->showInfoDialog(gameEvents, 15);
+			gameEvents.removeObject(this, hero->getOwner());
 		}
 		else //if it gives something without battle
 		{
-			CRewardableObject::onHeroVisit(hero);
+			CRewardableObject::onHeroVisit(gameEvents, hero);
 		}
 	}
 }
@@ -287,12 +288,12 @@ void CGEvent::init()
 	}
 }
 
-void CGEvent::grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
+void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
-	CRewardableObject::grantRewardWithMessage(contextHero, rewardIndex, markAsVisit);
+	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
-void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
+void CGEvent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(availableFor.count(h->tempOwner) == 0)
 		return;
@@ -300,13 +301,13 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 	if(cb->getPlayerSettings(h->tempOwner)->isControlledByHuman())
 	{
 		if(humanActivate)
-			activated(h);
+			activated(gameEvents, h);
 	}
 	else if(computerActivate)
-		activated(h);
+		activated(gameEvents, h);
 }
 
-void CGEvent::activated( const CGHeroInstance * h ) const
+void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * h ) const
 {
 	if(stacksCount() > 0)
 	{
@@ -316,12 +317,12 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
-		cb->showInfoDialog(&iw);
-		cb->startBattle(h, this);
+		gameEvents.showInfoDialog(&iw);
+		gameEvents.startBattle(h, this);
 	}
 	else
 	{
-		CRewardableObject::onHeroVisit(h);
+		CRewardableObject::onHeroVisit(gameEvents, h);
 	}
 }
 

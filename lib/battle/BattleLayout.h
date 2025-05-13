@@ -17,7 +17,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CArmedInstance;
-class IGameCallback;
+class CPrivilegedInfoCallback;
 
 struct DLL_EXPORT BattleLayout
 {
@@ -32,8 +32,8 @@ struct DLL_EXPORT BattleLayout
 	bool tacticsAllowed = false;
 	bool obstaclesAllowed = false;
 
-	static BattleLayout createDefaultLayout(IGameCallback * cb, const CArmedInstance * attacker, const CArmedInstance * defender);
-	static BattleLayout createLayout(IGameCallback * cb, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender);
+	static BattleLayout createDefaultLayout(CPrivilegedInfoCallback * cb, const CArmedInstance * attacker, const CArmedInstance * defender);
+	static BattleLayout createLayout(CPrivilegedInfoCallback * cb, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender);
 };
 
 VCMI_LIB_NAMESPACE_END

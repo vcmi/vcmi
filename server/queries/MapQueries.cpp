@@ -45,7 +45,7 @@ bool TimerPauseQuery::endsByPlayerAnswer() const
 
 void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->garrisonDialogClosed(visitingHero);
+	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
 
 CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
@@ -122,7 +122,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
-	caller->blockingDialogAnswered(visitingHero, *answer);
+	caller->blockingDialogAnswered(*gh, visitingHero, *answer);
 }
 
 CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
@@ -197,7 +197,7 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * vis
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
-		obj->teleportDialogAnswered(visitingHero, *answer, td.exits);
+		obj->teleportDialogAnswered(*gh, visitingHero, *answer, td.exits);
 	else
 		logGlobal->error("Invalid instance in teleport query");
 }
@@ -225,7 +225,7 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->heroLevelUpDone(visitingHero);
+	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
 
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
@@ -244,7 +244,7 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->heroLevelUpDone(visitingHero);
+	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):

@@ -11,7 +11,7 @@
 
 #include "CPlayerState.h"
 #include "GameLibrary.h"
-#include "callback/IGameCallback.h"
+#include "callback/CPrivilegedInfoCallback.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "mapObjects/CGTownInstance.h"
 #include "gameState/CGameState.h"
@@ -21,7 +21,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-PlayerState::PlayerState(IGameCallback *cb)
+PlayerState::PlayerState(CPrivilegedInfoCallback *cb)
 	: CBonusSystemNode(PLAYER)
 	, GameCallbackHolder(cb)
 	, color(-1)

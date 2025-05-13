@@ -494,15 +494,6 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 	}
 }
 
-
-
-vstd::RNG & CClient::getRandomGenerator()
-{
-	// Client should use CRandomGenerator::getDefault() for UI logic
-	// Gamestate should never call this method on client!
-	throw std::runtime_error("Illegal access to random number generator from client code!");
-}
-
 #if SCRIPTING_ENABLED
 scripting::Pool * CClient::getGlobalContextPool() const
 {

@@ -21,13 +21,13 @@ class DLL_LINKAGE FlaggableMapObject : public CGObjectInstance, public IOwnableO
 {
 	std::shared_ptr<FlaggableInstanceConstructor> getFlaggableHandler() const;
 
-	void giveBonusTo(const PlayerColor & player, bool onInit = false) const;
-	void takeBonusFrom(const PlayerColor & player) const;
+	void giveBonusTo(IGameEventCallback & gameEvents, const PlayerColor & player, bool onInit = false) const;
+	void takeBonusFrom(IGameEventCallback & gameEvents, const PlayerColor & player) const;
 
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void markAsDeleted() const;
 	void initObj(vstd::RNG & rand) override;
 

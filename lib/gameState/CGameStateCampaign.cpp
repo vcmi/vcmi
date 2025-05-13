@@ -72,7 +72,7 @@ std::optional<CampaignScenarioID> CGameStateCampaign::getHeroesSourceScenario() 
 	return campaignState->lastScenario();
 }
 
-void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & travelOptions)
+void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignTravel & travelOptions)
 {
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
 	if(!travelOptions.whatHeroKeeps.experience)
@@ -80,7 +80,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 		//trimming experience
 		for(auto & hero : campaignHeroReplacements)
 		{
-			hero.hero->initExp(gameState->getRandomGenerator());
+			hero.hero->initExp(randomGenerator);
 		}
 	}
 
@@ -208,7 +208,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(const CampaignTravel & tr
 	}
 }
 
-void CGameStateCampaign::placeCampaignHeroes()
+void CGameStateCampaign::placeCampaignHeroes(vstd::RNG & randomGenerator)
 {
 	// place bonus hero
 	auto campaignState = gameState->scenarioOps->campState;
@@ -224,7 +224,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 			HeroTypeID heroTypeId = HeroTypeID(campaignBonus->info2);
 			if(heroTypeId == HeroTypeID::CAMP_RANDOM) // random bonus hero
 			{
-				heroTypeId = gameState->pickUnusedHeroTypeRandomly(playerColor);
+				heroTypeId = gameState->pickUnusedHeroTypeRandomly(randomGenerator, playerColor);
 			}
 
 			gameState->placeStartingHero(playerColor, HeroTypeID(heroTypeId), gameState->map->players[playerColor.getNum()].posOfMainTown);
@@ -235,7 +235,7 @@ void CGameStateCampaign::placeCampaignHeroes()
 	generateCampaignHeroesToReplace();
 
 	logGlobal->debug("\tPrepare crossover heroes");
-	trimCrossoverHeroesParameters(campaignState->scenario(*campaignState->currentScenario()).travelOptions);
+	trimCrossoverHeroesParameters(randomGenerator, campaignState->scenario(*campaignState->currentScenario()).travelOptions);
 
 	// remove same heroes on the map which will be added through crossover heroes
 	// INFO: we will remove heroes because later it may be possible that the API doesn't allow having heroes
@@ -275,14 +275,14 @@ void CGameStateCampaign::placeCampaignHeroes()
 		HeroTypeID heroTypeId;
 		if(hero->ID == Obj::HERO)
 		{
-			heroTypeId = gameState->pickUnusedHeroTypeRandomly(hero->tempOwner);
+			heroTypeId = gameState->pickUnusedHeroTypeRandomly(randomGenerator, hero->tempOwner);
 		}
 		else if(hero->ID == Obj::PRISON)
 		{
 			auto unusedHeroTypeIds = gameState->getUnusedAllowedHeroes();
 			if(!unusedHeroTypeIds.empty())
 			{
-				heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, gameState->getRandomGenerator()));
+				heroTypeId = (*RandomGeneratorUtil::nextItem(unusedHeroTypeIds, randomGenerator));
 			}
 			else
 			{

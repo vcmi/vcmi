@@ -23,7 +23,7 @@ public:
 	using Version = ESerializationVersion;
 	static constexpr bool saving = false;
 
-	IGameCallback * cb = nullptr;
+	CPrivilegedInfoCallback * cb = nullptr;
 	Version version = Version::NONE;
 	bool loadingGamestate = false;
 	bool reverseEndianness = false; //if source has different endianness than us, we reverse bytes

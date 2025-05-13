@@ -12,7 +12,8 @@
 #include "TownBuildingInstance.h"
 
 #include "CGTownInstance.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../entities/building/CBuilding.h"
 
@@ -20,7 +21,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TownBuildingInstance::TownBuildingInstance(IGameCallback * cb)
+TownBuildingInstance::TownBuildingInstance(CPrivilegedInfoCallback * cb)
 	: IObjectInterface(cb)
 	, town(nullptr)
 {}
@@ -61,7 +62,7 @@ int3 TownBuildingInstance::anchorPos() const
 	return town->anchorPos();
 }
 
-TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameCallback *cb)
+TownRewardableBuildingInstance::TownRewardableBuildingInstance(CPrivilegedInfoCallback *cb)
 	: TownBuildingInstance(cb)
 {}
 
@@ -108,16 +109,16 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	return result;
 }
 
-void TownRewardableBuildingInstance::newTurn(vstd::RNG & rand) const
+void TownRewardableBuildingInstance::newTurn(IGameEventCallback & gameEvents) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
-		auto newConfiguration = generateConfiguration(rand);
-		cb->setRewardableObjectConfiguration(town->id, getBuildingType(), newConfiguration);
+		auto newConfiguration = generateConfiguration(gameEvents.getRandomGenerator());
+		gameEvents.setRewardableObjectConfiguration(town->id, getBuildingType(), newConfiguration);
 
 		if(configuration.resetParameters.visitors)
 		{
-			cb->setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, getBuildingType().getNum());
+			gameEvents.setObjPropertyValue(town->id, ObjProperty::STRUCTURE_CLEAR_VISITORS, getBuildingType().getNum());
 		}
 	}
 }
@@ -138,24 +139,24 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 	}
 }
 
-void TownRewardableBuildingInstance::heroLevelUpDone(const CGHeroInstance *hero) const
+void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(configuration.info.at(selectedReward), town, hero);
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(selectedReward), town, hero);
 }
 
-void TownRewardableBuildingInstance::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
-	onBlockingDialogAnswered(hero, answer);
+	onBlockingDialogAnswered(gameEvents, hero, answer);
 }
 
-void TownRewardableBuildingInstance::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+void TownRewardableBuildingInstance::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
 {
-	grantRewardBeforeLevelup(configuration.info.at(rewardID), hero);
+	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!cb->isVisitCoveredByAnotherQuery(town, hero))
+	if(!gameEvents.isVisitCoveredByAnotherQuery(town, hero))
 	{
-		grantRewardAfterLevelup(configuration.info.at(rewardID), town, hero);
+		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), town, hero);
 	}
 }
 
@@ -192,12 +193,12 @@ bool TownRewardableBuildingInstance::wasVisitedBefore(const CGHeroInstance * con
 	}
 }
 
-void TownRewardableBuildingInstance::onHeroVisit(const CGHeroInstance *h) const
+void TownRewardableBuildingInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	assert(town->hasBuilt(getBuildingType()));
 
 	if(town->hasBuilt(getBuildingType()))
-		doHeroVisit(h);
+		doHeroVisit(gameEvents, h);
 }
 
 const IObjectInterface * TownRewardableBuildingInstance::getObject() const
@@ -223,12 +224,12 @@ bool TownRewardableBuildingInstance::wasVisited(PlayerColor player) const
 	}
 }
 
-void TownRewardableBuildingInstance::markAsVisited(const CGHeroInstance * hero) const
+void TownRewardableBuildingInstance::markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
-	town->addHeroToStructureVisitors(hero, getBuildingType().getNum());
+	town->addHeroToStructureVisitors(gameEvents, hero, getBuildingType().getNum());
 }
 
-void TownRewardableBuildingInstance::markAsScouted(const CGHeroInstance * hero) const
+void TownRewardableBuildingInstance::markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
 	// no-op - town building is always 'scouted' by owner
 }

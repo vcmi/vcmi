@@ -11,11 +11,11 @@
 #include "StdInc.h"
 #include "ArtSlotInfo.h"
 
-#include "../../callback/IGameCallback.h"
+#include "../../callback/CPrivilegedInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ArtSlotInfo::ArtSlotInfo(IGameCallback * cb)
+ArtSlotInfo::ArtSlotInfo(CPrivilegedInfoCallback * cb)
 	: GameCallbackHolder(cb)
 {
 }

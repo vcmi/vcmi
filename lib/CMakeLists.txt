@@ -475,7 +475,7 @@ set(lib_MAIN_HEADERS
 	callback/IBattleEventsReceiver.h
 	callback/IClient.h
 	callback/IGameActionCallback.h
-	callback/IGameCallback.h
+	callback/CPrivilegedInfoCallback.h
 	callback/IGameEventCallback.h
 	callback/IGameEventsReceiver.h
 	callback/IGameInfoCallback.h
@@ -831,7 +831,7 @@ endif()
 if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set_source_files_properties(
 		serializer/SerializerReflection.cpp
-		IGameCallback.cpp
+		CPrivilegedInfoCallback.cpp
 		PROPERTIES
 		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()

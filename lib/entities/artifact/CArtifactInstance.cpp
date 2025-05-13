@@ -14,7 +14,7 @@
 #include "CArtifact.h"
 #include "CArtifactSet.h"
 
-#include "../../callback/IGameCallback.h"
+#include "../../callback/CPrivilegedInfoCallback.h"
 #include "../../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -125,13 +125,13 @@ void CGrowingArtifactInstance::growingUp()
 	}
 }
 
-CArtifactInstance::CArtifactInstance(IGameCallback *cb, const CArtifact * art)
+CArtifactInstance::CArtifactInstance(CPrivilegedInfoCallback *cb, const CArtifact * art)
 	:CArtifactInstance(cb)
 {
 	setType(art);
 }
 
-CArtifactInstance::CArtifactInstance(IGameCallback *cb)
+CArtifactInstance::CArtifactInstance(CPrivilegedInfoCallback *cb)
 	: CBonusSystemNode(ARTIFACT_INSTANCE)
 	, CCombinedArtifactInstance(cb)
 {

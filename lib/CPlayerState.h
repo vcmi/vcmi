@@ -75,7 +75,7 @@ public:
 	std::optional<ui8> daysWithoutCastle;
 	TurnTimerInfo turnTimer;
 
-	PlayerState(IGameCallback *cb);
+	PlayerState(CPrivilegedInfoCallback *cb);
 	~PlayerState();
 
 	std::string nodeName() const override;

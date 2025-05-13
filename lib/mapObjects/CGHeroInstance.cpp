@@ -15,7 +15,8 @@
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
 
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -253,7 +254,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 		return ti->getMovePointsLimitWater();
 }
 
-CGHeroInstance::CGHeroInstance(IGameCallback * cb)
+CGHeroInstance::CGHeroInstance(CPrivilegedInfoCallback * cb)
 	: CArmedInstance(cb),
 	CArtifactSet(cb),
 	tacticFormationEnabled(false),
@@ -554,7 +555,7 @@ bool CGHeroInstance::needsLastStack() const
 	return true;
 }
 
-void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
+void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting
 
@@ -563,14 +564,14 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if( cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
-			cb->heroExchange(h->id, id);
+			gameEvents.heroExchange(h->id, id);
 		}
 		else //battle
 		{
 			if(getVisitedTown()) //we're in town
-				getVisitedTown()->onHeroVisit(h); //town will handle attacking
+				getVisitedTown()->onHeroVisit(gameEvents, h); //town will handle attacking
 			else
-				cb->startBattle(h,	this);
+				gameEvents.startBattle(h,	this);
 		}
 	}
 	else if(ID == Obj::PRISON)
@@ -580,9 +581,9 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			//update hero parameters
 			SetMovePoints smp;
 			smp.hid = id;
-			
-			cb->setManaPoints (id, manaLimit());
-			
+
+			gameEvents.setManaPoints(id, manaLimit());
+
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
 			if (cb->gameState().getMap().getTile(boatPos).isWater())
@@ -591,7 +592,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				if (!inBoat())
 				{
 					//Create a new boat for hero
-					cb->createBoat(boatPos, getBoatType(), h->getOwner());
+					gameEvents.createBoat(boatPos, getBoatType(), h->getOwner());
 					boatId = cb->getTopObj(boatPos)->id;
 				}
 			}
@@ -599,15 +600,15 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			{
 				smp.val = movementPointsLimit(true);
 			}
-			cb->giveHero(id, h->tempOwner, boatId); //recreates def and adds hero to player
-			cb->setObjPropertyID(id, ObjProperty::ID, Obj(Obj::HERO)); //set ID to 34 AFTER hero gets correct flag color
-			cb->setMovePoints (&smp);
+			gameEvents.giveHero(id, h->tempOwner, boatId); //recreates def and adds hero to player
+			gameEvents.setObjPropertyID(id, ObjProperty::ID, Obj(Obj::HERO)); //set ID to 34 AFTER hero gets correct flag color
+			gameEvents.setMovePoints (&smp);
 
-			h->showInfoDialog(102);
+			h->showInfoDialog(gameEvents, 102);
 		}
 		else //already 8 wandering heroes
 		{
-			h->showInfoDialog(103);
+			h->showInfoDialog(gameEvents, 103);
 		}
 	}
 }
@@ -667,13 +668,13 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 0;
 }
 
-void CGHeroInstance::pickRandomObject(vstd::RNG & rand)
+void CGHeroInstance::pickRandomObject(vstd::RNG & randomGenerator)
 {
 	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
 
 	if (ID == Obj::RANDOM_HERO)
 	{
-		auto selectedHero = cb->gameState().pickNextHeroType(getOwner());
+		auto selectedHero = cb->gameState().pickNextHeroType(randomGenerator, getOwner());
 
 		ID = Obj::HERO;
 		subID = selectedHero;

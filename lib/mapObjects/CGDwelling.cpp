@@ -10,7 +10,8 @@
 
 #include "StdInc.h"
 #include "CGDwelling.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
@@ -46,7 +47,7 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CGDwelling::CGDwelling(IGameCallback *cb):
+CGDwelling::CGDwelling(CPrivilegedInfoCallback *cb):
 	CArmedInstance(cb)
 {}
 
@@ -209,7 +210,7 @@ void CGDwelling::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
+void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
 	{
@@ -218,7 +219,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 44); //{%s} \n\n The camp is deserted.  Perhaps you should try next week.
 		iw.text.replaceName(ID, subID);
-		cb->sendAndApply(iw);
+		gameEvents.sendAndApply(iw);
 		return;
 	}
 
@@ -238,14 +239,14 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		else
 			bd.text.replaceLocalString(EMetaText::ARRAY_TXT, 173 + (int)Slots().begin()->second->getQuantityID()*3);
 		bd.text.replaceName(*Slots().begin()->second);
-		cb->showBlockingDialog(this, &bd);
+		gameEvents.showBlockingDialog(this, &bd);
 		return;
 	}
 
 	// TODO this shouldn't be hardcoded
 	if(relations == PlayerRelations::ENEMIES && ID != Obj::WAR_MACHINE_FACTORY && ID != Obj::REFUGEE_CAMP)
 	{
-		cb->setOwner(this, h->tempOwner);
+		gameEvents.setOwner(this, h->tempOwner);
 	}
 
 	BlockingDialog bd (true,false);
@@ -274,10 +275,10 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.flags |= BlockingDialog::SAFE_TO_AUTOACCEPT;
 	}
 
-	cb->showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(this, &bd);
 }
 
-void CGDwelling::newTurn(vstd::RNG & rand) const
+void CGDwelling::newTurn(IGameEventCallback & gameEvents) const
 {
 	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;
@@ -288,7 +289,7 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		cb->setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, LIBRARY->creh->pickRandomMonster(rand));
+		gameEvents.setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, LIBRARY->creh->pickRandomMonster(gameEvents.getRandomGenerator()));
 	}
 
 	bool change = false;
@@ -318,9 +319,9 @@ void CGDwelling::newTurn(vstd::RNG & rand) const
 	}
 
 	if(change)
-		cb->sendAndApply(sac);
+		gameEvents.sendAndApply(sac);
 
-	updateGuards();
+	updateGuards(gameEvents);
 }
 
 std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
@@ -356,7 +357,7 @@ std::vector<Component> CGDwelling::getPopupComponents(PlayerColor player) const
 	return result;
 }
 
-void CGDwelling::updateGuards() const
+void CGDwelling::updateGuards(IGameEventCallback & gameEvents) const
 {
 	//TODO: store custom guard config and use it
 	//TODO: store boolean flag for guards
@@ -386,7 +387,7 @@ void CGDwelling::updateGuards() const
 				csc.slot = slot;
 				csc.count = crea->getGrowth() * 3;
 				csc.absoluteValue = true;
-				cb->sendAndApply(csc);
+				gameEvents.sendAndApply(csc);
 			}
 			else //slot is empty, create whole new stack
 			{
@@ -395,13 +396,13 @@ void CGDwelling::updateGuards() const
 				ns.slot = slot;
 				ns.type = crea->getId();
 				ns.count = crea->getGrowth() * 3;
-				cb->sendAndApply(ns);
+				gameEvents.sendAndApply(ns);
 			}
 		}
 	}
 }
 
-void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
+void CGDwelling::heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGHeroInstance *h) const
 {
 	CreatureID crid = creatures[0].second[0];
 	auto *crs = crid.toCreature();
@@ -420,7 +421,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 					std::pair<SlotID, SlotID> toMerge;
 					if (h->mergeableStacks(toMerge))
 					{
-						cb->moveStack(StackLocation(h->id, toMerge.first), StackLocation(h->id, toMerge.second), -1); //merge toMerge.first into toMerge.second
+						gameEvents.moveStack(StackLocation(h->id, toMerge.first), StackLocation(h->id, toMerge.second), -1); //merge toMerge.first into toMerge.second
 						assert(!h->hasStackAtSlot(toMerge.first)); //we have now a new free slot
 					}
 				}
@@ -434,7 +435,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.player = h->tempOwner;
 				iw.text.appendLocalString(EMetaText::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
 				iw.text.replaceNamePlural(crid);
-				cb->showInfoDialog(&iw);
+				gameEvents.showInfoDialog(&iw);
 			}
 			else //give creatures
 			{
@@ -451,9 +452,9 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				iw.text.replaceNumber(count);
 				iw.text.replaceNamePlural(crid);
 
-				cb->showInfoDialog(&iw);
-				cb->sendAndApply(sac);
-				cb->addToSlot(StackLocation(h->id, slot), crs, count);
+				gameEvents.showInfoDialog(&iw);
+				gameEvents.sendAndApply(sac);
+				gameEvents.addToSlot(StackLocation(h->id, slot), crs, count);
 			}
 		}
 		else //there no creatures
@@ -463,7 +464,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT, 422); //There are no %s here to recruit.
 			iw.text.replaceNamePlural(crid);
 			iw.player = h->tempOwner;
-			cb->sendAndApply(iw);
+			gameEvents.sendAndApply(iw);
 		}
 	}
 	else
@@ -485,33 +486,33 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 				else
 					entry.first = 1;
 			}
-			cb->sendAndApply(sac);
+			gameEvents.sendAndApply(sac);
 		}
 
 		auto windowMode = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP) ? EOpenWindowMode::RECRUITMENT_FIRST : EOpenWindowMode::RECRUITMENT_ALL;
-		cb->showObjectWindow(this, windowMode, h, true);
+		gameEvents.showObjectWindow(this, windowMode, h, true);
 	}
 }
 
-void CGDwelling::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGDwelling::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == BattleSide::ATTACKER)
 	{
-		onHeroVisit(hero);
+		onHeroVisit(gameEvents, hero);
 	}
 }
 
-void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGDwelling::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
 	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present
 	{
 		if(answer)
-			cb->startBattle(hero, this);
+			gameEvents.startBattle(hero, this);
 	}
 	else if(answer)
 	{
-		heroAcceptsCreatures(hero);
+		heroAcceptsCreatures(gameEvents, hero);
 	}
 }
 

@@ -13,7 +13,7 @@
 
 #include "../CPlayerState.h"
 #include "../CSkillHandler.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/CPrivilegedInfoCallback.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"

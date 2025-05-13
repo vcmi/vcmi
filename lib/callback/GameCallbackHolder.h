@@ -11,14 +11,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class IGameCallback;
+class CPrivilegedInfoCallback;
 
 class DLL_LINKAGE GameCallbackHolder
 {
 public:
-	IGameCallback * cb;
+	CPrivilegedInfoCallback * cb;
 
-	explicit GameCallbackHolder(IGameCallback *cb):
+	explicit GameCallbackHolder(CPrivilegedInfoCallback *cb):
 		cb(cb)
 	{}
 };

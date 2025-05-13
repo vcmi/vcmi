@@ -18,19 +18,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE IMarket : public virtual Serializeable, boost::noncopyable
 {
 public:
-	explicit IMarket(IGameCallback *cb);
+	explicit IMarket(CPrivilegedInfoCallback *cb);
 	~IMarket();
 
 	class CArtifactSetAltar : public CArtifactSet
 	{
-		IGameCallback *cb;
+		CPrivilegedInfoCallback *cb;
 	public:
-		CArtifactSetAltar(IGameCallback *cb)
+		CArtifactSetAltar(CPrivilegedInfoCallback *cb)
 			: CArtifactSet(cb)
 			, cb(cb)
 		{}
 
-		IGameCallback * getCallback() const override {return cb;};
+		CPrivilegedInfoCallback * getCallback() const override {return cb;};
 		ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 

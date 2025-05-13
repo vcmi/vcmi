@@ -18,9 +18,20 @@ namespace vstd
 	class RNG;
 }
 
+#if SCRIPTING_ENABLED
+	namespace scripting
+	{
+	class Pool;
+	}
+#endif
+
 class DLL_LINKAGE CPrivilegedInfoCallback : public CGameInfoCallback
 {
 public:
+#if SCRIPTING_ENABLED
+	virtual scripting::Pool * getGlobalContextPool() const = 0;
+#endif
+
 	using CGameInfoCallback::gameState; // make public
 
 	//used for random spawns

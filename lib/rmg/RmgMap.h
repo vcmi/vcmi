@@ -38,7 +38,7 @@ public:
 	std::shared_ptr<MapProxy> getMapProxy() const;
 	CMap & getMap(const CMapGenerator *) const; //limited access
 	
-	RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb);
+	RmgMap(const CMapGenOptions& mapGenOptions, CPrivilegedInfoCallback * cb);
 	~RmgMap() = default;
 
 	CMapEditManager* getEditManager() const;

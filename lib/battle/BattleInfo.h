@@ -74,8 +74,8 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	BattleInfo(IGameCallback *cb, const BattleLayout & layout);
-	BattleInfo(IGameCallback *cb);
+	BattleInfo(CPrivilegedInfoCallback *cb, const BattleLayout & layout);
+	BattleInfo(CPrivilegedInfoCallback *cb);
 	virtual ~BattleInfo();
 
 	const IBattleInfo * getBattle() const override;
@@ -164,7 +164,7 @@ public:
 	const CGHeroInstance * getHero(const PlayerColor & player) const; //returns fighting hero that belongs to given player
 
 	void localInit();
-	static std::unique_ptr<BattleInfo> setupBattle(IGameCallback *cb, const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
+	static std::unique_ptr<BattleInfo> setupBattle(CPrivilegedInfoCallback *cb, const int3 & tile, TerrainId, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town);
 
 	BattleSide whatSide(const PlayerColor & player) const;
 
