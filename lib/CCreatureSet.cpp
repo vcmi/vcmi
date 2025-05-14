@@ -14,7 +14,7 @@
 #include "CCreatureHandler.h"
 #include "GameLibrary.h"
 #include "IGameSettings.h"
-#include "callback/CPrivilegedInfoCallback.h"
+#include "callback/CGameInfoCallback.h"
 #include "entities/hero/CHeroHandler.h"
 #include "mapObjects/CGHeroInstance.h"
 #include "modding/ModScope.h"
@@ -707,7 +707,7 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	}
 }
 
-CStackInstance::CStackInstance(CPrivilegedInfoCallback *cb, bool isHypothetic)
+CStackInstance::CStackInstance(CGameInfoCallback *cb, bool isHypothetic)
 	: CBonusSystemNode(isHypothetic)
 	, CStackBasicDescriptor(nullptr, 0)
 	, CArtifactSet(cb)
@@ -719,7 +719,7 @@ CStackInstance::CStackInstance(CPrivilegedInfoCallback *cb, bool isHypothetic)
 	setNodeType(STACK_INSTANCE);
 }
 
-CStackInstance::CStackInstance(CPrivilegedInfoCallback *cb, const CreatureID & id, TQuantity Count, bool isHypothetic)
+CStackInstance::CStackInstance(CGameInfoCallback *cb, const CreatureID & id, TQuantity Count, bool isHypothetic)
 	: CStackInstance(cb, false)
 {
 	setType(id);
@@ -1034,11 +1034,11 @@ const IBonusBearer* CStackInstance::getBonusBearer() const
 	return this;
 }
 
-CCommanderInstance::CCommanderInstance(CPrivilegedInfoCallback *cb)
+CCommanderInstance::CCommanderInstance(CGameInfoCallback *cb)
 	:CStackInstance(cb)
 {}
 
-CCommanderInstance::CCommanderInstance(CPrivilegedInfoCallback *cb, const CreatureID & id)
+CCommanderInstance::CCommanderInstance(CGameInfoCallback *cb, const CreatureID & id)
 	: CStackInstance(cb)
 	, name("Commando")
 {

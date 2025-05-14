@@ -13,7 +13,7 @@
 #include <vcmi/Environment.h>
 
 #include "../lib/callback/IClient.h"
-#include "../lib/callback/CPrivilegedInfoCallback.h"
+#include "../lib/callback/CGameInfoCallback.h"
 #include "../lib/ConditionalWait.h"
 #include "../lib/ResourceSet.h"
 
@@ -122,7 +122,7 @@ public:
 };
 
 /// Class which handles client - server logic
-class CClient : public CPrivilegedInfoCallback, public Environment, public IClient
+class CClient : public CGameInfoCallback, public Environment, public IClient
 {
 	std::shared_ptr<CGameState> gamestate;
 public:

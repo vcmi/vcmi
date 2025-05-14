@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "CGDwelling.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../entities/faction/CTownHandler.h"
@@ -47,7 +47,7 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CGDwelling::CGDwelling(CPrivilegedInfoCallback *cb):
+CGDwelling::CGDwelling(CGameInfoCallback *cb):
 	CArmedInstance(cb)
 {}
 

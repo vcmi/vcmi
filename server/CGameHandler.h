@@ -11,7 +11,7 @@
 
 #include <vcmi/Environment.h>
 
-#include "../lib/callback/CPrivilegedInfoCallback.h"
+#include "../lib/callback/CGameInfoCallback.h"
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
@@ -54,7 +54,7 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 
-class CGameHandler : public CPrivilegedInfoCallback, public Environment, public IGameEventCallback
+class CGameHandler : public CGameInfoCallback, public Environment, public IGameEventCallback
 {
 	CVCMIServer * lobby;
 
@@ -108,7 +108,7 @@ public:
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
-	//from CPrivilegedInfoCallback
+	//from CGameInfoCallback
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;

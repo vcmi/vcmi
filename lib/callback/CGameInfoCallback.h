@@ -36,18 +36,30 @@ class CGTeleport;
 class CGTownInstance;
 class IMarket;
 
+#if SCRIPTING_ENABLED
+namespace scripting
+{
+class Pool;
+}
+#endif
+
+namespace vstd
+{
+class RNG;
+}
+
 class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
 {
 protected:
-	virtual CGameState & gameState() = 0;
-	virtual const CGameState & gameState() const = 0;
-
 	bool hasAccess(std::optional<PlayerColor> playerId) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
 	bool isOwnedOrVisited(const CGObjectInstance *obj) const;
 
 public:
+	virtual CGameState & gameState() = 0;
+	virtual const CGameState & gameState() const = 0;
+
 	//various
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	const StartInfo * getStartInfo() const override;
@@ -135,6 +147,28 @@ public:
 	virtual bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const;
+
+	//used for random spawns
+	void getFreeTiles(std::vector<int3> &tiles) const;
+
+	//mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only revealed
+	void getTilesInRange(std::unordered_set<int3> & tiles,
+						 const int3 & pos,
+						 int radius,
+						 ETileVisibility mode,
+						 std::optional<PlayerColor> player = std::optional<PlayerColor>(),
+						 int3::EDistanceFormula formula = int3::DIST_2D) const;
+
+	//returns all tiles on given level (-1 - both levels, otherwise number of level)
+	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const;
+
+	//gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand);
+	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
+
+#if SCRIPTING_ENABLED
+	virtual scripting::Pool * getGlobalContextPool() const;
+#endif
 };
 
 VCMI_LIB_NAMESPACE_END

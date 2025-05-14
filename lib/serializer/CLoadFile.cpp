@@ -19,7 +19,7 @@ struct static_caster
 };
 
 
-CLoadFile::CLoadFile(const boost::filesystem::path & fname, CPrivilegedInfoCallback * cb)
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, CGameInfoCallback * cb)
 	: serializer(this)
 	, sfile(fname.c_str(), std::ios::in | std::ios::binary)
 {

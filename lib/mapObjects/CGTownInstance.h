@@ -207,7 +207,7 @@ public:
 	/// Returns true if provided war machine is available in any of built buildings of this town
 	bool isWarMachineAvailable(ArtifactID) const;
 
-	CGTownInstance(CPrivilegedInfoCallback *cb);
+	CGTownInstance(CGameInfoCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides

@@ -18,7 +18,7 @@
 
 #include "JsonBonus.h"
 
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
 #include "../CCreatureHandler.h"

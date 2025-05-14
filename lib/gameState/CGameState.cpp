@@ -31,7 +31,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../battle/BattleInfo.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -150,7 +150,7 @@ int CGameState::getDate(Date mode) const
 	return getDate(day, mode);
 }
 
-CGameState::CGameState(CPrivilegedInfoCallback * callback)
+CGameState::CGameState(CGameInfoCallback * callback)
 	: GameCallbackHolder(callback)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);

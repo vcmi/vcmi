@@ -82,8 +82,8 @@ class DLL_LINKAGE CArtifactInstance final
 	ArtifactID artTypeID;
 
 public:
-	CArtifactInstance(CPrivilegedInfoCallback *cb, const CArtifact * art);
-	CArtifactInstance(CPrivilegedInfoCallback *cb);
+	CArtifactInstance(CGameInfoCallback *cb, const CArtifact * art);
+	CArtifactInstance(CGameInfoCallback *cb);
 	void setType(const CArtifact * art);
 	std::string nodeName() const override;
 	ArtifactID getTypeId() const;

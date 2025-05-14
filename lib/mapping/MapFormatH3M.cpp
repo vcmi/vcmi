@@ -72,7 +72,7 @@ CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & mo
 //must be instantiated in .cpp file for access to complete types of all member fields
 CMapLoaderH3M::~CMapLoaderH3M() = default;
 
-std::unique_ptr<CMap> CMapLoaderH3M::loadMap(CPrivilegedInfoCallback * cb)
+std::unique_ptr<CMap> CMapLoaderH3M::loadMap(CGameInfoCallback * cb)
 {
 	// Init map object by parsing the input buffer
 	map = new CMap(cb);

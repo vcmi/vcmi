@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CPrivilegedInfoCallback.h"
+#include "CGameInfoCallback.h"
 
 #include <vcmi/Metatype.h>
 
@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-class DLL_LINKAGE CNonConstInfoCallback : public CPrivilegedInfoCallback
+class DLL_LINKAGE CNonConstInfoCallback : public CGameInfoCallback
 {
 public:
 	//keep const version of callback accessible

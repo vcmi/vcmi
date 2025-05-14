@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"
@@ -78,7 +78,7 @@ std::set<EMarketMode> CGMarket::availableModes() const
 	return getMarketHandler()->availableModes();
 }
 
-CGMarket::CGMarket(CPrivilegedInfoCallback *cb)
+CGMarket::CGMarket(CGameInfoCallback *cb)
 	: CGObjectInstance(cb)
 	, IMarket(cb)
 {}

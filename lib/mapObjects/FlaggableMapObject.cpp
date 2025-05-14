@@ -14,7 +14,7 @@
 #include "CGHeroInstance.h"
 
 #include "../CPlayerState.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"

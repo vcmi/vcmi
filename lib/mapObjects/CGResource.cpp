@@ -11,7 +11,7 @@
 #include "StdInc.h"
 #include "CGResource.h"
 
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../texts/CGeneralTextHandler.h"

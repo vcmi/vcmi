@@ -80,7 +80,7 @@ public:
 	/// TODO: make private
 	std::vector<std::shared_ptr<CGObjectInstance>> objects;
 
-	explicit CMap(CPrivilegedInfoCallback *cb);
+	explicit CMap(CGameInfoCallback *cb);
 	~CMap();
 	void initTerrain();
 

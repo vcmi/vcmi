@@ -184,7 +184,7 @@ CArtifactSet::ArtPlacementMap CArtifactSet::putArtifact(const ArtifactPosition &
 	return resArtPlacement;
 }
 
-CArtifactSet::CArtifactSet(CPrivilegedInfoCallback * cb)
+CArtifactSet::CArtifactSet(CGameInfoCallback * cb)
 	:artifactsTransitionPos(cb)
 {}
 

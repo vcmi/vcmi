@@ -39,7 +39,7 @@ public:
 	std::optional<CGDwellingRandomizationInfo> randomizationInfo; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
-	CGDwelling(CPrivilegedInfoCallback *cb);
+	CGDwelling(CGameInfoCallback *cb);
 	~CGDwelling() override;
 
 	const IOwnableObject * asOwnable() const final;

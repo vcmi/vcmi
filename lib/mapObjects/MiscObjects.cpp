@@ -12,7 +12,7 @@
 #include "MiscObjects.h"
 
 #include "../bonuses/Propagators.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -483,7 +483,7 @@ void CGSubterraneanGate::initObj(vstd::RNG & rand)
 	type = BOTH;
 }
 
-void CGSubterraneanGate::postInit(CPrivilegedInfoCallback * cb) //matches subterranean gates into pairs
+void CGSubterraneanGate::postInit(CGameInfoCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
@@ -986,7 +986,7 @@ void CGMagi::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 	}
 }
 
-CGBoat::CGBoat(CPrivilegedInfoCallback * cb)
+CGBoat::CGBoat(CGameInfoCallback * cb)
 	: CGObjectInstance(cb)
 {
 	direction = 4;

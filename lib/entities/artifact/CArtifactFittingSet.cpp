@@ -13,7 +13,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CArtifactFittingSet::CArtifactFittingSet(CPrivilegedInfoCallback *cb, ArtBearer bearer)
+CArtifactFittingSet::CArtifactFittingSet(CGameInfoCallback *cb, ArtBearer bearer)
 	: CArtifactSet(cb)
 	, GameCallbackHolder(cb)
 	, bearer(bearer)

@@ -14,7 +14,7 @@
 #include "CGHeroInstance.h"
 #include "ObjectTemplate.h"
 
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -31,7 +31,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 //TODO: remove constructor
-CGObjectInstance::CGObjectInstance(CPrivilegedInfoCallback *cb):
+CGObjectInstance::CGObjectInstance(CGameInfoCallback *cb):
 	IObjectInterface(cb),
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),

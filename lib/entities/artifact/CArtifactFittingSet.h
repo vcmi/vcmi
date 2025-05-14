@@ -18,13 +18,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 // Used to try on artifacts before the claimed changes have been applied
 class DLL_LINKAGE CArtifactFittingSet : public CArtifactSet, public GameCallbackHolder
 {
-	CPrivilegedInfoCallback * getCallback() const final
+	CGameInfoCallback * getCallback() const final
 	{
 		return cb;
 	}
 
 public:
-	CArtifactFittingSet(CPrivilegedInfoCallback * cb, ArtBearer Bearer);
+	CArtifactFittingSet(CGameInfoCallback * cb, ArtBearer Bearer);
 	explicit CArtifactFittingSet(const CArtifactSet & artSet);
 	ArtBearer bearerType() const override;
 

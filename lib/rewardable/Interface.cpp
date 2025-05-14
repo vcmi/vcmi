@@ -14,7 +14,7 @@
 #include "../TerrainHandler.h"
 #include "../CPlayerState.h"
 #include "../CSoundBase.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"

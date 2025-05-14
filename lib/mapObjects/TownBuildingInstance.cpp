@@ -12,7 +12,7 @@
 #include "TownBuildingInstance.h"
 
 #include "CGTownInstance.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../entities/building/CBuilding.h"
@@ -21,7 +21,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TownBuildingInstance::TownBuildingInstance(CPrivilegedInfoCallback * cb)
+TownBuildingInstance::TownBuildingInstance(CGameInfoCallback * cb)
 	: IObjectInterface(cb)
 	, town(nullptr)
 {}
@@ -62,7 +62,7 @@ int3 TownBuildingInstance::anchorPos() const
 	return town->anchorPos();
 }
 
-TownRewardableBuildingInstance::TownRewardableBuildingInstance(CPrivilegedInfoCallback *cb)
+TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGameInfoCallback *cb)
 	: TownBuildingInstance(cb)
 {}
 

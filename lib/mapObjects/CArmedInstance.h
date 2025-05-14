@@ -50,8 +50,8 @@ public:
 	void restoreBonusSystem(CGameState & gs) override;
 	//////////////////////////////////////////////////////////////////////////
 
-	CArmedInstance(CPrivilegedInfoCallback *cb);
-	CArmedInstance(CPrivilegedInfoCallback *cb, bool isHypothetic);
+	CArmedInstance(CGameInfoCallback *cb);
+	CArmedInstance(CGameInfoCallback *cb, bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{

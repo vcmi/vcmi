@@ -137,7 +137,7 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 
 	void initTypeData(const JsonNode & config) override;
 public:
-	std::shared_ptr<CGMarket> createObject(CPrivilegedInfoCallback * cb) const override;
+	std::shared_ptr<CGMarket> createObject(CGameInfoCallback * cb) const override;
 	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
 
 	const std::set<EMarketMode> & availableModes() const;

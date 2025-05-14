@@ -28,7 +28,7 @@ class CMap;
 class CMapHeader;
 class CMapInfo;
 class JsonNode;
-class CPrivilegedInfoCallback;
+class CGameInfoCallback;
 
 class DLL_LINKAGE CampaignRegions
 {
@@ -338,7 +338,7 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, CPrivilegedInfoCallback * cb);
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, CGameInfoCallback * cb);
 	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
 	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 

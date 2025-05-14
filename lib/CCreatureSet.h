@@ -78,7 +78,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 
 	CArmedInstance * armyInstance = nullptr; //stack must be part of some army, army must be part of some object
 
-	CPrivilegedInfoCallback * getCallback() const final { return cb; }
+	CGameInfoCallback * getCallback() const final { return cb; }
 
 	TExpType totalExperience;//commander needs same amount of exp as hero
 public:
@@ -146,8 +146,8 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	CStackInstance(CPrivilegedInfoCallback *cb, bool isHypothetic	= false);
-	CStackInstance(CPrivilegedInfoCallback *cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
+	CStackInstance(CGameInfoCallback *cb, bool isHypothetic	= false);
+	CStackInstance(CGameInfoCallback *cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 
 	void setType(const CreatureID & creID);
@@ -182,8 +182,8 @@ public:
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
-	CCommanderInstance(CPrivilegedInfoCallback *cb);
-	CCommanderInstance(CPrivilegedInfoCallback *cb, const CreatureID & id);
+	CCommanderInstance(CGameInfoCallback *cb);
+	CCommanderInstance(CGameInfoCallback *cb, const CreatureID & id);
 	void setAlive (bool alive);
 	void levelUp ();
 

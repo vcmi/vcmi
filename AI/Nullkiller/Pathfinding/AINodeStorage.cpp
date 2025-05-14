@@ -14,7 +14,7 @@
 #include "../Goals/Goals.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../lib/callback/CPrivilegedInfoCallback.h"
+#include "../../../lib/callback/CGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/pathfinder/CPathfinder.h"

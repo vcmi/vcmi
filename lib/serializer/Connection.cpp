@@ -124,7 +124,7 @@ void CConnection::enterLobbyConnectionMode()
 	serializer->clear();
 }
 
-void CConnection::setCallback(CPrivilegedInfoCallback * cb)
+void CConnection::setCallback(CGameInfoCallback * cb)
 {
 	deserializer->cb = cb;
 }

@@ -12,12 +12,12 @@
 
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/callback/CPrivilegedInfoCallback.h"
+#include "../../lib/callback/CGameInfoCallback.h"
 #include "../../lib/callback/IGameEventCallback.h"
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
 
-class GameCallbackMock : public CPrivilegedInfoCallback, public IGameEventCallback
+class GameCallbackMock : public CGameInfoCallback, public IGameEventCallback
 {
 	std::shared_ptr<CGameState> gamestate;
 public:

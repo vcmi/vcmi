@@ -28,7 +28,7 @@ class BoatId;
 class CGObjectInstance;
 class CStackInstance;
 class CGHeroInstance;
-class CPrivilegedInfoCallback;
+class CGameInfoCallback;
 class IGameEventCallback;
 class ResourceSet;
 class int3;

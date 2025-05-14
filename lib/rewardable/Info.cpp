@@ -108,7 +108,7 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["onGuardedMessage"], TextIdentifier(objectName, "onGuarded"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, CPrivilegedInfoCallback * cb, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, CGameInfoCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
@@ -123,7 +123,7 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, CPrivilegedInfoCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, CGameInfoCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -160,7 +160,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd
 	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd::RNG & rng, CPrivilegedInfoCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd::RNG & rng, CGameInfoCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
 	JsonRandom randomizer(cb);
@@ -233,7 +233,7 @@ void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, vs
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, CPrivilegedInfoCallback * cb, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, CGameInfoCallback * cb, const JsonNode & source) const
 {
 	JsonRandom randomizer(cb);
 
@@ -351,7 +351,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
 		vstd::RNG & rng,
-		CPrivilegedInfoCallback * cb,
+		CGameInfoCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
@@ -408,7 +408,7 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, CPrivilegedInfoCallback * cb) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, CGameInfoCallback * cb) const
 {
 	object.info.clear();
 	object.variables.values.clear();

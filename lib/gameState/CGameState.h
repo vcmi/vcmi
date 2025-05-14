@@ -68,7 +68,7 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	CGameState(CPrivilegedInfoCallback * callback);
+	CGameState(CGameInfoCallback * callback);
 	virtual ~CGameState();
 
 	CGameState & gameState() final { return *this; }
@@ -240,7 +240,7 @@ private:
 	/// Pointer to campaign state manager. Nullptr for single scenarios
 	std::unique_ptr<CGameStateCampaign> campaign;
 
-	friend class CPrivilegedInfoCallback;
+	friend class CGameInfoCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
 };

@@ -15,7 +15,7 @@
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "../CStack.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/TownFortifications.h"
 #include "../filesystem/Filesystem.h"
@@ -156,7 +156,7 @@ struct RangeGenerator
 	std::function<int()> myRand;
 };
 
-std::unique_ptr<BattleInfo> BattleInfo::setupBattle(CPrivilegedInfoCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
+std::unique_ptr<BattleInfo> BattleInfo::setupBattle(CGameInfoCallback *cb, const int3 & tile, TerrainId terrain, const BattleField & battlefieldType, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance * town)
 {
 	CMP_stack cmpst;
 	auto currentBattle = std::make_unique<BattleInfo>(cb, layout);
@@ -458,13 +458,13 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	return const_cast<CStack *>(battleGetStackByID(stackID, onlyAlive));
 }
 
-BattleInfo::BattleInfo(CPrivilegedInfoCallback *cb, const BattleLayout & layout):
+BattleInfo::BattleInfo(CGameInfoCallback *cb, const BattleLayout & layout):
 	BattleInfo(cb)
 {
 	*this->layout = layout;
 }
 
-BattleInfo::BattleInfo(CPrivilegedInfoCallback *cb)
+BattleInfo::BattleInfo(CGameInfoCallback *cb)
 	:GameCallbackHolder(cb),
 	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),

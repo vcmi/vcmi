@@ -17,7 +17,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
 #include "../IGameSettings.h"
-#include "../callback/CPrivilegedInfoCallback.h"
+#include "../callback/CGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
