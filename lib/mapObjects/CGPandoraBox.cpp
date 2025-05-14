@@ -36,7 +36,7 @@ void CGPandoraBox::init()
 	for(auto & i : configuration.info)
 	{
 		i.reward.removeObject = true;
-		if(!message.empty() && i.message.empty())
+		if(!message.empty() && i.message.empty() && stacksCount() == 0)
 			i.message = message;
 	}
 }
@@ -219,7 +219,6 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.getCurrent()["guards"].Vector().empty())
 			CCreatureSet::serializeJson(handler, "guards", 7);
 		
-		bool hasSomething = false;
 		Rewardable::VisitInfo vinfo;
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
@@ -239,11 +238,7 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			auto s = handler.enterStruct("primarySkills");
 			for(int idx = 0; idx < vinfo.reward.primary.size(); idx ++)
-			{
 				handler.serializeInt(NPrimarySkill::names[idx], vinfo.reward.primary[idx], 0);
-				if(vinfo.reward.primary[idx])
-					hasSomething = true;
-			}
 		}
 		
 		handler.serializeIdArray("artifacts", vinfo.reward.grantedArtifacts);
@@ -274,18 +269,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				vinfo.reward.secondary[rawId] = level;
 			}
 		}
-		
-		hasSomething = hasSomething
-		|| vinfo.reward.heroExperience
-		|| vinfo.reward.manaDiff
-		|| vinfo.reward.resources.nonZero()
-		|| !vinfo.reward.grantedArtifacts.empty()
-		|| !vinfo.reward.heroBonuses.empty()
-		|| !vinfo.reward.creatures.empty()
-		|| !vinfo.reward.secondary.empty();
-		
-		if(hasSomething)
-			configuration.info.push_back(vinfo);
+
+		configuration.info.push_back(vinfo);
 	}
 }
 
@@ -297,7 +282,7 @@ void CGEvent::init()
 	for(auto & i : configuration.info)
 	{
 		i.reward.removeObject = removeAfterVisit;
-		if(!message.empty() && i.message.empty())
+		if(!message.empty() && i.message.empty() && stacksCount() == 0)
 			i.message = message;
 	}
 }
