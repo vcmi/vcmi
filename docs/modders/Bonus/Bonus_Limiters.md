@@ -23,20 +23,27 @@ Example:
 
 ### HAS_ANOTHER_BONUS_LIMITER
 
+Bonus is only active if affected entity has another bonus that meets conditions
+
 Parameters:
 
 - Bonus type
-- (optional) bonus subtype
-- (optional) bonus sourceType and sourceId in struct
-- example: (from Adele's bless):
+- bonus subtype
+- bonus sourceType and sourceId in struct
+
+All parameters are optional. Values that don't need checking can be replaces with `null`
+
+Examples:
+
+- Adele specialty: active if unit has any bonus from Bless spell
 
 ```json
 	"limiters" : [
 		{
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
 			"parameters" : [
-				"GENERAL_DAMAGE_PREMY",
-				1,
+				null,
+				null,
 				{
 					"type" : "SPELL_EFFECT",
 					"id" : "spell.bless"
@@ -46,18 +53,42 @@ Parameters:
 	],
 ```
 
+- Mutare specialty: active if unit has `DRAGON_NATURE` bonus
+
+```json
+	"limiters" : [
+		{
+			"parameters" : [ "DRAGON_NATURE" ],
+			"type" : "HAS_ANOTHER_BONUS_LIMITER"
+		}
+	],
+```
+
 ### CREATURE_TYPE_LIMITER
+
+Bonus is only active on creatures of specified type
 
 Parameters:
 
 - Creature id (string)
-- (optional) include upgrades - default is false
+- (optional) include upgrades - default is false. If creature has multiple upgrades, or upgrades have their own upgrades, all such creatures will be affected. Special upgrades such as upgrades via specialties (Dragon, Gelu) are not affected
+
+Example:
+
+```json
+"limiters": [ {
+	"type":"CREATURE_TYPE_LIMITER",
+	"parameters": [ "angel", true ]
+} ],
+```
 
 ### CREATURE_ALIGNMENT_LIMITER
 
+Bonus is only active on creatures of factions of specified alignment
+
 Parameters:
 
-- Alignment identifier
+- Alignment identifier, `good`, `evil`, or `neutral`
 
 ### CREATURE_LEVEL_LIMITER
 
@@ -83,13 +114,6 @@ Parameters:
 Example:
 
 ```json
-"limiters": [ {
-	"type":"CREATURE_TYPE_LIMITER",
-	"parameters": [ "angel", true ]
-} ],
-```
-
-```json
 "limiters" : [ {
 	"type" : "CREATURE_TERRAIN_LIMITER",
 	"parameters" : ["sand"]
@@ -101,6 +125,10 @@ Example:
 Parameters:
 
 - List of affected battlefield hexes
+
+For reference on tiles indexes see image below:
+
+![Battlefield Hexes Layout](../../images/Battle_Field_Hexes.svg)
 
 ## Aggregate Limiters
 

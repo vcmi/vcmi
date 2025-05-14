@@ -337,10 +337,38 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	}
 }
 
-bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
+bool CCreature::isMyDirectUpgrade(const CCreature *anotherCre) const
 {
-	//TODO upgrade of upgrade?
 	return vstd::contains(upgrades, anotherCre->getId());
+}
+
+bool CCreature::isMyDirectOrIndirectUpgrade(const CCreature *anotherCre) const
+{
+	std::set<CreatureID> foundUpgrades;
+	std::vector<CreatureID> upgradesToTest;
+
+	upgradesToTest.push_back(getId());
+
+	while (!upgradesToTest.empty())
+	{
+		CreatureID testedID = upgradesToTest.back();
+		const CCreature * testedPtr = testedID.toCreature();
+
+		upgradesToTest.pop_back();
+
+		for (const auto & upgrade : testedPtr->upgrades)
+		{
+			if (upgrade == anotherCre->getId())
+				return true;
+
+			if (foundUpgrades.count(upgrade))
+				continue;
+
+			upgradesToTest.push_back(upgrade);
+			foundUpgrades.insert(upgrade);
+		}
+	}
+	return false;
 }
 
 std::string CCreature::nodeName() const
