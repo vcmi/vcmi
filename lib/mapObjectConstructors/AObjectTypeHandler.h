@@ -57,6 +57,8 @@ protected:
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
+
+	virtual void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) {}
 public:
 
 	AObjectTypeHandler();

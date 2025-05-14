@@ -28,6 +28,7 @@ class DwellingInstanceConstructor : public CDefaultObjectTypeHandler<CGDwelling>
 protected:
 	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(const JsonNode & input) override;
+	void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) override;
 
 public:
 	bool hasNameTextID() const override;
