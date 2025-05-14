@@ -259,7 +259,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 				if(tile.blocked() && !tile.visitable())
 					continue;
 
-				if(gs->isVisible(int3(x, y, layer), player))
+				if(gs->isVisibleFor(int3(x, y, layer), player))
 					visible++;
 				numTiles++;
 			}

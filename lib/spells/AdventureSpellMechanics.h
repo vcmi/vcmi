@@ -29,8 +29,8 @@ class AdventureSpellMechanics : public IAdventureSpellMechanics
 public:
 	AdventureSpellMechanics(const CSpell * s);
 
-	bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const final;
-	bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
+	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
+	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override final;
 protected:
@@ -38,8 +38,8 @@ protected:
 	virtual ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	virtual ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	virtual void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	virtual bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const;
-	virtual bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
+	virtual bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const;
+	virtual bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
@@ -49,7 +49,7 @@ class SummonBoatMechanics final : public AdventureSpellMechanics
 public:
 	SummonBoatMechanics(const CSpell * s);
 protected:
-	bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override;
+	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
@@ -59,7 +59,7 @@ class ScuttleBoatMechanics final : public AdventureSpellMechanics
 public:
 	ScuttleBoatMechanics(const CSpell * s);
 protected:
-	bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
@@ -69,8 +69,8 @@ class DimensionDoorMechanics final : public AdventureSpellMechanics
 public:
 	DimensionDoorMechanics(const CSpell * s);
 protected:
-	bool canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const override;
-	bool canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
+	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;

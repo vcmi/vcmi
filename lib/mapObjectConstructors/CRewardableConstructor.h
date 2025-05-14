@@ -28,13 +28,13 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 public:
 	bool hasNameTextID() const override;
 
-	std::shared_ptr<CGObjectInstance> create(CGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
+	std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl = nullptr) const override;
 
 	void configureObject(CGObjectInstance * object, vstd::RNG & rng) const override;
 
 	std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const override;
 
-	Rewardable::Configuration generateConfiguration(CGameInfoCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
+	Rewardable::Configuration generateConfiguration(IGameInfoCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -15,7 +15,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../IGameSettings.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"

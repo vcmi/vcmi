@@ -72,7 +72,7 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	ui32 movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison
 
-	CGameInfoCallback * getCallback() const final { return cb; }
+	IGameInfoCallback * getCallback() const final { return cb; }
 
 public:
 	//////////////////////////////////////////////////////////////////////////
@@ -281,7 +281,7 @@ public:
 	/// If this hero perishes, the scenario is failed
 	bool isMissionCritical() const;
 
-	CGHeroInstance(CGameInfoCallback *cb);
+	CGHeroInstance(IGameInfoCallback *cb);
 	virtual ~CGHeroInstance();
 
 	PlayerColor getOwner() const override;

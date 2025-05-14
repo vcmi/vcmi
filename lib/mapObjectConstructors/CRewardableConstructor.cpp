@@ -37,7 +37,7 @@ bool CRewardableConstructor::hasNameTextID() const
 	return !objectInfo.getParameters()["name"].isNull();
 }
 
-std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(CGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
+std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const
 {
 	auto ret = std::make_shared<CRewardableObject>(cb);
 	preInitObject(ret.get());
@@ -55,7 +55,7 @@ void CRewardableConstructor::assignBonuses(std::vector<Bonus> & bonuses, MapObje
 	}
 }
 
-Rewardable::Configuration CRewardableConstructor::generateConfiguration(CGameInfoCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
+Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameInfoCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
 	Rewardable::Configuration result;
 	result.variables.preset = presetVariables;

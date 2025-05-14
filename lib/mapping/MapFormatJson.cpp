@@ -767,7 +767,7 @@ CMapLoaderJson::CMapLoaderJson(CInputStream * stream)
 {
 }
 
-std::unique_ptr<CMap> CMapLoaderJson::loadMap(CGameInfoCallback * cb)
+std::unique_ptr<CMap> CMapLoaderJson::loadMap(IGameInfoCallback * cb)
 {
 	LOG_TRACE(logGlobal);
 	auto result = std::make_unique<CMap>(cb);

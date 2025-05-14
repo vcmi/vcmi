@@ -31,7 +31,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../battle/BattleInfo.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -150,7 +150,7 @@ int CGameState::getDate(Date mode) const
 	return getDate(day, mode);
 }
 
-CGameState::CGameState(CGameInfoCallback * callback)
+CGameState::CGameState(IGameInfoCallback * callback)
 	: GameCallbackHolder(callback)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
@@ -1066,46 +1066,7 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
 }
 
-void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
-{
-	assert(obj);
-	assert(obj->hasStackAtSlot(stackPos));
 
-	out = fillUpgradeInfo(obj->getStack(stackPos));
-}
-
-UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
-{
-	const CCreature *base = stack.getCreature();
-	
-	UpgradeInfo ret(base->getId());
-
-	if (stack.getArmy()->ID == Obj::HERO)
-	{
-		auto hero = dynamic_cast<const CGHeroInstance *>(stack.getArmy());
-		hero->fillUpgradeInfo(ret, stack);
-
-		if (hero->getVisitedTown())
-		{
-			hero->getVisitedTown()->fillUpgradeInfo(ret, stack);
-		}
-		else
-		{
-			auto object = vstd::frontOrNull(getVisitableObjs(hero->visitablePos()));
-			auto upgradeSource = dynamic_cast<const ICreatureUpgrader*>(object);
-			if (object != hero && upgradeSource != nullptr)
-				upgradeSource->fillUpgradeInfo(ret, stack);
-		}
-	}
-
-	if (stack.getArmy()->ID == Obj::TOWN)
-	{
-		auto town = dynamic_cast<const CGTownInstance *>(stack.getArmy());
-		town->fillUpgradeInfo(ret, stack);
-	}
-
-	return ret;
-}
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
@@ -1187,29 +1148,21 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 		pos.x++;
 	}
 	return guards;
-
 }
 
-int3 CGameState::guardingCreaturePosition (int3 pos) const
-{
-	return getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
-}
-
-bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
+bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 {
 	if (!map->isInTheMap(pos))
 		return false;
-	if (!player)
-		return true;
 	if(player == PlayerColor::NEUTRAL)
 		return false;
-	if(player->isSpectator())
+	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(*player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
 }
 
-bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const
+bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
 	if(!player)
 		return true;
@@ -1218,8 +1171,9 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 	if (player == obj->tempOwner)
 		return true;
 
-	if(*player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
+	if(player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
+
 	//object is visible when at least one blocked tile is visible
 	for(int fy=0; fy < obj->getHeight(); ++fy)
 	{
@@ -1229,7 +1183,7 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 
 			if ( map->isInTheMap(pos) &&
 				 obj->coveringAt(pos) &&
-				 isVisible(pos, *player))
+				 isVisibleFor(pos, player))
 				return true;
 		}
 	}
@@ -1353,7 +1307,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::CONTROL:
 		{
 			// list of players that need to control object to fulfull condition
-			// NOTE: cgameinfocallback specified explicitly in order to get const version
+			// NOTE: CGameInfoCallback specified explicitly in order to get const version
 			const auto * team = CGameInfoCallback::getPlayerTeam(player);
 
 			if (condition.objectID != ObjectInstanceID::NONE) // mode A - flag one specific object, like town

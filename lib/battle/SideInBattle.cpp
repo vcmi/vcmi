@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "SideInBattle.h"
 
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

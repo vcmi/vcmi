@@ -16,7 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class CQuest;
 class CGObjectInstance;
-class CGameInfoCallback;
+class IGameInfoCallback;
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
@@ -27,9 +27,9 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 		: obj(Obj)
 	{}
 
-	const CQuest * getQuest(CGameInfoCallback *cb) const;
-	const CGObjectInstance * getObject(CGameInfoCallback *cb) const;
-	int3 getPosition(CGameInfoCallback *cb) const;
+	const CQuest * getQuest(IGameInfoCallback *cb) const;
+	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
+	int3 getPosition(IGameInfoCallback *cb) const;
 
 	bool operator== (const QuestInfo & qi) const
 	{

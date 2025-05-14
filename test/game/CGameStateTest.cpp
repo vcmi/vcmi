@@ -118,7 +118,7 @@ public:
 	{
 		return map;
 	}
-	const CGameInfoCallback * getCb() const override
+	const IGameInfoCallback * getCb() const override
 	{
 		return gameState.get();
 	}

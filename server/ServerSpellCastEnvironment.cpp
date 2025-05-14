@@ -79,7 +79,7 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 	gh->sendAndApply(pack);
 }
 
-const CGameInfoCallback * ServerSpellCastEnvironment::getCb() const
+const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
 	return gh;
 }

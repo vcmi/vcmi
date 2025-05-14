@@ -257,7 +257,7 @@ class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
 public:
 	using CGMonolith::CGMonolith;
 
-	static void postInit(CGameInfoCallback * cb);
+	static void postInit(IGameInfoCallback * cb);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -312,7 +312,7 @@ public:
 	AnimationPath overlayAnimation; //waves animations
 	std::array<AnimationPath, PlayerColor::PLAYER_LIMIT_I> flagAnimations;
 
-	CGBoat(CGameInfoCallback * cb);
+	CGBoat(IGameInfoCallback * cb);
 	bool isCoastVisitable() const override;
 
 	void setBoardedHero(const CGHeroInstance * hero);

@@ -366,15 +366,7 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		gs.getPlayerState(pack.initiator)->destroyedObjects.insert(pack.objectID);
 
 	if(obj->getOwner().isValidPlayer())
-	{
 		gs.getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
-
-		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
-		if(flaggableObject)
-		{
-			flaggableObject->markAsDeleted();
-		}
-	}
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
@@ -1079,8 +1071,6 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 		logNetwork->error("Wrong object ID - property cannot be set!");
 		return;
 	}
-
-	auto * cai = dynamic_cast<CArmedInstance *>(obj);
 
 	if(pack.what == ObjProperty::OWNER && obj->asOwnable())
 	{

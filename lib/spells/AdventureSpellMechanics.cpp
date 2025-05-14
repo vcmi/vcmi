@@ -17,7 +17,7 @@
 
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -34,7 +34,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s):
 {
 }
 
-bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const
+bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!owner->isAdventure())
 		return false;
@@ -59,17 +59,17 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const CGameIn
 	return canBeCastImpl(problem, cb, caster);
 }
 
-bool AdventureSpellMechanics::canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool AdventureSpellMechanics::canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	return canBeCast(problem, cb, caster) && canBeCastAtImpl(problem, cb, caster, pos);
 }
 
-bool AdventureSpellMechanics::canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const
+bool AdventureSpellMechanics::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	return true;
 }
 
-bool AdventureSpellMechanics::canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool AdventureSpellMechanics::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	return true;
 }
@@ -157,7 +157,7 @@ SummonBoatMechanics::SummonBoatMechanics(const CSpell * s):
 {
 }
 
-bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const
+bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!caster->getHeroCaster())
 		return false;
@@ -245,7 +245,7 @@ ScuttleBoatMechanics::ScuttleBoatMechanics(const CSpell * s):
 {
 }
 
-bool ScuttleBoatMechanics::canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool ScuttleBoatMechanics::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->isInTheMap(pos))
 		return false;
@@ -258,7 +258,7 @@ bool ScuttleBoatMechanics::canBeCastAtImpl(spells::Problem & problem, const CGam
 			return false;
 	}
 
-	if(!cb->isVisible(pos, caster->getCasterOwner()))
+	if(!cb->isVisibleFor(pos, caster->getCasterOwner()))
 		return false;
 
 	const TerrainTile * t = cb->getTile(pos);
@@ -301,7 +301,7 @@ DimensionDoorMechanics::DimensionDoorMechanics(const CSpell * s):
 {
 }
 
-bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const
+bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!caster->getHeroCaster())
 		return false;
@@ -342,14 +342,14 @@ bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const CGam
 	return true;
 }
 
-bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool DimensionDoorMechanics::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->isInTheMap(pos))
 		return false;
 
 	if(cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_ONLY_TO_UNCOVERED_TILES))
 	{
-		if(!cb->isVisible(pos, caster->getCasterOwner()))
+		if(!cb->isVisibleFor(pos, caster->getCasterOwner()))
 			return false;
 	}
 

@@ -22,7 +22,7 @@ protected:
 	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
 
 public:
-	CGMarket(CGameInfoCallback *cb);
+	CGMarket(IGameInfoCallback *cb);
 	///IObjectInterface
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open trading window
 	void initObj(vstd::RNG & rand) override;//set skills for trade

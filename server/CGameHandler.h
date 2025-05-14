@@ -108,7 +108,7 @@ public:
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
-	//from CGameInfoCallback
+	//from IGameInfoCallback
 	//do sth
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) override;
 	void setResearchedSpells(const CGTownInstance * town, int level, const std::vector<SpellID> & spells, bool accepted) override;

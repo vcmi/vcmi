@@ -15,7 +15,7 @@
 #include <vcmi/spells/Spell.h>
 #include <vstd/RNG.h>
 
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
@@ -254,7 +254,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 		return ti->getMovePointsLimitWater();
 }
 
-CGHeroInstance::CGHeroInstance(CGameInfoCallback * cb)
+CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	: CArmedInstance(cb),
 	CArtifactSet(cb),
 	tacticFormationEnabled(false),

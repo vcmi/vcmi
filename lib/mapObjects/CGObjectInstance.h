@@ -45,7 +45,7 @@ public:
 
 	std::string instanceName;
 
-	CGObjectInstance(CGameInfoCallback *cb);
+	CGObjectInstance(IGameInfoCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;

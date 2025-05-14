@@ -14,7 +14,7 @@
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
 #include "../battle/BattleLayout.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -355,7 +355,7 @@ void CRewardableObject::initObj(vstd::RNG & rand)
 	getObjectHandler()->configureObject(this, rand);
 }
 
-CRewardableObject::CRewardableObject(CGameInfoCallback *cb)
+CRewardableObject::CRewardableObject(IGameInfoCallback *cb)
 	:CArmedInstance(cb)
 {}
 

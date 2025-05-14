@@ -24,7 +24,7 @@
 #include "../CPlayerState.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/faction/CTownHandler.h"
@@ -264,7 +264,7 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 	return result;
 }
 
-CGTownInstance::CGTownInstance(CGameInfoCallback *cb):
+CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	CGDwelling(cb),
 	IMarket(cb),
 	built(0),

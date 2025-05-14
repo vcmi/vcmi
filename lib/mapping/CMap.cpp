@@ -21,7 +21,7 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../gameState/CGameState.h"
@@ -170,7 +170,7 @@ EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 		return EDiggingStatus::CAN_DIG;
 }
 
-CMap::CMap(CGameInfoCallback * cb)
+CMap::CMap(IGameInfoCallback * cb)
 	: GameCallbackHolder(cb)
 	, grailPos(-1, -1, -1)
 	, grailRadius(0)

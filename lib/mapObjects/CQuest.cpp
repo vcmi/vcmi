@@ -17,7 +17,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "CGCreature.h"
 #include "../IGameSettings.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
@@ -158,7 +158,7 @@ void CQuest::completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance
 	gameEvents.giveResources(h->getOwner(), -mission.resources);
 }
 
-void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text, std::vector<Component> & components) const
+void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text, std::vector<Component> & components) const
 {
 	if(mission.heroLevel > 0)
 		text.replaceNumber(mission.heroLevel);
@@ -257,7 +257,7 @@ void CQuest::addTextReplacements(const CGameInfoCallback * cb, MetaString & text
 		text.replaceNumber(lastDay - cb->getDate(Date::DAY));
 }
 
-void CQuest::getVisitText(const CGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
+void CQuest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
 	mission.loadComponents(components, h);
@@ -273,7 +273,7 @@ void CQuest::getVisitText(const CGameInfoCallback * cb, MetaString &iwText, std:
 	addTextReplacements(cb, iwText, components);
 }
 
-void CQuest::getRolloverText(const CGameInfoCallback * cb, MetaString &ms, bool onHover) const
+void CQuest::getRolloverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
 {
 	if(onHover)
 		ms.appendRawString("\n\n");
@@ -286,7 +286,7 @@ void CQuest::getRolloverText(const CGameInfoCallback * cb, MetaString &ms, bool 
 	addTextReplacements(cb, ms, components);
 }
 
-void CQuest::getCompletionText(const CGameInfoCallback * cb, MetaString &iwText) const
+void CQuest::getCompletionText(const IGameInfoCallback * cb, MetaString &iwText) const
 {
 	iwText.appendRawString(completedText.toString());
 	

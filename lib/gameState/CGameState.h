@@ -68,7 +68,7 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	CGameState(CGameInfoCallback * callback);
+	CGameState(IGameInfoCallback * callback);
 	virtual ~CGameState();
 
 	CGameState & gameState() final { return *this; }
@@ -99,11 +99,9 @@ public:
 	void apply(CPackForClient & pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator);
 
-	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
-	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 
 	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
@@ -135,7 +133,7 @@ public:
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
-	const IGameSettings & getSettings() const;
+	const IGameSettings & getSettings() const override;
 
 	StartInfo * getStartInfo()
 	{
@@ -145,7 +143,7 @@ public:
 	{
 		return scenarioOps.get();
 	}
-	const StartInfo * getInitialStartInfo() const final
+	const StartInfo * getInitialStartInfo() const
 	{
 		return initialOpts.get();
 	}
@@ -159,8 +157,8 @@ public:
 		return *map;
 	}
 
-	bool isVisible(int3 pos, const std::optional<PlayerColor> & player) const override;
-	bool isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const override;
+	bool isVisibleFor(int3 pos, const PlayerColor player) const override;
+	bool isVisibleFor(const CGObjectInstance * obj, const PlayerColor player) const override;
 
 	static int getDate(int day, Date mode);
 	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
@@ -232,7 +230,6 @@ private:
 	bool isUsedHero(const HeroTypeID & hid) const; //looks in heroes and prisons
 	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	HeroTypeID pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, const PlayerColor & owner); // picks a unused hero type randomly
-	UpgradeInfo fillUpgradeInfo(const CStackInstance &stack) const;
 
 	// ---- data -----
 	Services * services;
@@ -240,7 +237,7 @@ private:
 	/// Pointer to campaign state manager. Nullptr for single scenarios
 	std::unique_ptr<CGameStateCampaign> campaign;
 
-	friend class CGameInfoCallback;
+	friend class IGameInfoCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
 };

@@ -13,7 +13,7 @@
 
 #include "../CCreatureHandler.h"
 #include "../CPlayerState.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
 #include "../entities/faction/CTownHandler.h"
@@ -41,12 +41,12 @@ void CArmedInstance::randomizeArmy(FactionID type)
 	}
 }
 
-CArmedInstance::CArmedInstance(CGameInfoCallback *cb)
+CArmedInstance::CArmedInstance(IGameInfoCallback *cb)
 	:CArmedInstance(cb, false)
 {
 }
 
-CArmedInstance::CArmedInstance(CGameInfoCallback *cb, bool isHypothetic):
+CArmedInstance::CArmedInstance(IGameInfoCallback *cb, bool isHypothetic):
 	CGObjectInstance(cb),
 	CBonusSystemNode(isHypothetic),
 	nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.

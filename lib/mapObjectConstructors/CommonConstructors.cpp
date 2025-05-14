@@ -17,7 +17,7 @@
 #include "../GameLibrary.h"
 
 #include "../CConfigHandler.h"
-#include "../callback/CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../json/JsonUtils.h"
@@ -318,7 +318,7 @@ bool MarketInstanceConstructor::hasDescription() const
 	return !descriptionTextID.empty();
 }
 
-std::shared_ptr<CGMarket> MarketInstanceConstructor::createObject(CGameInfoCallback * cb) const
+std::shared_ptr<CGMarket> MarketInstanceConstructor::createObject(IGameInfoCallback * cb) const
 {
 	if(marketModes.size() == 1)
 	{

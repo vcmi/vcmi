@@ -12,6 +12,7 @@
 
 #include "../entities/building/CBuilding.h"
 #include "../gameState/CGameState.h"
+#include "../gameState/UpgradeInfo.h"
 #include "../gameState/InfoAboutArmy.h"
 #include "../gameState/TavernHeroesPool.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -143,7 +144,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 		return nullptr;
 	}
 
-	if(!isVisible(ret, getPlayerID()) && ret->tempOwner != getPlayerID())
+	if(getPlayerID().has_value() && !isVisibleFor(ret, *getPlayerID()) && ret->tempOwner != getPlayerID())
 	{
 		if(verbose)
 			logGlobal->error("Cannot get object with id %d. Object is not visible.", objid.getNum());
@@ -184,6 +185,36 @@ void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackP
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
 	gameState().fillUpgradeInfo(obj, stackPos, out);
+
+	const auto & stack = obj->getStack(stackPos);
+	const CCreature *base = stack.getCreature();
+	UpgradeInfo ret(base->getId());
+
+	if (stack.getArmy()->ID == Obj::HERO)
+	{
+		auto hero = dynamic_cast<const CGHeroInstance *>(stack.getArmy());
+		hero->fillUpgradeInfo(ret, stack);
+
+		if (hero->getVisitedTown())
+		{
+			hero->getVisitedTown()->fillUpgradeInfo(ret, stack);
+		}
+		else
+		{
+			auto object = vstd::frontOrNull(getVisitableObjs(hero->visitablePos()));
+			auto upgradeSource = dynamic_cast<const ICreatureUpgrader*>(object);
+			if (object != hero && upgradeSource != nullptr)
+				upgradeSource->fillUpgradeInfo(ret, stack);
+		}
+	}
+
+	if (stack.getArmy()->ID == Obj::TOWN)
+	{
+		auto town = dynamic_cast<const CGTownInstance *>(stack.getArmy());
+		town->fillUpgradeInfo(ret, stack);
+	}
+
+	out = ret;
 }
 
 const StartInfo * CGameInfoCallback::getStartInfo() const
@@ -244,7 +275,7 @@ int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
 {
-	ERROR_RET_VAL_IF(!isVisible(town, getPlayerID()), "Town is not visible!", false);  //it's not a town or it's not visible for layer
+	ERROR_RET_VAL_IF(getPlayerID().has_value() && !isVisibleFor(town, *getPlayerID()), "Town is not visible!", false);  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
 	if(town->ID == Obj::TOWN)
@@ -270,10 +301,10 @@ const IGameSettings & CGameInfoCallback::getSettings() const
 	return gameState().getSettings();
 }
 
-int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const //FIXME: redundant?
+int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
 {
 	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", int3(-1,-1,-1));
-	return gameState().guardingCreaturePosition(pos);
+	return gameState().getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
 }
 
 std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (int3 pos) const
@@ -413,24 +444,28 @@ int CGameInfoCallback::getDate(Date mode) const
 	return gameState().getDate(mode);
 }
 
-bool CGameInfoCallback::isVisible(int3 pos, const std::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisibleFor(int3 pos, PlayerColor player) const
 {
-	return gameState().isVisible(pos, Player);
+	return gameState().isVisibleFor(pos, player);
 }
 
 bool CGameInfoCallback::isVisible(int3 pos) const
 {
-	return isVisible(pos, getPlayerID());
+	return getPlayerID().has_value() ?
+		gameState().isVisibleFor(pos, *getPlayerID()):
+		gameState().isVisible(pos);
 }
 
-bool CGameInfoCallback::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & Player) const
+bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
-	return gameState().isVisible(obj, Player);
+	return gameState().isVisibleFor(obj, player);
 }
 
 bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 {
-	return isVisible(obj, getPlayerID());
+	return getPlayerID().has_value() ?
+		gameState().isVisibleFor(obj, *getPlayerID()):
+		gameState().isVisible(obj);
 }
 
 std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
@@ -500,7 +535,6 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
 	std::vector<const CGHeroInstance *> ret;
-	//ERROR_RET_VAL_IF(!isOwnedOrVisited(townOrTavern), "Town or tavern must be owned or visited!", ret);
 	//TODO: town needs to be owned, advmap tavern needs to be visited; to be reimplemented when visit tracking is done
 	const CGTownInstance * town = getTown(townOrTavern->id);
 
@@ -685,17 +719,6 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	return ret;
 }
 
-bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
-{
-	if(canGetFullInfo(obj))
-		return true;
-
-	const TerrainTile *t = getTile(obj->visitablePos()); //get entrance tile
-	const ObjectInstanceID visitorID = t->visitableObjects.back(); //visitong hero if present or the object itself at last
-	const CGObjectInstance * visitor = getObj(visitorID);
-	return visitor->ID == Obj::HERO && canGetFullInfo(visitor); //owned or allied hero is a visitor
-}
-
 bool CGameInfoCallback::isPlayerMakingTurn(PlayerColor player) const
 {
 	return gameState().actingPlayers.count(player);
@@ -778,7 +801,7 @@ std::vector<ObjectInstanceID> CGameInfoCallback::getVisibleTeleportObjects(std::
 	vstd::erase_if(ids, [&](const ObjectInstanceID & id) -> bool
 	{
 		const auto * obj = getObj(id, false);
-		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisible(obj->visitablePos(), player));
+		return player != PlayerColor::UNFLAGGABLE && (!obj || !isVisibleFor(obj->visitablePos(), player));
 	});
 	return ids;
 }

@@ -77,11 +77,11 @@ public:
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	void getVisitText(const CGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	void getCompletionText(const CGameInfoCallback * cb, MetaString &text) const;
-	void getRolloverText (const CGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
+	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
+	void getRolloverText (const IGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
 	void completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
-	void addTextReplacements(const CGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
+	void addTextReplacements(const IGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 

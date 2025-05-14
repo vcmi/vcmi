@@ -23,7 +23,7 @@ class DLL_LINKAGE TownBuildingInstance : public IObjectInterface
 ///basic class for town structures handled as map objects
 public:
 	TownBuildingInstance(CGTownInstance * town, const BuildingID & index);
-	TownBuildingInstance(CGameInfoCallback *cb);
+	TownBuildingInstance(IGameInfoCallback *cb);
 
 	CGTownInstance * town;
 
@@ -78,7 +78,7 @@ public:
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	
 	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand);
-	TownRewardableBuildingInstance(CGameInfoCallback *cb);
+	TownRewardableBuildingInstance(IGameInfoCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h)
 	{
