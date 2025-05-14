@@ -84,6 +84,7 @@ public:
 	void setDefaultStartCharges(const uint16_t charges);
 	uint16_t getDefaultStartCharges() const;
 	std::optional<DischargeArtifactCondition> getDischargeCondition() const;
+	bool getRemoveOnDepletion() const;
 };
 
 // Container for artifacts. Not for instances.

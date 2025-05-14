@@ -501,27 +501,31 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	}
 
 	// Charged artifacts handling
-	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
+	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
+			const ObjectInstanceID & id, const std::optional<SlotID> & creature = std::nullopt)
 	{
 		for(const auto & [slot, slotInfo] : artMap)
 		{
 			auto artInst = slotInfo.getArt();
 			assert(artInst);
 			if(const auto condition = artInst->getType()->getDischargeCondition(); condition && condition.value() == DischargeArtifactCondition::BATTLE)
-				resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
+			{
+				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
+				discharging.artLoc.emplace(id, creature, slot);
+			}
 		}
 	};
 	if(winnerHero)
 	{
-		addArtifactToDischarging(winnerHero->artifactsWorn);
+		addArtifactToDischarging(winnerHero->artifactsWorn, winnerHero->id);
 		if(const auto commander = winnerHero->getCommander())
-			addArtifactToDischarging(commander->artifactsWorn);
+			addArtifactToDischarging(commander->artifactsWorn, winnerHero->id, winnerHero->findStack(winnerHero->getCommander()));
 	}
 	if(loserHero)
 	{
-		addArtifactToDischarging(loserHero->artifactsWorn);
+		addArtifactToDischarging(loserHero->artifactsWorn, loserHero->id);
 		if(const auto commander = loserHero->getCommander())
-			addArtifactToDischarging(commander->artifactsWorn);
+			addArtifactToDischarging(commander->artifactsWorn, loserHero->id, loserHero->findStack(loserHero->getCommander()));
 	}
 
 	// Necromancy handling

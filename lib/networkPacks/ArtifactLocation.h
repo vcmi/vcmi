@@ -81,9 +81,9 @@ struct MoveArtifactInfo
 
 enum class DischargeArtifactCondition
 {
-		SPELLCAST,
-		BATTLE,
-		BUILDING
+	SPELLCAST,
+	BATTLE,
+	BUILDING	// not implemented
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -926,6 +926,14 @@ void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
 	auto artInst = gs.getArtInstance(pack.id);
 	assert(artInst);
 	artInst->discharge(pack.charges);
+	if(artInst->getType()->getRemoveOnDepletion() && artInst->getCharges() == 0 && pack.artLoc.has_value())
+	{
+		BulkEraseArtifacts ePack;
+		ePack.artHolder = pack.artLoc.value().artHolder;
+		ePack.creature = pack.artLoc.value().creature;
+		ePack.posPack.push_back(pack.artLoc.value().slot);
+		ePack.visit(*this);
+	}
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
@@ -1341,14 +1349,14 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 {
 	pack.learnedSpells.visit(*this);
 
-	for(auto & movingPack : pack.movingArtifacts)
-		movingPack.visit(*this);
+	for(auto & discharging : pack.dischargingArtifacts)
+		discharging.visit(*this);
 
 	for(auto & growing : pack.growingArtifacts)
 		growing.visit(*this);
 
-	for(auto & discharging : pack.dischargingArtifacts)
-		discharging.visit(*this);
+	for(auto & movingPack : pack.movingArtifacts)
+		movingPack.visit(*this);
 
 	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
 											[&](const auto & battle)

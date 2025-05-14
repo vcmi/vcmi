@@ -80,6 +80,7 @@ class DLL_LINKAGE CChargedArtifactInstance
 protected:
 	CChargedArtifactInstance() = default;
 public:
+	void onChargesChanged();
 	void discharge(const uint16_t charges);
 	void addCharges(const uint16_t charges);
 	uint16_t getCharges() const;
@@ -91,10 +92,11 @@ class DLL_LINKAGE CArtifactInstance final
 	ArtifactInstanceID id;
 	ArtifactID artTypeID;
 
+	void init();
+
 public:
 	CArtifactInstance(IGameInfoCallback *cb, const CArtifact * art);
 	CArtifactInstance(IGameInfoCallback *cb);
-	void setType(const CArtifact * art);
 	std::string nodeName() const override;
 	ArtifactID getTypeId() const;
 	const CArtifact * getType() const;
@@ -118,8 +120,10 @@ public:
 		h & id;
 
 		if(!h.saving && h.loadingGamestate)
-			setType(artTypeID.toArtifact());
-
+		{
+			init();
+			onChargesChanged();
+		}
 	}
 };
 

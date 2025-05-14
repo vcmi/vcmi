@@ -1027,6 +1027,7 @@ struct DLL_LINKAGE DischargeArtifact : CArtifactOperationPack
 {
 	ArtifactInstanceID id;
 	uint16_t charges;
+	std::optional<ArtifactLocation> artLoc;
 
 	DischargeArtifact() = default;
 	DischargeArtifact(const ArtifactInstanceID & id, const uint16_t charges)
@@ -1041,6 +1042,7 @@ struct DLL_LINKAGE DischargeArtifact : CArtifactOperationPack
 	{
 		h & id;
 		h & charges;
+		h & artLoc;
 	}
 };
 

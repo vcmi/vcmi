@@ -282,6 +282,11 @@ std::optional<DischargeArtifactCondition> CChargedArtifact::getDischargeConditio
 	return condition;
 }
 
+bool CChargedArtifact::getRemoveOnDepletion() const
+{
+	return removeOnDepletion;
+}
+
 CArtifact::CArtifact()
 	: iconIndex(ArtifactID::NONE),
 	price(0)

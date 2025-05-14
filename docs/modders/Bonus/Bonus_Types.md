@@ -1037,7 +1037,7 @@ Internal bonus, do not use
 
 ### ARTIFACT_CHARGE
 
-Consumable bonus. Used to perform actions specified by a specific artifact.
+Consumable bonus. Used to perform actions specified by a charged artifact.
 
 - val: number of charges
 
