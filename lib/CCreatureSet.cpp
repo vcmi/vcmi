@@ -781,12 +781,7 @@ void CStackInstance::giveTotalStackExperience(TExpType experienceToGive)
 	if (!canGainExperience())
 		return;
 
-	int level = std::clamp(getLevel(), 1, 7);
-	TExpType maxAmountPerUnit = LIBRARY->creh->expRanks[level].back();
-	TExpType maxExperience = maxAmountPerUnit * getCount();
-	TExpType maxExperienceToGain = maxExperience - totalExperience;
-	TExpType actualGainedExperience = std::min(maxExperienceToGain, experienceToGive);
-	totalExperience	+= actualGainedExperience;
+	totalExperience	+= experienceToGive;
 }
 
 TExpType CStackInstance::getTotalExperience() const
@@ -1064,7 +1059,7 @@ void CCommanderInstance::setAlive (bool Alive)
 
 bool CCommanderInstance::canGainExperience() const
 {
-	return alive && CStackInstance::canGainExperience();
+	return alive;
 }
 
 int CCommanderInstance::getExpRank() const
