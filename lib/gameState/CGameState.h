@@ -18,11 +18,6 @@
 #include "RumorState.h"
 #include "GameStatistics.h"
 
-namespace boost
-{
-class shared_mutex;
-}
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class EVictoryLossCheckResult;

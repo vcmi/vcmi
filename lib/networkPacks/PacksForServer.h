@@ -730,8 +730,6 @@ struct DLL_LINKAGE SaveGame : public CPackForServer
 	}
 	std::string fname;
 
-	void applyGs(CGameState * gs) {};
-
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
@@ -749,8 +747,6 @@ struct DLL_LINKAGE PlayerMessage : public CPackForServer
 		, currObj(obj)
 	{
 	}
-
-	void applyGs(CGameState * gs) {};
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
