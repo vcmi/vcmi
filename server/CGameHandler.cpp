@@ -149,6 +149,8 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	// required exp for at least 1 lvl-up hasn't been reached
 	if (!hero->gainsLevel())
 	{
+		if (hero->getCommander() && hero->getCommander()->gainsLevel())
+			levelUpCommander(hero->getCommander());
 		return;
 	}
 
@@ -338,11 +340,6 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 		levelUpHero(hero);
 	else if (hero->getCommander() && hero->getCommander()->gainsLevel())
 		levelUpCommander(hero->getCommander());
-
-	//if (hero->commander && hero->level > hero->commander->level && hero->commander->gainsLevel())
-// 		levelUpCommander(hero->commander);
-// 	else
-// 		levelUpHero(hero);
 }
 
 void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
