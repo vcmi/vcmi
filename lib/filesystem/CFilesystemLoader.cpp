@@ -198,4 +198,17 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 	return fileList;
 }
 
+std::string CFilesystemLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	auto filePath = getResourceName(resourceName);
+	auto path = boost::filesystem::canonical(*filePath);
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::time_t CFilesystemLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	auto resourcePath = getResourceName(resourceName);
+	return  boost::filesystem::last_write_time(*resourcePath);
+}
+
 VCMI_LIB_NAMESPACE_END
