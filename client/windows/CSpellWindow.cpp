@@ -520,7 +520,7 @@ void CSpellWindow::turnPageRight()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRENGINE->SMK"), false, this);
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
 }
 
 void CSpellWindow::onVideoPlaybackFinished()
