@@ -184,7 +184,6 @@ void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackP
 {
 	ERROR_RET_IF(!canGetFullInfo(obj), "Cannot get info about not owned object!");
 	ERROR_RET_IF(!obj->hasStackAtSlot(stackPos), "There is no such stack!");
-	gameState().fillUpgradeInfo(obj, stackPos, out);
 
 	const auto & stack = obj->getStack(stackPos);
 	const CCreature *base = stack.getCreature();
@@ -451,9 +450,9 @@ bool CGameInfoCallback::isVisibleFor(int3 pos, PlayerColor player) const
 
 bool CGameInfoCallback::isVisible(int3 pos) const
 {
-	return getPlayerID().has_value() ?
-		gameState().isVisibleFor(pos, *getPlayerID()):
-		gameState().isVisible(pos);
+	if (!getPlayerID().has_value())
+		return true; // weird, but we do have such calls
+	return gameState().isVisibleFor(pos, *getPlayerID());
 }
 
 bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
@@ -463,9 +462,9 @@ bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor p
 
 bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 {
-	return getPlayerID().has_value() ?
-		gameState().isVisibleFor(obj, *getPlayerID()):
-		gameState().isVisible(obj);
+	if (!getPlayerID().has_value())
+		return true; // weird, but we do have such calls
+	return gameState().isVisibleFor(obj, *getPlayerID());
 }
 
 std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
