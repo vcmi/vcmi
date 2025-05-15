@@ -9,7 +9,8 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
+#include "../constants/Enumerations.h"
+#include "../constants/EntityIdentifiers.h"
 #include "../int3.h"
 
 #include <boost/heap/fibonacci_heap.hpp>

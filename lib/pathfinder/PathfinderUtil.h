@@ -9,10 +9,9 @@
  */
 #pragma once
 
-#include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapping/CMapDefines.h"
-#include "../gameState/CGameState.h"
+#include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

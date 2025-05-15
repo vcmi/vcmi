@@ -11,7 +11,6 @@
 #pragma once
 
 #include "AINodeStorage.h"
-#include "../VCAI.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace AIPathfinding

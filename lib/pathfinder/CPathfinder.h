@@ -10,12 +10,14 @@
 #pragma once
 
 #include "CGPathNode.h"
-#include "../callback/CGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class IGameInfoCallback;
+class PathfinderConfig;
 class CGWhirlpool;
 class TurnInfo;
+class CGTeleport;
 struct PathfinderOptions;
 
 // Optimized storage - tile can have 0-8 neighbour tiles
@@ -63,7 +65,7 @@ private:
 	CGPathNode * topAndPop();
 };
 
-class DLL_LINKAGE CPathfinderHelper
+class DLL_LINKAGE CPathfinderHelper : boost::noncopyable
 {
 	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
 	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;

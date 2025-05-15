@@ -10,12 +10,13 @@
 #include "StdInc.h"
 #include "PathfinderOptions.h"
 
-#include "../gameState/CGameState.h"
-#include "../IGameSettings.h"
-#include "../GameLibrary.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
+
+#include "../IGameSettings.h"
+#include "../GameLibrary.h"
+#include "../callback/IGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
