@@ -83,7 +83,7 @@ public:
 	AINodeStorage(const int3 & sizes);
 	~AINodeStorage();
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+	void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) override;
 
 	std::vector<CGPathNode *> getInitialNodes() override;
 

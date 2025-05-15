@@ -1190,11 +1190,7 @@ bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) 
 	return false;
 }
 
-bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
-{
-	const TerrainTile * pom = &map->getTile(dst);
-	return map->checkForVisitableDir(src, pom, dst);
-}
+
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
 {

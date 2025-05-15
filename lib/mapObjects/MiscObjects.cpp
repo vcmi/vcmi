@@ -322,10 +322,10 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	ObjectInstanceID topObjectID = gs.getMap().getTile(obj->visitablePos()).topVisitableObj();
-	const CGObjectInstance * topObject = gs.getObjInstance(topObjectID);
+	ObjectInstanceID topObjectID = gameInfo.getTile(obj->visitablePos())->topVisitableObj();
+	const CGObjectInstance * topObject = gameInfo.getObjInstance(topObjectID);
 
 	if(topObject->ID == Obj::HERO)
 	{
@@ -333,7 +333,7 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
+		if(gameInfo.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -343,11 +343,11 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{
-		return !isExitPassable(gs, h, gs.getObj(exit));
+		return !isExitPassable(gameInfo, h, gameInfo.getObj(exit));
 	});
 	return exits;
 }

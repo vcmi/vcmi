@@ -100,7 +100,6 @@ public:
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator);
 
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
-	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
 

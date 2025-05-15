@@ -219,9 +219,9 @@ struct DLL_LINKAGE PathNodeInfo
 
 	PathNodeInfo();
 
-	virtual void setNode(const CGameState & gs, CGPathNode * n);
+	virtual void setNode(const IGameInfoCallback & gameInfo, CGPathNode * n);
 
-	void updateInfo(CPathfinderHelper * hlp, const CGameState & gs);
+	void updateInfo(CPathfinderHelper * hlp, const IGameInfoCallback & gameInfo);
 
 	bool isNodeObjectVisitable() const;
 };
@@ -237,7 +237,7 @@ struct DLL_LINKAGE CDestinationNodeInfo : public PathNodeInfo
 
 	CDestinationNodeInfo();
 
-	void setNode(const CGameState & gs, CGPathNode * n) override;
+	void setNode(const IGameInfoCallback & gameInfo, CGPathNode * n) override;
 
 	virtual bool isBetterWay() const;
 };

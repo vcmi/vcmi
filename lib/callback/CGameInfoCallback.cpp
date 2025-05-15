@@ -973,6 +973,13 @@ void CGameInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::option
 	}
 }
 
+bool CGameInfoCallback::checkForVisitableDir(const int3 & src, const int3 & dst) const
+{
+	const CMap & map = gameState().getMap();
+	const TerrainTile * pom = &map.getTile(dst);
+	return map.checkForVisitableDir(src, pom, dst);
+}
+
 #if SCRIPTING_ENABLED
 scripting::Pool * CGameInfoCallback::getGlobalContextPool() const
 {
