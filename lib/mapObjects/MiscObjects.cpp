@@ -76,7 +76,7 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
@@ -878,7 +878,7 @@ std::vector<CreatureID> CGGarrison::providedCreatures() const
 
 void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		gameEvents.startBattle(h, this);
@@ -1097,7 +1097,7 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		gameEvents.setOwner(this, h->tempOwner);
 
 	if(shipyardStatus() != IBoatGenerator::GOOD)
@@ -1149,7 +1149,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	TeamState *ts = cb->gameState().getPlayerTeam(h->tempOwner);
+	const TeamState *ts = cb->getPlayerTeam(h->tempOwner);
 	assert(ts);
 	TeamID team = ts->id;
 

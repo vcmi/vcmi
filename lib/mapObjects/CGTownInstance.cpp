@@ -306,7 +306,7 @@ void CGTownInstance::setOwner(IGameEventCallback & gameEvents, const PlayerColor
 
 void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->gameState().getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
 		if(armedGarrison() || getVisitingHero())
 		{
@@ -625,7 +625,7 @@ void CGTownInstance::removeCapitols(IGameEventCallback & gameEvents, const Playe
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
-		PlayerState* state = cb->gameState().getPlayerState(owner); //get all towns owned by player
+		const PlayerState* state = cb->getPlayerState(owner); //get all towns owned by player
 		for (const auto & otherTown : state->getTowns())
 		{
 			if (otherTown != this && otherTown->hasCapitol())
@@ -695,7 +695,7 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->getTile(visitablePos())->getTerrainID();
 	//FIXME: not the best way to do this
 	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)

@@ -370,7 +370,7 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 void CGHeroInstance::updateAppearance()
 {
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
 		appearance = app;
@@ -556,7 +556,7 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 
 	if (ID == Obj::HERO)
 	{
-		if( cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
+		if( cb->getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
 			gameEvents.heroExchange(h->id, id);
@@ -581,7 +581,7 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
-			if (cb->gameState().getMap().getTile(boatPos).isWater())
+			if (cb->getTile(boatPos)->isWater())
 			{
 				smp.val = movementPointsLimit(false);
 				if (!inBoat())
