@@ -100,7 +100,7 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void PathNodeInfo::setNode(const CGameState & gs, CGPathNode * n)
 {
 	node = n;
 	guarded = false;
@@ -132,7 +132,7 @@ void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 
 }
 
-void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState & gs)
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, const CGameState & gs)
 {
 	if(gs.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
@@ -164,7 +164,7 @@ CDestinationNodeInfo::CDestinationNodeInfo():
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void CDestinationNodeInfo::setNode(const CGameState & gs, CGPathNode * n)
 {
 	PathNodeInfo::setNode(gs, n);
 

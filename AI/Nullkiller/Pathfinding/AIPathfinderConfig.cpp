@@ -56,7 +56,7 @@ namespace AIPathfinding
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;
 
-	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
+	CPathfinderHelper * AIPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, const CGameState & gs)
 	{
 		auto hero = aiNodeStorage->getHero(source.node);
 		auto & helper = pathfindingHelpers[hero];

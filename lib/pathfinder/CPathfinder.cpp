@@ -75,7 +75,7 @@ void CPathfinderHelper::calculateNeighbourTiles(NeighbourTilesVector & result, c
 	}
 }
 
-CPathfinder::CPathfinder(CGameState & gamestate, std::shared_ptr<PathfinderConfig> config):
+CPathfinder::CPathfinder(const CGameState & gamestate, std::shared_ptr<PathfinderConfig> config):
 	gamestate(gamestate),
 	config(std::move(config))
 {
@@ -244,16 +244,16 @@ TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const Te
 {
 	TeleporterTilesVector allowedExits;
 
-	for(const auto & objId : getTeleportChannelExits(channelID, hero->tempOwner))
+	for(const auto & objId : gameState().getTeleportChannelExits(channelID, hero->tempOwner))
 	{
-		const auto * obj = getObj(objId);
+		const auto * obj = gameState().getObj(objId);
 		if(dynamic_cast<const CGWhirlpool *>(obj))
 		{
 			auto pos = obj->getBlockedPos();
 			for(const auto & p : pos)
 			{
 				ObjectInstanceID topObject = gameState().getMap().getTile(p).topVisitableObj();
-				if(topObject.hasValue() && getObj(topObject)->ID == obj->ID)
+				if(topObject.hasValue() && gameState().getObj(topObject)->ID == obj->ID)
 					allowedExits.push_back(p);
 			}
 		}
@@ -268,7 +268,7 @@ TeleporterTilesVector CPathfinderHelper::getCastleGates(const PathNodeInfo & sou
 {
 	TeleporterTilesVector allowedExits;
 
-	for(const auto & town : getPlayerState(hero->tempOwner)->getTowns())
+	for(const auto & town : gameState().getPlayerState(hero->tempOwner)->getTowns())
 	{
 		if(town->id != source.nodeObject->id && town->getVisitingHero() == nullptr
 			&& town->hasBuilt(BuildingSubID::CASTLE_GATE))
@@ -398,7 +398,7 @@ void CPathfinderHelper::initializePatrol()
 {
 	auto state = PATROL_NONE;
 
-	if(hero->patrol.patrolling && !getPlayerState(hero->tempOwner)->human)
+	if(hero->patrol.patrolling && !gameState().getPlayerState(hero->tempOwner)->human)
 	{
 		if(hero->patrol.patrolRadius)
 		{
@@ -425,7 +425,7 @@ bool CPathfinderHelper::canMoveBetween(const int3 & a, const int3 & b) const
 
 bool CPathfinderHelper::isAllowedTeleportEntrance(const CGTeleport * obj) const
 {
-	if(!obj || !isTeleportEntrancePassable(obj, hero->tempOwner))
+	if(!obj || !gameState().isTeleportEntrancePassable(obj, hero->tempOwner))
 		return false;
 
 	const auto * whirlpool = dynamic_cast<const CGWhirlpool *>(obj);
@@ -442,14 +442,14 @@ bool CPathfinderHelper::isAllowedTeleportEntrance(const CGTeleport * obj) const
 
 bool CPathfinderHelper::addTeleportTwoWay(const CGTeleport * obj) const
 {
-	return options.useTeleportTwoWay && isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
+	return options.useTeleportTwoWay && gameState().isTeleportChannelBidirectional(obj->channel, hero->tempOwner);
 }
 
 bool CPathfinderHelper::addTeleportOneWay(const CGTeleport * obj) const
 {
-	if(options.useTeleportOneWay && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(options.useTeleportOneWay && gameState().isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gameState(), hero, getTeleportChannelExits(obj->channel, hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gameState(), hero, gameState().getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() == 1)
 			return true;
 	}
@@ -458,9 +458,9 @@ bool CPathfinderHelper::addTeleportOneWay(const CGTeleport * obj) const
 
 bool CPathfinderHelper::addTeleportOneWayRandom(const CGTeleport * obj) const
 {
-	if(options.useTeleportOneWayRandom && isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
+	if(options.useTeleportOneWayRandom && gameState().isTeleportChannelUnidirectional(obj->channel, hero->tempOwner))
 	{
-		auto passableExits = CGTeleport::getPassableExits(gameState(), hero, getTeleportChannelExits(obj->channel, hero->tempOwner));
+		auto passableExits = CGTeleport::getPassableExits(gameState(), hero, gameState().getTeleportChannelExits(obj->channel, hero->tempOwner));
 		if(passableExits.size() > 1)
 			return true;
 	}
@@ -495,10 +495,10 @@ bool CPathfinderHelper::passOneTurnLimitCheck(const PathNodeInfo & source) const
 
 int CPathfinderHelper::getGuardiansCount(int3 tile) const
 {
-	return getGuardingCreatures(tile).size();
+	return gameState().getGuardingCreatures(tile).size();
 }
 
-CPathfinderHelper::CPathfinderHelper(CGameState & gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
+CPathfinderHelper::CPathfinderHelper(const CGameState & gs, const CGHeroInstance * Hero, const PathfinderOptions & Options):
 	gs(gs),
 	turn(-1),
 	owner(Hero->tempOwner),
@@ -670,7 +670,7 @@ int CPathfinderHelper::getMovementCost(
 	}
 	else if(isAirLayer)
 	{
-		int baseCost = getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		int baseCost = gameState().getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
 		vstd::amin(movementCost, baseCost + ti->getFlyingMovementValue());
 	}
 	else if(isWaterLayer && ti->hasWaterWalking())
@@ -716,7 +716,7 @@ ui32 CPathfinderHelper::getTileMovementCost(const TerrainTile & dest, const Terr
 	//if hero can move without penalty - either all-native army, or creatures like Nomads in army
 	if(ti->hasNoTerrainPenalty(from.getTerrainID()))
 	{
-		int baseCost = getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+		int baseCost = gameState().getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
 		return std::min(baseCost, costWithPathfinding);
 	}
 

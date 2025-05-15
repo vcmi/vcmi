@@ -35,7 +35,7 @@ namespace AIPathfinding
 
 		~AIPathfinderConfig();
 
-		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs) override;
+		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, const CGameState & gs) override;
 	};
 }
 

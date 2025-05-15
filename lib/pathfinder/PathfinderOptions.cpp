@@ -65,7 +65,7 @@ SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const I
 {
 }
 
-CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
+CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, const CGameState & gs)
 {
 	if (!pathfinderHelper)
 		pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);

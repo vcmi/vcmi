@@ -1089,7 +1089,7 @@ void CGameState::apply(CPackForClient & pack)
 
 void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
-	CPathfinder pathfinder(*const_cast<CGameState*>(this), config);
+	CPathfinder pathfinder(*this, config);
 	pathfinder.calculatePaths();
 }
 

@@ -32,13 +32,13 @@ public:
 	friend class CPathfinderHelper;
 
 	CPathfinder(
-		CGameState & _gs,
+		const CGameState & _gs,
 		std::shared_ptr<PathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
-	CGameState & gamestate;
+	const CGameState & gamestate;
 
 	using ELayer = EPathfindingLayer;
 
@@ -63,12 +63,12 @@ private:
 	CGPathNode * topAndPop();
 };
 
-class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
+class DLL_LINKAGE CPathfinderHelper
 {
 	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
 	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
 
-	CGameState & gs;
+	const CGameState & gs;
 public:
 	enum EPatrolState
 	{
@@ -87,10 +87,9 @@ public:
 	bool canCastWaterWalk;
 	bool whirlpoolProtection;
 
-	CPathfinderHelper(CGameState & gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
+	CPathfinderHelper(const CGameState & gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();
-	CGameState & gameState() final { return gs; }
-	const CGameState & gameState() const final { return gs; }
+	const CGameState & gameState() const { return gs; }
 	void initializePatrol();
 	bool isHeroPatrolLocked() const;
 	bool canMoveFromNode(const PathNodeInfo & source) const;
