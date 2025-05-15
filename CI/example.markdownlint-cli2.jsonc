@@ -272,7 +272,10 @@
 		},
 		
 		// MD058 - Tables should be surrounded by blank lines
-		"MD058" : true
+		"MD058" : true,
+
+		// MD059 - Link text should be descriptive
+		"MD059" : false
 
 	}
 }
