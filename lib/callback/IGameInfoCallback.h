@@ -156,6 +156,7 @@ public:
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
 
 	/// gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	/// TODO: remove non-const method from this interface
 	virtual void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand) = 0;
 
 #if SCRIPTING_ENABLED
