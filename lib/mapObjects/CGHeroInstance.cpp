@@ -909,7 +909,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 	if(spellCost != 0)
 	{
 		SetMana sm;
-		sm.absolute = false;
+		sm.mode = ChangeValueMode::RELATIVE;
 		sm.hid = id;
 		sm.val = -spellCost;
 
@@ -1556,7 +1556,7 @@ std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(vstd::RNG & ran
 	return chosenSecondarySkill;
 }
 
-void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs)
+void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode)
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
@@ -1565,7 +1565,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);
 
-		if(abs)
+		if(mode == ChangeValueMode::ABSOLUTE)
 		{
 			skill->val = static_cast<si32>(value);
 		}
@@ -1577,7 +1577,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{
-		if(abs)
+		if(mode == ChangeValueMode::ABSOLUTE)
 		{
 			exp = value;
 		}
@@ -1624,14 +1624,14 @@ void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
 	while(gainsLevel())
 	{
 		const auto primarySkill = nextPrimarySkill(rand);
-		setPrimarySkill(primarySkill, 1, false);
+		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
 
 		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
 
 		const auto secondarySkill = nextSecondarySkill(rand);
 		if(secondarySkill)
 		{
-			setSecSkillLevel(*secondarySkill, 1, false);
+			setSecSkillLevel(*secondarySkill, 1, ChangeValueMode::RELATIVE);
 		}
 
 		//TODO why has the secondary skills to be passed to the method?

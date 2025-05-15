@@ -386,7 +386,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			continue;
 
 		StackLocation stackLocation(t->id, slot.first);
-		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
+		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), ChangeValueMode::RELATIVE);
 		takeFromAvailable(creature->getGrowth());
 
 		if (upgradeUnit && !creature->upgrades.empty())
@@ -571,7 +571,7 @@ std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
 			int32_t newMana = h->getManaNewTurn();
 
 			if (newMana != h->mana)
-				result.emplace_back(h->id, newMana, true);
+				result.emplace_back(h->id, newMana, ChangeValueMode::ABSOLUTE);
 		}
 	}
 	return result;
@@ -590,7 +590,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
-				result.emplace_back(h->id, newMovementPoints, true);
+				result.emplace_back(h->id, newMovementPoints, ChangeValueMode::ABSOLUTE);
 		}
 	}
 	return result;

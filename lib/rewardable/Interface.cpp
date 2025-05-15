@@ -108,17 +108,17 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 
 	for(const auto & entry : info.reward.secondary)
 	{
-		auto currentLevel = static_cast<MasteryLevel::Type>(hero->getSecSkillLevel(entry.first));
-		if(currentLevel == MasteryLevel::EXPERT)
-			continue;
+		int currentLevel = hero->getSecSkillLevel(entry.first);
+		int newLevel = currentLevel + entry.second;
+		int newLevelClamped = std::clamp<int>(newLevel, MasteryLevel::NONE, MasteryLevel::EXPERT);
 
-		if(currentLevel != MasteryLevel::NONE || hero->canLearnSkill())
-			gameEvents.changeSecSkill(hero, entry.first, entry.second, false);
+		if(currentLevel != newLevelClamped)
+			gameEvents.changeSecSkill(hero, entry.first, newLevelClamped, ChangeValueMode::ABSOLUTE);
 	}
 
 	for(int i=0; i< info.reward.primary.size(); i++)
 		if (info.reward.primary[i] != 0)
-			gameEvents.changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], false);
+			gameEvents.changePrimSkill(hero, static_cast<PrimarySkill>(i), info.reward.primary[i], ChangeValueMode::RELATIVE);
 
 	TExpType expToGive = 0;
 

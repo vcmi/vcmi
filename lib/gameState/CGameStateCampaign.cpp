@@ -361,7 +361,7 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		}
 		case CampaignBonusType::SECONDARY_SKILL:
 		{
-			hero->setSecSkillLevel(SecondarySkill(curBonus->info2), curBonus->info3, true);
+			hero->setSecSkillLevel(SecondarySkill(curBonus->info2), curBonus->info3, ChangeValueMode::ABSOLUTE);
 			break;
 		}
 	}

@@ -36,7 +36,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
 	assert(pack.player.isValidPlayer());
-	if(pack.abs)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		gs.getPlayerState(pack.player)->resources = pack.res;
 	else
 		gs.getPlayerState(pack.player)->resources += pack.res;
@@ -52,13 +52,13 @@ void GameStatePackVisitor::visitSetPrimSkill(SetPrimSkill & pack)
 {
 	CGHeroInstance * hero = gs.getHero(pack.id);
 	assert(hero);
-	hero->setPrimarySkill(pack.which, pack.val, pack.abs);
+	hero->setPrimarySkill(pack.which, pack.val, pack.mode);
 }
 
 void GameStatePackVisitor::visitSetSecSkill(SetSecSkill & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.id);
-	hero->setSecSkillLevel(pack.which, pack.val, pack.abs);
+	hero->setSecSkillLevel(pack.which, pack.val, pack.mode);
 }
 
 void GameStatePackVisitor::visitSetCommanderProperty(SetCommanderProperty & pack)
@@ -153,7 +153,7 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 
 	assert(hero);
 
-	if(pack.absolute)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		hero->mana = pack.val;
 	else
 		hero->mana += pack.val;
@@ -167,7 +167,7 @@ void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 
 	assert(hero);
 
-	if(pack.absolute)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		hero->setMovementPoints(pack.val);
 	else
 		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
@@ -677,7 +677,7 @@ void GameStatePackVisitor::visitChangeStackCount(ChangeStackCount & pack)
 	if(!srcObj)
 		throw std::runtime_error("ChangeStackCount: invalid army object " + std::to_string(pack.army.getNum()) + ", possible game state corruption.");
 
-	if(pack.absoluteValue)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		srcObj->setStackCount(pack.slot, pack.count);
 	else
 		srcObj->changeStackCount(pack.slot, pack.count);

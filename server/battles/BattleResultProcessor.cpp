@@ -148,7 +148,7 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 	for (TStackAndItsNewCount &ncount : newStackCounts)
 	{
 		if (ncount.second > 0)
-			gh->changeStackCount(ncount.first, ncount.second, true);
+			gh->changeStackCount(ncount.first, ncount.second, ChangeValueMode::ABSOLUTE);
 		else
 			gh->eraseStack(ncount.first, true);
 	}
