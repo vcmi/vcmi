@@ -133,38 +133,33 @@ ui8 CGHeroInstance::getSecSkillLevel(const SecondarySkill & skill) const
 	return 0;
 }
 
-void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, bool abs)
+void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode)
 {
-	if (val == 0)      // skill removal
+	int currentLevel = getSecSkillLevel(which);
+	int newLevel = mode == ChangeValueMode::ABSOLUTE ? val : currentLevel + val;
+	int newLevelClamped = std::clamp<int>(newLevel, MasteryLevel::NONE, MasteryLevel::EXPERT);
+
+	if (currentLevel == newLevelClamped)
+		return; // no change
+
+	if (newLevelClamped == 0) // skill removal
 	{
 		vstd::erase_if(secSkills,  [which](const std::pair<SecondarySkill, ui8>& pair) { return pair.first == which; });
-		updateSkillBonus(which, val);
 	}
-	else if(getSecSkillLevel(which) == 0)
+	else if(currentLevel == 0) // gained new skill
 	{
-		secSkills.emplace_back(which, val);
-		updateSkillBonus(which, val);
+		secSkills.emplace_back(which, newLevelClamped);
 	}
 	else
 	{
 		for (auto & elem : secSkills)
 		{
 			if(elem.first == which)
-			{
-				if(abs)
-					elem.second = val;
-				else
-					elem.second += val;
-
-				if(elem.second > 3) //workaround to avoid crashes when same sec skill is given more than once
-				{
-					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", static_cast<int>(which.toEnum()));
-					elem.second = 3;
-				}
-				updateSkillBonus(which, elem.second); //when we know final value
-			}
+				elem.second = newLevelClamped;
 		}
 	}
+
+	updateSkillBonus(which, newLevelClamped);
 }
 
 int3 CGHeroInstance::convertToVisitablePos(const int3 & position) const
