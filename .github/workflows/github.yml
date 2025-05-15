@@ -408,7 +408,7 @@ jobs:
             python3 CI/validate_json.py
 
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v19
+          uses: DavidAnson/markdownlint-cli2-action@v20
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
