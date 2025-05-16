@@ -48,7 +48,6 @@ public:
 	CMapInfo &operator=(CMapInfo &&other) = delete;
 	CMapInfo &operator=(const CMapInfo &other) = delete;
 
-	std::string getFullFileURI(const ResourcePath& file) const;
 	void mapInit(const std::string & fname);
 	void saveInit(const ResourcePath & file);
 	void campaignInit();

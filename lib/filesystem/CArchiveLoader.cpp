@@ -15,6 +15,7 @@
 #include "CCompressedStream.h"
 
 #include "CBinaryReader.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -238,6 +239,19 @@ void CArchiveLoader::extractToFolder(const std::string & outputSubFolder, const 
 
 	entry.offset = 0;
 	extractToFolder(outputSubFolder, *inputStream, entry, absolute);
+}
+
+
+std::string CArchiveLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	auto relativePath = TextOperations::Utf8TofilesystemPath(resourceName.getName());
+	auto path = boost::filesystem::canonical(archive) / relativePath;
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::time_t CArchiveLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	return  boost::filesystem::last_write_time(archive);
 }
 
 boost::filesystem::path createExtractedFilePath(const std::string & outputSubFolder, const std::string & entryName, bool absolute)
