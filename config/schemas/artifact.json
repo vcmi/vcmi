@@ -144,7 +144,7 @@
 				},
 				"val" : {
 					"type" : "number",
-					"description" : "Default number of charges"
+					"description" : "Default starting charge amount"
 				}
 			}
 		}

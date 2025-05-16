@@ -79,7 +79,7 @@ protected:
 public:
 	bool isCharged() const;
 
-	void setCondition(const DischargeArtifactCondition & condition);
+	void setCondition(const DischargeArtifactCondition & dischargeCondition);
 	void setRemoveOnDepletion(const bool remove);
 	void setDefaultStartCharges(const uint16_t charges);
 	uint16_t getDefaultStartCharges() const;

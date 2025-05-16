@@ -257,9 +257,9 @@ bool CChargedArtifact::isCharged() const
 	return condition.has_value();
 }
 
-void CChargedArtifact::setCondition(const DischargeArtifactCondition & condition)
+void CChargedArtifact::setCondition(const DischargeArtifactCondition & dischargeCondition)
 {
-	this->condition = condition;
+	condition = dischargeCondition;
 }
 
 void CChargedArtifact::setRemoveOnDepletion(const bool remove)

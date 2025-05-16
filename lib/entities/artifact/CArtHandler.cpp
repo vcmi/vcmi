@@ -152,20 +152,6 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			JsonUtils::parseBonus(bonus["bonus"], &art->thresholdBonuses.back().second);
 		}
 	}
-	if(!node["charged"].isNull())
-	{
-		art->setCondition(stringToDischargeCond(node["charged"]["usageType"].String()));
-		if(!node["charged"]["removeOnDepletion"].isNull())
-			art->setRemoveOnDepletion(node["charged"]["removeOnDepletion"].Bool());
-		if(!node["charged"]["val"].isNull())
-		{
-			const auto charges = node["charged"]["val"].Integer();
-			if(charges < 0)
-				logMod->warn("Warning! Charged artifact number of charges cannot be less than zero %d!", charges);
-			else
-				art->setDefaultStartCharges(charges);
-		}
-	}
 
 	art->id = ArtifactID(index);
 	art->identifier = identifier;
@@ -234,6 +220,23 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 
 	if(art->isTradable())
 		art->possibleSlots.at(ArtBearer::ALTAR).push_back(ArtifactPosition::ALTAR);
+
+	if(!node["charged"].isNull())
+	{
+		art->setCondition(stringToDischargeCond(node["charged"]["usageType"].String()));
+		if(!node["charged"]["removeOnDepletion"].isNull())
+			art->setRemoveOnDepletion(node["charged"]["removeOnDepletion"].Bool());
+		if(!node["charged"]["val"].isNull())
+		{
+			const auto charges = node["charged"]["val"].Integer();
+			if(charges < 0)
+				logMod->warn("Warning! Charged artifact %s number of charges cannot be less than zero %d!", art->getNameTranslated(), charges);
+			else
+				art->setDefaultStartCharges(charges);
+		}
+		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST && art->getBonusesOfType(BonusType::SPELL)->size() == 0)
+			logMod->warn("Warning! %s condition of discharge is \"SPELLCAST\", but there is not a single spell.", art->getNameTranslated());
+	}
 
 	return art;
 }
@@ -326,7 +329,7 @@ EArtifactClass CArtHandler::stringToClass(const std::string & className)
 	return EArtifactClass::ART_SPECIAL;
 }
 
-DischargeArtifactCondition CArtHandler::stringToDischargeCond(const std::string & cond)
+DischargeArtifactCondition CArtHandler::stringToDischargeCond(const std::string & cond) const
 {
 	const std::unordered_map<std::string, DischargeArtifactCondition> growingConditionsMap =
 	{

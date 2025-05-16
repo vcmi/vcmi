@@ -101,7 +101,7 @@ void CGrowingArtifactInstance::growingUp()
 	if(artType->isGrowing())
 	{
 		const auto growingBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_GROWING);
-		assert(!growingBonus.empty());
+		assert(!growingBonus->empty());
 		growingBonus->front()->val++;
 
 		for(const auto & bonus : artType->getBonusesPerLevel())
@@ -179,7 +179,7 @@ void CChargedArtifactInstance::addCharges(const uint16_t charges)
 	if(artInst->getType()->isCharged())
 	{
 		const auto chargedBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_CHARGE);
-		assert(!chargedBonus.empty());
+		assert(!chargedBonus->empty());
 		chargedBonus->front()->val += charges;
 		onChargesChanged();
 	}
