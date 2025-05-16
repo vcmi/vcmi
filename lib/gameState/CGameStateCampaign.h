@@ -21,6 +21,11 @@ class CGHeroInstance;
 class CGameState;
 class CMap;
 
+namespace vstd
+{
+	class RNG;
+}
+
 struct CampaignHeroReplacement
 {
 	CampaignHeroReplacement(std::shared_ptr<CGHeroInstance> hero, const ObjectInstanceID & heroPlaceholderId);
@@ -46,7 +51,7 @@ class CGameStateCampaign : public Serializeable
 	std::optional<CampaignBonus> currentBonus() const;
 
 	/// Trims hero parameters that should not transfer between scenarios according to travelOptions flags
-	void trimCrossoverHeroesParameters(const CampaignTravel & travelOptions);
+	void trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignTravel & travelOptions);
 
 	void replaceHeroesPlaceholders();
 	void transferMissingArtifacts(const CampaignTravel & travelOptions);
@@ -58,7 +63,7 @@ public:
 	CGameStateCampaign(CGameState * owner);
 	void setGamestate(CGameState * owner);
 
-	void placeCampaignHeroes();
+	void placeCampaignHeroes(vstd::RNG & randomGenerator);
 	void initStartingResources();
 	void initHeroes();
 	void initTowns();

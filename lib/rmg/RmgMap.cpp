@@ -39,7 +39,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameCallback * cb) :
+RmgMap::RmgMap(const CMapGenOptions& mapGenOptions, IGameInfoCallback * cb) :
 	mapGenOptions(mapGenOptions), zonesTotal(0)
 {
 	mapInstance = std::make_unique<CMap>(cb);

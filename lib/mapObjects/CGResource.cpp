@@ -11,7 +11,8 @@
 #include "StdInc.h"
 #include "CGResource.h"
 
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../networkPacks/PacksForClient.h"
@@ -71,7 +72,7 @@ void CGResource::initObj(vstd::RNG & rand)
 	getResourceHandler()->randomizeObject(this, rand);
 }
 
-void CGResource::onHeroVisit( const CGHeroInstance * h ) const
+void CGResource::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(stacksCount())
 	{
@@ -80,20 +81,20 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text = message;
-			cb->showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(this, &ynd);
 		}
 		else
 		{
-			blockingDialogAnswered(h, true); //behave as if player accepted battle
+			blockingDialogAnswered(gameEvents, h, true); //behave as if player accepted battle
 		}
 	}
 	else
-		collectRes(h->getOwner());
+		collectRes(gameEvents, h->getOwner());
 }
 
-void CGResource::collectRes(const PlayerColor & player) const
+void CGResource::collectRes(IGameEventCallback & gameEvents, const PlayerColor & player) const
 {
-	cb->giveResource(player, resourceID(), amount);
+	gameEvents.giveResource(player, resourceID(), amount);
 	InfoWindow sii;
 	sii.player = player;
 	if(!message.empty())
@@ -108,21 +109,21 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
-	sii.soundID = soundBase::pickup01 + cb->gameState().getRandomGenerator().nextInt(6);
-	cb->showInfoDialog(&sii);
-	cb->removeObject(this, player);
+	sii.soundID = soundBase::pickup01 + gameEvents.getRandomGenerator().nextInt(6);
+	gameEvents.showInfoDialog(&sii);
+	gameEvents.removeObject(this, player);
 }
 
-void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGResource::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER) //attacker won
-		collectRes(hero->getOwner());
+		collectRes(gameEvents, hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGResource::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattle(hero, this);
+		gameEvents.startBattle(hero, this);
 }
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)

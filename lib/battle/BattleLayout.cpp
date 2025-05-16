@@ -12,18 +12,18 @@
 
 #include "../GameSettings.h"
 #include "../GameLibrary.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleLayout BattleLayout::createDefaultLayout(IGameCallback * cb, const CArmedInstance * attacker, const CArmedInstance * defender)
+BattleLayout BattleLayout::createDefaultLayout(IGameInfoCallback * cb, const CArmedInstance * attacker, const CArmedInstance * defender)
 {
 	return createLayout(cb, "default", attacker, defender);
 }
 
-BattleLayout BattleLayout::createLayout(IGameCallback * cb, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender)
+BattleLayout BattleLayout::createLayout(IGameInfoCallback * cb, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender)
 {
 	const auto & loadHex = [](const JsonNode & node)
 	{

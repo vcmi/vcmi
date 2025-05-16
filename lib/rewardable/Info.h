@@ -21,7 +21,7 @@ class RNG;
 }
 
 class MetaString;
-class IGameCallback;
+class IGameInfoCallback;
 
 namespace Rewardable
 {
@@ -42,13 +42,13 @@ class DLL_LINKAGE Info : public IObjectInfo
 	void replaceTextPlaceholders(MetaString & target, const Variables & variables) const;
 	void replaceTextPlaceholders(MetaString & target, const Variables & variables, const VisitInfo & info) const;
 
-	void configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const;
-	void configureRewards(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;
+	void configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb, const JsonNode & source) const;
+	void configureRewards(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb, const JsonNode & source, Rewardable::EEventType mode, const std::string & textPrefix) const;
 
-	void configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const;
-	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const;
+	void configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const;
+	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb, const JsonNode & source) const;
 
-	void configureReward(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Reward & info, const JsonNode & source) const;
+	void configureReward(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb, Rewardable::Reward & info, const JsonNode & source) const;
 	void configureResetInfo(Rewardable::Configuration & object, vstd::RNG & rng, Rewardable::ResetInfo & info, const JsonNode & source) const;
 public:
 	const JsonNode & getParameters() const;
@@ -70,7 +70,7 @@ public:
 
 	bool hasGuards() const override;
 
-	void configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const;
+	void configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameInfoCallback * cb) const;
 
 	void init(const JsonNode & objectConfig, const std::string & objectTextID);
 

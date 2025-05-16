@@ -85,7 +85,6 @@ set(lib_MAIN_SRCS
 	callback/CGameInfoCallback.cpp
 	callback/CNonConstInfoCallback.cpp
 	callback/CPlayerSpecificInfoCallback.cpp
-	callback/CPrivilegedInfoCallback.cpp
 
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
@@ -469,13 +468,12 @@ set(lib_MAIN_HEADERS
 	callback/CGlobalAI.h
 	callback/CNonConstInfoCallback.h
 	callback/CPlayerSpecificInfoCallback.h
-	callback/CPrivilegedInfoCallback.h
 	callback/GameCallbackHolder.h
 	callback/IBattleCallback.h
 	callback/IBattleEventsReceiver.h
 	callback/IClient.h
 	callback/IGameActionCallback.h
-	callback/IGameCallback.h
+	callback/CGameInfoCallback.h
 	callback/IGameEventCallback.h
 	callback/IGameEventsReceiver.h
 	callback/IGameInfoCallback.h
@@ -831,7 +829,7 @@ endif()
 if(MINGW AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set_source_files_properties(
 		serializer/SerializerReflection.cpp
-		IGameCallback.cpp
+		CGameInfoCallback.cpp
 		PROPERTIES
 		COMPILE_OPTIONS "-Wa,-mbig-obj")
 endif()

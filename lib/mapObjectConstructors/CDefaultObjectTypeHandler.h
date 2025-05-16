@@ -27,7 +27,7 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 		randomizeObject(castedObject, rng);
 	}
 
-	std::shared_ptr<CGObjectInstance> create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const final
+	std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const final
 	{
 		auto result = createObject(cb);
 
@@ -44,7 +44,7 @@ class CDefaultObjectTypeHandler : public AObjectTypeHandler
 protected:
 	virtual void initializeObject(ObjectType * object) const {}
 	virtual void randomizeObject(ObjectType * object, vstd::RNG & rng) const {}
-	virtual std::shared_ptr<ObjectType> createObject(IGameCallback * cb) const
+	virtual std::shared_ptr<ObjectType> createObject(IGameInfoCallback * cb) const
 	{
 		return std::make_shared<ObjectType>(cb);
 	}

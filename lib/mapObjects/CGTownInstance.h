@@ -183,10 +183,10 @@ public:
 
 	LogicalExpression<BuildingID> genBuildingRequirements(const BuildingID & build, bool deep = false) const;
 
-	void mergeGarrisonOnSiege() const; // merge garrison into army of visiting hero
-	void removeCapitols(const PlayerColor & owner) const;
-	void clearArmy() const;
-	void addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
+	void mergeGarrisonOnSiege(IGameEventCallback & gameEvents) const; // merge garrison into army of visiting hero
+	void removeCapitols(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void clearArmy(IGameEventCallback & gameEvents) const;
+	void addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID) const; //hero must be visiting or garrisoned in town
 	void deleteTownBonus(BuildingID bid);
 
 	/// Returns damage range for secondary towers of this town
@@ -207,16 +207,16 @@ public:
 	/// Returns true if provided war machine is available in any of built buildings of this town
 	bool isWarMachineAvailable(ArtifactID) const;
 
-	CGTownInstance(IGameCallback *cb);
+	CGTownInstance(IGameInfoCallback *cb);
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn(vstd::RNG & rand) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void onHeroLeave(const CGHeroInstance * h) const override;
+	void newTurn(IGameEventCallback & gameEvents) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance * hero, const BattleResult & result) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
 	void fillUpgradeInfo(UpgradeInfo & info, const CStackInstance &stack) const override;
@@ -234,8 +234,8 @@ protected:
 
 private:
 	FactionID randomizeFaction(vstd::RNG & rand);
-	void setOwner(const PlayerColor & owner) const;
-	void onTownCaptured(const PlayerColor & winner) const;
+	void setOwner(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
+	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
 	void initializeConfigurableBuildings(vstd::RNG & rand);

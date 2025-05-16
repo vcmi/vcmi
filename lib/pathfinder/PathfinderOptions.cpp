@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-PathfinderOptions::PathfinderOptions(const CGameInfoCallback & cb)
+PathfinderOptions::PathfinderOptions(const IGameInfoCallback & cb)
 	: useFlying(true)
 	, useWaterWalking(true)
 	, ignoreGuards(cb.getSettings().getBoolean(EGameSettings::PATHFINDER_IGNORE_GUARDS))
@@ -39,7 +39,7 @@ PathfinderOptions::PathfinderOptions(const CGameInfoCallback & cb)
 {
 }
 
-PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const CGameInfoCallback & callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
+PathfinderConfig::PathfinderConfig(std::shared_ptr<INodeStorage> nodeStorage, const IGameInfoCallback & callback, std::vector<std::shared_ptr<IPathfindingRule>> rules):
 	nodeStorage(std::move(nodeStorage)),
 	rules(std::move(rules)),
 	options(callback)
@@ -59,7 +59,7 @@ std::vector<std::shared_ptr<IPathfindingRule>> SingleHeroPathfinderConfig::build
 
 SingleHeroPathfinderConfig::~SingleHeroPathfinderConfig() = default;
 
-SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const CGameInfoCallback & gs, const CGHeroInstance * hero)
+SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const IGameInfoCallback & gs, const CGHeroInstance * hero)
 	: PathfinderConfig(std::make_shared<NodeStorage>(out, hero), gs, buildRuleSet())
 	, hero(hero)
 {

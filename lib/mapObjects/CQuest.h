@@ -77,11 +77,11 @@ public:
 
 	static bool checkMissionArmy(const CQuest * q, const CCreatureSet * army);
 	bool checkQuest(const CGHeroInstance * h) const; //determines whether the quest is complete or not
-	void getVisitText(const CGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	void getCompletionText(const CGameInfoCallback * cb, MetaString &text) const;
-	void getRolloverText (const CGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
-	void completeQuest(IGameCallback *, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
-	void addTextReplacements(const CGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
+	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
+	void getRolloverText (const IGameInfoCallback * cb, MetaString &text, bool onHover) const; //hover or quest log entry
+	void completeQuest(IGameEventCallback & gameEvents, const CGHeroInstance * h, bool allowFullArmyRemoval) const;
+	void addTextReplacements(const IGameInfoCallback * cb, MetaString &out, std::vector<Component> & components) const;
 	void addKillTargetReplacements(MetaString &out) const;
 	void defineQuestName();
 
@@ -147,9 +147,9 @@ public:
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	void newTurn(vstd::RNG & rand) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void newTurn(IGameEventCallback & gameEvents) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 
 	virtual void init(vstd::RNG & rand);
@@ -179,7 +179,7 @@ public:
 
 	void init(vstd::RNG & rand) override;
 	
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -213,7 +213,7 @@ public:
 	using CGKeys::CGKeys;
 
 	bool wasVisited (PlayerColor player) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -228,8 +228,8 @@ public:
 	using CGKeys::CGKeys;
 
 	void initObj(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
 	void getRolloverText (MetaString &text, bool onHover) const;
@@ -247,7 +247,7 @@ class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 public:
 	using CGBorderGuard::CGBorderGuard;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 
 	bool passableFor(PlayerColor color) const override;
 };

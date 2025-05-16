@@ -23,7 +23,7 @@ class RNG;
 class ObjectTemplate;
 class CGObjectInstance;
 class IObjectInfo;
-class IGameCallback;
+class IGameInfoCallback;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -118,7 +118,7 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual std::shared_ptr<CGObjectInstance> create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
+	virtual std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map

@@ -24,7 +24,8 @@
 #include "../CPlayerState.h"
 #include "../StartInfo.h"
 #include "../TerrainHandler.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -263,7 +264,7 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 	return result;
 }
 
-CGTownInstance::CGTownInstance(IGameCallback *cb):
+CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	CGDwelling(cb),
 	IMarket(cb),
 	built(0),
@@ -297,13 +298,13 @@ bool CGTownInstance::needsLastStack() const
 	return getGarrisonHero() != nullptr;
 }
 
-void CGTownInstance::setOwner(const PlayerColor & player) const
+void CGTownInstance::setOwner(IGameEventCallback & gameEvents, const PlayerColor & player) const
 {
-	removeCapitols(player);
-	cb->setOwner(this, player);
+	removeCapitols(gameEvents, player);
+	gameEvents.setOwner(this, player);
 }
 
-void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
+void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(cb->gameState().getPlayerRelations( getOwner(), h->getOwner() ) == PlayerRelations::ENEMIES)
 	{
@@ -319,23 +320,23 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 				auto * nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
 
 				if(nodeSiege == (CBonusSystemNode *)this)
-					cb->swapGarrisonOnSiege(this->id);
+					gameEvents.swapGarrisonOnSiege(this->id);
 
 				const_cast<CGHeroInstance *>(defendingHero)->setVisitedTown(this, false); //hack to return visitor from garrison after battle
 			}
-			cb->startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
+			gameEvents.startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
 		else
 		{
 			auto heroColor = h->getOwner();
-			onTownCaptured(heroColor);
+			onTownCaptured(gameEvents, heroColor);
 
 			if(cb->gameState().getPlayerStatus(heroColor) == EPlayerStatus::WINNER)
 			{
 				return; //we just won game, we do not need to perform any extra actions
 				//TODO: check how does H3 behave, visiting town on victory can affect campaigns (spells learned, +1 stat building visited)
 			}
-			cb->heroVisitCastle(this, h);
+			gameEvents.heroVisitCastle(this, h);
 		}
 	}
 	else
@@ -348,9 +349,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			scp.heroid = h->id;
 			scp.which = SetCommanderProperty::ALIVE;
 			scp.amount = 1;
-			cb->sendAndApply(scp);
+			gameEvents.sendAndApply(scp);
 		}
-		cb->heroVisitCastle(this, h);
+		gameEvents.heroVisitCastle(this, h);
 		// TODO(vmarkovtsev): implement payment for rising the commander
 		if (commander_recover) // info window about commander
 		{
@@ -358,17 +359,17 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			iw.player = h->tempOwner;
 			iw.text.appendRawString(h->getCommander()->getName());
 			iw.components.emplace_back(ComponentType::CREATURE, h->getCommander()->getId(), h->getCommander()->getCount());
-			cb->showInfoDialog(&iw);
+			gameEvents.showInfoDialog(&iw);
 		}
 	}
 }
 
-void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
+void CGTownInstance::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	//FIXME: find out why this issue appears on random maps
 	if(getVisitingHero() == h)
 	{
-		cb->stopHeroVisitCastle(this, h);
+		gameEvents.stopHeroVisitCastle(this, h);
 		logGlobal->trace("%s correctly left town %s", h->getNameTranslated(), getNameTranslated());
 	}
 	else
@@ -535,17 +536,17 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 	}
 }
 
-void CGTownInstance::newTurn(vstd::RNG & rand) const
+void CGTownInstance::newTurn(IGameEventCallback & gameEvents) const
 {
 	for(const auto & building : rewardableBuildings)
-		building.second->newTurn(rand);
+		building.second->newTurn(gameEvents);
 		
 	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
 	{
 		TResources res;
 		res[EGameResID::GOLD] = -500;
-		cb->giveResources(getOwner(), res);
-		cb->setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
+		gameEvents.giveResources(getOwner(), res);
+		gameEvents.setObjPropertyValue(id, ObjProperty::BONUS_VALUE_SECOND, bonusValue.second - 500);
 	}
 }
 
@@ -577,7 +578,7 @@ const IObjectInterface * CGTownInstance::getObject() const
 	return this;
 }
 
-void CGTownInstance::mergeGarrisonOnSiege() const
+void CGTownInstance::mergeGarrisonOnSiege(IGameEventCallback & gameEvents) const
 {
 	auto getWeakestStackSlot = [&](ui64 powerLimit)
 	{
@@ -610,17 +611,17 @@ void CGTownInstance::mergeGarrisonOnSiege() const
 		});
 		auto dst = getVisitingHero()->getSlotFor(pair.second->getCreatureID());
 		if(dst.validSlot())
-			cb->moveStack(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst), -1);
+			gameEvents.moveStack(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst), -1);
 		else
 		{
 			dst = getWeakestStackSlot(static_cast<int>(pair.second->getPower()));
 			if(dst.validSlot())
-				cb->swapStacks(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst));
+				gameEvents.swapStacks(StackLocation(id, pair.first), StackLocation(getVisitingHero()->id, dst));
 		}
 	}
 }
 
-void CGTownInstance::removeCapitols(const PlayerColor & owner) const
+void CGTownInstance::removeCapitols(IGameEventCallback & gameEvents, const PlayerColor & owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
@@ -633,18 +634,18 @@ void CGTownInstance::removeCapitols(const PlayerColor & owner) const
 				rs.tid = id;
 				rs.bid.insert(BuildingID::CAPITOL);
 				rs.destroyed = destroyed;
-				cb->sendAndApply(rs);
+				gameEvents.sendAndApply(rs);
 				return;
 			}
 		}
 	}
 }
 
-void CGTownInstance::clearArmy() const
+void CGTownInstance::clearArmy(IGameEventCallback & gameEvents) const
 {
 	while(!stacks.empty())
 	{
-		cb->eraseStack(StackLocation(id, stacks.begin()->first), true);
+		gameEvents.eraseStack(StackLocation(id, stacks.begin()->first), true);
 	}
 }
 
@@ -999,12 +1000,12 @@ CBuilding::TRequired CGTownInstance::genBuildingRequirements(const BuildingID & 
 	return ret;
 }
 
-void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 structureInstanceID ) const
+void CGTownInstance::addHeroToStructureVisitors(IGameEventCallback & gameEvents, const CGHeroInstance *h, si64 structureInstanceID ) const
 {
 	if(getVisitingHero() == h)
-		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
+		gameEvents.setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
 	else if(getGarrisonHero() == h)
-		cb->setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
+		gameEvents.setObjPropertyValue(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
 	else
 	{
 		//should never ever happen
@@ -1013,19 +1014,19 @@ void CGTownInstance::addHeroToStructureVisitors(const CGHeroInstance *h, si64 st
 	}
 }
 
-void CGTownInstance::battleFinished(const CGHeroInstance * hero, const BattleResult & result) const
+void CGTownInstance::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const
 {
 	if(result.winner == BattleSide::ATTACKER)
 	{
-		clearArmy();
-		onTownCaptured(hero->getOwner());
+		clearArmy(gameEvents);
+		onTownCaptured(gameEvents, hero->getOwner());
 	}
 }
 
-void CGTownInstance::onTownCaptured(const PlayerColor & winner) const
+void CGTownInstance::onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const
 {
-	setOwner(winner);
-	cb->changeFogOfWar(getSightCenter(), getSightRadius(), winner, ETileVisibility::REVEALED);
+	setOwner(gameEvents, winner);
+	gameEvents.changeFogOfWar(getSightCenter(), getSightRadius(), winner, ETileVisibility::REVEALED);
 }
 
 void CGTownInstance::afterAddToMap(CMap * map)

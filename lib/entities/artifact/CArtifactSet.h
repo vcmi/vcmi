@@ -40,11 +40,11 @@ public:
 	bool hasScroll(const SpellID & aid, bool onlyWorn = false) const;
 	bool isPositionFree(const ArtifactPosition & pos, bool onlyLockCheck = false) const;
 
-	virtual IGameCallback * getCallback() const = 0;
+	virtual IGameInfoCallback * getCallback() const = 0;
 	virtual ArtBearer bearerType() const = 0;
 	virtual ArtPlacementMap putArtifact(const ArtifactPosition & slot, const CArtifactInstance * art);
 	virtual void removeArtifact(const ArtifactPosition & slot);
-	CArtifactSet(IGameCallback * cb);
+	CArtifactSet(IGameInfoCallback * cb);
 	virtual ~CArtifactSet() = default;
 
 	template <typename Handler> void serialize(Handler &h)

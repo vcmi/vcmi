@@ -366,15 +366,7 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		gs.getPlayerState(pack.initiator)->destroyedObjects.insert(pack.objectID);
 
 	if(obj->getOwner().isValidPlayer())
-	{
 		gs.getPlayerState(obj->getOwner())->removeOwnedObject(obj); //object removed via map event or hero got beaten
-
-		FlaggableMapObject* flaggableObject = dynamic_cast<FlaggableMapObject*>(obj);
-		if(flaggableObject)
-		{
-			flaggableObject->markAsDeleted();
-		}
-	}
 
 	if(obj->ID == Obj::HERO) //remove beaten hero
 	{
@@ -1080,8 +1072,6 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 		return;
 	}
 
-	auto * cai = dynamic_cast<CArmedInstance *>(obj);
-
 	if(pack.what == ObjProperty::OWNER && obj->asOwnable())
 	{
 		PlayerColor oldOwner = obj->getOwner();
@@ -1093,7 +1083,7 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			gs.getPlayerState(newOwner)->addOwnedObject(obj);
 	}
 
-	if(pack.what == ObjProperty::OWNER && cai)
+	if(pack.what == ObjProperty::OWNER)
 	{
 		if(obj->ID == Obj::TOWN)
 		{
@@ -1116,9 +1106,9 @@ void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 			}
 		}
 
-		cai->detachFromBonusSystem(gs);
+		obj->detachFromBonusSystem(gs);
 		obj->setProperty(pack.what, pack.identifier);
-		cai->attachToBonusSystem(gs);
+		obj->attachToBonusSystem(gs);
 	}
 	else //not an armed instance
 	{

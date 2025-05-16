@@ -31,7 +31,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../battle/BattleInfo.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../campaign/CampaignState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
@@ -71,7 +71,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::shared_mutex CGameState::mutex;
 
-HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
+HeroTypeID CGameState::pickNextHeroType(vstd::RNG & randomGenerator, const PlayerColor & owner)
 {
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	if(ps.hero.isValid() && !isUsedHero(HeroTypeID(ps.hero))) //we haven't used selected hero
@@ -79,10 +79,10 @@ HeroTypeID CGameState::pickNextHeroType(const PlayerColor & owner)
 		return HeroTypeID(ps.hero);
 	}
 
-	return pickUnusedHeroTypeRandomly(owner);
+	return pickUnusedHeroTypeRandomly(randomGenerator, owner);
 }
 
-HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
+HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, const PlayerColor & owner)
 {
 	//list of available heroes for this faction and others
 	std::vector<HeroTypeID> factionHeroes;
@@ -100,13 +100,13 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(const PlayerColor & owner)
 	// select random hero native to "our" faction
 	if(!factionHeroes.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(factionHeroes, getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(factionHeroes, randomGenerator);
 	}
 
 	logGlobal->warn("Cannot find free hero of appropriate faction for player %s - trying to get first available...", owner.toString());
 	if(!otherHeroes.empty())
 	{
-		return *RandomGeneratorUtil::nextItem(otherHeroes, getRandomGenerator());
+		return *RandomGeneratorUtil::nextItem(otherHeroes, randomGenerator);
 	}
 
 	logGlobal->error("No free allowed heroes!");
@@ -150,7 +150,7 @@ int CGameState::getDate(Date mode) const
 	return getDate(day, mode);
 }
 
-CGameState::CGameState(IGameCallback * callback)
+CGameState::CGameState(IGameInfoCallback * callback)
 	: GameCallbackHolder(callback)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
@@ -173,7 +173,7 @@ void CGameState::preInit(Services * newServices)
 	services = newServices;
 }
 
-void CGameState::init(const IMapService * mapService, StartInfo * si, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
+void CGameState::init(const IMapService * mapService, StartInfo * si, vstd::RNG & randomGenerator, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
 {
 	assert(services);
 	assert(cb);
@@ -184,7 +184,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	switch(scenarioOps->mode)
 	{
 	case EStartMode::NEW_GAME:
-		initNewGame(mapService, allowSavingRandomMap, progressTracking);
+		initNewGame(mapService, randomGenerator, allowSavingRandomMap, progressTracking);
 		break;
 	case EStartMode::CAMPAIGN:
 		initCampaign();
@@ -202,20 +202,20 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, Load::Prog
 	initGlobalBonuses();
 	initPlayerStates();
 	if (campaign)
-		campaign->placeCampaignHeroes();
+		campaign->placeCampaignHeroes(randomGenerator);
 	removeHeroPlaceholders();
-	initGrailPosition();
-	initRandomFactionsForPlayers();
-	randomizeMapObjects();
-	placeStartingHeroes();
+	initGrailPosition(randomGenerator);
+	initRandomFactionsForPlayers(randomGenerator);
+	randomizeMapObjects(randomGenerator);
+	placeStartingHeroes(randomGenerator);
 	initOwnedObjects();
 	initDifficulty();
-	initHeroes();
-	initStartingBonus();
-	initTowns();
-	initTownNames();
+	initHeroes(randomGenerator);
+	initStartingBonus(randomGenerator);
+	initTowns(randomGenerator);
+	initTownNames(randomGenerator);
 	placeHeroesInTowns();
-	initMapObjects();
+	initMapObjects(randomGenerator);
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
 	initFogOfWar();
@@ -291,7 +291,7 @@ void CGameState::updateOnLoad(StartInfo * si)
 	scenarioOps->simturnsInfo = si->simturnsInfo;
 }
 
-void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
+void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
 {
 	if(scenarioOps->createRandomMap())
 	{
@@ -299,7 +299,7 @@ void CGameState::initNewGame(const IMapService * mapService, bool allowSavingRan
 		CStopWatch sw;
 
 		// Gen map
-		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, cb, getRandomGenerator().nextInt());
+		CMapGenerator mapGenerator(*scenarioOps->mapGenOptions, cb, randomGenerator.nextInt());
 		progressTracking.include(mapGenerator);
 
 		map = mapGenerator.generate();
@@ -425,7 +425,7 @@ void CGameState::initDifficulty()
 		campaign->initStartingResources();
 }
 
-void CGameState::initGrailPosition()
+void CGameState::initGrailPosition(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tPicking grail position");
 	//pick grail location
@@ -463,7 +463,7 @@ void CGameState::initGrailPosition()
 
 		if(!allowedPos.empty())
 		{
-			map->grailPos = *RandomGeneratorUtil::nextItem(allowedPos, getRandomGenerator());
+			map->grailPos = *RandomGeneratorUtil::nextItem(allowedPos, randomGenerator);
 		}
 		else
 		{
@@ -472,14 +472,14 @@ void CGameState::initGrailPosition()
 	}
 }
 
-void CGameState::initRandomFactionsForPlayers()
+void CGameState::initRandomFactionsForPlayers(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tPicking random factions for players");
 	for(auto & elem : scenarioOps->playerInfos)
 	{
 		if(elem.second.castle==FactionID::RANDOM)
 		{
-			auto randomID = getRandomGenerator().nextInt((int)map->players[elem.first.getNum()].allowedFactions.size() - 1);
+			auto randomID = randomGenerator.nextInt((int)map->players[elem.first.getNum()].allowedFactions.size() - 1);
 			auto iter = map->players[elem.first.getNum()].allowedFactions.begin();
 			std::advance(iter, randomID);
 
@@ -488,12 +488,12 @@ void CGameState::initRandomFactionsForPlayers()
 	}
 }
 
-void CGameState::randomizeMapObjects()
+void CGameState::randomizeMapObjects(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tRandomizing objects");
 	for(const auto & object : map->getObjects())
 	{
-		object->pickRandomObject(getRandomGenerator());
+		object->pickRandomObject(randomGenerator);
 
 		//handle Favouring Winds - mark tiles under it
 		if(object->ID == Obj::FAVORABLE_WINDS)
@@ -562,7 +562,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	map->getEditManager()->insertObject(hero);
 }
 
-void CGameState::placeStartingHeroes()
+void CGameState::placeStartingHeroes(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tGiving starting hero");
 
@@ -576,7 +576,7 @@ void CGameState::placeStartingHeroes()
 			if (campaign && campaign->playerHasStartingHero(playerColor))
 				continue;
 
-			HeroTypeID heroTypeId = pickNextHeroType(playerColor);
+			HeroTypeID heroTypeId = pickNextHeroType(randomGenerator, playerColor);
 			if(playerSettingPair.second.hero == HeroTypeID::NONE || playerSettingPair.second.hero == HeroTypeID::RANDOM)
 				playerSettingPair.second.hero = heroTypeId;
 
@@ -594,7 +594,7 @@ void CGameState::removeHeroPlaceholders()
 	}
 }
 
-void CGameState::initHeroes()
+void CGameState::initHeroes(vstd::RNG & randomGenerator)
 {
 	//heroes instances initialization
 	for (auto heroID : map->getHeroesOnMap())
@@ -605,7 +605,7 @@ void CGameState::initHeroes()
 			logGlobal->warn("Hero with uninitialized owner!");
 			continue;
 		}
-		hero->initHero(getRandomGenerator());
+		hero->initHero(randomGenerator);
 	}
 
 	// generate boats for all heroes on water
@@ -622,7 +622,7 @@ void CGameState::initHeroes()
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
 			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(cb, nullptr));
-			handler->configureObject(boat.get(), getRandomGenerator());
+			handler->configureObject(boat.get(), randomGenerator);
 
 			boat->setAnchorPos(hero->anchorPos());
 			boat->appearance = handler->getTemplates().front();
@@ -648,7 +648,7 @@ void CGameState::initHeroes()
 			heroInPool = newHeroPtr.get();
 		}
 		map->generateUniqueInstanceName(heroInPool);
-		heroInPool->initHero(getRandomGenerator());
+		heroInPool->initHero(randomGenerator);
 		heroesPool->addHeroToPool(htype);
 	}
 
@@ -685,7 +685,7 @@ void CGameState::initFogOfWar()
 	}
 }
 
-void CGameState::initStartingBonus()
+void CGameState::initStartingBonus(vstd::RNG & randomGenerator)
 {
 	if (scenarioOps->mode == EStartMode::CAMPAIGN)
 		return;
@@ -697,25 +697,25 @@ void CGameState::initStartingBonus()
 	{
 		//starting bonus
 		if(scenarioOps->playerInfos[elem.first].bonus == PlayerStartingBonus::RANDOM)
-			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerStartingBonus>(getRandomGenerator().nextInt(2));
+			scenarioOps->playerInfos[elem.first].bonus = static_cast<PlayerStartingBonus>(randomGenerator.nextInt(2));
 
 		switch(scenarioOps->playerInfos[elem.first].bonus)
 		{
 		case PlayerStartingBonus::GOLD:
-			elem.second.resources[EGameResID::GOLD] += getRandomGenerator().nextInt(5, 10) * 100;
+			elem.second.resources[EGameResID::GOLD] += randomGenerator.nextInt(5, 10) * 100;
 			break;
 		case PlayerStartingBonus::RESOURCE:
 			{
 				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
 				{
-					int amount = getRandomGenerator().nextInt(5, 10);
+					int amount = randomGenerator.nextInt(5, 10);
 					elem.second.resources[EGameResID::WOOD] += amount;
 					elem.second.resources[EGameResID::ORE] += amount;
 				}
 				else
 				{
-					elem.second.resources[res] += getRandomGenerator().nextInt(3, 6);
+					elem.second.resources[res] += randomGenerator.nextInt(3, 6);
 				}
 				break;
 			}
@@ -726,7 +726,7 @@ void CGameState::initStartingBonus()
 					logGlobal->error("Cannot give starting artifact - no heroes!");
 					break;
 				}
-				const Artifact * toGive = pickRandomArtifact(getRandomGenerator(), EArtifactClass::ART_TREASURE).toEntity(LIBRARY);
+				const Artifact * toGive = pickRandomArtifact(randomGenerator, EArtifactClass::ART_TREASURE).toEntity(LIBRARY);
 
 				CGHeroInstance *hero = elem.second.getHeroes()[0];
 				if(!giveHeroArtifact(hero, toGive->getId()))
@@ -737,7 +737,7 @@ void CGameState::initStartingBonus()
 	}
 }
 
-void CGameState::initTownNames()
+void CGameState::initTownNames(vstd::RNG & randomGenerator)
 {
 	std::map<FactionID, std::vector<int>> availableNames;
 	for(const auto & faction : LIBRARY->townh->getDefaultAllowed())
@@ -770,9 +770,9 @@ void CGameState::initTownNames()
 
 		// If town has no available names (for example - all were picked) - pick names from some other faction that still has names available
 		if(!availableNames.count(faction))
-			faction = RandomGeneratorUtil::nextItem(availableNames, getRandomGenerator())->first;
+			faction = RandomGeneratorUtil::nextItem(availableNames, randomGenerator)->first;
 
-		auto nameIt = RandomGeneratorUtil::nextItem(availableNames[faction], getRandomGenerator());
+		auto nameIt = RandomGeneratorUtil::nextItem(availableNames[faction], randomGenerator);
 		vti->setNameTextId(faction.toFaction()->town->getRandomNameTextID(*nameIt));
 
 		availableNames[faction].erase(nameIt);
@@ -781,7 +781,7 @@ void CGameState::initTownNames()
 	}
 }
 
-void CGameState::initTowns()
+void CGameState::initTowns(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tTowns");
 
@@ -816,7 +816,7 @@ void CGameState::initTowns()
 
 			for(int i = 0; i < definesBuildingsChances.size(); i++)
 			{
-				if((getRandomGenerator().nextInt(1,100) <= definesBuildingsChances[i]))
+				if((randomGenerator.nextInt(1,100) <= definesBuildingsChances[i]))
 				{
 					vti->addBuilding(basicDwellings[i]);
 				}
@@ -912,7 +912,7 @@ void CGameState::initTowns()
 
 		while(!vti->possibleSpells.empty())
 		{
-			size_t index = RandomGeneratorUtil::nextItemWeighted(spellWeights, getRandomGenerator());
+			size_t index = RandomGeneratorUtil::nextItemWeighted(spellWeights, randomGenerator);
 
 			const auto * s = vti->possibleSpells[index].toSpell();
 			vti->spells[s->getLevel()-1].push_back(s->id);
@@ -923,12 +923,12 @@ void CGameState::initTowns()
 	}
 }
 
-void CGameState::initMapObjects()
+void CGameState::initMapObjects(vstd::RNG & randomGenerator)
 {
 	logGlobal->debug("\tObject initialization");
 
 	for(auto & obj : map->getObjects())
-		obj->initObj(getRandomGenerator());
+		obj->initObj(randomGenerator);
 
 	logGlobal->debug("\tObject initialization done");
 	for(auto & q : map->getObjects<CGSeerHut>())
@@ -1029,7 +1029,7 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 	return nullptr;
 }
 
-BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator)
 {
 	assert(tile.isValid());
 
@@ -1063,49 +1063,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & rand)
 	if (t.getTerrain()->battleFields.empty())
 		throw std::runtime_error("Failed to find battlefield for terrain " + t.getTerrain()->getJsonKey());
 
-	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, rand));
+	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
 }
 
-void CGameState::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const
-{
-	assert(obj);
-	assert(obj->hasStackAtSlot(stackPos));
 
-	out = fillUpgradeInfo(obj->getStack(stackPos));
-}
-
-UpgradeInfo CGameState::fillUpgradeInfo(const CStackInstance & stack) const
-{
-	const CCreature *base = stack.getCreature();
-	
-	UpgradeInfo ret(base->getId());
-
-	if (stack.getArmy()->ID == Obj::HERO)
-	{
-		auto hero = dynamic_cast<const CGHeroInstance *>(stack.getArmy());
-		hero->fillUpgradeInfo(ret, stack);
-
-		if (hero->getVisitedTown())
-		{
-			hero->getVisitedTown()->fillUpgradeInfo(ret, stack);
-		}
-		else
-		{
-			auto object = vstd::frontOrNull(getVisitableObjs(hero->visitablePos()));
-			auto upgradeSource = dynamic_cast<const ICreatureUpgrader*>(object);
-			if (object != hero && upgradeSource != nullptr)
-				upgradeSource->fillUpgradeInfo(ret, stack);
-		}
-	}
-
-	if (stack.getArmy()->ID == Obj::TOWN)
-	{
-		auto town = dynamic_cast<const CGTownInstance *>(stack.getArmy());
-		town->fillUpgradeInfo(ret, stack);
-	}
-
-	return ret;
-}
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
@@ -1187,29 +1148,21 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 		pos.x++;
 	}
 	return guards;
-
 }
 
-int3 CGameState::guardingCreaturePosition (int3 pos) const
-{
-	return getMap().guardingCreaturePositions[pos.z][pos.x][pos.y];
-}
-
-bool CGameState::isVisible(int3 pos, const std::optional<PlayerColor> & player) const
+bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 {
 	if (!map->isInTheMap(pos))
 		return false;
-	if (!player)
-		return true;
 	if(player == PlayerColor::NEUTRAL)
 		return false;
-	if(player->isSpectator())
+	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(*player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
 }
 
-bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<PlayerColor> & player) const
+bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
 	if(!player)
 		return true;
@@ -1218,8 +1171,9 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 	if (player == obj->tempOwner)
 		return true;
 
-	if(*player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
+	if(player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
+
 	//object is visible when at least one blocked tile is visible
 	for(int fy=0; fy < obj->getHeight(); ++fy)
 	{
@@ -1229,7 +1183,7 @@ bool CGameState::isVisible(const CGObjectInstance * obj, const std::optional<Pla
 
 			if ( map->isInTheMap(pos) &&
 				 obj->coveringAt(pos) &&
-				 isVisible(pos, *player))
+				 isVisibleFor(pos, player))
 				return true;
 		}
 	}
@@ -1353,7 +1307,7 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::CONTROL:
 		{
 			// list of players that need to control object to fulfull condition
-			// NOTE: cgameinfocallback specified explicitly in order to get const version
+			// NOTE: CGameInfoCallback specified explicitly in order to get const version
 			const auto * team = CGameInfoCallback::getPlayerTeam(player);
 
 			if (condition.objectID != ObjectInstanceID::NONE) // mode A - flag one specific object, like town
@@ -1571,7 +1525,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 void CGameState::buildBonusSystemTree()
 {
 	buildGlobalTeamPlayerTree();
-	for(auto & armed : map->getObjects<CArmedInstance>())
+	for(auto & armed : map->getObjects<CGObjectInstance>())
 		armed->attachToBonusSystem(*this);
 }
 
@@ -1580,7 +1534,7 @@ void CGameState::restoreBonusSystemTree()
 	heroesPool->setGameState(this);
 
 	buildGlobalTeamPlayerTree();
-	for(auto & armed : map->getObjects<CArmedInstance>())
+	for(auto & armed : map->getObjects<CGObjectInstance>())
 		armed->restoreBonusSystem(*this);
 
 	for(auto & art : map->getArtifacts())
@@ -1656,19 +1610,12 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 	return nullptr;
 }
 
-
-
 TeamState::TeamState()
 {
 	setNodeType(TEAM);
 }
 
-vstd::RNG & CGameState::getRandomGenerator()
-{
-	return cb->getRandomGenerator();
-}
-
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & randomGenerator, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts)
 {
 	std::set<ArtifactID> potentialPicks;
 
@@ -1691,10 +1638,10 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtif
 		potentialPicks.insert(artifact->getId());
 	}
 
-	return pickRandomArtifact(rand, potentialPicks);
+	return pickRandomArtifact(randomGenerator, potentialPicks);
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID> potentialPicks)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & randomGenerator, std::set<ArtifactID> potentialPicks)
 {
 	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
 	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
@@ -1718,19 +1665,19 @@ ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::set<ArtifactID>
 
 	assert(!preferredPicks.empty());
 
-	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, rand);
+	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, randomGenerator);
 	allocatedArtifacts[artID] += 1; // record +1 more usage
 	return artID;
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::function<bool(ArtifactID)> accepts)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & randomGenerator, std::function<bool(ArtifactID)> accepts)
 {
-	return pickRandomArtifact(rand, std::nullopt, std::move(accepts));
+	return pickRandomArtifact(randomGenerator, std::nullopt, std::move(accepts));
 }
 
-ArtifactID CGameState::pickRandomArtifact(vstd::RNG & rand, std::optional<EArtifactClass> type)
+ArtifactID CGameState::pickRandomArtifact(vstd::RNG & randomGenerator, std::optional<EArtifactClass> type)
 {
-	return pickRandomArtifact(rand, type, [](const ArtifactID &) { return true; });
+	return pickRandomArtifact(randomGenerator, type, [](const ArtifactID &) { return true; });
 }
 
 CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
@@ -1781,6 +1728,13 @@ void CGameState::loadGame(CLoadFile & file)
 		file.load(*this);
 	}
 }
+
+#if SCRIPTING_ENABLED
+scripting::Pool * CGameState::getGlobalContextPool() const
+{
+	return nullptr; // TODO
+}
+#endif
 
 void CGameState::saveCompatibilityRegisterMissingArtifacts()
 {

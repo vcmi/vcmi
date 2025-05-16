@@ -14,7 +14,8 @@
 #include "CGHeroInstance.h"
 #include "ObjectTemplate.h"
 
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../constants/StringConstants.h"
@@ -30,7 +31,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 //TODO: remove constructor
-CGObjectInstance::CGObjectInstance(IGameCallback *cb):
+CGObjectInstance::CGObjectInstance(IGameInfoCallback *cb):
 	IObjectInterface(cb),
 	pos(-1,-1,-1),
 	ID(Obj::NO_OBJ),
@@ -223,7 +224,7 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return appearance->getVisitableOffset();
 }
 
-void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration) const
+void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const ObjectInstanceID & heroID, BonusDuration::Type duration) const
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = BonusType::NONE;
@@ -231,7 +232,7 @@ void CGObjectInstance::giveDummyBonus(const ObjectInstanceID & heroID, BonusDura
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = BonusSource::OBJECT_TYPE;
 	gbonus.bonus.sid = BonusSourceID(ID);
-	cb->giveHeroBonus(&gbonus);
+	gameEvents.giveHeroBonus(&gbonus);
 }
 
 std::string CGObjectInstance::getObjectName() const
@@ -298,19 +299,19 @@ std::vector<Component> CGObjectInstance::getPopupComponents(const CGHeroInstance
 	return getPopupComponents(hero->getOwner());
 }
 
-void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
+void CGObjectInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	switch(ID.toEnum())
 	{
 	case Obj::SANCTUARY:
 		{
 			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			h->showInfoDialog(114);
+			h->showInfoDialog(gameEvents, 114);
 		}
 		break;
 	case Obj::TAVERN:
 		{
-			cb->showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
+			gameEvents.showObjectWindow(this, EOpenWindowMode::TAVERN_WINDOW, h, true);
 		}
 		break;
 	}

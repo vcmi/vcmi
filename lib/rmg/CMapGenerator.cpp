@@ -40,7 +40,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
 	rand(std::make_unique<CRandomGenerator>(RandomSeed))

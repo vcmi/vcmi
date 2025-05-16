@@ -25,6 +25,7 @@
 
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleLayout.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -110,14 +111,14 @@ public:
 
 	vstd::RNG * getRNG() override
 	{
-		return &gameState->getRandomGenerator();//todo: mock this
+		return &randomGenerator;//todo: mock this
 	}
 
 	const CMap * getMap() const override
 	{
 		return map;
 	}
-	const CGameInfoCallback * getCb() const override
+	const IGameInfoCallback * getCb() const override
 	{
 		return gameState.get();
 	}
@@ -178,8 +179,9 @@ public:
 			}
 		}
 
+		CRandomGenerator randomGenerator;
 		Load::ProgressAccumulator progressTracker;
-		gameState->init(&mapService, &si, progressTracker, false);
+		gameState->init(&mapService, &si, randomGenerator, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
 		ASSERT_EQ(map->getHeroesOnMap().size(), 2);
@@ -217,6 +219,7 @@ public:
 	ServicesMock services;
 
 	CMap * map;
+	CRandomGenerator randomGenerator;
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults

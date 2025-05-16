@@ -11,92 +11,157 @@
 
 #include "../constants/EntityIdentifiers.h"
 #include "../constants/Enumerations.h"
+#include "../int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class int3;
 struct StartInfo;
 
 class CGHeroInstance;
 class CGObjectInstance;
-class Player;
 
+struct PlayerSettings;
+struct TerrainTile;
+struct InfoAboutHero;
+struct InfoAboutTown;
+struct TeamState;
+struct TurnTimerInfo;
+struct ArtifactLocation;
+
+class IGameSettings;
+class PlayerState;
+class UpgradeInfo;
+class CMapHeader;
+class CGameState;
+class PathfinderConfig;
+class CArtifactSet;
+class CArmedInstance;
+class CGTeleport;
+class CGTownInstance;
+class IMarket;
+
+#if SCRIPTING_ENABLED
+namespace scripting
+{
+class Pool;
+}
+#endif
+
+namespace vstd
+{
+class RNG;
+}
+
+/// Provide interfaces through which map objects can access game state data
+/// TODO: currently it is also used as Environment::GameCb. Consider separating these two interfaces
 class DLL_LINKAGE IGameInfoCallback : boost::noncopyable
 {
 public:
-	//TODO: all other public methods of CGameInfoCallback
+	~IGameInfoCallback() = default;
 
-	//	//various
-	virtual int getDate(Date mode=Date::DAY) const = 0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	/// Access underlying non-const gamestate
+	/// TODO: remove ASAP
+	virtual CGameState & gameState() = 0;
+
+	/// Access underlying gamestate
+	/// TODO: remove
+	virtual const CGameState & gameState() const = 0;
+
+	/// Returns current date:
+	/// DAY - number of days since start of the game (1..inf)
+	/// DAY_OF_WEEK - number of days since start of the week (1..7)
+	/// WEEK - number of week within month (1..4)
+	/// MONTH - current month (1..inf)
+	/// DAY_OF_MONTH - number of day within current month, (1..28)
+	virtual int getDate(Date mode=Date::DAY)const = 0;
+
+	/// Return pointer to static map header for current map
+	virtual const CMapHeader * getMapHeader()const = 0;
+
+	/// Returns post-randomized startin information on current game
 	virtual const StartInfo * getStartInfo() const = 0;
-	virtual const StartInfo * getInitialStartInfo() const = 0;
+
+	/// Returns true if corresponding spell is allowed, and not banned in map settings
 	virtual bool isAllowed(SpellID id) const = 0;
+	/// Returns true if corresponding artifact is allowed, and not banned in map settings
 	virtual bool isAllowed(ArtifactID id) const = 0;
+	/// Returns true if corresponding secondary skill is allowed, and not banned in map settings
 	virtual bool isAllowed(SecondarySkill id) const = 0;
 
-	//player
-	virtual std::optional<PlayerColor> getPlayerID() const = 0;
-	virtual const Player * getPlayer(PlayerColor color) const = 0;
-	//	virtual int getResource(PlayerColor Player, EGameResID which) const = 0;
-	//	bool isVisible(int3 pos) const;
-	//	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
-	//	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-	//	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const; //-1 if no such player
-	//	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
+	/// Returns true if specified tile is visible for specific player. Player must be valid
+	virtual bool isVisibleFor(int3 pos, PlayerColor player) const = 0;
 
+	/// Returns true if specified object is visible for specific player. Player must be valid
+	virtual bool isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const = 0;
 
-	//	//armed object
-	//	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
+	//// Returns game settings for current map
+	virtual const IGameSettings & getSettings() const = 0;
 
-	//hero
+	/// Returns dimesions for current map. 'z' coordinate indicates number of level (2 for maps with underground layer)
+	virtual int3 getMapSize() const = 0;
+	/// Returns true if tile with specified position exists within map
+	virtual bool isInTheMap(const int3 &pos) const = 0;
+
+	/// Returns pointer to specified team. Team must be valid
+	virtual const TeamState *getTeam(TeamID teamID) const = 0;
+	/// Returns pointer to specified team. Player must be valid. Players without belong to a team with single member
+	virtual const TeamState *getPlayerTeam(PlayerColor color) const = 0;
+	/// Returns current state of a specific player. Player must be valid
+	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const = 0;
+	/// Returns starting settings of a specified player. Player must be valid
+	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const = 0;
+	/// Returns relations (allies, enemies, etc) of two specified, valid players
+	virtual PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const = 0;
+	/// Returns number of wandering heroes or wandering and garrisoned heroes for specified player
+	virtual int getHeroCount(PlayerColor player, bool includeGarrisoned) const = 0;
+	/// Returns in-game status if specified player. Player must be valid
+	virtual EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const = 0;
+	/// Returns amount of resource of a specific type owned by a specified player
+	virtual int getResource(PlayerColor Player, GameResID which) const = 0;
+
+	/// Returns pointer to hero using provided object ID. Returns null on failure
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
-	//	int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
-	//	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
-	//	int32_t getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
-	//	int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
-	//	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
-	//	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
-	//	const CGObjectInstance * getArmyInstance(ObjectInstanceID oid) const;
-
-	//objects
+	/// Returns pointer to town using provided object ID. Returns null on failure
+	virtual const CGTownInstance* getTown(ObjectInstanceID objid) const = 0;
+	/// Returns pointer to object using provided object ID. Returns null on failure
 	virtual const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const = 0;
-	//	std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos) const;
-	virtual std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos, bool verbose = true) const = 0;
-	//	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
-	//	const CGObjectInstance * getTopObj (int3 pos) const;
-	//	PlayerColor getOwner(ObjectInstanceID heroID) const;
+	/// Returns pointer to object using provided object ID. Returns null on failure
+	virtual const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const = 0;
+	/// Returns pointer to artifact using provided object ID. Returns null on failure
+	virtual const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const = 0;
 
-	//map
-	//	int3 guardingCreaturePosition (int3 pos) const;
-	//	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const;
-	//	const CMapHeader * getMapHeader()const;
-	//	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
-	//	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
-	//	bool isInTheMap(const int3 &pos) const;
+	/// Returns pointer to specified tile or nullptr on error
+	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const = 0;
+	/// Returns pointer to specified tile without checking for permissions. Avoid its usage!
+	virtual const TerrainTile * getTileUnchecked(int3 tile) const = 0;
+	/// Returns pointer to top-most object on specified tile, or nullptr on error
+	virtual const CGObjectInstance * getTopObj(int3 pos) const = 0;
+	/// Returns whether it is possible to dig for Grail on specified tile
+	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const = 0;
+	/// Calculates pathfinding data into specified pathfinder config
+	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const = 0;
 
-	//town
-	//	const CGTownInstance* getTown(ObjectInstanceID objid) const;
-	//	int howManyTowns(PlayerColor Player) const;
-	//	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
-	//	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
-	//	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
-	//	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	//	virtual bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
+	/// Returns all tiles within specified range with specific tile visibility mode
+	virtual void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;
 
-	//from gs
-	//	const TeamState *getTeam(TeamID teamID) const;
-	//	const TeamState *getPlayerTeam(PlayerColor color) const;
-	//	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	/// returns all tiles on given level (-1 - both levels, otherwise number of level)
+	virtual void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const = 0;
 
-	//teleport
-	//	std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const;
-	//	std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	//	std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const;
-	//	ETeleportChannelType getTeleportChannelType(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
-	//	bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
-	//	bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
-	//	bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const;
-	//	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const;
+	virtual std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const  = 0;
+	virtual std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const  = 0;
+	virtual std::vector<ObjectInstanceID> getTeleportChannelExits(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const  = 0;
+	virtual bool isTeleportChannelImpassable(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
+	virtual bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
+	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
+	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
+
+	/// gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
+	/// TODO: remove non-const method from this interface
+	virtual void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand) = 0;
+
+#if SCRIPTING_ENABLED
+	virtual scripting::Pool * getGlobalContextPool() const = 0;
+#endif
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -546,7 +546,7 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 	gs = std::make_shared<CGameState>(this);
 	gs->preInit(LIBRARY);
 	logGlobal->info("Gamestate created!");
-	gs->init(&mapService, si, progressTracking);
+	gs->init(&mapService, si, getRandomGenerator(), progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
 	for (const auto & elem : gameState().players)
@@ -700,7 +700,7 @@ void CGameHandler::onNewTurn()
 	for (auto & elem : gameState().getMap().getObjects())
 	{
 		if (elem)
-			elem->newTurn(getRandomGenerator());
+			elem->newTurn(*this);
 	}
 
 	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
@@ -911,7 +911,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto leaveTile = [&]()
 	{
 		for(const auto & objID : gameState().getMap().getTile(h->visitablePos()).visitableObjects)
-			gameState().getObjInstance(objID)->onHeroLeave(h);
+			gameState().getObjInstance(objID)->onHeroLeave(*this, h);
 
 		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadius(), ETileVisibility::HIDDEN, h->tempOwner);
 	};
@@ -2536,7 +2536,7 @@ bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
 	else //visiting -> garrison
 	{
 		if(town->armedGarrison())
-			town->mergeGarrisonOnSiege();
+			town->mergeGarrisonOnSiege(*this);
 
 		intown.visiting = ObjectInstanceID();
 		intown.garrison = town->getVisitingHero()->id;
@@ -3445,7 +3445,7 @@ void CGameHandler::objectVisited(const CGObjectInstance * obj, const CGHeroInsta
 		hv.starting = true;
 		sendAndApply(hv);
 
-		obj->onHeroVisit(h);
+		obj->onHeroVisit(*this, h);
 	};
 
 	ObjectVisitStarted::defaultExecute(serverEventBus.get(), startVisit, h->tempOwner, h->id, obj->id);
@@ -4320,7 +4320,7 @@ void CGameHandler::createHole(const int3 & visitablePosition, PlayerColor initia
 
 void CGameHandler::newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator)
 {
-	object->initObj(gameState().getRandomGenerator());
+	object->initObj(getRandomGenerator());
 
 	NewObject no;
 	no.newObject = object;

@@ -18,7 +18,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMapEditManager;
 class CGObjectInstance;
 class ObjectTemplate;
-class IGameCallback;
+class IGameInfoCallback;
 class ObstacleSetFilter;
 
 class DLL_LINKAGE ObstacleProxy
@@ -43,7 +43,7 @@ public:
 
 	virtual void placeObject(rmg::Object & object, std::set<std::shared_ptr<CGObjectInstance>> & instances);
 
-	virtual std::set<std::shared_ptr<CGObjectInstance>> createObstacles(vstd::RNG & rand, IGameCallback * cb);
+	virtual std::set<std::shared_ptr<CGObjectInstance>> createObstacles(vstd::RNG & rand, IGameInfoCallback * cb);
 
 	virtual bool isInTheMap(const int3& tile) = 0;
 	
@@ -52,7 +52,7 @@ public:
 	virtual void postProcess(const rmg::Object& object) {};
 
 protected:
-	int getWeightedObjects(const int3& tile, vstd::RNG& rand, IGameCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
+	int getWeightedObjects(const int3& tile, vstd::RNG& rand, IGameInfoCallback * cb, std::list<rmg::Object>& allObjects, std::vector<std::pair<rmg::Object*, int3>>& weightedObjects);
 	void sortObstacles();
 
 	rmg::Area blockedArea;

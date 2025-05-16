@@ -14,7 +14,7 @@
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"

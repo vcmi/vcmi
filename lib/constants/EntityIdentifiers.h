@@ -43,7 +43,7 @@ class CCreature;
 class CHero;
 class CSpell;
 class CSkill;
-class CGameInfoCallback;
+class IGameInfoCallback;
 class CNonConstInfoCallback;
 
 class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>

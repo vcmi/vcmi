@@ -14,7 +14,8 @@
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
 #include "../battle/BattleLayout.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
@@ -33,10 +34,10 @@ const IObjectInterface * CRewardableObject::getObject() const
 	return this;
 }
 
-void CRewardableObject::markAsScouted(const CGHeroInstance * hero) const
+void CRewardableObject::markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_PLAYER, id, hero->id);
-	cb->sendAndApply(cov);
+	gameEvents.sendAndApply(cov);
 }
 
 bool CRewardableObject::isGuarded() const
@@ -44,21 +45,21 @@ bool CRewardableObject::isGuarded() const
 	return stacksCount() > 0;
 }
 
-void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
+void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
 	if(!wasScouted(hero->getOwner()))
 	{
 		ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_SCOUTED, id, hero->id);
-		cb->sendAndApply(cov);
+		gameEvents.sendAndApply(cov);
 	}
 
 	if (!isGuarded())
 	{
-		doHeroVisit(hero);
+		doHeroVisit(gameEvents, hero);
 	}
 	else if (configuration.forceCombat)
 	{
-		doStartBattle(hero);
+		doStartBattle(gameEvents, hero);
 	}
 	else
 	{
@@ -71,67 +72,67 @@ void CRewardableObject::onHeroVisit(const CGHeroInstance *hero) const
 		bd.text = guardedReward.message;
 		bd.components = getPopupComponents(hero->getOwner());
 
-		cb->showBlockingDialog(this, &bd);
+		gameEvents.showBlockingDialog(this, &bd);
 	}
 }
 
-void CRewardableObject::heroLevelUpDone(const CGHeroInstance *hero) const
+void CRewardableObject::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
-	grantRewardAfterLevelup(configuration.info.at(selectedReward), this, hero);
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(selectedReward), this, hero);
 }
 
-void CRewardableObject::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if (result.winner == BattleSide::ATTACKER)
 	{
-		doHeroVisit(hero);
+		doHeroVisit(gameEvents, hero);
 	}
 }
 
-void CRewardableObject::garrisonDialogClosed(const CGHeroInstance *hero) const
+void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
 	// if visitor received creatures as rewards, but does not have free slots, he will leave some units
 	// inside rewardable object, which might get treated as guards later
 	while(!stacks.empty())
-		cb->eraseStack(StackLocation(id, stacks.begin()->first));
+		gameEvents.eraseStack(StackLocation(id, stacks.begin()->first));
 }
 
-void CRewardableObject::doStartBattle(const CGHeroInstance * hero) const
+void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
 	auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
-	cb->startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
+	gameEvents.startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
 }
 
-void CRewardableObject::blockingDialogAnswered(const CGHeroInstance * hero, int32_t answer) const
+void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
 {
 	if(isGuarded())
 	{
 		if (answer)
-			doStartBattle(hero);
+			doStartBattle(gameEvents, hero);
 	}
 	else
 	{
-		onBlockingDialogAnswered(hero, answer);
+		onBlockingDialogAnswered(gameEvents, hero, answer);
 	}
 }
 
-void CRewardableObject::markAsVisited(const CGHeroInstance * hero) const
+void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
-	cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
+	gameEvents.setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, true);
 
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
-	cb->sendAndApply(cov);
+	gameEvents.sendAndApply(cov);
 }
 
-void CRewardableObject::grantReward(ui32 rewardID, const CGHeroInstance * hero) const
+void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
 {
-	cb->setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
-	grantRewardBeforeLevelup(configuration.info.at(rewardID), hero);
+	gameEvents.setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
+	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
 	
 	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!cb->isVisitCoveredByAnotherQuery(this, hero))
+	if(!gameEvents.isVisitCoveredByAnotherQuery(this, hero))
 	{
-		grantRewardAfterLevelup(configuration.info.at(rewardID), this, hero);
+		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
 	}
 }
 
@@ -330,21 +331,21 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 	}
 }
 
-void CRewardableObject::newTurn(vstd::RNG & rand) const
+void CRewardableObject::newTurn(IGameEventCallback & gameEvents) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
 		if (configuration.resetParameters.rewards)
 		{
 			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
-			auto newConfiguration = handler->generateConfiguration(cb, rand, ID, configuration.variables.preset);
-			cb->setRewardableObjectConfiguration(id, newConfiguration);
+			auto newConfiguration = handler->generateConfiguration(cb, gameEvents.getRandomGenerator(), ID, configuration.variables.preset);
+			gameEvents.setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
 		{
-			cb->setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, false);
+			gameEvents.setObjPropertyValue(id, ObjProperty::REWARD_CLEARED, false);
 			ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_CLEAR, id);
-			cb->sendAndApply(cov);
+			gameEvents.sendAndApply(cov);
 		}
 	}
 }
@@ -354,7 +355,7 @@ void CRewardableObject::initObj(vstd::RNG & rand)
 	getObjectHandler()->configureObject(this, rand);
 }
 
-CRewardableObject::CRewardableObject(IGameCallback *cb)
+CRewardableObject::CRewardableObject(IGameInfoCallback *cb)
 	:CArmedInstance(cb)
 {}
 

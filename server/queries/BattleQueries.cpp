@@ -28,7 +28,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObje
 	assert(result);
 
 	if(result)
-		visitedObject->battleFinished(visitingHero, *result);
+		visitedObject->battleFinished(*gh, visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):

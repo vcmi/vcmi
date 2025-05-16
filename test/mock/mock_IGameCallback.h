@@ -12,11 +12,12 @@
 
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/callback/IGameCallback.h"
+#include "../../lib/callback/CGameInfoCallback.h"
+#include "../../lib/callback/IGameEventCallback.h"
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
 
-class GameCallbackMock : public IGameCallback
+class GameCallbackMock : public CGameInfoCallback, public IGameEventCallback
 {
 	std::shared_ptr<CGameState> gamestate;
 public:
@@ -98,6 +99,8 @@ public:
 
 	///useful callback methods
 	void sendAndApply(CPackForClient & pack) override;
+
+	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override {return false;}
 
 	vstd::RNG & getRandomGenerator() override;
 

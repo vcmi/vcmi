@@ -420,7 +420,7 @@ std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 	return chosenCampaignBonuses.at(which);
 }
 
-std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameCallback * cb)
+std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb)
 {
 	// FIXME: there is certainly better way to handle maps inside campaigns
 	if(scenarioId == CampaignScenarioID::NONE)

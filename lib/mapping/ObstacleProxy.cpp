@@ -230,7 +230,7 @@ bool ObstacleProxy::isProhibited(const rmg::Area& objArea) const
 	return false;
 };
 
-int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGameCallback * cb, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
+int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGameInfoCallback * cb, std::list<rmg::Object> & allObjects, std::vector<std::pair<rmg::Object*, int3>> & weightedObjects)
 {
 	int maxWeight = std::numeric_limits<int>::min();
 	for(auto & possibleObstacle : possibleObstacles)
@@ -311,7 +311,7 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 	return maxWeight;
 }
 
-std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameCallback * cb)
+std::set<std::shared_ptr<CGObjectInstance>> ObstacleProxy::createObstacles(vstd::RNG & rand, IGameInfoCallback * cb)
 {
 	//reverse order, since obstacles begin in bottom-right corner, while the map coordinates begin in top-left
 	auto blockedTiles = blockedArea.getTilesVector();

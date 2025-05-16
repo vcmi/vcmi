@@ -115,6 +115,8 @@ public:
 
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 
+	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
+
 	virtual vstd::RNG & getRandomGenerator() = 0;
 };
 

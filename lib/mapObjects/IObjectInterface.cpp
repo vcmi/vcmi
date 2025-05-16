@@ -15,30 +15,31 @@
 #include "MiscObjects.h"
 
 #include "../TerrainHandler.h"
-#include "../callback/IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void IObjectInterface::showInfoDialog(const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
+void IObjectInterface::showInfoDialog(IGameEventCallback & gameEvents, const ui32 txtID, const ui16 soundID, EInfoWindowMode mode) const
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
 	iw.player = getOwner();
 	iw.type = mode;
 	iw.text.appendLocalString(EMetaText::ADVOB_TXT,txtID);
-	cb->sendAndApply(iw);
+	gameEvents.sendAndApply(iw);
 }
 
 ///IObjectInterface
-void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
+void IObjectInterface::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
+void IObjectInterface::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn(vstd::RNG & rand) const
+void IObjectInterface::newTurn(IGameEventCallback & gameEvents) const
 {}
 
 void IObjectInterface::initObj(vstd::RNG & rand)
@@ -65,16 +66,16 @@ void IObjectInterface::postInit()
 void IObjectInterface::preInit()
 {}
 
-void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void IObjectInterface::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {}
 
-void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void IObjectInterface::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {}
 
-void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
+void IObjectInterface::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
-void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
+void IObjectInterface::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {}
 
 int3 IBoatGenerator::bestLocation() const

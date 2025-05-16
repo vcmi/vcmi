@@ -11,7 +11,7 @@
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "../Goals/Goals.h"
-#include "../../../lib/callback/IGameCallback.h"
+#include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
@@ -33,7 +33,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 {
 	int3 pos;
 	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
+	const auto & fow = static_cast<const IGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
 	const PlayerColor player = hero->tempOwner;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)

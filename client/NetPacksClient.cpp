@@ -475,7 +475,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		if(gs.isVisible(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
+		if(gs.isVisibleFor(o, i->first) || (!cl.getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 			i->second->objectRemoved(o, pack.initiator);
 	}
 
@@ -540,8 +540,8 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		if(i->first != PlayerColor::SPECTATOR && gs.checkForStandardLoss(i->first)) // Do not notify vanquished pack.player's interface
 			continue;
 
-		if(gs.isVisible(h->convertToVisitablePos(pack.start), i->first)
-			|| gs.isVisible(h->convertToVisitablePos(pack.end), i->first))
+		if(gs.isVisibleFor(h->convertToVisitablePos(pack.start), i->first)
+			|| gs.isVisibleFor(h->convertToVisitablePos(pack.end), i->first))
 		{
 			// pack.src and pack.dst of enemy hero move may be not visible => 'verbose' should be false
 			const bool verbose = cl.getPlayerRelations(i->first, player) != PlayerRelations::ENEMIES;
@@ -601,9 +601,9 @@ void ApplyClientNetPackVisitor::visitSetHeroesInTown(SetHeroesInTown & pack)
 		if(!i->first.isValidPlayer())
 			continue;
 
-		if(gs.isVisible(t, i->first) ||
-			(hGarr && gs.isVisible(hGarr, i->first)) ||
-			(hVisit && gs.isVisible(hVisit, i->first)))
+		if(gs.isVisibleFor(t, i->first) ||
+			(hGarr && gs.isVisibleFor(hGarr, i->first)) ||
+			(hVisit && gs.isVisibleFor(hVisit, i->first)))
 		{
 			cl.playerint[i->first]->heroInGarrisonChange(t);
 		}
@@ -650,7 +650,7 @@ void ApplyFirstClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & 
 	//inform all players that see this object
 	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
 	{
-		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
+		if(gs.isVisibleFor(gs.getObjInstance(pack.id), it->first))
 			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::beforeObjectPropertyChanged, &pack);
 	}
 
@@ -667,7 +667,7 @@ void ApplyClientNetPackVisitor::visitSetObjectProperty(SetObjectProperty & pack)
 	//inform all players that see this object
 	for(auto it = cl.playerint.cbegin(); it != cl.playerint.cend(); ++it)
 	{
-		if(gs.isVisible(gs.getObjInstance(pack.id), it->first))
+		if(gs.isVisibleFor(gs.getObjInstance(pack.id), it->first))
 			callInterfaceIfPresent(cl, it->first, &IGameEventsReceiver::objectPropertyChanged, &pack);
 	}
 
@@ -1050,7 +1050,7 @@ void ApplyClientNetPackVisitor::visitNewObject(NewObject & pack)
 
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
 	{
-		if(gs.isVisible(obj, i->first))
+		if(gs.isVisibleFor(obj, i->first))
 			i->second->newObject(obj);
 	}
 

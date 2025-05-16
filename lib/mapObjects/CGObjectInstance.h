@@ -45,7 +45,7 @@ public:
 
 	std::string instanceName;
 
-	CGObjectInstance(IGameCallback *cb);
+	CGObjectInstance(IGameInfoCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;
@@ -133,7 +133,7 @@ public:
 
 	void initObj(vstd::RNG & rand) override;
 	void pickRandomObject(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ObjProperty what, ObjPropertyID identifier) final;
 
@@ -170,7 +170,7 @@ protected:
 	void setType(MapObjectID ID, MapObjectSubID subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
-	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
+	void giveDummyBonus(IGameEventCallback & gameEvents, const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
 
 	///Serialize object-type specific options
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);
