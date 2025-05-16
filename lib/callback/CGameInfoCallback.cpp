@@ -947,16 +947,6 @@ void CGameInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optio
 	}
 }
 
-void CGameInfoCallback::pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand)
-{
-	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE));
-	for (int j = 0; j < 3 ; j++)
-		out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR));
-
-	out.push_back(gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR));
-}
-
 void CGameInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
 {
 	for (auto const & spellID : gameState().getMap().allowedSpells)

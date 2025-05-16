@@ -261,7 +261,7 @@ public:
 	const CCommanderInstance * getCommander() const;
 	CCommanderInstance * getCommander();
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	void initHero(vstd::RNG & rand);
 	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
 
@@ -320,7 +320,7 @@ public:
 
 	void updateAppearance();
 
-	void pickRandomObject(vstd::RNG & rand) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;

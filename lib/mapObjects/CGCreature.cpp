@@ -17,6 +17,7 @@
 #include "../IGameSettings.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
@@ -221,33 +222,33 @@ TQuantity CGCreature::getJoiningAmount() const
 	return std::max(static_cast<int64_t>(1), getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
 }
 
-void CGCreature::pickRandomObject(vstd::RNG & rand)
+void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_MONSTER:
-			subID = LIBRARY->creh->pickRandomMonster(rand);
+			subID = gameRandomizer.rollCreature();
 			break;
 		case MapObjectID::RANDOM_MONSTER_L1:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 1);
+			subID = gameRandomizer.rollCreature(1);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L2:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 2);
+			subID = gameRandomizer.rollCreature(2);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L3:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 3);
+			subID = gameRandomizer.rollCreature(3);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L4:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 4);
+			subID = gameRandomizer.rollCreature(4);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L5:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 5);
+			subID = gameRandomizer.rollCreature(5);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L6:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 6);
+			subID = gameRandomizer.rollCreature(6);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L7:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 7);
+			subID = gameRandomizer.rollCreature(7);
 			break;
 	}
 
@@ -266,7 +267,7 @@ void CGCreature::pickRandomObject(vstd::RNG & rand)
 	setType(ID, subID);
 }
 
-void CGCreature::initObj(vstd::RNG & rand)
+void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 	switch(character)
@@ -275,13 +276,13 @@ void CGCreature::initObj(vstd::RNG & rand)
 		character = -4;
 		break;
 	case 1:
-		character = rand.nextInt(1, 7);
+		character = gameRandomizer.getDefault().nextInt(1, 7);
 		break;
 	case 2:
-		character = rand.nextInt(1, 10);
+		character = gameRandomizer.getDefault().nextInt(1, 10);
 		break;
 	case 3:
-		character = rand.nextInt(4, 10);
+		character = gameRandomizer.getDefault().nextInt(4, 10);
 		break;
 	case 4:
 		character = 10;
@@ -292,7 +293,7 @@ void CGCreature::initObj(vstd::RNG & rand)
 	const Creature * c = getCreature();
 	if(stacks[SlotID(0)]->getCount() == 0)
 	{
-		stacks[SlotID(0)]->setCount(rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax()));
+		stacks[SlotID(0)]->setCount(gameRandomizer.getDefault().nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax()));
 
 		if(stacks[SlotID(0)]->getCount() == 0) //armies with 0 creatures are illegal
 		{
@@ -305,7 +306,7 @@ void CGCreature::initObj(vstd::RNG & rand)
 	refusedJoining = false;
 }
 
-void CGCreature::newTurn(IGameEventCallback & gameEvents) const
+void CGCreature::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{

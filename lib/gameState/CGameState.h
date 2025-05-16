@@ -22,6 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class EVictoryLossCheckResult;
 class Services;
+class IGameRandomizer;
 class IMapService;
 class CMap;
 class CSaveFile;
@@ -76,7 +77,7 @@ public:
 
 	void preInit(Services * services);
 
-	void init(const IMapService * mapService, StartInfo * si, vstd::RNG & randomGenerator, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
+	void init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(StartInfo * si);
 
 	ui32 day; //total number of days in game
@@ -102,12 +103,6 @@ public:
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	std::vector<const CGObjectInstance*> guardingCreatures (int3 pos) const;
-
-	/// Gets a artifact ID randomly and removes the selected artifact from this handler.
-	ArtifactID pickRandomArtifact(vstd::RNG & randomGenerator, std::optional<EArtifactClass> type);
-	ArtifactID pickRandomArtifact(vstd::RNG & randomGenerator, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(vstd::RNG & randomGenerator, std::optional<EArtifactClass> type, std::function<bool(ArtifactID)> accepts);
-	ArtifactID pickRandomArtifact(vstd::RNG & randomGenerator, std::set<ArtifactID> filtered);
 
 	/// Creates instance of spell scroll artifact with provided spell
 	CArtifactInstance * createScroll(const SpellID & spellId);
@@ -201,19 +196,19 @@ private:
 	void initGrailPosition(vstd::RNG & randomGenerator);
 	void initRandomFactionsForPlayers(vstd::RNG & randomGenerator);
 	void initOwnedObjects();
-	void randomizeMapObjects(vstd::RNG & randomGenerator);
+	void randomizeMapObjects(IGameRandomizer & gameRandomizer);
 	void initPlayerStates();
 	void placeStartingHeroes(vstd::RNG & randomGenerator);
 	void placeStartingHero(const PlayerColor & playerColor, const HeroTypeID & heroTypeId, int3 townPos);
 	void removeHeroPlaceholders();
 	void initDifficulty();
-	void initHeroes(vstd::RNG & randomGenerator);
+	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
 	void initFogOfWar();
-	void initStartingBonus(vstd::RNG & randomGenerator);
+	void initStartingBonus(IGameRandomizer & gameRandomizer);
 	void initTowns(vstd::RNG & randomGenerator);
 	void initTownNames(vstd::RNG & randomGenerator);
-	void initMapObjects(vstd::RNG & randomGenerator);
+	void initMapObjects(IGameRandomizer & gameRandomizer);
 	void initVisitingAndGarrisonedHeroes();
 	void initCampaign();
 

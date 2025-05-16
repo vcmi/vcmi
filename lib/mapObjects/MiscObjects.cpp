@@ -14,6 +14,7 @@
 #include "../bonuses/Propagators.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -96,19 +97,19 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 	flagMine(gameEvents, h->tempOwner);
 }
 
-void CGMine::initObj(vstd::RNG & rand)
+void CGMine::initObj(IGameRandomizer & gameRandomizer)
 {
 	if(isAbandoned())
 	{
 		//set guardians
-		int howManyTroglodytes = rand.nextInt(100, 199);
+		int howManyTroglodytes = gameRandomizer.getDefault().nextInt(100, 199);
 		auto troglodytes = std::make_unique<CStackInstance>(cb, CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(SlotID(0), std::move(troglodytes));
 
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())
 		{
-			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, gameRandomizer.getDefault());
 		}
 		else
 		{
@@ -431,7 +432,7 @@ void CGMonolith::teleportDialogAnswered(IGameEventCallback & gameEvents, const C
 	gameEvents.moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
-void CGMonolith::initObj(vstd::RNG & rand)
+void CGMonolith::initObj(IGameRandomizer & gameRandomizer)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
@@ -476,7 +477,7 @@ void CGSubterraneanGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHe
 	gameEvents.showTeleportDialog(&td);
 }
 
-void CGSubterraneanGate::initObj(vstd::RNG & rand)
+void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	type = BOTH;
 }
@@ -625,24 +626,24 @@ ArtifactID CGArtifact::getArtifactType() const
 		return getObjTypeIndex().getNum();
 }
 
-void CGArtifact::pickRandomObject(vstd::RNG & rand)
+void CGArtifact::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, std::nullopt);
+			subID = gameRandomizer.rollArtifact();
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_RELIC);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_RELIC);
 			break;
 	}
 
@@ -660,7 +661,7 @@ void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
 	storedArtifact = instance->getId();
 }
 
-void CGArtifact::initObj(vstd::RNG & rand)
+void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
@@ -827,13 +828,13 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	}
 }
 
-void CGSignBottle::initObj(vstd::RNG & rand)
+void CGSignBottle::initObj(IGameRandomizer & gameRandomizer)
 {
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
 		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
-		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
+		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, gameRandomizer.getDefault());
 		message.appendTextID(messageIdentifier);
 	}
 
@@ -917,7 +918,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGGarrison::initObj(vstd::RNG &rand)
+void CGGarrison::initObj(IGameRandomizer & gameRandomizer)
 {
 	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
 		addAntimagicGarrisonBonus();
@@ -934,7 +935,7 @@ void CGGarrison::addAntimagicGarrisonBonus()
 	this->addNewBonus(bonus);
 }
 
-void CGMagi::initObj(vstd::RNG & rand)
+void CGMagi::initObj(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::EYE_OF_MAGI)
 		blockVisit = true;
@@ -1012,7 +1013,7 @@ const CGHeroInstance * CGBoat::getBoardedHero() const
 		return nullptr;
 }
 
-void CGSirens::initObj(vstd::RNG & rand)
+void CGSirens::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 }
@@ -1174,7 +1175,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 }
 
-void CGObelisk::initObj(vstd::RNG & rand)
+void CGObelisk::initObj(IGameRandomizer & gameRandomizer)
 {
 	cb->gameState().getMap().obeliskCount++;
 }

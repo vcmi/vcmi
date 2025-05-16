@@ -30,6 +30,7 @@ class CStackInstance;
 class CGHeroInstance;
 class IGameInfoCallback;
 class IGameEventCallback;
+class IGameRandomizer;
 class ResourceSet;
 class int3;
 class MetaString;
@@ -55,9 +56,9 @@ public:
 
 	/// Called on new turn by server. This method can not modify object state on its own
 	/// Instead all changes must be propagated via netpacks
-	virtual void newTurn(IGameEventCallback & gameEvents) const;
-	virtual void initObj(vstd::RNG & rand); //synchr
-	virtual void pickRandomObject(vstd::RNG & rand);
+	virtual void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const;
+	virtual void initObj(IGameRandomizer & gameRandomizer); //synchr
+	virtual void pickRandomObject(IGameRandomizer & gameRandomizer);
 	virtual void setProperty(ObjProperty what, ObjPropertyID identifier);//synchr
 
 	//Called when queries created DURING HERO VISIT are resolved

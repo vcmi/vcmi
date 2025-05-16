@@ -53,6 +53,7 @@ class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
+class RandomizationProcessor;
 
 class CGameHandler : public CGameInfoCallback, public Environment, public IGameEventCallback
 {
@@ -65,7 +66,7 @@ public:
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
-	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
+	std::unique_ptr<RandomizationProcessor> randomizationProcessor;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -246,7 +247,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
-		h & *randomNumberGenerator;
+		h & *randomizationProcessor;
 		h & *battles;
 		h & *heroPool;
 		h & *playerMessages;

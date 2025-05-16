@@ -477,6 +477,7 @@ set(lib_MAIN_HEADERS
 	callback/IGameEventCallback.h
 	callback/IGameEventsReceiver.h
 	callback/IGameInfoCallback.h
+	callback/IGameRandomizer.h
 
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h

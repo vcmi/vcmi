@@ -28,7 +28,7 @@ public:
 	using CGObjectInstance::CGObjectInstance;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	const IOwnableObject * asOwnable() const final;
 	ResourceSet dailyIncome() const override;

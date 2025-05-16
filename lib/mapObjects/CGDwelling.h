@@ -50,13 +50,13 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	FactionID randomizeFaction(vstd::RNG & rand);
+	FactionID randomizeFaction(IGameRandomizer & gameRandomizer);
 	int randomizeLevel(vstd::RNG & rand);
 
-	void pickRandomObject(vstd::RNG & rand) override;
-	void initObj(vstd::RNG & rand) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void newTurn(IGameEventCallback & gameEvents) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;

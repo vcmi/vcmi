@@ -17,6 +17,7 @@
 
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -347,7 +348,7 @@ CCommanderInstance * CGHeroInstance::getCommander()
 	return commander.get();
 }
 
-void CGHeroInstance::initObj(vstd::RNG & rand)
+void CGHeroInstance::initObj(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::HERO)
 		updateAppearance();
@@ -663,13 +664,13 @@ void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
 	wisdomCounter = 0;
 }
 
-void CGHeroInstance::pickRandomObject(vstd::RNG & randomGenerator)
+void CGHeroInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
 
 	if (ID == Obj::RANDOM_HERO)
 	{
-		auto selectedHero = cb->gameState().pickNextHeroType(randomGenerator, getOwner());
+		auto selectedHero = cb->gameState().pickNextHeroType(gameRandomizer.getDefault(), getOwner());
 
 		ID = Obj::HERO;
 		subID = selectedHero;

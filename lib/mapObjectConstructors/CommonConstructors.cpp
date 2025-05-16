@@ -79,16 +79,16 @@ int ResourceInstanceConstructor::getAmountMultiplier() const
 	return config["amountMultiplier"].Integer();
 }
 
-void ResourceInstanceConstructor::randomizeObject(CGResource * object, vstd::RNG & rng) const
+void ResourceInstanceConstructor::randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const
 {
 	if (object->amount != CGResource::RANDOM_AMOUNT)
 		return;
 
-	JsonRandom randomizer(object->cb);
+	JsonRandom randomizer(object->cb, gameRandomizer);
 	JsonRandom::Variables dummy;
 
 	if (!config["amounts"].isNull())
-		object->amount = randomizer.loadValue(config["amounts"], rng, dummy, 0) * getAmountMultiplier();
+		object->amount = randomizer.loadValue(config["amounts"], dummy, 0) * getAmountMultiplier();
 	else
 		object->amount = 5 * getAmountMultiplier();
 }
@@ -136,7 +136,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 	obj->tempOwner = PlayerColor::NEUTRAL;
 }
 
-void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
+void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const
 {
 	auto templ = getOverride(object->cb->getTile(object->pos)->getTerrainID(), object);
 	if(templ)
@@ -227,7 +227,7 @@ std::shared_ptr<const ObjectTemplate> CHeroInstanceConstructor::getOverride(Terr
 	return candidateBase;
 }
 
-void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const
+void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, IGameRandomizer & gameRandomizer) const
 {
 
 }
@@ -340,14 +340,14 @@ const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
 	return marketModes;
 }
 
-void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const
+void MarketInstanceConstructor::randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const
 {
-	JsonRandom randomizer(object->cb);
+	JsonRandom randomizer(object->cb, gameRandomizer);
 	JsonRandom::Variables emptyVariables;
 
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for(auto skill : randomizer.loadSecondaries(predefinedOffer, rng, emptyVariables))
+		for(auto skill : randomizer.loadSecondaries(predefinedOffer, emptyVariables))
 			university->skills.push_back(skill.first);
 	}
 }

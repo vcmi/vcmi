@@ -12,6 +12,7 @@
 #include "CGDwelling.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../mapping/CMap.h"
@@ -53,7 +54,7 @@ CGDwelling::CGDwelling(IGameInfoCallback *cb):
 
 CGDwelling::~CGDwelling() = default;
 
-FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
+FactionID CGDwelling::randomizeFaction(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::RANDOM_DWELLING_FACTION)
 		return FactionID(subID.getNum());
@@ -90,7 +91,7 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 	if (linkedTown)
 	{
 		if(linkedTown->ID==Obj::RANDOM_TOWN)
-			linkedTown->pickRandomObject(rand); //we have to randomize the castle first
+			linkedTown->pickRandomObject(gameRandomizer); //we have to randomize the castle first
 
 		assert(linkedTown->ID == Obj::TOWN);
 		if(linkedTown->ID==Obj::TOWN)
@@ -98,7 +99,7 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 	}
 
 	if(!randomizationInfo->allowedFactions.empty())
-		return *RandomGeneratorUtil::nextItem(randomizationInfo->allowedFactions, rand);
+		return *RandomGeneratorUtil::nextItem(randomizationInfo->allowedFactions, gameRandomizer.getDefault());
 
 
 	std::vector<FactionID> potentialPicks;
@@ -108,7 +109,7 @@ FactionID CGDwelling::randomizeFaction(vstd::RNG & rand)
 			potentialPicks.push_back(faction);
 
 	assert(!potentialPicks.empty());
-	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
+	return *RandomGeneratorUtil::nextItem(potentialPicks, gameRandomizer.getDefault());
 }
 
 int CGDwelling::randomizeLevel(vstd::RNG & rand)
@@ -128,12 +129,12 @@ int CGDwelling::randomizeLevel(vstd::RNG & rand)
 	return rand.nextInt(randomizationInfo->minLevel, randomizationInfo->maxLevel) - 1;
 }
 
-void CGDwelling::pickRandomObject(vstd::RNG & rand)
+void CGDwelling::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::RANDOM_DWELLING || ID == Obj::RANDOM_DWELLING_LVL || ID == Obj::RANDOM_DWELLING_FACTION)
 	{
-		FactionID faction = randomizeFaction(rand);
-		int level = randomizeLevel(rand);
+		FactionID faction = randomizeFaction(gameRandomizer);
+		int level = randomizeLevel(gameRandomizer.getDefault());
 		assert(faction != FactionID::NONE && faction != FactionID::NEUTRAL);
 		assert(level >= 0 && level <= 6);
 		randomizationInfo.reset();
@@ -168,14 +169,14 @@ void CGDwelling::pickRandomObject(vstd::RNG & rand)
 		{
 			logGlobal->error("Error: failed to find dwelling for %s of level %d", (*LIBRARY->townh)[faction]->getNameTranslated(), int(level));
 			ID = Obj::CREATURE_GENERATOR1;
-			subID = *RandomGeneratorUtil::nextItem(LIBRARY->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), rand);
+			subID = *RandomGeneratorUtil::nextItem(LIBRARY->objtypeh->knownSubObjects(Obj::CREATURE_GENERATOR1), gameRandomizer.getDefault());
 		}
 
 		setType(ID, subID);
 	}
 }
 
-void CGDwelling::initObj(vstd::RNG & rand)
+void CGDwelling::initObj(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
@@ -183,7 +184,7 @@ void CGDwelling::initObj(vstd::RNG & rand)
 	case Obj::CREATURE_GENERATOR4:
 	case Obj::WAR_MACHINE_FACTORY:
 		{
-			getObjectHandler()->configureObject(this, rand);
+			getObjectHandler()->configureObject(this, gameRandomizer);
 			assert(!creatures.empty());
 			assert(!creatures[0].second.empty());
 			break;
@@ -278,7 +279,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	gameEvents.showBlockingDialog(this, &bd);
 }
 
-void CGDwelling::newTurn(IGameEventCallback & gameEvents) const
+void CGDwelling::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;
@@ -289,7 +290,7 @@ void CGDwelling::newTurn(IGameEventCallback & gameEvents) const
 
 	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
-		gameEvents.setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, LIBRARY->creh->pickRandomMonster(gameEvents.getRandomGenerator()));
+		gameEvents.setObjPropertyID(id, ObjProperty::AVAILABLE_CREATURE, gameRandomizer.rollCreature());
 	}
 
 	bool change = false;

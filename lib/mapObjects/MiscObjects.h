@@ -50,7 +50,7 @@ public:
 	MetaString message;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -68,7 +68,7 @@ public:
 
 	bool removableUnits;
 
-	void initObj(vstd::RNG &rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	bool passableFor(PlayerColor color) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
@@ -106,8 +106,8 @@ public:
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 
 	void pick(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 
 	BattleField getBattlefield() const override;
 
@@ -151,7 +151,7 @@ private:
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	void flagMine(IGameEventCallback & gameEvents, const PlayerColor & player) const;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
@@ -238,7 +238,7 @@ class DLL_LINKAGE CGMonolith : public CGTeleport
 protected:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void teleportDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, ui32 answer, TTeleportExitsList exits) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 public:
 	using CGTeleport::CGTeleport;
@@ -252,7 +252,7 @@ public:
 class DLL_LINKAGE CGSubterraneanGate : public CGMonolith
 {
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 public:
 	using CGMonolith::CGMonolith;
@@ -287,7 +287,7 @@ public:
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -377,7 +377,7 @@ class DLL_LINKAGE CGMagi : public CGObjectInstance
 public:
 	using CGObjectInstance::CGObjectInstance;
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -399,7 +399,7 @@ public:
 	using CTeamVisited::CTeamVisited;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getObjectDescription(PlayerColor player) const;
 

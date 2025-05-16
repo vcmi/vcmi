@@ -11,6 +11,7 @@
 #include "NewTurnProcessor.h"
 
 #include "HeroPoolProcessor.h"
+#include "RandomizationProcessor.h"
 
 #include "../CGameHandler.h"
 
@@ -524,7 +525,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 		{
 			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
-				CreatureID creatureID = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				CreatureID creatureID = gameHandler->randomizationProcessor->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
 			else if (LIBRARY->creh->doubledCreatures.size())
@@ -551,7 +552,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
 			{
-				newMonster.second = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				newMonster.second = gameHandler->randomizationProcessor->rollCreature();
 			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};

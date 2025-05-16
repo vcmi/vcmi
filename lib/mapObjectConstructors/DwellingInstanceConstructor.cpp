@@ -100,9 +100,9 @@ void DwellingInstanceConstructor::initializeObject(CGDwelling * obj) const
 	}
 }
 
-void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::RNG &rng) const
+void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, IGameRandomizer & gameRandomizer) const
 {
-	JsonRandom randomizer(dwelling->cb);
+	JsonRandom randomizer(dwelling->cb, gameRandomizer);
 
 	dwelling->creatures.clear();
 	dwelling->creatures.reserve(availableCreatures.size());
@@ -128,7 +128,7 @@ void DwellingInstanceConstructor::randomizeObject(CGDwelling * dwelling, vstd::R
 	{
 		//custom guards (eg. Elemental Conflux)
 		JsonRandom::Variables emptyVariables;
-		for(auto & stack : randomizer.loadCreatures(guards, rng, emptyVariables))
+		for(auto & stack : randomizer.loadCreatures(guards, emptyVariables))
 		{
 			dwelling->putStack(SlotID(dwelling->stacksCount()), std::make_unique<CStackInstance>(dwelling->cb, stack.getId(), stack.getCount()));
 		}

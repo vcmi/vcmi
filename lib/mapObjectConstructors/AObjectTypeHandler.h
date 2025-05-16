@@ -24,6 +24,7 @@ class ObjectTemplate;
 class CGObjectInstance;
 class IObjectInfo;
 class IGameInfoCallback;
+class IGameRandomizer;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -122,7 +123,7 @@ public:
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
-	virtual void configureObject(CGObjectInstance * object, vstd::RNG & rng) const = 0;
+	virtual void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;

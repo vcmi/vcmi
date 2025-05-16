@@ -66,11 +66,11 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(IGameInfoCallback
 	: TownBuildingInstance(cb)
 {}
 
-TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand)
+TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, IGameRandomizer & gameRandomizer)
 	: TownBuildingInstance(town, index)
 {
 	assert(town && town->getTown());
-	configuration = generateConfiguration(rand);
+	configuration = generateConfiguration(gameRandomizer);
 }
 
 void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses) const
@@ -92,14 +92,14 @@ void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses)
 	}
 }
 
-Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(vstd::RNG & rand) const
+Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(IGameRandomizer & gameRandomizer) const
 {
 	Rewardable::Configuration result;
 	const auto & building = town->getTown()->buildings.at(getBuildingType());
 
 	// force modal info window instead of displaying in inactive info box on adventure map
 	result.infoWindowType = EInfoWindowMode::MODAL;
-	building->rewardableObjectInfo.configureObject(result, rand, cb);
+	building->rewardableObjectInfo.configureObject(result, gameRandomizer, cb);
 	for(auto & rewardInfo : result.info)
 	{
 		assignBonuses(rewardInfo.reward.heroBonuses);
@@ -109,11 +109,11 @@ Rewardable::Configuration TownRewardableBuildingInstance::generateConfiguration(
 	return result;
 }
 
-void TownRewardableBuildingInstance::newTurn(IGameEventCallback & gameEvents) const
+void TownRewardableBuildingInstance::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
-		auto newConfiguration = generateConfiguration(gameEvents.getRandomGenerator());
+		auto newConfiguration = generateConfiguration(gameRandomizer);
 		gameEvents.setRewardableObjectConfiguration(town->id, getBuildingType(), newConfiguration);
 
 		if(configuration.resetParameters.visitors)
