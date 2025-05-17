@@ -31,6 +31,8 @@ const CArtifactInstance * ArtSlotInfo::getArt() const
 {
 	if(!artifactID.hasValue())
 		return nullptr;
+	if(!cb)
+		return nullptr;
 	return cb->getArtInstance(artifactID);
 }
 

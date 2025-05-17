@@ -974,8 +974,9 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
-		while(!hero->artifactsWorn.empty())
-			hero->removeArtifact(hero->artifactsWorn.begin()->first);
+		for (const auto& entry : hero->artifactsWorn) {
+			hero->removeArtifact(entry.first);
+		}
 	}
 
 	for(int i = 0; i < features.artifactSlotsCount; i++)

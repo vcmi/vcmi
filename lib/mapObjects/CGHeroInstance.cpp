@@ -1251,6 +1251,8 @@ CGHeroInstance::ArtPlacementMap CGHeroInstance::putArtifact(const ArtifactPositi
 void CGHeroInstance::removeArtifact(const ArtifactPosition & pos)
 {
 	auto art = getArt(pos);
+	if(art == nullptr)
+		return;
 	assert(art);
 
 	CArtifactSet::removeArtifact(pos);
