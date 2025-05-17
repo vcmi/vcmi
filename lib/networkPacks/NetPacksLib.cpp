@@ -36,6 +36,7 @@ void CPack::visitBasic(ICPackVisitor & visitor)
 
 void CPack::visitTyped(ICPackVisitor & visitor)
 {
+	throw std::runtime_error(std::string("CPack::visitTyped called for class ") + typeid(*this).name());
 }
 
 void CPackForClient::visitBasic(ICPackVisitor & visitor)
@@ -810,6 +811,21 @@ void LobbyDelete::visitTyped(ICPackVisitor & visitor)
 void CatapultAttack::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitCatapultAttack(*this);
+}
+
+void BattleResultAccepted::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleResultAccepted(*this);
+}
+
+void BattleCancelled::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleCancelled(*this);
+}
+
+void TurnTimeUpdate::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitTurnTimeUpdate(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

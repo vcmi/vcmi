@@ -129,6 +129,8 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 {
 	PlayerColor player;
 	TurnTimerInfo turnTimer;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 		
 	template <typename Handler> void serialize(Handler & h)
 	{
