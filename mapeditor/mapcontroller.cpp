@@ -381,7 +381,8 @@ void MapController::pasteFromClipboard(int level)
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
 		obj->pos.z = level;
-		
+
+		obj->id = {};
 		Initializer init(*this, obj.get(), defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
 		_scenes[level]->selectionObjectsView.selectObject(obj.get());
