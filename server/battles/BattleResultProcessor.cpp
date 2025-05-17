@@ -508,7 +508,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		{
 			auto artInst = slotInfo.getArt();
 			assert(artInst);
-			if(const auto condition = artInst->getType()->getDischargeCondition(); condition && condition.value() == DischargeArtifactCondition::BATTLE)
+			if(const auto condition = artInst->getType()->getDischargeCondition(); condition == DischargeArtifactCondition::BATTLE)
 			{
 				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
 				discharging.artLoc.emplace(id, creature, slot);

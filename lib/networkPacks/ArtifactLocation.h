@@ -79,11 +79,12 @@ struct MoveArtifactInfo
 	}
 };
 
-enum class DischargeArtifactCondition
+enum class DischargeArtifactCondition : int8_t
 {
+	NONE,
 	SPELLCAST,
 	BATTLE,
-	BUILDING	// not implemented
+	//BUILDING	// not implemented
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -9,8 +9,6 @@
  */
 #pragma once
 
-#include "StdInc.h"
-
 #include "ArtBearer.h"
 #include "EArtifactClass.h"
 
@@ -69,7 +67,7 @@ public:
 
 class DLL_LINKAGE CChargedArtifact
 {
-	std::optional<DischargeArtifactCondition> condition;
+	DischargeArtifactCondition condition;
 	bool removeOnDepletion;
 	uint16_t defaultStartCharges;
 
@@ -83,7 +81,7 @@ public:
 	void setRemoveOnDepletion(const bool remove);
 	void setDefaultStartCharges(const uint16_t charges);
 	uint16_t getDefaultStartCharges() const;
-	std::optional<DischargeArtifactCondition> getDischargeCondition() const;
+	DischargeArtifactCondition getDischargeCondition() const;
 	bool getRemoveOnDepletion() const;
 };
 

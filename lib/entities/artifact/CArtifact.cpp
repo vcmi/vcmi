@@ -247,14 +247,15 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 }
 
 CChargedArtifact::CChargedArtifact()
-	: removeOnDepletion(false)
+	: condition(DischargeArtifactCondition::NONE)
+	,	removeOnDepletion(false)
 	, defaultStartCharges(0)
 {
 }
 
 bool CChargedArtifact::isCharged() const
 {
-	return condition.has_value();
+	return condition != DischargeArtifactCondition::NONE;
 }
 
 void CChargedArtifact::setCondition(const DischargeArtifactCondition & dischargeCondition)
@@ -277,7 +278,7 @@ uint16_t CChargedArtifact::getDefaultStartCharges() const
 	return defaultStartCharges;
 }
 
-std::optional<DischargeArtifactCondition> CChargedArtifact::getDischargeCondition() const
+DischargeArtifactCondition CChargedArtifact::getDischargeCondition() const
 {
 	return condition;
 }

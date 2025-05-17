@@ -226,9 +226,9 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		art->setCondition(stringToDischargeCond(node["charged"]["usageType"].String()));
 		if(!node["charged"]["removeOnDepletion"].isNull())
 			art->setRemoveOnDepletion(node["charged"]["removeOnDepletion"].Bool());
-		if(!node["charged"]["val"].isNull())
+		if(!node["charged"]["startingCharges"].isNull())
 		{
-			const auto charges = node["charged"]["val"].Integer();
+			const auto charges = node["charged"]["startingCharges"].Integer();
 			if(charges < 0)
 				logMod->warn("Warning! Charged artifact %s number of charges cannot be less than zero %d!", art->getNameTranslated(), charges);
 			else
@@ -335,7 +335,7 @@ DischargeArtifactCondition CArtHandler::stringToDischargeCond(const std::string 
 	{
 		{"SPELLCAST", DischargeArtifactCondition::SPELLCAST},
 		{"BATTLE", DischargeArtifactCondition::BATTLE},
-		{"BUILDING", DischargeArtifactCondition::BUILDING},
+		//{"BUILDING", DischargeArtifactCondition::BUILDING},
 	};
 	return growingConditionsMap.at(cond);
 }

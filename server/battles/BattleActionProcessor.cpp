@@ -124,7 +124,7 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 	}
 
 	parameters.cast(gameHandler->spellEnv, ba.getTarget(&battle));
-	gameHandler->verifyChargedArtifactUsed(h->id, ba.spell);
+	gameHandler->useChargedArtifactUsed(h->id, ba.spell);
 
 	return true;
 }

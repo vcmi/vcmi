@@ -142,7 +142,7 @@
 				"removeOnDepletion" : {
 					"type" : "boolean",
 				},
-				"val" : {
+				"startingCharges" : {
 					"type" : "number",
 					"description" : "Default starting charge amount"
 				}

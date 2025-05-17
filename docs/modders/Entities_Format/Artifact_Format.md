@@ -98,7 +98,7 @@ In order to make functional artifact you also need:
     // Optional, by default is false. Remove when fully discharged
     "removeOnDepletion" : true,
     // Optional, by default is 0. Default starting charge amount.
-    "val" : 2,
+    "startingCharges" : 2,
 	}
 }
 ```
