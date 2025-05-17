@@ -44,6 +44,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheck
 class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable, public GameCallbackHolder
 {
 	friend class CGameStateCampaign;
+	friend class CMapLoaderH3M;
 
 	std::shared_ptr<StartInfo> initialOpts; //copy of settings received from pregame (not randomized)
 	std::shared_ptr<StartInfo> scenarioOps;

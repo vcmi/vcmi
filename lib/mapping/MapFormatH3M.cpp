@@ -20,10 +20,12 @@
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
 #include "../IGameSettings.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
+#include "../gameState/CGameState.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
@@ -77,7 +79,18 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap(IGameInfoCallback * cb)
 	// Init map object by parsing the input buffer
 	map = new CMap(cb);
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
-	init();
+
+	//FIXME:  The init function may put artifacts to hero, which triggers a call to cb->gameState().getMap(), will return nullptr, leading to a crash. This code needs to be refactored.
+	if (cb)
+	{
+		cb->gameState().map = std::unique_ptr<CMap>(map);
+		init();
+		cb->gameState().map.release();
+	}
+	else // FIXME: in mapeditor cb is nullptr, which causes some issues during init.
+	{
+		init();
+	}
 
 	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
 }
