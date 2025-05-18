@@ -707,7 +707,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcmisilmaril",            "vcmiwin",         "nwcredpill",                                    "nwctrojanrabbit",
 		"vcmieagles",              "vcmimap",         "nwcwhatisthematrix",      "nwcrevealourselves", "nwcgeneraldirection",
 		"vcmiungoliant",           "vcmihidemap",     "nwcignoranceisbliss",
-		"vcmiobelisk",                                "nwcoracle",               "nwcprophecy",        "nwcalreadygotone"
+		                           "vcmiobelisk",     "nwcoracle",               "nwcprophecy",        "nwcalreadygotone"
 	};
 	std::vector<std::string> heroTargetedCheats = {
 		"vcmiainur",               "vcmiarchangel",   "nwctrinity",              "nwcpadme",           "nwcavertingoureyes",
@@ -720,10 +720,10 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		"vcminahar",               "vcmimove",        "nwcnebuchadnezzar",       "nwcpodracer",        "nwccoconuts",
 		"vcmiforgeofnoldorking",   "vcmiartifacts",
 		"vcmiolorin",              "vcmiexp",
-		"vcmiluck",                                   "nwcfollowthewhiterabbit",                       "nwccastleanthrax",
-		"vcmimorale",                                 "nwcmorpheus",                                   "nwcmuchrejoicing",
-		"vcmigod",                                    "nwctheone",
-		"vcmiscrolls"
+		                           "vcmiluck",        "nwcfollowthewhiterabbit",                       "nwccastleanthrax",
+		                           "vcmimorale",      "nwcmorpheus",                                   "nwcmuchrejoicing",
+		                           "vcmigod",         "nwctheone",
+		                           "vcmiscrolls"
 	};
 
 	if (!vstd::contains(townTargetedCheats, cheatName) && !vstd::contains(playerTargetedCheats, cheatName) && !vstd::contains(heroTargetedCheats, cheatName))
