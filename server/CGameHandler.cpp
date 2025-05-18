@@ -4054,15 +4054,8 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	{
 		tile = tiles.begin();
 		logGlobal->trace("\tSpawning monster at %s", tile->toString());
-		{
-			auto count = cre->getRandomAmount(getRandomGenerator());
-
-			createWanderingMonster(*tile, creatureID);
-			auto monsterId = getTopObj(*tile)->id;
-
-			setObjPropertyValue(monsterId, ObjProperty::MONSTER_COUNT, count);
-			setObjPropertyValue(monsterId, ObjProperty::MONSTER_POWER, (si64)1000*count);
-		}
+		auto count = cre->getRandomAmount(getRandomGenerator());
+		createWanderingMonster(*tile, creatureID, count);
 		tiles.erase(tile); //not use it again
 	}
 }
@@ -4291,7 +4284,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 	return o;
 }
 
-void CGameHandler::createWanderingMonster(const int3 & visitablePosition, CreatureID creature)
+void CGameHandler::createWanderingMonster(const int3 & visitablePosition, CreatureID creature, int unitSize)
 {
 	auto createdObject = createNewObject(visitablePosition, Obj::MONSTER, creature);
 
@@ -4301,7 +4294,8 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->character = 2;
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
-	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gameState().cb, creature, -1)); //add placeholder stack
+	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(gameState().cb, creature, unitSize));
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }
