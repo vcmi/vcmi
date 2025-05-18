@@ -13,6 +13,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class CGHeroInstance;
+
 enum class EArtifactClass;
 
 namespace vstd
@@ -22,10 +24,10 @@ namespace vstd
 
 /// Provides source of random rolls for game entities
 /// Instance of this interface only exists on server
-class IGameRandomizer : boost::noncopyable
+class DLL_LINKAGE IGameRandomizer : boost::noncopyable
 {
 public:
-	virtual ~IGameRandomizer();
+	virtual ~IGameRandomizer() = default;
 
 	virtual ArtifactID rollArtifact() = 0;
 	virtual ArtifactID rollArtifact(EArtifactClass type) = 0;
@@ -36,9 +38,8 @@ public:
 	virtual CreatureID rollCreature() = 0;
 	virtual CreatureID rollCreature(int tier) = 0;
 
-	virtual HeroTypeID rollHero(PlayerColor player, FactionID faction) = 0;
-
-	virtual std::string rollTownName(FactionID faction) = 0;
+	virtual PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) = 0;
+	virtual SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) = 0;
 
 	virtual vstd::RNG & getDefault() = 0;
 };

@@ -85,6 +85,7 @@ set(lib_MAIN_SRCS
 	callback/CGameInfoCallback.cpp
 	callback/CNonConstInfoCallback.cpp
 	callback/CPlayerSpecificInfoCallback.cpp
+	callback/GameRandomizer.cpp
 
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
@@ -478,6 +479,8 @@ set(lib_MAIN_HEADERS
 	callback/IGameEventsReceiver.h
 	callback/IGameInfoCallback.h
 	callback/IGameRandomizer.h
+	callback/GameRandomizer.h
+
 
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h

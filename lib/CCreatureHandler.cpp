@@ -1362,4 +1362,15 @@ void CCreatureHandler::afterLoadFinalization()
 
 }
 
+std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const
+{
+	std::set<CreatureID> result;
+
+	for(auto & creature : objects)
+		if (creature && !creature->special)
+			result.insert(creature->getId());
+
+	return result;
+}
+
 VCMI_LIB_NAMESPACE_END

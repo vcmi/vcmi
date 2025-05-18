@@ -237,6 +237,8 @@ public:
 
 	std::vector<JsonNode> loadLegacyData() override;
 
+	std::set<CreatureID> getDefaultAllowed() const;
+
 };
 
 VCMI_LIB_NAMESPACE_END

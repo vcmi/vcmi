@@ -19,29 +19,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles, vstd::RNG & rand) const //picks secondary skill out from given possibilities
-{
-	assert(!possibles.empty());
-
-	std::vector<int> weights;
-	std::vector<SecondarySkill> skills;
-
-	for(const auto & possible : possibles)
-	{
-		skills.push_back(possible);
-		if (secSkillProbability.count(possible) != 0)
-		{
-			int weight = secSkillProbability.at(possible);
-			weights.push_back(std::max(1, weight));
-		}
-		else
-			weights.push_back(1); // H3 behavior - banned skills have minimal (1) chance to be picked
-	}
-
-	int selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, rand);
-	return skills.at(selectedIndex);
-}
-
 bool CHeroClass::isMagicHero() const
 {
 	return affinity == MAGIC;

@@ -607,7 +607,7 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 			logGlobal->warn("Hero with uninitialized owner!");
 			continue;
 		}
-		hero->initHero(gameRandomizer.getDefault());
+		hero->initHero(gameRandomizer);
 	}
 
 	// generate boats for all heroes on water
@@ -650,7 +650,7 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 			heroInPool = newHeroPtr.get();
 		}
 		map->generateUniqueInstanceName(heroInPool);
-		heroInPool->initHero(gameRandomizer.getDefault());
+		heroInPool->initHero(gameRandomizer);
 		heroesPool->addHeroToPool(htype);
 	}
 

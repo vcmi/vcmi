@@ -198,11 +198,6 @@ void AddQuest::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAddQuest(*this);
 }
 
-void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateArtHandlerLists(*this);
-}
-
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);

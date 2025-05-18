@@ -540,18 +540,6 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE UpdateArtHandlerLists : public CPackForClient
-{
-	std::map<ArtifactID, int> allocatedArtifacts;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & allocatedArtifacts;
-	}
-};
-
 struct DLL_LINKAGE ChangeFormation : public CPackForClient
 {
 	ObjectInstanceID hid;

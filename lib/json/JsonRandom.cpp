@@ -50,6 +50,12 @@ JsonRandomizationException::JsonRandomizationException(const std::string & messa
 	: std::runtime_error(message + " Input was: " + cleanupJson(input))
 {}
 
+JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
+	: GameCallbackHolder(cb)
+	, gameRandomizer(gameRandomizer)
+	, rng(gameRandomizer.getDefault())
+{
+}
 
 	si32 JsonRandom::loadVariable(const std::string & variableGroup, const std::string & value, const Variables & variables, si32 defaultValue)
 	{

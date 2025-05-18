@@ -1,5 +1,5 @@
 /*
- * RandomizationProcessor.h, part of VCMI engine
+ * GameRandomizer.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,17 +9,15 @@
  */
 #pragma once
 
-#include "../lib/callback/IGameRandomizer.h"
+#include "callback/IGameRandomizer.h"
+#include "CRandomGenerator.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CRandomGenerator;
 class CGHeroInstance;
 
-VCMI_LIB_NAMESPACE_END
-
 /// Biased randomizer that has following properties:
-/// - at bias value of 0 it acts as statistical random generator
+/// - at bias value of 0 it acts as statistical random generator, just like vstd::RNG
 /// - at bias value of 100 it guarantees that it will take at most 100/chance rolls till succesfull roll
 /// - at bias value between 1..99 similar guarantee is also provided, but with larger number of rolls
 /// No matter what bias is, statistical probability on large number of rolls remains the same
@@ -33,12 +31,25 @@ public:
 	bool roll(vstd::RNG & generator, int successChance, int biasValue);
 };
 
-class RandomizationProcessor final : public IGameRandomizer
+class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 {
-	std::unique_ptr<CRandomGenerator> globalRandomNumberGenerator;
+	struct HeroSkillGenerator
+	{
+		CRandomGenerator seed;
+		int8_t magicSchoolCounter = 1;
+		int8_t wisdomCounter = 1;
+	};
 
-	std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeed;
-	std::map<PlayerColor, std::unique_ptr<CRandomGenerator>> playerTavern;
+	const IGameInfoCallback & gameInfo;
+
+	/// Global RNG, for use when there is no specialized instance
+	CRandomGenerator globalRandomNumberGenerator;
+
+	/// Stores number of times each artifact was placed on map via randomization
+	std::map<ArtifactID, int> allocatedArtifacts;
+
+	std::map<HeroTypeID, HeroSkillGenerator> heroSkillSeed;
+	std::map<PlayerColor, CRandomGenerator> playerTavern;
 
 	std::map<ObjectInstanceID, BiasedRandomizer> goodMoraleSeed;
 	std::map<ObjectInstanceID, BiasedRandomizer> badMoraleSeed;
@@ -48,19 +59,20 @@ class RandomizationProcessor final : public IGameRandomizer
 	std::map<ObjectInstanceID, BiasedRandomizer> combatAbilitySeed;
 
 public:
-	RandomizationProcessor();
+	explicit GameRandomizer(const IGameInfoCallback & gameInfo);
+	~GameRandomizer();
 
-	PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero);
-	SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::vector<SecondarySkill> & candidates);
+	PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) override;
+	SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) override;
+//
+//	bool rollGoodMorale(ObjectInstanceID actor, int moraleValue);
+//	bool rollBadMorale(ObjectInstanceID actor, int moraleValue);
+//	bool rollGoodLuck(ObjectInstanceID actor, int luckValue);
+//	bool rollBadLuck(ObjectInstanceID actor, int luckValue);
+//
+//	bool rollCombatAbility(ObjectInstanceID actor, int percentageChance);
 
-	bool rollGoodMorale(ObjectInstanceID actor, int moraleValue);
-	bool rollBadMorale(ObjectInstanceID actor, int moraleValue);
-	bool rollGoodLuck(ObjectInstanceID actor, int luckValue);
-	bool rollBadLuck(ObjectInstanceID actor, int luckValue);
-
-	bool rollCombatAbility(ObjectInstanceID actor, int percentageChance);
-
-	HeroTypeID rollHero(PlayerColor player, FactionID faction) override;
+//	HeroTypeID rollHero(PlayerColor player, FactionID faction) override;
 
 	CreatureID rollCreature() override;
 	CreatureID rollCreature(int tier) override;
@@ -70,8 +82,6 @@ public:
 	ArtifactID rollArtifact(std::set<ArtifactID> filtered) override;
 	std::vector<ArtifactID> rollMarketArtifactSet() override;
 
-	std::string rollTownName(FactionID faction) override;
-
 	vstd::RNG & getDefault() override;
 
 	void setSeed(int newSeed);
@@ -79,6 +89,8 @@ public:
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
-		h & *globalRandomNumberGenerator;
+		h & globalRandomNumberGenerator;
 	}
 };
+
+VCMI_LIB_NAMESPACE_END

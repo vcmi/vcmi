@@ -11,7 +11,6 @@
 #include "NewTurnProcessor.h"
 
 #include "HeroPoolProcessor.h"
-#include "RandomizationProcessor.h"
 
 #include "../CGameHandler.h"
 
@@ -19,6 +18,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
@@ -525,7 +525,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 		{
 			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
-				CreatureID creatureID = gameHandler->randomizationProcessor->rollCreature();
+				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
 			else if (LIBRARY->creh->doubledCreatures.size())
@@ -552,7 +552,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
 			{
-				newMonster.second = gameHandler->randomizationProcessor->rollCreature();
+				newMonster.second = gameHandler->randomizer->rollCreature();
 			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};

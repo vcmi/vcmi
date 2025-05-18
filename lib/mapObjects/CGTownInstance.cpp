@@ -494,7 +494,7 @@ void CGTownInstance::initObj(IGameRandomizer & gameRandomizer) ///initialize tow
 				creatures[level].second.push_back(getTown()->creatures[level][upgradeNum]);
 		}
 	}
-	initializeConfigurableBuildings(gameRandomizer.getDefault());
+	initializeConfigurableBuildings(gameRandomizer);
 	initializeNeutralTownGarrison(gameRandomizer.getDefault());
 	recreateBuildingsBonuses();
 	updateAppearance();

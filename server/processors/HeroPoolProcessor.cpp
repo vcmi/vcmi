@@ -368,17 +368,6 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 	return *RandomGeneratorUtil::nextItem(possibleHeroes, getRandomGenerator(player));
 }
 
-vstd::RNG & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTypeID & hero)
-{
-	if (heroSeed.count(hero) == 0)
-	{
-		int seed = gameHandler->getRandomGenerator().nextInt();
-		heroSeed.emplace(hero, std::make_unique<CRandomGenerator>(seed));
-	}
-
-	return *heroSeed.at(hero);
-}
-
 vstd::RNG & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)
 {
 	if (playerSeed.count(player) == 0)

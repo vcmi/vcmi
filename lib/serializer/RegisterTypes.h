@@ -159,7 +159,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<PlayerEndsGame>(103);
 	s.template registerType<PlayerReinitInterface>(104);
 	s.template registerType<RemoveBonus>(105);
-	s.template registerType<UpdateArtHandlerLists>(106);
 	s.template registerType<ChangeFormation>(107);
 	s.template registerType<RemoveObject>(108);
 	s.template registerType<TryMoveHero>(109);

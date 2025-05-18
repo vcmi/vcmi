@@ -1,0 +1,286 @@
+/*
+ * GameRandomizer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#include "StdInc.h"
+#include "GameRandomizer.h"
+
+#include "IGameInfoCallback.h"
+
+#include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/CSkillHandler.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/entities/artifact/EArtifactClass.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+
+VCMI_LIB_NAMESPACE_BEGIN
+
+bool BiasedRandomizer::roll(vstd::RNG &generator, int successChance, int biasValue)
+{
+	int failChance = 100 - successChance;
+	int newRoll = generator.nextInt(0,99);
+	bool success = newRoll + accumulatedBias >= successChance;
+	if (success)
+		accumulatedBias -= failChance * biasValue / 100;
+	else
+		accumulatedBias += successChance * biasValue / 100;
+
+	return success;
+}
+
+GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
+	: gameInfo(gameInfo)
+{
+}
+
+GameRandomizer::~GameRandomizer() = default;
+
+//bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
+//{
+//
+//}
+//
+//bool GameRandomizer::rollBadMorale(ObjectInstanceID actor, int moraleValue)
+//{
+//
+//}
+//
+//bool GameRandomizer::rollGoodLuck(ObjectInstanceID actor, int luckValue)
+//{
+//
+//}
+//
+//bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
+//{
+//
+//}
+//
+//bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
+//{
+//
+//}
+//
+//HeroTypeID GameRandomizer::rollHero(PlayerColor player, FactionID faction)
+//{
+//
+//}
+
+CreatureID GameRandomizer::rollCreature()
+{
+	std::vector<CreatureID> allowed;
+	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+	{
+		const auto * creaturePtr = creatureID.toCreature();
+		if(!creaturePtr->excludeFromRandomization)
+			allowed.push_back(creaturePtr->getId());
+	}
+
+	if(allowed.empty())
+		throw std::runtime_error("Cannot pick a random creature!");
+
+	return *RandomGeneratorUtil::nextItem(allowed, getDefault());
+}
+
+CreatureID GameRandomizer::rollCreature(int tier)
+{
+	std::vector<CreatureID> allowed;
+	for(const auto & creatureID : LIBRARY->creh->getDefaultAllowed())
+	{
+		const auto * creaturePtr = creatureID.toCreature();
+		if(creaturePtr->excludeFromRandomization)
+			continue;
+
+		if(creaturePtr->getLevel() == tier)
+			allowed.push_back(creaturePtr->getId());
+	}
+
+	if(allowed.empty())
+		throw std::runtime_error("Cannot pick a random creature!");
+
+	return *RandomGeneratorUtil::nextItem(allowed, getDefault());
+}
+
+ArtifactID GameRandomizer::rollArtifact()
+{
+	std::set<ArtifactID> potentialPicks;
+
+	for(const auto & artifactID : LIBRARY->arth->getDefaultAllowed())
+	{
+		if(!LIBRARY->arth->legalArtifact(artifactID))
+			continue;
+
+		potentialPicks.insert(artifactID);
+	}
+
+	return rollArtifact(potentialPicks);
+}
+
+ArtifactID GameRandomizer::rollArtifact(EArtifactClass type)
+{
+	std::set<ArtifactID> potentialPicks;
+
+	for(const auto & artifactID : LIBRARY->arth->getDefaultAllowed())
+	{
+		if(!LIBRARY->arth->legalArtifact(artifactID))
+			continue;
+
+		if(!gameInfo.isAllowed(artifactID))
+			continue;
+
+		const auto * artifact = artifactID.toArtifact();
+
+		if(type != artifact->aClass)
+			continue;
+
+		potentialPicks.insert(artifactID);
+	}
+
+	return rollArtifact(potentialPicks);
+}
+
+ArtifactID GameRandomizer::rollArtifact(std::set<ArtifactID> potentialPicks)
+{
+	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
+	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
+	if(potentialPicks.empty())
+	{
+		logGlobal->warn("Failed to find artifact that matches requested parameters!");
+		return ArtifactID::GRAIL;
+	}
+
+	// Find how many times least used artifacts were picked by randomizer
+	int leastUsedTimes = std::numeric_limits<int>::max();
+	for(const auto & artifact : potentialPicks)
+		if(allocatedArtifacts[artifact] < leastUsedTimes)
+			leastUsedTimes = allocatedArtifacts[artifact];
+
+	// Pick all artifacts that were used least number of times
+	std::set<ArtifactID> preferredPicks;
+	for(const auto & artifact : potentialPicks)
+		if(allocatedArtifacts[artifact] == leastUsedTimes)
+			preferredPicks.insert(artifact);
+
+	assert(!preferredPicks.empty());
+
+	ArtifactID artID = *RandomGeneratorUtil::nextItem(preferredPicks, getDefault());
+	allocatedArtifacts[artID] += 1; // record +1 more usage
+	return artID;
+}
+
+std::vector<ArtifactID> GameRandomizer::rollMarketArtifactSet()
+{
+	std::vector<ArtifactID> out;
+	for(int j = 0; j < 3; j++)
+		out.push_back(rollArtifact(EArtifactClass::ART_TREASURE));
+	for(int j = 0; j < 3; j++)
+		out.push_back(rollArtifact(EArtifactClass::ART_MINOR));
+	out.push_back(rollArtifact(EArtifactClass::ART_MAJOR));
+
+	return out;
+}
+
+vstd::RNG & GameRandomizer::getDefault()
+{
+	return globalRandomNumberGenerator;
+}
+
+void GameRandomizer::setSeed(int newSeed)
+{
+	globalRandomNumberGenerator.setSeed(newSeed);
+}
+
+PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero)
+{
+	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
+	const auto & skillChances = isLowLevelHero ? hero->getHeroClass()->primarySkillLowLevel : hero->getHeroClass()->primarySkillHighLevel;
+	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
+
+	if(hero->isCampaignYog())
+	{
+		// Yog can only receive Attack or Defence on level-up
+		std::vector<int> yogChances = {skillChances[0], skillChances[1]};
+		return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(yogChances, heroRng.seed));
+	}
+	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, heroRng.seed));
+}
+
+SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & options)
+{
+	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
+
+	auto getObligatorySkills = [](CSkill::Obligatory obl)
+	{
+		std::set<SecondarySkill> obligatory;
+		for(auto i = 0; i < LIBRARY->skillh->size(); i++)
+			if((*LIBRARY->skillh)[SecondarySkill(i)]->obligatory(obl))
+				obligatory.insert(i); //Always return all obligatory skills
+
+		return obligatory;
+	};
+
+	auto intersect = [](const std::set<SecondarySkill> & left, const std::set<SecondarySkill> & right)
+	{
+		std::set<SecondarySkill> intersect;
+		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(), std::inserter(intersect, intersect.begin()));
+		return intersect;
+	};
+
+	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);
+	std::set<SecondarySkill> schoolList = getObligatorySkills(CSkill::Obligatory::MINOR);
+
+	bool wantsWisdom = heroRng.wisdomCounter + 1 >= hero->maxlevelsToWisdom();
+	bool wantsSchool = heroRng.magicSchoolCounter + 1 >= hero->maxlevelsToMagicSchool();
+	bool selectWisdom = wantsWisdom && !intersect(options, wisdomList).empty();
+	bool selectSchool = wantsSchool && !intersect(options, schoolList).empty();
+
+	std::set<SecondarySkill> actualCandidates;
+
+	if(selectWisdom)
+		actualCandidates = intersect(options, wisdomList);
+	else if(selectSchool)
+		actualCandidates = intersect(options, schoolList);
+	else
+		actualCandidates = options;
+
+	assert(!actualCandidates.empty());
+
+	std::vector<int> weights;
+	std::vector<SecondarySkill> skills;
+
+	for(const auto & possible : actualCandidates)
+	{
+		skills.push_back(possible);
+		if(hero->getHeroClass()->secSkillProbability.count(possible) != 0)
+		{
+			int weight = hero->getHeroClass()->secSkillProbability.at(possible);
+			weights.push_back(std::max(1, weight));
+		}
+		else
+			weights.push_back(1); // H3 behavior - banned skills have minimal (1) chance to be picked
+	}
+
+	int selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, heroRng.seed);
+	SecondarySkill selectedSkill = skills.at(selectedIndex);
+
+
+	//deterministic secondary skills
+	++heroRng.magicSchoolCounter;
+	++heroRng.wisdomCounter;
+
+	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MAJOR))
+		heroRng.wisdomCounter = 0;
+	if((*LIBRARY->skillh)[selectedSkill]->obligatory(CSkill::Obligatory::MINOR))
+		heroRng.magicSchoolCounter = 0;
+
+	return selectedSkill;
+}
+
+VCMI_LIB_NAMESPACE_END

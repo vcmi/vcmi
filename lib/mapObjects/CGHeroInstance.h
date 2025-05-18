@@ -116,23 +116,6 @@ public:
 		}
 	} patrol;
 
-	struct DLL_LINKAGE SecondarySkillsInfo
-	{
-		ui8 magicSchoolCounter;
-		ui8 wisdomCounter;
-
-		SecondarySkillsInfo();
-
-		void resetMagicSchoolCounter();
-		void resetWisdomCounter();
-
-		template <typename Handler> void serialize(Handler &h)
-		{
-			h & magicSchoolCounter;
-			h & wisdomCounter;
-		}
-	} skillsInfo;
-
 	inline bool isInitialized() const
 	{ // has this hero been on the map at least once?
 		return movement != UNINITIALIZED_MOVEMENT && mana != UNINITIALIZED_MANA;
@@ -200,14 +183,8 @@ public:
 	/// Returns true if hero has lower level than should upon his experience.
 	bool gainsLevel() const;
 
-	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill nextPrimarySkill(vstd::RNG & rand) const;
-
-	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	std::optional<SecondarySkill> nextSecondarySkill(vstd::RNG & rand) const;
-
-	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
-	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
+	/// Selects 0-2 skills for player to select on levelup
+	std::vector<SecondarySkill> getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 	int getPrimSkillLevel(PrimarySkill id) const;
@@ -218,7 +195,7 @@ public:
 
 	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode);
 	void setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode); // abs == 0 - changes by value; 1 - sets to value
-	void levelUp(const std::vector<SecondarySkill> & skills);
+	void levelUp();
 
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
@@ -262,8 +239,8 @@ public:
 	CCommanderInstance * getCommander();
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
-	void initHero(vstd::RNG & rand);
-	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
+	void initHero(IGameRandomizer & gameRandomizer);
+	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID);
 
 	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
@@ -351,7 +328,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically(vstd::RNG & rand);
+	void levelUpAutomatically(IGameRandomizer & gameRandomizer);
 	void attachCommanderToArmy();
 
 public:
@@ -377,7 +354,14 @@ public:
 		h & spells;
 		h & patrol;
 		h & moveDir;
-		h & skillsInfo;
+		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			ui8 magicSchoolCounter = 0;
+			ui8 wisdomCounter = 0;
+
+			h & magicSchoolCounter;
+			h & wisdomCounter;
+		}
 
 		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 		{

@@ -55,9 +55,6 @@ public:
 	ArtifactInstanceID saveCompatibilityLastAllocatedArtifactID;
 	std::vector<std::shared_ptr<CArtifactInstance>> saveCompatibilityUnregisteredArtifacts;
 
-	/// Stores number of times each artifact was placed on map via randomization
-	std::map<ArtifactID, int> allocatedArtifacts;
-
 	/// List of currently ongoing battles
 	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
 	/// ID that can be allocated to next battle
@@ -182,7 +179,11 @@ public:
 		h & globalEffects;
 		h & currentRumor;
 		h & campaign;
-		h & allocatedArtifacts;
+		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			std::map<ArtifactID, int> allocatedArtifactsUnused;
+			h & allocatedArtifactsUnused;
+		}
 		h & statistic;
 
 		if(!h.saving && h.loadingGamestate)

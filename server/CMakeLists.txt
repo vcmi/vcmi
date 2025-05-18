@@ -15,7 +15,6 @@ set(vcmiservercommon_SRCS
 		processors/HeroPoolProcessor.cpp
 		processors/NewTurnProcessor.cpp
 		processors/PlayerMessageProcessor.cpp
-		processors/RandomizationProcessor.cpp
 		processors/TurnOrderProcessor.cpp
 
 		CGameHandler.cpp
@@ -44,7 +43,6 @@ set(vcmiservercommon_HEADERS
 		processors/HeroPoolProcessor.h
 		processors/NewTurnProcessor.h
 		processors/PlayerMessageProcessor.h
-		processors/RandomizationProcessor.h
 		processors/TurnOrderProcessor.h
 
 		CGameHandler.h
