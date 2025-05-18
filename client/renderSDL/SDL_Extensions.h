@@ -71,6 +71,10 @@ SDL_Color toSDL(const ColorRGBA & color);
 	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
 	void convertToGrayscale(SDL_Surface * surf, const Rect & rect);
 
+	template<int bpp>
+	void convertToH2SchemeBpp(SDL_Surface * surf, const Rect & rect);
+	void convertToH2Scheme(SDL_Surface * surf, const Rect & rect);
+
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 
 	///set key-color to 0,255,255

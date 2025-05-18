@@ -73,6 +73,8 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 ### Misc
 
 `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
+`nwcphisherprice` or `vcmicolor` - change game color palette to Heroes II like until game restart
+`vcmigray` - change game color palette to grayscale until game restart
 
 ## Using cheat codes on other players
 

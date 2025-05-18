@@ -41,8 +41,9 @@ enum class ESerializationVersion : int32_t
 	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
 	REWARDABLE_EXTENSIONS, // new functionality for rewardable objects
 	FLAGGABLE_BONUS_SYSTEM_NODE, // flaggable objects now contain bonus system node
+	COLOR_FILTER, // color filter cheat
 
-	CURRENT = FLAGGABLE_BONUS_SYSTEM_NODE,
+	CURRENT = COLOR_FILTER,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

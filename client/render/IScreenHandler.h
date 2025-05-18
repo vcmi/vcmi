@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../lib/constants/Enumerations.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
@@ -58,4 +60,6 @@ public:
 
 	/// Window has focus
 	virtual bool hasFocus() = 0;
+
+	virtual void setColorScheme(ColorScheme scheme) = 0;
 };

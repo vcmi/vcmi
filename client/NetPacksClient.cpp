@@ -1074,8 +1074,13 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 	}
 }
 
-
 void ApplyClientNetPackVisitor::visitEntitiesChanged(EntitiesChanged & pack)
 {
 	callAllInterfaces(cl, &CGameInterface::invalidatePaths);
+}
+
+void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
+{
+	if(pack.colorScheme != ColorScheme::KEEP && vstd::contains(cl.playerint, pack.player))
+		cl.playerint[pack.player]->setColorScheme(pack.colorScheme);
 }

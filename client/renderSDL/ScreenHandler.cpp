@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "SDL_Extensions.h"
+
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../GameEngine.h"
@@ -623,7 +625,19 @@ Canvas ScreenHandler::getScreenCanvas() const
 
 void ScreenHandler::updateScreenTexture()
 {
-	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	if(colorScheme == ColorScheme::NONE)
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		return;
+	}
+
+	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
+	if(colorScheme == ColorScheme::GRAYSCALE)
+		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
+	else if(colorScheme == ColorScheme::H2_SCHEME)
+		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
+	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
+	SDL_FreeSurface(screenScheme);
 }
 
 void ScreenHandler::presentScreenTexture()
@@ -673,4 +687,9 @@ bool ScreenHandler::hasFocus()
 {
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
+}
+
+void ScreenHandler::setColorScheme(ColorScheme scheme)
+{
+	colorScheme = scheme;
 }

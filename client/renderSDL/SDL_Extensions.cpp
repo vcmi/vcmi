@@ -547,24 +547,27 @@ void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
 {
 	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
 
-	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
+	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& r)
 	{
-		uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
-		uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
-
-		for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+		for(int yp = r.begin(); yp != r.end(); ++yp)
 		{
-			int r = Channels::px<bpp>::r.get(pixel);
-			int g = Channels::px<bpp>::g.get(pixel);
-			int b = Channels::px<bpp>::b.get(pixel);
+			uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+			uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
 
-			int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
+			for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+			{
+				int r = Channels::px<bpp>::r.get(pixel);
+				int g = Channels::px<bpp>::g.get(pixel);
+				int b = Channels::px<bpp>::b.get(pixel);
 
-			Channels::px<bpp>::r.set(pixel, gray);
-			Channels::px<bpp>::g.set(pixel, gray);
-			Channels::px<bpp>::b.set(pixel, gray);
+				int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
+
+				Channels::px<bpp>::r.set(pixel, gray);
+				Channels::px<bpp>::g.set(pixel, gray);
+				Channels::px<bpp>::b.set(pixel, gray);
+			}
 		}
-	}
+	});
 }
 
 void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
@@ -573,6 +576,53 @@ void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
 	{
 		case 3: convertToGrayscaleBpp<3>(surf, rect); break;
 		case 4: convertToGrayscaleBpp<4>(surf, rect); break;
+	}
+}
+
+template<int bpp>
+void CSDL_Ext::convertToH2SchemeBpp(SDL_Surface * surf, const Rect & rect )
+{
+	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& r)
+	{
+		for(int yp = r.begin(); yp != r.end(); ++yp)
+		{
+			uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+			uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
+
+			for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+			{
+				int r = Channels::px<bpp>::r.get(pixel);
+				int g = Channels::px<bpp>::g.get(pixel);
+				int b = Channels::px<bpp>::b.get(pixel);
+
+				double gray = 0.3 * r + 0.59 * g + 0.11 * b;
+				double factor = 2.0;
+
+				//fast approximation instead of colorspace conversion
+				r = static_cast<int>(gray + (r - gray) * factor);
+				g = static_cast<int>(gray + (g - gray) * factor);
+				b = static_cast<int>(gray + (b - gray) * factor);
+
+				r = std::clamp(r, 0, 255);
+				g = std::clamp(g, 0, 255);
+				b = std::clamp(b, 0, 255);
+
+				Channels::px<bpp>::r.set(pixel, r);
+				Channels::px<bpp>::g.set(pixel, g);
+				Channels::px<bpp>::b.set(pixel, b);
+			}
+		}
+	});
+}
+
+void CSDL_Ext::convertToH2Scheme( SDL_Surface * surf, const Rect & rect )
+{
+	switch(surf->format->BytesPerPixel)
+	{
+		case 3: convertToH2SchemeBpp<3>(surf, rect); break;
+		case 4: convertToH2SchemeBpp<4>(surf, rect); break;
 	}
 }
 
