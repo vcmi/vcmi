@@ -37,7 +37,8 @@ public:
 
 class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 {
-	static constexpr int biasValue = 10;
+	static constexpr int biasValueLuckMorale = 10;
+	static constexpr int biasValueAbility = 25;
 
 	struct HeroSkillRandomizer
 	{
@@ -65,7 +66,6 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 	std::map<ObjectInstanceID, BiasedRandomizer> badMoraleSeed;
 	std::map<ObjectInstanceID, BiasedRandomizer> goodLuckSeed;
 	std::map<ObjectInstanceID, BiasedRandomizer> badLuckSeed;
-
 	std::map<ObjectInstanceID, BiasedRandomizer> combatAbilitySeed;
 
 	bool rollMoraleLuck(std::map<ObjectInstanceID, BiasedRandomizer> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights);
@@ -80,8 +80,8 @@ public:
 	bool rollBadMorale(ObjectInstanceID actor, int moraleValue);
 	bool rollGoodLuck(ObjectInstanceID actor, int luckValue);
 	bool rollBadLuck(ObjectInstanceID actor, int luckValue);
-//
-//	bool rollCombatAbility(ObjectInstanceID actor, int percentageChance);
+
+	bool rollCombatAbility(ObjectInstanceID actor, int percentageChance);
 
 //	HeroTypeID rollHero(PlayerColor player, FactionID faction) override;
 

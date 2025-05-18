@@ -69,7 +69,7 @@ bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, BiasedRandomizer>
 	if(goodLuckChanceVector.size() == 0)
 		return false;
 
-	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValue);
+	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValueLuckMorale);
 }
 
 bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
@@ -92,11 +92,20 @@ bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
 	return rollMoraleLuck(badLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_BAD_LUCK_CHANCE);
 }
 
-//bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
-//{
-//
-//}
-//
+bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
+{
+	if (!combatAbilitySeed.count(actor))
+		combatAbilitySeed.emplace(actor, getDefault().nextInt());
+
+	if (percentageChance <= 0)
+		return false;
+
+	if (percentageChance >= 100)
+		return true;
+
+	return combatAbilitySeed.at(actor).roll(percentageChance, 100, biasValueAbility);
+}
+
 //HeroTypeID GameRandomizer::rollHero(PlayerColor player, FactionID faction)
 //{
 //
