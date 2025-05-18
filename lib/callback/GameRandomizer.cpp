@@ -16,6 +16,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/artifact/EArtifactClass.h"
 #include "../../lib/entities/hero/CHeroClass.h"
@@ -23,15 +24,26 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-bool BiasedRandomizer::roll(vstd::RNG &generator, int successChance, int biasValue)
+BiasedRandomizer::BiasedRandomizer(int seed)
+	: seed(seed)
 {
-	int failChance = 100 - successChance;
-	int newRoll = generator.nextInt(0,99);
-	bool success = newRoll + accumulatedBias >= successChance;
+}
+
+bool BiasedRandomizer::roll(int successChance, int totalWeight, int biasValue)
+{
+	assert(successChance > 0);
+	assert(totalWeight >= successChance);
+
+	int failChance = totalWeight - successChance;
+	int newRoll = seed.nextInt(1,totalWeight);
+	// accumulated bias is stored as premultiplied to avoid precision loss on division
+	// so multiply everything else in equation to compensate
+	// precision loss is small, and generally insignificant, but better to play it safe
+	bool success = newRoll * totalWeight - accumulatedBias <= successChance * totalWeight;
 	if (success)
-		accumulatedBias -= failChance * biasValue / 100;
+		accumulatedBias -= failChance * biasValue;
 	else
-		accumulatedBias += successChance * biasValue / 100;
+		accumulatedBias += successChance * biasValue;
 
 	return success;
 }
@@ -43,26 +55,43 @@ GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
 
 GameRandomizer::~GameRandomizer() = default;
 
-//bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
-//{
-//
-//}
-//
-//bool GameRandomizer::rollBadMorale(ObjectInstanceID actor, int moraleValue)
-//{
-//
-//}
-//
-//bool GameRandomizer::rollGoodLuck(ObjectInstanceID actor, int luckValue)
-//{
-//
-//}
-//
-//bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
-//{
-//
-//}
-//
+
+bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, BiasedRandomizer> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights)
+{
+	assert(moraleLuckValue > 0);
+	auto goodLuckChanceVector = gameInfo.getSettings().getVector(diceWeights);
+	int luckDiceSize = gameInfo.getSettings().getInteger(diceSize);
+	size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), moraleLuckValue) - 1; // array index, so 0-indexed
+
+	if (!seeds.count(actor))
+		seeds.emplace(actor, getDefault().nextInt());
+
+	if(goodLuckChanceVector.size() == 0)
+		return false;
+
+	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValue);
+}
+
+bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
+{
+	return rollMoraleLuck(goodMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+}
+
+bool GameRandomizer::rollBadMorale(ObjectInstanceID actor, int moraleValue)
+{
+	return rollMoraleLuck(badMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+}
+
+bool GameRandomizer::rollGoodLuck(ObjectInstanceID actor, int luckValue)
+{
+	return rollMoraleLuck(goodLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
+}
+
+bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
+{
+	return rollMoraleLuck(badLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_BAD_LUCK_CHANCE);
+}
+
 //bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
 //{
 //
@@ -199,6 +228,9 @@ void GameRandomizer::setSeed(int newSeed)
 
 PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero)
 {
+	if (!heroSkillSeed.count(hero->getHeroTypeID()))
+		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
+
 	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? hero->getHeroClass()->primarySkillLowLevel : hero->getHeroClass()->primarySkillHighLevel;
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
@@ -214,6 +246,9 @@ PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * h
 
 SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & options)
 {
+	if (!heroSkillSeed.count(hero->getHeroTypeID()))
+		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
+
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
 
 	auto getObligatorySkills = [](CSkill::Obligatory obl)

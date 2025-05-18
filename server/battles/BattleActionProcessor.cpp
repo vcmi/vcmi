@@ -21,6 +21,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -940,21 +941,15 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 	if(attackerLuck > 0)
 	{
-		auto goodLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
-		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), attackerLuck) - 1; // array index, so 0-indexed
-
-		if(goodLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= goodLuckChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+		if (gameHandler->randomizer->rollGoodLuck(ownerArmy, attackerLuck))
 			bat.flags |= BattleAttack::LUCKY;
 	}
 
 	if(attackerLuck < 0)
 	{
-		auto badLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_LUCK_CHANCE);
-		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(badLuckChanceVector.size(), -attackerLuck) - 1; // array index, so 0-indexed
-
-		if(badLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= badLuckChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+		if (gameHandler->randomizer->rollBadLuck(ownerArmy, -attackerLuck))
 			bat.flags |= BattleAttack::UNLUCKY;
 	}
 

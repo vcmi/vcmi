@@ -14,6 +14,8 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+enum class EGameSettings;
+
 class CGHeroInstance;
 
 /// Biased randomizer that has following properties:
@@ -24,17 +26,25 @@ class CGHeroInstance;
 /// Its goal is to simulate human expectations of random distributions and reduce frustration from "bad" rolls
 class BiasedRandomizer
 {
-	int accumulatedBias;
+	CRandomGenerator seed;
+	int32_t accumulatedBias = 0;
 public:
+	explicit BiasedRandomizer(int seed);
 	/// Performs coin flip with specified success chance
 	/// Returns true with probability successChance percents, and false with probability 100-successChance percents
-	bool roll(vstd::RNG & generator, int successChance, int biasValue);
+	bool roll(int successChance, int totalWeight, int biasValue);
 };
 
 class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 {
-	struct HeroSkillGenerator
+	static constexpr int biasValue = 10;
+
+	struct HeroSkillRandomizer
 	{
+		HeroSkillRandomizer(int seed)
+			:seed(seed)
+		{}
+
 		CRandomGenerator seed;
 		int8_t magicSchoolCounter = 1;
 		int8_t wisdomCounter = 1;
@@ -48,7 +58,7 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 	/// Stores number of times each artifact was placed on map via randomization
 	std::map<ArtifactID, int> allocatedArtifacts;
 
-	std::map<HeroTypeID, HeroSkillGenerator> heroSkillSeed;
+	std::map<HeroTypeID, HeroSkillRandomizer> heroSkillSeed;
 	std::map<PlayerColor, CRandomGenerator> playerTavern;
 
 	std::map<ObjectInstanceID, BiasedRandomizer> goodMoraleSeed;
@@ -58,17 +68,18 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 
 	std::map<ObjectInstanceID, BiasedRandomizer> combatAbilitySeed;
 
+	bool rollMoraleLuck(std::map<ObjectInstanceID, BiasedRandomizer> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights);
 public:
 	explicit GameRandomizer(const IGameInfoCallback & gameInfo);
 	~GameRandomizer();
 
 	PrimarySkill rollPrimarySkillForLevelup(const CGHeroInstance * hero) override;
 	SecondarySkill rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & candidates) override;
-//
-//	bool rollGoodMorale(ObjectInstanceID actor, int moraleValue);
-//	bool rollBadMorale(ObjectInstanceID actor, int moraleValue);
-//	bool rollGoodLuck(ObjectInstanceID actor, int luckValue);
-//	bool rollBadLuck(ObjectInstanceID actor, int luckValue);
+
+	bool rollGoodMorale(ObjectInstanceID actor, int moraleValue);
+	bool rollBadMorale(ObjectInstanceID actor, int moraleValue);
+	bool rollGoodLuck(ObjectInstanceID actor, int luckValue);
+	bool rollBadLuck(ObjectInstanceID actor, int luckValue);
 //
 //	bool rollCombatAbility(ObjectInstanceID actor, int percentageChance);
 

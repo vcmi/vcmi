@@ -19,6 +19,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -347,11 +348,8 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto badMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
-		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(badMoraleChanceVector.size(), -nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(badMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= badMoraleChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
@@ -527,11 +525,8 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto goodMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
-		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(goodMoraleChanceVector.size(), nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(goodMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= goodMoraleChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollGoodMorale(ownerArmy, nextStackMorale))
 		{
 			BattleTriggerEffect bte;
 			bte.battleID = battle.getBattle()->getBattleID();
