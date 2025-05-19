@@ -24,28 +24,33 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BiasedRandomizer::BiasedRandomizer(int seed)
-	: seed(seed)
-{
-}
-
-bool BiasedRandomizer::roll(int successChance, int totalWeight, int biasValue)
+bool RandomizationBias::roll(vstd::RNG & generator, int successChance, int totalWeight, int biasValue)
 {
 	assert(successChance > 0);
 	assert(totalWeight >= successChance);
 
 	int failChance = totalWeight - successChance;
-	int newRoll = seed.nextInt(1,totalWeight);
+	int newRoll = generator.nextInt(1, totalWeight);
 	// accumulated bias is stored as premultiplied to avoid precision loss on division
 	// so multiply everything else in equation to compensate
 	// precision loss is small, and generally insignificant, but better to play it safe
 	bool success = newRoll * totalWeight - accumulatedBias <= successChance * totalWeight;
-	if (success)
+	if(success)
 		accumulatedBias -= failChance * biasValue;
 	else
 		accumulatedBias += successChance * biasValue;
 
 	return success;
+}
+
+RandomGeneratorWithBias::RandomGeneratorWithBias(int seed)
+	: generator(seed)
+{
+}
+
+bool RandomGeneratorWithBias::roll(int successChance, int totalWeight, int biasValue)
+{
+	return bias.roll(generator, successChance, totalWeight, biasValue);
 }
 
 GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
@@ -56,14 +61,14 @@ GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
 GameRandomizer::~GameRandomizer() = default;
 
 
-bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, BiasedRandomizer> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights)
+bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights)
 {
 	assert(moraleLuckValue > 0);
 	auto goodLuckChanceVector = gameInfo.getSettings().getVector(diceWeights);
 	int luckDiceSize = gameInfo.getSettings().getInteger(diceSize);
 	size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), moraleLuckValue) - 1; // array index, so 0-indexed
 
-	if (!seeds.count(actor))
+	if(!seeds.count(actor))
 		seeds.emplace(actor, getDefault().nextInt());
 
 	if(goodLuckChanceVector.size() == 0)
@@ -94,22 +99,17 @@ bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
 
 bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
 {
-	if (!combatAbilitySeed.count(actor))
+	if(!combatAbilitySeed.count(actor))
 		combatAbilitySeed.emplace(actor, getDefault().nextInt());
 
-	if (percentageChance <= 0)
+	if(percentageChance <= 0)
 		return false;
 
-	if (percentageChance >= 100)
+	if(percentageChance >= 100)
 		return true;
 
 	return combatAbilitySeed.at(actor).roll(percentageChance, 100, biasValueAbility);
 }
-
-//HeroTypeID GameRandomizer::rollHero(PlayerColor player, FactionID faction)
-//{
-//
-//}
 
 CreatureID GameRandomizer::rollCreature()
 {
@@ -215,14 +215,15 @@ ArtifactID GameRandomizer::rollArtifact(std::set<ArtifactID> potentialPicks)
 
 std::vector<ArtifactID> GameRandomizer::rollMarketArtifactSet()
 {
-	std::vector<ArtifactID> out;
-	for(int j = 0; j < 3; j++)
-		out.push_back(rollArtifact(EArtifactClass::ART_TREASURE));
-	for(int j = 0; j < 3; j++)
-		out.push_back(rollArtifact(EArtifactClass::ART_MINOR));
-	out.push_back(rollArtifact(EArtifactClass::ART_MAJOR));
-
-	return out;
+	return {
+		rollArtifact(EArtifactClass::ART_TREASURE),
+		rollArtifact(EArtifactClass::ART_TREASURE),
+		rollArtifact(EArtifactClass::ART_TREASURE),
+		rollArtifact(EArtifactClass::ART_MINOR),
+		rollArtifact(EArtifactClass::ART_MINOR),
+		rollArtifact(EArtifactClass::ART_MINOR),
+		rollArtifact(EArtifactClass::ART_MAJOR)
+	};
 }
 
 vstd::RNG & GameRandomizer::getDefault()
@@ -237,7 +238,7 @@ void GameRandomizer::setSeed(int newSeed)
 
 PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero)
 {
-	if (!heroSkillSeed.count(hero->getHeroTypeID()))
+	if(!heroSkillSeed.count(hero->getHeroTypeID()))
 		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
 	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
@@ -255,7 +256,7 @@ PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * h
 
 SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & options)
 {
-	if (!heroSkillSeed.count(hero->getHeroTypeID()))
+	if(!heroSkillSeed.count(hero->getHeroTypeID()))
 		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
@@ -313,7 +314,6 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 
 	int selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, heroRng.seed);
 	SecondarySkill selectedSkill = skills.at(selectedIndex);
-
 
 	//deterministic secondary skills
 	++heroRng.magicSchoolCounter;

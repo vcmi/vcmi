@@ -117,6 +117,7 @@ public:
 
 	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
 
+	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;
 };
 

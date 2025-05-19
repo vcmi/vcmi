@@ -19,7 +19,7 @@ enum class EArtifactClass;
 
 namespace vstd
 {
-	class RNG;
+class RNG;
 }
 
 /// Provides source of random rolls for game entities
