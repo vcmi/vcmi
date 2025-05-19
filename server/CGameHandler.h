@@ -99,7 +99,7 @@ public:
 	// Helpers to create new object of specified type
 
 	std::shared_ptr<CGObjectInstance> createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID);
-	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature);
+	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature, int unitSize);
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
 	void createHole(const int3 & visitablePosition, PlayerColor initiator);
 	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
