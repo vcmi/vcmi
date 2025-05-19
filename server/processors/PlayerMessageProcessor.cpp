@@ -706,8 +706,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 	std::string cheatName = boost::to_lower_copy(words[0]);
 	words.erase(words.begin());
 
-	//  VCMI                       VCMI simple        SoD/HotA                   AB                    RoE
-	std::vector<std::string> localCheat = {
+	//	VCMI                       VCMI simple        SoD/HotA                   AB                    RoE
+	std::vector<std::string> localCheats = {
 		                           "vcmicolor",       "nwcphisherprice",
 		                           "vcmigray"
 	};
@@ -739,7 +739,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		                           "vcmiscrolls"
 	};
 
-	if(vstd::contains(localCheat, cheatName))
+	if(vstd::contains(localCheats, cheatName))
 	{
 		executeCheatCode(cheatName, player, currObj, words);
 		return true;
