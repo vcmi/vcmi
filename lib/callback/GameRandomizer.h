@@ -18,7 +18,7 @@ enum class EGameSettings;
 
 class CGHeroInstance;
 
-class RandomizationBias
+class DLL_LINKAGE RandomizationBias
 {
 	int32_t accumulatedBias = 0;
 
@@ -26,6 +26,12 @@ public:
 	/// Performs coin flip with specified success chance
 	/// Returns true with probability successChance percents, and false with probability totalWeight-successChance percents
 	bool roll(vstd::RNG & generator, int successChance, int totalWeight, int biasValue);
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & accumulatedBias;
+	}
 };
 
 /// Biased randomizer that has following properties:
@@ -34,32 +40,44 @@ public:
 /// - at bias value between 1..99 similar guarantee is also provided, but with larger number of rolls
 /// No matter what bias is, statistical probability on large number of rolls remains the same
 /// Its goal is to simulate human expectations of random distributions and reduce frustration from "bad" rolls
-class RandomGeneratorWithBias
+class DLL_LINKAGE RandomGeneratorWithBias
 {
 	CRandomGenerator generator;
 	RandomizationBias bias;
 
 public:
-	explicit RandomGeneratorWithBias(int seed);
+	explicit RandomGeneratorWithBias(int seed = 0);
 	/// Performs coin flip with specified success chance
 	/// Returns true with probability successChance percents, and false with probability 100-successChance percents
 	bool roll(int successChance, int totalWeight, int biasValue);
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & generator;
+		h & bias;
+	}
 };
 
 class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 {
-	static constexpr int biasValueLuckMorale = 10;
-	static constexpr int biasValueAbility = 25;
-
 	struct HeroSkillRandomizer
 	{
-		explicit HeroSkillRandomizer(int seed)
+		explicit HeroSkillRandomizer(int seed = 0)
 			: seed(seed)
 		{}
 
 		CRandomGenerator seed;
 		int8_t magicSchoolCounter = 1;
 		int8_t wisdomCounter = 1;
+
+		template<typename Handler>
+		void serialize(Handler & h)
+		{
+			h & seed;
+			h & magicSchoolCounter;
+			h & wisdomCounter;
+		}
 	};
 
 	const IGameInfoCallback & gameInfo;
@@ -71,7 +89,6 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 	std::map<ArtifactID, int> allocatedArtifacts;
 
 	std::map<HeroTypeID, HeroSkillRandomizer> heroSkillSeed;
-	std::map<PlayerColor, CRandomGenerator> playerTavern;
 
 	std::map<ObjectInstanceID, RandomGeneratorWithBias> goodMoraleSeed;
 	std::map<ObjectInstanceID, RandomGeneratorWithBias> badMoraleSeed;
@@ -79,7 +96,7 @@ class DLL_LINKAGE GameRandomizer final : public IGameRandomizer
 	std::map<ObjectInstanceID, RandomGeneratorWithBias> badLuckSeed;
 	std::map<ObjectInstanceID, RandomGeneratorWithBias> combatAbilitySeed;
 
-	bool rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights);
+	bool rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings biasValue, EGameSettings diceSize, EGameSettings diceWeights);
 
 public:
 	explicit GameRandomizer(const IGameInfoCallback & gameInfo);
@@ -111,6 +128,17 @@ public:
 	void serialize(Handler & h)
 	{
 		h & globalRandomNumberGenerator;
+
+		if (h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			h & allocatedArtifacts;
+			h & heroSkillSeed;
+			h & goodMoraleSeed;
+			h & badMoraleSeed;
+			h & goodLuckSeed;
+			h & badLuckSeed;
+			h & combatAbilitySeed;
+		}
 	}
 };
 

@@ -340,16 +340,32 @@
 
 		"combat":
 		{
+			// defines bias used for percentage-based ability rolls, such Death Blow of Dread Knight
+			// If bias is set to 0, then all rolls will be completely independent - it is possible to get lucky and roll ability with 10% chance
+			// multiple times in a row, or be unlucky and not roll 50% ability multiple times in a row
+			// If bias is non-zero, game will adjust probability based on previous rolls while keeping average chance at desired value
+			// So matter what value is used for bias, actual probability for large (1000+) number of rolls is same as stated in description
+			// However, non-zero bias allows to prevent long streaks of "bad" rolls, and enforce actual probabilities even for small (10-20) number of rolls
+			// Recommended value is ~10-25. Excessively large values, like 100 can make rolls very predictable, for example rolling 20% ability every 5th roll
+			"abilityBias" : 25
+
 			// defines dice chance and dice size of a morale roll, based on creature's morale.
 			// Resulting chance is chanceValue / diceSize. If list contains 0 values, option will be disabled
 			"goodMoraleChance" : [ 1, 2, 3 ],
 			"badMoraleChance" : [ 2, 4, 6],
-            "moraleDiceSize" : 24,
+			"moraleDiceSize" : 24,
+			// Bias for morale rolls. See abilityBias for detailed description
+			// Recommended value is around moraleDiceSize / 4
+			"moraleBias" : 8
 
 			// defines dice chance and dice size of a luck roll, based on creature's luck
 			"goodLuckChance" : [ 1, 2, 3 ],
 			"badLuckChance" : [],
-            "luckDiceSize" : 24,
+			"luckDiceSize" : 24,
+			// Bias for luck rolls. See abilityBias for detailed description
+			// Recommended value is around luckDiceSize / 4
+			"luckBias" : 8
+			
 
 			// every 1 attack point damage influence in battle when attack points > defense points during creature attack
 			"attackPointDamageFactor": 0.05, 

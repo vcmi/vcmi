@@ -61,11 +61,12 @@ GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
 GameRandomizer::~GameRandomizer() = default;
 
 
-bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings diceSize, EGameSettings diceWeights)
+bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings biasValueSetting, EGameSettings diceSize, EGameSettings diceWeights)
 {
 	assert(moraleLuckValue > 0);
 	auto goodLuckChanceVector = gameInfo.getSettings().getVector(diceWeights);
 	int luckDiceSize = gameInfo.getSettings().getInteger(diceSize);
+	int biasValue = gameInfo.getSettings().getInteger(biasValueSetting);
 	size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), moraleLuckValue) - 1; // array index, so 0-indexed
 
 	if(!seeds.count(actor))
@@ -74,27 +75,27 @@ bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWi
 	if(goodLuckChanceVector.size() == 0)
 		return false;
 
-	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValueLuckMorale);
+	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValue);
 }
 
 bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
 {
-	return rollMoraleLuck(goodMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+	return rollMoraleLuck(goodMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_BIAS, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
 }
 
 bool GameRandomizer::rollBadMorale(ObjectInstanceID actor, int moraleValue)
 {
-	return rollMoraleLuck(badMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+	return rollMoraleLuck(badMoraleSeed, actor, moraleValue, EGameSettings::COMBAT_MORALE_BIAS, EGameSettings::COMBAT_MORALE_DICE_SIZE, EGameSettings::COMBAT_BAD_MORALE_CHANCE);
 }
 
 bool GameRandomizer::rollGoodLuck(ObjectInstanceID actor, int luckValue)
 {
-	return rollMoraleLuck(goodLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
+	return rollMoraleLuck(goodLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_BIAS, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
 }
 
 bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
 {
-	return rollMoraleLuck(badLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_BAD_LUCK_CHANCE);
+	return rollMoraleLuck(badLuckSeed, actor, luckValue, EGameSettings::COMBAT_LUCK_BIAS, EGameSettings::COMBAT_LUCK_DICE_SIZE, EGameSettings::COMBAT_BAD_LUCK_CHANCE);
 }
 
 bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
@@ -108,7 +109,9 @@ bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageCha
 	if(percentageChance >= 100)
 		return true;
 
-	return combatAbilitySeed.at(actor).roll(percentageChance, 100, biasValueAbility);
+	int biasValue = gameInfo.getSettings().getInteger(EGameSettings::COMBAT_ABILITY_BIAS);
+
+	return combatAbilitySeed.at(actor).roll(percentageChance, 100, biasValue);
 }
 
 CreatureID GameRandomizer::rollCreature()
