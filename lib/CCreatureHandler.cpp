@@ -228,6 +228,11 @@ std::string CCreature::getDescriptionTextID() const
 	return TextIdentifier("creatures", modScope, identifier, "description").get();
 }
 
+std::string CCreature::getBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("creatures", modScope, identifier, "bonus", bonusID).get();
+}
+
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
@@ -904,7 +909,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		{
 			if (!ability.second.isNull())
 			{
-				auto b = JsonUtils::parseBonus(ability.second);
+				auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
 				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = BonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;

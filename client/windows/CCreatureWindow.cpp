@@ -258,8 +258,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 
 	static const std::array<Point, 2> offset =
 	{
-		Point(6, 4),
-		Point(214, 4)
+		Point(6, 2),
+		Point(214, 2)
 	};
 
 	auto drawBonusSource = [this](int leftRight, Point p, BonusInfo & bi)
@@ -313,8 +313,14 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			if (!bi.imagePath.empty())
 				icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 137);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+
+			if (!bi.name.empty())
+			{
+				name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::YELLOW, bi.name, 137);
+				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+			}
+			else
+				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 2, 137, 50), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 			drawBonusSource(leftRight, Point(position.x - 1, position.y - 1), bi);
 		}
 	}
@@ -846,12 +852,9 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	auto inputPtr = info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
 
-	BonusList output;
-	BonusList input = *inputPtr;
-
-	std::sort(input.begin(), input.end(), [this](std::shared_ptr<Bonus> v1, std::shared_ptr<Bonus> & v2){
+	std::sort(receivedBonuses.begin(), receivedBonuses.end(), [this](std::shared_ptr<Bonus> v1, std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
@@ -862,24 +865,23 @@ void CStackWindow::initBonusesList()
 			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
 	});
 
-	while(!input.empty())
-	{
-		auto b = input.front();
-		output.push_back(std::make_shared<Bonus>(*b));
-		output.back()->val = input.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
-		input.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
-	}
+	BonusList visibleBonuses;
+
+	for (const auto & bonus : info->stackNode->getExportedBonusList())
+		visibleBonuses.push_back(bonus);
+	for (const auto & bonus : info->creature->getExportedBonusList())
+		visibleBonuses.push_back(bonus);
+	for (const auto & bonus : receivedBonuses)
+		if (bonus->sid.as<CreatureID>() != info->stackNode->getId())
+			visibleBonuses.push_back(bonus);
 
 	BonusInfo bonusInfo;
-	for(auto b : output)
+	for(auto b : visibleBonuses)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
-
-		if(b->sid.as<CreatureID>() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
-			continue;
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description

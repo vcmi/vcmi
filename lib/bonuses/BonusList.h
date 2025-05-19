@@ -80,8 +80,6 @@ public:
 		std::copy(newList.begin(), newList.end(), bonuses.begin());
 	}
 
-	template <class InputIterator>
-	void insert(const int position, InputIterator first, InputIterator last);
 	void insert(TInternalContainer::iterator position, TInternalContainer::size_type n, const std::shared_ptr<Bonus> & x);
 
 	template <typename Handler>

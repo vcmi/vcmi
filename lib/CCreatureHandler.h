@@ -56,6 +56,7 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 public:
 	std::string getDescriptionTranslated() const;
 	std::string getDescriptionTextID() const;
+	std::string getBonusTextID(const std::string & bonusID) const;
 
 	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
 	ui32 ammMax;
