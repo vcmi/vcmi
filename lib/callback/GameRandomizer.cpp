@@ -61,21 +61,21 @@ GameRandomizer::GameRandomizer(const IGameInfoCallback & gameInfo)
 GameRandomizer::~GameRandomizer() = default;
 
 
-bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings biasValueSetting, EGameSettings diceSize, EGameSettings diceWeights)
+bool GameRandomizer::rollMoraleLuck(std::map<ObjectInstanceID, RandomGeneratorWithBias> & seeds, ObjectInstanceID actor, int moraleLuckValue, EGameSettings biasValueSetting, EGameSettings diceSizeSetting, EGameSettings chanceVectorSetting)
 {
 	assert(moraleLuckValue > 0);
-	auto goodLuckChanceVector = gameInfo.getSettings().getVector(diceWeights);
-	int luckDiceSize = gameInfo.getSettings().getInteger(diceSize);
+	auto chanceVector = gameInfo.getSettings().getVector(chanceVectorSetting);
+	int diceSize = gameInfo.getSettings().getInteger(diceSizeSetting);
 	int biasValue = gameInfo.getSettings().getInteger(biasValueSetting);
-	size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), moraleLuckValue) - 1; // array index, so 0-indexed
+	size_t chanceIndex = std::min<size_t>(chanceVector.size(), moraleLuckValue) - 1; // array index, so 0-indexed
 
 	if(!seeds.count(actor))
-		seeds.emplace(actor, getDefault().nextInt());
+		seeds.try_emplace(actor, getDefault().nextInt());
 
-	if(goodLuckChanceVector.size() == 0)
+	if(chanceVector.empty())
 		return false;
 
-	return seeds.at(actor).roll(goodLuckChanceVector[chanceIndex], luckDiceSize, biasValue);
+	return seeds.at(actor).roll(chanceVector[chanceIndex], diceSize, biasValue);
 }
 
 bool GameRandomizer::rollGoodMorale(ObjectInstanceID actor, int moraleValue)
@@ -101,7 +101,7 @@ bool GameRandomizer::rollBadLuck(ObjectInstanceID actor, int luckValue)
 bool GameRandomizer::rollCombatAbility(ObjectInstanceID actor, int percentageChance)
 {
 	if(!combatAbilitySeed.count(actor))
-		combatAbilitySeed.emplace(actor, getDefault().nextInt());
+		combatAbilitySeed.try_emplace(actor, getDefault().nextInt());
 
 	if(percentageChance <= 0)
 		return false;
@@ -242,7 +242,7 @@ void GameRandomizer::setSeed(int newSeed)
 PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * hero)
 {
 	if(!heroSkillSeed.count(hero->getHeroTypeID()))
-		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
+		heroSkillSeed.try_emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
 	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
 	const auto & skillChances = isLowLevelHero ? hero->getHeroClass()->primarySkillLowLevel : hero->getHeroClass()->primarySkillHighLevel;
@@ -260,7 +260,7 @@ PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * h
 SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance * hero, const std::set<SecondarySkill> & options)
 {
 	if(!heroSkillSeed.count(hero->getHeroTypeID()))
-		heroSkillSeed.emplace(hero->getHeroTypeID(), getDefault().nextInt());
+		heroSkillSeed.try_emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
 
@@ -276,9 +276,9 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 
 	auto intersect = [](const std::set<SecondarySkill> & left, const std::set<SecondarySkill> & right)
 	{
-		std::set<SecondarySkill> intersect;
-		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(), std::inserter(intersect, intersect.begin()));
-		return intersect;
+		std::set<SecondarySkill> intersection;
+		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(), std::inserter(intersection, intersection.begin()));
+		return intersection;
 	};
 
 	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);

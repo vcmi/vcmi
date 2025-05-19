@@ -748,13 +748,10 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					break;
 				}
 			}
-			if (fearsomeCreature)
+			if (fearsomeCreature && gameHandler->randomizer->rollCombatAbility(opponentArmyID, 10)) //fixed 10%
 			{
-				if (gameHandler->randomizer->rollCombatAbility(opponentArmyID, 10)) //fixed 10%
-				{
-					bte.effect = vstd::to_underlying(BonusType::FEAR);
-					gameHandler->sendAndApply(bte);
-				}
+				bte.effect = vstd::to_underlying(BonusType::FEAR);
+				gameHandler->sendAndApply(bte);
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTER)));
