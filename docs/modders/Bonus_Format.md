@@ -65,8 +65,12 @@ All parameters but type are optional.
 	// using its propagator. It has no effect on bonuses without propagator
 	"propagationUpdater" :	{Bonus Updater, but works during propagation},
 	
-	// TODO
-	"description" : "",
+	// Optional custom description, at the moment limited to creature abilities
+	// Visible only in creature window
+	"description" : "{Ability Name}\nLong description text",
+	
+	// Optional, path to custom icon that will be visible in creature window
+	"icon" : "",
 	
 	// Stacking string allows to block stacking of bonuses from different entities
 	// For example, devils and archdevils (different entities) both have battle-wide debuff to luck
