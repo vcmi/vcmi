@@ -76,6 +76,8 @@ struct DLL_LINKAGE BattleCancelled: public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
 
+	void visitTyped(ICPackVisitor & visitor) override;
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
@@ -103,6 +105,8 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	BattleSideArray<HeroBattleResults> heroResult;
 	BattleSide winnerSide;
 	std::vector<BulkMoveArtifacts> artifacts;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
