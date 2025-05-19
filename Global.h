@@ -85,6 +85,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  ifndef NOMINMAX
 #    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
 #  endif
+#  ifndef NOGDI
+#    define NOGDI
+#  endif
 #  ifndef _NO_W32_PSEUDO_MODIFIERS
 #    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
 #  endif

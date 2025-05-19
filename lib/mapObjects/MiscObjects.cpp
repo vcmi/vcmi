@@ -568,7 +568,7 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		gameEvents.showInfoDialog(&iw);
-		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake);
+		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
 	}
 	else
 	{
@@ -1049,7 +1049,7 @@ void CGSirens::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 
 			if(drown)
 			{
-				gameEvents.changeStackCount(StackLocation(h->id, i->first), -drown);
+				gameEvents.changeStackCount(StackLocation(h->id, i->first), -drown, ChangeValueMode::RELATIVE);
 				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}

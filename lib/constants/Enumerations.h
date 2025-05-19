@@ -259,4 +259,10 @@ enum class EWeekType : int8_t
 	PLAGUE
 };
 
+enum class ChangeValueMode : int8_t
+{
+	RELATIVE,
+	ABSOLUTE
+};
+
 VCMI_LIB_NAMESPACE_END

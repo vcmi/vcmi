@@ -216,8 +216,8 @@ public:
 	bool canLearnSkill() const;
 	bool canLearnSkill(const SecondarySkill & which) const;
 
-	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs);
-	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
+	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode);
+	void setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp(const std::vector<SecondarySkill> & skills);
 
 	void setMovementPoints(int points);

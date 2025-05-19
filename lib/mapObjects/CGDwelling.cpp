@@ -386,7 +386,7 @@ void CGDwelling::updateGuards(IGameEventCallback & gameEvents) const
 				csc.army = this->id;
 				csc.slot = slot;
 				csc.count = crea->getGrowth() * 3;
-				csc.absoluteValue = true;
+				csc.mode = ChangeValueMode::ABSOLUTE;
 				gameEvents.sendAndApply(csc);
 			}
 			else //slot is empty, create whole new stack

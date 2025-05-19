@@ -320,10 +320,10 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 
 	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
 
-	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, true);
+	attacker->setSecSkillLevel(SecondarySkill::EARTH_MAGIC, 3, ChangeValueMode::ABSOLUTE);
 	attacker->addSpellToSpellbook(SpellID::RESURRECTION);
-	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, true);
-	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, true);
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 100, ChangeValueMode::ABSOLUTE);
+	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, ChangeValueMode::ABSOLUTE);
 	attacker->mana = attacker->manaLimit();
 
 	{

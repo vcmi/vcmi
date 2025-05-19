@@ -390,7 +390,7 @@ void PlayerMessageProcessor::cheatGiveSpells(PlayerColor player, const CGHeroIns
 	SetMana sm;
 	sm.hid = hero->id;
 	sm.val = 999;
-	sm.absolute = true;
+	sm.mode = ChangeValueMode::ABSOLUTE;
 	gameHandler->sendAndApply(sm);
 }
 

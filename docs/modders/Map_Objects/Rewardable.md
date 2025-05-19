@@ -418,6 +418,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - If hero does not have selected skill and have free skill slots, he will receive skill at specified level
 - Possible values: 1 (basic), 2 (advanced), 3 (expert)
 - Each secondary skill can be explicitly specified or randomly selected
+- Negative values can be used to downgrade or remove secondary skills from hero
 
 ```json
 "secondary": [
