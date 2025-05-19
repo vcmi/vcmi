@@ -19,7 +19,6 @@
 #include "../entities/artifact/CArtifact.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CSoundBase.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../gameState/CGameState.h"
@@ -30,7 +29,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../modding/ModScope.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
@@ -76,7 +74,7 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
@@ -322,10 +320,10 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	ObjectInstanceID topObjectID = gs.getMap().getTile(obj->visitablePos()).topVisitableObj();
-	const CGObjectInstance * topObject = gs.getObjInstance(topObjectID);
+	ObjectInstanceID topObjectID = gameInfo.getTile(obj->visitablePos())->topVisitableObj();
+	const CGObjectInstance * topObject = gameInfo.getObjInstance(topObjectID);
 
 	if(topObject->ID == Obj::HERO)
 	{
@@ -333,7 +331,7 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
+		if(gameInfo.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -343,11 +341,11 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{
-		return !isExitPassable(gs, h, gs.getObj(exit));
+		return !isExitPassable(gameInfo, h, gameInfo.getObj(exit));
 	});
 	return exits;
 }
@@ -878,7 +876,7 @@ std::vector<CreatureID> CGGarrison::providedCreatures() const
 
 void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		gameEvents.startBattle(h, this);
@@ -1097,7 +1095,7 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		gameEvents.setOwner(this, h->tempOwner);
 
 	if(shipyardStatus() != IBoatGenerator::GOOD)
@@ -1149,7 +1147,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	TeamState *ts = cb->gameState().getPlayerTeam(h->tempOwner);
+	const TeamState *ts = cb->getPlayerTeam(h->tempOwner);
 	assert(ts);
 	TeamID team = ts->id;
 

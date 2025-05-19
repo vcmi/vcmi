@@ -10,10 +10,8 @@
 #include "StdInc.h"
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
-#include "../Goals/Goals.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
@@ -29,11 +27,11 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 
 AINodeStorage::~AINodeStorage() = default;
 
-void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
+void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
 	int3 pos;
-	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const IGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
+	const int3 sizes = gameInfo.getMapSize();
+	const auto & fow = gameInfo.getPlayerTeam(hero->tempOwner)->fogOfWarMap;
 	const PlayerColor player = hero->tempOwner;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
@@ -46,23 +44,23 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile & tile = gs->getMap().getTile(pos);
-				if(!tile.getTerrain()->isPassable())
+				const TerrainTile * tile = gameInfo.getTile(pos);
+				if(!tile->getTerrain()->isPassable())
 					continue;
 				
-				if(tile.getTerrain()->isWater())
+				if(tile->getTerrain()->isWater())
 				{
-					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 					if(useWaterWalking)
-						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
 				}
 				else
 				{
-					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 				}
 			}
 		}

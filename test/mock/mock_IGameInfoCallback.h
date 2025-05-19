@@ -75,6 +75,10 @@ public:
 	MOCK_CONST_METHOD2(isTeleportChannelBidirectional, bool(TeleportChannelID id, PlayerColor player));
 	MOCK_CONST_METHOD2(isTeleportChannelUnidirectional, bool(TeleportChannelID id, PlayerColor player));
 	MOCK_CONST_METHOD2(isTeleportEntrancePassable, bool(const CGTeleport * obj, PlayerColor player));
+	MOCK_CONST_METHOD1(guardingCreaturePosition, int3(int3 pos));
+	MOCK_CONST_METHOD2(checkForVisitableDir, bool(const int3 & src, const int3 & dst));
+	MOCK_CONST_METHOD1(getGuardingCreatures, std::vector<const CGObjectInstance *>(int3 pos));
+
 	MOCK_METHOD2(pickAllowedArtsSet, void(std::vector<ArtifactID> & out, vstd::RNG & rand));
 
 #if SCRIPTING_ENABLED

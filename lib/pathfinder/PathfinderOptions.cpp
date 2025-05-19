@@ -10,12 +10,13 @@
 #include "StdInc.h"
 #include "PathfinderOptions.h"
 
-#include "../gameState/CGameState.h"
-#include "../IGameSettings.h"
-#include "../GameLibrary.h"
 #include "NodeStorage.h"
 #include "PathfindingRules.h"
 #include "CPathfinder.h"
+
+#include "../IGameSettings.h"
+#include "../GameLibrary.h"
+#include "../callback/IGameInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -65,10 +66,10 @@ SingleHeroPathfinderConfig::SingleHeroPathfinderConfig(CPathsInfo & out, const I
 {
 }
 
-CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs)
+CPathfinderHelper * SingleHeroPathfinderConfig::getOrCreatePathfinderHelper(const PathNodeInfo & source, const IGameInfoCallback & gameInfo)
 {
 	if (!pathfinderHelper)
-		pathfinderHelper = std::make_unique<CPathfinderHelper>(gs, hero, options);
+		pathfinderHelper = std::make_unique<CPathfinderHelper>(gameInfo, hero, options);
 
 	return pathfinderHelper.get();
 }

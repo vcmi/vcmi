@@ -12,7 +12,7 @@
 
 #include "CPathfinder.h"
 
-#include "../gameState/CGameState.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMapDefines.h"
 
@@ -100,7 +100,7 @@ PathNodeInfo::PathNodeInfo()
 {
 }
 
-void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void PathNodeInfo::setNode(const IGameInfoCallback & gameInfo, CGPathNode * n)
 {
 	node = n;
 	guarded = false;
@@ -110,14 +110,14 @@ void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 		assert(node->coord.isValid());
 
 		coord = node->coord;
-		tile = gs.getTile(coord);
+		tile = gameInfo.getTile(coord);
 		nodeObject = nullptr;
 		nodeHero = nullptr;
 
 		ObjectInstanceID topObjectID = tile->topVisitableObj();
 		if (topObjectID.hasValue())
 		{
-			nodeObject = gs.getObjInstance(topObjectID);
+			nodeObject = gameInfo.getObjInstance(topObjectID);
 
 			if (nodeObject->ID == Obj::HERO)
 			{
@@ -125,28 +125,28 @@ void PathNodeInfo::setNode(CGameState & gs, CGPathNode * n)
 				ObjectInstanceID bottomObjectID = tile->topVisitableObj(true);
 
 				if (bottomObjectID.hasValue())
-					nodeObject = gs.getObjInstance(bottomObjectID);
+					nodeObject = gameInfo.getObjInstance(bottomObjectID);
 			}
 		}
 	}
 
 }
 
-void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, CGameState & gs)
+void PathNodeInfo::updateInfo(CPathfinderHelper * hlp, const IGameInfoCallback & gameInfo)
 {
-	if(gs.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
+	if(gameInfo.guardingCreaturePosition(node->coord).isValid() && !isInitialPosition)
 	{
 		guarded = true;
 	}
 
 	if(nodeObject)
 	{
-		objectRelations = gs.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
+		objectRelations = gameInfo.getPlayerRelations(hlp->owner, nodeObject->tempOwner);
 	}
 
 	if(nodeHero)
 	{
-		heroRelations = gs.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
+		heroRelations = gameInfo.getPlayerRelations(hlp->owner, nodeHero->tempOwner);
 	}
 }
 
@@ -164,9 +164,9 @@ CDestinationNodeInfo::CDestinationNodeInfo():
 {
 }
 
-void CDestinationNodeInfo::setNode(CGameState & gs, CGPathNode * n)
+void CDestinationNodeInfo::setNode(const IGameInfoCallback & gameInfo, CGPathNode * n)
 {
-	PathNodeInfo::setNode(gs, n);
+	PathNodeInfo::setNode(gameInfo, n);
 
 	blocked = false;
 	action = EPathNodeAction::UNKNOWN;

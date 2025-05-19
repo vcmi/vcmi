@@ -75,8 +75,8 @@ public:
 	const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
-	int3 guardingCreaturePosition (int3 pos) const;
-	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const;
+	int3 guardingCreaturePosition (int3 pos) const override;
+	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const override;
 	bool isTileGuardedUnchecked(int3 tile) const;
 	const CMapHeader * getMapHeader()const override;
 	int3 getMapSize() const override;
@@ -86,6 +86,7 @@ public:
 	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const override;
+	bool checkForVisitableDir(const int3 & src, const int3 & dst) const override;
 
 	//town
 	const CGTownInstance* getTown(ObjectInstanceID objid) const override;

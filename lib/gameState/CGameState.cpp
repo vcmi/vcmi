@@ -1089,7 +1089,7 @@ void CGameState::apply(CPackForClient & pack)
 
 void CGameState::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
-	CPathfinder pathfinder(*const_cast<CGameState*>(this), config);
+	CPathfinder pathfinder(*this, config);
 	pathfinder.calculatePaths();
 }
 
@@ -1190,11 +1190,7 @@ bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) 
 	return false;
 }
 
-bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
-{
-	const TerrainTile * pom = &map->getTile(dst);
-	return map->checkForVisitableDir(src, pom, dst);
-}
+
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
 {

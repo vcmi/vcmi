@@ -650,7 +650,7 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 
 bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 {
-	return !getPlayerID() || getPlayerID()->isSpectator() || gameState().getPlayerRelations(*playerId, *getPlayerID()) != PlayerRelations::ENEMIES;
+	return !getPlayerID() || getPlayerID()->isSpectator() || getPlayerRelations(*playerId, *getPlayerID()) != PlayerRelations::ENEMIES;
 }
 
 EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
@@ -971,6 +971,13 @@ void CGameInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::option
 
 		out.push_back(spellID);
 	}
+}
+
+bool CGameInfoCallback::checkForVisitableDir(const int3 & src, const int3 & dst) const
+{
+	const CMap & map = gameState().getMap();
+	const TerrainTile * pom = &map.getTile(dst);
+	return map.checkForVisitableDir(src, pom, dst);
 }
 
 #if SCRIPTING_ENABLED

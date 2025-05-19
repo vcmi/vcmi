@@ -16,10 +16,6 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualizat
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
-#include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../AIUtility.h"
-#include "../Engine/FuzzyHelper.h"
-#include "../Goals/AbstractGoal.h"
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
@@ -186,7 +182,7 @@ public:
 	AINodeStorage(const Nullkiller * ai, const int3 & sizes);
 	~AINodeStorage();
 
-	void initialize(const PathfinderOptions & options, const CGameState * gs) override;
+	void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) override;
 
 	bool increaseHeroChainTurnLimit();
 	bool selectFirstActor();

@@ -223,7 +223,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		return;
 	}
 
-	PlayerRelations relations = cb->gameState().getPlayerRelations( h->tempOwner, tempOwner );
+	PlayerRelations relations = cb->getPlayerRelations( h->tempOwner, tempOwner );
 
 	if ( relations == PlayerRelations::ALLIES )
 		return;//do not allow recruiting or capturing

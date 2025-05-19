@@ -123,19 +123,19 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
 	auto oldOffset = appearance->getCornerOffset();
-	auto &tile = cb->gameState().getMap().getTile(position);
+	const auto * tile = cb->getTile(position);
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState().getMap().hideObject(this);
 	auto handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
 
-	if(!handler->getTemplates(tile.getTerrainID()).empty())
+	if(!handler->getTemplates(tile->getTerrainID()).empty())
 	{
-		appearance = handler->getTemplates(tile.getTerrainID())[0];
+		appearance = handler->getTemplates(tile->getTerrainID())[0];
 	}
 	else
 	{
-		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile.getTerrain()->getNameTranslated());
+		logGlobal->warn("Object %d:%d at %s has no templates suitable for terrain %s", newID, newSubID, visitablePos().toString(), tile->getTerrain()->getNameTranslated());
 		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
