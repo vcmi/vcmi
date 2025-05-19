@@ -438,8 +438,6 @@
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"icon" : "zvs/Lib1.res/unused/negativemorale"
-				"description" : "{Intimidating Presence}\Bone Dragons reduce morale of all enemy units by 1",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise
@@ -495,7 +493,6 @@
 				"stacking" : "Undead Dragons",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"description" : "{Intimidating Presence}\nReduces morale of all enemy units by 1",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_1" : // Will be affected by Slayer with no expertise

@@ -854,7 +854,7 @@ void CStackWindow::initBonusesList()
 {
 	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
 
-	std::sort(receivedBonuses.begin(), receivedBonuses.end(), [this](std::shared_ptr<Bonus> v1, std::shared_ptr<Bonus> & v2){
+	std::sort(receivedBonuses.begin(), receivedBonuses.end(), [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);

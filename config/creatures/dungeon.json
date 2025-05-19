@@ -238,7 +238,6 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.stoneGaze",
-				"description" : "Medusa are able to turn anyone who looked at them to stone",
 				"val" : 20,
 				"addInfo" : [0,2]
 			}
@@ -283,8 +282,6 @@
 			{
 				"type" : "SPELL_AFTER_ATTACK",
 				"subtype" : "spell.stoneGaze",
-				"description" : "{Eyes of Petrification}\nMedusa Queens have a 40% chance of turning anyone they look at to stone",
-				"icon" : "zvs/Lib1.res/unused/stone",
 				"val" : 20,
 				"addInfo" : [0,2]
 			}
