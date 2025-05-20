@@ -343,21 +343,21 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 			if(!strongestHero || hero->exp > strongestHero->exp)
 				strongestHero = hero;
 		if(strongestHero->id == finishingBattle->loserId && strongestHero->level > 5)
-			gameHandler->gameState().statistic.accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
+			gameHandler->statistics->accumulatedValues[finishingBattle->victor].lastDefeatedStrongestHeroDay = gameHandler->gameState().getDate(Date::DAY);
 	}
 	if(battle.sideToPlayer(BattleSide::ATTACKER) == PlayerColor::NEUTRAL || battle.sideToPlayer(BattleSide::DEFENDER) == PlayerColor::NEUTRAL)
 	{
-		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
-		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesNeutral++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesNeutral++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
+			gameHandler->statistics->accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesNeutral++;
 	}
 	else
 	{
-		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
-		gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::ATTACKER)].numBattlesPlayer++;
+		gameHandler->statistics->accumulatedValues[battle.sideToPlayer(BattleSide::DEFENDER)].numBattlesPlayer++;
 		if(!finishingBattle->isDraw())
-			gameHandler->gameState().statistic.accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
+			gameHandler->statistics->accumulatedValues[battle.sideToPlayer(finishingBattle->winnerSide)].numWinBattlesPlayer++;
 	}
 
 	BattleResultAccepted raccepted;
@@ -563,13 +563,13 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
-		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
+		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroSurrendered++;
 		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
 	}
 
 	if (result.result == EBattleResult::ESCAPE)
 	{
-		gameHandler->gameState().statistic.accumulatedValues[finishingBattle->loser].numHeroEscaped++;
+		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
 

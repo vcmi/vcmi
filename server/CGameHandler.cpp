@@ -519,6 +519,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, complainInvalidSlot("Invalid slot accessed!")
 	, turnTimerHandler(std::make_unique<TurnTimerHandler>(*this))
 	, newTurnProcessor(std::make_unique<NewTurnProcessor>(this))
+	, statistics(std::make_unique<StatisticDataSet>())
 {
 	QID = 1;
 
@@ -620,7 +621,7 @@ void CGameHandler::addStatistics(StatisticDataSet &stat) const
 		if (elem.first == PlayerColor::NEUTRAL || !elem.first.isValidPlayer())
 			continue;
 
-		auto data = StatisticDataSet::createEntry(&elem.second, &gameState());
+		auto data = StatisticDataSet::createEntry(&elem.second, &gameState(), *statistics);
 
 		stat.add(data);
 	}
@@ -649,7 +650,7 @@ void CGameHandler::onNewTurn()
 	}
 	else
 	{
-		addStatistics(gameState().statistic); // write at end of turn
+		addStatistics(*statistics); // write at end of turn
 	}
 
 	for (const auto & townID : gameState().getMap().getAllTowns())
@@ -1035,7 +1036,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 		turnTimerHandler->setEndTurnAllowed(h->getOwner(), !movingOntoWater && !movingOntoObstacle);
 		doMove(TryMoveHero::SUCCESS, lookForGuards, visitDest, LEAVING_TILE);
-		gameState().statistic.accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
+		statistics->accumulatedValues[asker].movementPointsUsed += tmh.movePoints;
 		return true;
 	}
 }
@@ -1079,7 +1080,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, const PlayerColor owne
 	const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 	if (town) //town captured
 	{
-		gameState().statistic.accumulatedValues[owner].lastCapturedTownDay = gameState().getDate(Date::DAY);
+		statistics->accumulatedValues[owner].lastCapturedTownDay = gameState().getDate(Date::DAY);
 
 		if (owner.isValidPlayer()) //new owner is real player
 		{
@@ -1489,7 +1490,7 @@ void CGameHandler::sendToAllClients(CPackForClient & pack)
 void CGameHandler::sendAndApply(CPackForClient & pack)
 {
 	sendToAllClients(pack);
-	gameState().apply(pack);
+	gs->apply(pack);
 	logNetwork->trace("\tApplied on gameState(): %s", typeid(pack).name());
 }
 
@@ -1646,8 +1647,8 @@ bool CGameHandler::load(const std::string & filename)
 		gameLobby().announceMessage(str);
 		return false;
 	}
-	gameState().preInit(LIBRARY);
-	gameState().updateOnLoad(gameLobby().si.get());
+	gs->preInit(LIBRARY);
+	gs->updateOnLoad(gameLobby().si.get());
 	return true;
 }
 
@@ -2229,7 +2230,7 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	if(!force)
 	{
 		giveResources(t->tempOwner, -requestedBuilding->resources);
-		gameState().statistic.accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
+		statistics->accumulatedValues[t->tempOwner].spentResourcesForBuildings += requestedBuilding->resources;
 	}
 
 	//We know what has been built, apply changes. Do this as final step to properly update town window
@@ -2429,7 +2430,7 @@ bool CGameHandler::recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst
 	//recruit
 	TResources cost = (c->getFullRecruitCost() * cram);
 	giveResources(army->tempOwner, -cost);
-	gameState().statistic.accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
+	statistics->accumulatedValues[army->tempOwner].spentResourcesForArmy += cost;
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
@@ -2492,7 +2493,7 @@ bool CGameHandler::upgradeCreature(ObjectInstanceID objid, SlotID pos, CreatureI
 
 	//take resources
 	giveResources(player, -totalCost);
-	gameState().statistic.accumulatedValues[player].spentResourcesForArmy += totalCost;
+	statistics->accumulatedValues[player].spentResourcesForArmy += totalCost;
 
 	//upgrade creature
 	changeStackType(StackLocation(obj->id, pos), upgID.toCreature());
@@ -3194,8 +3195,8 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	giveResource(player, toSell, -b1 * amountToBoy);
 	giveResource(player, toBuy, b2 * amountToBoy);
 
-	gameState().statistic.accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
-	gameState().statistic.accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
+	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
+	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
 
 	return true;
 }
@@ -3568,7 +3569,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		PlayerEndsGame peg;
 		peg.player = player;
 		peg.victoryLossCheckResult = victoryLossCheckResult;
-		peg.statistic = StatisticDataSet(gameState().statistic);
+		peg.statistic = *statistics;
 		addStatistics(peg.statistic); // add last turn befor win / loss
 		sendAndApply(peg);
 
@@ -4288,7 +4289,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 	auto o = handler->create(&gameInfo(), nullptr);
 	handler->configureObject(o.get(), *randomizer);
 	assert(o->ID == objectID);
-	gameState().getMap().generateUniqueInstanceName(o.get());
+	gs->getMap().generateUniqueInstanceName(o.get());
 
 	assert(!handler->getTemplates(terrainType).empty());
 	if (handler->getTemplates().empty())

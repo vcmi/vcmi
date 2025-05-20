@@ -31,7 +31,7 @@ void StatisticDataSet::add(StatisticDataSetEntry entry)
 	data.push_back(entry);
 }
 
-StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, const CGameState * gs)
+StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData)
 {
 	StatisticDataSetEntry data;
 
@@ -63,18 +63,18 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.numMines = Statistic::getNumMines(gs, ps);
 	data.score = scenarioHighScores.calculate().total;
 	data.maxHeroLevel = Statistic::findBestHero(gs, ps->color) ? Statistic::findBestHero(gs, ps->color)->level : 0;
-	data.numBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesNeutral : 0;
-	data.numBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numBattlesPlayer : 0;
-	data.numWinBattlesNeutral = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesNeutral : 0;
-	data.numWinBattlesPlayer = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numWinBattlesPlayer : 0;
-	data.numHeroSurrendered = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroSurrendered : 0;
-	data.numHeroEscaped = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).numHeroEscaped : 0;
-	data.spentResourcesForArmy = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
-	data.spentResourcesForBuildings = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
-	data.tradeVolume = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).tradeVolume : TResources();
-	data.eventCapturedTown = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
-	data.eventDefeatedStrongestHero = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
-	data.movementPointsUsed = gs->statistic.accumulatedValues.count(ps->color) ? gs->statistic.accumulatedValues.at(ps->color).movementPointsUsed : 0;
+	data.numBattlesNeutral = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numBattlesNeutral : 0;
+	data.numBattlesPlayer = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numBattlesPlayer : 0;
+	data.numWinBattlesNeutral = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numWinBattlesNeutral : 0;
+	data.numWinBattlesPlayer = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numWinBattlesPlayer : 0;
+	data.numHeroSurrendered = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numHeroSurrendered : 0;
+	data.numHeroEscaped = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).numHeroEscaped : 0;
+	data.spentResourcesForArmy = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).spentResourcesForArmy : TResources();
+	data.spentResourcesForBuildings = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).spentResourcesForBuildings : TResources();
+	data.tradeVolume = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).tradeVolume : TResources();
+	data.eventCapturedTown = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).lastCapturedTownDay == gs->getDate(Date::DAY) : false;
+	data.eventDefeatedStrongestHero = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).lastDefeatedStrongestHeroDay == gs->getDate(Date::DAY) : false;
+	data.movementPointsUsed = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
 }

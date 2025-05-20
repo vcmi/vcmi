@@ -27,6 +27,7 @@ class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
 class GameRandomizer;
+class StatisticDataSet;
 
 struct StartInfo;
 struct TerrainTile;
@@ -68,6 +69,7 @@ public:
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<GameRandomizer> randomizer;
+	std::unique_ptr<StatisticDataSet> statistics;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -96,7 +98,6 @@ public:
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
 	IGameInfoCallback & gameInfo();
-	CGameState & gameState() { return *gs; }
 	const CGameState & gameState() const { return *gs; }
 
 	// Helpers to create new object of specified type
@@ -256,6 +257,12 @@ public:
 		h & *playerMessages;
 		h & *turnOrder;
 		h & *turnTimerHandler;
+
+		if (h.hasFeature(Handler::Version::SERVER_STATISTICS))
+		{
+			h & *statistics;
+		}
+
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;

@@ -23,7 +23,7 @@
 /// - change 'CURRENT' to 'CURRENT = NEW_TEST_KEY'.
 ///
 /// To check for version in serialize() call use form
-/// if (h.version >= Handler::Version::NEW_TEST_KEY)
+/// if (h.hasFeature(Handler::Version::NEW_TEST_KEY))
 ///     h & newKey; // loading/saving save of a new version
 /// else
 ///     newKey = saneDefaultValue; // loading of old save
@@ -43,8 +43,9 @@ enum class ESerializationVersion : int32_t
 	FLAGGABLE_BONUS_SYSTEM_NODE, // flaggable objects now contain bonus system node
 	RANDOMIZATION_REWORK, // random rolls logic has been moved to server
 	CUSTOM_BONUS_ICONS, // support for custom icons in bonuses
+	SERVER_STATISTICS, // statistics now only saved on server
 
-	CURRENT = CUSTOM_BONUS_ICONS,
+	CURRENT = SERVER_STATISTICS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

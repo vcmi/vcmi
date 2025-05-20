@@ -149,7 +149,7 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	std::string path = gameHandler->gameState().statistic.writeCsv();
+	std::string path = gameHandler->statistics->writeCsv();
 
 	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
 	str.replaceRawString(path);

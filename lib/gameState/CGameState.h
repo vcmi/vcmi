@@ -83,8 +83,6 @@ public:
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
 
-	StatisticDataSet statistic;
-
 	// NOTE: effectively AI mutex, only used by adventure map AI
 	static std::shared_mutex mutex;
 
@@ -185,7 +183,11 @@ public:
 			std::map<ArtifactID, int> allocatedArtifactsUnused;
 			h & allocatedArtifactsUnused;
 		}
-		h & statistic;
+		if (!h.hasFeature(Handler::Version::SERVER_STATISTICS))
+		{
+			StatisticDataSet statistic;
+			h & statistic;
+		}
 
 		if(!h.saving && h.loadingGamestate)
 			restoreBonusSystemTree();
