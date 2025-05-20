@@ -91,7 +91,7 @@ Affected units will view any terrain as native. This means army containing these
 Changes selected primary skill for affected heroes and units
 
 - subtype: primary skill
-- additional info: 1 - only for melee attacks, 2 - only for ranged attacks
+- addInfo: 1 - only for melee attacks, 2 - only for ranged attacks
 
 ### SIGHT_RADIUS
 
@@ -761,7 +761,7 @@ If affected unit is targeted by a spell it will reflect spell to a random enemy 
 Affected unit will deal additional damage after attack
 
 - val - additional damage to deal, multiplied by unit stack size
-- additional info: chance to trigger, percentage
+- addInfo: chance to trigger, percentage
 
 ### DEATH_STARE
 
@@ -796,7 +796,7 @@ Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). U
 
 - subtype: spell identifier
 - value: spell mastery level
-- additional info: weighted chance to select this spell. Can be omitted for always available spells
+- addInfo: weighted chance to select this spell. Can be omitted for always available spells
 
 ### ENCHANTER
 
@@ -822,7 +822,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 - subtype - spell id, eg. spell.iceBolt
 - value - chance (percent)
-- additional info - \[X, Y, Z\]
+- addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
   - Z (optional) - layer for multiple SPELL_AFTER_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
@@ -832,7 +832,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 
 - subtype - spell id
 - value - chance %
-- additional info - \[X, Y, Z\]
+- addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
   - Z (optional) - layer for multiple SPELL_BEFORE_ATTACK bonuses and multi-turn casting. Empty or value less than 0 = not participating in layering.
