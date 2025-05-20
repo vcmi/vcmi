@@ -192,6 +192,59 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	}
 }
 
+static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & node)
+{
+	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
+	{
+		if (jsonNode.isVector())
+			return jsonNode[0];
+		else
+			return jsonNode;
+	};
+
+	const JsonNode & value = node["addInfo"];
+	if (value.isNull())
+		return;
+
+	switch (type)
+	{
+		case BonusType::IMPROVED_NECROMANCY:
+		case BonusType::SPECIAL_ADD_VALUE_ENCHANT:
+		case BonusType::SPECIAL_FIXED_VALUE_ENCHANT:
+		case BonusType::DESTRUCTION:
+		case BonusType::LIMITED_SHOOTING_RANGE:
+		case BonusType::ACID_BREATH:
+		case BonusType::SPELLCASTER:
+		case BonusType::FEROCITY:
+		case BonusType::PRIMARY_SKILL:
+			// 1 number
+			var = getFirstValue(value).Integer();
+			break;
+		case BonusType::SPECIAL_UPGRADE:
+		case BonusType::TRANSMUTATION:
+			// 1 creature ID
+			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = identifier; });
+			break;
+		case BonusType::DEATH_STARE:
+			// 1 spell ID
+			LIBRARY->identifiers()->requestIdentifier("spell", getFirstValue(value), [&](si32 identifier) { var = identifier; });
+			break;
+		case BonusType::SPELL_BEFORE_ATTACK:
+		case BonusType::SPELL_AFTER_ATTACK:
+			// 3 numbers
+			var.resize(3);
+			var[0] = value[0].Integer();
+			var[1] = value[1].Integer();
+			var[2] = value[2].Integer();
+			break;
+		default:
+			for(const auto & i : bonusNameMap)
+				if(i.second == type)
+					logMod->warn("Bonus type %s does not supports addInfo!", i.first );
+
+	}
+}
+
 static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
 {
 	if (node.isNull())
@@ -382,57 +435,6 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
 	return b;
-}
-
-void JsonUtils::resolveAddInfo(CAddInfo & var, const JsonNode & node)
-{
-	const JsonNode & value = node["addInfo"];
-	if (!value.isNull())
-	{
-		switch (value.getType())
-		{
-		case JsonNode::JsonType::DATA_INTEGER:
-			var = static_cast<si32>(value.Integer());
-			break;
-		case JsonNode::JsonType::DATA_FLOAT:
-			var = static_cast<si32>(value.Float());
-			break;
-		case JsonNode::JsonType::DATA_STRING:
-			LIBRARY->identifiers()->requestIdentifier(value, [&](si32 identifier)
-			{
-				var = identifier;
-			});
-			break;
-		case JsonNode::JsonType::DATA_VECTOR:
-			{
-				const JsonVector & vec = value.Vector();
-				var.resize(vec.size());
-				for(int i = 0; i < vec.size(); i++)
-				{
-					switch(vec[i].getType())
-					{
-						case JsonNode::JsonType::DATA_INTEGER:
-							var[i] = static_cast<si32>(vec[i].Integer());
-							break;
-						case JsonNode::JsonType::DATA_FLOAT:
-							var[i] = static_cast<si32>(vec[i].Float());
-							break;
-						case JsonNode::JsonType::DATA_STRING:
-							LIBRARY->identifiers()->requestIdentifier(vec[i], [&var,i](si32 identifier)
-							{
-								var[i] = identifier;
-							});
-							break;
-						default:
-							logMod->error("Error! Wrong identifier used for value of addInfo[%d].", i);
-					}
-				}
-				break;
-			}
-		default:
-			logMod->error("Error! Wrong identifier used for value of addInfo.");
-		}
-	}
 }
 
 std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
@@ -665,7 +667,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	b->stacking = ability["stacking"].String();
 
-	resolveAddInfo(b->additionalInfo, ability);
+	loadBonusAddInfo(b->additionalInfo, b->type, ability);
 
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
@@ -832,7 +834,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["addInfo"];
 	if(!value->isNull())
 	{
-		resolveAddInfo(info, ability["addInfo"]);
+		loadBonusAddInfo(info, type, ability["addInfo"]);
 		ret = ret.And(Selector::info()(info));
 	}
 	value = &ability["effectRange"];

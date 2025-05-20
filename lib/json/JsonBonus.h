@@ -26,7 +26,6 @@ namespace JsonUtils
 	bool parseBonus(const JsonNode & ability, Bonus * placement);
 	std::shared_ptr<ILimiter> parseLimiter(const JsonNode & limiter);
 	CSelector parseSelector(const JsonNode &ability);
-	void resolveAddInfo(CAddInfo & var, const JsonNode & node);
 }
 
 VCMI_LIB_NAMESPACE_END
