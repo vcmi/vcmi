@@ -635,7 +635,8 @@ List of supported slots names:
 
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
-- If hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For map objects, if hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For town buildings, hero must either have free slot(s) to take them, or have creatures of this type. Othervice reward would fail to give any creatures
 - It is possible to specify probability to receive upgraded creature
 
 ```json

@@ -254,8 +254,11 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 		for(const auto & crea : info.reward.creatures)
 			creatures.addToSlot(creatures.getFreeSlot(), std::make_unique<CStackInstance>(cb, crea.getId(), crea.getCount()));
 
-		if(auto * army = dynamic_cast<const CArmedInstance*>(this)) //TODO: to fix that, CArmedInstance must be split on map instance part and interface part
+		auto * army = dynamic_cast<const CArmedInstance*>(this);
+		if (army)
 			gameEvents.giveCreatures(army, hero, creatures, false);
+		else
+			gameEvents.giveCreatures(hero, creatures);
 	}
 	
 	if(info.reward.spellCast.first != SpellID::NONE)

@@ -1139,6 +1139,37 @@ void CGameHandler::giveResources(PlayerColor player, TResources resources)
 	sendAndApply(sr);
 }
 
+void CGameHandler::giveCreatures(const CGHeroInstance * hero, const CCreatureSet &creatures)
+{
+	if (!hero->canBeMergedWith(creatures, true))
+	{
+		complain("Unable to give creatures! Hero does not have enough free slots to receive them!");
+		return;
+	}
+
+	for (const auto & unit : creatures.Slots())
+	{
+		SlotID pos = hero->getSlotFor(unit.second->getCreature());
+		if (!pos.validSlot())
+		{
+			//try to merge two other stacks to make place
+			std::pair<SlotID, SlotID> toMerge;
+			if (hero->mergeableStacks(toMerge))
+			{
+				moveStack(StackLocation(hero->id, toMerge.first), StackLocation(hero->id, toMerge.second)); //merge toMerge.first into toMerge.second
+				pos = toMerge.first;
+			}
+		}
+		assert(pos.validSlot());
+		assert(hero->slotEmpty(pos) || hero->getCreature(pos) == unit.second->getCreature());
+
+		if (hero->hasStackAtSlot(pos))
+			changeStackCount(StackLocation(hero->id, pos), unit.second->getCount(), ChangeValueMode::RELATIVE);
+		else
+			insertNewStack(StackLocation(hero->id, pos), unit.second->getCreature(), unit.second->getCount());
+	}
+}
+
 void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
 {
 	COMPLAIN_RET_IF(!creatures.stacksCount(), "Strange, giveCreatures called without args!");
@@ -1181,8 +1212,8 @@ void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStac
 					else
 					{
 						// take part of the stack
-						collected = stackToTake.getCount();
 						changeStackCount(StackLocation(army->id, armySlot.first), collected - stackToTake.getCount(), ChangeValueMode::RELATIVE);
+						collected = stackToTake.getCount();
 					}
 					foundSth = true;
 					break;
@@ -3811,7 +3842,7 @@ bool CGameHandler::changeStackCount(const StackLocation &sl, TQuantity count, Ch
 	auto army = dynamic_cast<const CArmedInstance*>(getObj(sl.army));
 
 	TQuantity currentCount = army->getStackCount(sl.slot);
-	if ((mode == ChangeValueMode::RELATIVE && count < 0)
+	if ((mode == ChangeValueMode::ABSOLUTE && count < 0)
 		|| (mode == ChangeValueMode::RELATIVE && -count > currentCount))
 	{
 		COMPLAIN_RET("Cannot take more stacks than present!");
