@@ -438,10 +438,7 @@ void CGameHandler::handleClientDisconnection(std::shared_ptr<CConnection> c)
 	for(auto & playerConnections : connections)
 	{
 		PlayerColor playerId = playerConnections.first;
-		const auto * playerSettings = gameState().getStartInfo()->getPlayersSettings(playerId.getNum());
-		if(!playerSettings)
-			continue;
-		
+
 		auto playerConnection = vstd::find(playerConnections.second, c);
 		if(playerConnection == playerConnections.second.end())
 			continue;
@@ -818,8 +815,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 
 	const TerrainTile t = *gameInfo().getTile(hmpos);
 	const int3 guardPos = gameState().guardingCreaturePosition(hmpos);
-	CGObjectInstance * objectToVisit = nullptr;
-	CGObjectInstance * guardian = nullptr;
+	const CGObjectInstance * objectToVisit = nullptr;
+	const CGObjectInstance * guardian = nullptr;
 
 	if (!t.visitableObjects.empty())
 		objectToVisit = gameState().getObjInstance(t.visitableObjects.back());
@@ -1003,7 +1000,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		// do not visit any other objects, e.g. monoliths to avoid double-teleporting
 		if (objectToVisit)
 		{
-			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(objectToVisit))
+			if (const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(objectToVisit))
 				objectVisited(town, h);
 		}
 
@@ -2320,7 +2317,7 @@ bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 
 bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool accepted)
 {
-	CGTownInstance *t = gameState().getTown(tid);
+	const CGTownInstance * t = gameState().getTown(tid);
 
 	if(!gameInfo().getSettings().getBoolean(EGameSettings::TOWNS_SPELL_RESEARCH) && complain("Spell research not allowed!"))
 		return false;
@@ -2721,7 +2718,7 @@ bool CGameHandler::bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceI
 	auto & slotsDstSrc = ma.artsPack1;
 
 	// Temporary fitting set for artifacts. Used to select available slots before sending data.
-	CArtifactFittingSet artFittingSet(&gameState(), pdstSet->bearerType());
+	CArtifactFittingSet artFittingSet(&gameInfo(), pdstSet->bearerType());
 
 	auto moveArtifact = [this, &artFittingSet, dstId](const CArtifactInstance * artifact,
 		ArtifactPosition srcSlot, std::vector<MoveArtifactInfo> & slots) -> void
@@ -4288,7 +4285,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
-	auto o = handler->create(&gameState(), nullptr);
+	auto o = handler->create(&gameInfo(), nullptr);
 	handler->configureObject(o.get(), *randomizer);
 	assert(o->ID == objectID);
 	gameState().getMap().generateUniqueInstanceName(o.get());
@@ -4321,7 +4318,7 @@ void CGameHandler::createWanderingMonster(const int3 & visitablePosition, Creatu
 	cre->gainedArtifact = ArtifactID::NONE;
 	cre->identifier = -1;
 	cre->temppower = static_cast<int64_t>(unitSize) * 1000;
-	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameState(), creature, unitSize));
+	cre->addToSlot(SlotID(0), std::make_unique<CStackInstance>(&gameInfo(), creature, unitSize));
 
 	newObject(createdObject, PlayerColor::NEUTRAL);
 }

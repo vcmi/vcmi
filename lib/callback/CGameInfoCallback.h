@@ -93,7 +93,7 @@ public:
 	int howManyTowns(PlayerColor Player) const;
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
 	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
-	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);
+	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;
 	bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 
 	//from gs
@@ -115,7 +115,7 @@ public:
 	void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const override;
 
-	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
+	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt) const;
 
 #if SCRIPTING_ENABLED
 	virtual scripting::Pool * getGlobalContextPool() const override;

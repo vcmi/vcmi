@@ -79,7 +79,7 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	return data;
 }
 
-std::string StatisticDataSet::toCsv(std::string sep)
+std::string StatisticDataSet::toCsv(std::string sep) const
 {
 	std::stringstream ss;
 
@@ -162,7 +162,7 @@ std::string StatisticDataSet::toCsv(std::string sep)
 		for(auto & resource : resources)
 			ss << sep << entry.resources[resource];
 		for(auto & resource : resources)
-			ss << sep << entry.numMines[resource];
+			ss << sep << entry.numMines.at(resource);
 		for(auto & resource : resources)
 			ss << sep << entry.spentResourcesForArmy[resource];
 		for(auto & resource : resources)
@@ -175,7 +175,7 @@ std::string StatisticDataSet::toCsv(std::string sep)
 	return ss.str();
 }
 
-std::string StatisticDataSet::writeCsv()
+std::string StatisticDataSet::writeCsv() const
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userCachePath() / "statistic";
 	boost::filesystem::create_directories(outPath);

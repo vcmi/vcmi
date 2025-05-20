@@ -95,7 +95,7 @@ public:
 	HeroTypeID pickNextHeroType(vstd::RNG & randomGenerator, const PlayerColor & owner);
 
 	void apply(CPackForClient & pack);
-	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator);
+	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const;
 
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
@@ -123,7 +123,8 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
-	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
+	//fills tgi with info about other players that is available at given level of thieves' guild
+	void obtainPlayersStats(SThievesGuildInfo & tgi, int level) const;
 	const IGameSettings & getSettings() const override;
 
 	StartInfo * getStartInfo()

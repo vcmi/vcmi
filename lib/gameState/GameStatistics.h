@@ -102,8 +102,8 @@ class DLL_LINKAGE StatisticDataSet
 public:
     void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs);
-    std::string toCsv(std::string sep);
-    std::string writeCsv();
+	std::string toCsv(std::string sep) const;
+	std::string writeCsv() const;
 
 	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{

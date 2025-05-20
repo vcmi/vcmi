@@ -1028,7 +1028,7 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 	return nullptr;
 }
 
-BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator)
+BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const
 {
 	assert(tile.isValid());
 
@@ -1394,7 +1394,7 @@ bool CGameState::checkForStandardLoss(const PlayerColor & player) const
 	return pState.checkVanquished();
 }
 
-void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
+void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level) const
 {
 	auto playerInactive = [&](const PlayerColor & color) 
 	{

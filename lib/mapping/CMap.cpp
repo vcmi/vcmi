@@ -868,12 +868,12 @@ const CArtifactInstance * CMap::getArtifactInstance(const ArtifactInstanceID & a
 	return artInstances.at(artifactID.getNum()).get();
 }
 
-const std::vector<ObjectInstanceID> & CMap::getAllTowns()
+const std::vector<ObjectInstanceID> & CMap::getAllTowns() const
 {
 	return towns;
 }
 
-const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap()
+const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap() const
 {
 	return heroesOnMap;
 }

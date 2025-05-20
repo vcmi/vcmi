@@ -11,7 +11,6 @@
 
 #include <vcmi/Environment.h>
 
-#include "../lib/callback/CGameInfoCallback.h"
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
@@ -29,6 +28,8 @@ class EVictoryLossCheckResult;
 class CRandomGenerator;
 class GameRandomizer;
 
+struct StartInfo;
+struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
 struct CGarrisonOperationPack;

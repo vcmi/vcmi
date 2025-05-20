@@ -567,7 +567,7 @@ std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
 
 	for (auto & elem : gameHandler->gameState().players)
 	{
-		for (CGHeroInstance *h : elem.second.getHeroes())
+		for (const CGHeroInstance *h : elem.second.getHeroes())
 		{
 			int32_t newMana = h->getManaNewTurn();
 
@@ -584,7 +584,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 
 	for (auto & elem : gameHandler->gameState().players)
 	{
-		for (CGHeroInstance *h : elem.second.getHeroes())
+		for (const CGHeroInstance *h : elem.second.getHeroes())
 		{
 			auto ti = h->getTurnInfo(1);
 			// NOTE: this code executed when bonuses of previous day not yet updated (this happen in NewTurn::applyGs). See issue 2356
