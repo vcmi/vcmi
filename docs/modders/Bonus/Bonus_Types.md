@@ -500,21 +500,61 @@ Affected unit ranged attack will use animation and range of specified spell (Mag
 - subtype - spell identifier
 - value - spell mastery level
 
-### THREE_HEADED_ATTACK
-
-Affected unit attacks creatures located on tiles to left and right of targeted tile (Cerberus). Only directly targeted creature will attempt to retaliate
-
 ### ATTACKS_ALL_ADJACENT
 
-Affected unit attacks all adjacent creatures (Hydra). Only directly targeted creature will attempt to retaliate
+The affected unit attacks all adjacent units (Hydra). Only the unit that has been directly targeted will attempt to retaliate. If the unit is hypnotised, it will attack its former allies instead.
+
+### THREE_HEADED_ATTACK
+
+The affected unit will attack units located on the hexed to the left and right of the targeted tile (Cerberus). Only the unit that has been directly targeted will attempt to retaliate.
+Potentially deprecated. Consider using the more flexible [MULTIHEX_ENEMY_ATTACK](#multihex_unit_attack) instead with custom icon and description.
 
 ### TWO_HEX_ATTACK_BREATH
 
-Affected unit attacks creature located directly behind targeted tile (Dragons). Only directly targeted creature will attempt to retaliate
+The affected unit will also attack the hex located directly behind the targeted hex (Dragons). Only the unit that has been directly targeted will attempt to retaliate.
+Potentially deprecated. Consider using the more flexible [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
+
+### WIDE_BREATH
+
+The affected unit will attack any units in the hexes surrounding the attacked hex.
+Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
 
 ### PRISM_HEX_ATTACK_BREATH
 
-Like `TWO_HEX_ATTACK_BREATH` but affects also two additional cratures (in triangle form from target tile)
+Similar to `TWO_HEX_ATTACK_BREATH`, but affecting two additional hexes in a triangular formation from the target hex.
+Deprecated. Please use [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) instead with custom icon and description.
+
+### MULTIHEX_UNIT_ATTACK
+
+The affected unit attacks all units, friendly or not, located on specified hexes in addition to the primary target. Only the unit that has been directly targeted will attempt to retaliate.
+
+- addInfo: A list of strings describing which hexes this unit will attack, computed from the attacker's position. The possible values are: `F` (front), `L` (left), `R` (right), `B` (back). See below for more examples.
+
+Examples:
+
+- H3 Dragon Breath: `[ "FF" ]` – dragons also attack the hex located two hexes in front of the dragon's head.
+- H3 Cerberus three-headed attack: `[ "L", "R" ]` - Cerberus also attacks the hexes one hex to the left and right of itself.
+- Prism Breath (mods): `[ "FL", "FF", "FR" ]` — a more powerful version of Dragon Breath; all units behind the target are attacked.
+
+This is how all tiles can be referenced in the event of a frontal attack (green is the attacker and red is the defender). The hex on which defender is located is always included unconditionally.
+![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../images/Bonus_Multihex_Attack_Horizontal.svg)
+
+In the case of a double-wide unit that can attack hexes to the left and right (e.g. Cerberi), the left or right hex may end up inside the attacker in certain attack configurations. To avoid this, the hex that ends up inside the unit will be 'pushed' one hex forward. This does not affect single-wide units. See below for reference:
+![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../images/Bonus_Multihex_Attack_Vertical.svg)
+
+### MULTIHEX_ENEMY_ATTACK
+
+The affected unit will attack all enemies located on the specified hexes, in addition to its primary target. Only the unit that has been directly targeted will attempt to retaliate. If the unit is hypnotised, it will attack its former allies instead.
+
+- addInfo: see [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) for a detailed description.
+
+### MULTIHEX_ANIMATION
+
+The bonus does not affect the mechanics. If the affected unit hits any non-primary targets located on the specified tiles, the unit will play an alternative attack animation if one is present.
+
+If this bonus is not present, the unit will always use the alternative attack animation whenever its attack hits any unit other than the primary target.
+
+- addInfo: see [MULTIHEX_UNIT_ATTACK](#multihex_unit_attack) for a detailed description.
 
 ### RETURN_AFTER_STRIKE
 
@@ -610,10 +650,6 @@ Affected units will retaliate against ranged attacks, if able
 ### BLOCKS_RANGED_RETALIATION
 
 Affected unit will never receive counterattack in ranged attacks. Counters RANGED_RETALIATION bonus
-
-### WIDE_BREATH
-
-Affected unit will attack units on all hexes that surround attacked hex
 
 ### FIRST_STRIKE
 

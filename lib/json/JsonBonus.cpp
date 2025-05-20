@@ -237,6 +237,24 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 			var[1] = value[1].Integer();
 			var[2] = value[2].Integer();
 			break;
+		case BonusType::MULTIHEX_UNIT_ATTACK:
+		case BonusType::MULTIHEX_ENEMY_ATTACK:
+		case BonusType::MULTIHEX_ANIMATION:
+			for (const auto & sequence : value.Vector())
+			{
+				static const std::map<char, int> charToDirection = {
+					{ 'f', 1 }, { 'l', 6}, {'r', 2}, {'b', 4}
+				};
+				int converted = 0;
+				for (const auto & ch : boost::adaptors::reverse(sequence.String()))
+				{
+					char chLower = std::tolower(ch);
+					if (charToDirection.count(chLower))
+						converted = 10 * converted + charToDirection.at(chLower);
+				}
+				var.push_back(converted);
+			}
+			break;
 		default:
 			for(const auto & i : bonusNameMap)
 				if(i.second == type)
