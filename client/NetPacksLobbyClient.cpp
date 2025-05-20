@@ -148,7 +148,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareS
 {
 	handler.client = std::make_unique<CClient>();
 	handler.logicConnection->enterLobbyConnectionMode();
-	handler.logicConnection->setCallback(handler.client.get());
+	handler.logicConnection->setCallback(&handler.client->gameInfo());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)

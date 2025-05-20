@@ -233,6 +233,7 @@ public:
 
 	/// Returns pointer to hero of specified type if hero is present on map
 	CGHeroInstance * getHero(HeroTypeID heroId);
+	const CGHeroInstance * getHero(HeroTypeID heroId) const;
 
 	/// Returns ID's of all heroes that are currently present on map
 	/// Includes all garrisoned and imprisoned heroes

@@ -262,6 +262,18 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 	return nullptr;
 }
 
+const CGHeroInstance * CMap::getHero(HeroTypeID heroID) const
+{
+	for (const auto & objectID : heroesOnMap)
+	{
+		const auto hero = std::dynamic_pointer_cast<CGHeroInstance>(objects.at(objectID.getNum()));
+
+		if (hero->getHeroTypeID() == heroID)
+			return hero.get();
+	}
+	return nullptr;
+}
+
 bool CMap::isCoastalTile(const int3 & pos) const
 {
 	//todo: refactoring: extract neighbour tile iterator and use it in GameState

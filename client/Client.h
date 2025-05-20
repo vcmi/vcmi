@@ -122,7 +122,7 @@ public:
 };
 
 /// Class which handles client - server logic
-class CClient : public CGameInfoCallback, public Environment, public IClient
+class CClient : public Environment, public IClient
 {
 	std::shared_ptr<CGameState> gamestate;
 public:
@@ -142,8 +142,9 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
-	CGameState & gameState() final { return *gamestate; }
-	const CGameState & gameState() const final { return *gamestate; }
+	CGameState & gameState() { return *gamestate; }
+	const CGameState & gameState() const { return *gamestate; }
+	IGameInfoCallback & gameInfo();
 
 	void newGame(std::shared_ptr<CGameState> gameState);
 	void loadGame(std::shared_ptr<CGameState> gameState);
@@ -178,10 +179,6 @@ public:
 	friend class CBattleCallback; //handling players actions
 
 	void removeGUI() const;
-
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
-#endif
 
 private:
 	std::map<PlayerColor, std::shared_ptr<CBattleCallback>> battleCallbacks; //callbacks given to player interfaces

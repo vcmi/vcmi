@@ -91,6 +91,11 @@ CClient::CClient()
 
 CClient::~CClient() = default;
 
+IGameInfoCallback & CClient::gameInfo()
+{
+	return *gamestate;
+}
+
 const Services * CClient::services() const
 {
 	return LIBRARY; //todo: this should be LIBRARY
@@ -103,7 +108,7 @@ const CClient::BattleCb * CClient::battle(const BattleID & battleID) const
 
 const CClient::GameCb * CClient::game() const
 {
-	return this;
+	return gamestate.get();
 }
 
 vstd::CLoggerBase * CClient::logger() const
@@ -493,13 +498,6 @@ void CClient::startPlayerBattleAction(const BattleID & battleID, PlayerColor col
 		battleint->activeStack(battleID, gameState().getBattle(battleID)->battleGetStackByID(gameState().getBattle(battleID)->activeStack, false));
 	}
 }
-
-#if SCRIPTING_ENABLED
-scripting::Pool * CClient::getGlobalContextPool() const
-{
-	return clientScripts.get();
-}
-#endif
 
 void CClient::reinitScripting()
 {
