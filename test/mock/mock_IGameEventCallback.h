@@ -1,5 +1,5 @@
 /*
- * mock_IGameCallback.h, part of VCMI engine
+ * mock_IGameEventCallback.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -12,18 +12,17 @@
 
 #include <vcmi/ServerCallback.h>
 
-#include "../../lib/callback/CGameInfoCallback.h"
 #include "../../lib/callback/IGameEventCallback.h"
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
 
-class GameCallbackMock : public IGameEventCallback
+class GameEventCallbackMock : public IGameEventCallback
 {
 public:
 	using UpperCallback = ::ServerCallback;
 
-	GameCallbackMock(UpperCallback * upperCallback_);
-	virtual ~GameCallbackMock();
+	GameEventCallbackMock(UpperCallback * upperCallback_);
+	virtual ~GameEventCallbackMock();
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
@@ -91,10 +90,6 @@ public:
 	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override {return false;}
 
 	vstd::RNG & getRandomGenerator() override;
-
-#if SCRIPTING_ENABLED
-	MOCK_CONST_METHOD0(getGlobalContextPool, scripting::Pool *());
-#endif
 
 private:
 	UpperCallback * upperCallback;

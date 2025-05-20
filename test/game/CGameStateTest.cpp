@@ -11,7 +11,7 @@
 
 #include "mock/mock_Services.h"
 #include "mock/mock_MapService.h"
-#include "mock/mock_IGameCallback.h"
+#include "mock/mock_IGameEventCallback.h"
 #include "mock/mock_spells_Problem.h"
 
 #include "../../lib/VCMIDirs.h"
@@ -41,7 +41,7 @@ class CGameStateTest : public ::testing::Test, public SpellCastEnvironment, publ
 {
 public:
 	CGameStateTest()
-		: gameCallback(new GameCallbackMock(this)),
+		: gameEventCallback(new GameEventCallbackMock(this)),
 		mapService("test/MiniTest/", this),
 		map(nullptr)
 	{
@@ -207,13 +207,13 @@ public:
 		BattleStart bs;
 		bs.info = std::move(battle);
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
-		gameCallback->sendAndApply(bs);
+		gameEventCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
 	}
 
 	std::shared_ptr<CGameState> gameState;
 
-	std::shared_ptr<GameCallbackMock> gameCallback;
+	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
 
 	MapServiceMock mapService;
 	ServicesMock services;
@@ -240,7 +240,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		na.artHolder = defender->id;
 		na.artId = ArtifactID::BALLISTA;
 		na.pos = ArtifactPosition::MACH1;
-		gameCallback->sendAndApply(na);
+		gameEventCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -257,7 +257,7 @@ TEST_F(CGameStateTest, DISABLED_issue2765)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	const CStack * att = nullptr;
@@ -331,7 +331,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		na.artHolder = attacker->id;
 		na.artId = ArtifactID::SPELLBOOK;
 		na.pos = ArtifactPosition::SPELLBOOK;
-		gameCallback->sendAndApply(na);
+		gameEventCallback->sendAndApply(na);
 	}
 
 	startTestBattle(attacker, defender);
@@ -350,7 +350,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	{
@@ -365,7 +365,7 @@ TEST_F(CGameStateTest, DISABLED_battleResurrection)
 		BattleUnitsChanged pack;
 		pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
 		info.save(pack.changedStacks.back().data);
-		gameCallback->sendAndApply(pack);
+		gameEventCallback->sendAndApply(pack);
 	}
 
 	CStack * unit = gameState->currentBattles.front()->getStack(unitId);
