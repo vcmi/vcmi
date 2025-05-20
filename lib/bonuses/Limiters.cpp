@@ -591,4 +591,31 @@ ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context)
 	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
 }
 
+HasChargesLimiter::HasChargesLimiter(const uint16_t cost)
+	: chargeCost(cost)
+{
+}
+
+HasChargesLimiter::HasChargesLimiter(const HasChargesLimiter & inst, const BonusSourceID & id)
+	: HasChargesLimiter(inst)
+{
+	chargesSourceId = id;
+}
+
+ILimiter::EDecision HasChargesLimiter::limit(const BonusLimitationContext & context) const
+{
+	for(const auto & bonus : context.stillUndecided)
+	{
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == chargesSourceId)
+			return ILimiter::EDecision::NOT_SURE;
+	}
+
+	for(const auto & bonus : context.alreadyAccepted)
+	{
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == chargesSourceId)
+			return bonus->val >= chargeCost ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+	}
+	return ILimiter::EDecision::DISCARD;
+}
+
 VCMI_LIB_NAMESPACE_END

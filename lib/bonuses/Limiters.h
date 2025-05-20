@@ -276,4 +276,22 @@ public:
 	}
 };
 
+class DLL_LINKAGE HasChargesLimiter : public ILimiter // works with bonuses that consume charges
+{
+public:
+	uint16_t chargeCost;
+	BonusSourceID chargesSourceId;
+
+	HasChargesLimiter(const uint16_t cost = 1);
+	HasChargesLimiter(const HasChargesLimiter & inst, const BonusSourceID & id);
+	EDecision limit(const BonusLimitationContext & context) const override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & static_cast<ILimiter&>(*this);
+		h & chargeCost;
+		h & chargesSourceId;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

@@ -51,6 +51,8 @@ class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>
 {
 public:
 	using StaticIdentifier<ArtifactInstanceID>::StaticIdentifier;
+
+	DLL_LINKAGE static std::string encode(const si32 index);
 };
 
 class QueryID : public StaticIdentifier<QueryID>

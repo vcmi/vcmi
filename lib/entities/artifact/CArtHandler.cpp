@@ -254,8 +254,6 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			else
 				art->setDefaultStartCharges(charges);
 		}
-		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST && art->getBonusesOfType(BonusType::SPELL)->size() == 0)
-			logMod->warn("Warning! %s condition of discharge is \"SPELLCAST\", but there is not a single spell.", art->getNameTranslated());
 	}
 
 	return art;

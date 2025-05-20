@@ -120,6 +120,7 @@ public:
 	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 	bool isHypothetic() const { return isHypotheticNode; }
+	void setHypothetic(const bool hypothetic);
 
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;

@@ -641,6 +641,16 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 				}
 				return hexLimiter;
 			}
+			else if(limiterType == "HAS_CHARGES_LIMITER")
+			{
+				auto hasChargesLimiter = std::make_shared<HasChargesLimiter>();
+				if(!parameters.Vector().empty())
+				{
+					if(parameters.Vector().size() == 1 && parameters.Vector().front().isNumber())
+						hasChargesLimiter->chargeCost = parameters.Vector().front().Integer();
+				}
+				return hasChargesLimiter;
+			}
 			else
 			{
 				logMod->error("Error: invalid customizable limiter type %s.", limiterType);

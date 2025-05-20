@@ -946,6 +946,9 @@ void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
 		ePack.posPack.push_back(pack.artLoc.value().slot);
 		ePack.visit(*this);
 	}
+	// Workaround to inform hero bonus node about changes. Obviously this has to be done somehow differently.
+	if(pack.artLoc.has_value())
+		gs.getHero(pack.artLoc.value().artHolder)->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)

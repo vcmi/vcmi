@@ -436,7 +436,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 				pack.artsPack0.emplace_back(MoveArtifactInfo(srcSlot, dstSlot));
 				if(ArtifactUtils::isSlotEquipment(dstSlot))
 					pack.artsPack0.back().askAssemble = true;
-				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));
+				artFittingSet.putArtifact(dstSlot, art);
 			}
 		};
 
