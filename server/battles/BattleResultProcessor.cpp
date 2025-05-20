@@ -143,7 +143,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 {
-	if (gh->getObjInstance(army->id) == nullptr)
+	if (gh->gameInfo().getObjInstance(army->id) == nullptr)
 		throw std::runtime_error("Object " + army->getObjectName() + " is not on the map!");
 
 	for (TStackAndItsNewCount &ncount : newStackCounts)
@@ -269,8 +269,8 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	finishingBattles[battle.getBattle()->getBattleID()] = std::make_unique<FinishingBattleHelper>(battle, *battleResult, queriedPlayers);
 
 	// in battles against neutrals, 1st player can ask to replay battle manually
-	const auto * attackerPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
-	const auto * defenderPlayer = gameHandler->getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
+	const auto * attackerPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::ATTACKER));
+	const auto * defenderPlayer = gameHandler->gameInfo().getPlayerState(battle.getBattle()->getSidePlayer(BattleSide::DEFENDER));
 	bool isAttackerHuman = attackerPlayer && attackerPlayer->isHuman();
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
@@ -469,7 +469,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
 			}
-			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->getObj(finishingBattle->loserId));
+			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->gameInfo().getObj(finishingBattle->loserId));
 			for(const auto & armySlot : armyObj->stacks)
 			{
 				auto & packsArmy = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
@@ -557,7 +557,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	{
 		RemoveObject ro(winnerHero->id, finishingBattle->loser);
 		gameHandler->sendAndApply(ro);
-		if(gameHandler->getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
+		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
 	}
 

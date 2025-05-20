@@ -325,7 +325,7 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 
 				const_cast<CGHeroInstance *>(defendingHero)->setVisitedTown(this, false); //hack to return visitor from garrison after battle
 			}
-			gameEvents.startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
+			gameEvents.startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(*cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
 		else
 		{

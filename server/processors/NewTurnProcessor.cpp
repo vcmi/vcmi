@@ -47,7 +47,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.occursToday(gameHandler->gameState().day))
 			continue;
 
-		if (!event.affectsPlayer(color, gameHandler->getPlayerState(color)->isHuman()))
+		if (!event.affectsPlayer(color, gameHandler->gameInfo().getPlayerState(color)->isHuman()))
 			continue;
 
 		InfoWindow iw;
@@ -66,7 +66,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		//remove objects specified by event
 		for(const ObjectInstanceID objectIdToRemove : event.deletedObjectsInstances)
 		{
-			auto objectInstance = gameHandler->getObj(objectIdToRemove, false);
+			auto objectInstance = gameHandler->gameInfo().getObj(objectIdToRemove, false);
 			if(objectInstance != nullptr)
 				gameHandler->removeObject(objectInstance, PlayerColor::NEUTRAL);
 		}
@@ -82,7 +82,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			continue;
 
 		PlayerColor player = town->getOwner();
-		if (!event.affectsPlayer(player, gameHandler->getPlayerState(player)->isHuman()))
+		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
 
 		// dialog
@@ -178,7 +178,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 	// check for 7 days without castle
 	gameHandler->checkVictoryLossConditionsForPlayer(which);
 
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; // end of 7th day
 
 	if (newWeek) //new heroes in tavern
 		gameHandler->heroPool->onNewWeek(which);
@@ -186,7 +186,7 @@ void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
 
 ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool newWeek)
 {
-	const auto & playerSettings = gameHandler->getPlayerSettings(playerID);
+	const auto & playerSettings = gameHandler->gameInfo().getPlayerSettings(playerID);
 	const PlayerState & state = gameHandler->gameState().players.at(playerID);
 	ResourceSet income;
 
@@ -515,7 +515,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
 
-	if(!gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
+	if(!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_RANDOM_SPECIAL_WEEKS))
 		return { EWeekType::NORMAL, CreatureID::NONE};
 
 	int monthType = gameHandler->getRandomGenerator().nextInt(99);
@@ -523,7 +523,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 	{
 		if (monthType < 40) //double growth
 		{
-			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
+			if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
 				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
@@ -645,9 +645,9 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 	n.creatureid = CreatureID::NONE;
 	n.day = gameHandler->gameState().day + 1;
 
-	bool firstTurn = !gameHandler->getDate(Date::DAY);
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
-	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+	bool firstTurn = !gameHandler->gameInfo().getDate(Date::DAY);
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->gameInfo().getDate(Date::DAY_OF_MONTH) == 28;
 
 	if (!firstTurn)
 	{
@@ -691,9 +691,9 @@ void NewTurnProcessor::onNewTurn()
 {
 	NewTurn n = generateNewTurnPack();
 
-	bool firstTurn = !gameHandler->getDate(Date::DAY);
-	bool newWeek = gameHandler->getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
-	bool newMonth = gameHandler->getDate(Date::DAY_OF_MONTH) == 28;
+	bool firstTurn = !gameHandler->gameInfo().getDate(Date::DAY);
+	bool newWeek = gameHandler->gameInfo().getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = gameHandler->gameInfo().getDate(Date::DAY_OF_MONTH) == 28;
 
 	gameHandler->sendAndApply(n);
 
@@ -713,7 +713,7 @@ void NewTurnProcessor::onNewTurn()
 		{
 			auto t = gameHandler->gameState().getTown(townID);
 			if (!t->getOwner().isValidPlayer())
-				updateNeutralTownGarrison(t, 1 + gameHandler->getDate(Date::DAY) / 7);
+				updateNeutralTownGarrison(t, 1 + gameHandler->gameInfo().getDate(Date::DAY) / 7);
 		}
 	}
 

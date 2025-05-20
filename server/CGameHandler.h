@@ -55,7 +55,7 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 
-class CGameHandler : public CGameInfoCallback, public Environment, public IGameEventCallback
+class CGameHandler : public Environment, public IGameEventCallback
 {
 	CVCMIServer * lobby;
 
@@ -94,8 +94,9 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
-	CGameState & gameState() final { return *gs; }
-	const CGameState & gameState() const final { return *gs; }
+	IGameInfoCallback & gameInfo();
+	CGameState & gameState() { return *gs; }
+	const CGameState & gameState() const { return *gs; }
 
 	// Helpers to create new object of specified type
 
@@ -297,10 +298,10 @@ public:
 
 	vstd::RNG & getRandomGenerator() override;
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
+//#if SCRIPTING_ENABLED
+//	scripting::Pool * getGlobalContextPool() const override;
 //	scripting::Pool * getContextPool() const override;
-#endif
+//#endif
 
 	friend class CVCMIServer;
 private:

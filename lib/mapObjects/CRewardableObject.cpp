@@ -99,7 +99,7 @@ void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, co
 
 void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
 {
-	auto layout = BattleLayout::createLayout(cb, configuration.guardsLayout, hero, this);
+	auto layout = BattleLayout::createLayout(*cb, configuration.guardsLayout, hero, this);
 	gameEvents.startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
 }
 

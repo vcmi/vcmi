@@ -51,7 +51,6 @@ public:
 
 	void enterLobbyConnectionMode();
 	void setCallback(IGameInfoCallback * cb);
-	void enterGameplayConnectionMode(CGameState & gs);
 	void setSerializationVersion(ESerializationVersion version);
 };
 

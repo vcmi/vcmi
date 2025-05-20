@@ -17,15 +17,7 @@ GameCallbackMock::GameCallbackMock(UpperCallback * upperCallback_)
 
 }
 
-GameCallbackMock::~GameCallbackMock()
-{
-
-}
-
-void GameCallbackMock::setGameState(std::shared_ptr<CGameState> newGameState)
-{
-	gamestate = newGameState;
-}
+GameCallbackMock::~GameCallbackMock() = default;
 
 void GameCallbackMock::sendAndApply(CPackForClient & pack)
 {

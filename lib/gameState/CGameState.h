@@ -42,7 +42,7 @@ class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
-class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable, public GameCallbackHolder
+class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
 
@@ -66,7 +66,7 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	CGameState(IGameInfoCallback * callback);
+	CGameState();
 	virtual ~CGameState();
 
 	CGameState & gameState() final { return *this; }

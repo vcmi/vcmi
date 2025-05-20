@@ -19,6 +19,7 @@
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/faction/CFaction.h"
+#include "../lib/gameState/CGameState.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
@@ -225,7 +226,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 		return;
 	}
 	
-	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->getInitialStartInfo());
+	pack.initializedStartInfo = std::make_shared<StartInfo>(*srv.gh->gameState().getInitialStartInfo());
 	pack.initializedGameState = srv.gh->gs;
 	result = true;
 }
@@ -240,7 +241,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 		{
 			if(connection->connectionID == pack.clientId)
 			{
-				connection->enterGameplayConnectionMode(srv.gh->gameState());
+				connection->setCallback(&srv.gh->gameInfo());
 				srv.reconnectPlayer(pack.clientId);
 			}
 		}

@@ -129,11 +129,6 @@ void CConnection::setCallback(IGameInfoCallback * cb)
 	deserializer->cb = cb;
 }
 
-void CConnection::enterGameplayConnectionMode(CGameState & gs)
-{
-	setCallback(gs.cb);
-}
-
 void CConnection::setSerializationVersion(ESerializationVersion version)
 {
 	deserializer->version = version;

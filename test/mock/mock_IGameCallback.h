@@ -17,26 +17,13 @@
 #include "../../lib/int3.h"
 #include "../../lib/ResourceSet.h"
 
-class GameCallbackMock : public CGameInfoCallback, public IGameEventCallback
+class GameCallbackMock : public IGameEventCallback
 {
-	std::shared_ptr<CGameState> gamestate;
 public:
 	using UpperCallback = ::ServerCallback;
 
 	GameCallbackMock(UpperCallback * upperCallback_);
 	virtual ~GameCallbackMock();
-
-	void setGameState(std::shared_ptr<CGameState> gameState);
-	CGameState & gameState() final { return *gamestate; }
-	const CGameState & gameState() const final { return *gamestate; }
-
-
-	///STUBS, to be removed as long as same methods moved from GameHandler
-
-	//all calls to such methods should be replaced with other object calls or actual netpacks
-	//currently they are declared in callbacks, overridden in GameHandler and stubbed in client
-
-	//TODO: fail all stub calls
 
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
