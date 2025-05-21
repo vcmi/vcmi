@@ -38,9 +38,6 @@ class HeroPoolProcessor : boost::noncopyable
 	/// per-player random generators
 	std::map<PlayerColor, std::unique_ptr<CRandomGenerator>> playerSeed;
 
-	/// per-hero random generators used to randomize skills
-	std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeed;
-
 	void clearHeroFromSlot(const PlayerColor & color, TavernHeroSlot slot);
 	void selectNewHeroForSlot(const PlayerColor & color, TavernHeroSlot slot, bool needNativeHero, bool giveStartingArmy, const HeroTypeID & nextHero = HeroTypeID::NONE);
 
@@ -63,14 +60,17 @@ public:
 
 	void onNewWeek(const PlayerColor & color);
 
-	vstd::RNG & getHeroSkillsRandomGenerator(const HeroTypeID & hero);
-
 	/// Incoming net pack handling
 	bool hireHero(const ObjectInstanceID & objectID, const HeroTypeID & hid, const PlayerColor & player, const HeroTypeID & nextHero);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & playerSeed;
-		h & heroSeed;
+		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			std::map<HeroTypeID, std::unique_ptr<CRandomGenerator>> heroSeedUnused;
+			h & heroSeedUnused;
+		}
+
 	}
 };

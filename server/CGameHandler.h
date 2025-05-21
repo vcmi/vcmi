@@ -27,6 +27,7 @@ class CConnection;
 class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
+class GameRandomizer;
 
 struct CPackForServer;
 struct NewTurn;
@@ -65,7 +66,7 @@ public:
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
-	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
+	std::unique_ptr<GameRandomizer> randomizer;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -150,7 +151,6 @@ public:
 	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
-	void synchronizeArtifactHandlerLists();
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
@@ -247,7 +247,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
-		h & *randomNumberGenerator;
+		h & *randomizer;
 		h & *battles;
 		h & *heroPool;
 		h & *playerMessages;

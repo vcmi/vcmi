@@ -211,11 +211,11 @@ public:
 	virtual ~CGTownInstance();
 
 	///IObjectInterface overrides
-	void newTurn(IGameEventCallback & gameEvents) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
 	std::string getObjectName() const override;
 
@@ -238,7 +238,7 @@ private:
 	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;
 	int getDwellingBonus(const std::vector<CreatureID>& creatureIds, const std::vector<const CGObjectInstance* >& dwellings) const;
 	bool townEnvisagesBuilding(BuildingSubID::EBuildingSubID bid) const;
-	void initializeConfigurableBuildings(vstd::RNG & rand);
+	void initializeConfigurableBuildings(IGameRandomizer & gameRandomizer);
 	void initializeNeutralTownGarrison(vstd::RNG & rand);
 };
 

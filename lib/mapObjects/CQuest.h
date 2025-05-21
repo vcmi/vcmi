@@ -140,14 +140,14 @@ public:
 
 	std::string seerName;
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
 	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	void newTurn(IGameEventCallback & gameEvents) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool FirstVisit, const CGHeroInstance * h = nullptr) const override;
@@ -227,7 +227,7 @@ class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 public:
 	using CGKeys::CGKeys;
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 

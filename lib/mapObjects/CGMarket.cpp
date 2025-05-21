@@ -13,6 +13,7 @@
 
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CCreatureHandler.h"
 #include "CGTownInstance.h"
@@ -30,9 +31,9 @@ ObjectInstanceID CGMarket::getObjInstanceID() const
 	return id;
 }
 
-void CGMarket::initObj(vstd::RNG & rand)
+void CGMarket::initObj(IGameRandomizer & gameRandomizer)
 {
-	getObjectHandler()->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, gameRandomizer);
 }
 
 void CGMarket::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -99,7 +100,7 @@ std::vector<TradeItemBuy> CGBlackMarket::availableItemsIds(EMarketMode mode) con
 	}
 }
 
-void CGBlackMarket::newTurn(IGameEventCallback & gameEvents) const
+void CGBlackMarket::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	int resetPeriod = cb->getSettings().getInteger(EGameSettings::MARKETS_BLACK_MARKET_RESTOCK_PERIOD);
 
@@ -111,7 +112,7 @@ void CGBlackMarket::newTurn(IGameEventCallback & gameEvents) const
 
 	SetAvailableArtifacts saa;
 	saa.id = id;
-	cb->pickAllowedArtsSet(saa.arts, gameEvents.getRandomGenerator());
+	saa.arts = gameRandomizer.rollMarketArtifactSet();
 	gameEvents.sendAndApply(saa);
 }
 

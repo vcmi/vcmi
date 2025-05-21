@@ -331,14 +331,14 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 	}
 }
 
-void CRewardableObject::newTurn(IGameEventCallback & gameEvents) const
+void CRewardableObject::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	if (configuration.resetParameters.period != 0 && cb->getDate(Date::DAY) > 1 && ((cb->getDate(Date::DAY)-1) % configuration.resetParameters.period) == 0)
 	{
 		if (configuration.resetParameters.rewards)
 		{
 			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
-			auto newConfiguration = handler->generateConfiguration(cb, gameEvents.getRandomGenerator(), ID, configuration.variables.preset);
+			auto newConfiguration = handler->generateConfiguration(cb, gameRandomizer, ID, configuration.variables.preset);
 			gameEvents.setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
@@ -350,9 +350,9 @@ void CRewardableObject::newTurn(IGameEventCallback & gameEvents) const
 	}
 }
 
-void CRewardableObject::initObj(vstd::RNG & rand)
+void CRewardableObject::initObj(IGameRandomizer & gameRandomizer)
 {
-	getObjectHandler()->configureObject(this, rand);
+	getObjectHandler()->configureObject(this, gameRandomizer);
 }
 
 CRewardableObject::CRewardableObject(IGameInfoCallback *cb)

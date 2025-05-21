@@ -84,7 +84,6 @@ public:
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
 	void visitSetCommanderProperty(SetCommanderProperty & pack) override;
 	void visitAddQuest(AddQuest & pack) override;
-	void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) override;
 	void visitChangeFormation(ChangeFormation & pack) override;
 	void visitChangeSpells(ChangeSpells & pack) override;
 	void visitSetAvailableHero(SetAvailableHero & pack) override;

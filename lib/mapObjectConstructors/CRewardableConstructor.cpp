@@ -55,13 +55,13 @@ void CRewardableConstructor::assignBonuses(std::vector<Bonus> & bonuses, MapObje
 	}
 }
 
-Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameInfoCallback * cb, vstd::RNG & rand, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
+Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer, MapObjectID objectID, const std::map<std::string, JsonNode> & presetVariables) const
 {
 	Rewardable::Configuration result;
 	result.variables.preset = presetVariables;
 
 	try {
-		objectInfo.configureObject(result, rand, cb);
+		objectInfo.configureObject(result, gameRandomizer, cb);
 	}
 	catch (const JsonRandomizationException & e)
 	{
@@ -78,14 +78,14 @@ Rewardable::Configuration CRewardableConstructor::generateConfiguration(IGameInf
 	return result;
 }
 
-void CRewardableConstructor::configureObject(CGObjectInstance * object, vstd::RNG & rng) const
+void CRewardableConstructor::configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const
 {
 	auto * rewardableObject = dynamic_cast<CRewardableObject*>(object);
 
 	if (!rewardableObject)
 		throw std::runtime_error("Object " + std::to_string(object->getObjGroupIndex()) + ", " + std::to_string(object->getObjTypeIndex()) + " is not a rewardable object!" );
 
-	rewardableObject->configuration = generateConfiguration(object->cb, rng, object->ID, rewardableObject->configuration.variables.preset);
+	rewardableObject->configuration = generateConfiguration(object->cb, gameRandomizer, object->ID, rewardableObject->configuration.variables.preset);
 	rewardableObject->initializeGuards();
 
 	if (rewardableObject->configuration.info.empty())

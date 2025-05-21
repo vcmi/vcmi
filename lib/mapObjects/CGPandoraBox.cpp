@@ -42,11 +42,11 @@ void CGPandoraBox::init()
 	}
 }
 
-void CGPandoraBox::initObj(vstd::RNG & rand)
+void CGPandoraBox::initObj(IGameRandomizer & gameRandomizer)
 {
 	init();
 	
-	CRewardableObject::initObj(rand);
+	CRewardableObject::initObj(gameRandomizer);
 }
 
 void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const

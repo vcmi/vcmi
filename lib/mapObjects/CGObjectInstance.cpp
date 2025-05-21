@@ -160,12 +160,12 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 	cb->gameState().getMap().showObject(this);
 }
 
-void CGObjectInstance::pickRandomObject(vstd::RNG & rand)
+void CGObjectInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	// no-op
 }
 
-void CGObjectInstance::initObj(vstd::RNG & rand)
+void CGObjectInstance::initObj(IGameRandomizer & gameRandomizer)
 {
 	// no-op
 }

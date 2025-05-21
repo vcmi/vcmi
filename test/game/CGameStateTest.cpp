@@ -20,12 +20,13 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
 
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/battle/BattleLayout.h"
-#include "../../lib/CRandomGenerator.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/CStack.h"
 
 #include "../../lib/filesystem/ResourcePath.h"
@@ -179,9 +180,9 @@ public:
 			}
 		}
 
-		CRandomGenerator randomGenerator;
+		GameRandomizer randomizer(*gameState);
 		Load::ProgressAccumulator progressTracker;
-		gameState->init(&mapService, &si, randomGenerator, progressTracker, false);
+		gameState->init(&mapService, &si, randomizer, progressTracker, false);
 
 		ASSERT_NE(map, nullptr);
 		ASSERT_EQ(map->getHeroesOnMap().size(), 2);

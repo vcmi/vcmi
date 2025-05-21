@@ -1357,34 +1357,20 @@ CCreatureHandler::~CCreatureHandler()
 		p.first.clear();
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
-{
-	std::vector<CreatureID> allowed;
-	for(const auto & creature : objects)
-	{
-		if(creature->special)
-			continue;
-
-		if(creature->excludeFromRandomization)
-			continue;
-
-		if (creature->level == tier || tier == -1)
-			allowed.push_back(creature->getId());
-	}
-
-	if(allowed.empty())
-	{
-		logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
-		return CreatureID::NONE;
-	}
-
-	return *RandomGeneratorUtil::nextItem(allowed, rand);
-}
-
-
 void CCreatureHandler::afterLoadFinalization()
 {
 
+}
+
+std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const
+{
+	std::set<CreatureID> result;
+
+	for(auto & creature : objects)
+		if (creature && !creature->special)
+			result.insert(creature->getId());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

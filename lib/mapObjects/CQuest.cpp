@@ -19,6 +19,7 @@
 #include "../IGameSettings.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -444,11 +445,11 @@ void CGSeerHut::init(vstd::RNG & rand)
 	configuration.selectMode = Rewardable::ESelectMode::SELECT_PLAYER;
 }
 
-void CGSeerHut::initObj(vstd::RNG & rand)
+void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 {
-	init(rand);
+	init(gameRandomizer.getDefault());
 	
-	CRewardableObject::initObj(rand);
+	CRewardableObject::initObj(gameRandomizer);
 	
 	setObjToKill();
 	getQuest().defineQuestName();
@@ -551,9 +552,9 @@ void CGSeerHut::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 	}
 }
 
-void CGSeerHut::newTurn(IGameEventCallback & gameEvents) const
+void CGSeerHut::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
-	CRewardableObject::newTurn(gameEvents);
+	CRewardableObject::newTurn(gameEvents, gameRandomizer);
 	if(getQuest().lastDay >= 0 && getQuest().lastDay <= cb->getDate() - 1) //time is up
 	{
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_COMPLETE, true);
@@ -815,7 +816,7 @@ void CGKeymasterTent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroI
 	h->showInfoDialog(gameEvents, txt_id);
 }
 
-void CGBorderGuard::initObj(vstd::RNG & rand)
+void CGBorderGuard::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 }

@@ -26,6 +26,7 @@
 #include "../TerrainHandler.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -389,7 +390,7 @@ bool CGTownInstance::townEnvisagesBuilding(BuildingSubID::EBuildingSubID subId) 
 	return getTown()->getBuildingType(subId) != BuildingID::NONE;
 }
 
-void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
+void CGTownInstance::initializeConfigurableBuildings(IGameRandomizer & gameRandomizer)
 {
 	for(const auto & kvp : getTown()->buildings)
 	{
@@ -397,7 +398,7 @@ void CGTownInstance::initializeConfigurableBuildings(vstd::RNG & rand)
 			continue;
 
 		try {
-			rewardableBuildings[kvp.first] = std::make_unique<TownRewardableBuildingInstance>(this, kvp.second->bid, rand);
+			rewardableBuildings[kvp.first] = std::make_unique<TownRewardableBuildingInstance>(this, kvp.second->bid, gameRandomizer);
 		}
 		catch (std::runtime_error & e)
 		{
@@ -458,13 +459,13 @@ FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 	return *RandomGeneratorUtil::nextItem(potentialPicks, rand);
 }
 
-void CGTownInstance::pickRandomObject(vstd::RNG & rand)
+void CGTownInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	assert(ID == MapObjectID::TOWN || ID == MapObjectID::RANDOM_TOWN);
 	if (ID == MapObjectID::RANDOM_TOWN)
 	{
 		ID = MapObjectID::TOWN;
-		subID = randomizeFaction(rand);
+		subID = randomizeFaction(gameRandomizer.getDefault());
 	}
 
 	assert(ID == Obj::TOWN); // just in case
@@ -473,7 +474,7 @@ void CGTownInstance::pickRandomObject(vstd::RNG & rand)
 	updateAppearance();
 }
 
-void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
+void CGTownInstance::initObj(IGameRandomizer & gameRandomizer) ///initialize town structures
 {
 	blockVisit = true;
 
@@ -493,8 +494,8 @@ void CGTownInstance::initObj(vstd::RNG & rand) ///initialize town structures
 				creatures[level].second.push_back(getTown()->creatures[level][upgradeNum]);
 		}
 	}
-	initializeConfigurableBuildings(rand);
-	initializeNeutralTownGarrison(rand);
+	initializeConfigurableBuildings(gameRandomizer);
+	initializeNeutralTownGarrison(gameRandomizer.getDefault());
 	recreateBuildingsBonuses();
 	updateAppearance();
 }
@@ -536,10 +537,10 @@ void CGTownInstance::initializeNeutralTownGarrison(vstd::RNG & rand)
 	}
 }
 
-void CGTownInstance::newTurn(IGameEventCallback & gameEvents) const
+void CGTownInstance::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {
 	for(const auto & building : rewardableBuildings)
-		building.second->newTurn(gameEvents);
+		building.second->newTurn(gameEvents, gameRandomizer);
 		
 	if(hasBuilt(BuildingSubID::BANK) && bonusValue.second > 0)
 	{

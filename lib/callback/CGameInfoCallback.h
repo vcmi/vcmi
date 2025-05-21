@@ -115,7 +115,6 @@ public:
 	void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
 	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const override;
 
-	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand) override;
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt);
 
 #if SCRIPTING_ENABLED

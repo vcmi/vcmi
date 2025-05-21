@@ -35,8 +35,8 @@ public:
 	using CArmedInstance::CArmedInstance;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	std::string getHoverText(PlayerColor player) const override;

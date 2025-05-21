@@ -30,6 +30,7 @@
 #include "../lib/CPlayerState.h"
 #include "../lib/CRandomGenerator.h"
 #include "../lib/CSoundBase.h"
+#include "../lib/CSkillHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
 #include "../lib/UnlockGuard.h"
@@ -42,6 +43,7 @@
 #include "../lib/int3.h"
 
 #include "../lib/battle/BattleInfo.h"
+#include "../lib/callback/GameRandomizer.h"
 
 #include "../lib/entities/artifact/ArtifactUtils.h"
 #include "../lib/entities/artifact/CArtifact.h"
@@ -156,7 +158,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 
 	// give primary skill
 	logGlobal->trace("%s got level %d", hero->getNameTranslated(), hero->level);
-	auto primarySkill = hero->nextPrimarySkill(getRandomGenerator());
+	auto primarySkill = randomizer->rollPrimarySkillForLevelup(hero);
 
 	SetPrimSkill sps;
 	sps.id = hero->id;
@@ -169,7 +171,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.player = hero->tempOwner;
 	hlu.heroId = hero->id;
 	hlu.primskill = primarySkill;
-	hlu.skills = hero->getLevelUpProposedSecondarySkills(heroPool->getHeroSkillsRandomGenerator(hero->getHeroTypeID()));
+	hlu.skills = hero->getLevelupSkillCandidates(*randomizer);
 
 	if (hlu.skills.size() == 0)
 	{
@@ -510,7 +512,7 @@ CGameHandler::CGameHandler(CVCMIServer * lobby)
 	, turnOrder(std::make_unique<TurnOrderProcessor>(this))
 	, queries(std::make_unique<QueriesProcessor>())
 	, playerMessages(std::make_unique<PlayerMessageProcessor>(this))
-	, randomNumberGenerator(std::make_unique<CRandomGenerator>())
+	, randomizer(std::make_unique<GameRandomizer>(*this))
 	, complainNoCreatures("No creatures to split")
 	, complainNotEnoughCreatures("Cannot split that stack, not enough creatures!")
 	, complainInvalidSlot("Invalid slot accessed!")
@@ -539,24 +541,18 @@ void CGameHandler::init(StartInfo *si, Load::ProgressAccumulator & progressTrack
 {
 	int requestedSeed = settings["server"]["seed"].Integer();
 	if (requestedSeed != 0)
-		randomNumberGenerator->setSeed(requestedSeed);
-	logGlobal->info("Using random seed: %d", randomNumberGenerator->nextInt());
+		randomizer->setSeed(requestedSeed);
+	logGlobal->info("Using random seed: %d", randomizer->getDefault().nextInt());
 
 	CMapService mapService;
 	gs = std::make_shared<CGameState>(this);
 	gs->preInit(LIBRARY);
 	logGlobal->info("Gamestate created!");
-	gs->init(&mapService, si, getRandomGenerator(), progressTracking);
+	gs->init(&mapService, si, *randomizer, progressTracking);
 	logGlobal->info("Gamestate initialized!");
 
 	for (const auto & elem : gameState().players)
 		turnOrder->addPlayer(elem.first);
-
-	for (const auto & elem : gameState().getMap().getObjects<CGHeroInstance>())
-		heroPool->getHeroSkillsRandomGenerator(elem->getHeroTypeID()); // init RMG seed
-
-	for (const auto & elem : gameState().getMap().getHeroesInPool())
-		heroPool->getHeroSkillsRandomGenerator(elem); // init RMG seed
 
 	reinitScripting();
 }
@@ -687,7 +683,7 @@ void CGameHandler::onNewTurn()
 	{
 		SetAvailableArtifacts saa;
 		saa.id = ObjectInstanceID::NONE;
-		pickAllowedArtsSet(saa.arts, getRandomGenerator());
+		saa.arts = randomizer->rollMarketArtifactSet();
 		sendAndApply(saa);
 	}
 
@@ -700,10 +696,8 @@ void CGameHandler::onNewTurn()
 	for (auto & elem : gameState().getMap().getObjects())
 	{
 		if (elem)
-			elem->newTurn(*this);
+			elem->newTurn(*this, *randomizer);
 	}
-
-	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 
 void CGameHandler::start(bool resume)
@@ -4063,13 +4057,6 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	}
 }
 
-void CGameHandler::synchronizeArtifactHandlerLists()
-{
-	UpdateArtHandlerLists uahl;
-	uahl.allocatedArtifacts = gameState().allocatedArtifacts;
-	sendAndApply(uahl);
-}
-
 bool CGameHandler::isBlockedByQueries(const CPackForServer *pack, PlayerColor player)
 {
 	if (dynamic_cast<const PlayerMessage *>(pack) != nullptr)
@@ -4237,7 +4224,7 @@ void CGameHandler::showInfoDialog(InfoWindow * iw)
 
 vstd::RNG & CGameHandler::getRandomGenerator()
 {
-	return *randomNumberGenerator;
+	return randomizer->getDefault();
 }
 
 #if SCRIPTING_ENABLED
@@ -4266,7 +4253,7 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
 	auto o = handler->create(gameState().cb, nullptr);
-	handler->configureObject(o.get(), getRandomGenerator());
+	handler->configureObject(o.get(), *randomizer);
 	assert(o->ID == objectID);
 	gameState().getMap().generateUniqueInstanceName(o.get());
 
@@ -4317,7 +4304,7 @@ void CGameHandler::createHole(const int3 & visitablePosition, PlayerColor initia
 
 void CGameHandler::newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator)
 {
-	object->initObj(getRandomGenerator());
+	object->initObj(*randomizer);
 
 	NewObject no;
 	no.newObject = object;

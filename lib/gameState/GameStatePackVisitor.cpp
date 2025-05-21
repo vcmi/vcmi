@@ -101,11 +101,6 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
 }
 
-void GameStatePackVisitor::visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack)
-{
-	gs.allocatedArtifacts = pack.allocatedArtifacts;
-}
-
 void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 {
 	gs.getHero(pack.hid)->setFormation(pack.formation);
@@ -1142,7 +1137,7 @@ void GameStatePackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
 {
 	auto * hero = gs.getHero(pack.heroId);
 	assert(hero);
-	hero->levelUp(pack.skills);
+	hero->levelUp();
 }
 
 void GameStatePackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)

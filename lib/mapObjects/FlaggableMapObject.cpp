@@ -50,7 +50,7 @@ void FlaggableMapObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHe
 	gameEvents.showInfoDialog(&iw);
 }
 
-void FlaggableMapObject::initObj(vstd::RNG & rand)
+void FlaggableMapObject::initObj(IGameRandomizer & gameRandomizer)
 {
 	initBonuses();
 }
