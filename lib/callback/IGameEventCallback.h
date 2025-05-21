@@ -76,6 +76,7 @@ public:
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, ResourceSet resources)=0;
 
+	virtual void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) =0;
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval = false) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) =0;
