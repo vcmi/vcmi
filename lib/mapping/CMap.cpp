@@ -855,6 +855,10 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 		artInst->addNewBonus(bonus);
 		artInst->addCharges(art->getDefaultStartCharges());
 	}
+
+	for (const auto & bonus : art->instanceBonuses)
+		artInst->addNewBonus(std::make_shared<Bonus>(*bonus));
+
 	return artInst;
 }
 

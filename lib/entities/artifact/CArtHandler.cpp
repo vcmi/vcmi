@@ -181,10 +181,35 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	loadType(art.get(), node);
 	loadComponents(art.get(), node);
 
-	for(const auto & b : node["bonuses"].Vector())
+	if (node["bonuses"].isVector())
 	{
-		auto bonus = JsonUtils::parseBonus(b);
-		art->addNewBonus(bonus);
+		for(const auto & b : node["bonuses"].Vector())
+		{
+			auto bonus = JsonUtils::parseBonus(b);
+			art->addNewBonus(bonus);
+		}
+	}
+	else
+	{
+		for(const auto & b : node["bonuses"].Struct())
+		{
+			if (b.second.isNull())
+				continue;
+			auto bonus = JsonUtils::parseBonus(b.second);
+			art->addNewBonus(bonus);
+		}
+	}
+
+	for(const auto & b : node["instanceBonuses"].Struct())
+	{
+		if (b.second.isNull())
+			continue;
+		auto bonus = JsonUtils::parseBonus(b.second);
+		bonus->source = BonusSource::ARTIFACT;
+		bonus->duration = BonusDuration::PERMANENT;
+		bonus->description.appendTextID(art->getNameTextID());
+		bonus->description.appendRawString(" %+d");
+		art->instanceBonuses.push_back(bonus);
 	}
 
 	const JsonNode & warMachine = node["warMachine"];
