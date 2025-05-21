@@ -761,7 +761,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		});
 
 		BattleSide side = battle.playerToSide(st->unitOwner());
-		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
+		if(st->canCast())
 		{
 			bool cast = false;
 			while(!bl.empty() && !cast)
@@ -773,29 +773,29 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					return b == bonus.get();
 				});
+
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->additionalInfo[0] != 0)
+					continue; // cooldown
+
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
 
-				auto &levelInfo = spell->getLevelInfo(bonus->val);
-				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
-				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
-				{
-					parameters.massive = true;
-					parameters.smart = true;
-				}
 				//todo: recheck effect level
-				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
+				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, parameters.massive ? spells::Destination() : spells::Destination(st))))
 				{
 					cast = true;
 
 					int cooldown = bonus->additionalInfo[0];
-					BattleSetStackProperty ssp;
-					ssp.battleID = battle.getBattle()->getBattleID();
-					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
-					ssp.absolute = false;
-					ssp.val = cooldown;
-					ssp.stackID = st->unitId();
-					gameHandler->sendAndApply(ssp);
+					if (cooldown != 0)
+					{
+						BattleSetStackProperty ssp;
+						ssp.battleID = battle.getBattle()->getBattleID();
+						ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
+						ssp.absolute = false;
+						ssp.val = cooldown;
+						ssp.stackID = st->unitId();
+						gameHandler->sendAndApply(ssp);
+					}
 				}
 			}
 		}
