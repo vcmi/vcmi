@@ -270,7 +270,7 @@ const IBonusBearer * CBattleInfoEssentials::getBonusBearer() const
 bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	const auto side = playerToSide(player);
+	const BattleSide side = playerToSide(player);
 	if(side == BattleSide::NONE)
 		return false;
 
@@ -281,7 +281,7 @@ bool CBattleInfoEssentials::battleCanFlee(const PlayerColor & player) const
 		return false;
 
 	//eg. one of heroes is wearing shakles of war
-	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING))
+	if(myHero->hasBonusOfType(BonusType::BATTLE_NO_FLEEING) && battleHasHero(otherSide(side)))
 		return false;
 
 	//we are besieged defender
