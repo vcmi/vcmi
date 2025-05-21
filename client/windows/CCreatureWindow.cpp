@@ -274,7 +274,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			{BonusSource::STACK_EXPERIENCE,  Colors::CYAN},
 			{BonusSource::COMMANDER,         Colors::CYAN},
 		};
-		
+
 		std::map<BonusSource, std::string> bonusNames = {
 			{BonusSource::ARTIFACT,          LIBRARY->generaltexth->translate("vcmi.bonusSource.artifact")},
 			{BonusSource::ARTIFACT_INSTANCE, LIBRARY->generaltexth->translate("vcmi.bonusSource.artifact")},
@@ -853,6 +853,7 @@ void CStackWindow::init()
 void CStackWindow::initBonusesList()
 {
 	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList abilities = info->creature->getExportedBonusList();
 
 	std::sort(receivedBonuses.begin(), receivedBonuses.end(), [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
@@ -865,15 +866,27 @@ void CStackWindow::initBonusesList()
 			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
 	});
 
-	BonusList visibleBonuses;
+	std::vector<BonusList> groupedBonuses;
+	while (!receivedBonuses.empty())
+	{
+		auto currentBonus = receivedBonuses.front();
 
-	for (const auto & bonus : info->stackNode->getExportedBonusList())
-		visibleBonuses.push_back(bonus);
-	for (const auto & bonus : info->creature->getExportedBonusList())
-		visibleBonuses.push_back(bonus);
-	for (const auto & bonus : receivedBonuses)
-		if (bonus->sid.as<CreatureID>() != info->stackNode->getId())
-			visibleBonuses.push_back(bonus);
+		const auto & sameBonusPredicate = [currentBonus](const std::shared_ptr<Bonus> & b)
+		{
+			return currentBonus->type == b->type && currentBonus->subtype == b->subtype;
+		};
+
+		groupedBonuses.push_back({});
+
+		std::copy_if(receivedBonuses.begin(), receivedBonuses.end(), std::back_inserter(groupedBonuses.back()), sameBonusPredicate);
+		receivedBonuses.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
+		abilities.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
+	}
+
+	BonusList visibleBonuses = abilities;
+
+	for (const auto & group : groupedBonuses)
+		visibleBonuses.push_back(group.front());
 
 	BonusInfo bonusInfo;
 	for(auto b : visibleBonuses)
