@@ -74,10 +74,10 @@ void Initializer::initialize(CGSignBottle * o)
 void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
-	
+
 	o->character = CGCreature::Character::HOSTILE;
 	if(!o->hasStackAtSlot(SlotID(0)))
-		o->putStack(SlotID(0), std::make_unique<CStackInstance>(o->cb, CreatureID(o->subID), 0, false));
+		o->putStack(SlotID(0), std::make_unique<CStackInstance>(nullptr, CreatureID(o->subID), 1, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
