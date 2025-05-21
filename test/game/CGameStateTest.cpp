@@ -41,7 +41,7 @@ class CGameStateTest : public ::testing::Test, public SpellCastEnvironment, publ
 {
 public:
 	CGameStateTest()
-		: gameEventCallback(new GameEventCallbackMock(this)),
+		: gameEventCallback(std::make_shared<GameEventCallbackMock>(this)),
 		mapService("test/MiniTest/", this),
 		map(nullptr)
 	{

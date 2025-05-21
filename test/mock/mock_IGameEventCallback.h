@@ -24,7 +24,7 @@ public:
 	GameEventCallbackMock(UpperCallback * upperCallback_);
 	virtual ~GameEventCallbackMock();
 
-	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value = 0) override {}
+	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override {}
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID mapObjectID, const Rewardable::Configuration & configuration) override {}
 	void setRewardableObjectConfiguration(ObjectInstanceID townInstanceID, BuildingID buildingID, const Rewardable::Configuration & configuration) override {}
@@ -44,15 +44,15 @@ public:
 	void showTeleportDialog(TeleportDialog *iw) override {}
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override {};
 	void giveResource(PlayerColor player, GameResID which, int val) override {}
-	void giveResources(PlayerColor player, ResourceSet resources) override {}
+	void giveResources(PlayerColor player, const ResourceSet & resources) override {}
 
 	void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) override{}
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval) override {}
 	bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) override {return false;}
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override {return false;}
-	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) override {return false;} //count -1 => moves whole stack
-	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override {return false;}
+	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;} //count -1 => moves whole stack
+	bool eraseStack(const StackLocation &sl, bool forceRemoval) override {return false;}
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) override {return false;}
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) override {return false;} //makes new stack or increases count of already existing
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) override {} //merges army from src do dst or opens a garrison window
@@ -71,13 +71,13 @@ public:
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override {}
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town) override {} //use hero=nullptr for no hero
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2) override {}
-	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override {return false;}
+	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker) override {return false;}
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
 	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
-	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
+	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override {} //when two heroes meet on adventure map
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override {}
