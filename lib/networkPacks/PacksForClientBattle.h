@@ -104,7 +104,6 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	BattleID battleID = BattleID::NONE;
 	BattleSideArray<HeroBattleResults> heroResult;
 	BattleSide winnerSide;
-	std::vector<BulkMoveArtifacts> artifacts;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -113,7 +112,6 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 		h & battleID;
 		h & heroResult;
 		h & winnerSide;
-		h & artifacts;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -391,7 +389,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	PlayerColor victor;
 	PlayerColor loser;
 	ChangeSpells learnedSpells;
-	std::vector<BulkMoveArtifacts> artifacts;
+	std::vector<BulkMoveArtifacts> movingArtifacts;
+	std::vector<GrowUpArtifact> growingArtifacts;
+	std::vector<DischargeArtifact> dischargingArtifacts;
 	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -401,7 +401,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 		h & victor;
 		h & loser;
 		h & learnedSpells;
-		h & artifacts;
+		h & movingArtifacts;
+		h & growingArtifacts;
+		h & dischargingArtifacts;
 		h & raisedStack;
 		assert(battleID != BattleID::NONE);
 	}

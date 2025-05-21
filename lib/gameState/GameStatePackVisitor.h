@@ -41,11 +41,13 @@ public:
 	void visitInsertNewStack(InsertNewStack & pack) override;
 	void visitRebalanceStacks(RebalanceStacks & pack) override;
 	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
+	void visitGrowUpArtifact(GrowUpArtifact & pack) override;
 	void visitPutArtifact(PutArtifact & pack) override;
 	void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) override;
 	void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) override;
 	void visitAssembledArtifact(AssembledArtifact & pack) override;
 	void visitDisassembledArtifact(DisassembledArtifact & pack) override;
+	void visitDischargeArtifact(DischargeArtifact & pack) override;
 	void visitHeroVisit(HeroVisit & pack) override;
 	void visitNewTurn(NewTurn & pack) override;
 	void visitGiveBonus(GiveBonus & pack) override;

@@ -44,6 +44,7 @@ public:
 	void lockSlot(bool on);
 	bool isLocked() const;
 	void addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts);
+	void addChargedArtInfo(const uint16_t charges);
 
 private:
 	ArtifactID artId;

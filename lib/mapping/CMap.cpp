@@ -838,7 +838,7 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	if(art->isGrowing())
 	{
 		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
+		bonus->type = BonusType::ARTIFACT_GROWING;
 		bonus->val = 0;
 		artInst->addNewBonus(bonus);
 	}
@@ -846,6 +846,14 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	{
 		artInst->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL,
 													 BonusSource::ARTIFACT_INSTANCE, -1, BonusSourceID(ArtifactID(ArtifactID::SPELL_SCROLL)), BonusSubtypeID(spellId)));
+	}
+	if(art->isCharged())
+	{
+		auto bonus = std::make_shared<Bonus>();
+		bonus->type = BonusType::ARTIFACT_CHARGE;
+		bonus->val = 0;
+		artInst->addNewBonus(bonus);
+		artInst->addCharges(art->getDefaultStartCharges());
 	}
 	return artInst;
 }

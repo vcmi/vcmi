@@ -219,6 +219,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SwapStacks>(165);
 	s.template registerType<InsertNewStack>(166);
 	s.template registerType<RebalanceStacks>(167);
+	s.template registerType<GrowUpArtifact>(168);
 	s.template registerType<PutArtifact>(169);
 	s.template registerType<BulkEraseArtifacts>(170);
 	s.template registerType<AssembledArtifact>(171);
@@ -226,6 +227,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkMoveArtifacts>(173);
 	s.template registerType<PlayerMessageClient>(174);
 	s.template registerType<BulkRebalanceStacks>(175);
+	s.template registerType<DischargeArtifact>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);

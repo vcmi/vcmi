@@ -96,51 +96,134 @@ SpellID CScrollArtifactInstance::getScrollSpellID() const
 void CGrowingArtifactInstance::growingUp()
 {
 	auto artInst = static_cast<CArtifactInstance*>(this);
+	const auto artType = artInst->getType();
 	
-	if(artInst->getType()->isGrowing())
+	if(artType->isGrowing())
 	{
+		const auto growingBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_GROWING);
+		assert(!growingBonus->empty());
+		growingBonus->front()->val++;
 
-		auto bonus = std::make_shared<Bonus>();
-		bonus->type = BonusType::LEVEL_COUNTER;
-		bonus->val = 1;
-		bonus->duration = BonusDuration::COMMANDER_KILLED;
-		artInst->accumulateBonus(bonus);
-
-		for(const auto & bonus : artInst->getType()->getBonusesPerLevel())
+		for(const auto & bonus : artType->getBonusesPerLevel())
 		{
 			// Every n levels
-			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) % bonus.first == 0)
+			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) % bonus.first == 0)
 			{
 				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
 			}
 		}
-		for(const auto & bonus : artInst->getType()->getThresholdBonuses())
+		for(const auto & bonus : artType->getThresholdBonuses())
 		{
 			// At n level
-			if(artInst->valOfBonuses(BonusType::LEVEL_COUNTER) == bonus.first)
+			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) == bonus.first)
 			{
 				artInst->addNewBonus(std::make_shared<Bonus>(bonus.second));
 			}
 		}
+
+		if(artType->isCharged())
+			artInst->onChargesChanged();
+	}
+}
+
+void CChargedArtifactInstance::onChargesChanged()
+{
+	auto artInst = static_cast<CArtifactInstance*>(this);
+	const auto artType = artInst->getType();
+
+	const auto bonusSelector = artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST ?
+		Selector::type()(BonusType::SPELL) : Selector::all;
+
+	auto instBonuses = artInst->getAllBonuses(bonusSelector, nullptr);
+
+	if(artInst->getCharges() == 0)
+	{
+		for(const auto & bonus : *instBonuses)
+			if(bonus->type != BonusType::ARTIFACT_GROWING && bonus->type != BonusType::ARTIFACT_CHARGE)
+				artInst->removeBonus(bonus);
+	}
+	else
+	{
+		for(const auto & refBonus : *artType->getAllBonuses(bonusSelector, nullptr))
+		{
+			if(const auto bonusFound = std::find_if(instBonuses->begin(), instBonuses->end(),
+				[refBonus](const auto & instBonus)
+				{
+					return refBonus->type == instBonus->type;
+				}); bonusFound == instBonuses->end())
+			{
+				artInst->accumulateBonus(refBonus);
+			}
+		}
+	}
+}
+
+void CChargedArtifactInstance::discharge(const uint16_t charges)
+{
+	auto artInst = static_cast<CArtifactInstance*>(this);
+
+	if(const auto chargedBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_CHARGE); !chargedBonus->empty())
+	{
+		if(chargedBonus->front()->val > charges)
+			chargedBonus->front()->val -= charges;
+		else
+			chargedBonus->front()->val = 0;
+		onChargesChanged();
+	}
+}
+
+void CChargedArtifactInstance::addCharges(const uint16_t charges)
+{
+	auto artInst = static_cast<CArtifactInstance*>(this);
+
+	if(artInst->getType()->isCharged())
+	{
+		const auto chargedBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_CHARGE);
+		assert(!chargedBonus->empty());
+		chargedBonus->front()->val += charges;
+		onChargesChanged();
+	}
+}
+
+uint16_t CChargedArtifactInstance::getCharges() const
+{
+	auto artInst = static_cast<const CArtifactInstance*>(this);
+
+	return artInst->valOfBonuses(BonusType::ARTIFACT_CHARGE);
+}
+
+void CArtifactInstance::init()
+{
+	const auto art = artTypeID.toArtifact();
+	assert(art);
+
+	if(art->isCharged())
+	{
+		// Charged artifacts contain all bonuses inside instance bonus node
+		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+		{
+			for(const auto & bonus : *art->getAllBonuses(Selector::all, nullptr))
+				if(bonus->type != BonusType::SPELL)
+					accumulateBonus(bonus);
+		}
+	}
+	else
+	{
+		attachToSource(*art);
 	}
 }
 
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb, const CArtifact * art)
 	:CArtifactInstance(cb)
 {
-	setType(art);
+	artTypeID = art->getId();
+	init();
 }
 
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb)
 	: CBonusSystemNode(ARTIFACT_INSTANCE)
 	, CCombinedArtifactInstance(cb)
 {
-}
-
-void CArtifactInstance::setType(const CArtifact * art)
-{
-	artTypeID = art->getId();
-	attachToSource(*art);
 }
 
 std::string CArtifactInstance::nodeName() const

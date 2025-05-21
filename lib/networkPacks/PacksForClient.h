@@ -909,6 +909,24 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 {
 };
 
+struct DLL_LINKAGE GrowUpArtifact : CArtifactOperationPack
+{
+	ArtifactInstanceID id;
+
+	GrowUpArtifact() = default;
+	GrowUpArtifact(const ArtifactInstanceID & id)
+		: id(id)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
+	}
+};
+
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
@@ -1004,6 +1022,29 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & dstArtHolder;
 		h & srcCreature;
 		h & dstCreature;
+	}
+};
+
+struct DLL_LINKAGE DischargeArtifact : CArtifactOperationPack
+{
+	ArtifactInstanceID id;
+	uint16_t charges;
+	std::optional<ArtifactLocation> artLoc;
+
+	DischargeArtifact() = default;
+	DischargeArtifact(const ArtifactInstanceID & id, const uint16_t charges)
+		: id(id)
+		, charges(charges)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
+		h & charges;
+		h & artLoc;
 	}
 };
 

@@ -820,6 +820,13 @@ void GameStatePackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
 		move.visit(*this);
 }
 
+void GameStatePackVisitor::visitGrowUpArtifact(GrowUpArtifact & pack)
+{
+	auto artInst = gs.getArtInstance(pack.id);
+	assert(artInst);
+	artInst->growingUp();
+}
+
 void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	auto art = gs.getArtInstance(pack.id);
@@ -912,6 +919,21 @@ void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		bulkArtsPut(pack.artsPack1, artInitialSetRight, *leftSet);
 	}
 	bulkArtsPut(pack.artsPack0, artInitialSetLeft, *rightSet);
+}
+
+void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
+{
+	auto artInst = gs.getArtInstance(pack.id);
+	assert(artInst);
+	artInst->discharge(pack.charges);
+	if(artInst->getType()->getRemoveOnDepletion() && artInst->getCharges() == 0 && pack.artLoc.has_value())
+	{
+		BulkEraseArtifacts ePack;
+		ePack.artHolder = pack.artLoc.value().artHolder;
+		ePack.creature = pack.artLoc.value().creature;
+		ePack.posPack.push_back(pack.artLoc.value().slot);
+		ePack.visit(*this);
+	}
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
@@ -1217,22 +1239,6 @@ void GameStatePackVisitor::visitBattleResultAccepted(BattleResultAccepted & pack
 	if(const auto defenderHero = gs.getHero(pack.heroResult[BattleSide::DEFENDER].heroID))
 		defenderHero->removeBonusesRecursive(Bonus::OneBattle);
 
-	if(pack.winnerSide != BattleSide::NONE)
-	{
-		// Grow up growing artifacts
-		if(const auto winnerHero = gs.getHero(pack.heroResult[pack.winnerSide].heroID))
-		{
-			if(winnerHero->getCommander() && winnerHero->getCommander()->alive)
-
-			{
-				for(auto & art : winnerHero->getCommander()->artifactsWorn)
-					gs.getArtInstance(art.second.getID())->growingUp();
-			}
-			for(auto & art : winnerHero->artifactsWorn)
-				gs.getArtInstance(art.second.getID())->growingUp();
-		}
-	}
-
 	if(gs.getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
 		if(const auto attackerArmy = gs.getArmyInstance(pack.heroResult[BattleSide::ATTACKER].armyID))
@@ -1343,8 +1349,14 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 {
 	pack.learnedSpells.visit(*this);
 
-	for(auto & artPack : pack.artifacts)
-		artPack.visit(*this);
+	for(auto & discharging : pack.dischargingArtifacts)
+		discharging.visit(*this);
+
+	for(auto & growing : pack.growingArtifacts)
+		growing.visit(*this);
+
+	for(auto & movingPack : pack.movingArtifacts)
+		movingPack.visit(*this);
 
 	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
 											[&](const auto & battle)

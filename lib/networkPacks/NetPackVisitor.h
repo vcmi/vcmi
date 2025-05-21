@@ -77,9 +77,11 @@ public:
 	virtual void visitInsertNewStack(InsertNewStack & pack) {}
 	virtual void visitRebalanceStacks(RebalanceStacks & pack) {}
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
+	virtual void visitGrowUpArtifact(GrowUpArtifact & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
 	virtual void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
+	virtual void visitDischargeArtifact(DischargeArtifact & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}
 	virtual void visitHeroVisit(HeroVisit & pack) {}
