@@ -50,7 +50,7 @@ public:
 	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();
-	void setCallback(IGameInfoCallback * cb);
+	void setCallback(IGameInfoCallback & cb);
 	void setSerializationVersion(ESerializationVersion version);
 };
 

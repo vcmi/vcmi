@@ -35,6 +35,7 @@ struct ClassObjectCreator<T, typename std::enable_if_t<std::is_base_of_v<GameCal
 	static T *invoke(IGameInfoCallback *cb)
 	{
 		static_assert(!std::is_abstract_v<T>, "Cannot call new upon abstract classes!");
+		assert(cb != nullptr);
 		return new T(cb);
 	}
 };

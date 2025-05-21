@@ -241,7 +241,7 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 		{
 			if(connection->connectionID == pack.clientId)
 			{
-				connection->setCallback(&srv.gh->gameInfo());
+				connection->setCallback(srv.gh->gameInfo());
 				srv.reconnectPlayer(pack.clientId);
 			}
 		}
