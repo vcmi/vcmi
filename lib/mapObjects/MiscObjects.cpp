@@ -14,12 +14,12 @@
 #include "../bonuses/Propagators.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CSoundBase.h"
 #include "../CSkillHandler.h"
 #include "../spells/CSpellHandler.h"
 #include "../gameState/CGameState.h"
@@ -30,7 +30,6 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../modding/ModScope.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
@@ -76,7 +75,7 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 //CGMine
 void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
@@ -98,19 +97,19 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 	flagMine(gameEvents, h->tempOwner);
 }
 
-void CGMine::initObj(vstd::RNG & rand)
+void CGMine::initObj(IGameRandomizer & gameRandomizer)
 {
 	if(isAbandoned())
 	{
 		//set guardians
-		int howManyTroglodytes = rand.nextInt(100, 199);
+		int howManyTroglodytes = gameRandomizer.getDefault().nextInt(100, 199);
 		auto troglodytes = std::make_unique<CStackInstance>(cb, CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(SlotID(0), std::move(troglodytes));
 
 		assert(!abandonedMineResources.empty());
 		if (!abandonedMineResources.empty())
 		{
-			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, rand);
+			producedResource = *RandomGeneratorUtil::nextItem(abandonedMineResources, gameRandomizer.getDefault());
 		}
 		else
 		{
@@ -322,10 +321,10 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 	return isConnected(srcObj, dstObj);
 }
 
-bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool CGTeleport::isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	ObjectInstanceID topObjectID = gs.getMap().getTile(obj->visitablePos()).topVisitableObj();
-	const CGObjectInstance * topObject = gs.getObjInstance(topObjectID);
+	ObjectInstanceID topObjectID = gameInfo.getTile(obj->visitablePos())->topVisitableObj();
+	const CGObjectInstance * topObject = gameInfo.getObjInstance(topObjectID);
 
 	if(topObject->ID == Obj::HERO)
 	{
@@ -333,7 +332,7 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 			return false;
 
 		// Check if it's friendly hero or not
-		if(gs.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
+		if(gameInfo.getPlayerRelations(h->tempOwner, topObject->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			// Exchange between heroes only possible via subterranean gates
 			if(!dynamic_cast<const CGSubterraneanGate *>(obj))
@@ -343,11 +342,11 @@ bool CGTeleport::isExitPassable(const CGameState & gs, const CGHeroInstance * h,
 	return true;
 }
 
-std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const CGameState & gs, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
+std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits)
 {
 	vstd::erase_if(exits, [&](const ObjectInstanceID & exit) -> bool 
 	{
-		return !isExitPassable(gs, h, gs.getObj(exit));
+		return !isExitPassable(gameInfo, h, gameInfo.getObj(exit));
 	});
 	return exits;
 }
@@ -433,7 +432,7 @@ void CGMonolith::teleportDialogAnswered(IGameEventCallback & gameEvents, const C
 	gameEvents.moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
 }
 
-void CGMonolith::initObj(vstd::RNG & rand)
+void CGMonolith::initObj(IGameRandomizer & gameRandomizer)
 {
 	std::vector<Obj> IDs;
 	IDs.push_back(ID);
@@ -478,7 +477,7 @@ void CGSubterraneanGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHe
 	gameEvents.showTeleportDialog(&td);
 }
 
-void CGSubterraneanGate::initObj(vstd::RNG & rand)
+void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 {
 	type = BOTH;
 }
@@ -568,7 +567,7 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 168);
 		iw.components.emplace_back(ComponentType::CREATURE, h->getCreature(targetstack)->getId(), -countToTake);
 		gameEvents.showInfoDialog(&iw);
-		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake);
+		gameEvents.changeStackCount(StackLocation(h->id, targetstack), -countToTake, ChangeValueMode::RELATIVE);
 	}
 	else
 	{
@@ -627,24 +626,24 @@ ArtifactID CGArtifact::getArtifactType() const
 		return getObjTypeIndex().getNum();
 }
 
-void CGArtifact::pickRandomObject(vstd::RNG & rand)
+void CGArtifact::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, std::nullopt);
+			subID = gameRandomizer.rollArtifact();
 			break;
 		case MapObjectID::RANDOM_TREASURE_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_TREASURE);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_TREASURE);
 			break;
 		case MapObjectID::RANDOM_MINOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MINOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MINOR);
 			break;
 		case MapObjectID::RANDOM_MAJOR_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_MAJOR);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_MAJOR);
 			break;
 		case MapObjectID::RANDOM_RELIC_ART:
-			subID = cb->gameState().pickRandomArtifact(rand, EArtifactClass::ART_RELIC);
+			subID = gameRandomizer.rollArtifact(EArtifactClass::ART_RELIC);
 			break;
 	}
 
@@ -662,7 +661,7 @@ void CGArtifact::setArtifactInstance(const CArtifactInstance * instance)
 	storedArtifact = instance->getId();
 }
 
-void CGArtifact::initObj(vstd::RNG & rand)
+void CGArtifact::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 	if(ID == Obj::ARTIFACT)
@@ -829,13 +828,13 @@ void CGArtifact::serializeJsonOptions(JsonSerializeFormat& handler)
 	}
 }
 
-void CGSignBottle::initObj(vstd::RNG & rand)
+void CGSignBottle::initObj(IGameRandomizer & gameRandomizer)
 {
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
 		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
-		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, rand);
+		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, gameRandomizer.getDefault());
 		message.appendTextID(messageIdentifier);
 	}
 
@@ -878,7 +877,7 @@ std::vector<CreatureID> CGGarrison::providedCreatures() const
 
 void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	auto relations = cb->gameState().getPlayerRelations(h->tempOwner, tempOwner);
+	auto relations = cb->getPlayerRelations(h->tempOwner, tempOwner);
 	if (relations == PlayerRelations::ENEMIES && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
 		gameEvents.startBattle(h, this);
@@ -919,7 +918,7 @@ void CGGarrison::serializeJsonOptions(JsonSerializeFormat& handler)
 	CArmedInstance::serializeJsonOptions(handler);
 }
 
-void CGGarrison::initObj(vstd::RNG &rand)
+void CGGarrison::initObj(IGameRandomizer & gameRandomizer)
 {
 	if(this->subID == MapObjectSubID::decode(this->ID, "antiMagic"))
 		addAntimagicGarrisonBonus();
@@ -936,7 +935,7 @@ void CGGarrison::addAntimagicGarrisonBonus()
 	this->addNewBonus(bonus);
 }
 
-void CGMagi::initObj(vstd::RNG & rand)
+void CGMagi::initObj(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::EYE_OF_MAGI)
 		blockVisit = true;
@@ -1014,7 +1013,7 @@ const CGHeroInstance * CGBoat::getBoardedHero() const
 		return nullptr;
 }
 
-void CGSirens::initObj(vstd::RNG & rand)
+void CGSirens::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 }
@@ -1049,7 +1048,7 @@ void CGSirens::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 
 			if(drown)
 			{
-				gameEvents.changeStackCount(StackLocation(h->id, i->first), -drown);
+				gameEvents.changeStackCount(StackLocation(h->id, i->first), -drown, ChangeValueMode::RELATIVE);
 				xp += drown * i->second->getType()->getMaxHealth();
 			}
 		}
@@ -1097,7 +1096,7 @@ const IObjectInterface * CGShipyard::getObject() const
 
 void CGShipyard::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
-	if(cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
+	if(cb->getPlayerRelations(tempOwner, h->tempOwner) == PlayerRelations::ENEMIES)
 		gameEvents.setOwner(this, h->tempOwner);
 
 	if(shipyardStatus() != IBoatGenerator::GOOD)
@@ -1149,7 +1148,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	InfoWindow iw;
 	iw.type = EInfoWindowMode::AUTO;
 	iw.player = h->tempOwner;
-	TeamState *ts = cb->gameState().getPlayerTeam(h->tempOwner);
+	const TeamState *ts = cb->getPlayerTeam(h->tempOwner);
 	assert(ts);
 	TeamID team = ts->id;
 
@@ -1176,7 +1175,7 @@ void CGObelisk::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 }
 
-void CGObelisk::initObj(vstd::RNG & rand)
+void CGObelisk::initObj(IGameRandomizer & gameRandomizer)
 {
 	cb->gameState().getMap().obeliskCount++;
 }

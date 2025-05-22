@@ -271,7 +271,15 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	{
 		artPlace->lockSlot(slotInfo->locked);
 		artPlace->setArtifact(slotInfo->getArt()->getTypeId(), slotInfo->getArt()->getScrollSpellID());
-		if(slotInfo->locked || slotInfo->getArt()->isCombined())
+		if(slotInfo->locked)
+			return;
+
+		const auto curArt = slotInfo->getArt();
+		// If the artifact has charges, add charges information
+		if(curArt->getType()->isCharged())
+			artPlace->addChargedArtInfo(curArt->getCharges());
+
+		if(curArt->isCombined())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information

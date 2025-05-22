@@ -390,24 +390,27 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 		}
 	}
 
-	if(availableHexes.contains(hoveredHex))
+	if (stack->doubleWide())
 	{
-		if(stack->doubleWide())
+		const bool backwardsMove = stack->unitSide() == BattleSide::ATTACKER ?
+			hoveredHex.getX() < stack->getPosition().getX():
+			hoveredHex.getX() > stack->getPosition().getX();
+
+		if (backwardsMove && availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir())))
+			return {hoveredHex, hoveredHex.cloneInDirection(stack->destShiftDir())};
+
+		if (availableHexes.contains(hoveredHex))
 			return {hoveredHex, stack->occupiedHex(hoveredHex)};
-		else
-			return {hoveredHex};
-	}
 
-	if(stack->doubleWide())
+		return {};
+	}
+	else
 	{
-		for(const auto & hex : availableHexes)
-		{
-			if(stack->occupiedHex(hex) == hoveredHex)
-				return {hoveredHex, hex};
-		}
+		if (availableHexes.contains(hoveredHex))
+			return {hoveredHex};
+		else
+			return {};
 	}
-
-	return {};
 }
 
 // Range limit highlight helpers

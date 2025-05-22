@@ -246,6 +246,48 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 	}
 }
 
+CChargedArtifact::CChargedArtifact()
+	: condition(DischargeArtifactCondition::NONE)
+	,	removeOnDepletion(false)
+	, defaultStartCharges(0)
+{
+}
+
+bool CChargedArtifact::isCharged() const
+{
+	return condition != DischargeArtifactCondition::NONE;
+}
+
+void CChargedArtifact::setCondition(const DischargeArtifactCondition & dischargeCondition)
+{
+	condition = dischargeCondition;
+}
+
+void CChargedArtifact::setRemoveOnDepletion(const bool remove)
+{
+	removeOnDepletion = remove;
+}
+
+void CChargedArtifact::setDefaultStartCharges(const uint16_t charges)
+{
+	defaultStartCharges = charges;
+}
+
+uint16_t CChargedArtifact::getDefaultStartCharges() const
+{
+	return defaultStartCharges;
+}
+
+DischargeArtifactCondition CChargedArtifact::getDischargeCondition() const
+{
+	return condition;
+}
+
+bool CChargedArtifact::getRemoveOnDepletion() const
+{
+	return removeOnDepletion;
+}
+
 CArtifact::CArtifact()
 	: iconIndex(ArtifactID::NONE),
 	price(0)

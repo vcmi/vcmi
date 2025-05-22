@@ -267,4 +267,10 @@ enum class ColorScheme : int8_t
 	H2_SCHEME
 };
 
+enum class ChangeValueMode : int8_t
+{
+	RELATIVE,
+	ABSOLUTE
+};
+
 VCMI_LIB_NAMESPACE_END

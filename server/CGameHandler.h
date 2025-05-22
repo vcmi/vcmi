@@ -27,6 +27,7 @@ class CConnection;
 class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
+class GameRandomizer;
 
 struct CPackForServer;
 struct NewTurn;
@@ -65,7 +66,7 @@ public:
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
-	std::unique_ptr<CRandomGenerator> randomNumberGenerator;
+	std::unique_ptr<GameRandomizer> randomizer;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -99,7 +100,7 @@ public:
 	// Helpers to create new object of specified type
 
 	std::shared_ptr<CGObjectInstance> createNewObject(const int3 & visitablePosition, MapObjectID objectID, MapObjectSubID subID);
-	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature);
+	void createWanderingMonster(const int3 & visitablePosition, CreatureID creature, int unitSize);
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
 	void createHole(const int3 & visitablePosition, PlayerColor initiator);
 	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
@@ -115,8 +116,8 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
-	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override;
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override;
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
@@ -125,10 +126,11 @@ public:
 	void giveResource(PlayerColor player, GameResID which, int val) override;
 	void giveResources(PlayerColor player, TResources resources) override;
 
+	void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) override;
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval) override;
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override;
-	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override;
+	bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) override;
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) override;
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override;
 	bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) override;
@@ -150,7 +152,6 @@ public:
 	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
-	void synchronizeArtifactHandlerLists();
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
@@ -159,7 +160,7 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
-	void setMovePoints(ObjectInstanceID hid, int val, bool absolute) override;
+	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override;
@@ -169,6 +170,7 @@ public:
 	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
+	void useChargedArtifactUsed(const ObjectInstanceID & heroObjectID, const SpellID & spellID);
 
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
@@ -246,7 +248,7 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & QID;
-		h & *randomNumberGenerator;
+		h & *randomizer;
 		h & *battles;
 		h & *heroPool;
 		h & *playerMessages;

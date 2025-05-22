@@ -944,6 +944,7 @@ void CPlayerInterface::battleAttack(const BattleID & battleID, const BattleAttac
 	info.unlucky = ba->unlucky();
 	info.deathBlow = ba->deathBlow();
 	info.lifeDrain = ba->lifeDrain();
+	info.playCustomAnimation = ba->playCustomAnimation();
 	info.tile = ba->tile;
 	info.spellEffect = SpellID::NONE;
 

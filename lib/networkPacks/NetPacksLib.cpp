@@ -36,6 +36,7 @@ void CPack::visitBasic(ICPackVisitor & visitor)
 
 void CPack::visitTyped(ICPackVisitor & visitor)
 {
+	throw std::runtime_error(std::string("CPack::visitTyped called for class ") + typeid(*this).name());
 }
 
 void CPackForClient::visitBasic(ICPackVisitor & visitor)
@@ -197,11 +198,6 @@ void AddQuest::visitTyped(ICPackVisitor & visitor)
 	visitor.visitAddQuest(*this);
 }
 
-void UpdateArtHandlerLists::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitUpdateArtHandlerLists(*this);
-}
-
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);
@@ -302,6 +298,11 @@ void BulkRebalanceStacks::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBulkRebalanceStacks(*this);
 }
 
+void GrowUpArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGrowUpArtifact(*this);
+}
+
 void PutArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPutArtifact(*this);
@@ -320,6 +321,11 @@ void BulkMoveArtifacts::visitTyped(ICPackVisitor & visitor)
 void AssembledArtifact::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAssembledArtifact(*this);
+}
+
+void DischargeArtifact::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDischargeArtifact(*this);
 }
 
 void DisassembledArtifact::visitTyped(ICPackVisitor & visitor)
@@ -810,6 +816,21 @@ void LobbyDelete::visitTyped(ICPackVisitor & visitor)
 void CatapultAttack::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitCatapultAttack(*this);
+}
+
+void BattleResultAccepted::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleResultAccepted(*this);
+}
+
+void BattleCancelled::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleCancelled(*this);
+}
+
+void TurnTimeUpdate::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitTurnTimeUpdate(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

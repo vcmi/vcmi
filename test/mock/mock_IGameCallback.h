@@ -51,8 +51,8 @@ public:
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override {}
 	void setOwner(const CGObjectInstance * objid, PlayerColor owner) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override {}
-	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false) override {}
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) override {}
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override {}
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override {}
 	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override {}
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override {} //cb will be called when player closes garrison window
 	void showTeleportDialog(TeleportDialog *iw) override {}
@@ -60,9 +60,10 @@ public:
 	void giveResource(PlayerColor player, GameResID which, int val) override {}
 	void giveResources(PlayerColor player, ResourceSet resources) override {}
 
+	void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) override{}
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override {}
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval) override {}
-	bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) override {return false;}
+	bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) override {return false;}
 	bool changeStackType(const StackLocation &sl, const CCreature *c) override {return false;}
 	bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) override {return false;} //count -1 => moves whole stack
 	bool eraseStack(const StackLocation &sl, bool forceRemoval = false) override {return false;}
@@ -88,7 +89,7 @@ public:
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
-	void setMovePoints(ObjectInstanceID hid, int val, bool absolute) override {};
+	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}

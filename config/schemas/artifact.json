@@ -128,6 +128,25 @@
 		"onlyOnWaterMap" : {
 			"type" : "boolean",
 			"description" : "If set to true, artifact won't spawn on a map without water"
+		},
+		"charged": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"description" : "Determines charged artifact behavior",
+			"required" : ["usageType"],
+			"properties" : {
+				"usageType": {
+					"type" : "string",
+					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"],
+				},
+				"removeOnDepletion" : {
+					"type" : "boolean",
+				},
+				"startingCharges" : {
+					"type" : "number",
+					"description" : "Default starting charge amount"
+				}
+			}
 		}
 	}
 }

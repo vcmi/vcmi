@@ -41,7 +41,8 @@ enum class ESerializationVersion : int32_t
 	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
 	REWARDABLE_EXTENSIONS, // new functionality for rewardable objects
 	FLAGGABLE_BONUS_SYSTEM_NODE, // flaggable objects now contain bonus system node
-	COLOR_FILTER, // color filter cheat
+	RANDOMIZATION_REWORK, // random rolls logic has been moved to server
+  COLOR_FILTER, // color filter cheat
 
 	CURRENT = COLOR_FILTER,
 };

@@ -25,6 +25,9 @@ TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 
 bool TimerPauseQuery::blocksPack(const CPackForServer *pack) const
 {
+	if(dynamic_cast<const SaveGame*>(pack) != nullptr)
+		return false;
+
 	return blockAllButReply(pack);
 }
 

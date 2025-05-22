@@ -136,6 +136,8 @@ struct DLL_LINKAGE TurnTimeUpdate : public CPackForClient
 {
 	PlayerColor player;
 	TurnTimerInfo turnTimer;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 		
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -187,13 +189,13 @@ struct DLL_LINKAGE SetResources : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	bool abs = true; //false - changes by value; 1 - sets to value
+	ChangeValueMode mode = ChangeValueMode::ABSOLUTE;
 	PlayerColor player;
 	ResourceSet res; //res[resid] => res amount
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & abs;
+		h & mode;
 		h & player;
 		h & res;
 	}
@@ -203,14 +205,14 @@ struct DLL_LINKAGE SetPrimSkill : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	ui8 abs = 0; //0 - changes by value; 1 - sets to value
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 	ObjectInstanceID id;
 	PrimarySkill which = PrimarySkill::ATTACK;
 	si64 val = 0;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & abs;
+		h & mode;
 		h & id;
 		h & which;
 		h & val;
@@ -221,14 +223,14 @@ struct DLL_LINKAGE SetSecSkill : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	ui8 abs = 0; //0 - changes by value; 1 - sets to value
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 	ObjectInstanceID id;
 	SecondarySkill which;
 	ui16 val = 0;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & abs;
+		h & mode;
 		h & id;
 		h & which;
 		h & val;
@@ -295,36 +297,36 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	SetMana() = default;
-	SetMana(ObjectInstanceID hid, si32 val, bool absolute)
+	SetMana(ObjectInstanceID hid, si32 val, ChangeValueMode mode)
 		: hid(hid)
 		, val(val)
-		, absolute(absolute)
+		, mode(mode)
 	{}
 
 	ObjectInstanceID hid;
 	si32 val = 0;
-	bool absolute = true;
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & val;
 		h & hid;
-		h & absolute;
+		h & mode;
 	}
 };
 
 struct DLL_LINKAGE SetMovePoints : public CPackForClient
 {
 	SetMovePoints() = default;
-	SetMovePoints(ObjectInstanceID hid, si32 val, bool absolute)
+	SetMovePoints(ObjectInstanceID hid, si32 val, ChangeValueMode mode)
 		: hid(hid)
 		, val(val)
-		, absolute(absolute)
+		, mode(mode)
 	{}
 
 	ObjectInstanceID hid;
 	si32 val = 0;
-	bool absolute = true;
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -332,7 +334,7 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 	{
 		h & val;
 		h & hid;
-		h & absolute;
+		h & mode;
 	}
 };
 
@@ -542,18 +544,6 @@ struct DLL_LINKAGE AddQuest : public CPackForClient
 	{
 		h & player;
 		h & quest;
-	}
-};
-
-struct DLL_LINKAGE UpdateArtHandlerLists : public CPackForClient
-{
-	std::map<ArtifactID, int> allocatedArtifacts;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & allocatedArtifacts;
 	}
 };
 
@@ -796,7 +786,7 @@ struct DLL_LINKAGE ChangeStackCount : CGarrisonOperationPack
 	ObjectInstanceID army;
 	SlotID slot;
 	TQuantity count;
-	bool absoluteValue; //if not -> count will be added (or subtracted if negative)
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -805,7 +795,7 @@ struct DLL_LINKAGE ChangeStackCount : CGarrisonOperationPack
 		h & army;
 		h & slot;
 		h & count;
-		h & absoluteValue;
+		h & mode;
 	}
 };
 
@@ -914,6 +904,24 @@ struct DLL_LINKAGE CArtifactOperationPack : CPackForClient
 {
 };
 
+struct DLL_LINKAGE GrowUpArtifact : CArtifactOperationPack
+{
+	ArtifactInstanceID id;
+
+	GrowUpArtifact() = default;
+	GrowUpArtifact(const ArtifactInstanceID & id)
+		: id(id)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
+	}
+};
+
 struct DLL_LINKAGE PutArtifact : CArtifactOperationPack
 {
 	PutArtifact() = default;
@@ -1009,6 +1017,29 @@ struct DLL_LINKAGE BulkMoveArtifacts : CArtifactOperationPack
 		h & dstArtHolder;
 		h & srcCreature;
 		h & dstCreature;
+	}
+};
+
+struct DLL_LINKAGE DischargeArtifact : CArtifactOperationPack
+{
+	ArtifactInstanceID id;
+	uint16_t charges;
+	std::optional<ArtifactLocation> artLoc;
+
+	DischargeArtifact() = default;
+	DischargeArtifact(const ArtifactInstanceID & id, const uint16_t charges)
+		: id(id)
+		, charges(charges)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
+		h & charges;
+		h & artLoc;
 	}
 };
 

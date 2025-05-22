@@ -19,6 +19,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/IBattleState.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -347,11 +348,8 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
 	{
-		auto badMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
-		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(badMoraleChanceVector.size(), -nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(badMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= badMoraleChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollBadMorale(ownerArmy, -nextStackMorale))
 		{
 			//unit loses its turn - empty freeze action
 			BattleAction ba;
@@ -392,7 +390,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-		&& (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId))))
+	   && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
@@ -464,7 +462,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT))))
+		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
 		{
 			BattleAction attack;
 			attack.actionType = EActionType::CATAPULT;
@@ -489,7 +487,7 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 
-		if (!curOwner || gameHandler->getRandomGenerator().nextInt(99) >= curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT))))
+		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT)))))
 		{
 			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
 			const CStack * toBeHealed = possibleStacks.front();
@@ -527,11 +525,8 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 		&& next->canMove()
 		&& nextStackMorale > 0)
 	{
-		auto goodMoraleChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
-		int moraleDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(goodMoraleChanceVector.size(), nextStackMorale) - 1; // array index, so 0-indexed
-
-		if(goodMoraleChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, moraleDiceSize) <= goodMoraleChanceVector[chanceIndex])
+		ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(next->unitSide())->id;
+		if (gameHandler->randomizer->rollGoodMorale(ownerArmy, nextStackMorale))
 		{
 			BattleTriggerEffect bte;
 			bte.battleID = battle.getBattle()->getBattleID();
@@ -743,6 +738,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if (st->isLiving() && !st->hasBonusOfType(BonusType::FEARLESS))
 		{
+			ObjectInstanceID opponentArmyID = battle.battleGetArmyObject(battle.otherSide(st->unitSide()))->id;
 			bool fearsomeCreature = false;
 			for (const CStack * stack : battle.battleGetAllStacks(true))
 			{
@@ -752,13 +748,10 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					break;
 				}
 			}
-			if (fearsomeCreature)
+			if (fearsomeCreature && gameHandler->randomizer->rollCombatAbility(opponentArmyID, 10)) //fixed 10%
 			{
-				if (gameHandler->getRandomGenerator().nextInt(99) < 10) //fixed 10%
-				{
-					bte.effect = vstd::to_underlying(BonusType::FEAR);
-					gameHandler->sendAndApply(bte);
-				}
+				bte.effect = vstd::to_underlying(BonusType::FEAR);
+				gameHandler->sendAndApply(bte);
 			}
 		}
 		BonusList bl = *(st->getBonuses(Selector::type()(BonusType::ENCHANTER)));
@@ -768,7 +761,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		});
 
 		BattleSide side = battle.playerToSide(st->unitOwner());
-		if(st->canCast() && battle.battleGetEnchanterCounter(side) == 0)
+		if(st->canCast())
 		{
 			bool cast = false;
 			while(!bl.empty() && !cast)
@@ -780,29 +773,29 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					return b == bonus.get();
 				});
+
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->additionalInfo[0] != 0)
+					continue; // cooldown
+
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
 				parameters.setSpellLevel(bonus->val);
 
-				auto &levelInfo = spell->getLevelInfo(bonus->val);
-				bool isDamageSpell = spell->isDamage() || spell->isOffensive();
-				if (!isDamageSpell || levelInfo.smartTarget || !levelInfo.range.empty())
-				{
-					parameters.massive = true;
-					parameters.smart = true;
-				}
 				//todo: recheck effect level
-				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, spells::Destination())))
+				if(parameters.castIfPossible(gameHandler->spellEnv, spells::Target(1, parameters.massive ? spells::Destination() : spells::Destination(st))))
 				{
 					cast = true;
 
 					int cooldown = bonus->additionalInfo[0];
-					BattleSetStackProperty ssp;
-					ssp.battleID = battle.getBattle()->getBattleID();
-					ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
-					ssp.absolute = false;
-					ssp.val = cooldown;
-					ssp.stackID = st->unitId();
-					gameHandler->sendAndApply(ssp);
+					if (cooldown != 0)
+					{
+						BattleSetStackProperty ssp;
+						ssp.battleID = battle.getBattle()->getBattleID();
+						ssp.which = BattleSetStackProperty::ENCHANTER_COUNTER;
+						ssp.absolute = false;
+						ssp.val = cooldown;
+						ssp.stackID = st->unitId();
+						gameHandler->sendAndApply(ssp);
+					}
 				}
 			}
 		}

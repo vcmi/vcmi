@@ -76,6 +76,8 @@ struct DLL_LINKAGE BattleCancelled: public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
 
+	void visitTyped(ICPackVisitor & visitor) override;
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
@@ -102,14 +104,14 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	BattleID battleID = BattleID::NONE;
 	BattleSideArray<HeroBattleResults> heroResult;
 	BattleSide winnerSide;
-	std::vector<BulkMoveArtifacts> artifacts;
+
+	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
 		h & heroResult;
 		h & winnerSide;
-		h & artifacts;
 		assert(battleID != BattleID::NONE);
 	}
 };
@@ -247,7 +249,7 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	std::vector<BattleStackAttacked> bsa;
 	ui32 stackAttacking = 0;
 	ui32 flags = 0; //uses Eflags (below)
-	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128 };
+	enum EFlags { SHOT = 1, COUNTER = 2, LUCKY = 4, UNLUCKY = 8, BALLISTA_DOUBLE_DMG = 16, DEATH_BLOW = 32, SPELL_LIKE = 64, LIFE_DRAIN = 128, CUSTOM_ANIMATION = 256};
 
 	BattleHex tile;
 	SpellID spellID = SpellID::NONE; //for SPELL_LIKE
@@ -283,6 +285,10 @@ struct DLL_LINKAGE BattleAttack : public CPackForClient
 	bool lifeDrain() const
 	{
 		return flags & LIFE_DRAIN;
+	}
+	bool playCustomAnimation() const
+	{
+		return flags & CUSTOM_ANIMATION;
 	}
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -387,7 +393,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	PlayerColor victor;
 	PlayerColor loser;
 	ChangeSpells learnedSpells;
-	std::vector<BulkMoveArtifacts> artifacts;
+	std::vector<BulkMoveArtifacts> movingArtifacts;
+	std::vector<GrowUpArtifact> growingArtifacts;
+	std::vector<DischargeArtifact> dischargingArtifacts;
 	CStackBasicDescriptor raisedStack;
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -397,7 +405,9 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 		h & victor;
 		h & loser;
 		h & learnedSpells;
-		h & artifacts;
+		h & movingArtifacts;
+		h & growingArtifacts;
+		h & dischargingArtifacts;
 		h & raisedStack;
 		assert(battleID != BattleID::NONE);
 	}

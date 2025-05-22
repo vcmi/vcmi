@@ -55,7 +55,6 @@ public:
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
-	virtual void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
@@ -77,9 +76,11 @@ public:
 	virtual void visitInsertNewStack(InsertNewStack & pack) {}
 	virtual void visitRebalanceStacks(RebalanceStacks & pack) {}
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
+	virtual void visitGrowUpArtifact(GrowUpArtifact & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
 	virtual void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
+	virtual void visitDischargeArtifact(DischargeArtifact & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}
 	virtual void visitHeroVisit(HeroVisit & pack) {}

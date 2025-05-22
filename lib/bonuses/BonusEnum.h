@@ -16,7 +16,8 @@ class JsonNode;
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
-	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
+	BONUS_NAME(ARTIFACT_GROWING) \
+	BONUS_NAME(ARTIFACT_CHARGE) \
 	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
@@ -184,6 +185,9 @@ class JsonNode;
 	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(BASE_TILE_MOVEMENT_COST) /*minimal cost for moving offroad*/	\
 	BONUS_NAME(HERO_SPELL_CASTS_PER_COMBAT_TURN) /**/	\
+	BONUS_NAME(MULTIHEX_UNIT_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
 	/* end of list */
 
 

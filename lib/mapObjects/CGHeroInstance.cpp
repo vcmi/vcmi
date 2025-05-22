@@ -17,6 +17,7 @@
 
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -133,38 +134,33 @@ ui8 CGHeroInstance::getSecSkillLevel(const SecondarySkill & skill) const
 	return 0;
 }
 
-void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, bool abs)
+void CGHeroInstance::setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode)
 {
-	if (val == 0)      // skill removal
+	int currentLevel = getSecSkillLevel(which);
+	int newLevel = mode == ChangeValueMode::ABSOLUTE ? val : currentLevel + val;
+	int newLevelClamped = std::clamp<int>(newLevel, MasteryLevel::NONE, MasteryLevel::EXPERT);
+
+	if (currentLevel == newLevelClamped)
+		return; // no change
+
+	if (newLevelClamped == 0) // skill removal
 	{
 		vstd::erase_if(secSkills,  [which](const std::pair<SecondarySkill, ui8>& pair) { return pair.first == which; });
-		updateSkillBonus(which, val);
 	}
-	else if(getSecSkillLevel(which) == 0)
+	else if(currentLevel == 0) // gained new skill
 	{
-		secSkills.emplace_back(which, val);
-		updateSkillBonus(which, val);
+		secSkills.emplace_back(which, newLevelClamped);
 	}
 	else
 	{
 		for (auto & elem : secSkills)
 		{
 			if(elem.first == which)
-			{
-				if(abs)
-					elem.second = val;
-				else
-					elem.second += val;
-
-				if(elem.second > 3) //workaround to avoid crashes when same sec skill is given more than once
-				{
-					logGlobal->warn("Skill %d increased over limit! Decreasing to Expert.", static_cast<int>(which.toEnum()));
-					elem.second = 3;
-				}
-				updateSkillBonus(which, elem.second); //when we know final value
-			}
+				elem.second = newLevelClamped;
 		}
 	}
+
+	updateSkillBonus(which, newLevelClamped);
 }
 
 int3 CGHeroInstance::convertToVisitablePos(const int3 & position) const
@@ -352,16 +348,16 @@ CCommanderInstance * CGHeroInstance::getCommander()
 	return commander.get();
 }
 
-void CGHeroInstance::initObj(vstd::RNG & rand)
+void CGHeroInstance::initObj(IGameRandomizer & gameRandomizer)
 {
 	if (ID == Obj::HERO)
 		updateAppearance();
 }
 
-void CGHeroInstance::initHero(vstd::RNG & rand, const HeroTypeID & SUBID)
+void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID)
 {
 	subID = SUBID.getNum();
-	initHero(rand);
+	initHero(gameRandomizer);
 }
 
 TObjectTypeHandler CGHeroInstance::getObjectHandler() const
@@ -375,13 +371,13 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 void CGHeroInstance::updateAppearance()
 {
 	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-	auto terrain = cb->gameState().getTile(visitablePos())->getTerrainID();
+	auto terrain = cb->getTile(visitablePos())->getTerrainID();
 	auto app = handler->getOverride(terrain, this);
 	if (app)
 		appearance = app;
 }
 
-void CGHeroInstance::initHero(vstd::RNG & rand)
+void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer)
 {
 	assert(validTypes(true));
 	
@@ -434,7 +430,7 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 	setFormation(EArmyFormation::LOOSE);
 	if (!stacksCount()) //standard army//initial army
 	{
-		initArmy(rand);
+		initArmy(gameRandomizer.getDefault());
 	}
 	assert(validTypes());
 
@@ -443,11 +439,11 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 
 	if(exp == UNINITIALIZED_EXPERIENCE)
 	{
-		initExp(rand);
+		initExp(gameRandomizer.getDefault());
 	}
 	else
 	{
-		levelUpAutomatically(rand);
+		levelUpAutomatically(gameRandomizer);
 	}
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
@@ -471,8 +467,6 @@ void CGHeroInstance::initHero(vstd::RNG & rand)
 		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
 		commander->giveTotalStackExperience(exp); //after our exp is set
 	}
-
-	skillsInfo = SecondarySkillsInfo();
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
 	for(const std::shared_ptr<Bonus> & b : getHeroType()->specialty)
@@ -561,7 +555,7 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 
 	if (ID == Obj::HERO)
 	{
-		if( cb->gameState().getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
+		if( cb->getPlayerRelations(tempOwner, h->tempOwner) != PlayerRelations::ENEMIES)
 		{
 			//exchange
 			gameEvents.heroExchange(h->id, id);
@@ -586,7 +580,7 @@ void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 
 			ObjectInstanceID boatId;
 			const auto boatPos = visitablePos();
-			if (cb->gameState().getMap().getTile(boatPos).isWater())
+			if (cb->getTile(boatPos)->isWater())
 			{
 				smp.val = movementPointsLimit(false);
 				if (!inBoat())
@@ -654,27 +648,13 @@ ui8 CGHeroInstance::maxlevelsToWisdom() const
 	return getHeroClass()->isMagicHero() ? 3 : 6;
 }
 
-CGHeroInstance::SecondarySkillsInfo::SecondarySkillsInfo():
-	magicSchoolCounter(1),
-	wisdomCounter(1)
-{}
-
-void CGHeroInstance::SecondarySkillsInfo::resetMagicSchoolCounter()
-{
-	magicSchoolCounter = 0;
-}
-void CGHeroInstance::SecondarySkillsInfo::resetWisdomCounter()
-{
-	wisdomCounter = 0;
-}
-
-void CGHeroInstance::pickRandomObject(vstd::RNG & randomGenerator)
+void CGHeroInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	assert(ID == Obj::HERO || ID == Obj::PRISON || ID == Obj::RANDOM_HERO);
 
 	if (ID == Obj::RANDOM_HERO)
 	{
-		auto selectedHero = cb->gameState().pickNextHeroType(randomGenerator, getOwner());
+		auto selectedHero = cb->gameState().pickNextHeroType(gameRandomizer.getDefault(), getOwner());
 
 		ID = Obj::HERO;
 		subID = selectedHero;
@@ -909,7 +889,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 	if(spellCost != 0)
 	{
 		SetMana sm;
-		sm.absolute = false;
+		sm.mode = ChangeValueMode::RELATIVE;
 		sm.hid = id;
 		sm.val = -spellCost;
 
@@ -1430,34 +1410,18 @@ ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
-std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vstd::RNG & rand) const
+std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const
 {
-	auto getObligatorySkills = [](CSkill::Obligatory obl){
-		std::set<SecondarySkill> obligatory;
-		for(auto i = 0; i < LIBRARY->skillh->size(); i++)
-			if((*LIBRARY->skillh)[SecondarySkill(i)]->obligatory(obl))
-				obligatory.insert(i); //Always return all obligatory skills
-
-		return obligatory;
-	};
-
-	auto intersect = [](const std::set<SecondarySkill> & left, const std::set<SecondarySkill> & right)
-	{
-		std::set<SecondarySkill> intersect;
-		std::set_intersection(left.begin(), left.end(), right.begin(), right.end(),
-						 std::inserter(intersect, intersect.begin()));
-		return intersect;
-	};
-
-	std::set<SecondarySkill> wisdomList = getObligatorySkills(CSkill::Obligatory::MAJOR);
-	std::set<SecondarySkill> schoolList = getObligatorySkills(CSkill::Obligatory::MINOR);
-
 	std::set<SecondarySkill> basicAndAdv;
 	std::set<SecondarySkill> none;
+	std::vector<SecondarySkill>	skills;
 
-	for(int i = 0; i < LIBRARY->skillh->size(); i++)
-		if (canLearnSkill(SecondarySkill(i)))
-			none.insert(SecondarySkill(i));
+	if (canLearnSkill())
+	{
+		for(int i = 0; i < LIBRARY->skillh->size(); i++)
+			if (canLearnSkill(SecondarySkill(i)))
+				none.insert(SecondarySkill(i));
+	}
 
 	for(const auto & elem : secSkills)
 	{
@@ -1466,97 +1430,34 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelUpProposedSecondarySkills(vs
 		none.erase(elem.first);
 	}
 
-	bool wantsWisdom = skillsInfo.wisdomCounter + 1 >= maxlevelsToWisdom();
-	bool wantsSchool = skillsInfo.magicSchoolCounter + 1 >= maxlevelsToMagicSchool();
-
-	std::vector<SecondarySkill> skills;
-
-	auto chooseSkill = [&](std::set<SecondarySkill> & options)
-	{
-		bool selectWisdom = wantsWisdom && !intersect(options, wisdomList).empty();
-		bool selectSchool = wantsSchool && !intersect(options, schoolList).empty();
-		SecondarySkill selection;
-
-		if (selectWisdom)
-			selection = getHeroClass()->chooseSecSkill(intersect(options, wisdomList), rand);
-		else if (selectSchool)
-			selection = getHeroClass()->chooseSecSkill(intersect(options, schoolList), rand);
-		else
-			selection = getHeroClass()->chooseSecSkill(options, rand);
-
-		skills.push_back(selection);
-		options.erase(selection);
-
-		if (wisdomList.count(selection))
-			wisdomList.clear();
-
-		if (schoolList.count(selection))
-			schoolList.clear();
-	};
-
 	if (!basicAndAdv.empty())
-		chooseSkill(basicAndAdv);
+	{
+		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
+		basicAndAdv.erase(skills.back());
+	}
 
-	if (canLearnSkill() && !none.empty())
-		chooseSkill(none);
+	if (!none.empty())
+	{
+		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
+		none.erase(skills.back());
+	}
 
 	if (!basicAndAdv.empty() && skills.size() < 2)
-		chooseSkill(basicAndAdv);
+	{
+		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
+		basicAndAdv.erase(skills.back());
+	}
 
-	if (canLearnSkill() && !none.empty() && skills.size() < 2)
-		chooseSkill(none);
+	if (!none.empty() && skills.size() < 2)
+	{
+		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
+		none.erase(skills.back());
+	}
 
 	return skills;
 }
 
-PrimarySkill CGHeroInstance::nextPrimarySkill(vstd::RNG & rand) const
-{
-	assert(gainsLevel());
-	const auto isLowLevelHero = level < GameConstants::HERO_HIGH_LEVEL;
-	const auto & skillChances = isLowLevelHero ? getHeroClass()->primarySkillLowLevel : getHeroClass()->primarySkillHighLevel;
-
-	if (isCampaignYog())
-	{
-		// Yog can only receive Attack or Defence on level-up
-		std::vector<int> yogChances = { skillChances[0], skillChances[1]};
-		return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(yogChances, rand));
-	}
-
-	return static_cast<PrimarySkill>(RandomGeneratorUtil::nextItemWeighted(skillChances, rand));
-}
-
-std::optional<SecondarySkill> CGHeroInstance::nextSecondarySkill(vstd::RNG & rand) const
-{
-	assert(gainsLevel());
-
-	std::optional<SecondarySkill> chosenSecondarySkill;
-	const auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
-	if(!proposedSecondarySkills.empty())
-	{
-		std::vector<SecondarySkill> learnedSecondarySkills;
-		for(const auto & secondarySkill : proposedSecondarySkills)
-		{
-			if(getSecSkillLevel(secondarySkill) > 0)
-			{
-				learnedSecondarySkills.push_back(secondarySkill);
-			}
-		}
-
-		if(learnedSecondarySkills.empty())
-		{
-			// there are only new skills to learn, so choose anyone of them
-			chosenSecondarySkill = std::make_optional(*RandomGeneratorUtil::nextItem(proposedSecondarySkills, rand));
-		}
-		else
-		{
-			// preferably upgrade a already learned secondary skill
-			chosenSecondarySkill = std::make_optional(*RandomGeneratorUtil::nextItem(learnedSecondarySkills, rand));
-		}
-	}
-	return chosenSecondarySkill;
-}
-
-void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs)
+void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode)
 {
 	if(primarySkill < PrimarySkill::EXPERIENCE)
 	{
@@ -1565,7 +1466,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
 		assert(skill);
 
-		if(abs)
+		if(mode == ChangeValueMode::ABSOLUTE)
 		{
 			skill->val = static_cast<si32>(value);
 		}
@@ -1577,7 +1478,7 @@ void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 
 	}
 	else if(primarySkill == PrimarySkill::EXPERIENCE)
 	{
-		if(abs)
+		if(mode == ChangeValueMode::ABSOLUTE)
 		{
 			exp = value;
 		}
@@ -1593,22 +1494,9 @@ bool CGHeroInstance::gainsLevel() const
 	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
-void CGHeroInstance::levelUp(const std::vector<SecondarySkill> & skills)
+void CGHeroInstance::levelUp()
 {
 	++level;
-
-	//deterministic secondary skills
-	++skillsInfo.magicSchoolCounter;
-	++skillsInfo.wisdomCounter;
-
-	for(const auto & skill : skills)
-	{
-		if((*LIBRARY->skillh)[skill]->obligatory(CSkill::Obligatory::MAJOR))
-			skillsInfo.resetWisdomCounter();
-		if((*LIBRARY->skillh)[skill]->obligatory(CSkill::Obligatory::MINOR))
-			skillsInfo.resetMagicSchoolCounter();
-	}
-
 	//update specialty and other bonuses that scale with level
 	nodeHasChanged();
 }
@@ -1619,23 +1507,18 @@ void CGHeroInstance::attachCommanderToArmy()
 		commander->setArmy(this);
 }
 
-void CGHeroInstance::levelUpAutomatically(vstd::RNG & rand)
+void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 {
 	while(gainsLevel())
 	{
-		const auto primarySkill = nextPrimarySkill(rand);
-		setPrimarySkill(primarySkill, 1, false);
+		const auto primarySkill = gameRandomizer.rollPrimarySkillForLevelup(this);
+		const auto proposedSecondarySkills = getLevelupSkillCandidates(gameRandomizer);
 
-		auto proposedSecondarySkills = getLevelUpProposedSecondarySkills(rand);
+		setPrimarySkill(primarySkill, 1, ChangeValueMode::RELATIVE);
+		if(!proposedSecondarySkills.empty())
+			setSecSkillLevel(proposedSecondarySkills.front(), 1, ChangeValueMode::RELATIVE);
 
-		const auto secondarySkill = nextSecondarySkill(rand);
-		if(secondarySkill)
-		{
-			setSecSkillLevel(*secondarySkill, 1, false);
-		}
-
-		//TODO why has the secondary skills to be passed to the method?
-		levelUp(proposedSecondarySkills);
+		levelUp();
 	}
 }
 

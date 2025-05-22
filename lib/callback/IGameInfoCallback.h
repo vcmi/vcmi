@@ -141,6 +141,13 @@ public:
 	/// Calculates pathfinding data into specified pathfinder config
 	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const = 0;
 
+	/// Returns position of creature that guards specified tile, or invalid tile if there are no guards
+	virtual int3 guardingCreaturePosition (int3 pos) const = 0;
+	/// Return true if src tile is visitable from dst tile
+	virtual bool checkForVisitableDir(const int3 & src, const int3 & dst) const = 0;
+	/// Returns all wandering monsters that guard specified tile
+	virtual std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const = 0;
+
 	/// Returns all tiles within specified range with specific tile visibility mode
 	virtual void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;
 
@@ -154,10 +161,6 @@ public:
 	virtual bool isTeleportChannelBidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
 	virtual bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player = PlayerColor::UNFLAGGABLE) const  = 0;
 	virtual bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const  = 0;
-
-	/// gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
-	/// TODO: remove non-const method from this interface
-	virtual void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand) = 0;
 
 #if SCRIPTING_ENABLED
 	virtual scripting::Pool * getGlobalContextPool() const = 0;

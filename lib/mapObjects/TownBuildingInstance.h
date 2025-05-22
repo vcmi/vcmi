@@ -57,7 +57,7 @@ class DLL_LINKAGE TownRewardableBuildingInstance : public TownBuildingInstance, 
 
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
 	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
-	Rewardable::Configuration generateConfiguration(vstd::RNG & rand) const;
+	Rewardable::Configuration generateConfiguration(IGameRandomizer & gameRandomizer) const;
 	void assignBonuses(std::vector<Bonus> & bonuses) const;
 
 	const IObjectInterface * getObject() const override;
@@ -69,7 +69,7 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool wasVisited(const CGHeroInstance * contextHero) const override;
 	
-	void newTurn(IGameEventCallback & gameEvents) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
@@ -77,7 +77,7 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	
-	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, vstd::RNG & rand);
+	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, IGameRandomizer & gameRandomizer);
 	TownRewardableBuildingInstance(IGameInfoCallback *cb);
 	
 	template <typename Handler> void serialize(Handler &h)

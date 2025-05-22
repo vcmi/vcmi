@@ -21,6 +21,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/battle/BattleAction.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -124,6 +125,7 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 	}
 
 	parameters.cast(gameHandler->spellEnv, ba.getTarget(&battle));
+	gameHandler->useChargedArtifactUsed(h->id, ba.spell);
 
 	return true;
 }
@@ -937,37 +939,22 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		bat.flags |= BattleAttack::COUNTER;
 
 	const int attackerLuck = attacker->luckVal();
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
 
-	if(attackerLuck > 0)
-	{
-		auto goodLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_GOOD_LUCK_CHANCE);
-		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(goodLuckChanceVector.size(), attackerLuck) - 1; // array index, so 0-indexed
+	if(attackerLuck > 0 && gameHandler->randomizer->rollGoodLuck(ownerArmy, attackerLuck))
+		bat.flags |= BattleAttack::LUCKY;
 
-		if(goodLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= goodLuckChanceVector[chanceIndex])
-			bat.flags |= BattleAttack::LUCKY;
-	}
+	if(attackerLuck < 0 && gameHandler->randomizer->rollBadLuck(ownerArmy, -attackerLuck))
+		bat.flags |= BattleAttack::UNLUCKY;
 
-	if(attackerLuck < 0)
-	{
-		auto badLuckChanceVector = gameHandler->getSettings().getVector(EGameSettings::COMBAT_BAD_LUCK_CHANCE);
-		int luckDiceSize = gameHandler->getSettings().getInteger(EGameSettings::COMBAT_LUCK_DICE_SIZE);
-		size_t chanceIndex = std::min<size_t>(badLuckChanceVector.size(), -attackerLuck) - 1; // array index, so 0-indexed
-
-		if(badLuckChanceVector.size() > 0 && gameHandler->getRandomGenerator().nextInt(1, luckDiceSize) <= badLuckChanceVector[chanceIndex])
-			bat.flags |= BattleAttack::UNLUCKY;
-	}
-
-	if (gameHandler->getRandomGenerator().nextInt(99) < attacker->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE))
-	{
+	if (gameHandler->randomizer->rollCombatAbility(ownerArmy, attacker->valOfBonuses(BonusType::DOUBLE_DAMAGE_CHANCE)))
 		bat.flags |= BattleAttack::DEATH_BLOW;
-	}
 
 	const auto * owner = battle.battleGetFightingHero(attacker->unitSide());
 	if(owner)
 	{
 		int chance = owner->valOfBonuses(BonusType::BONUS_DAMAGE_CHANCE, BonusSubtypeID(attacker->creatureId()));
-		if (chance > gameHandler->getRandomGenerator().nextInt(99))
+		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, chance))
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
 	}
 
@@ -978,12 +965,15 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 		applyBattleEffects(battle, bat, attackerState, fireShield, defender, healInfo, distance, false);
 
 	//multiple-hex normal attack
-	std::set<const CStack*> attackedCreatures = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
+	const auto & [attackedCreatures, useCustomAnimation] = battle.getAttackedCreatures(attacker, targetHex, bat.shot()); //creatures other than primary target
 	for(const CStack * stack : attackedCreatures)
 	{
 		if(stack != defender && stack->alive()) //do not hit same stack twice
 			applyBattleEffects(battle, bat, attackerState, fireShield, stack, healInfo, distance, true);
 	}
+
+	if (useCustomAnimation)
+		bat.flags |= BattleAttack::CUSTOM_ANIMATION;
 
 	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
@@ -1125,6 +1115,8 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 
 void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender)
 {
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+
 	if(attacker->hasBonusOfType(attackMode))
 	{
 		TConstBonusListPtr spells = attacker->getBonuses(Selector::type()(attackMode));
@@ -1168,7 +1160,7 @@ void BattleActionProcessor::attackCasting(const CBattleInfoCallback & battle, bo
 				continue;
 
 			//check if spell should be cast (probability handling)
-			if(gameHandler->getRandomGenerator().nextInt(99) >= chance)
+			if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chance))
 				continue;
 
 			//casting
@@ -1324,9 +1316,11 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	int64_t acidDamage = 0;
 	TConstBonusListPtr acidBreath = attacker->getBonuses(Selector::type()(BonusType::ACID_BREATH));
+	ObjectInstanceID ownerArmy = battle.getBattle()->getSideArmy(attacker->unitSide())->id;
+
 	for(const auto & b : *acidBreath)
 	{
-		if(b->additionalInfo[0] > gameHandler->getRandomGenerator().nextInt(99))
+		if (gameHandler->randomizer->rollCombatAbility(ownerArmy, b->additionalInfo[0]))
 			acidDamage += b->val;
 	}
 
@@ -1350,10 +1344,8 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving()) //transmutation mechanics, similar to WoG werewolf ability
 	{
-		double chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION) / 100.0f;
-		vstd::amin(chanceToTrigger, 1); //cap at 100%
-
-		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
+		int chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION);
+		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
 			return;
 
 		int bonusAdditionalInfo = attacker->getBonus(Selector::type()(BonusType::TRANSMUTATION))->additionalInfo[0];
@@ -1400,24 +1392,22 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 
 	if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) || attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount))
 	{
-		double chanceToTrigger = 0;
+		int chanceToTrigger = 0;
 		int amountToDie = 0;
 
 		if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage)) //killing by percentage
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage) / 100.0f;
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillPercentage);
 			int percentageToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillPercentage)))->additionalInfo[0];
 			amountToDie = static_cast<int>(defender->getCount() * percentageToDie * 0.01f);
 		}
 		else if(attacker->hasBonusOfType(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount)) //killing by count
 		{
-			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount) / 100.0f;
+			chanceToTrigger = attacker->valOfBonuses(BonusType::DESTRUCTION, BonusCustomSubtype::destructionKillAmount);
 			amountToDie = attacker->getBonus(Selector::type()(BonusType::DESTRUCTION).And(Selector::subtype()(BonusCustomSubtype::destructionKillAmount)))->additionalInfo[0];
 		}
 
-		vstd::amin(chanceToTrigger, 1); //cap trigger chance at 100%
-
-		if(gameHandler->getRandomGenerator().nextDouble(0, 1) > chanceToTrigger)
+		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))
 			return;
 
 		BattleStackAttacked bsa;

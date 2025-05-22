@@ -61,7 +61,7 @@ public:
 	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 
 	///possibly resets object state
-	void newTurn(IGameEventCallback & gameEvents) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
 	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
@@ -69,7 +69,7 @@ public:
 	/// applies player selection of reward
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	bool isCoastVisitable() const override;
 

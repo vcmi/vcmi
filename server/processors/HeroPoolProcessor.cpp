@@ -164,7 +164,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	if (gameHandler->getHeroCount(player, false) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, true) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrizoned and wandering already!"))
+	if (gameHandler->getHeroCount(player, true) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrisoned and wandering heroes present!"))
 		return false;
 
 	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
@@ -366,17 +366,6 @@ CGHeroInstance * HeroPoolProcessor::pickHeroFor(bool isNative, const PlayerColor
 		return nullptr;
 
 	return *RandomGeneratorUtil::nextItem(possibleHeroes, getRandomGenerator(player));
-}
-
-vstd::RNG & HeroPoolProcessor::getHeroSkillsRandomGenerator(const HeroTypeID & hero)
-{
-	if (heroSeed.count(hero) == 0)
-	{
-		int seed = gameHandler->getRandomGenerator().nextInt();
-		heroSeed.emplace(hero, std::make_unique<CRandomGenerator>(seed));
-	}
-
-	return *heroSeed.at(hero);
 }
 
 vstd::RNG & HeroPoolProcessor::getRandomGenerator(const PlayerColor & player)

@@ -87,5 +87,18 @@ In order to make functional artifact you also need:
 		"bonusesPerLevel" : {},
 		"thresholdBonuses" : {},
 	}
+
+	// Optional, used for artifacts with charges.
+	"charged" : {
+    // Artifact discharging action
+    // SPELLCAST - Consumes a charge for each spellcast. Applies to every spell added through the "bonuses" section.
+    // BATTLE - Consumes one charge per battle.
+    // BUILDING (not implemented)
+    "usageType": "BATTLE",
+    // Optional, by default is false. Remove when fully discharged
+    "removeOnDepletion" : true,
+    // Optional, by default is 0. Default starting charge amount.
+    "startingCharges" : 2,
+	}
 }
 ```

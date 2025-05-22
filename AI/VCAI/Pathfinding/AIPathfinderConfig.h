@@ -11,7 +11,6 @@
 #pragma once
 
 #include "AINodeStorage.h"
-#include "../VCAI.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 
 namespace AIPathfinding
@@ -30,6 +29,6 @@ namespace AIPathfinding
 
 		~AIPathfinderConfig();
 
-		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, CGameState & gs) override;
+		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, const IGameInfoCallback & gameInfo) override;
 	};
 }

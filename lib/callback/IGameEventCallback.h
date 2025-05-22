@@ -67,8 +67,8 @@ public:
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
-	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, bool abs=false)=0;
-	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0;
+	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
+	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
 	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
@@ -76,9 +76,10 @@ public:
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, ResourceSet resources)=0;
 
+	virtual void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) =0;
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval = false) =0;
-	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
+	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) =0;
 	virtual bool changeStackType(const StackLocation &sl, const CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
 	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
@@ -104,7 +105,7 @@ public:
 	virtual bool swapGarrisonOnSiege(ObjectInstanceID tid)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
-	virtual void setMovePoints(ObjectInstanceID hid, int val, bool absolute)=0;
+	virtual void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
@@ -117,6 +118,7 @@ public:
 
 	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
 
+	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;
 };
 

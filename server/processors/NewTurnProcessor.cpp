@@ -18,6 +18,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
@@ -386,7 +387,7 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 			continue;
 
 		StackLocation stackLocation(t->id, slot.first);
-		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), false);
+		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), ChangeValueMode::RELATIVE);
 		takeFromAvailable(creature->getGrowth());
 
 		if (upgradeUnit && !creature->upgrades.empty())
@@ -524,7 +525,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 		{
 			if (gameHandler->getSettings().getBoolean(EGameSettings::CREATURES_ALLOW_ALL_FOR_DOUBLE_MONTH))
 			{
-				CreatureID creatureID = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				CreatureID creatureID = gameHandler->randomizer->rollCreature();
 				return { EWeekType::DOUBLE_GROWTH, creatureID};
 			}
 			else if (LIBRARY->creh->doubledCreatures.size())
@@ -551,7 +552,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 			std::pair<int, CreatureID> newMonster(54, CreatureID());
 			do
 			{
-				newMonster.second = LIBRARY->creh->pickRandomMonster(gameHandler->getRandomGenerator());
+				newMonster.second = gameHandler->randomizer->rollCreature();
 			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second};
@@ -571,7 +572,7 @@ std::vector<SetMana> NewTurnProcessor::updateHeroesManaPoints()
 			int32_t newMana = h->getManaNewTurn();
 
 			if (newMana != h->mana)
-				result.emplace_back(h->id, newMana, true);
+				result.emplace_back(h->id, newMana, ChangeValueMode::ABSOLUTE);
 		}
 	}
 	return result;
@@ -590,7 +591,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
-				result.emplace_back(h->id, newMovementPoints, true);
+				result.emplace_back(h->id, newMovementPoints, ChangeValueMode::ABSOLUTE);
 		}
 	}
 	return result;

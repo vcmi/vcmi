@@ -39,13 +39,13 @@ void IObjectInterface::onHeroVisit(IGameEventCallback & gameEvents, const CGHero
 void IObjectInterface::onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {}
 
-void IObjectInterface::newTurn(IGameEventCallback & gameEvents) const
+void IObjectInterface::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {}
 
-void IObjectInterface::initObj(vstd::RNG & rand)
+void IObjectInterface::initObj(IGameRandomizer & gameRandomizer)
 {}
 
-void IObjectInterface::pickRandomObject(vstd::RNG & rand)
+void IObjectInterface::pickRandomObject(IGameRandomizer & gameRandomizer)
 {}
 
 void IObjectInterface::setProperty(ObjProperty what, ObjPropertyID identifier)

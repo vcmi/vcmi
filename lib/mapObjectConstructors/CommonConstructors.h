@@ -61,7 +61,7 @@ public:
 	int getAmountMultiplier() const;
 	int getBaseAmount(vstd::RNG & rng) const;
 
-	void randomizeObject(CGResource * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const override;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
@@ -76,7 +76,7 @@ public:
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
-	void randomizeObject(CGTownInstance * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const override;
 	void afterLoadFinalization() override;
 
 	bool hasNameTextID() const override;
@@ -99,7 +99,7 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 	void initTypeData(const JsonNode & input) override;
 
 public:
-	void randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGHeroInstance * object, IGameRandomizer & gameRandomizer) const override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -138,7 +138,7 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 	void initTypeData(const JsonNode & config) override;
 public:
 	std::shared_ptr<CGMarket> createObject(IGameInfoCallback * cb) const override;
-	void randomizeObject(CGMarket * object, vstd::RNG & rng) const override;
+	void randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const override;
 
 	const std::set<EMarketMode> & availableModes() const;
 	bool hasDescription() const;

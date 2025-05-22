@@ -574,7 +574,6 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	auto defender    = info.defender;
 	auto tile        = info.tile;
 	auto spellEffect = info.spellEffect;
-	auto multiAttack = !info.secondaryDefender.empty();
 	bool needsReverse = false;
 
 	if (info.indirectAttack)
@@ -625,7 +624,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		}
 	}
 
-	owner.addToAnimationStage(EAnimationEvents::ATTACK, [this, attacker, tile, defender, multiAttack, info]()
+	owner.addToAnimationStage(EAnimationEvents::ATTACK, [this, attacker, tile, defender, info]()
 	{
 		if (info.indirectAttack)
 		{
@@ -633,7 +632,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		}
 		else
 		{
-			addNewAnim(new MeleeAttackAnimation(owner, attacker, tile, defender, multiAttack));
+			addNewAnim(new MeleeAttackAnimation(owner, attacker, tile, defender, info.playCustomAnimation));
 		}
 	});
 

@@ -36,7 +36,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 void GameStatePackVisitor::visitSetResources(SetResources & pack)
 {
 	assert(pack.player.isValidPlayer());
-	if(pack.abs)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		gs.getPlayerState(pack.player)->resources = pack.res;
 	else
 		gs.getPlayerState(pack.player)->resources += pack.res;
@@ -52,13 +52,13 @@ void GameStatePackVisitor::visitSetPrimSkill(SetPrimSkill & pack)
 {
 	CGHeroInstance * hero = gs.getHero(pack.id);
 	assert(hero);
-	hero->setPrimarySkill(pack.which, pack.val, pack.abs);
+	hero->setPrimarySkill(pack.which, pack.val, pack.mode);
 }
 
 void GameStatePackVisitor::visitSetSecSkill(SetSecSkill & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.id);
-	hero->setSecSkillLevel(pack.which, pack.val, pack.abs);
+	hero->setSecSkillLevel(pack.which, pack.val, pack.mode);
 }
 
 void GameStatePackVisitor::visitSetCommanderProperty(SetCommanderProperty & pack)
@@ -99,11 +99,6 @@ void GameStatePackVisitor::visitAddQuest(AddQuest & pack)
 		vec->push_back(pack.quest);
 	else
 		logNetwork->warn("Warning! Attempt to add duplicated quest");
-}
-
-void GameStatePackVisitor::visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack)
-{
-	gs.allocatedArtifacts = pack.allocatedArtifacts;
 }
 
 void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
@@ -153,7 +148,7 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 
 	assert(hero);
 
-	if(pack.absolute)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		hero->mana = pack.val;
 	else
 		hero->mana += pack.val;
@@ -167,7 +162,7 @@ void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 
 	assert(hero);
 
-	if(pack.absolute)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		hero->setMovementPoints(pack.val);
 	else
 		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
@@ -677,7 +672,7 @@ void GameStatePackVisitor::visitChangeStackCount(ChangeStackCount & pack)
 	if(!srcObj)
 		throw std::runtime_error("ChangeStackCount: invalid army object " + std::to_string(pack.army.getNum()) + ", possible game state corruption.");
 
-	if(pack.absoluteValue)
+	if(pack.mode == ChangeValueMode::ABSOLUTE)
 		srcObj->setStackCount(pack.slot, pack.count);
 	else
 		srcObj->changeStackCount(pack.slot, pack.count);
@@ -820,6 +815,13 @@ void GameStatePackVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
 		move.visit(*this);
 }
 
+void GameStatePackVisitor::visitGrowUpArtifact(GrowUpArtifact & pack)
+{
+	auto artInst = gs.getArtInstance(pack.id);
+	assert(artInst);
+	artInst->growingUp();
+}
+
 void GameStatePackVisitor::visitPutArtifact(PutArtifact & pack)
 {
 	auto art = gs.getArtInstance(pack.id);
@@ -912,6 +914,21 @@ void GameStatePackVisitor::visitBulkMoveArtifacts(BulkMoveArtifacts & pack)
 		bulkArtsPut(pack.artsPack1, artInitialSetRight, *leftSet);
 	}
 	bulkArtsPut(pack.artsPack0, artInitialSetLeft, *rightSet);
+}
+
+void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
+{
+	auto artInst = gs.getArtInstance(pack.id);
+	assert(artInst);
+	artInst->discharge(pack.charges);
+	if(artInst->getType()->getRemoveOnDepletion() && artInst->getCharges() == 0 && pack.artLoc.has_value())
+	{
+		BulkEraseArtifacts ePack;
+		ePack.artHolder = pack.artLoc.value().artHolder;
+		ePack.creature = pack.artLoc.value().creature;
+		ePack.posPack.push_back(pack.artLoc.value().slot);
+		ePack.visit(*this);
+	}
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
@@ -1120,7 +1137,7 @@ void GameStatePackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
 {
 	auto * hero = gs.getHero(pack.heroId);
 	assert(hero);
-	hero->levelUp(pack.skills);
+	hero->levelUp();
 }
 
 void GameStatePackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)
@@ -1216,22 +1233,6 @@ void GameStatePackVisitor::visitBattleResultAccepted(BattleResultAccepted & pack
 		attackerHero->removeBonusesRecursive(Bonus::OneBattle);
 	if(const auto defenderHero = gs.getHero(pack.heroResult[BattleSide::DEFENDER].heroID))
 		defenderHero->removeBonusesRecursive(Bonus::OneBattle);
-
-	if(pack.winnerSide != BattleSide::NONE)
-	{
-		// Grow up growing artifacts
-		if(const auto winnerHero = gs.getHero(pack.heroResult[pack.winnerSide].heroID))
-		{
-			if(winnerHero->getCommander() && winnerHero->getCommander()->alive)
-
-			{
-				for(auto & art : winnerHero->getCommander()->artifactsWorn)
-					gs.getArtInstance(art.second.getID())->growingUp();
-			}
-			for(auto & art : winnerHero->artifactsWorn)
-				gs.getArtInstance(art.second.getID())->growingUp();
-		}
-	}
 
 	if(gs.getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
 	{
@@ -1343,8 +1344,14 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 {
 	pack.learnedSpells.visit(*this);
 
-	for(auto & artPack : pack.artifacts)
-		artPack.visit(*this);
+	for(auto & discharging : pack.dischargingArtifacts)
+		discharging.visit(*this);
+
+	for(auto & growing : pack.growingArtifacts)
+		growing.visit(*this);
+
+	for(auto & movingPack : pack.movingArtifacts)
+		movingPack.visit(*this);
 
 	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
 											[&](const auto & battle)

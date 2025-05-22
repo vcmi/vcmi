@@ -13,6 +13,7 @@
 
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../networkPacks/PacksForClient.h"
@@ -52,24 +53,24 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return LIBRARY->generaltexth->restypes[resourceID().getNum()];
 }
 
-void CGResource::pickRandomObject(vstd::RNG & rand)
+void CGResource::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
 
 	if (ID == Obj::RANDOM_RESOURCE)
 	{
 		ID = Obj::RESOURCE;
-		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		subID = gameRandomizer.getDefault().nextInt(EGameResID::WOOD, EGameResID::GOLD);
 		setType(ID, subID);
 
 		amount *= getAmountMultiplier();
 	}
 }
 
-void CGResource::initObj(vstd::RNG & rand)
+void CGResource::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
-	getResourceHandler()->randomizeObject(this, rand);
+	getResourceHandler()->randomizeObject(this, gameRandomizer);
 }
 
 void CGResource::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

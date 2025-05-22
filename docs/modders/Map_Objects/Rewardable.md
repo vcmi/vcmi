@@ -418,6 +418,7 @@ Keep in mind, that all randomization is performed on map load and on object rese
 - If hero does not have selected skill and have free skill slots, he will receive skill at specified level
 - Possible values: 1 (basic), 2 (advanced), 3 (expert)
 - Each secondary skill can be explicitly specified or randomly selected
+- Negative values can be used to downgrade or remove secondary skills from hero
 
 ```json
 "secondary": [
@@ -634,7 +635,8 @@ List of supported slots names:
 
 - Can be used as limiter
 - Can be used as reward, to give new creatures to a hero
-- If hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For map objects, if hero does not have enough free slots, game will show selection dialog to pick troops to keep
+- For town buildings, hero must either have free slot(s) to take them, or have creatures of this type. Othervice reward would fail to give any creatures
 - It is possible to specify probability to receive upgraded creature
 
 ```json
