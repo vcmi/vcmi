@@ -855,7 +855,7 @@ void CStackWindow::initBonusesList()
 	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
 	BonusList abilities = info->creature->getExportedBonusList();
 
-	std::sort(receivedBonuses.begin(), receivedBonuses.end(), [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
+	const auto & bonusSortingPredicate = [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
@@ -864,7 +864,12 @@ void CStackWindow::initBonusesList()
 		}
 		else
 			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
-	});
+	};
+
+	// these bonuses require special handling. For example they come with own descriptions, for use in morale/luck description
+	// also, this information is already available in creature window
+	receivedBonuses.remove_if(Selector::type()(BonusType::MORALE));
+	receivedBonuses.remove_if(Selector::type()(BonusType::LUCK));
 
 	std::vector<BonusList> groupedBonuses;
 	while (!receivedBonuses.empty())
@@ -876,17 +881,49 @@ void CStackWindow::initBonusesList()
 			return currentBonus->type == b->type && currentBonus->subtype == b->subtype;
 		};
 
-		groupedBonuses.push_back({});
+		groupedBonuses.emplace_back();
 
 		std::copy_if(receivedBonuses.begin(), receivedBonuses.end(), std::back_inserter(groupedBonuses.back()), sameBonusPredicate);
 		receivedBonuses.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
+		// FIXME: potential edge case: unit has ability that is propagated away (and needs to be displayed), but also receives same bonus from someplace else
 		abilities.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
 	}
 
+	// Add any remaining abilities of this unit that don't affect it at the moment, such as abilities that are propagated away, e.g. to other side in combat
 	BonusList visibleBonuses = abilities;
 
-	for (const auto & group : groupedBonuses)
-		visibleBonuses.push_back(group.front());
+	for (auto & group : groupedBonuses)
+	{
+		// Try to find the bonus in the group that represents the final effect in the best way.
+		std::sort(group.begin(), group.end(), bonusSortingPredicate);
+
+		BonusList groupIndepMin = group;
+		BonusList groupIndepMax = group;
+		BonusList groupNoMinMax = group;
+		groupIndepMin.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MIN; });
+		groupIndepMax.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MAX; });
+		groupNoMinMax.remove_if([](const Bonus * b) { return b->valType == BonusValueType::INDEPENDENT_MAX || b->valType == BonusValueType::INDEPENDENT_MIN; });
+
+		int valIndepMin = groupIndepMin.totalValue();
+		int valIndepMax = groupIndepMax.totalValue();
+		int valNoMinMax = group.totalValue();
+
+		BonusList usedGroup;
+
+		if (!groupIndepMin.empty() && valNoMinMax != valIndepMin)
+			usedGroup = groupIndepMin; // bonus value was limited due to INDEPENDENT_MIN bonus -> show this bonus
+		else if (!groupIndepMax.empty() && valNoMinMax != valIndepMax)
+			usedGroup = groupIndepMax; // bonus value was limited due to INDEPENDENT_MAX bonus -> show this bonus
+		else
+			usedGroup = groupNoMinMax; // bonus value is not limited - show first non-independent bonus
+
+		// It is possible that empty group was selected. For example, there is only INDEPENDENT effect with value of 0, which does not actually has any effect on this unit
+		// For example, orb of vulnerability on unit without any resistances
+		if (!usedGroup.empty())
+			visibleBonuses.push_back(usedGroup.front());
+	}
+
+	std::sort(visibleBonuses.begin(), visibleBonuses.end(), bonusSortingPredicate);
 
 	BonusInfo bonusInfo;
 	for(auto b : visibleBonuses)
@@ -898,7 +935,7 @@ void CStackWindow::initBonusesList()
 
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
-		if(!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
+		if(!bonusInfo.name.empty() || !bonusInfo.description.empty())
 			activeBonuses.push_back(bonusInfo);
 	}
 }
