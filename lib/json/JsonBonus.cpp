@@ -214,9 +214,12 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 		case BonusType::DESTRUCTION:
 		case BonusType::LIMITED_SHOOTING_RANGE:
 		case BonusType::ACID_BREATH:
+		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
+		case BonusType::ENCHANTER:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 			// 1 number
 			var = getFirstValue(value).Integer();
 			break;
