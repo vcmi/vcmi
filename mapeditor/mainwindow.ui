@@ -72,6 +72,7 @@
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionCampaignEditor"/>
+    <addaction name="actionTemplateEditor"/>
     <addaction name="separator"/>
     <addaction name="actionh3m_converter"/>
     <addaction name="actionh3c_converter"/>
@@ -148,6 +149,7 @@
    <addaction name="actionSave"/>
    <addaction name="separator"/>
    <addaction name="actionCampaignEditor"/>
+   <addaction name="actionTemplateEditor"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
@@ -1076,6 +1078,14 @@
    </property>
    <property name="toolTip">
     <string>Campaign editor</string>
+   </property>
+  </action>
+  <action name="actionTemplateEditor">
+   <property name="text">
+    <string>Template editor</string>
+   </property>
+   <property name="toolTip">
+    <string>Template editor</string>
    </property>
   </action>
   <action name="actionLevel">

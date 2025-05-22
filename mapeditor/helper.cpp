@@ -22,6 +22,10 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/rmg/CRmgTemplate.h"
+#include "../lib/serializer/JsonSerializer.h"
+#include "../lib/serializer/JsonDeserializer.h"
+#include "../lib/serializer/CSaveFile.h"
 
 std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
 {
@@ -77,6 +81,38 @@ std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & file
 		throw std::runtime_error("Corrupted campaign");
 }
 
+std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInternal(const QString & filenameSelect)
+{
+	QFileInfo fi(filenameSelect);
+	std::string fname = fi.fileName().toStdString();
+	std::string fdir = fi.dir().path().toStdString();
+	
+	ResourcePath resId("MAPEDITOR/" + fname, EResType::JSON);
+	
+	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
+	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
+	CResourceHandler::removeFilesystem("local", "mapEditor");
+	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
+	
+	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
+		throw std::runtime_error("Cannot open template from this folder");
+
+	auto data = CResourceHandler::get()->load(resId)->readAll();
+	JsonNode nodes(reinterpret_cast<std::byte *>(data.first.get()), data.second, resId.getName());
+
+	std::map<std::string, std::shared_ptr<CRmgTemplate>> templates;
+	for(auto & node : nodes.Struct())
+	{
+		JsonDeserializer handler(nullptr, node.second);
+		auto rmg = std::make_shared<CRmgTemplate>();
+		rmg->serializeJson(handler);
+		rmg->validate();
+		templates[node.first] = rmg;
+	}
+	
+	return templates;
+}
+
 void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename)
 {
 	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState);
@@ -106,4 +142,26 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 
 	auto jsonCampaignStr = jsonCampaign.toString();
 	saver->addFile("header.json")->write(reinterpret_cast<const ui8 *>(jsonCampaignStr.data()), jsonCampaignStr.length());
+}
+
+void Helper::saveTemplate(std::map<std::string, std::shared_ptr<CRmgTemplate>> tpl, const QString & filename)
+{
+	JsonMap data;
+
+	for(auto & node : tpl)
+	{
+		JsonNode actual;
+		{
+			JsonSerializer handler(nullptr, actual);
+			node.second->serializeJson(handler);
+		}
+		data[node.first] = actual;
+	}
+	
+	auto byteData = JsonNode(data).toBytes();
+	QByteArray byteDataArray = QByteArray(reinterpret_cast<const char*>(byteData.data()), static_cast<int>(byteData.size()));
+	QFile file(filename);
+
+	if(file.open(QIODevice::WriteOnly))
+    	file.write(byteDataArray);
 }
