@@ -257,6 +257,7 @@ Gives additional bonus to effect of specific spell
 Gives creature under effect of this spell additional bonus, which is hardcoded and depends on the creature tier.
 
 - subtype: affected spell identifier, ie. `spell.haste`
+- addInfo: must be set to 0, or 1 for Slayer specialty
 
 ### SPECIAL_ADD_VALUE_ENCHANT
 
@@ -334,7 +335,7 @@ Affected heroes will add specified resources amounts to player treasure on new d
 
 Increases weekly growth of creatures in affected towns (Legion artifacts)
 
-- value: number of additional weekly creatures
+- val: number of additional weekly creatures
 - subtype: dwelling level, in form `creatureLevelX` where X is desired level (1-7)
 
 ### CREATURE_GROWTH_PERCENT
@@ -478,7 +479,7 @@ Affected unit will always retaliate if able (Royal Griffin)
 
 Affected unit can retaliate multiple times per turn (basic Griffin)
 
-- value: number of additional retaliations
+- val: number of additional retaliations
 
 ### JOUSTING
 
@@ -497,8 +498,8 @@ Affected unit will deal more damage when attacking specific creature
 
 Affected unit ranged attack will use animation and range of specified spell (Magog, Lich)
 
-- subtype - spell identifier
-- value - spell mastery level
+- subtype: spell identifier
+- val: spell mastery level
 
 ### ATTACKS_ALL_ADJACENT
 
@@ -831,7 +832,7 @@ Affected unit will not use spellcast as default attack option
 Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
 
 - subtype: spell identifier
-- value: spell mastery level
+- val: spell mastery level
 - addInfo: weighted chance to select this spell. Can be omitted for always available spells
 
 ### ENCHANTER
@@ -840,7 +841,7 @@ Affected unit will cast specified spell before his turn (Enchanter)
 
 - val - spell mastery level
 - subtype - spell identifier
-- additionalInfo - cooldown before next cast, in number of turns
+- addInfo - cooldown before next cast, in number of turns
 
 ### RANDOM_SPELLCASTER
 
@@ -857,7 +858,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPELL_AFTER_ATTACK
 
 - subtype - spell id, eg. spell.iceBolt
-- value - chance (percent)
+- val - chance (percent)
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
@@ -867,7 +868,7 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPELL_BEFORE_ATTACK
 
 - subtype - spell id
-- value - chance %
+- val - chance %
 - addInfo - \[X, Y, Z\]
   - X - spell mastery level (1 - Basic, 3 - Expert)
   - Y = 0 - all attacks, 1 - shot only, 2 - melee only
@@ -1056,6 +1057,8 @@ Blocks casting spells of the level below specified one in battles affected by th
 ### BIND_EFFECT
 
 Dummy bonus that acts as marker for Dendroid's Bind ability
+
+- addInfo: ID of stack that have bound the unit
 
 ### SYNERGY_TARGET
 

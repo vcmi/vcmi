@@ -1357,8 +1357,7 @@
 				"subtype" : "dispel",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER",
-				"addInfo" : 1
+				"valueType" : "BASE_NUMBER"
 			}
 		],
 		"index" : 92,
@@ -1889,8 +1888,7 @@
 				"subtype" : "spell.armageddon",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER",
-				"addInfo" : 1
+				"valueType" : "BASE_NUMBER"
 			},
 			{
 				"subtype" : "primarySkill.attack",
