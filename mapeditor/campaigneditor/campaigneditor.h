@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include <QDialog>
+#include <QWidget>
 
 #include "campaignview.h"
 
@@ -21,7 +21,7 @@ namespace Ui {
 class CampaignEditor;
 }
 
-class CampaignEditor : public QDialog
+class CampaignEditor : public QWidget
 {
 	Q_OBJECT
 
