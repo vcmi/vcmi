@@ -34,11 +34,6 @@ CBonusType::CBonusType():
 	hidden(true)
 {}
 
-std::string CBonusType::getNameTextID() const
-{
-	return TextIdentifier( "core", "bonus", identifier, "name").get();
-}
-
 std::string CBonusType::getDescriptionTextID() const
 {
 	return TextIdentifier( "core", "bonus", identifier, "description").get();
@@ -62,20 +57,20 @@ CBonusTypeHandler::CBonusTypeHandler()
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
 
-std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
 	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
 	if(bt.hidden)
 		return "";
 
-	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+	std::string textID = bt.getDescriptionTextID();
 	std::string text = LIBRARY->generaltexth->translate(textID);
 
 	auto school = bonus->subtype.as<SpellSchool>();
 	if (school.hasValue() && school != SpellSchool::ANY)
 	{
 		std::string schoolName = school.encode(school.getNum());
-		std::string baseTextID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+		std::string baseTextID = bt.getDescriptionTextID();
 		std::string fullTextID = baseTextID + '.' + schoolName;
 		text = LIBRARY->generaltexth->translate(fullTextID);
 	}
@@ -144,10 +139,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	dest.hidden = source["hidden"].Bool(); //Null -> false
 
 	if (!dest.hidden)
-	{
-		LIBRARY->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
-	}
 
 	const JsonNode & graphics = source["graphics"];
 

@@ -24,7 +24,6 @@ class DLL_LINKAGE CBonusType
 public:
 	CBonusType();
 
-	std::string getNameTextID() const;
 	std::string getDescriptionTextID() const;
 
 private:
@@ -44,7 +43,7 @@ public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
 
-	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const override;
+	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const override;
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
 	std::vector<JsonNode> loadLegacyData() override;
