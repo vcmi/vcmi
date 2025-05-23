@@ -60,23 +60,27 @@ CBonusTypeHandler::~CBonusTypeHandler() = default;
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
 	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
+	int bonusValue = bearer->valOfBonuses(bonus->type, bonus->subtype);
 	if(bt.hidden)
 		return "";
 
 	std::string textID = bt.getDescriptionTextID();
 	std::string text = LIBRARY->generaltexth->translate(textID);
 
-	auto school = bonus->subtype.as<SpellSchool>();
-	if (school.hasValue() && school != SpellSchool::ANY)
+	auto subtype = bonus->subtype.getNum();
+	if (bt.subtypeDescriptions.count(subtype))
 	{
-		std::string schoolName = school.encode(school.getNum());
-		std::string baseTextID = bt.getDescriptionTextID();
-		std::string fullTextID = baseTextID + '.' + schoolName;
+		std::string fullTextID = textID + '.' + bt.subtypeDescriptions.at(subtype);
+		text = LIBRARY->generaltexth->translate(fullTextID);
+	}
+	else if (bt.valueDescriptions.count(bonusValue))
+	{
+		std::string fullTextID = textID + '.' + bt.valueDescriptions.at(bonusValue);
 		text = LIBRARY->generaltexth->translate(fullTextID);
 	}
 
 	if (text.find("${val}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(bonus->type, bonus->subtype)));
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
 
 	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>().hasValue())
 		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
@@ -160,6 +164,24 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 		auto path = ImagePath::fromJson(additionalIcon.second);
 		int value = std::stoi(additionalIcon.first);
 		dest.valueIcons[value] = path;
+	}
+
+	for (const auto & additionalDescription : source["subtypeDescriptions"].Struct())
+	{
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		auto stringID = additionalDescription.first;
+		LIBRARY->identifiers()->requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
+		{
+			dest.subtypeDescriptions[index] = stringID;
+		});
+	}
+
+	for (const auto & additionalDescription : source["valueDescriptions"].Struct())
+	{
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		auto stringID = additionalDescription.first;
+		int value = std::stoi(additionalDescription.first);
+		dest.valueDescriptions[value] = stringID;
 	}
 }
 

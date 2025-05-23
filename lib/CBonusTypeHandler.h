@@ -32,6 +32,8 @@ private:
 	ImagePath icon;
 	std::map<int, ImagePath> subtypeIcons;
 	std::map<int, ImagePath> valueIcons;
+	std::map<int, std::string> subtypeDescriptions;
+	std::map<int, std::string> valueDescriptions;
 	std::string identifier;
 
 	bool hidden;
