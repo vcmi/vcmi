@@ -138,7 +138,6 @@ private:
 
 		if constexpr(std::is_base_of_v<IGameInfoCallback, std::remove_pointer_t<nonConstT>>)
 		{
-			assert(cb == nullptr);
 			cb = &data;
 		}
 
