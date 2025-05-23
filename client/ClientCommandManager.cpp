@@ -90,7 +90,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
@@ -103,9 +103,9 @@ void ClientCommandManager::handleGoSoloCommand()
 		
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->getPlayerSettings(color), false, false);
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
 				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}

@@ -13,6 +13,7 @@
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -209,7 +210,7 @@ CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportD
 	CDialogQuery(owner)
 {
 	this->td = td;
-	addPlayer(gh->getHero(td.hero)->getOwner());
+	addPlayer(gh->gameInfo().getHero(td.hero)->getOwner());
 }
 
 CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu, const CGHeroInstance * Hero):
@@ -266,7 +267,7 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTranslated(), tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
-		gh->visitObjectOnTile(*gh->getTile(hero->convertToVisitablePos(tmh.end)), hero);
+		gh->visitObjectOnTile(*gh->gameInfo().getTile(hero->convertToVisitablePos(tmh.end)), hero);
 	}
 
 	owner->popIfTop(*this);

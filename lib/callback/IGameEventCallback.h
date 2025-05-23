@@ -74,7 +74,7 @@ public:
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
-	virtual void giveResources(PlayerColor player, ResourceSet resources)=0;
+	virtual void giveResources(PlayerColor player, const ResourceSet & resources)=0;
 
 	virtual void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) =0;
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;

@@ -24,20 +24,12 @@ Validator::Validator(const CMap * map, QWidget *parent) :
 	ui(new Ui::Validator)
 {
 	ui->setupUi(this);
+
+	screenGeometry = QApplication::primaryScreen()->availableGeometry();
 	
 	setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 	
-	show();
-	
-	setAttribute(Qt::WA_DeleteOnClose);
-
-	std::array<QString, 2> icons{":/icons/mod-update.png", ":/icons/mod-delete.png"};
-
-	for(auto & issue : Validator::validate(map))
-	{
-		auto * item = new QListWidgetItem(QIcon(icons[issue.critical ? 1 : 0]), issue.message);
-		ui->listWidget->addItem(item);
-	}
+	showValidationResults(map);
 }
 
 Validator::~Validator()
@@ -175,13 +167,11 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 		if(map->description.empty())
 			issues.insert({ tr("Map description is not specified"), false });
 		
-		//verificationfor mods
+		//verification for mods
 		for(auto & mod : MapController::modAssessmentMap(*map))
 		{
 			if(!map->mods.count(mod.first))
-			{
-				issues.insert({ tr("Map contains object from mod \"%1\", but doesn't require it").arg(QString::fromStdString(LIBRARY->modh->getModInfo(mod.first).getVerificationInfo().name)), true });
-			}
+				issues.insert({ MapController::modMissingMessage(mod.second), true });
 		}
 	}
 	catch(const std::exception & e)
@@ -194,4 +184,126 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 	}
 	
 	return issues;
+}
+
+void Validator::showValidationResults(const CMap * map)
+{
+	show();
+	setAttribute(Qt::WA_DeleteOnClose);
+	ui->listWidget->setItemDelegate(new ValidatorItemDelegate(ui->listWidget));
+
+	for(auto const & issue : Validator::validate(map))
+	{
+		auto * item = new QListWidgetItem(QIcon(issue.critical ? ":/icons/mod-delete.png" : ":/icons/mod-update.png"),
+			issue.message, ui->listWidget);
+
+		ui->listWidget->addItem(item);
+	}
+
+	if(ui->listWidget->count() == 0)
+	{
+		QPixmap greenTick(":/icons/mod-enabled.png");
+		QString validMessage = tr("The map is valid and has no issues.");
+		auto * item = new QListWidgetItem(QIcon(greenTick), validMessage, ui->listWidget);
+		ui->listWidget->addItem(item);
+	}
+
+	ui->listWidget->updateGeometry();
+
+	adjustWindowSize();
+}
+
+void Validator::adjustWindowSize()
+{
+	const int minWidth = 350;
+	const int minHeight = 50;
+	const int padding = 30;		// reserved space for eventual scrollbars
+	const int screenMarginVertical = 300;
+	const int screenMarginHorizontal = 350;
+
+	int contentHeight = minHeight;
+	int contentWidth = minWidth;
+
+	QStyleOptionViewItem option;
+	option.initFrom(ui->listWidget);
+
+	int listWidgetWidth = ui->listWidget->viewport()->width();
+
+	for(int i = 0; i < ui->listWidget->count(); ++i)
+	{
+		option.rect = QRect(0, 0, listWidgetWidth, 0);
+		auto itemSize = ui->listWidget->itemDelegate()->sizeHint(option, ui->listWidget->model()->index(i, 0));
+		contentHeight += itemSize.height();
+		contentWidth = qMax(contentWidth, itemSize.width());
+	}
+
+	int screenWidth = screenGeometry.width();
+	int screenHeight = screenGeometry.height();
+
+	int finalWidth = qMin(contentWidth + padding, screenWidth - screenMarginHorizontal);
+	int finalHeight = qMin(contentHeight + padding, screenHeight - screenMarginVertical);
+
+	QWidget * parentWidget = ui->listWidget->parentWidget();
+	if(parentWidget)
+	{
+		parentWidget->setMinimumWidth(finalWidth + padding);
+		parentWidget->setMinimumHeight(finalHeight + padding);
+	}
+
+	ui->listWidget->resize(finalWidth, finalHeight);
+
+	move((screenWidth - finalWidth) / 2, (screenHeight - finalHeight) / 2);
+}
+
+void ValidatorItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index) const
+{
+	painter->save();
+
+	QStyleOptionViewItem opt(option);
+	QFontMetrics metrics(option.fontMetrics);
+	initStyleOption(&opt, index);
+
+	const QRect iconRect = option.rect.adjusted(iconPadding, iconPadding, 0, 0);
+
+	const QRect textRect = option.rect.adjusted(offsetForIcon, 0, -textPaddingRight, 0);
+
+	if(!opt.icon.isNull())
+	{
+		opt.icon.paint(painter, iconRect, Qt::AlignTop | Qt::AlignLeft);
+	}
+
+	QTextOption textOption;
+
+	int textWidth = metrics.horizontalAdvance(opt.text);
+	if(textWidth + offsetForIcon + textPaddingRight > screenGeometry.width() - screenMargin)
+	{
+		textOption.setWrapMode(QTextOption::WordWrap);
+	}
+
+	painter->drawText(textRect, opt.text, textOption);
+
+	painter->restore();
+}
+
+QSize ValidatorItemDelegate::sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const
+{
+	QFontMetrics metrics(option.fontMetrics);
+	QString text = index.data(Qt::DisplayRole).toString();
+	QStringList lines = text.split('\n');
+	int textWidth = minItemWidth;
+	int requiredHeight = 0;
+	for(auto line : lines)
+		textWidth = std::max(metrics.horizontalAdvance(line), textWidth);
+
+	requiredHeight = qMax(requiredHeight, lines.size() * metrics.height());
+
+	int finalWidth = qMax(textWidth + offsetForIcon, minItemWidth);
+	finalWidth = qMin(finalWidth, screenGeometry.width() - screenMargin - offsetForIcon);
+
+	QRect textBoundingRect = metrics.boundingRect(QRect(0, 0, finalWidth, 0),
+		Qt::TextWordWrap, text);
+
+	int finalHeight = qMax(textBoundingRect.height() + itemPaddingBottom, requiredHeight);
+
+	return QSize(finalWidth, finalHeight);
 }

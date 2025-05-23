@@ -11,7 +11,6 @@
 
 #include <vcmi/Environment.h>
 
-#include "../lib/callback/CGameInfoCallback.h"
 #include "../lib/callback/IGameEventCallback.h"
 #include "../lib/LoadProgress.h"
 #include "../lib/ScriptHandler.h"
@@ -28,7 +27,10 @@ class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
 class GameRandomizer;
+class StatisticDataSet;
 
+struct StartInfo;
+struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
 struct CGarrisonOperationPack;
@@ -55,7 +57,7 @@ class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
 
-class CGameHandler : public CGameInfoCallback, public Environment, public IGameEventCallback
+class CGameHandler : public Environment, public IGameEventCallback
 {
 	CVCMIServer * lobby;
 
@@ -67,6 +69,7 @@ public:
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<GameRandomizer> randomizer;
+	std::unique_ptr<StatisticDataSet> statistics;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -94,8 +97,8 @@ public:
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
-	CGameState & gameState() final { return *gs; }
-	const CGameState & gameState() const final { return *gs; }
+	IGameInfoCallback & gameInfo();
+	const CGameState & gameState() const { return *gs; }
 
 	// Helpers to create new object of specified type
 
@@ -124,7 +127,7 @@ public:
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
 	void giveResource(PlayerColor player, GameResID which, int val) override;
-	void giveResources(PlayerColor player, TResources resources) override;
+	void giveResources(PlayerColor player, const ResourceSet & resources) override;
 
 	void giveCreatures(const CGHeroInstance * h, const CCreatureSet &creatures) override;
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) override;
@@ -220,7 +223,7 @@ public:
 	bool garrisonSwap(ObjectInstanceID tid);
 	bool swapGarrisonOnSiege(ObjectInstanceID tid) override;
 	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
-	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, ui32 cram, si32 level, PlayerColor player);
+	bool recruitCreatures(ObjectInstanceID objid, ObjectInstanceID dst, CreatureID crid, int32_t cram, int32_t level, PlayerColor player);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool visitTownBuilding(ObjectInstanceID tid, BuildingID bid);
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
@@ -254,6 +257,12 @@ public:
 		h & *playerMessages;
 		h & *turnOrder;
 		h & *turnTimerHandler;
+
+		if (h.hasFeature(Handler::Version::SERVER_STATISTICS))
+		{
+			h & *statistics;
+		}
+
 
 #if SCRIPTING_ENABLED
 		JsonNode scriptsState;
@@ -297,10 +306,10 @@ public:
 
 	vstd::RNG & getRandomGenerator() override;
 
-#if SCRIPTING_ENABLED
-	scripting::Pool * getGlobalContextPool() const override;
+//#if SCRIPTING_ENABLED
+//	scripting::Pool * getGlobalContextPool() const override;
 //	scripting::Pool * getContextPool() const override;
-#endif
+//#endif
 
 	friend class CVCMIServer;
 private:

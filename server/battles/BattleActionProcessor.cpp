@@ -81,7 +81,7 @@ bool BattleActionProcessor::doSurrenderAction(const CBattleInfoCallback & battle
 		return false;
 	}
 
-	if (gameHandler->getResource(player, EGameResID::GOLD) < cost)
+	if (gameHandler->gameInfo().getResource(player, EGameResID::GOLD) < cost)
 	{
 		gameHandler->complain("Not enough gold to surrender!");
 		return false;
@@ -899,7 +899,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 		}
 	}
 	//handle last hex separately for deviation
-	if (gameHandler->getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
+	if (gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES))
 	{
 		if (dest == battle::Unit::occupiedHex(start, curStack->doubleWide(), curStack->unitSide())
 			|| start == battle::Unit::occupiedHex(dest, curStack->doubleWide(), curStack->unitSide()))

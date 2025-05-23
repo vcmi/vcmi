@@ -278,7 +278,6 @@
 						"type":"core:timed",
 						"bonus":{
 							"levelSpellImmunity":{
-								"addInfo" : 1, //absolute
 								"val" : 3,
 								"type" : "LEVEL_SPELL_IMMUNITY",
 								"valueType" : "INDEPENDENT_MAX",
@@ -417,7 +416,6 @@
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"alwaysMinimumDamage" : {
-						"addInfo" : 0,
 						"val" : 0,
 						"type" : "ALWAYS_MINIMUM_DAMAGE",
 						"valueType" : "INDEPENDENT_MAX",
@@ -719,7 +717,6 @@
 						"duration" : "N_TURNS"
 					},
 					"stacksSpeed" : {
-						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
 						"val" : 2,
 						"duration" : "N_TURNS"
@@ -972,7 +969,6 @@
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
 						"val" : 3,
 						"duration" : "N_TURNS"
@@ -1023,7 +1019,6 @@
 				"targetModifier":{"smart":true},
 				"effects" : {
 					"stacksSpeed" : {
-						"addInfo" : 0,
 						"type" : "STACKS_SPEED",
 						"val" : -25,
 						"valueType" : "PERCENT_TO_ALL",

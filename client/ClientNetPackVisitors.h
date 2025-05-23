@@ -23,10 +23,10 @@ class ApplyClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	CClient & cl;
-	CGameState & gs;
+	const CGameState & gs;
 
 public:
-	ApplyClientNetPackVisitor(CClient & cl, CGameState & gs)
+	ApplyClientNetPackVisitor(CClient & cl, const CGameState & gs)
 		:cl(cl), gs(gs)
 	{
 	}
@@ -110,10 +110,10 @@ class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisi
 {
 private:
 	CClient & cl;
-	CGameState & gs;
+	const CGameState & gs;
 
 public:
-	ApplyFirstClientNetPackVisitor(CClient & cl, CGameState & gs)
+	ApplyFirstClientNetPackVisitor(CClient & cl, const CGameState & gs)
 		:cl(cl), gs(gs)
 	{
 	}

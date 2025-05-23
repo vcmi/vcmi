@@ -249,7 +249,7 @@ void CampaignEditor::on_actionScenarioProperties_triggered()
 void CampaignEditor::closeEvent(QCloseEvent *event)
 {
 	if(getAnswerAboutUnsavedChanges())
-		QDialog::closeEvent(event);
+		QWidget::closeEvent(event);
 	else
 		event->ignore();
 }

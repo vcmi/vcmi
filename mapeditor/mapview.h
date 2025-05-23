@@ -12,6 +12,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QRubberBand>
 #include "scenelayer.h"
 #include "../lib/int3.h"
 

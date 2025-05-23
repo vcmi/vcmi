@@ -18,12 +18,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-BattleLayout BattleLayout::createDefaultLayout(IGameInfoCallback * cb, const CArmedInstance * attacker, const CArmedInstance * defender)
+BattleLayout BattleLayout::createDefaultLayout(const IGameInfoCallback & gameInfo, const CArmedInstance * attacker, const CArmedInstance * defender)
 {
-	return createLayout(cb, "default", attacker, defender);
+	return createLayout(gameInfo, "default", attacker, defender);
 }
 
-BattleLayout BattleLayout::createLayout(IGameInfoCallback * cb, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender)
+BattleLayout BattleLayout::createLayout(const IGameInfoCallback & gameInfo, const std::string & layoutName, const CArmedInstance * attacker, const CArmedInstance * defender)
 {
 	const auto & loadHex = [](const JsonNode & node)
 	{
@@ -44,7 +44,7 @@ BattleLayout BattleLayout::createLayout(IGameInfoCallback * cb, const std::strin
 		return result;
 	};
 
-	const JsonNode & configRoot = cb->getSettings().getValue(EGameSettings::COMBAT_LAYOUTS);
+	const JsonNode & configRoot = gameInfo.getSettings().getValue(EGameSettings::COMBAT_LAYOUTS);
 	const JsonNode & config = configRoot[layoutName];
 
 	BattleLayout result;

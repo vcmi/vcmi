@@ -124,14 +124,9 @@ void CConnection::enterLobbyConnectionMode()
 	serializer->clear();
 }
 
-void CConnection::setCallback(IGameInfoCallback * cb)
+void CConnection::setCallback(IGameInfoCallback & cb)
 {
-	deserializer->cb = cb;
-}
-
-void CConnection::enterGameplayConnectionMode(CGameState & gs)
-{
-	setCallback(gs.cb);
+	deserializer->cb = &cb;
 }
 
 void CConnection::setSerializationVersion(ESerializationVersion version)

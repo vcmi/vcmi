@@ -332,8 +332,11 @@ void CArtifact::addNewBonus(const std::shared_ptr<Bonus>& b)
 {
 	b->source = BonusSource::ARTIFACT;
 	b->duration = BonusDuration::PERMANENT;
-	b->description.appendTextID(getNameTextID());
-	b->description.appendRawString(" %+d");
+	if (b->description.empty() && (b->type == BonusType::LUCK || b->type == BonusType::MORALE))
+	{
+		b->description.appendTextID(getNameTextID());
+		b->description.appendRawString(" %+d");
+	}
 	CBonusSystemNode::addNewBonus(b);
 }
 

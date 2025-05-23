@@ -135,6 +135,13 @@ private:
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename std::remove_const_t<T> nonConstT;
 		auto & hlp = const_cast<nonConstT &>(data);
+
+		if constexpr(std::is_base_of_v<IGameInfoCallback, std::remove_pointer_t<nonConstT>>)
+		{
+			assert(cb == nullptr);
+			cb = &data;
+		}
+
 		hlp.serialize(*this);
 	}
 	template<typename T, typename std::enable_if_t<std::is_array_v<T>, int> = 0>

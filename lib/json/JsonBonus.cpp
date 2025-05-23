@@ -214,9 +214,12 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 		case BonusType::DESTRUCTION:
 		case BonusType::LIMITED_SHOOTING_RANGE:
 		case BonusType::ACID_BREATH:
+		case BonusType::BIND_EFFECT:
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
+		case BonusType::ENCHANTER:
+		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 			// 1 number
 			var = getFirstValue(value).Integer();
 			break;
@@ -635,10 +638,10 @@ std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 	return nullptr;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const TextIdentifier & descriptionID)
 {
 	auto b = std::make_shared<Bonus>();
-	if (!parseBonus(ability, b.get()))
+	if (!parseBonus(ability, b.get(), descriptionID))
 	{
 		// caller code can not handle this case and presumes that returned bonus is always valid
 		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toString());
@@ -648,7 +651,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability)
 	return b;
 }
 
-bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
+bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
 
@@ -691,11 +694,22 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b)
 
 	if(!ability["description"].isNull())
 	{
-		if (ability["description"].isString())
-			b->description.appendTextID(ability["description"].String());
+		if (ability["description"].isString() && !ability["description"].String().empty())
+		{
+			if (ability["description"].String()[0] == '@')
+				b->description.appendTextID(ability["description"].String());
+			else if (!descriptionID.get().empty())
+			{
+				LIBRARY->generaltexth->registerString(ability.getModScope(), descriptionID, ability["description"]);
+				b->description.appendTextID(descriptionID.get());
+			}
+		}
 		if (ability["description"].isNumber())
 			b->description.appendTextID("core.arraytxt." + std::to_string(ability["description"].Integer()));
 	}
+
+	if(!ability["icon"].isNull())
+		b->customIconPath = ImagePath::fromJson(ability["icon"]);
 
 	value = &ability["effectRange"];
 	if (!value->isNull())

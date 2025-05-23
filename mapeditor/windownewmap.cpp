@@ -311,7 +311,7 @@ void WindowNewMap::on_okButton_clicked()
 		nmap = f.get();
 	}
 	
-	nmap->mods = MapController::modAssessmentAll();
+	nmap->mods = MapController::modAssessmentMap(*nmap);
 	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
 	static_cast<MainWindow*>(parent())->initializeMap(true);
 	close();

@@ -66,9 +66,18 @@
 			"description" : "Used together with components fild. Marks the artifact as fused. Cannot be disassembled."
 		},
 		"bonuses" : {
-			"type" : "array",
 			"description" : "Bonuses provided by this artifact using bonus system",
-			"items" : { "$ref" : "bonusInstance.json" }
+			"type" : "object",
+			"additionalProperties" : {
+				"$ref" : "bonusInstance.json"
+			}
+		},
+		"instanceBonuses" : {
+			"description" : "Bonuses provided by every instance of this artifact using bonus system",
+			"type" : "object",
+			"additionalProperties" : {
+				"$ref" : "bonusInstance.json"
+			}
 		},
 		"growing" : {
 			"type" : "object",

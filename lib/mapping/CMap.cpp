@@ -262,6 +262,18 @@ CGHeroInstance * CMap::getHero(HeroTypeID heroID)
 	return nullptr;
 }
 
+const CGHeroInstance * CMap::getHero(HeroTypeID heroID) const
+{
+	for (const auto & objectID : heroesOnMap)
+	{
+		const auto hero = std::dynamic_pointer_cast<CGHeroInstance>(objects.at(objectID.getNum()));
+
+		if (hero->getHeroTypeID() == heroID)
+			return hero.get();
+	}
+	return nullptr;
+}
+
 bool CMap::isCoastalTile(const int3 & pos) const
 {
 	//todo: refactoring: extract neighbour tile iterator and use it in GameState
@@ -855,6 +867,10 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 		artInst->addNewBonus(bonus);
 		artInst->addCharges(art->getDefaultStartCharges());
 	}
+
+	for (const auto & bonus : art->instanceBonuses)
+		artInst->addNewBonus(std::make_shared<Bonus>(*bonus));
+
 	return artInst;
 }
 
@@ -868,12 +884,12 @@ const CArtifactInstance * CMap::getArtifactInstance(const ArtifactInstanceID & a
 	return artInstances.at(artifactID.getNum()).get();
 }
 
-const std::vector<ObjectInstanceID> & CMap::getAllTowns()
+const std::vector<ObjectInstanceID> & CMap::getAllTowns() const
 {
 	return towns;
 }
 
-const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap()
+const std::vector<ObjectInstanceID> & CMap::getHeroesOnMap() const
 {
 	return heroesOnMap;
 }

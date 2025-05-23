@@ -147,9 +147,9 @@ void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 
 bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player, const HeroTypeID & nextHero)
 {
-	const PlayerState * playerState = gameHandler->getPlayerState(player);
-	const CGObjectInstance * mapObject = gameHandler->getObj(objectID);
-	const CGTownInstance * town = gameHandler->getTown(objectID);
+	const PlayerState * playerState = gameHandler->gameInfo().getPlayerState(player);
+	const CGObjectInstance * mapObject = gameHandler->gameInfo().getObj(objectID);
+	const CGTownInstance * town = gameHandler->gameInfo().getTown(objectID);
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
 
 	if (!mapObject && gameHandler->complain("Invalid map object!"))
@@ -161,15 +161,15 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	if (playerState->resources[EGameResID::GOLD] < GameConstants::HERO_GOLD_COST && gameHandler->complain("Not enough gold for buying hero!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, false) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
+	if (gameHandler->gameInfo().getHeroCount(player, false) >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP) && gameHandler->complain("Cannot hire hero, too many wandering heroes already!"))
 		return false;
 
-	if (gameHandler->getHeroCount(player, true) >= gameHandler->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrisoned and wandering heroes present!"))
+	if (gameHandler->gameInfo().getHeroCount(player, true) >= gameHandler->gameInfo().getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP) && gameHandler->complain("Cannot hire hero, too many heroes garrisoned and wandering heroes present!"))
 		return false;
 
 	if (nextHero != HeroTypeID::NONE) // player attempts to invite next hero
 	{
-		if(!gameHandler->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
+		if(!gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE) && gameHandler->complain("Inviting heroes not allowed!"))
 			return false;
 
 		if(!heroesPool->unusedHeroesFromPool().count(nextHero) && gameHandler->complain("Cannot invite specified hero!"))
@@ -181,7 +181,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 
 	if(town) //tavern in town
 	{
-		if(gameHandler->getPlayerRelations(mapObject->tempOwner, player) == PlayerRelations::ENEMIES && gameHandler->complain("Can't buy hero in enemy town!"))
+		if(gameHandler->gameInfo().getPlayerRelations(mapObject->tempOwner, player) == PlayerRelations::ENEMIES && gameHandler->complain("Can't buy hero in enemy town!"))
 			return false;
 
 		if(!town->hasBuilt(BuildingID::TAVERN) && gameHandler->complain("No tavern!"))
@@ -201,7 +201,7 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 			return false;
 		}
 
-		if(gameHandler->getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject->id && gameHandler->complain("Tavern entry must be unoccupied!"))
+		if(gameHandler->gameInfo().getTile(mapObject->visitablePos())->visitableObjects.back() != mapObject->id && gameHandler->complain("Tavern entry must be unoccupied!"))
 			return false;
 	}
 
@@ -227,11 +227,11 @@ bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTy
 	hr.hid = recruitedHero->getHeroTypeID();
 	hr.player = player;
 	hr.tile = recruitedHero->convertFromVisitablePos(targetPos );
-	if(gameHandler->getTile(targetPos)->isWater() && !recruitedHero->inBoat())
+	if(gameHandler->gameInfo().getTile(targetPos)->isWater() && !recruitedHero->inBoat())
 	{
 		//Create a new boat for hero
 		gameHandler->createBoat(targetPos, recruitedHero->getBoatType(), player);
-		hr.boatId = gameHandler->getTopObj(targetPos)->id;
+		hr.boatId = gameHandler->gameInfo().getTopObj(targetPos)->id;
 	}
 
 	// apply netpack -> this will remove hired hero from pool
@@ -257,7 +257,7 @@ std::vector<const CHeroClass *> HeroPoolProcessor::findAvailableClassesFor(const
 	std::vector<const CHeroClass *> result;
 
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
-	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
+	FactionID factionID = gameHandler->gameInfo().getPlayerSettings(player)->castle;
 
 	for(const auto & elem : heroesPool->unusedHeroesFromPool())
 	{
@@ -302,7 +302,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		return nullptr;
 	}
 
-	FactionID factionID = gameHandler->getPlayerSettings(player)->castle;
+	FactionID factionID = gameHandler->gameInfo().getPlayerSettings(player)->castle;
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
 	const auto & currentTavern = heroesPool->getHeroesFor(player);
 
