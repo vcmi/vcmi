@@ -145,6 +145,11 @@ std::string CArtifact::getNameTextID() const
 	return TextIdentifier("artifact", modScope, identifier, "name").get();
 }
 
+std::string CArtifact::getBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("artifact", modScope, identifier, "bonus", bonusID).get();
+}
+
 uint32_t CArtifact::getPrice() const
 {
 	return price;

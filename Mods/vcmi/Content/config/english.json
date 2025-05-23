@@ -621,7 +621,13 @@
 	
 	"mapObject.core.hillFort.object.description" : "Upgrades creatures. Levels 1 - 4 are less expensive than in associated town.",
 	
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for effect range
+	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Orb of Vulnerability}\nNegates natural magic resistance of all creatures on the battlefield",
+	"creatures.core.angel.bonus.raisesMorale" : "{Increases allies morale}\nAngels and Archangels increase allies Morale by one",
+	"creatures.core.devil.bonus.descreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
+	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
+	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
+
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attack all around}\nAttacks all adjacent enemies in addition to the primary target",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{No ranged retaliation}\nThe enemy cannot retaliate when shot by this unit",

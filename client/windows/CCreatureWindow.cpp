@@ -899,7 +899,7 @@ void CStackWindow::initBonusesList()
 
 		int valIndepMin = groupIndepMin.totalValue();
 		int valIndepMax = groupIndepMax.totalValue();
-		int valNoMinMax = group.totalValue();
+		int valNoMinMax = groupNoMinMax.totalValue();
 
 		BonusList usedGroup;
 

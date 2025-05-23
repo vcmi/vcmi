@@ -371,6 +371,7 @@
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "PLACEHOLDER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better
@@ -431,6 +432,7 @@
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "@creatures.core.devil.bonus.descreaseLuck",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better

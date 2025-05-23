@@ -697,7 +697,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		if (ability["description"].isString() && !ability["description"].String().empty())
 		{
 			if (ability["description"].String()[0] == '@')
-				b->description.appendTextID(ability["description"].String());
+				b->description.appendTextID(ability["description"].String().substr(1));
 			else if (!descriptionID.get().empty())
 			{
 				LIBRARY->generaltexth->registerString(ability.getModScope(), descriptionID, ability["description"]);

@@ -1382,6 +1382,7 @@
 			"noResistance" : {
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 0,
+				"description" : "PLACEHOLDER",
 				"valueType" : "INDEPENDENT_MIN",
 				"propagator": "BATTLE_WIDE"
 			},
@@ -1389,6 +1390,7 @@
 				"type" : "SPELL_RESISTANCE_AURA",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
+				"description" : "@artifact.core.orbOfVulnerability.bonus.noResistance",
 				"propagator": "BATTLE_WIDE"
 			}
 		},
