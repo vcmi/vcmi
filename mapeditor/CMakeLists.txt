@@ -20,6 +20,7 @@ set(editor_SRCS
 		mapsettings/eventsettings.cpp
 		mapsettings/rumorsettings.cpp
 		mapsettings/translations.cpp
+		PlayerSelectionDialog.cpp
 		playersettings.cpp
 		playerparams.cpp
 		scenelayer.cpp
@@ -70,6 +71,7 @@ set(editor_HEADERS
 		mapsettings/eventsettings.h
 		mapsettings/rumorsettings.h
 		mapsettings/translations.h
+		PlayerSelectionDialog.h
 		playersettings.h
 		playerparams.h
 		scenelayer.h
