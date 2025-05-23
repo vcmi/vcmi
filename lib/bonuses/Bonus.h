@@ -15,6 +15,7 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -79,6 +80,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	TUpdaterPtr updater;
 	TUpdaterPtr propagationUpdater;
 
+	ImagePath customIconPath;
 	MetaString description;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
@@ -95,6 +97,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & val;
 		h & sid;
 		h & description;
+		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
+			h & customIconPath;
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;

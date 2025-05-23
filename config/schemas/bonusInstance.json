@@ -178,6 +178,11 @@
 			"type" : "string",
 			"description" : "stacking"
 		},
+		"icon" : {
+			"type" : "string",
+			"description" : "Optional, custom icons to show in creature window",
+			"format" : "imageFile"
+		},
 		"description" : {
 			"anyOf" : [
 				{ "type" : "string" },

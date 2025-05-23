@@ -258,8 +258,8 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 
 	static const std::array<Point, 2> offset =
 	{
-		Point(6, 4),
-		Point(214, 4)
+		Point(6, 2),
+		Point(214, 2)
 	};
 
 	auto drawBonusSource = [this](int leftRight, Point p, BonusInfo & bi)
@@ -274,7 +274,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			{BonusSource::STACK_EXPERIENCE,  Colors::CYAN},
 			{BonusSource::COMMANDER,         Colors::CYAN},
 		};
-		
+
 		std::map<BonusSource, std::string> bonusNames = {
 			{BonusSource::ARTIFACT,          LIBRARY->generaltexth->translate("vcmi.bonusSource.artifact")},
 			{BonusSource::ARTIFACT_INSTANCE, LIBRARY->generaltexth->translate("vcmi.bonusSource.artifact")},
@@ -313,8 +313,14 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			BonusInfo & bi = parent->activeBonuses[bonusIndex];
 			if (!bi.imagePath.empty())
 				icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
-			name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.name, 137);
-			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+
+			if (!bi.name.empty())
+			{
+				name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::YELLOW, bi.name, 137);
+				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+			}
+			else
+				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 2, 137, 50), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 			drawBonusSource(leftRight, Point(position.x - 1, position.y - 1), bi);
 		}
 	}
@@ -846,12 +852,10 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	auto inputPtr = info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList abilities = info->creature->getExportedBonusList();
 
-	BonusList output;
-	BonusList input = *inputPtr;
-
-	std::sort(input.begin(), input.end(), [this](std::shared_ptr<Bonus> v1, std::shared_ptr<Bonus> & v2){
+	const auto & bonusSortingPredicate = [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
@@ -860,30 +864,78 @@ void CStackWindow::initBonusesList()
 		}
 		else
 			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
-	});
+	};
 
-	while(!input.empty())
+	// these bonuses require special handling. For example they come with own descriptions, for use in morale/luck description
+	// also, this information is already available in creature window
+	receivedBonuses.remove_if(Selector::type()(BonusType::MORALE));
+	receivedBonuses.remove_if(Selector::type()(BonusType::LUCK));
+
+	std::vector<BonusList> groupedBonuses;
+	while (!receivedBonuses.empty())
 	{
-		auto b = input.front();
-		output.push_back(std::make_shared<Bonus>(*b));
-		output.back()->val = input.valOfBonuses(Selector::typeSubtype(b->type, b->subtype)); //merge multiple bonuses into one
-		input.remove_if (Selector::typeSubtype(b->type, b->subtype)); //remove used bonuses
+		auto currentBonus = receivedBonuses.front();
+
+		const auto & sameBonusPredicate = [currentBonus](const std::shared_ptr<Bonus> & b)
+		{
+			return currentBonus->type == b->type && currentBonus->subtype == b->subtype;
+		};
+
+		groupedBonuses.emplace_back();
+
+		std::copy_if(receivedBonuses.begin(), receivedBonuses.end(), std::back_inserter(groupedBonuses.back()), sameBonusPredicate);
+		receivedBonuses.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
+		// FIXME: potential edge case: unit has ability that is propagated away (and needs to be displayed), but also receives same bonus from someplace else
+		abilities.remove_if(Selector::typeSubtype(currentBonus->type, currentBonus->subtype));
 	}
 
+	// Add any remaining abilities of this unit that don't affect it at the moment, such as abilities that are propagated away, e.g. to other side in combat
+	BonusList visibleBonuses = abilities;
+
+	for (auto & group : groupedBonuses)
+	{
+		// Try to find the bonus in the group that represents the final effect in the best way.
+		std::sort(group.begin(), group.end(), bonusSortingPredicate);
+
+		BonusList groupIndepMin = group;
+		BonusList groupIndepMax = group;
+		BonusList groupNoMinMax = group;
+		groupIndepMin.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MIN; });
+		groupIndepMax.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MAX; });
+		groupNoMinMax.remove_if([](const Bonus * b) { return b->valType == BonusValueType::INDEPENDENT_MAX || b->valType == BonusValueType::INDEPENDENT_MIN; });
+
+		int valIndepMin = groupIndepMin.totalValue();
+		int valIndepMax = groupIndepMax.totalValue();
+		int valNoMinMax = group.totalValue();
+
+		BonusList usedGroup;
+
+		if (!groupIndepMin.empty() && valNoMinMax != valIndepMin)
+			usedGroup = groupIndepMin; // bonus value was limited due to INDEPENDENT_MIN bonus -> show this bonus
+		else if (!groupIndepMax.empty() && valNoMinMax != valIndepMax)
+			usedGroup = groupIndepMax; // bonus value was limited due to INDEPENDENT_MAX bonus -> show this bonus
+		else
+			usedGroup = groupNoMinMax; // bonus value is not limited - show first non-independent bonus
+
+		// It is possible that empty group was selected. For example, there is only INDEPENDENT effect with value of 0, which does not actually has any effect on this unit
+		// For example, orb of vulnerability on unit without any resistances
+		if (!usedGroup.empty())
+			visibleBonuses.push_back(usedGroup.front());
+	}
+
+	std::sort(visibleBonuses.begin(), visibleBonuses.end(), bonusSortingPredicate);
+
 	BonusInfo bonusInfo;
-	for(auto b : output)
+	for(auto b : visibleBonuses)
 	{
 		bonusInfo.name = info->stackNode->bonusToString(b, false);
 		bonusInfo.description = info->stackNode->bonusToString(b, true);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 
-		if(b->sid.as<CreatureID>() != info->stackNode->getId() && b->propagator && b->propagator->getPropagatorType() == CBonusSystemNode::HERO) // Shows bonus with "propagator":"HERO" only at creature with bonus
-			continue;
-
 		//if it's possible to give any description or image for this kind of bonus
 		//TODO: figure out why half of bonuses don't have proper description
-		if(!bonusInfo.name.empty() || !bonusInfo.imagePath.empty())
+		if(!bonusInfo.name.empty() || !bonusInfo.description.empty())
 			activeBonuses.push_back(bonusInfo);
 	}
 }

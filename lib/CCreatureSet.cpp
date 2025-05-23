@@ -837,11 +837,20 @@ void CStackInstance::setCount(TQuantity newCount)
 
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const
 {
+	if (!bonus->description.empty())
+	{
+		if (description)
+			return bonus->description.toString();
+		else
+			return {};
+	}
 	return LIBRARY->getBth()->bonusToString(bonus, this, description);
 }
 
 ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
+	if (!bonus->customIconPath.empty())
+		return bonus->customIconPath;
 	return LIBRARY->getBth()->bonusToGraphics(bonus);
 }
 

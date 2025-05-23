@@ -124,7 +124,7 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 		// not all line has been processed - it turned out to be too long, so erase everything after last word break
 		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
-		if(currPos < text.length() && (text[currPos] != 0x0a))
+		if(fontPtr->getStringWidth(printableString) > maxLineWidth && (text[currPos] != 0x0a))
 		{
 			if(wordBreak != ui32(-1))
 			{

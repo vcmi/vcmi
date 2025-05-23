@@ -247,7 +247,8 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 		if(!JsonUtils::parseBonus(b, bonus.get()))
 			continue;
 
-		bonus->description.appendTextID(building->getNameTextID());
+		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))
+			bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
