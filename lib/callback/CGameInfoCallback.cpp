@@ -574,7 +574,7 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 	return getTile(tile)->getDiggingStatus();
 }
 
-EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
+EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID ) const
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
@@ -947,7 +947,7 @@ void CGameInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optio
 	}
 }
 
-void CGameInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)
+void CGameInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level) const
 {
 	for (auto const & spellID : gameState().getMap().allowedSpells)
 	{

@@ -54,7 +54,7 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
 	gh.throwIfPlayerNotActive(connection, &pack);
-	result = gh.removeObject(gh.getObj(pack.hid), pack.player);
+	result = gh.removeObject(gh.gameInfo().getObj(pack.hid), pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
@@ -181,7 +181,7 @@ void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
 
 void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 {
-	const CGTownInstance * town = gh.getTown(pack.tid);
+	const CGTownInstance * town = gh.gameInfo().getTown(pack.tid);
 	if(!gh.isPlayerOwns(connection, &pack, pack.tid) && !(town->getGarrisonHero() && gh.isPlayerOwns(connection, &pack, town->getGarrisonHero()->id)))
 		gh.throwNotAllowedAction(connection); //neither town nor garrisoned hero (if present) is ours
 	gh.throwIfPlayerNotActive(connection, &pack);
@@ -191,8 +191,8 @@ void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 
 void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 {
-	if(gh.getHero(pack.src.artHolder))
-		gh.throwIfWrongPlayer(connection, &pack, gh.getOwner(pack.src.artHolder)); //second hero can be ally
+	if(gh.gameInfo().getHero(pack.src.artHolder))
+		gh.throwIfWrongPlayer(connection, &pack, gh.gameState().getOwner(pack.src.artHolder)); //second hero can be ally
 	gh.throwIfPlayerNotActive(connection, &pack);
 
 	result = gh.moveArtifact(pack.player, pack.src, pack.dst);
@@ -200,7 +200,7 @@ void ApplyGhNetPackVisitor::visitExchangeArtifacts(ExchangeArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack)
 {
-	if(gh.getMarket(pack.srcHero) == nullptr)
+	if(gh.gameState().getMarket(pack.srcHero) == nullptr)
 		gh.throwIfWrongOwner(connection, &pack, pack.srcHero);
 	if(pack.swap)
 		gh.throwIfWrongOwner(connection, &pack, pack.dstHero);
@@ -213,7 +213,7 @@ void ApplyGhNetPackVisitor::visitManageBackpackArtifacts(ManageBackpackArtifacts
 {
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	if(gh.getPlayerRelations(pack.player, gh.getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
+	if(gh.gameInfo().getPlayerRelations(pack.player, gh.gameState().getOwner(pack.artHolder)) != PlayerRelations::ENEMIES)
 		result = gh.manageBackpackArtifacts(pack.player, pack.artHolder, pack.cmd);
 }
 
@@ -235,7 +235,7 @@ void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 
 void ApplyGhNetPackVisitor::visitEraseArtifactByClient(EraseArtifactByClient & pack)
 {
-	gh.throwIfWrongPlayer(connection, &pack, gh.getOwner(pack.al.artHolder));
+	gh.throwIfWrongPlayer(connection, &pack, gh.gameState().getOwner(pack.al.artHolder));
 	gh.throwIfPlayerNotActive(connection, &pack);
 	result = gh.eraseArtifactByClient(pack.al);
 }
@@ -249,9 +249,9 @@ void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 
 void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
-	const CGObjectInstance * object = gh.getObj(pack.marketId);
-	const CGHeroInstance * hero = gh.getHero(pack.heroId);
-	const auto * market = gh.getMarket(pack.marketId);
+	const CGObjectInstance * object = gh.gameInfo().getObj(pack.marketId);
+	const CGHeroInstance * hero = gh.gameInfo().getHero(pack.heroId);
+	const auto * market = gh.gameState().getMarket(pack.marketId);
 
 	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
@@ -295,7 +295,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		if (!object->visitableAt(hero->visitablePos()))
 			gh.throwAndComplain(connection, "Can not trade - object not visited!");
 
-		if (object->getOwner().isValidPlayer() && gh.getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)
+		if (object->getOwner().isValidPlayer() && gh.gameInfo().getPlayerRelations(object->getOwner(), hero->getOwner()) == PlayerRelations::ENEMIES)
 			gh.throwAndComplain(connection, "Can not trade - market not owned!");
 	}
 
@@ -377,7 +377,7 @@ void ApplyGhNetPackVisitor::visitBuildBoat(BuildBoat & pack)
 	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	if(gh.getPlayerRelations(gh.getOwner(pack.objid), pack.player) == PlayerRelations::ENEMIES)
+	if(gh.gameInfo().getPlayerRelations(gh.gameState().getOwner(pack.objid), pack.player) == PlayerRelations::ENEMIES)
 		gh.throwAndComplain(connection, "Can't build boat at enemy shipyard");
 
 	result = gh.buildBoat(pack.objid, pack.player);
@@ -413,7 +413,7 @@ void ApplyGhNetPackVisitor::visitDigWithHero(DigWithHero & pack)
 	gh.throwIfWrongOwner(connection, &pack, pack.id);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	result = gh.dig(gh.getHero(pack.id));
+	result = gh.dig(gh.gameInfo().getHero(pack.id));
 }
 
 void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
@@ -424,7 +424,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	if (!pack.sid.hasValue())
 		gh.throwNotAllowedAction(connection);
 
-	const CGHeroInstance * h = gh.getHero(pack.hid);
+	const CGHeroInstance * h = gh.gameInfo().getHero(pack.hid);
 	if(!h)
 		gh.throwNotAllowedAction(connection);
 

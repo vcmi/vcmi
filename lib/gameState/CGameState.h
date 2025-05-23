@@ -42,7 +42,7 @@ class UpgradeInfo;
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & os, const EVictoryLossCheckResult & victoryLossCheckResult);
 
-class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable, public GameCallbackHolder
+class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeable
 {
 	friend class CGameStateCampaign;
 
@@ -66,7 +66,7 @@ public:
 	/// list of players currently making turn. Usually - just one, except for simturns
 	std::set<PlayerColor> actingPlayers;
 
-	CGameState(IGameInfoCallback * callback);
+	CGameState();
 	virtual ~CGameState();
 
 	CGameState & gameState() final { return *this; }
@@ -83,8 +83,6 @@ public:
 	CBonusSystemNode globalEffects;
 	RumorState currentRumor;
 
-	StatisticDataSet statistic;
-
 	// NOTE: effectively AI mutex, only used by adventure map AI
 	static std::shared_mutex mutex;
 
@@ -95,7 +93,7 @@ public:
 	HeroTypeID pickNextHeroType(vstd::RNG & randomGenerator, const PlayerColor & owner);
 
 	void apply(CPackForClient & pack);
-	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator);
+	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const;
 
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
@@ -123,7 +121,8 @@ public:
 	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
 	bool checkForStandardLoss(const PlayerColor & player) const; //checks if given player lost the game
 
-	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
+	//fills tgi with info about other players that is available at given level of thieves' guild
+	void obtainPlayersStats(SThievesGuildInfo & tgi, int level) const;
 	const IGameSettings & getSettings() const override;
 
 	StartInfo * getStartInfo()
@@ -184,7 +183,11 @@ public:
 			std::map<ArtifactID, int> allocatedArtifactsUnused;
 			h & allocatedArtifactsUnused;
 		}
-		h & statistic;
+		if (!h.hasFeature(Handler::Version::SERVER_STATISTICS))
+		{
+			StatisticDataSet statistic;
+			h & statistic;
+		}
 
 		if(!h.saving && h.loadingGamestate)
 			restoreBonusSystemTree();

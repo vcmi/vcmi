@@ -50,7 +50,7 @@ void PlayerMessageProcessor::playerMessage(PlayerColor player, const std::string
 
 	if(handleCheatCode(message, player, currObj))
 	{
-		if(!gameHandler->getPlayerSettings(player)->isControlledByAI())
+		if(!gameHandler->gameInfo().getPlayerSettings(player)->isControlledByAI())
 		{
 			MetaString txt;
 			txt.appendLocalString(EMetaText::GENERAL_TXT, 260);
@@ -149,7 +149,7 @@ void PlayerMessageProcessor::commandStatistic(PlayerColor player, const std::vec
 	if(!isHost)
 		return;
 
-	std::string path = gameHandler->gameState().statistic.writeCsv();
+	std::string path = gameHandler->statistics->writeCsv();
 
 	auto str = MetaString::createFromTextID("vcmi.broadcast.statisticFile");
 	str.replaceRawString(path);
@@ -330,7 +330,7 @@ void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		auto state = gameHandler->getPlayerState(player, false);
+		auto state = gameHandler->gameInfo().getPlayerState(player, false);
 		if(state && state->isHuman() && initiator != player)
 			awaitingPlayers.insert(player);
 	}
@@ -690,7 +690,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 	std::vector<std::string> words;
 	boost::split(words, boost::trim_copy(cheat), boost::is_any_of("\t\r\n "));
 
-	if (words.empty() || !gameHandler->getStartInfo()->extraOptionsInfo.cheatsAllowed)
+	if (words.empty() || !gameHandler->gameInfo().getStartInfo()->extraOptionsInfo.cheatsAllowed)
 		return false;
 
 	//Make cheat name case-insensitive, but keep words/parameters (e.g. creature name) as it
@@ -775,8 +775,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 
 void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & words)
 {
-	const CGHeroInstance * hero = gameHandler->getHero(currObj);
-	const CGTownInstance * town = gameHandler->getTown(currObj);
+	const CGHeroInstance * hero = gameHandler->gameInfo().getHero(currObj);
+	const CGTownInstance * town = gameHandler->gameInfo().getTown(currObj);
 	if (!town && hero)
 		town = hero->getVisitedTown();
 

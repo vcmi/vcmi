@@ -716,7 +716,7 @@ void GameStatePackVisitor::visitSwapStacks(SwapStacks & pack)
 void GameStatePackVisitor::visitInsertNewStack(InsertNewStack & pack)
 {
 	if(auto * obj = gs.getArmyInstance(pack.army))
-		obj->putStack(pack.slot, std::make_unique<CStackInstance>(gs.cb, pack.type, pack.count));
+		obj->putStack(pack.slot, std::make_unique<CStackInstance>(&gs, pack.type, pack.count));
 	else
 		throw std::runtime_error("InsertNewStack: invalid army object " + std::to_string(pack.army.getNum()) + ", possible game state corruption.");
 }

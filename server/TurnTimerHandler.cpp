@@ -29,7 +29,7 @@ TurnTimerHandler::TurnTimerHandler(CGameHandler & gh):
 
 void TurnTimerHandler::onGameplayStart(PlayerColor player)
 {
-	if(const auto * si = gameHandler.getStartInfo())
+	if(const auto * si = gameHandler.gameInfo().getStartInfo())
 	{
 		timers[player] = si->turnTimerInfo;
 		timers[player].turnTimer = 0;
@@ -66,7 +66,7 @@ void TurnTimerHandler::sendTimerUpdate(PlayerColor player)
 
 void TurnTimerHandler::onPlayerGetTurn(PlayerColor player)
 {
-	if(const auto * si = gameHandler.getStartInfo())
+	if(const auto * si = gameHandler.gameInfo().getStartInfo())
 	{
 		if(si->turnTimerInfo.isEnabled())
 		{
@@ -89,7 +89,7 @@ void TurnTimerHandler::prolongTimers(int durationMs)
 
 void TurnTimerHandler::update(int waitTimeMs)
 {
-	if(!gameHandler.getStartInfo()->turnTimerInfo.isEnabled())
+	if(!gameHandler.gameInfo().getStartInfo()->turnTimerInfo.isEnabled())
 		return;
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
@@ -123,12 +123,12 @@ bool TurnTimerHandler::timerCountDown(int & timer, int initialTimer, PlayerColor
 
 void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 {
-	const auto * si = gameHandler.getStartInfo();
+	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si || !si->turnTimerInfo.isEnabled())
 		return;
 	
 	auto & timer = timers[player];
-	const auto * state = gameHandler.getPlayerState(player);
+	const auto * state = gameHandler.gameInfo().getPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
 		// turn timers are only used if turn timer is non-zero
@@ -153,8 +153,8 @@ bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	if(attacker.isValidPlayer() && defender.isValidPlayer())
 	{
-		const auto * attackerState = gameHandler.getPlayerState(attacker);
-		const auto * defenderState = gameHandler.getPlayerState(defender);
+		const auto * attackerState = gameHandler.gameInfo().getPlayerState(attacker);
+		const auto * defenderState = gameHandler.gameInfo().getPlayerState(defender);
 		if(attackerState && defenderState && attackerState->human && defenderState->human)
 			return true;
 	}
@@ -164,7 +164,7 @@ bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 void TurnTimerHandler::onBattleStart(const BattleID & battleID)
 {
 	const auto & gs = gameHandler.gameState();
-	const auto * si = gameHandler.getStartInfo();
+	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si)
 		return;
 
@@ -191,7 +191,7 @@ void TurnTimerHandler::onBattleStart(const BattleID & battleID)
 void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 {
 	const auto & gs = gameHandler.gameState();
-	const auto * si = gameHandler.getStartInfo();
+	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si)
 	{
 		assert(0);
@@ -219,7 +219,7 @@ void TurnTimerHandler::onBattleEnd(const BattleID & battleID)
 void TurnTimerHandler::onBattleNextStack(const BattleID & battleID, const CStack & stack)
 {
 	const auto & gs = gameHandler.gameState();
-	const auto * si = gameHandler.getStartInfo();
+	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si || !gs.getBattle(battleID))
 	{
 		assert(0);
@@ -245,7 +245,7 @@ void TurnTimerHandler::onBattleNextStack(const BattleID & battleID, const CStack
 void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 {
 	const auto & gs = gameHandler.gameState();
-	const auto * si = gameHandler.getStartInfo();
+	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si)
 	{
 		assert(0);
@@ -273,7 +273,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	if(!player.isValidPlayer())
 		return;
 	
-	const auto * state = gameHandler.getPlayerState(player);
+	const auto * state = gameHandler.gameInfo().getPlayerState(player);
 	assert(state && state->status == EPlayerStatus::INGAME);
 	if(!state || state->status != EPlayerStatus::INGAME || !state->human)
 		return;

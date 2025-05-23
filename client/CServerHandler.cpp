@@ -633,7 +633,6 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 		throw std::runtime_error("Invalid mode");
 	}
 	// After everything initialized we can accept CPackToClient netpacks
-	logicConnection->enterGameplayConnectionMode(client->gameState());
 	setState(EClientState::GAMEPLAY);
 }
 
