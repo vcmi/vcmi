@@ -54,7 +54,16 @@ In order to make functional artifact you also need:
 	},
 
 	// Bonuses provided by this artifact using bonus system
+	// If hero equips multiple instances of the same artifact, their effect will not stack
 	"bonuses":
+	{
+		Bonus_1,
+		Bonus_2
+	},
+	
+	// Bonuses provided by every instance of this artifact using bonus system
+	// These bonuses will stack if hero equips multiple instances of this artifact
+	"instanceBonuses":
 	{
 		Bonus_1,
 		Bonus_2

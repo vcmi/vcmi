@@ -102,6 +102,9 @@ class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode,
 	std::map<ArtBearer, std::vector<ArtifactPosition>> possibleSlots;
 
 public:
+	/// Bonuses that are created for each instance of artifact
+	std::vector<std::shared_ptr<Bonus>> instanceBonuses;
+
 	EArtifactClass aClass = EArtifactClass::ART_SPECIAL;
 	bool onlyOnWaterMap;
 
