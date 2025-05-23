@@ -42,9 +42,8 @@ enum class ESerializationVersion : int32_t
 	REWARDABLE_EXTENSIONS, // new functionality for rewardable objects
 	FLAGGABLE_BONUS_SYSTEM_NODE, // flaggable objects now contain bonus system node
 	RANDOMIZATION_REWORK, // random rolls logic has been moved to server
-  COLOR_FILTER, // color filter cheat
 
-	CURRENT = COLOR_FILTER,
+	CURRENT = RANDOMIZATION_REWORK,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

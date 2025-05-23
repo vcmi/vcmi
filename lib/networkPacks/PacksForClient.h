@@ -123,12 +123,10 @@ struct DLL_LINKAGE PlayerCheated : public CPackForClient
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
-		if (h.version >= Handler::Version::COLOR_FILTER)
-			h & localOnlyCheat;
+		h & localOnlyCheat;
 		h & losingCheatCode;
 		h & winningCheatCode;
-		if (h.version >= Handler::Version::COLOR_FILTER)
-			h & colorScheme;
+		h & colorScheme;
 	}
 };
 
