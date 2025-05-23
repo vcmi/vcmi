@@ -385,7 +385,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		}
 
 		auto turnsToReach = (distance - 1) / speed + 1;
-		const BattleHexArray & hexes = enemy->getSurroundingHexes();
+		const BattleHexArray & hexes = enemy->getAttackableHexes(activeStack);
 		auto enemySpeed = enemy->getMovementRange();
 		auto speedRatio = speed / static_cast<float>(enemySpeed);
 		auto multiplier = (speedRatio > 1 ? 1 : speedRatio) * penaltyMultiplier;
@@ -416,8 +416,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 				logAi->trace("New high score");
 #endif
 
-				for(BattleHex enemyHex : enemy->getAttackableHexes(activeStack))
-				{
+					BattleHex enemyHex = hex;
 					while(!flying && dists.distances[enemyHex.toInt()] > speed && dists.predecessors.at(enemyHex.toInt()).isValid())
 					{
 						enemyHex = dists.predecessors.at(enemyHex.toInt());
@@ -425,14 +424,17 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 						if(dists.accessibility[enemyHex.toInt()] == EAccessibility::ALIVE_STACK)
 						{
 							auto defenderToBypass = hb->battleGetUnitByPos(enemyHex);
-
-							if(defenderToBypass)
+							assert(defenderToBypass != nullptr);
+							auto attackHex = dists.predecessors[enemyHex.toInt()];
+							
+							if(defenderToBypass &&
+							   defenderToBypass != enemy &&
+							   vstd::contains(defenderToBypass->getAttackableHexes(activeStack), attackHex))
 							{
 #if BATTLE_TRACE_LEVEL >= 1
 								logAi->trace("Found target to bypass at %d", enemyHex.toInt());
 #endif
-
-								auto attackHex = dists.predecessors[enemyHex.toInt()];
+								
 								auto baiBypass = BattleAttackInfo(activeStack, defenderToBypass, 0, cb->battleCanShoot(activeStack));
 								auto attackBypass = AttackPossibility::evaluate(baiBypass, attackHex, damageCache, hb);
 
@@ -461,9 +463,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 						}
 					}
 
-					result.positions.insert(enemyHex);
-				}
-
+				result.positions.insert(enemyHex);
 				result.cachedAttack = attack;
 				result.turnsToReach = turnsToReach;
 			}

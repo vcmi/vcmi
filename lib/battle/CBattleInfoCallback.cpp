@@ -1338,7 +1338,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 		attackOriginHex = attacker->occupiedHex(attackOriginHex);
 
 	if (!vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
-		throw std::runtime_error("!!!");
+		throw std::runtime_error("Atempt to attack from invalid position!");
 
 	auto attackDirection = BattleHex::mutualPosition(attackOriginHex, defenderPos);
 
