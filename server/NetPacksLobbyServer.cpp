@@ -14,15 +14,12 @@
 #include "CGameHandler.h"
 
 #include "../lib/StartInfo.h"
-#include "../lib/CRandomGenerator.h"
 
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/entities/faction/CFaction.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/mapping/CMapHeader.h"
 #include "../lib/filesystem/Filesystem.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
@@ -66,17 +63,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	srv.updateAndPropagateLobbyState();
-
-// FIXME: what is this??? We do NOT support reconnection into ongoing game - at the very least queries and battles are NOT serialized
-//	if(srv.getState() == EServerState::GAMEPLAY)
-//	{
-//		//immediately start game
-//		std::unique_ptr<LobbyStartGame> startGameForReconnectedPlayer(new LobbyStartGame);
-//		startGameForReconnectedPlayer->initializedStartInfo = srv.si;
-//		startGameForReconnectedPlayer->initializedGameState = srv.gh->gameState();
-//		startGameForReconnectedPlayer->clientId = pack.c->connectionID;
-//		srv.announcePack(std::move(startGameForReconnectedPlayer));
-//	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected & pack)
@@ -145,9 +131,8 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
 
 	auto scenarios = pack.ourCampaign->allScenarios();
-	for(std::set<CampaignScenarioID>::reverse_iterator itr = scenarios.rbegin(); itr != scenarios.rend(); itr++) // reverse -> on multiple scenario selection set lowest id at the end
+	for(auto scenarioID : boost::adaptors::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
 	{
-		auto scenarioID = *itr;
 		if(pack.ourCampaign->isAvailable(scenarioID))
 		{
 			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
@@ -213,7 +198,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 	{
 		srv.verifyStateBeforeStart(true);
 	}
-	catch(...)
+	catch(const std::exception &)
 	{
 		result = false;
 		return;
@@ -302,7 +287,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayer
 		srv.optionNextHero(pack.color, pack.value);
 		break;
 	case LobbyChangePlayerOption::BONUS_ID:
-		srv.optionSetBonus(pack.color, PlayerStartingBonus(pack.value));
+		srv.optionSetBonus(pack.color, static_cast<PlayerStartingBonus>(pack.value));
 		break;
 	case LobbyChangePlayerOption::BONUS:
 		srv.optionNextBonus(pack.color, pack.value);

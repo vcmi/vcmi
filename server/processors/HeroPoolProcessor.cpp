@@ -39,7 +39,7 @@ TavernHeroSlot HeroPoolProcessor::selectSlotForRole(const PlayerColor & player, 
 	const auto & heroes = heroesPool->getHeroesFor(player);
 
 	// if tavern has empty slot - use it
-	if (heroes.size() == 0)
+	if (heroes.empty())
 		return TavernHeroSlot::NATIVE;
 
 	if (heroes.size() == 1)
@@ -320,7 +320,7 @@ const CHeroClass * HeroPoolProcessor::pickClassFor(bool isNative, const PlayerCo
 		if (isNative && heroClass->faction != factionID)
 			continue;
 
-		bool hasSameClass = vstd::contains_if(currentTavern, [&](const CGHeroInstance * hero){
+		bool hasSameClass = vstd::contains_if(currentTavern, [&heroClass](const CGHeroInstance * hero){
 			return hero->getHeroClass() == heroClass;
 		});
 

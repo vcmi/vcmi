@@ -99,8 +99,8 @@ void QueriesProcessor::popIfTop(const CQuery & query)
 std::vector<std::shared_ptr<const CQuery>> QueriesProcessor::allQueries() const
 {
 	std::vector<std::shared_ptr<const CQuery>> ret;
-	for(auto & playerQueries : queries)
-		for(auto & query : playerQueries.second)
+	for(const auto & playerQueries : queries)
+		for(const auto & query : playerQueries.second)
 			ret.push_back(query);
 
 	return ret;
@@ -110,8 +110,8 @@ std::vector<QueryPtr> QueriesProcessor::allQueries()
 {
 	//TODO code duplication with const function :(
 	std::vector<QueryPtr> ret;
-	for(auto & playerQueries : queries)
-		for(auto & query : playerQueries.second)
+	for(const auto & playerQueries : queries)
+		for(const auto & query : playerQueries.second)
 			ret.push_back(query);
 
 	return ret;

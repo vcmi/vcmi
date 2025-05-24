@@ -23,7 +23,6 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/battle/IBattleState.h"
-#include "../lib/battle/BattleAction.h"
 #include "../lib/battle/Unit.h"
 #include "../lib/spells/CSpellHandler.h"
 #include "../lib/spells/ISpellMechanics.h"
@@ -229,7 +228,6 @@ void ApplyGhNetPackVisitor::visitManageEquippedArtifacts(ManageEquippedArtifacts
 void ApplyGhNetPackVisitor::visitAssembleArtifacts(AssembleArtifacts & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.heroID);
-	// gh.throwIfPlayerNotActive(&pack); // Might happen when player captures artifacts in battle?
 	result = gh.assembleArtifacts(pack.heroID, pack.artifactSlot, pack.assemble, pack.assembleTo);
 }
 
@@ -433,7 +431,7 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	p.pos = pack.pos;
 
 	const CSpell * s = pack.sid.toSpell();
-	result = s->adventureCast(gh.spellEnv, p);
+	result = s->adventureCast(gh.spellEnv.get(), p);
 }
 
 void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)

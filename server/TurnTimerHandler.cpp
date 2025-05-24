@@ -99,10 +99,10 @@ void TurnTimerHandler::update(int waitTimeMs)
 	// create copy for iterations - battle might end during onBattleLoop call
 	std::vector<BattleID> ongoingBattles;
 
-	for (auto & battle : gameHandler.gameState().currentBattles)
+	for (const auto & battle : gameHandler.gameState().currentBattles)
 		ongoingBattles.push_back(battle->battleID);
 
-	for (auto & battleID : ongoingBattles)
+	for (const auto & battleID : ongoingBattles)
 		onBattleLoop(battleID, waitTimeMs);
 }
 

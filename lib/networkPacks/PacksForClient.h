@@ -239,18 +239,23 @@ struct DLL_LINKAGE HeroVisitCastle : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	ui8 flags = 0; //1 - start
+	bool startVisit = false;
 	ObjectInstanceID tid;
 	ObjectInstanceID hid;
 
 	bool start() const //if hero is entering castle (if false - leaving)
 	{
-		return flags & 1;
+		return startVisit;
+	}
+
+	bool leave() const //if hero is entering castle (if false - leaving)
+	{
+		return !startVisit;
 	}
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & flags;
+		h & startVisit;
 		h & tid;
 		h & hid;
 	}
