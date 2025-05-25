@@ -180,10 +180,9 @@
 	"vcmi.stackExperience.rank.8" : "Élite",
 	"vcmi.stackExperience.rank.9" : "Maître",
 	"vcmi.stackExperience.rank.10" : "As",
-	
+
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Double frappe}\nAttaque deux fois",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Représailles supplémentaires}\nPeut riposter ${val} fois de plus",
-	"core.bonus.AIR_IMMUNITY.description": "{Immunité aérienne}\nImmunisé contre tous les sorts de l'école de magie de l'Air",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{Attaque tout autour}\nAttaque tous les ennemis adjacents",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "{Pas de représailles à distance}\nL'ennemi ne peut pas riposter en utilisant une attaque à distance",
 	"core.bonus.BLOCKS_RETALIATION.description": "{Pas de représailles}\nL'ennemi ne peut pas riposter",
@@ -191,19 +190,16 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Réduire le coût de lancement (${val})}\nRéduit le coût d'incantation du héros de ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Amortisseur magique (${val})}\nAugmente le coût d'incantation des sorts ennemis de ${val}",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Immunisé contre la charge}\nImmunisé contre la charge du cavalier et du champion",
-	"core.bonus.DARKNESS.description": "{Couverture de ténèbres}\nCrée un linceul de ténèbres avec un rayon de ${val}",
 	"core.bonus.DEATH_STARE.description": "{Regard mortel (${val}%)}\nA ${val}% de chances de tuer une seule créature",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonus de défense}\n+${val} Défense en défense",
 	"core.bonus.DESTRUCTION.description": "{Destruction}\nA ${val} % de chances de tuer des unités supplémentaires après l'attaque",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Coup mortel}\nA ${val}% de chances d'infliger des dégâts de base doublés en attaquant",
 	"core.bonus.DRAGON_NATURE.description": "{Dragon}\nLa créature a une nature de dragon",
-	"core.bonus.EARTH_IMMUNITY.description": "{Immunité terrestre}\nImmunisé contre tous les sorts de l'école de magie de la Terre",
 	"core.bonus.ENCHANTED.description": "{Enchanté}\nAffecté par ${subtype.spell} permanent",
 	"core.bonus.ENCHANTER.description": "{Enchanteur}\nPeut lancer en masse ${subtype.spell} à chaque tour",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorer la défense (${val}%)}\nLors de l'attaque, ${val}% de la défense du défenseur est ignorée",
 	"core.bonus.FEAR.description": "{Peur}\nProvoque la peur sur une pile ennemie",
 	"core.bonus.FEARLESS.description": "{Intrépide}\nImmunité à la peur",
-	"core.bonus.FIRE_IMMUNITY.description": "{Immunité au feu}\nImmunisé contre tous les sorts de l'école de magie du Feu",
 	"core.bonus.FIRE_SHIELD.description": "{Bouclier de feu (${val}%)}\nReflète une partie des dégâts de mêlée",
 	"core.bonus.FIRST_STRIKE.description": "{Premier coup}\nCette créature riposte avant d'être attaquée",
 	"core.bonus.FLYING.description": "{Vol}\nVole en se déplaçant (ignore les obstacles)",
@@ -250,6 +246,5 @@
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description": "{Souffle}\nAttaque de souffle (portée de 2 hexagones)",
 	"core.bonus.UNDEAD.description": "{Morts-vivants}\nLa créature est un mort-vivant",
 	"core.bonus.UNLIMITED_RETALIATIONS.description": "{Représailles illimitées}\nPeut riposter contre un nombre illimité d'attaques",
-	"core.bonus.WATER_IMMUNITY.description": "{Immunité à l'eau}\nImmunisé contre tous les sorts de l'école de magie de l'Eau",
 	"core.bonus.WIDE_BREATH.description": "{Large souffle}\nAttaque à souffle large (plusieurs hexagones)"
 }

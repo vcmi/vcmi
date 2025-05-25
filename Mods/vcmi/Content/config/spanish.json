@@ -339,7 +339,6 @@
 
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Doble Ataque}\nAtaca dos veces",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Contrataques adicionales}\nPuede contratacar ${val} veces adicionales",
-	"core.bonus.AIR_IMMUNITY.description": "{Inmunidad al Aire}\nInmune a todos los hechizos de la escuela de Aire",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{Ataque en todas las direcciones}\nAtaca a todos los enemigos adyacentes",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "{Evita contrataque a distancia}\nEl enemigo no puede contratacar disparando",
 	"core.bonus.BLOCKS_RETALIATION.description": "{Evita contrataque}\nEl enemigo no puede contratacar",
@@ -347,13 +346,11 @@
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description": "{Reducir coste del conjuro (${val})}\nReduce el coste del conjuro para el héroe",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description": "{Disminuir efecto mágico (${val})}\nAumenta el coste de los hechizos del enemigo",
 	"core.bonus.CHARGE_IMMUNITY.description": "{Inmunidad a la Carga}\nInmune al ataque de carga del campeón",
-	"core.bonus.DARKNESS.description": "{Cobertura de Oscuridad}\nAñade un radio de oscuridad de ${val}",
 	"core.bonus.DEATH_STARE.description": "{Mirada Mortal (${val}%)}\nTiene ${val}% de probabilidad de matar a una criatura",
 	"core.bonus.DEFENSIVE_STANCE.description": "{Bonificación de Defensa}\n+${val} de Defensa al defender",
 	"core.bonus.DESTRUCTION.description": "{Destrucción}\nTiene ${val}% de probabilidad de matar unidades extra después del ataque",
 	"core.bonus.DOUBLE_DAMAGE_CHANCE.description": "{Golpe Mortal}\n${val}% de probabilidad de doble daño",
 	"core.bonus.DRAGON_NATURE.description": "{Dragón}\nLa criatura tiene la naturaleza de dragón",
-	"core.bonus.EARTH_IMMUNITY.description": "{Inmunidad a la Tierra}\nInmune a todos los hechizos de la escuela de tierra",
 	"core.bonus.ENCHANTED.description": "{Encantado}\nAfectado por el hechizo permanente ${subtype.spell}",
 	"core.bonus.ENCHANTER.description": "{Encantador}\nPuede lanzar ${subtype.spell} masivo cada turno",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{Ignorar ataque (${val}%)}\nAl ser atacado, ${val}% del daño del atacante es ignorado",
@@ -361,7 +358,6 @@
 	"core.bonus.FEAR.description": "{Miedo}\nCausa miedo a un grupo enemigo",
 	"core.bonus.FEARLESS.description": "{Inmune al miedo}\nInmune a la habilidad de miedo",
 	"core.bonus.FEROCITY.description": "{Ferocidad}\nAtaca ${val} veces adicionales en caso de eliminar a alguien",
-	"core.bonus.FIRE_IMMUNITY.description": "{Inmunidad al Fuego}\nInmune a todos los hechizos de la escuela de fuego",
 	"core.bonus.FIRE_SHIELD.description": "{Escudo de Fuego (${val}%)}\nRefleja una parte del daño cuerpo a cuerpo",
 	"core.bonus.FIRST_STRIKE.description": "{Primer Ataque}\nEsta criatura ataca primero en lugar de contratacar",
 	"core.bonus.FLYING.description": "{Volar}\nPuede volar (ignora obstáculos)",
@@ -409,6 +405,5 @@
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description": "{Aliento}\nAtaque de aliento (rango de 2 hexágonos)",
 	"core.bonus.UNDEAD.description": "{No muerto}\nLa criatura es un no muerto",
 	"core.bonus.UNLIMITED_RETALIATIONS.description": "{Contrataques ilimitados}\nPuede realizar un número ilimitado de contrataques",
-	"core.bonus.WATER_IMMUNITY.description": "{Inmunidad al agua}\nInmune a todos los hechizos de la escuela del agua",
 	"core.bonus.WIDE_BREATH.description": "{Aliento amplio}\nAtaque de aliento amplio (varios hexágonos)"
 }
