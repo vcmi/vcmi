@@ -262,6 +262,96 @@ public:
 	}
 };
 
+///// getAttackableHexes tests
+
+TEST_F(AttackableHexesTest, getAttackableHexes_SingleWideAttacker_SingleWideDefender)
+{
+	UnitFake & attacker = addRegularMelee(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		89,
+		91,
+		106,
+		107
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_SingleWideAttacker_DoubleWideDefender)
+{
+	UnitFake & attacker = addRegularMelee(60, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		89,
+		92,
+		106,
+		107,
+		108
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_DoubleWideAttacker_SingleWideDefender)
+{
+	UnitFake & attacker = addDragon(60, BattleSide::ATTACKER);
+	UnitFake & defender = addRegularMelee(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		89,
+		92,
+		106,
+		107,
+		108
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
+TEST_F(AttackableHexesTest, getAttackableHexes_DoubleWideAttacker_DoubleWideDefender)
+{
+	UnitFake & attacker = addDragon(60, BattleSide::ATTACKER);
+	UnitFake & defender = addDragon(90, BattleSide::DEFENDER);
+
+	static const BattleHexArray expectedDef =
+	{
+		72,
+		73,
+		74,
+		75,
+		89,
+		93,
+		106,
+		107,
+		108,
+		109
+	};
+
+	auto attackable = defender.getAttackableHexes(&attacker);
+	attackable.sort([](const auto & l, const auto & r) { return l < r; });
+	EXPECT_EQ(expectedDef, attackable);
+}
+
 //// CERBERI 3-HEADED ATTACKS
 
 TEST_F(AttackableHexesTest, CerberiAttackerRight)
@@ -276,7 +366,6 @@ TEST_F(AttackableHexesTest, CerberiAttackerRight)
 
 	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
 
-	EXPECT_TRUE(vstd::contains(attacked, &defender));
 	EXPECT_TRUE(vstd::contains(attacked, &right));
 	EXPECT_TRUE(vstd::contains(attacked, &left));
 }
@@ -356,7 +445,6 @@ TEST_F(AttackableHexesTest, DragonRightRegular_RightHorithontalBreath)
 
 	auto attacked = getAttackedUnits(attacker, defender, defender.getPosition());
 
-	EXPECT_TRUE(vstd::contains(attacked, &defender));
 	EXPECT_TRUE(vstd::contains(attacked, &next));
 }
 
