@@ -112,16 +112,21 @@ struct DLL_LINKAGE PlayerBlocked : public CPackForClient
 struct DLL_LINKAGE PlayerCheated : public CPackForClient
 {
 	PlayerColor player;
+	bool localOnlyCheat = false;
+
 	bool losingCheatCode = false;
 	bool winningCheatCode = false;
+	ColorScheme colorScheme = ColorScheme::KEEP;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & player;
+		h & localOnlyCheat;
 		h & losingCheatCode;
 		h & winningCheatCode;
+		h & colorScheme;
 	}
 };
 

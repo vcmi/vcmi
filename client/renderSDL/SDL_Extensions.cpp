@@ -542,38 +542,59 @@ void CSDL_Ext::putPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x,
 		CSDL_Ext::putPixelWithoutRefresh(ekran, x, y, R, G, B, A);
 }
 
-template<int bpp>
-void CSDL_Ext::convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect )
+template<typename Functor>
+void loopOverPixel(SDL_Surface * surf, const Rect & rect, Functor functor)
 {
 	uint8_t * pixels = static_cast<uint8_t*>(surf->pixels);
 
-	for(int yp = rect.top(); yp < rect.bottom(); ++yp)
+	tbb::parallel_for(tbb::blocked_range<size_t>(rect.top(), rect.bottom()), [&](const tbb::blocked_range<size_t>& r)
 	{
-		uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
-		uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
-
-		for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+		for(int yp = r.begin(); yp != r.end(); ++yp)
 		{
-			int r = Channels::px<bpp>::r.get(pixel);
-			int g = Channels::px<bpp>::g.get(pixel);
-			int b = Channels::px<bpp>::b.get(pixel);
+			uint8_t * pixel_from = pixels + yp * surf->pitch + rect.left() * surf->format->BytesPerPixel;
+			uint8_t * pixel_dest = pixels + yp * surf->pitch + rect.right() * surf->format->BytesPerPixel;
 
-			int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 *b);
+			for (uint8_t * pixel = pixel_from; pixel < pixel_dest; pixel += surf->format->BytesPerPixel)
+			{
+				int r = Channels::px<4>::r.get(pixel);
+				int g = Channels::px<4>::g.get(pixel);
+				int b = Channels::px<4>::b.get(pixel);
 
-			Channels::px<bpp>::r.set(pixel, gray);
-			Channels::px<bpp>::g.set(pixel, gray);
-			Channels::px<bpp>::b.set(pixel, gray);
+				functor(r, g, b);
+
+				Channels::px<4>::r.set(pixel, r);
+				Channels::px<4>::g.set(pixel, g);
+				Channels::px<4>::b.set(pixel, b);
+			}
 		}
-	}
+	});
 }
 
-void CSDL_Ext::convertToGrayscale( SDL_Surface * surf, const Rect & rect )
+void CSDL_Ext::convertToGrayscale(SDL_Surface * surf, const Rect & rect )
 {
-	switch(surf->format->BytesPerPixel)
-	{
-		case 3: convertToGrayscaleBpp<3>(surf, rect); break;
-		case 4: convertToGrayscaleBpp<4>(surf, rect); break;
-	}
+	loopOverPixel(surf, rect, [](int &r, int &g, int &b){
+		int gray = static_cast<int>(0.299 * r + 0.587 * g + 0.114 * b);
+		r = gray;
+		g = gray;
+		b = gray;
+	});
+}
+
+void CSDL_Ext::convertToH2Scheme(SDL_Surface * surf, const Rect & rect )
+{
+	loopOverPixel(surf, rect, [](int &r, int &g, int &b){
+		double gray = 0.3 * r + 0.59 * g + 0.11 * b;
+		double factor = 2.0;
+
+		//fast approximation instead of colorspace conversion
+		r = static_cast<int>(gray + (r - gray) * factor);
+		g = static_cast<int>(gray + (g - gray) * factor);
+		b = static_cast<int>(gray + (b - gray) * factor);
+
+		r = std::clamp(r, 0, 255);
+		g = std::clamp(g, 0, 255);
+		b = std::clamp(b, 0, 255);
+	});
 }
 
 void CSDL_Ext::blitSurface(SDL_Surface * src, const Rect & srcRectInput, SDL_Surface * dst, const Point & dstPoint)

@@ -1422,7 +1422,7 @@ void GameStatePackVisitor::visitPlayerCheated(PlayerCheated & pack)
 
 	gs.getPlayerState(pack.player)->enteredLosingCheatCode = pack.losingCheatCode;
 	gs.getPlayerState(pack.player)->enteredWinningCheatCode = pack.winningCheatCode;
-	gs.getPlayerState(pack.player)->cheated = true;
+	gs.getPlayerState(pack.player)->cheated = !pack.localOnlyCheat;
 }
 
 void GameStatePackVisitor::visitPlayerStartsTurn(PlayerStartsTurn & pack)

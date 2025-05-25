@@ -11,6 +11,7 @@
 
 #include "CBattleGameInterface.h"
 #include "IGameEventsReceiver.h"
+#include "../constants/Enumerations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,6 +52,8 @@ public:
 
 	/// Invalidates and destroys all paths for all heroes
 	virtual void invalidatePaths(){};
+
+	virtual void setColorScheme(ColorScheme scheme){};
 };
 
 VCMI_LIB_NAMESPACE_END

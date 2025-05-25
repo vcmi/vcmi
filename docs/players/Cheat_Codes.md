@@ -8,12 +8,12 @@ To use cheat code, press `Tab` key or click/tap on status bar to open game chat 
 
 ### Spells
 
-`nwcthereisnospoon` or `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero
+`nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero
 
 ### Army
 
-`nwctrinity` or `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  
-`nwcagents` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot  
+`nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  
+`nwcagents`, `nwcdarthmaul`, `nwcfleshwound` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot  
 `vcmiglaurung` or `vcmicrystal` - give 5000 crystal dragons in every empty slot  
 `vcmiazure` - give 5000 azure dragons in every empty slot  
 `vcmifaerie` - give 5000 faerie dragons in every empty slot  
@@ -25,32 +25,32 @@ Gives specific creature in every slot, with optional amount. Examples:
 
 ### Town buildings
 
-`nwczion` or `vcmiarmenelos` or `vcmibuild` - build all buildings in currently selected town
+`nwczion`, `nwccoruscant`, `nwconlyamodel`, `vcmiarmenelos` or `vcmibuild` - build all buildings in currently selected town
 
 ### Artifacts
 
-`nwclotsofguns` or `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
+`nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
 `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
 `vcmiscrolls` - give spell scrolls for every possible spells
 
 ### Movement points
 
-`nwcnebuchadnezzar` or `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
+`nwcnebuchadnezzar`, `nwcpodracer`, `nwccoconuts`, `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
 Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
 
 ### Resources
 
-`nwctheconstruct` or `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)  
+`nwctheconstruct`, `nwcwatto`, `nwcshrubbery`, `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)  
 Alternative usage: `vcmiresources <amount>` - gives specified amount of all resources and x1000 of gold
 
 ### Fog of War
 
-`nwcwhatisthematrix` or `vcmieagles` or `vcmimap` - reveal Fog of War  
-`nwcignoranceisbliss` or `vcmiungoliant` or `vcmihidemap` - conceal Fog of War  
+`nwcwhatisthematrix`, `nwcrevealourselves`, `nwcgeneraldirection`, `vcmieagles` or `vcmimap` - reveal Fog of War  
+`nwcignoranceisbliss`,  `vcmiungoliant` or `vcmihidemap` - conceal Fog of War  
 
 ### Experience
 
-`nwcneo` or `vcmiglorfindel` or `vcmilevel` - advances currently selected hero to the next level
+`nwcneo`, `nwcquigon`, `nwcigotbetter`, `vcmiglorfindel` or `vcmilevel` - advances currently selected hero to the next level
 Alternative usage: `vcmilevel <amount>` - advances hero by specified number of levels
 
 - `vcmiolorin` or `vcmiexp` - gives selected hero 10000 experience
@@ -58,21 +58,23 @@ Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of 
 
 ### Luck and morale
 
-`nwcfollowthewhiterabbit` or `vcmiluck` - the currently selected hero permanently gains maximum luck
-`nwcmorpheus` or `vcmimorale` - the currently selected hero permanently gains maximum morale
+`nwcfollowthewhiterabbit`, `nwccastleanthrax` or `vcmiluck` - the currently selected hero permanently gains maximum luck
+`nwcmorpheus`, `nwcmuchrejoicing` or `vcmimorale` - the currently selected hero permanently gains maximum morale
 
 ### Puzzle map
 
-`nwcoracle` or `vcmiobelisk` - reveals the puzzle map
+`nwcoracle`, `nwcprophecy`, `nwcalreadygotone` or `vcmiobelisk` - reveals the puzzle map
 
 ### Finishing the game
 
-`nwcredpill` or `vcmisilmaril` or `vcmiwin` - player wins
-`nwcbluepill` or `vcmimelkor` or `vcmilose` - player loses
+`nwcredpill`, `nwctrojanrabbit`, `vcmisilmaril` or `vcmiwin` - player wins
+`nwcbluepill`, `nwcsirrobin`, `vcmimelkor` or `vcmilose` - player loses
 
 ### Misc
 
 `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
+`nwcphisherprice` or `vcmicolor` - change game color palette to Heroes II like until game restart
+`vcmigray` - change game color palette to grayscale until game restart
 
 ## Using cheat codes on other players
 

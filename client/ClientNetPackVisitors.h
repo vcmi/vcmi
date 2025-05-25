@@ -103,6 +103,7 @@ public:
 	void visitNewObject(NewObject & pack) override;
 	void visitSetAvailableArtifacts(SetAvailableArtifacts & pack) override;
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
+	void visitPlayerCheated(PlayerCheated & pack) override;
 };
 
 class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
