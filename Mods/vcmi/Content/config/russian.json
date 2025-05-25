@@ -625,7 +625,6 @@
 	"core.seerhut.quest.reachDate.visit.5" : "Закрыто до %s.",
 	"mapObject.core.hillFort.object.description" : "Улучшить существ. Уровни 1-4 стоят дешевле, чем в соответствующем городе.",
 
-{
 	"core.bonus.ADDITIONAL_ATTACK.name" : "{Двойной удар}\nБьет дважды",
 	"core.bonus.ADDITIONAL_RETALIATION.name" : "{Дополнительные ответные атаки}\nОтвечает на атаку дополнительно ${val} раз",
 	"core.bonus.AIR_IMMUNITY.name" : "{Иммунитет к воздуху}\nИммунитет ко всем заклинаниям Магии Воздуха",
@@ -648,8 +647,8 @@
 	"core.bonus.ENCHANTER.name" : "{Заклинатель (массовое)}\nМожет применять массовое ${subtype.spell} каждый ход",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.name" : "{Игнорирует атаку (${val}%)}\nПри атаке ${val}%, атаки атакующего игнорируются",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.name" : "{Игнорирует броню (${val}%)}\nИгнорирует часть Защиты при атаке",
-	"core.bonus.FEAR.name" : "{Страх}\nЗаставляет вражеских существ цепенеть от страха",
 	"core.bonus.FEARLESS.name" : "{Бесстрашный}\nИммунитет к страху",
+	"core.bonus.FEAR.name" : "{Страх}\nЗаставляет вражеских существ цепенеть от страха",
 	"core.bonus.FEROCITY.name" : "{Свирепость}\nАтакует дополнительно ${val} раз, если кого-то убивает",
 	"core.bonus.FIRE_IMMUNITY.name" : "{Иммунитет к огню}\nИммунитет ко всем заклинаниям Магии Огня",
 	"core.bonus.FIRE_SHIELD.name" : "{Огненный щит (${val}%)}\nНаносит огнем часть полученного урона",
@@ -673,10 +672,10 @@
 	"core.bonus.MANA_DRAIN.name" : "{Высасывание маны}\nВысасывает ${val} маны каждый ход",
 	"core.bonus.MECHANICAL.name" : "{Механический}\nИммунитет ко многим воздействиям, ремонтируемый",
 	"core.bonus.MIND_IMMUNITY.name" : "{Железная воля}\nИммунитет к заклинаниям, влияющим на разум",
-	"core.bonus.NON_LIVING.name" : "{Анимированный}\nИммунитет к ряду эффектов",
 	"core.bonus.NO_DISTANCE_PENALTY.name" : "{Игнорирует расстояние}\nПолный урон от стрельбы на любой дистанции",
 	"core.bonus.NO_MELEE_PENALTY.name" : "{Ближний бой}\nНет штрафа в ближнем бою",
 	"core.bonus.NO_MORALE.name" : "{Непоколебимый}\nБоевой дух не оказывает действия на отряд",
+	"core.bonus.NON_LIVING.name" : "{Анимированный}\nИммунитет к ряду эффектов",
 	"core.bonus.NO_WALL_PENALTY.name" : "{Игнорирует препятствия}\nПолный урон при стрельбе через стены",
 	"core.bonus.OPENING_BATTLE_SPELL.name" : "{Начинает с заклинанием}\nНакладывает ${subtype.spell} в начале битвы",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.name" : "{Призматическое дыхание}\nАтака призматическим дыханием (три направления)",
@@ -689,9 +688,9 @@
 	"core.bonus.SHOOTER.name" : "{Стрелок}\nСовершает атаки в дальнем бою",
 	"core.bonus.SHOOTS_ALL_ADJACENT.name" : "{Стреляет по области}\nДальнобойная атака наносит урон по небольшой области вокруг цели",
 	"core.bonus.SOUL_STEAL.name" : "{Воровство душ}\nСоздает ${val} новых существ за каждого убитого врага",
-	"core.bonus.SPELLCASTER.name" : "{Заклинатель}\nМожет применять ${subtype.spell}",
 	"core.bonus.SPELL_AFTER_ATTACK.name" : "{Заклинание после атаки}\nШанс ${val}% на применение ${subtype.spell} после атаки",
 	"core.bonus.SPELL_BEFORE_ATTACK.name" : "{Заклинание перед атакой}\nШанс ${val}% на применение ${subtype.spell} перед атакой",
+	"core.bonus.SPELLCASTER.name" : "{Заклинатель}\nМожет применять ${subtype.spell}",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name" : "{Защита от магического урона}\nУрон от заклинаний уменьшен на ${val}%.",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name.air" : "{Сопротивление заклинаниям Воздуха}\nУрон от заклинаний Воздуха уменьшен на ${val}%.",
 	"core.bonus.SPELL_DAMAGE_REDUCTION.name.earth" : "{Сопротивление заклинаниям Земли}\nУрон от заклинаний Земли уменьшен на ${val}%.",
@@ -714,4 +713,5 @@
 	"core.bonus.UNLIMITED_RETALIATIONS.name" : "{Всегда отвечает}\nОтвечает на все атаки вражеских отрядов",
 	"core.bonus.WATER_IMMUNITY.name" : "{Иммунитет к воде}\nИммунитет ко всем заклинаниям Магии Воды",
 	"core.bonus.WIDE_BREATH.name" : "{Мощное дыхание}\nАтака дыханием (расширенная)"
+
 }
