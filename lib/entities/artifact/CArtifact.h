@@ -123,6 +123,7 @@ public:
 	std::string getDescriptionTextID() const override;
 	std::string getEventTextID() const override;
 	std::string getNameTextID() const override;
+	std::string getBonusTextID(const std::string & bonusID) const;
 
 	uint32_t getPrice() const override;
 	CreatureID getWarMachine() const override;

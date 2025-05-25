@@ -97,6 +97,7 @@
 			{
 				"type": "ADDITIONAL_ATTACK",
 				"val" : 1,
+				"description" : "PLACEHOLDER",
 				"effectRange": "ONLY_DISTANCE_FIGHT"
 			}
 		},
@@ -359,6 +360,7 @@
 				"type" : "MORALE",
 				"val" : 1,
 				"propagator" : "HERO",
+				"description" : "PLACEHOLDER",
 				"stacking" : "Angels"
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better
@@ -426,6 +428,7 @@
 				"type" : "MORALE",
 				"val" : 1,
 				"propagator" : "HERO",
+				"description" : "@creatures.core.angel.bonus.raisesMorale",
 				"stacking" : "Angels"
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better

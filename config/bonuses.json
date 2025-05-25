@@ -92,6 +92,10 @@
 
 	"FIRST_STRIKE":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.damageTypeRanged" : null,
+			"bonusSubtype.damageTypeMelee" : null,
+		}
 	},
 
 	"FEAR":
@@ -108,6 +112,9 @@
 
 	"FLYING":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.movementTeleporting" : null,
+		}
 	},
 
 	"FREE_SHOOTING":
@@ -120,6 +127,10 @@
 
 	"GENERAL_DAMAGE_REDUCTION":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.damageTypeRanged" : null,
+			"bonusSubtype.damageTypeMelee" : null,
+		}
 	},
 
 	"HATE":
@@ -140,6 +151,10 @@
 
 	"KING":
 	{
+		"valueDescriptions" : {
+			"2" : null,
+			"3" : null
+		}
 	},
 
 	"LEARN_BATTLE_SPELL_CHANCE":
@@ -281,6 +296,12 @@
 
 	"SPELL_DAMAGE_REDUCTION":
 	{
+		"subtypeDescriptions" : {
+			"spellSchool.air" : null,
+			"spellSchool.earth" : null,
+			"spellSchool.fire" : null,
+			"spellSchool.water" : null,
+		}
 	},
 
 	"SPELL_IMMUNITY":
@@ -293,6 +314,12 @@
 
 	"SPELL_SCHOOL_IMMUNITY":
 	{
+		"subtypeDescriptions" : {
+			"spellSchool.air" : null,
+			"spellSchool.earth" : null,
+			"spellSchool.fire" : null,
+			"spellSchool.water" : null,
+		}
 	},
 
 	"SPELL_RESISTANCE_AURA":

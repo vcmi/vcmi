@@ -38,6 +38,22 @@
 					}
 				}
 			}
+		},
+
+		"subtypeDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus subtype",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
+		
+		"valueDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus value",
+			"additionalProperties" : {
+				"type" : "string"
+			}
 		}
 	}
 }

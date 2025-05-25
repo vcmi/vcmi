@@ -314,13 +314,7 @@ CStackWindow::BonusLineSection::BonusLineSection(CStackWindow * owner, size_t li
 			if (!bi.imagePath.empty())
 				icon[leftRight] = std::make_shared<CPicture>(bi.imagePath, position.x, position.y);
 
-			if (!bi.name.empty())
-			{
-				name[leftRight] = std::make_shared<CLabel>(position.x + 60, position.y + 2, FONT_TINY, ETextAlignment::TOPLEFT, Colors::YELLOW, bi.name, 137);
-				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 20, 137, 26), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
-			}
-			else
-				description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 2, 137, 50), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
+			description[leftRight] = std::make_shared<CMultiLineLabel>(Rect(position.x + 60, position.y + 2, 137, 50), FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, bi.description);
 			drawBonusSource(leftRight, Point(position.x - 1, position.y - 1), bi);
 		}
 	}
@@ -525,8 +519,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 					};
 					for(int i = 0; i < bonuses.size(); i++) 
 					{
-						icon->text += stack->bonusToString(bonuses[i], true) + "\n";
-						icon->hoverText += stack->bonusToString(bonuses[i], false) + "\n";
+						icon->hoverText += stack->bonusToString(bonuses[i]);
 					}
 
 					return icon;
@@ -863,7 +856,7 @@ void CStackWindow::initBonusesList()
 			return priorityV1 < priorityV2;
 		}
 		else
-			return  info->stackNode->bonusToString(v1, false) < info->stackNode->bonusToString(v2, false);
+			return  info->stackNode->bonusToString(v1) < info->stackNode->bonusToString(v2);
 	};
 
 	// these bonuses require special handling. For example they come with own descriptions, for use in morale/luck description
@@ -906,7 +899,7 @@ void CStackWindow::initBonusesList()
 
 		int valIndepMin = groupIndepMin.totalValue();
 		int valIndepMax = groupIndepMax.totalValue();
-		int valNoMinMax = group.totalValue();
+		int valNoMinMax = groupNoMinMax.totalValue();
 
 		BonusList usedGroup;
 
@@ -928,14 +921,12 @@ void CStackWindow::initBonusesList()
 	BonusInfo bonusInfo;
 	for(auto b : visibleBonuses)
 	{
-		bonusInfo.name = info->stackNode->bonusToString(b, false);
-		bonusInfo.description = info->stackNode->bonusToString(b, true);
+		bonusInfo.description = info->stackNode->bonusToString(b);
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 
 		//if it's possible to give any description or image for this kind of bonus
-		//TODO: figure out why half of bonuses don't have proper description
-		if(!bonusInfo.name.empty() || !bonusInfo.description.empty())
+		if(!bonusInfo.description.empty())
 			activeBonuses.push_back(bonusInfo);
 	}
 }
