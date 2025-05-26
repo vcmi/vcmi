@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "helper.h"
 #include "mapcontroller.h"
+#include "EditorCallback.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
@@ -49,8 +50,12 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
 		
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
-		
-		return mapService.loadMap(resId, nullptr);
+
+		auto cb = std::make_shared<EditorCallback>(nullptr);
+
+		std::unique_ptr<CMap> map = mapService.loadMap(resId, cb.get());
+		cb->setMap(map.get());
+		return map;
 	}
 	else
 		throw std::runtime_error("Corrupted map");

@@ -48,6 +48,7 @@ set(editor_SRCS
 		campaigneditor/scenarioproperties.cpp
 		campaigneditor/startingbonus.cpp
 		campaigneditor/campaignview.cpp
+		EditorCallback.cpp
 )
 
 set(editor_HEADERS
@@ -101,6 +102,7 @@ set(editor_HEADERS
 		campaigneditor/scenarioproperties.h
 		campaigneditor/startingbonus.h
 		campaigneditor/campaignview.h
+		EditorCallback.h
 )
 
 set(editor_FORMS
