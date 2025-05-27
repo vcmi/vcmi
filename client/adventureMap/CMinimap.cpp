@@ -13,22 +13,25 @@
 
 #include "AdventureMapInterface.h"
 
-#include "../widgets/Images.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
-#include "../render/Colors.h"
+#include "../render/CAnimation.h"
 #include "../render/Canvas.h"
+#include "../render/Colors.h"
 #include "../render/Graphics.h"
+#include "../render/IRenderHandler.h"
+#include "../widgets/Images.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib/callback/CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 {
@@ -89,8 +92,9 @@ void CMinimapInstance::showAll(Canvas & to)
 }
 
 CMinimap::CMinimap(const Rect & position)
-	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft()),
-	level(0)
+	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft())
+	, heroIcon(ENGINE->renderHandler().loadImage(ImagePath::builtin("minimapIcons/hero"), EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR))
+	, level(0)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -196,6 +200,22 @@ void CMinimap::showAll(Canvas & to)
 
 		Canvas clippedTarget(to, pos);
 		clippedTarget.drawBorderDashed(radar, Colors::PURPLE);
+
+		if (settings["adventure"]["minimapShowHeroes"].Bool())
+		{
+			static const auto image = ENGINE->renderHandler().loadImage(ImagePath::builtin("minimapIcons/hero"), EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR);
+
+			for (const auto objectID : visibleHeroes)
+			{
+				const auto * object = GAME->interface()->cb->getObj(objectID);
+
+				if (object->anchorPos().z != level)
+					continue;
+
+				image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
+				clippedTarget.draw(image, tileToPixels(object->visitablePos()) - image->dimensions() / 2);
+			}
+		}
 	}
 }
 
@@ -206,6 +226,7 @@ void CMinimap::update()
 
 	OBJECT_CONSTRUCTION;
 	minimap = std::make_shared<CMinimapInstance>(Point(0,0), pos.dimensions(), level);
+	updateVisibleHeroes();
 	redraw();
 }
 
@@ -240,6 +261,20 @@ void CMinimap::setAIRadar(bool on)
 	redraw();
 }
 
+void CMinimap::updateVisibleHeroes()
+{
+	visibleHeroes.clear();
+
+	for (const auto & player : PlayerColor::ALL_PLAYERS())
+	{
+		if (GAME->interface()->cb->getPlayerStatus(player, false) != EPlayerStatus::INGAME)
+			continue;
+
+		for (const auto & hero : GAME->interface()->cb->getHeroes(player))
+			visibleHeroes.push_back(hero->id);
+	}
+}
+
 void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 {
 	if(minimap)
@@ -247,5 +282,7 @@ void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
 		for (auto const & tile : positions)
 			minimap->refreshTile(tile);
 	}
+
+	updateVisibleHeroes();
 	redraw();
 }

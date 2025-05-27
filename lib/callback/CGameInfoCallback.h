@@ -57,6 +57,7 @@ public:
 	//hero
 	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
 	int getHeroCount(PlayerColor player, bool includeGarrisoned) const override;
+	std::vector<const CGHeroInstance*> getHeroes(PlayerColor player) const;
 	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	int32_t getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const;
 	int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const;
