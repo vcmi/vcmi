@@ -247,7 +247,8 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 						else if (node.first == "appendItems")
 						{
 							assert(node.second.isVector());
-							std::move(dest.Vector().begin(), dest.Vector().end(), std::back_inserter(dest.Vector()));
+							auto& srcVec = node.second.Vector();
+							std::move(srcVec.begin(), srcVec.end(), std::back_inserter(dest.Vector()));
 						}
 						else if (boost::algorithm::starts_with(node.first, "insert@"))
 						{
