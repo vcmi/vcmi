@@ -107,8 +107,11 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		auto skillID = entry.first;
 		int levelsGained = entry.second;
 		int currentLevel = h ? h->getSecSkillLevel(skillID) : 0;
-		int finalLevel = std::clamp<int>(currentLevel + levelsGained, MasteryLevel::BASIC, MasteryLevel::EXPERT);
-		comps.emplace_back(ComponentType::SEC_SKILL, entry.first, finalLevel);
+		int finalLevel = std::clamp<int>(currentLevel + levelsGained, MasteryLevel::NONE, MasteryLevel::EXPERT);
+		if (finalLevel == MasteryLevel::NONE)
+			comps.emplace_back(ComponentType::SEC_SKILL, entry.first);
+		else
+			comps.emplace_back(ComponentType::SEC_SKILL, entry.first, finalLevel);
 	}
 
 	for(const auto & entry : grantedArtifacts)
