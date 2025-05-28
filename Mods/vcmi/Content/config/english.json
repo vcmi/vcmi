@@ -401,6 +401,9 @@
 	"vcmi.battleWindow.endWithAutocombat" : "Are you sure you wish to end the battle with auto combat?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Accept battle result?",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0" : "Remaining duration : %d combat rounds",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Remaining duration : %d combat round",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Remaining duration : %d combat rounds",
 
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
