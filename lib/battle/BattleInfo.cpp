@@ -342,6 +342,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 
 			if (pos.isValid())
 				currentBattle->generateNewStack(currentBattle->nextUnitId(), *i->second, side, i->first, pos);
+			else
+				logMod->warn("Invalid battlefield layout! Failed to find position for unit %d for %s", k, side == BattleSide::ATTACKER ? "attacker" : "defender");
 		}
 	}
 

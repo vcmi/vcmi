@@ -85,6 +85,12 @@ void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CG
 {
 	if (result.winner == BattleSide::ATTACKER)
 	{
+		while(!stacks.empty())
+		{
+			logMod->warn("Attacker won, but defender still has remaining units in configurable map objects! Make sure that guards configuration is valid!");
+			gameEvents.eraseStack(StackLocation(id, stacks.begin()->first));
+		}
+
 		doHeroVisit(gameEvents, hero);
 	}
 }
