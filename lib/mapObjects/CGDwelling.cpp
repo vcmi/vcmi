@@ -28,6 +28,7 @@
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
 #include "../CConfigHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -254,7 +255,18 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	bd.player = h->tempOwner;
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
-		bd.text.appendLocalString(EMetaText::ADVOB_TXT, creatures.size() == 1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
+		const size_t count = creatures.size();
+		if (count == 1)
+			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35);                                      // {%s} Would you like to recruit %s?
+		else if (count == 2)
+			bd.text.appendRawString(LIBRARY->generaltexth->translate("vcmi.adventureMap.dwelling2"));
+		else if (count == 3)
+			bd.text.appendRawString(LIBRARY->generaltexth->translate("vcmi.adventureMap.dwelling3"));
+		else if (count == 4)
+			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 36);                                      // {%s} Would you like to recruit %s, %s, %s, or %s?
+		else
+			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 36);
+		
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
