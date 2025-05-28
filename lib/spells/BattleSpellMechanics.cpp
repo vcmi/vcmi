@@ -283,7 +283,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	sc.tile = target.at(0).hexValue;
 
 	sc.castByHero = mode == Mode::HERO;
-	sc.casterStack = caster->getCasterUnitId();
+	if (mode != Mode::HERO)
+		sc.casterStack = caster->getCasterUnitId();
 	sc.manaGained = 0;
 
 	sc.activeCast = false;
