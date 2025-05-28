@@ -225,8 +225,6 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 	{
 		const spells::Spell * spell = LIBRARY->spells()->getById(effect);
 
-		std::string spellText;
-
 		//not all effects have graphics (for eg. Acid Breath)
 		//for modded spells iconEffect is added to SpellInt.def
 		const bool hasGraphics = (effect < SpellID::THUNDERBOLT) || (effect >= SpellID::AFTER_LAST);
