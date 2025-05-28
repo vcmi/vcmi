@@ -143,8 +143,8 @@ bool BattleActionProcessor::doWalkAction(const CBattleInfoCallback & battle, con
 		return false;
 	}
 
-	int walkedTiles = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
-	if (!walkedTiles)
+	auto movementResult = moveStack(battle, ba.stackNumber, target.at(0).hexValue); //move
+	if (movementResult.invalidRequest)
 	{
 		gameHandler->complain("Stack failed movement!");
 		return false;
@@ -229,14 +229,20 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	BattleHex startingPos = stack->getPosition();
-	int distance = moveStack(battle, ba.stackNumber, attackPos);
+	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
 
 	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
 
-	if(stack->getPosition() != attackPos && !(stack->doubleWide() && (stack->getPosition() == attackPos.cloneInDirection(stack->destShiftDir(), false))) )
+	if (movementResult.invalidRequest)
+	{
+		gameHandler->complain("Stack failed attack - unable to reach target!");
+		return false;
+	}
+
+	if(movementResult.obstacleHit)
 	{
 		// we were not able to reach destination tile, nor occupy specified hex
-		// abort attack attempt, but treat this case as legal - we may have stepped onto a quicksands/mine
+		// abort attack attempt, but treat this case as legal - we have stepped onto a quicksands/mine
 		return true;
 	}
 
@@ -285,7 +291,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		//move can cause death, eg. by walking into the moat, first strike can cause death or paralysis/petrification
 		if(stack->alive() && !stack->hasBonusOfType(BonusType::NOT_ACTIVE) && destinationStack->alive())
 		{
-			makeAttack(battle, stack, destinationStack, (i ? 0 : distance), destinationTile, i==0, false, false);//no distance travelled on second attack
+			makeAttack(battle, stack, destinationStack, (i ? 0 : movementResult.distance), destinationTile, i==0, false, false);//no distance travelled on second attack
 
 			if(!ferocityApplied && stack->hasBonusOfType(BonusType::FEROCITY))
 			{
@@ -615,10 +621,8 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	return result;
 }
 
-int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
+BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
 {
-	int ret = 0;
-
 	const CStack *curStack = battle.battleGetStackByID(stack);
 	const CStack *stackAtEnd = battle.battleGetStackByPos(dest);
 
@@ -632,7 +636,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 
 	auto start = curStack->getPosition();
 	if (start == dest)
-		return 0;
+		return { 0, false, false };
 
 	//initing necessary tables
 	auto accessibility = battle.getAccessibility(curStack);
@@ -654,7 +658,7 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
 	{
 		gameHandler->complain("Given destination is not accessible!");
-		return 0;
+		return { 0, false, true };
 	}
 
 	bool canUseGate = false;
@@ -667,8 +671,8 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	}
 
 	std::pair< BattleHexArray, int > path = battle.getPath(start, dest, curStack);
-
-	ret = path.second;
+	int8_t passedHexes = path.second;
+	bool movementSuccess = true;
 
 	int creSpeed = curStack->getMovementRange(0);
 
@@ -805,15 +809,10 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			}
 		}
 
-		bool stackIsMoving = true;
-
-		while(stackIsMoving)
+		while(movementSuccess)
 		{
 			if (v<tilesToMove)
-			{
-				logGlobal->error("Movement terminated abnormally");
-				break;
-			}
+				throw std::runtime_error("Movement terminated abnormally");
 
 			bool gateStateChanging = false;
 			//special handling for opening gate on from starting hex
@@ -865,9 +864,9 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 			//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
 			if (curStack->getPosition() != dest)
 			{
-				if(stackIsMoving && start != curStack->getPosition())
+				if(movementSuccess && start != curStack->getPosition())
 				{
-					stackIsMoving = battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
+					movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 					passed.insert(curStack->getPosition());
 					if(curStack->doubleWide())
 						passed.insert(curStack->occupiedHex());
@@ -894,8 +893,10 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 				}
 			}
 			else
+			{
 				//movement finished normally: we reached destination
-				stackIsMoving = false;
+				break;
+			}
 		}
 	}
 	//handle last hex separately for deviation
@@ -908,9 +909,9 @@ int BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int sta
 	if(dest == start) 	//If dest is equal to start, then we should handle obstacles for it anyway
 		passed.clear();	//Just empty passed, obstacles will handled automatically
 	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
-	battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
+	movementSuccess &= battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *curStack, passed);
 
-	return ret;
+	return { passedHexes, !movementSuccess, false };
 }
 
 void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter)

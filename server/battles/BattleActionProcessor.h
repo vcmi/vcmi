@@ -36,12 +36,22 @@ class BattleProcessor;
 /// Processes incoming battle action queries and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
+	struct MovementResult
+	{
+		/// number of tiles unit moved through, unset for flying units
+		int16_t distance;
+		/// Unit failed to complete movement due to stepping into obstacle
+		bool obstacleHit;
+		/// Unit was unable to move to destination, e.g. invalid request
+		bool invalidRequest;
+	};
+
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	int moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
+	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter);
 
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
