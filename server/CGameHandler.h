@@ -28,6 +28,7 @@ class EVictoryLossCheckResult;
 class CRandomGenerator;
 class GameRandomizer;
 class StatisticDataSet;
+class ServerCallback;
 
 struct StartInfo;
 struct TerrainTile;
@@ -70,6 +71,7 @@ public:
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
 	std::unique_ptr<GameRandomizer> randomizer;
 	std::unique_ptr<StatisticDataSet> statistics;
+	std::unique_ptr<SpellCastEnvironment> spellEnv;
 	std::shared_ptr<CGameState> gs;
 
 	//use enums as parameters, because doMove(sth, true, false, true) is not readable
@@ -82,9 +84,8 @@ public:
 	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
 
 	//queries stuff
-	ui32 QID;
+	QueryID QID;
 
-	SpellCastEnvironment * spellEnv;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
@@ -92,6 +93,7 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 	CVCMIServer & gameLobby() const;
+	ServerCallback * spellcastEnvironment() const;
 
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
@@ -151,9 +153,9 @@ public:
 	void removeArtifact(const ObjectInstanceID & srcId, const std::vector<ArtifactPosition> & slotsPack);
 	bool moveArtifact(const PlayerColor & player, const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	bool bulkMoveArtifacts(const PlayerColor & player, ObjectInstanceID srcId, ObjectInstanceID dstId, bool swap, bool equipped, bool backpack);
-	bool manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID heroID, const ManageBackpackArtifacts::ManageCmd & sortType);
-	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
-	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID heroID, uint32_t costumeIdx);
+	bool manageBackpackArtifacts(const PlayerColor & player, const ObjectInstanceID & heroID, const ManageBackpackArtifacts::ManageCmd & sortType);
+	bool saveArtifactsCostume(const PlayerColor & player, const ObjectInstanceID & heroID, uint32_t costumeIdx);
+	bool switchArtifactsCostume(const PlayerColor & player, const ObjectInstanceID & heroID, uint32_t costumeIdx);
 	bool eraseArtifactByClient(const ArtifactLocation & al);
 
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) override;
@@ -191,7 +193,7 @@ public:
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
-	void visitCastleObjects(const CGTownInstance * obj, std::vector<const CGHeroInstance * > visitors);
+	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
 	void levelUpHero(const CGHeroInstance * hero, SecondarySkill skill);//handle client respond and send one more request if needed
 	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
 	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
@@ -201,9 +203,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
-	void handleClientDisconnection(std::shared_ptr<CConnection> c);
+	void handleClientDisconnection(const std::shared_ptr<CConnection> & c);
 	void handleReceivedPack(std::shared_ptr<CConnection> c, CPackForServer & pack);
-	bool hasPlayerAt(PlayerColor player, std::shared_ptr<CConnection> c) const;
+	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
 	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
@@ -274,7 +276,7 @@ public:
 #endif
 	}
 
-	void sendToAllClients(CPackForClient & pack);
+	void sendToAllClients(const CPackForClient & pack);
 	void sendAndApply(CPackForClient & pack) override;
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);
@@ -290,7 +292,7 @@ public:
 	/// Throws if player is not present on connection of this pack
 	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor player);
 	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
-	[[noreturn]] void throwAndComplain(const std::shared_ptr<CConnection> & connection, std::string txt);
+	[[noreturn]] void throwAndComplain(const std::shared_ptr<CConnection> & connection, const std::string & txt);
 
 	bool isPlayerOwns(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
 

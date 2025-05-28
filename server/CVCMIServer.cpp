@@ -15,13 +15,11 @@
 #include "LobbyNetPackVisitors.h"
 #include "processors/PlayerMessageProcessor.h"
 
-#include "../lib/CPlayerState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/gameState/CGameState.h"
-#include "../lib/mapping/CMapDefines.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -418,7 +416,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 		ClientPlayer cp;
 		cp.connection = c->connectionID;
 		cp.name = name;
-		playerNames.insert(std::make_pair(id, cp));
+		playerNames.try_emplace(id, cp);
 		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
 
 		//put new player in first slot with AI
@@ -618,9 +616,9 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 		int id;
 		void reset() { id = -1; color = PlayerColor::CANNOT_DETERMINE; }
 		PlayerToRestore(){ reset(); }
-	} playerToRestore;
+	};
 
-
+	PlayerToRestore playerToRestore;
 	PlayerSettings & clicked = si->playerInfos[clickedColor];
 
 	//identify clicked player
@@ -675,7 +673,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	}
 }
 
-void CVCMIServer::setPlayerName(PlayerColor color, std::string name)
+void CVCMIServer::setPlayerName(PlayerColor color, const std::string & name)
 {
 	if(color == PlayerColor::CANNOT_DETERMINE)
 		return;
@@ -902,29 +900,29 @@ HeroTypeID CVCMIServer::nextAllowedHero(PlayerColor player, HeroTypeID initial, 
 void CVCMIServer::optionNextBonus(PlayerColor player, int dir)
 {
 	PlayerSettings & s = si->playerInfos[player];
-	PlayerStartingBonus & ret = s.bonus = static_cast<PlayerStartingBonus>(static_cast<int>(s.bonus) + dir);
+	s.bonus = static_cast<PlayerStartingBonus>(static_cast<int>(s.bonus) + dir);
 
 	if(s.hero == HeroTypeID::NONE &&
-		!getPlayerInfo(player).heroesNames.size() &&
-		ret == PlayerStartingBonus::ARTIFACT) //no hero - can't be artifact
+		getPlayerInfo(player).heroesNames.empty() &&
+		s.bonus == PlayerStartingBonus::ARTIFACT) //no hero - can't be artifact
 	{
 		if(dir < 0)
-			ret = PlayerStartingBonus::RANDOM;
+			s.bonus = PlayerStartingBonus::RANDOM;
 		else
-			ret = PlayerStartingBonus::GOLD;
+			s.bonus = PlayerStartingBonus::GOLD;
 	}
 
-	if(ret > PlayerStartingBonus::RESOURCE)
-		ret = PlayerStartingBonus::RANDOM;
-	if(ret < PlayerStartingBonus::RANDOM)
-		ret = PlayerStartingBonus::RESOURCE;
+	if(s.bonus > PlayerStartingBonus::RESOURCE)
+		s.bonus = PlayerStartingBonus::RANDOM;
+	if(s.bonus < PlayerStartingBonus::RANDOM)
+		s.bonus = PlayerStartingBonus::RESOURCE;
 
-	if(s.castle == FactionID::RANDOM && ret == PlayerStartingBonus::RESOURCE) //random castle - can't be resource
+	if(s.castle == FactionID::RANDOM && s.bonus == PlayerStartingBonus::RESOURCE) //random castle - can't be resource
 	{
 		if(dir < 0)
-			ret = PlayerStartingBonus::GOLD;
+			s.bonus = PlayerStartingBonus::GOLD;
 		else
-			ret = PlayerStartingBonus::RANDOM;
+			s.bonus = PlayerStartingBonus::RANDOM;
 	}
 }
 
@@ -975,10 +973,10 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 std::vector<HeroTypeID> CVCMIServer::getUsedHeroes()
 {
 	std::vector<HeroTypeID> heroIds;
-	for(auto & p : si->playerInfos)
+	for(const auto & p : si->playerInfos)
 	{
 		const auto & heroes = getPlayerInfo(p.first).heroesNames;
-		for(auto & hero : heroes)
+		for(const auto & hero : heroes)
 			if(hero.heroId.hasValue())
 				heroIds.push_back(hero.heroId);
 
