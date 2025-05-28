@@ -66,8 +66,8 @@ std::optional<CampaignScenarioID> CGameStateCampaign::getHeroesSourceScenario() 
 	auto campaignState = gameState->scenarioOps->campState;
 	auto bonus = currentBonus();
 
-	if(bonus && bonus->type == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
-		return static_cast<CampaignScenarioID>(bonus->info2);
+	if(bonus && bonus->getType() == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
+		return bonus->getValue<CampaignBonusHeroesFromScenario>().scenario;
 
 	return campaignState->lastScenario();
 }
@@ -211,17 +211,18 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerat
 void CGameStateCampaign::placeCampaignHeroes(vstd::RNG & randomGenerator)
 {
 	// place bonus hero
-	auto campaignState = gameState->scenarioOps->campState;
-	auto campaignBonus = campaignState->getBonus(*campaignState->currentScenario());
-	bool campaignGiveHero = campaignBonus && campaignBonus->type == CampaignBonusType::HERO;
+	const auto & campaignState = gameState->scenarioOps->campState;
+	const auto & campaignBonus = campaignState->getBonus(*campaignState->currentScenario());
+	bool campaignGiveHero = campaignBonus && campaignBonus->getType() == CampaignBonusType::HERO;
 
 	if(campaignGiveHero)
 	{
-		auto playerColor = PlayerColor(campaignBonus->info1);
-		auto it = gameState->scenarioOps->playerInfos.find(playerColor);
+		const auto & campaignBonusValue = campaignBonus->getValue<CampaignBonusStartingHero>();
+		const auto & playerColor = campaignBonusValue.startingPlayer;
+		const auto & it = gameState->scenarioOps->playerInfos.find(playerColor);
 		if(it != gameState->scenarioOps->playerInfos.end())
 		{
-			HeroTypeID heroTypeId = HeroTypeID(campaignBonus->info2);
+			HeroTypeID heroTypeId = campaignBonusValue.hero;
 			if(heroTypeId == HeroTypeID::CAMP_RANDOM) // random bonus hero
 			{
 				heroTypeId = gameState->pickUnusedHeroTypeRandomly(randomGenerator, playerColor);
@@ -309,20 +310,22 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 	assert(curBonus->isBonusForHero());
 
 	//apply bonus
-	switch(curBonus->type)
+	switch(curBonus->getType())
 	{
 		case CampaignBonusType::SPELL:
 		{
-			hero->addSpellToSpellbook(SpellID(curBonus->info2));
+			const auto & bonusValue = curBonus->getValue<CampaignBonusSpell>();
+			hero->addSpellToSpellbook(bonusValue.spell);
 			break;
 		}
 		case CampaignBonusType::MONSTER:
 		{
+			const auto & bonusValue = curBonus->getValue<CampaignBonusCreatures>();
 			for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 			{
 				if(hero->slotEmpty(SlotID(i)))
 				{
-					hero->addToSlot(SlotID(i), CreatureID(curBonus->info2), curBonus->info3);
+					hero->addToSlot(SlotID(i), bonusValue.creature, bonusValue.amount);
 					break;
 				}
 			}
@@ -330,13 +333,15 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		}
 		case CampaignBonusType::ARTIFACT:
 		{
-			if(!gameState->giveHeroArtifact(hero, static_cast<ArtifactID>(curBonus->info2)))
+			const auto & bonusValue = curBonus->getValue<CampaignBonusArtifact>();
+			if(!gameState->giveHeroArtifact(hero, bonusValue.artifact))
 				logGlobal->error("Cannot give starting artifact - no free slots!");
 			break;
 		}
 		case CampaignBonusType::SPELL_SCROLL:
 		{
-			const auto scroll = gameState->createScroll(SpellID(curBonus->info2));
+			const auto & bonusValue = curBonus->getValue<CampaignBonusSpellScroll>();
+			const auto scroll = gameState->createScroll(bonusValue.spell);
 			const auto slot = ArtifactUtils::getArtAnyPosition(hero, scroll->getTypeId());
 			if(ArtifactUtils::isSlotEquipment(slot) || ArtifactUtils::isSlotBackpack(slot))
 				gameState->map->putArtifactInstance(*hero, scroll->getId(), slot);
@@ -346,10 +351,10 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		}
 		case CampaignBonusType::PRIMARY_SKILL:
 		{
-			const ui8 * ptr = reinterpret_cast<const ui8 *>(&curBonus->info2);
+			const auto & bonusValue = curBonus->getValue<CampaignBonusPrimarySkill>();
 			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
-				int val = ptr[skill.getNum()];
+				int val = bonusValue.amounts[skill.getNum()];
 				if(val == 0)
 					continue;
 
@@ -361,7 +366,8 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 		}
 		case CampaignBonusType::SECONDARY_SKILL:
 		{
-			hero->setSecSkillLevel(SecondarySkill(curBonus->info2), curBonus->info3, ChangeValueMode::ABSOLUTE);
+			const auto & bonusValue = curBonus->getValue<CampaignBonusSecondarySkill>();
+			hero->setSecSkillLevel(bonusValue.skill, bonusValue.mastery, ChangeValueMode::ABSOLUTE);
 			break;
 		}
 	}
@@ -526,7 +532,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 void CGameStateCampaign::initHeroes()
 {
 	auto chosenBonus = currentBonus();
-	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->info1 != HeroTypeID::CAMP_GENERATED.getNum()) //exclude generated heroes
+	if (chosenBonus && chosenBonus->isBonusForHero() && chosenBonus->getTargetedHero() != HeroTypeID::CAMP_GENERATED.getNum()) //exclude generated heroes
 	{
 		//find human player
 		PlayerColor humanPlayer=PlayerColor::NEUTRAL;
@@ -542,7 +548,7 @@ void CGameStateCampaign::initHeroes()
 
 		const auto & heroes = gameState->players.at(humanPlayer).getHeroes();
 
-		if (chosenBonus->info1 == HeroTypeID::CAMP_STRONGEST.getNum()) //most powerful
+		if (chosenBonus->getTargetedHero() == HeroTypeID::CAMP_STRONGEST.getNum()) //most powerful
 		{
 			int maxB = -1;
 			for (int b=0; b<heroes.size(); ++b)
@@ -561,7 +567,7 @@ void CGameStateCampaign::initHeroes()
 		{
 			for (auto & hero : heroes)
 			{
-				if (hero->getHeroTypeID().getNum() == chosenBonus->info1)
+				if (hero->getHeroTypeID().getNum() == chosenBonus->getTargetedHero())
 				{
 					giveCampaignBonusToHero(hero);
 					break;
@@ -595,18 +601,17 @@ void CGameStateCampaign::initStartingResources()
 		return ret;
 	};
 
-	auto chosenBonus = currentBonus();
-	if(chosenBonus && chosenBonus->type == CampaignBonusType::RESOURCE)
+	const auto & chosenBonus = currentBonus();
+	if(chosenBonus && chosenBonus->getType() == CampaignBonusType::RESOURCE)
 	{
+		const auto & bonusValue = chosenBonus->getValue<CampaignBonusStartingResources>();
+
 		std::vector<const PlayerSettings *> people = getHumanPlayerInfo(); //players we will give resource bonus
 		for(const PlayerSettings *ps : people)
 		{
 			std::vector<GameResID> res; //resources we will give
-			switch (chosenBonus->info1)
+			switch (bonusValue.resource.toEnum())
 			{
-				case 0: case 1: case 2: case 3: case 4: case 5: case 6:
-					res.push_back(chosenBonus->info1);
-					break;
 				case EGameResID::COMMON: //wood+ore
 					res.push_back(GameResID(EGameResID::WOOD));
 					res.push_back(GameResID(EGameResID::ORE));
@@ -618,14 +623,12 @@ void CGameStateCampaign::initStartingResources()
 					res.push_back(GameResID(EGameResID::GEMS));
 					break;
 				default:
-					assert(0);
+					res.push_back(bonusValue.resource);
 					break;
 			}
-			//increasing resource quantity
+
 			for (auto & re : res)
-			{
-				gameState->players.at(ps->color).resources[re] += chosenBonus->info2;
-			}
+				gameState->players.at(ps->color).resources[re] += bonusValue.amount;
 		}
 	}
 }
@@ -637,8 +640,10 @@ void CGameStateCampaign::initTowns()
 	if (!chosenBonus)
 		return;
 
-	if (chosenBonus->type != CampaignBonusType::BUILDING)
+	if (chosenBonus->getType() != CampaignBonusType::BUILDING)
 		return;
+
+	const auto & bonusValue = chosenBonus->getValue<CampaignBonusBuilding>();
 
 	for (const auto & townID : gameState->map->getAllTowns())
 	{
@@ -658,9 +663,9 @@ void CGameStateCampaign::initTowns()
 
 		BuildingID newBuilding;
 		if(gameState->scenarioOps->campState->formatVCMI())
-			newBuilding = BuildingID(chosenBonus->info1);
+			newBuilding = bonusValue.building;
 		else
-			newBuilding = CBuildingHandler::campToERMU(chosenBonus->info1, town->getFactionID(), town->getBuildings());
+			newBuilding = CBuildingHandler::campToERMU(bonusValue.building, town->getFactionID(), town->getBuildings());
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)
@@ -687,7 +692,7 @@ bool CGameStateCampaign::playerHasStartingHero(PlayerColor playerColor) const
 	if (!campaignBonus)
 		return false;
 
-	if(campaignBonus->type == CampaignBonusType::HERO && playerColor == PlayerColor(campaignBonus->info1))
+	if(campaignBonus->getType() == CampaignBonusType::HERO && playerColor == PlayerColor(campaignBonus->getValue<CampaignBonusStartingHero>().startingPlayer))
 		return true;
 	return false;
 }

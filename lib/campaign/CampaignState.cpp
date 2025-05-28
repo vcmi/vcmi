@@ -80,7 +80,7 @@ JsonNode CampaignRegions::toJson(CampaignRegions cr)
 	JsonNode node;
 	node["prefix"].String() = cr.campPrefix;
 	node["colorSuffixLength"].Float() = cr.colorSuffixLength;
-	if(!cr.campSuffix.size())
+	if(cr.campSuffix.empty())
 		node["suffix"].clear();
 	else
 		node["suffix"].Vector() = JsonVector{ JsonNode(cr.campSuffix[0]), JsonNode(cr.campSuffix[1]), JsonNode(cr.campSuffix[2]) };
@@ -127,7 +127,7 @@ std::optional<Point> CampaignRegions::getLabelPosition(CampaignScenarioID which)
 	return region.labelPos;
 }
 
-ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, std::string type) const
+ImagePath CampaignRegions::getNameFor(CampaignScenarioID which, int colorIndex, const std::string & type) const
 {
 	auto const & region = regions[which.getNum()];
 
@@ -166,24 +166,13 @@ ImagePath CampaignRegions::getConqueredName(CampaignScenarioID which, int color)
 		return getNameFor(which, color, campSuffix[2]);
 }
 
-
-bool CampaignBonus::isBonusForHero() const
-{
-	return type == CampaignBonusType::SPELL ||
-		   type == CampaignBonusType::MONSTER ||
-		   type == CampaignBonusType::ARTIFACT ||
-		   type == CampaignBonusType::SPELL_SCROLL ||
-		   type == CampaignBonusType::PRIMARY_SKILL ||
-		   type == CampaignBonusType::SECONDARY_SKILL;
-}
-
 void CampaignHeader::loadLegacyData(ui8 campId)
 {
 	campaignRegions = CampaignRegions::getLegacy(campId);
 	numberOfScenarios = LIBRARY->generaltexth->getCampaignLength(campId);
 }
 
-void CampaignHeader::loadLegacyData(CampaignRegions regions, int numOfScenario)
+void CampaignHeader::loadLegacyData(const CampaignRegions & regions, int numOfScenario)
 {
 	campaignRegions = regions;
 	numberOfScenarios = numOfScenario;

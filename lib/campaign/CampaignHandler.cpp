@@ -18,7 +18,6 @@
 #include "../filesystem/CBinaryReader.h"
 #include "../filesystem/CZipLoader.h"
 #include "../GameLibrary.h"
-#include "../constants/StringConstants.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
 #include "../modding/CModHandler.h"
@@ -29,7 +28,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, std::string filename, std::string modName, std::string encoding)
+void CampaignHandler::readCampaign(Campaign * ret, const std::vector<ui8> & input, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	if (input.front() < uint8_t(' ')) // binary format
 	{
@@ -77,8 +76,8 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
-	std::string modName = LIBRARY->modh->findResourceOrigin(resourceID);
-	std::string encoding = LIBRARY->modh->findResourceEncoding(resourceID);
+	const std::string & modName = LIBRARY->modh->findResourceOrigin(resourceID);
+	const std::string & encoding = LIBRARY->modh->findResourceEncoding(resourceID);
 	
 	auto ret = std::make_unique<CampaignState>();
 	
@@ -124,14 +123,14 @@ static std::string convertMapName(std::string input)
 	return input;
 }
 
-std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding, std::string identifier)
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier)
 {
-	std::string input = TextOperations::toUnicode(reader.readBaseString(), encoding);
+	const std::string & input = TextOperations::toUnicode(reader.readBaseString(), encoding);
 
 	return readLocalizedString(target, input, filename, modName, identifier);
 }
 
-std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::string text, std::string filename, std::string modName, std::string identifier)
+std::string CampaignHandler::readLocalizedString(CampaignHeader & target, const std::string & text, const std::string & filename, const std::string & modName, const std::string & identifier)
 {
 	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
 
@@ -142,7 +141,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, std::s
 	return stringID.get();
 }
 
-void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, std::string filename, std::string modName, std::string encoding)
+void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader, const std::string & filename, const std::string & modName, const std::string & encoding)
 {
 	ret.version = static_cast<CampaignVersion>(reader["version"].Integer());
 	if(ret.version < CampaignVersion::VCMI_MIN || ret.version > CampaignVersion::VCMI_MAX)
@@ -260,44 +259,6 @@ static const std::map<std::string, CampaignStartOptions> startOptionsMap = {
 	{"hero", CampaignStartOptions::HERO_OPTIONS}
 };
 
-static const std::map<std::string, CampaignBonusType> bonusTypeMap = {
-	{"spell", CampaignBonusType::SPELL},
-	{"creature", CampaignBonusType::MONSTER},
-	{"building", CampaignBonusType::BUILDING},
-	{"artifact", CampaignBonusType::ARTIFACT},
-	{"scroll", CampaignBonusType::SPELL_SCROLL},
-	{"primarySkill", CampaignBonusType::PRIMARY_SKILL},
-	{"secondarySkill", CampaignBonusType::SECONDARY_SKILL},
-	{"resource", CampaignBonusType::RESOURCE},
-	//{"prevHero", CScenarioTravel::STravelBonus::EBonusType::HEROES_FROM_PREVIOUS_SCENARIO},
-	//{"hero", CScenarioTravel::STravelBonus::EBonusType::HERO},
-};
-
-static const std::map<std::string, ui32> primarySkillsMap = {
-	{"attack", 0},
-	{"defence", 8},
-	{"spellpower", 16},
-	{"knowledge", 24},
-};
-
-static const std::map<std::string, ui16> heroSpecialMap = {
-	{"strongest", HeroTypeID::CAMP_STRONGEST},
-	{"generated", HeroTypeID::CAMP_GENERATED},
-	{"random", HeroTypeID::CAMP_RANDOM}
-};
-
-static const std::map<std::string, ui8> resourceTypeMap = {
-	{"wood", EGameResID::WOOD},
-	{"mercury", EGameResID::MERCURY},
-	{"ore", EGameResID::ORE},
-	{"sulfur", EGameResID::SULFUR},
-	{"crystal", EGameResID::CRYSTAL},
-	{"gems", EGameResID::GEMS},
-	{"gold", EGameResID::GOLD},
-	{"common", EGameResID::COMMON},
-	{"rare", EGameResID::RARE}
-};
-
 CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 {
 	CampaignTravel ret;
@@ -327,117 +288,12 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 	}
 
 	ret.startOptions = startOptionsMap.at(reader["startOptions"].String());
-	switch(ret.startOptions)
-	{
-	case CampaignStartOptions::NONE:
-		//no bonuses. Seems to be OK
-		break;
-	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
-		{
-			ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = bonusTypeMap.at(bjson["what"].String());
-				switch (bonus.type)
-				{
-					case CampaignBonusType::RESOURCE:
-						bonus.info1 = resourceTypeMap.at(bjson["type"].String());
-						bonus.info2 = bjson["amount"].Integer();
-						break;
-						
-					case CampaignBonusType::BUILDING:
-						bonus.info1 = vstd::find_pos(EBuildingType::names, bjson["type"].String());
-						if(bonus.info1 == -1)
-							logGlobal->warn("VCMP Loading: unresolved building identifier %s", bjson["type"].String());
-						break;
-						
-					default:
-						auto heroIdentifier = bjson["hero"].String();
-						auto it = heroSpecialMap.find(heroIdentifier);
-						if(it != heroSpecialMap.end())
-							bonus.info1 = it->second;
-						else
-							if(auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", heroIdentifier))
-								bonus.info1 = identifier.value();
-							else
-								logGlobal->warn("VCMP Loading: unresolved hero identifier %s", heroIdentifier);
-	
-						bonus.info3 = bjson["amount"].Integer();
-						
-						switch(bonus.type)
-						{
-							case CampaignBonusType::SPELL:
-							case CampaignBonusType::MONSTER:
-							case CampaignBonusType::SECONDARY_SKILL:
-							case CampaignBonusType::ARTIFACT:
-								if(auto identifier  = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), bjson["what"].String(), bjson["type"].String()))
-									bonus.info2 = identifier.value();
-								else
-									logGlobal->warn("VCMP Loading: unresolved %s identifier %s", bjson["what"].String(), bjson["type"].String());
-								break;
-								
-							case CampaignBonusType::SPELL_SCROLL:
-								if(auto Identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "spell", bjson["type"].String()))
-									bonus.info2 = Identifier.value();
-								else
-									logGlobal->warn("VCMP Loading: unresolved spell scroll identifier %s", bjson["type"].String());
-								break;
-								
-							case CampaignBonusType::PRIMARY_SKILL:
-								for(auto & ps : primarySkillsMap)
-									bonus.info2 |= bjson[ps.first].Integer() << ps.second;
-								break;
-								
-							default:
-								bonus.info2 = bjson["type"].Integer();
-						}
-						break;
-				}
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
-		{
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
-				bonus.info1 = bjson["playerColor"].Integer(); //player color
-				bonus.info2 = bjson["scenario"].Integer(); //from what scenario
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
-		{
-			for(auto & bjson : reader["bonuses"].Vector())
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HERO;
-				bonus.info1 = bjson["playerColor"].Integer(); //player color
 
-				auto heroIdentifier = bjson["hero"].String();
-				auto it = heroSpecialMap.find(heroIdentifier);
-				if(it != heroSpecialMap.end())
-					bonus.info2 = it->second;
-				else
-					if (auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeMap(), "hero", heroIdentifier))
-						bonus.info2 = identifier.value();
-					else
-						logGlobal->warn("VCMP Loading: unresolved hero identifier %s", heroIdentifier);
-			
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	default:
-		{
-			logGlobal->warn("VCMP Loading: Unsupported start options value");
-			break;
-		}
-	}
+	if (!reader["playerColor"].isNull())
+		ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
+
+	for(auto & bjson : reader["bonuses"].Vector())
+		ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
 
 	return ret;
 }
@@ -454,99 +310,19 @@ void CampaignHandler::writeScenarioTravelToJson(JsonNode & node, const CampaignT
 		node["heroKeeps"].Vector().push_back(JsonNode("spells"));
 	if(travel.whatHeroKeeps.artifacts)
 		node["heroKeeps"].Vector().push_back(JsonNode("artifacts"));
-	for(auto & c : travel.monstersKeptByHero)
+	for(const auto & c : travel.monstersKeptByHero)
 		node["keepCreatures"].Vector().push_back(JsonNode(CreatureID::encode(c)));
-	for(auto & a : travel.artifactsKeptByHero)
+	for(const auto & a : travel.artifactsKeptByHero)
 		node["keepArtifacts"].Vector().push_back(JsonNode(ArtifactID::encode(a)));
-	node["startOptions"].String() = vstd::reverseMap(startOptionsMap)[travel.startOptions];
 
-	switch(travel.startOptions)
-	{
-	case CampaignStartOptions::NONE:
-		break;
-	case CampaignStartOptions::START_BONUS:
-		{
-			node["playerColor"].String() = PlayerColor::encode(travel.playerColor);
-			for(auto & bonus : travel.bonusesToChoose)
-			{
-				JsonNode bnode;
-				bnode["what"].String() = vstd::reverseMap(bonusTypeMap)[bonus.type];
-				switch (bonus.type)
-				{
-					case CampaignBonusType::RESOURCE:
-						bnode["type"].String() = vstd::reverseMap(resourceTypeMap)[bonus.info1];
-						bnode["amount"].Integer() = bonus.info2;
-						break;
-					case CampaignBonusType::BUILDING:
-						bnode["type"].String() = EBuildingType::names[bonus.info1];
-						break;
-					default:
-						if(vstd::contains(vstd::reverseMap(heroSpecialMap), bonus.info1))
-							bnode["hero"].String() = vstd::reverseMap(heroSpecialMap)[bonus.info1];
-						else
-							bnode["hero"].String() = HeroTypeID::encode(bonus.info1);
-						bnode["amount"].Integer() = bonus.info3;
-						switch(bonus.type)
-						{
-							case CampaignBonusType::SPELL:
-								bnode["type"].String() = SpellID::encode(bonus.info2);
-								break;
-							case CampaignBonusType::MONSTER:
-								bnode["type"].String() = CreatureID::encode(bonus.info2);
-								break;
-							case CampaignBonusType::SECONDARY_SKILL:
-								bnode["type"].String() = SecondarySkill::encode(bonus.info2);
-								break;
-							case CampaignBonusType::ARTIFACT:
-								bnode["type"].String() = ArtifactID::encode(bonus.info2);
-								break;
-							case CampaignBonusType::SPELL_SCROLL:
-								bnode["type"].String() = SpellID::encode(bonus.info2);
-								break;
-							case CampaignBonusType::PRIMARY_SKILL:
-								for(auto & ps : primarySkillsMap)
-									bnode[ps.first].Integer() = (bonus.info2 >> ps.second) & 0xff;
-								break;
-							default:
-								bnode["type"].Integer() = bonus.info2;
-						}
-						break;
-				}
-				node["bonuses"].Vector().push_back(bnode);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_CROSSOVER:
-		{
-			for(auto & bonus : travel.bonusesToChoose)
-			{
-				JsonNode bnode;
-				bnode["playerColor"].Integer() = bonus.info1;
-				bnode["scenario"].Integer() = bonus.info2;
-				node["bonuses"].Vector().push_back(bnode);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_OPTIONS:
-		{
-			for(auto & bonus : travel.bonusesToChoose)
-			{
-				JsonNode bnode;
-				bnode["playerColor"].Integer() = bonus.info1;
+	if (travel.playerColor.isValidPlayer())
+		node["playerColor"].String() = PlayerColor::encode(travel.playerColor.getNum());
 
-				if(vstd::contains(vstd::reverseMap(heroSpecialMap), bonus.info2))
-					bnode["hero"].String() = vstd::reverseMap(heroSpecialMap)[bonus.info2];
-				else
-					bnode["hero"].String() = HeroTypeID::encode(bonus.info2);
-				
-				node["bonuses"].Vector().push_back(bnode);
-			}
-			break;
-		}
-	}
+	for (const auto & bonus : travel.bonusesToChoose)
+		node["bonuses"].Vector().push_back(bonus.toJson());
 }
 
-void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, std::string filename, std::string modName, std::string encoding )
+void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding )
 {
 	ret.version = static_cast<CampaignVersion>(reader.readUInt32());
 
@@ -684,114 +460,14 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 
 	ret.startOptions = static_cast<CampaignStartOptions>(reader.readUInt8());
 
-	switch(ret.startOptions)
+	if (ret.startOptions == CampaignStartOptions::START_BONUS)
+		ret.playerColor.setNum(reader.readUInt8());
+
+	if (ret.startOptions != CampaignStartOptions::NONE)
 	{
-	case CampaignStartOptions::NONE:
-		//no bonuses. Seems to be OK
-		break;
-	case CampaignStartOptions::START_BONUS: //reading of bonuses player can choose
-		{
-			ret.playerColor.setNum(reader.readUInt8());
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = static_cast<CampaignBonusType>(reader.readUInt8());
-				//hero: FFFD means 'most powerful' and FFFE means 'generated'
-				switch(bonus.type)
-				{
-				case CampaignBonusType::SPELL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //spell ID
-						break;
-					}
-				case CampaignBonusType::MONSTER:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt16(); //monster type
-						bonus.info3 = reader.readUInt16(); //monster count
-						break;
-					}
-				case CampaignBonusType::BUILDING:
-					{
-						bonus.info1 = reader.readUInt8(); //building ID (0 - town hall, 1 - city hall, 2 - capitol, etc)
-						break;
-					}
-				case CampaignBonusType::ARTIFACT:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt16(); //artifact ID
-						break;
-					}
-				case CampaignBonusType::SPELL_SCROLL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //spell ID
-						break;
-					}
-				case CampaignBonusType::PRIMARY_SKILL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt32(); //bonuses (4 bytes for 4 skills)
-						break;
-					}
-				case CampaignBonusType::SECONDARY_SKILL:
-					{
-						bonus.info1 = reader.readUInt16(); //hero
-						bonus.info2 = reader.readUInt8(); //skill ID
-						bonus.info3 = reader.readUInt8(); //skill level
-						break;
-					}
-				case CampaignBonusType::RESOURCE:
-					{
-						bonus.info1 = reader.readUInt8(); //type
-						//FD - wood+ore
-						//FE - mercury+sulfur+crystal+gem
-						bonus.info2 = reader.readUInt32(); //count
-						break;
-					}
-				default:
-					logGlobal->warn("Corrupted h3c file");
-					break;
-				}
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_CROSSOVER: //reading of players (colors / scenarios ?) player can choose
-		{
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO;
-				bonus.info1 = reader.readUInt8(); //player color
-				bonus.info2 = reader.readUInt8(); //from what scenario
-
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	case CampaignStartOptions::HERO_OPTIONS: //heroes player can choose between
-		{
-			ui8 numOfBonuses = reader.readUInt8();
-			for (int g=0; g<numOfBonuses; ++g)
-			{
-				CampaignBonus bonus;
-				bonus.type = CampaignBonusType::HERO;
-				bonus.info1 = reader.readUInt8(); //player color
-				bonus.info2 = reader.readUInt16(); //hero, FF FF - random
-
-				ret.bonusesToChoose.push_back(bonus);
-			}
-			break;
-		}
-	default:
-		{
-			logGlobal->warn("Corrupted h3c file");
-			break;
-		}
+		ui8 numOfBonuses = reader.readUInt8();
+		for (int g=0; g<numOfBonuses; ++g)
+			ret.bonusesToChoose.emplace_back(reader, ret.startOptions);
 	}
 
 	return ret;

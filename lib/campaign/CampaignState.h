@@ -9,11 +9,10 @@
  */
 #pragma once
 
-#include "../GameConstants.h"
 #include "../filesystem/ResourcePath.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
-#include "CampaignConstants.h"
+#include "CampaignBonus.h"
 #include "CampaignScenarioPrologEpilog.h"
 #include "../gameState/HighScore.h"
 #include "../Point.h"
@@ -61,7 +60,7 @@ class DLL_LINKAGE CampaignRegions
 
 	std::vector<RegionDescription> regions;
 
-	ImagePath getNameFor(CampaignScenarioID which, int color, std::string type) const;
+	ImagePath getNameFor(CampaignScenarioID which, int color, const std::string & type) const;
 
 public:
 	ImagePath getBackgroundName() const;
@@ -116,7 +115,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	bool difficultyChosenByPlayer = false;
 
 	void loadLegacyData(ui8 campId);
-	void loadLegacyData(CampaignRegions regions, int numOfScenario);
+	void loadLegacyData(const CampaignRegions & regions, int numOfScenario);
 
 	TextContainerRegistrable textContainer;
 
@@ -166,26 +165,6 @@ public:
 	}
 };
 
-struct DLL_LINKAGE CampaignBonus
-{
-	CampaignBonusType type = CampaignBonusType::NONE;
-
-	//purpose depends on type
-	int32_t info1 = 0;
-	int32_t info2 = 0;
-	int32_t info3 = 0;
-
-	bool isBonusForHero() const;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & type;
-		h & info1;
-		h & info2;
-		h & info3;
-	}
-};
-
 struct DLL_LINKAGE CampaignTravel
 {
 	struct DLL_LINKAGE WhatHeroKeeps
@@ -221,7 +200,30 @@ struct DLL_LINKAGE CampaignTravel
 		h & artifactsKeptByHero;
 		h & startOptions;
 		h & playerColor;
-		h & bonusesToChoose;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+		{
+			h & bonusesToChoose;
+		}
+		else
+		{
+			struct OldBonus{
+				CampaignBonusType type = {};
+				int32_t info1 = 0;
+				int32_t info2 = 0;
+				int32_t info3 = 0;
+
+				void serialize(Handler &h)
+				{
+					h & type;
+					h & info1;
+					h & info2;
+					h & info3;
+				}
+			};
+
+			std::vector<OldBonus> oldBonuses;
+			h & oldBonuses;
+		}
 	}
 };
 
