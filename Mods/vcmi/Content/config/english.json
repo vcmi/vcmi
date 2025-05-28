@@ -28,6 +28,9 @@
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 
+	"vcmi.adventureMap.dwelling2" : "{%s}\n\nWould you like to recruit %s or %s?",
+	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
+	
 	"vcmi.artifact.charges" : "Charges",
 
 	"vcmi.bonusSource.artifact" : "Artifact",
