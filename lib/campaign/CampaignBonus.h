@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CBinaryReader;
+class MapIdentifiersH3M;
 class JsonNode;
 
 struct CampaignBonusSpell
@@ -169,7 +170,7 @@ public:
 		:data(value)
 	{}
 
-	DLL_LINKAGE CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode);
+	DLL_LINKAGE CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & remapper, CampaignStartOptions mode);
 	DLL_LINKAGE CampaignBonus(const JsonNode & json, CampaignStartOptions mode);
 
 	template<typename T>

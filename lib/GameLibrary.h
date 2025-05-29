@@ -41,6 +41,7 @@ class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
 class SpellSchoolHandler;
+class MapFormatSettings;
 
 #if SCRIPTING_ENABLED
 namespace scripting
@@ -97,6 +98,7 @@ public:
 	std::unique_ptr<ObstacleHandler> obstacleHandler;
 	std::unique_ptr<GameSettings> settingsHandler;
 	std::unique_ptr<ObstacleSetHandler> biomeHandler;
+	std::unique_ptr<MapFormatSettings> mapFormat;
 
 #if SCRIPTING_ENABLED
 	std::unique_ptr<scripting::ScriptHandler> scriptHandler;

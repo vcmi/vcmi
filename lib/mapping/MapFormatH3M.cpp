@@ -13,7 +13,7 @@
 
 #include "CMap.h"
 #include "MapReaderH3M.h"
-#include "MapFormat.h"
+#include "MapFormatSettings.h"
 
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -111,52 +111,6 @@ void CMapLoaderH3M::init()
 	//map->banWaterContent(); //Not sure if force this for custom scenarios
 }
 
-static MapIdentifiersH3M generateMapping(EMapFormat format)
-{
-	auto features = MapFormatFeaturesH3M::find(format, 0);
-	MapIdentifiersH3M identifierMapper;
-
-	if(features.levelROE)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
-	if(features.levelAB)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
-	if(features.levelSOD)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
-	if(features.levelCHR)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
-	if(features.levelWOG)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
-	if(features.levelHOTA0)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
-
-	return identifierMapper;
-}
-
-static std::map<EMapFormat, MapIdentifiersH3M> generateMappings()
-{
-	std::map<EMapFormat, MapIdentifiersH3M> result;
-	auto addMapping = [&result](EMapFormat format)
-	{
-		try
-		{
-			result[format] = generateMapping(format);
-		}
-		catch(const std::runtime_error &)
-		{
-			// unsupported map format - skip
-		}
-	};
-
-	addMapping(EMapFormat::ROE);
-	addMapping(EMapFormat::AB);
-	addMapping(EMapFormat::SOD);
-	addMapping(EMapFormat::CHR);
-	addMapping(EMapFormat::HOTA);
-	addMapping(EMapFormat::WOG);
-
-	return result;
-}
-
 void CMapLoaderH3M::readHeader()
 {
 	// Map version
@@ -233,12 +187,10 @@ void CMapLoaderH3M::readHeader()
 		reader->setFormatLevel(features);
 	}
 
-	// optimization - load mappings only once to avoid slow parsing of map headers for map list
-	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
-	if (!identifierMappers.count(mapHeader->version))
+	if (!LIBRARY->mapFormat->isSupported(mapHeader->version))
 		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
 
-	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
+	const MapIdentifiersH3M & identifierMapper = LIBRARY->mapFormat->getMapping(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);
 

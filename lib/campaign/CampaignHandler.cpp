@@ -20,6 +20,7 @@
 #include "../GameLibrary.h"
 #include "../mapping/CMapHeader.h"
 #include "../mapping/CMapService.h"
+#include "../mapping/MapFormatSettings.h"
 #include "../modding/CModHandler.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -425,14 +426,14 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 }
 
 template<typename Identifier>
-static void readContainer(std::set<Identifier> & container, CBinaryReader & reader, int sizeBytes)
+static void readContainer(std::set<Identifier> & container, CBinaryReader & reader, const MapIdentifiersH3M & remapper, int sizeBytes)
 {
 	for(int iId = 0, byte = 0; iId < sizeBytes * 8; ++iId)
 	{
 		if(iId % 8 == 0)
 			byte = reader.readUInt8();
 		if(byte & (1 << iId % 8))
-			container.insert(Identifier(iId));
+			container.insert(remapper.remap(Identifier(iId)));
 	}
 }
 
@@ -446,16 +447,18 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	ret.whatHeroKeeps.secondarySkills = whatHeroKeeps & 4;
 	ret.whatHeroKeeps.spells = whatHeroKeeps & 8;
 	ret.whatHeroKeeps.artifacts = whatHeroKeeps & 16;
+
+	const auto & mapping = LIBRARY->mapFormat->getMapping(version);
 	
 	if (version == CampaignVersion::HotA)
 	{
-		readContainer(ret.monstersKeptByHero, reader, 24);
-		readContainer(ret.artifactsKeptByHero, reader, 21);
+		readContainer(ret.monstersKeptByHero, reader, mapping, 24);
+		readContainer(ret.artifactsKeptByHero, reader, mapping, 21);
 	}
 	else
 	{
-		readContainer(ret.monstersKeptByHero, reader, 19);
-		readContainer(ret.artifactsKeptByHero, reader, version < CampaignVersion::SoD ? 17 : 18);
+		readContainer(ret.monstersKeptByHero, reader, mapping, 19);
+		readContainer(ret.artifactsKeptByHero, reader, mapping, version < CampaignVersion::SoD ? 17 : 18);
 	}
 
 	ret.startOptions = static_cast<CampaignStartOptions>(reader.readUInt8());
@@ -467,7 +470,7 @@ CampaignTravel CampaignHandler::readScenarioTravelFromMemory(CBinaryReader & rea
 	{
 		ui8 numOfBonuses = reader.readUInt8();
 		for (int g=0; g<numOfBonuses; ++g)
-			ret.bonusesToChoose.emplace_back(reader, ret.startOptions);
+			ret.bonusesToChoose.emplace_back(reader, mapping, ret.startOptions);
 	}
 
 	return ret;

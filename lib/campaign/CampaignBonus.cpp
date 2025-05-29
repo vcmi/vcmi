@@ -11,6 +11,7 @@
 #include "CampaignBonus.h"
 
 #include "../filesystem/CBinaryReader.h"
+#include "../mapping/MapIdentifiersH3M.h"
 #include "../json/JsonNode.h"
 #include "../constants/StringConstants.h"
 
@@ -47,7 +48,7 @@ static const std::map<std::string, ui8> resourceTypeMap = {
 	{"rare", EGameResID::RARE}
 };
 
-CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
+CampaignBonus::CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & remapper, CampaignStartOptions mode)
 {
 	switch(mode)
 	{
@@ -65,7 +66,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
 				{
 					HeroTypeID hero(reader.readUInt16());
 					SpellID spell(reader.readUInt8());
-					data = CampaignBonusSpell{hero, spell};
+					data = CampaignBonusSpell{remapper.remap(hero), spell};
 					break;
 				}
 				case CampaignBonusType::MONSTER:
@@ -73,27 +74,27 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
 					HeroTypeID hero(reader.readUInt16());
 					CreatureID creature(reader.readUInt16());
 					int32_t amount = reader.readUInt16();
-					data = CampaignBonusCreatures{hero, creature, amount};
+					data = CampaignBonusCreatures{remapper.remap(hero), remapper.remap(creature), amount};
 					break;
 				}
 				case CampaignBonusType::BUILDING:
 				{
 					BuildingID building(reader.readUInt8());
-					data = CampaignBonusBuilding{building};
+					data = CampaignBonusBuilding{remapper.remapBuilding(std::nullopt, building)};
 					break;
 				}
 				case CampaignBonusType::ARTIFACT:
 				{
 					HeroTypeID hero(reader.readUInt16());
 					ArtifactID artifact(reader.readUInt16());
-					data = CampaignBonusArtifact{hero, artifact};
+					data = CampaignBonusArtifact{remapper.remap(hero), remapper.remap(artifact)};
 					break;
 				}
 				case CampaignBonusType::SPELL_SCROLL:
 				{
 					HeroTypeID hero(reader.readUInt16());
 					SpellID spell(reader.readUInt8());
-					data = CampaignBonusSpellScroll{hero, spell};
+					data = CampaignBonusSpellScroll{remapper.remap(hero), spell};
 					break;
 				}
 				case CampaignBonusType::PRIMARY_SKILL:
@@ -103,7 +104,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
 					for(auto & value : amounts)
 						value = reader.readUInt8();
 
-					data = CampaignBonusPrimarySkill{hero, amounts};
+					data = CampaignBonusPrimarySkill{remapper.remap(hero), amounts};
 					break;
 				}
 				case CampaignBonusType::SECONDARY_SKILL:
@@ -111,7 +112,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
 					HeroTypeID hero(reader.readUInt16());
 					SecondarySkill skill(reader.readUInt8());
 					int32_t skillMastery(reader.readUInt8());
-					data = CampaignBonusSecondarySkill{hero, skill, skillMastery};
+					data = CampaignBonusSecondarySkill{remapper.remap(hero), remapper.remap(skill), skillMastery};
 					break;
 				}
 				case CampaignBonusType::RESOURCE:
@@ -137,7 +138,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, CampaignStartOptions mode)
 		{
 			PlayerColor player(reader.readUInt8());
 			HeroTypeID hero(reader.readInt16());
-			data = CampaignBonusStartingHero{player, hero};
+			data = CampaignBonusStartingHero{player, remapper.remap(hero)};
 			break;
 		}
 		default:

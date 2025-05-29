@@ -26,6 +26,7 @@
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
@@ -192,6 +193,8 @@ void GameLibrary::initializeLibrary()
 
 	modh->load();
 	modh->afterLoad();
+
+	createHandler(mapFormat);
 }
 
 #if SCRIPTING_ENABLED

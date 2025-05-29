@@ -172,6 +172,7 @@ set(lib_MAIN_SRCS
 	mapping/MapFormatH3M.cpp
 	mapping/MapReaderH3M.cpp
 	mapping/MapFormatJson.cpp
+	mapping/MapFormatSettings.cpp
 	mapping/ObstacleProxy.cpp
 
 	modding/ActiveModsInSaveList.cpp
@@ -587,6 +588,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapFeaturesH3M.h
 	mapping/MapFormatH3M.h
 	mapping/MapFormat.h
+	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
