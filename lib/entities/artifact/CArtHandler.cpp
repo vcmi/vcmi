@@ -166,10 +166,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
 
-	if(!graphics["large"].isNull())
-		art->large = graphics["large"].String();
+	if(!graphics["scenarioBonus"].isNull())
+		art->scenarioBonus = graphics["scenarioBonus"].String();
 	else
-		art->large = art->image;
+		art->scenarioBonus = art->image; // MOD COMPATIBILITY fallback for pre-1.7 mods
 
 	art->advMapDef = graphics["map"].String();
 

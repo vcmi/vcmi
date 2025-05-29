@@ -46,12 +46,14 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/campaign/CampaignState.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/building/CBuildingHandler.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -184,7 +186,12 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::SPELL:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusSpell>();
-				picNumber = bonusValue.spell.getNum();
+				const auto * spell = bonusValue.spell.toSpell();
+				if (!spell->getIconScenarioBonus().empty())
+					picName = spell->getIconScenarioBonus();
+				else
+					picNumber = bonusValue.spell.getNum();
+
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
 				desc.replaceName(bonusValue.spell);
 				break;
@@ -227,7 +234,11 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::ARTIFACT:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusArtifact>();
-				picNumber = bonusValue.artifact;
+				const auto * artifact = bonusValue.artifact.toArtifact();
+				if (!artifact->scenarioBonus.empty())
+					picName = artifact->scenarioBonus;
+				else
+					picNumber = bonusValue.artifact.getNum();
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 715);
 				desc.replaceName(bonusValue.artifact);
 				break;
@@ -235,7 +246,12 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::SPELL_SCROLL:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusSpellScroll>();
-				picNumber = bonusValue.spell;
+				const auto * spell = bonusValue.spell.toSpell();
+				if (!spell->getIconScenarioBonus().empty())
+					picName = spell->getIconScenarioBonus();
+				else
+					picNumber = bonusValue.spell.getNum();
+
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 716);
 				desc.replaceName(bonusValue.spell);
 				break;
@@ -276,11 +292,14 @@ void CBonusSelection::createBonusesIcons()
 			case CampaignBonusType::SECONDARY_SKILL:
 			{
 				const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
+				const auto * skill = bonusValue.skill.toSkill();
 				desc.appendLocalString(EMetaText::GENERAL_TXT, 718);
 				desc.replaceTextID(TextIdentifier("core", "skilllev", bonusValue.mastery - 1).get());
 				desc.replaceName(bonusValue.skill);
-				picNumber = bonusValue.skill.getNum() * 3 + bonusValue.mastery - 1;
-
+				if (!skill->at(bonusValue.mastery).scenarioBonus.empty())
+					picName = skill->at(bonusValue.mastery).scenarioBonus.empty();
+				else
+					picNumber = bonusValue.skill.getNum() * 3 + bonusValue.mastery - 1;
 				break;
 			}
 			case CampaignBonusType::RESOURCE:

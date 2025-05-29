@@ -249,6 +249,10 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
+		if (!levelNode["images"]["scenarioBonus"].isNull())
+			skillAtLevel.scenarioBonus = levelNode["images"]["scenarioBonus"].String();
+		else
+			skillAtLevel.scenarioBonus = skillAtLevel.iconMedium; // MOD COMPATIBILITY fallback for pre-1.7 mods
 	}
 
 	for(const auto & b : json["specialty"].Vector())

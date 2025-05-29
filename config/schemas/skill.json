@@ -16,6 +16,7 @@
 				"images" : {
 					"type" : "object",
 					"description" : "Skill icons of varying size",
+					"required" : [ "small", "medium", "large", "scenarioBonus"],
 					"properties" : {
 						"small" : {
 							"type" : "string",
@@ -30,6 +31,11 @@
 						"large" : {
 							"type" : "string",
 							"description" : "82x93 skill icon",
+							"format" : "imageFile"
+						},
+						"scenarioBonus" : {
+							"type" : "string",
+							"description" : "58x64 skill icon for use as campaign scenario bonus",
 							"format" : "imageFile"
 						}
 					}
