@@ -262,7 +262,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			"vcmi.adventureMap.dwelling2",
 			"vcmi.adventureMap.dwelling3",
 			"core.advevent.36"
-		}
+		};
 		bd.text.appendTextID(dwellingVisitTextID[count]);	
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
