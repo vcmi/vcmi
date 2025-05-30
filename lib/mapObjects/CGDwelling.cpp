@@ -255,18 +255,15 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	bd.player = h->tempOwner;
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
-		const size_t count = creatures.size();
-		if (count == 1)
-			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 35);                                      // {%s} Would you like to recruit %s?
-		else if (count == 2)
-			bd.text.appendRawString(LIBRARY->generaltexth->translate("vcmi.adventureMap.dwelling2"));
-		else if (count == 3)
-			bd.text.appendRawString(LIBRARY->generaltexth->translate("vcmi.adventureMap.dwelling3"));
-		else if (count == 4)
-			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 36);                                      // {%s} Would you like to recruit %s, %s, %s, or %s?
-		else
-			bd.text.appendLocalString(EMetaText::ADVOB_TXT, 36);
-		
+		const size_t count = std::min<size_t>(creatures.size(), 4);
+		constexpr std::array dwellingVisitTextID = {
+			"core.advevent.35", // 0 creatures, should not happen
+			"core.advevent.35",
+			"vcmi.adventureMap.dwelling2",
+			"vcmi.adventureMap.dwelling3",
+			"core.advevent.36"
+		}
+		bd.text.appendTextID(dwellingVisitTextID[count]);	
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
