@@ -61,6 +61,7 @@ private:
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	bool wasVisited (PlayerColor player) const override;
 
 	void updateGuards(IGameEventCallback & gameEvents) const;
 	void heroAcceptsCreatures(IGameEventCallback & gameEvents, const CGHeroInstance *h) const;
