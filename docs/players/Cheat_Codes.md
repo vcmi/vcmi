@@ -4,11 +4,11 @@
 
 Similar to H3, VCMI provides cheat codes to make testing game more convenient.
 
-To use cheat code, press `Tab` key or click/tap on status bar to open game chat and enter code. Most cheat codes have several alternative names, including name of this cheat code in H3:SoD
+To use cheat code, press `Tab` key or click/tap on status bar to open game chat and enter code. Most cheat codes have several alternative names, including name of this cheat code in H3:SoD, H3:AB and H3:RoE
 
 ### Spells
 
-`nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero
+`nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero. Also allows casting spell up to 100 times per combat round
 
 ### Army
 
