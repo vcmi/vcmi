@@ -28,6 +28,7 @@
 #include "../CPlayerState.h"
 #include "../IGameSettings.h"
 #include "../CConfigHandler.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -266,7 +267,15 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	bd.player = h->tempOwner;
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
-		bd.text.appendLocalString(EMetaText::ADVOB_TXT, creatures.size() == 1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
+		const size_t count = std::min<size_t>(creatures.size(), 4);
+		constexpr std::array dwellingVisitTextID = {
+			"core.advevent.35", // 0 creatures, should not happen
+			"core.advevent.35",
+			"vcmi.adventureMap.dwelling2",
+			"vcmi.adventureMap.dwelling3",
+			"core.advevent.36"
+		};
+		bd.text.appendTextID(dwellingVisitTextID[count]);	
 		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
