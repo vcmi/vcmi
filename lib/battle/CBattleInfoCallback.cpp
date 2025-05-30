@@ -683,6 +683,18 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 	if(!battleMatchOwner(stack, target))
 		return false;
 
+	if (stack->getPosition() != dest)
+	{
+		for (const auto & obstacle : battleGetAllObstacles())
+		{
+			if (obstacle->getStoppingTile().contains(dest))
+				return false;
+
+			if (stack->doubleWide() && obstacle->getStoppingTile().contains(stack->occupiedHex(dest)))
+				return false;
+		}
+	}
+
 	auto id = stack->unitType()->getId();
 	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
 		return false;

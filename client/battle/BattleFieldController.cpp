@@ -377,12 +377,12 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	BattleHexArray availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
 
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex))
-	{
-		if(isTileAttackable(hoveredHex))
-		{
-			BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
 
+	if(isTileAttackable(hoveredHex))
+	{
+		BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
+		if(owner.getBattle()->battleCanAttack(stack, hoveredStack, attackFromHex))
+		{
 			if(stack->doubleWide())
 				return {attackFromHex, stack->occupiedHex(attackFromHex)};
 			else

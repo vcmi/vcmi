@@ -404,6 +404,9 @@
 	"vcmi.battleWindow.endWithAutocombat" : "Are you sure you wish to end the battle with auto combat?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Accept battle result?",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0" : "Remaining duration : %d combat rounds",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Remaining duration : %d combat round",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Remaining duration : %d combat rounds",
 
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
@@ -740,5 +743,16 @@
 	"spell.core.strongholdMoat.name" : "Wooden Spikes",
 	"spell.core.strongholdMoatTrigger.name" : "Wooden Spikes",
 	"spell.core.summonDemons.name" : "Summon Demons",
-	"spell.core.towerMoat.name" : "Land Mine"
+	"spell.core.towerMoat.name" : "Land Mine",
+
+	"spell.core.stoneGaze.description.none" : "{Stone Gaze}\n\nThe targeted unit is petrified and cannot move for three combat rounds. When attacked it takes 50% damage, and become unfrozen",
+	"spell.core.poison.description.none" : "{Poison}\n\nWhen poisoned, the target stack's maximum health is decreased by 10% for every combat round for three rounds. After three rounds, the creature is no longer poisoned, but the maximum health remains decreased",
+	"spell.core.bind.description.none" : "{Bind}\n\nTargeted unit is bound to the ground, unable to move until the stack that entangled them moves or perishes.",
+	"spell.core.disease.description.none" : "{Disease}\n\nThe living target becomes ill, thus having their attack and defense values reduced by two for a period of three rounds",
+	"spell.core.paralyze.description.none" : "{Paralyze}\n\nThe target is paralyzed and forgo their turn for the remainder of the current combat round and the two combat rounds thereafter, unless they are attacked meanwhile. Paralyzed creatures take full damage from attacks, but retaliate at only a quarter of their strength.",
+	"spell.core.age.description.none" : "{Age}\n\nAging lowers the maximum health of every creature in the target stack down to 50% for three combat rounds",
+	"spell.core.deathCloud.description.none" : "{Death Cloud}\n\nIn addition to normal ranged attack damage in target hex, the death cloud also affects all 6 adjacent hexes around the target hex dealing damage to all living creatures in the radius",
+	"spell.core.thunderbolt.description.none" : "{Thunderbolt}\n\nWhen the stack attacks, the there is a 20% chance that a lightning strike occurs before the enemy has a chance to retaliate. If if occurs, the lightning strike deals damage equal to ten times the number of attacking Thunderbirds",
+	"spell.core.dispelHelpful.description.none" : "{Dispel Helpful Spells}\n\nRemoves all spell effects from the targeted unit.",
+	"spell.core.acidBreath.description.none" : "{Acid breath}\n\nThe breath reduces the target stack's defense by 3, and has 20% chance to cause additional damage amount of 25 points per attacking unit.",
 }
