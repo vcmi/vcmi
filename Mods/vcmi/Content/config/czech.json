@@ -414,7 +414,7 @@
 	"vcmi.tutorialWindow.decription.MapZooming" : "Přibližte dva prsty k sobě pro přiblížení mapy.",
 	"vcmi.tutorialWindow.decription.RadialWheel" : "Přejetí otevře kruhovou nabídku pro různé akce, třeba správa hrdiny/jednotek a příkazy měst.",
 	"vcmi.tutorialWindow.decription.BattleDirection" : "Pro útok ze speifického úhlu, přejeďte směrem, ze kterého má být útok vykonán.",
-	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "Gesto útoku pod úhlem může být zrušeno, pokud, pokud je prst dostatečně daleko.",
+	"vcmi.tutorialWindow.decription.BattleDirectionAbort" : "Gesto útoku pod úhlem může být zrušeno, pokud je prst dostatečně daleko.",
 	"vcmi.tutorialWindow.decription.AbortSpell" : "Klepněte a držte pro zrušení kouzla.",
 
 	"vcmi.otherOptions.availableCreaturesAsDwellingLabel.hover" : "Zobrazit dostupné jednotky",
