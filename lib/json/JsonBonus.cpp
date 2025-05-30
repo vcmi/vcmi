@@ -239,6 +239,8 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
 			// 3 numbers
+			if (!value.isVector())
+				break;
 			var.resize(3);
 			var[0] = value[0].Integer();
 			var[1] = value[1].Integer();

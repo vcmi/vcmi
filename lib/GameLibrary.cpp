@@ -26,6 +26,7 @@
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "campaign/CampaignRegionsHandler.h"
 #include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
@@ -184,6 +185,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(spellh);
 	createHandler(skillh);
 	createHandler(terviewh);
+	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 #if SCRIPTING_ENABLED
 	createHandler(scriptHandler);

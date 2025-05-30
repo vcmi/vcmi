@@ -288,8 +288,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 				}
 			}
 			while (parser.endLine() && !text.empty());
-
-			scenariosCountPerCampaign.push_back(region);
 		}
 	}
 }
@@ -304,15 +302,6 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 		return textIndex;
 
 	return textIndex + 1;
-}
-
-size_t CGeneralTextHandler::getCampaignLength(size_t campaignID) const
-{
-	assert(campaignID < scenariosCountPerCampaign.size());
-
-	if(campaignID < scenariosCountPerCampaign.size())
-		return scenariosCountPerCampaign[campaignID];
-	return 0;
 }
 
 std::string CGeneralTextHandler::getPreferredLanguage()

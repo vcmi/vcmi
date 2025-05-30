@@ -98,6 +98,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	loadMapping(mappingTerrain, mapping["terrains"], "terrain");
 	loadMapping(mappingArtifact, mapping["artifacts"], "artifact");
 	loadMapping(mappingSecondarySkill, mapping["skills"], "skill");
+	loadMapping(mappingCampaignRegions, mapping["campaignRegions"], "campaignRegion");
 }
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
@@ -210,6 +211,13 @@ SecondarySkill MapIdentifiersH3M::remap(SecondarySkill input) const
 {
 	if (mappingSecondarySkill.count(input))
 		return mappingSecondarySkill.at(input);
+	return input;
+}
+
+CampaignRegionID MapIdentifiersH3M::remap(CampaignRegionID input) const
+{
+	if (mappingCampaignRegions.count(input))
+		return mappingCampaignRegions.at(input);
 	return input;
 }
 

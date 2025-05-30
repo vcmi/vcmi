@@ -750,15 +750,13 @@ uint64_t CGHeroInstance::getValueForDiplomacy() const
 
 uint32_t CGHeroInstance::getValueForCampaign() const
 {
-	/// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
-	uint32_t score = 0;
+	// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
+	// Additional info from wiki: https://heroes.thelazy.net/index.php/Power_rating
+	uint32_t score = level;
 	score += getPrimSkillLevel(PrimarySkill::ATTACK);
 	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
 	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
 	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
-
-	for (const auto& secondary : secSkills)
-		score += secondary.second;
 
 	return score;
 }

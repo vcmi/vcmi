@@ -89,6 +89,8 @@ set(lib_MAIN_SRCS
 	campaign/CampaignBonus.cpp
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
+	campaign/CampaignRegions.cpp
+	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
 
@@ -485,6 +487,8 @@ set(lib_MAIN_HEADERS
 	campaign/CampaignBonus.h
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
+	campaign/CampaignRegions.h
+	campaign/CampaignRegionsHandler.h
 	campaign/CampaignScenarioPrologEpilog.h
 	campaign/CampaignState.h
 

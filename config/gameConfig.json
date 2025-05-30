@@ -127,6 +127,11 @@
 	[
 		"config/obstacles.json"
 	],
+	"campaignRegions" :
+	[
+		"config/campaignRegions.json"
+	],
+	
 	
 	"settings":
 	{
@@ -244,6 +249,16 @@
 				"portraits" : {
 					"catherine" : 128, // In "RoE" Catherine only has portrait
 					"portraitGeneralKendal" : 129
+				},
+				"campaignRegions" : {
+					
+					"good1" : 1,    // Long Live the Queen
+					"good2" : 2,    // Liberation
+					"good3" : 3,    // Song for the Father
+					"evil1" : 4,    // Dungeons and devils
+					"evil2" : 5,    // Long Live the King
+					"neutral1" : 6, // Spoils of War
+					"secret1" : 7   // Seeds Of Discontent 
 				}
 			},
 			"armageddonsBlade" : {
@@ -262,6 +277,14 @@
 					"portraitGeneralKendal" : 156,
 					"portraitYoungCristian" : 157,
 					"portraitOrdwald" : 158
+				},
+				"campaignRegions" : {
+					"dragonSlayer" : 8,
+					"foolhardyWaywardness" : 9,
+					"festivalOfLife" : 10,
+					"dragonsBlood" : 11,
+					"playingWithFire" : 12,
+					"armageddonsBlade" : 13
 				}
 			},
 			"shadowOfDeath" : { 
@@ -276,6 +299,16 @@
 					"portraitYoungGem" : 160,
 					"portraitYoungSandro" : 161,
 					"portraitYoungYog" : 162
+				},
+				
+				"campaignRegions" : {
+					"hackAndSlash" : 14,
+					"birthOfBarbarian" : 15,
+					"newBeginning" : 16,
+					"elixirOfLife" : 17,
+					"riseOfTheNecromancer" : 18,
+					"unholyAlliance" : 19,
+					"spectreOfPower" : 20
 				}
 			},
 			"chronicles" : { 

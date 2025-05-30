@@ -9,13 +9,14 @@
  */
 #pragma once
 
+#include "CampaignBonus.h"
+#include "CampaignRegions.h"
+#include "CampaignScenarioPrologEpilog.h"
+
 #include "../filesystem/ResourcePath.h"
+#include "../gameState/HighScore.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/TextLocalizationContainer.h"
-#include "CampaignBonus.h"
-#include "CampaignScenarioPrologEpilog.h"
-#include "../gameState/HighScore.h"
-#include "../Point.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -28,61 +29,6 @@ class CMapHeader;
 class CMapInfo;
 class JsonNode;
 class IGameInfoCallback;
-
-class DLL_LINKAGE CampaignRegions
-{
-	// Campaign editor
-	friend class CampaignEditor;
-	friend class CampaignProperties;
-	friend class ScenarioProperties;
-
-	std::string campPrefix;
-	std::vector<std::string> campSuffix;
-	std::string campBackground;
-	int colorSuffixLength;
-
-	struct DLL_LINKAGE RegionDescription
-	{
-		std::string infix;
-		Point pos;
-		std::optional<Point> labelPos;
-
-		template <typename Handler> void serialize(Handler &h)
-		{
-			h & infix;
-			h & pos;
-			h & labelPos;
-		}
-
-		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
-		static JsonNode toJson(CampaignRegions::RegionDescription & rd);
-	};
-
-	std::vector<RegionDescription> regions;
-
-	ImagePath getNameFor(CampaignScenarioID which, int color, const std::string & type) const;
-
-public:
-	ImagePath getBackgroundName() const;
-	Point getPosition(CampaignScenarioID which) const;
-	std::optional<Point> getLabelPosition(CampaignScenarioID which) const;
-	ImagePath getAvailableName(CampaignScenarioID which, int color) const;
-	ImagePath getSelectedName(CampaignScenarioID which, int color) const;
-	ImagePath getConqueredName(CampaignScenarioID which, int color) const;
-
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & campPrefix;
-		h & colorSuffixLength;
-		h & regions;
-		h & campSuffix;
-		h & campBackground;
-	}
-
-	static CampaignRegions fromJson(const JsonNode & node);
-	static JsonNode toJson(CampaignRegions cr);
-	static CampaignRegions getLegacy(int campId);
-};
 
 class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 {
@@ -113,9 +59,6 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
-
-	void loadLegacyData(ui8 campId);
-	void loadLegacyData(const CampaignRegions & regions, int numOfScenario);
 
 	TextContainerRegistrable textContainer;
 

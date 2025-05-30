@@ -43,6 +43,7 @@ class MapIdentifiersH3M
 	std::map<TerrainId, TerrainId> mappingTerrain;
 	std::map<ArtifactID, ArtifactID> mappingArtifact;
 	std::map<SecondarySkill, SecondarySkill> mappingSecondarySkill;
+	std::map<CampaignRegionID, CampaignRegionID> mappingCampaignRegions;
 
 	std::map<AnimationPath, AnimationPath> mappingObjectTemplate;
 	std::map<ObjectTypeIdentifier, ObjectTypeIdentifier> mappingObjectIndex;
@@ -63,6 +64,7 @@ public:
 	TerrainId remap(TerrainId input) const;
 	ArtifactID remap(ArtifactID input) const;
 	SecondarySkill remap(SecondarySkill input) const;
+	CampaignRegionID remap(CampaignRegionID input) const;
 
 };
 

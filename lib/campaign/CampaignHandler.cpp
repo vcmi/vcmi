@@ -11,6 +11,7 @@
 #include "CampaignHandler.h"
 
 #include "CampaignState.h"
+#include "CampaignRegionsHandler.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CCompressedStream.h"
@@ -152,7 +153,7 @@ void CampaignHandler::readHeaderFromJson(CampaignHeader & ret, JsonNode & reader
 	}
 	
 	ret.version = CampaignVersion::VCMI;
-	ret.campaignRegions = CampaignRegions::fromJson(reader["regions"]);
+	ret.campaignRegions = CampaignRegions(reader["regions"]);
 	ret.numberOfScenarios = reader["scenarios"].Vector().size();
 	ret.name.appendTextID(readLocalizedString(ret, reader["name"].String(), filename, modName, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader["description"].String(), filename, modName, "description"));
@@ -350,14 +351,14 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 		assert(unknownB == 1);
 		assert(unknownC == 0);
 		assert(ret.numberOfScenarios <= 8);
-
-		// TODO. Or they are hardcoded in this hota version?
-		// ret.campaignRegions = ???;
 	}
 
-	ui8 campId = reader.readUInt8() - 1;//change range of it from [1, 20] to [0, 19]
-	if(ret.version < CampaignVersion::Chr) // For chronicles: Will be overridden later; Chronicles uses own logic (reusing OH3 ID's)
-		ret.loadLegacyData(campId);
+	const auto & mapping = LIBRARY->mapFormat->getMapping(ret.version);
+
+	CampaignRegionID campaignMapId(reader.readUInt8());
+	ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
+	if(ret.version != CampaignVersion::HotA)
+		ret.numberOfScenarios = ret.campaignRegions.regionsCount();
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	ret.author.appendRawString("");

@@ -1122,6 +1122,13 @@ public:
 	static const CampaignScenarioID NONE;
 };
 
+class DLL_LINKAGE CampaignRegionID : public StaticIdentifier<CampaignRegionID>
+{
+public:
+	using StaticIdentifier<CampaignRegionID>::StaticIdentifier;
+};
+
+
 // Deprecated
 // TODO: remove
 using Obj = MapObjectID;

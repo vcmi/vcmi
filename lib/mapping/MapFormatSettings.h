@@ -13,10 +13,11 @@
 #include "MapIdentifiersH3M.h"
 #include "MapFormat.h"
 #include "../campaign/CampaignConstants.h"
+#include "../json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class MapFormatSettings
+	class MapFormatSettings : boost::noncopyable
 {
 	static MapIdentifiersH3M generateMapping(EMapFormat format);
 	static std::map<EMapFormat, MapIdentifiersH3M> generateMappings();
@@ -24,6 +25,9 @@ class MapFormatSettings
 
 	std::map<EMapFormat, MapIdentifiersH3M> mapping;
 	std::map<CampaignVersion, EMapFormat> campaignToMap;
+
+	JsonNode campaignOverridesConfig;
+	JsonNode mapOverridesConfig;
 public:
 	MapFormatSettings();
 
@@ -45,6 +49,16 @@ public:
 	const MapIdentifiersH3M & getMapping(CampaignVersion format) const
 	{
 		return mapping.at(campaignToMap.at(format));
+	}
+
+	const JsonNode & campaignOverrides(std::string & campaignName)
+	{
+		return campaignOverridesConfig[campaignName];
+	}
+
+	const JsonNode & mapOverrides(std::string & mapName)
+	{
+		return mapOverridesConfig[mapName];
 	}
 };
 

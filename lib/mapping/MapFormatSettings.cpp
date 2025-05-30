@@ -15,6 +15,7 @@
 
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
+#include "../json/JsonUtils.h"
 
 MapIdentifiersH3M MapFormatSettings::generateMapping(EMapFormat format)
 {
@@ -79,6 +80,8 @@ std::map<EMapFormat, MapIdentifiersH3M> MapFormatSettings::generateMappings()
 MapFormatSettings::MapFormatSettings()
 	: mapping(generateMappings())
 	, campaignToMap(generateCampaignMapping())
+	, campaignOverridesConfig(JsonUtils::assembleFromFiles("config/campaignOverrides.json"))
+	, mapOverridesConfig(JsonUtils::assembleFromFiles("config/mapOverrides.json"))
 {
 }
 
