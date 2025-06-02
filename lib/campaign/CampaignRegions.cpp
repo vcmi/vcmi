@@ -12,6 +12,8 @@
 
 #include "../json/JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(const JsonNode & node)
 {
 	CampaignRegions::RegionDescription rd;
@@ -146,3 +148,5 @@ int CampaignRegions::regionsCount() const
 {
 	return regions.size();
 }
+
+VCMI_LIB_NAMESPACE_END

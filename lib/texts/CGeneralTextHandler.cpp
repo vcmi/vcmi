@@ -159,7 +159,6 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
 	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
 	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
-	readToVector("core.cmpmusic", "DATA/CMPMUSIC.TXT" );
 	readToVector("core.minename", "DATA/MINENAME.TXT" );
 	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );

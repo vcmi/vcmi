@@ -1065,9 +1065,9 @@ public:
 		MITHRIL,
 		COUNT,
 
-		WOOD_AND_ORE = 127,  // special case for town bonus resource
-		COMMON = 0xFD, // campaign bonus
-		RARE = 0xFE, // campaign bonus
+		WOOD_AND_ORE = -4,  // special case for town bonus resource
+		COMMON = -3, // campaign bonus
+		RARE = -2, // campaign bonus
 		NONE = -1
 	};
 };

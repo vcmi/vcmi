@@ -17,7 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-	class MapFormatSettings : boost::noncopyable
+class MapFormatSettings : boost::noncopyable
 {
 	static MapIdentifiersH3M generateMapping(EMapFormat format);
 	static std::map<EMapFormat, MapIdentifiersH3M> generateMappings();

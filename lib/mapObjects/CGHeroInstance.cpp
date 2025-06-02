@@ -1802,37 +1802,13 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 bool CGHeroInstance::isCampaignYog() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getYogWizardID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::GEM) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
 }
 
 ResourceSet CGHeroInstance::dailyIncome() const

@@ -188,7 +188,8 @@ public:
 			{
 				result = bonusValue.hero;
 			}
-			throw std::runtime_error("Attempt to get targeted hero on invalid type!");
+			else
+				throw std::runtime_error("Attempt to get targeted hero on invalid type!");
 		}, data);
 
 		return result;

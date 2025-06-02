@@ -64,14 +64,14 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & r
 			{
 				case CampaignBonusType::SPELL:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					SpellID spell(reader.readUInt8());
 					data = CampaignBonusSpell{remapper.remap(hero), spell};
 					break;
 				}
 				case CampaignBonusType::MONSTER:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					CreatureID creature(reader.readUInt16());
 					int32_t amount = reader.readUInt16();
 					data = CampaignBonusCreatures{remapper.remap(hero), remapper.remap(creature), amount};
@@ -85,21 +85,21 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & r
 				}
 				case CampaignBonusType::ARTIFACT:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					ArtifactID artifact(reader.readUInt16());
 					data = CampaignBonusArtifact{remapper.remap(hero), remapper.remap(artifact)};
 					break;
 				}
 				case CampaignBonusType::SPELL_SCROLL:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					SpellID spell(reader.readUInt8());
 					data = CampaignBonusSpellScroll{remapper.remap(hero), spell};
 					break;
 				}
 				case CampaignBonusType::PRIMARY_SKILL:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					std::array<uint8_t, 4> amounts = {};
 					for(auto & value : amounts)
 						value = reader.readUInt8();
@@ -109,7 +109,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & r
 				}
 				case CampaignBonusType::SECONDARY_SKILL:
 				{
-					HeroTypeID hero(reader.readUInt16());
+					HeroTypeID hero(reader.readInt16());
 					SecondarySkill skill(reader.readUInt8());
 					int32_t skillMastery(reader.readUInt8());
 					data = CampaignBonusSecondarySkill{remapper.remap(hero), remapper.remap(skill), skillMastery};

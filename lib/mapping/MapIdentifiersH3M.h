@@ -44,6 +44,8 @@ class MapIdentifiersH3M
 	std::map<ArtifactID, ArtifactID> mappingArtifact;
 	std::map<SecondarySkill, SecondarySkill> mappingSecondarySkill;
 	std::map<CampaignRegionID, CampaignRegionID> mappingCampaignRegions;
+	std::map<int, VideoPath> mappingCampaignVideo;
+	std::map<int, AudioPath> mappingCampaignMusic;
 
 	std::map<AnimationPath, AnimationPath> mappingObjectTemplate;
 	std::map<ObjectTypeIdentifier, ObjectTypeIdentifier> mappingObjectIndex;
@@ -55,6 +57,8 @@ public:
 
 	void remapTemplate(ObjectTemplate & objectTemplate);
 
+	AudioPath remapCampaignMusic(int index) const;
+	VideoPath remapCampaignVideo(int index) const;
 	BuildingID remapBuilding(std::optional<FactionID> owner, BuildingID input) const;
 	HeroTypeID remapPortrait(HeroTypeID input) const;
 	FactionID remap(FactionID input) const;

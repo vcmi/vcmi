@@ -89,6 +89,12 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 	}
 
+	for (auto entry : mapping["campaignVideo"].Struct())
+		mappingCampaignVideo[entry.second.Integer()] = VideoPath::builtinTODO(entry.first);
+
+	for (auto entry : mapping["campaignMusic"].Struct())
+		mappingCampaignMusic[entry.second.Integer()] = AudioPath::builtinTODO(entry.first);
+
 	loadMapping(mappingHeroPortrait, mapping["portraits"], "hero");
 	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
 	loadMapping(mappingFaction, mapping["factions"], "faction");
@@ -216,9 +222,26 @@ SecondarySkill MapIdentifiersH3M::remap(SecondarySkill input) const
 
 CampaignRegionID MapIdentifiersH3M::remap(CampaignRegionID input) const
 {
-	if (mappingCampaignRegions.count(input))
-		return mappingCampaignRegions.at(input);
-	return input;
+	if (!mappingCampaignRegions.count(input))
+		throw std::out_of_range("Campaign region with ID " + std::to_string(input.getNum()) + " is not defined");
+
+	return mappingCampaignRegions.at(input);
+}
+
+VideoPath MapIdentifiersH3M::remapCampaignVideo(int input) const
+{
+	if (!mappingCampaignVideo.count(input))
+		throw std::out_of_range("Campaign video with ID " + std::to_string(input) + " is not defined");
+
+	return mappingCampaignVideo.at(input);
+}
+
+AudioPath MapIdentifiersH3M::remapCampaignMusic(int input) const
+{
+	if (!mappingCampaignMusic.count(input))
+		throw std::out_of_range("Campaign music with ID " + std::to_string(input) + " is not defined");
+
+	return mappingCampaignMusic.at(input);
 }
 
 VCMI_LIB_NAMESPACE_END

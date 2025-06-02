@@ -370,7 +370,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	else
 		ret.difficultyChosenByPlayer = false;
 
-	ret.music = prologMusicName(reader.readInt8());
+	ret.music = mapping.remapCampaignMusic(reader.readUInt8());
+	logGlobal->info("Campaign %s: map %d (%d scenarios), music theme: %s", filename, campaignMapId.getNum(), ret.numberOfScenarios, ret.music.getOriginalName());
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -378,18 +379,17 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 
 CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader, CampaignHeader & header)
 {
+	const auto & mapping = LIBRARY->mapFormat->getMapping(header.version);
+
 	auto prologEpilogReader = [&](const std::string & identifier) -> CampaignScenarioPrologEpilog
 	{
 		CampaignScenarioPrologEpilog ret;
 		ret.hasPrologEpilog = reader.readBool();
 		if(ret.hasPrologEpilog)
 		{
-			bool isOriginalCampaign = boost::starts_with(header.getFilename(), "DATA/");
-
-			ui8 index = reader.readUInt8();
-			ret.prologVideo = CampaignHandler::prologVideoName(index);
-			ret.prologMusic = CampaignHandler::prologMusicName(reader.readUInt8());
-			ret.prologVoice = isOriginalCampaign ? CampaignHandler::prologVoiceName(index) : AudioPath();
+			ret.prologVideo = mapping.remapCampaignVideo(reader.readUInt8());
+			ret.prologMusic = mapping.remapCampaignMusic(reader.readUInt8());
+			logGlobal->info("Campaign %s, scenario %s: music theme: %s, video: %s", header.filename, identifier, ret.prologMusic.getOriginalName(), ret.prologVideo.getOriginalName());
 			ret.prologText.appendTextID(readLocalizedString(header, reader, header.filename, header.modName, header.encoding, identifier));
 		}
 		return ret;
@@ -542,30 +542,6 @@ std::vector< std::vector<ui8> > CampaignHandler::getFile(std::unique_ptr<CInputS
 
 		return ret;
 	}
-}
-
-VideoPath CampaignHandler::prologVideoName(ui8 index)
-{
-	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
-	auto vids = config["videos"].Vector();
-	if(index < vids.size())
-		return VideoPath::fromJson(vids[index]);
-	return VideoPath();
-}
-
-AudioPath CampaignHandler::prologMusicName(ui8 index)
-{
-	std::vector<std::string> music;
-	return AudioPath::builtinTODO(LIBRARY->generaltexth->translate("core.cmpmusic." + std::to_string(static_cast<int>(index))));
-}
-
-AudioPath CampaignHandler::prologVoiceName(ui8 index)
-{
-	JsonNode config(JsonPath::builtin("CONFIG/campaignMedia"));
-	auto audio = config["voice"].Vector();
-	if(index < audio.size())
-		return AudioPath::fromJson(audio[index]);
-	return AudioPath();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -57,9 +57,9 @@ const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
 const HeroTypeID HeroTypeID::GEM(27);
 const HeroTypeID HeroTypeID::SOLMYR(45);
-const HeroTypeID HeroTypeID::CAMP_STRONGEST(0xFFFD);
-const HeroTypeID HeroTypeID::CAMP_GENERATED(0xFFFE);
-const HeroTypeID HeroTypeID::CAMP_RANDOM(0xFFFF);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(-3);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(-2);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(-1);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
@@ -258,6 +258,8 @@ si32 HeroTypeID::decode(const std::string & identifier)
 {
 	if (identifier == "random")
 		return -2;
+	if (identifier == "strongest")
+		return -3;
 	return resolveIdentifier("hero", identifier);
 }
 
@@ -267,6 +269,8 @@ std::string HeroTypeID::encode(const si32 index)
 		return "";
 	if (index == -2)
 		return "random";
+	if (index == -3)
+		return "strongest";
 	return LIBRARY->heroTypes()->getByIndex(index)->getJsonKey();
 }
 

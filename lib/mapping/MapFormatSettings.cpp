@@ -18,6 +18,8 @@
 #include "../json/JsonUtils.h"
 #include "../modding/ModScope.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 MapIdentifiersH3M MapFormatSettings::generateMapping(EMapFormat format)
 {
 	auto features = MapFormatFeaturesH3M::find(format, 0);
@@ -87,6 +89,7 @@ MapFormatSettings::MapFormatSettings()
 	for (auto & entry : mapOverridesConfig.Struct())
 		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
+	campaignOverridesConfig.setModScope(ModScope::scopeMap());
 	mapOverridesConfig.setModScope(ModScope::scopeMap());
 }
 

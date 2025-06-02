@@ -37,10 +37,6 @@ class DLL_LINKAGE CampaignHandler
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector<std::vector<ui8>> getFile(std::unique_ptr<CInputStream> file, const std::string & filename, bool headerOnly);
 
-	static VideoPath prologVideoName(ui8 index);
-	static AudioPath prologMusicName(ui8 index);
-	static AudioPath prologVoiceName(ui8 index);
-
 	static constexpr auto VCMP_HEADER_FILE_NAME = "header.json";
 public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file

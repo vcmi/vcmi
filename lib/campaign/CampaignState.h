@@ -57,11 +57,14 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	VideoPath introVideo;
 	VideoPath outroVideo;
 
+	HeroTypeID yogWizardID;
+	HeroTypeID gemSorceressID;
+
 	int numberOfScenarios = 0;
 	bool difficultyChosenByPlayer = false;
+	bool restrictGarrisonsAI = false;
 
 	TextContainerRegistrable textContainer;
-
 public:
 	bool playerSelectedDifficulty() const;
 	bool formatVCMI() const;
@@ -81,6 +84,10 @@ public:
 	VideoPath getIntroVideo() const;
 	VideoPath getOutroVideo() const;
 
+	HeroTypeID getYogWizardID() const;
+	HeroTypeID getGemSorceressID() const;
+	bool restrictedGarrisonsForAI() const;
+
 	const CampaignRegions & getRegions() const;
 	TextContainerRegistrable & getTexts();
 
@@ -96,6 +103,8 @@ public:
 		h & campaignVersion;
 		h & creationDateTime;
 		h & difficultyChosenByPlayer;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+			h & restrictGarrisonsAI;
 		h & filename;
 		h & modName;
 		h & music;
@@ -105,6 +114,11 @@ public:
 		h & videoRim;
 		h & introVideo;
 		h & outroVideo;
+		if (h.hasFeature(Handler::Version::CAMPAIGN_BONUSES))
+		{
+			h & yogWizardID;
+			h & gemSorceressID;
+		}
 	}
 };
 

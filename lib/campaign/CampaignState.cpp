@@ -392,6 +392,12 @@ void Campaign::overrideCampaign()
 		introVideo = VideoPath::builtin(overrides["introVideo"].String());
 	if(!overrides["outroVideo"].isNull())
 		outroVideo = VideoPath::builtin(overrides["outroVideo"].String());
+	if(!overrides["heroGemSorceress"].isNull())
+		gemSorceressID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroGemSorceress"]));
+	if(!overrides["heroYogWizard"].isNull())
+		yogWizardID = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", overrides["heroYogWizard"]));
+
+	restrictGarrisonsAI	= overrides["restrictedGarrisonsForAI"].Bool();
 }
 
 void Campaign::overrideCampaignScenarios()
@@ -429,6 +435,19 @@ const CampaignScenario & Campaign::scenario(CampaignScenarioID which) const
 bool CampaignState::isCampaignFinished() const
 {
 	return conqueredScenarios() == allScenarios();
+}
+
+HeroTypeID CampaignHeader::getYogWizardID() const
+{
+	return yogWizardID;
+}
+HeroTypeID CampaignHeader::getGemSorceressID() const
+{
+	return gemSorceressID;
+}
+bool CampaignHeader::restrictedGarrisonsForAI() const
+{
+	return restrictGarrisonsAI;
 }
 
 VCMI_LIB_NAMESPACE_END
