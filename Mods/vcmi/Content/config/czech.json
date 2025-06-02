@@ -629,7 +629,7 @@
 	
 	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Koule zranitelnosti}\nRuší přirozenou magickou odolnost všech bytostí na bojišti",
 	"creatures.core.angel.bonus.raisesMorale" : "{Zvyšuje morálku spojencům}\nAndělé a archandělé zvyšují morálku spřátelených jednotek o 1 bod",
-	"creatures.core.devil.bonus.descreaseLuck" : "{Snižuje štěstí nepřátel}\nĎáblové a arciďáblové snižují štěstí nepřátel o 1 bod",
+	"creatures.core.devil.bonus.decreaseLuck" : "{Snižuje štěstí nepřátel}\nĎáblové a arciďáblové snižují štěstí nepřátel o 1 bod",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Snižuje morálku nepřátel}\nKostění a přizrační draci snižují morálku nepřátel o 1 bod",
 	"creatures.core.marksman.bonus.extraAttack" : "{Střílí dvakrát}\nTato jednotka může vystřelit dvakrát za kolo",
 
