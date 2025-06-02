@@ -629,7 +629,7 @@
 	
 	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Orbe da Vulnerabilidade}\nAnula a resistência mágica natural de todas as criaturas no campo de batalha",
 	"creatures.core.angel.bonus.raisesMorale" : "{Aumenta a moral dos aliados}\nAnjos e Arcanjos aumentam a Moral dos aliados em um",
-	"creatures.core.devil.bonus.descreaseLuck" : "{Reduz a sorte do inimigo}\nDiabos e Arquidiabos reduzem a sorte do inimigo em um",
+	"creatures.core.devil.bonus.decreaseLuck" : "{Reduz a sorte do inimigo}\nDiabos e Arquidiabos reduzem a sorte do inimigo em um",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduz a moral do inimigo}\nDragões Esqueletos e Dragões Fantasmas diminuem a moral das unidades inimigas em um",
 	"creatures.core.marksman.bonus.extraAttack" : "{Atira duas vezes}\nEsta unidade pode atirar duas vezes",
 
