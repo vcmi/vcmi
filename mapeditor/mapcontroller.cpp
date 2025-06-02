@@ -51,6 +51,7 @@ MapController::MapController(MainWindow * m): main(m)
 		_miniscenes[i].reset(new MinimapScene(i));
 	}
 	connectScenes();
+	_cb = std::make_unique<EditorCallback>(nullptr);
 }
 
 void MapController::connectScenes()
@@ -68,6 +69,16 @@ void MapController::connectScenes()
 MapController::~MapController()
 {
 	main = nullptr;
+}
+
+void MapController::setCallback(std::unique_ptr<EditorCallback> cb)
+{
+	_cb = std::move(cb);
+}
+
+EditorCallback * MapController::getCallback()
+{
+	return _cb.get();
 }
 
 const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
@@ -104,6 +115,8 @@ void MapController::repairMap(CMap * map)
 {
 	if(!map)
 		return;
+
+	assert(map->cb);
 	
 	//make sure events/rumors has name to have proper identifiers
 	int emptyNameId = 1;
@@ -201,7 +214,9 @@ void MapController::repairMap(CMap * map)
 
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
+	cmap->cb = _cb.get();
 	_map = std::move(cmap);
+	_cb->setMap(_map.get());
 	
 	repairMap();
 	

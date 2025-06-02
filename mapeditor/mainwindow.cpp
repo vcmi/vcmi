@@ -395,7 +395,7 @@ bool MainWindow::openMap(const QString & filenameSelect)
 {
 	try
 	{
-		controller.setMap(Helper::openMapInternal(filenameSelect));
+		controller.setMap(Helper::openMapInternal(filenameSelect, controller.getCallback()));
 	}
 	catch(const ModIncompatibility & e)
 	{
@@ -703,7 +703,7 @@ void MainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomNa
 			}
 			
 			//create object to extract name
-			auto temporaryObj(factory->create(nullptr, templ));
+			auto temporaryObj(factory->create(controller.getCallback(), templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().c_str()) : subGroupName;
 			itemType->setText(translated);
 			
@@ -1370,7 +1370,8 @@ void MainWindow::on_actionh3m_converter_triggered()
 		for(auto & m : mapFiles)
 		{
 			CMapService mapService;
-			auto map = Helper::openMapInternal(m);
+			auto map = Helper::openMapInternal(m, controller.getCallback());
+			controller.setCallback(std::make_unique<EditorCallback>(map.get()));
 			controller.repairMap(map.get());
 			mapService.saveMap(map, (saveDirectory + '/' + QFileInfo(m).completeBaseName() + ".vmap").toStdString());
 		}

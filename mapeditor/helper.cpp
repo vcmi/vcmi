@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "helper.h"
 #include "mapcontroller.h"
-#include "EditorCallback.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CMemoryBuffer.h"
@@ -24,7 +23,7 @@
 #include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
 
-std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
+std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * ecb)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
@@ -50,12 +49,8 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
 		
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
-
-		auto cb = std::make_shared<EditorCallback>(nullptr);
-
-		std::unique_ptr<CMap> map = mapService.loadMap(resId, cb.get());
-		cb->setMap(map.get());
-		return map;
+		
+		return mapService.loadMap(resId, ecb);
 	}
 	else
 		throw std::runtime_error("Corrupted map");

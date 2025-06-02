@@ -11,7 +11,9 @@
 
 #include "../lib/callback/MapInfoCallback.h"
 
-class EditorCallback : public MapInfoCallback
+VCMI_LIB_NAMESPACE_BEGIN
+
+class DLL_LINKAGE EditorCallback : public MapInfoCallback
 {
 protected:
 	const CMap * getMapConstPtr() const override;
@@ -49,10 +51,8 @@ public:
 	bool isTeleportChannelUnidirectional(TeleportChannelID id, PlayerColor player) const override;
 	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const override;
 
-	bool isVisibleFor(int3 pos, PlayerColor player) const;
-	bool isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const;
-
-	void pickAllowedArtsSet(std::vector<ArtifactID> & out, vstd::RNG & rand) override;
+	bool isVisibleFor(int3 pos, PlayerColor player) const override;
+	bool isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const override;
 
 // Optional scripting
 #if SCRIPTING_ENABLED
@@ -69,6 +69,10 @@ public:
 	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose) const override;
 	int getResource(PlayerColor player, GameResID which) const override;
 
+	virtual ~EditorCallback() = default;
+
 private:
 	const CMap * map;
 };
+
+VCMI_LIB_NAMESPACE_END

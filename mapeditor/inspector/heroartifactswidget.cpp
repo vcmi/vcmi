@@ -28,6 +28,10 @@ HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInsta
 	fittingSet(CArtifactFittingSet(h))
 {
 	ui->setupUi(this);
+
+	connect(ui->saveButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onSaveButtonClicked);
+	connect(ui->cancelButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onCancelButtonClicked);
+
 }
 
 HeroArtifactsWidget::~HeroArtifactsWidget()
@@ -37,9 +41,10 @@ HeroArtifactsWidget::~HeroArtifactsWidget()
 
 void HeroArtifactsWidget::on_addButton_clicked()
 {
-	ArtifactWidget artifactWidget{ fittingSet, this };
-	connect(&artifactWidget, &ArtifactWidget::saveArtifact, this, &HeroArtifactsWidget::onSaveArtifact);
-	artifactWidget.exec();
+	auto * artifactWidget = new ArtifactWidget(fittingSet, this);
+	connect(artifactWidget, &ArtifactWidget::saveArtifact, this, &HeroArtifactsWidget::onSaveArtifact);
+	artifactWidget->exec();
+	artifactWidget->deleteLater();
 }
 
 void HeroArtifactsWidget::on_removeButton_clicked()
@@ -53,6 +58,16 @@ void HeroArtifactsWidget::on_removeButton_clicked()
 	auto slot = ui->artifacts->item(row, Column::SLOT)->data(MapEditorRoles::ArtifactSlotRole).toInt();
 	fittingSet.removeArtifact(ArtifactPosition(slot));
 	ui->artifacts->removeRow(row);
+}
+
+void HeroArtifactsWidget::onSaveButtonClicked()
+{
+	accept();
+}
+
+void HeroArtifactsWidget::onCancelButtonClicked()
+{
+	reject();
 }
 
 void HeroArtifactsWidget::onSaveArtifact(int32_t artifactIndex, ArtifactPosition slot) 
@@ -143,8 +158,11 @@ void HeroArtifactsDelegate::setModelData(QWidget * editor, QAbstractItemModel * 
 {
 	if (auto * ed = qobject_cast<HeroArtifactsWidget *>(editor))
 	{
-		ed->commitChanges();
-		updateModelData(model, index);
+		if(ed->result() == QDialog::Accepted)
+		{
+			ed->commitChanges();
+			updateModelData(model, index);
+		}
 	}
 	else
 	{
@@ -158,6 +176,7 @@ void HeroArtifactsDelegate::updateModelData(QAbstractItemModel * model, const QM
 	for(const auto & [artPosition, artSlotInfo] : hero.artifactsWorn)
 	{
 		auto slotText = NArtifactPosition::namesHero[artPosition.num];
+
 		textList += QString("%1: %2").arg(QString::fromStdString(slotText)).arg(QString::fromStdString(artSlotInfo.getArt()->getType()->getNameTranslated()));
 	}
 	textList += QString("%1:").arg(QString::fromStdString(NArtifactPosition::backpack));

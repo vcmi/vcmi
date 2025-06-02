@@ -1,9 +1,20 @@
+/*
+ * EditorCallback.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 #include "StdInc.h"
 #include "EditorCallback.h"
 #include "../lib/mapping/CMap.h"
 
 #define THROW_EDITOR_UNSUPPORTED \
 	throw std::runtime_error(std::string("EditorCallback: ") + __func__ + " is not available in map editor")
+
+VCMI_LIB_NAMESPACE_BEGIN
 
 const CMap * EditorCallback::getMapConstPtr() const
 {
@@ -136,11 +147,6 @@ bool EditorCallback::isVisibleFor(const CGObjectInstance *obj, PlayerColor playe
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::pickAllowedArtsSet(std::vector<ArtifactID> &, vstd::RNG &)
-{
-	THROW_EDITOR_UNSUPPORTED;
-}
-
 #if SCRIPTING_ENABLED
 scripting::Pool * EditorCallback::getGlobalContextPool() const
 {
@@ -187,3 +193,5 @@ int EditorCallback::getResource(PlayerColor, GameResID) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
+
+VCMI_LIB_NAMESPACE_END

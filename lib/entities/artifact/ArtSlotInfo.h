@@ -21,6 +21,7 @@ struct DLL_LINKAGE ArtSlotInfo : public GameCallbackHolder
 	ArtifactInstanceID artifactID;
 	bool locked = false; //if locked, then artifact points to the combined artifact
 
+	ArtSlotInfo() = delete;
 	explicit ArtSlotInfo(IGameInfoCallback * cb);
 	ArtSlotInfo(const CArtifactInstance * artifact, bool locked);
 
