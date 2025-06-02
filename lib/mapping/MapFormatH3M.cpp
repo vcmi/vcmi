@@ -252,7 +252,12 @@ void CMapLoaderH3M::readPlayerInfo()
 		const bool allFactionsAllowed = playerInfo.isFactionRandom && allowedFactions.size() == features.factionsCount;
 
 		if(!allFactionsAllowed)
-			playerInfo.allowedFactions = allowedFactions;
+		{
+			if (!allowedFactions.empty())
+				playerInfo.allowedFactions = allowedFactions;
+			else
+				logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+		}
 
 		playerInfo.hasMainTown = reader->readBool();
 		if(playerInfo.hasMainTown)

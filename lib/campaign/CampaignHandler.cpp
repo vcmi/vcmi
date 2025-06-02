@@ -371,7 +371,7 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 		ret.difficultyChosenByPlayer = false;
 
 	ret.music = mapping.remapCampaignMusic(reader.readUInt8());
-	logGlobal->info("Campaign %s: map %d (%d scenarios), music theme: %s", filename, campaignMapId.getNum(), ret.numberOfScenarios, ret.music.getOriginalName());
+	logGlobal->trace("Campaign %s: map %d (%d scenarios), music theme: %s", filename, campaignMapId.getNum(), ret.numberOfScenarios, ret.music.getOriginalName());
 	ret.filename = filename;
 	ret.modName = modName;
 	ret.encoding = encoding;
@@ -389,7 +389,7 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 		{
 			ret.prologVideo = mapping.remapCampaignVideo(reader.readUInt8());
 			ret.prologMusic = mapping.remapCampaignMusic(reader.readUInt8());
-			logGlobal->info("Campaign %s, scenario %s: music theme: %s, video: %s", header.filename, identifier, ret.prologMusic.getOriginalName(), ret.prologVideo.getOriginalName());
+			logGlobal->trace("Campaign %s, scenario %s: music theme: %s, video: %s", header.filename, identifier, ret.prologMusic.getOriginalName(), ret.prologVideo.getOriginalName());
 			ret.prologText.appendTextID(readLocalizedString(header, reader, header.filename, header.modName, header.encoding, identifier));
 		}
 		return ret;
