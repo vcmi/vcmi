@@ -621,7 +621,7 @@
 
 	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Сфера вразливості}\nЗнімає природний опір магії у всіх істот на полі бою",
 	"creatures.core.angel.bonus.raisesMorale" : "{Підвищує бойовий дух}\nАнгели та Архангели підвищують бойовий дух союзників на одиницю",
-	"creatures.core.devil.bonus.descreaseLuck" : "{Зменшує ворожу удачу}\nДияволи та Архідияволи зменшують удачу ворога на одиницю",
+	"creatures.core.devil.bonus.decreaseLuck" : "{Зменшує ворожу удачу}\nДияволи та Архідияволи зменшують удачу ворога на одиницю",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Знижує ворожий бойовий дух}\nКістяні і Примарні дракони знижують бойовий дух ворожих загонів на одиницю",
 	"creatures.core.marksman.bonus.extraAttack" : "{Стріляє двічі}\nЦей загін може стріляти двічі",
 
