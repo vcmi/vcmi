@@ -188,6 +188,7 @@ class JsonNode;
 	BONUS_NAME(MULTIHEX_UNIT_ATTACK) /*eg. dragons*/	\
 	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
 	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
+	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
 	/* end of list */
 
 

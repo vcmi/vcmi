@@ -100,7 +100,6 @@ const PrimarySkill PrimarySkill::ATTACK(0);
 const PrimarySkill PrimarySkill::DEFENSE(1);
 const PrimarySkill PrimarySkill::SPELL_POWER(2);
 const PrimarySkill PrimarySkill::KNOWLEDGE(3);
-const PrimarySkill PrimarySkill::EXPERIENCE(4);
 
 const BoatId BoatId::NONE(-1);
 const BoatId BoatId::NECROPOLIS(0);

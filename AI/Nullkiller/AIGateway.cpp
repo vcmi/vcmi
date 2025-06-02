@@ -326,6 +326,12 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	});
 }
 
+void AIGateway::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
+{
+	LOG_TRACE_PARAMS(logAi, "val '%i'", val);
+	NET_EVENT_HANDLER;
+}
+
 void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
 	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);

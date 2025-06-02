@@ -250,8 +250,6 @@ public:
 
 	static const std::array<PrimarySkill, 4> & ALL_SKILLS();
 
-	static const PrimarySkill EXPERIENCE;
-
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();

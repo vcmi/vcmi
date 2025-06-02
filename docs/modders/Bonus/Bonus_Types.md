@@ -190,6 +190,12 @@ Increases experience gain from all sources by affected heroes
 
 - val: additional experience bonus, percentage
 
+### STACK_EXPERIENCE_GAIN_PERCENT
+
+Increases experience gain from combat by affected units. No effect if stack experience is off. Has no effect on commanders
+
+- val: additional experience bonus, percentage
+
 ### UNDEAD_RAISE_PERCENTAGE
 
 Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by IMPROVED_NECROMANCY bonus

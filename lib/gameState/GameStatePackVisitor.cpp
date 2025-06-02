@@ -48,11 +48,28 @@ void GameStatePackVisitor::visitSetResources(SetResources & pack)
 	gs.getPlayerState(pack.player)->resources.positive();
 }
 
-void GameStatePackVisitor::visitSetPrimSkill(SetPrimSkill & pack)
+void GameStatePackVisitor::visitSetPrimarySkill(SetPrimarySkill & pack)
 {
 	CGHeroInstance * hero = gs.getHero(pack.id);
 	assert(hero);
 	hero->setPrimarySkill(pack.which, pack.val, pack.mode);
+}
+
+void GameStatePackVisitor::visitSetHeroExperience(SetHeroExperience & pack)
+{
+	CGHeroInstance * hero = gs.getHero(pack.id);
+	assert(hero);
+	hero->setExperience(pack.val, pack.mode);
+}
+
+void GameStatePackVisitor::visitGiveStackExperience(GiveStackExperience & pack)
+{
+	auto * army = gs.getArmyInstance(pack.id);
+
+	for (const auto & slot : pack.val)
+		army->getStackPtr(slot.first)->giveAverageStackExperience(slot.second);
+
+	army->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitSetSecSkill(SetSecSkill & pack)
@@ -1233,15 +1250,6 @@ void GameStatePackVisitor::visitBattleResultAccepted(BattleResultAccepted & pack
 		attackerHero->removeBonusesRecursive(Bonus::OneBattle);
 	if(const auto defenderHero = gs.getHero(pack.heroResult[BattleSide::DEFENDER].heroID))
 		defenderHero->removeBonusesRecursive(Bonus::OneBattle);
-
-	if(gs.getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-	{
-		if(const auto attackerArmy = gs.getArmyInstance(pack.heroResult[BattleSide::ATTACKER].armyID))
-			attackerArmy->giveAverageStackExperience(pack.heroResult[BattleSide::ATTACKER].exp);
-
-		if(const auto defenderArmy = gs.getArmyInstance(pack.heroResult[BattleSide::DEFENDER].armyID))
-			defenderArmy->giveAverageStackExperience(pack.heroResult[BattleSide::DEFENDER].exp);
-	}
 }
 
 void GameStatePackVisitor::visitBattleStackMoved(BattleStackMoved & pack)

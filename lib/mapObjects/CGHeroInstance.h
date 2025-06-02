@@ -193,6 +193,7 @@ public:
 	bool canLearnSkill() const;
 	bool canLearnSkill(const SecondarySkill & which) const;
 
+	void setExperience(si64 value, ChangeValueMode mode);
 	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode);
 	void setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode); // abs == 0 - changes by value; 1 - sets to value
 	void levelUp();

@@ -114,9 +114,19 @@ void SetResources::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetResources(*this);
 }
 
-void SetPrimSkill::visitTyped(ICPackVisitor & visitor)
+void SetPrimarySkill::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitSetPrimSkill(*this);
+	visitor.visitSetPrimarySkill(*this);
+}
+
+void SetHeroExperience::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetHeroExperience(*this);
+}
+
+void GiveStackExperience::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitGiveStackExperience(*this);
 }
 
 void SetSecSkill::visitTyped(ICPackVisitor & visitor)

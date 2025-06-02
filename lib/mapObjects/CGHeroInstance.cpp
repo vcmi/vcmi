@@ -1451,35 +1451,34 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRando
 	return skills;
 }
 
+
 void CGHeroInstance::setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode)
 {
-	if(primarySkill < PrimarySkill::EXPERIENCE)
-	{
-		auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
-			.And(Selector::subtype()(BonusSubtypeID(primarySkill)))
-			.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
-		assert(skill);
+	auto skill = getLocalBonus(Selector::type()(BonusType::PRIMARY_SKILL)
+		.And(Selector::subtype()(BonusSubtypeID(primarySkill)))
+		.And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)));
+	assert(skill);
 
-		if(mode == ChangeValueMode::ABSOLUTE)
-		{
-			skill->val = static_cast<si32>(value);
-		}
-		else
-		{
-			skill->val += static_cast<si32>(value);
-		}
-		nodeHasChanged();
-	}
-	else if(primarySkill == PrimarySkill::EXPERIENCE)
+	if(mode == ChangeValueMode::ABSOLUTE)
 	{
-		if(mode == ChangeValueMode::ABSOLUTE)
-		{
-			exp = value;
-		}
-		else
-		{
-			exp += value;
-		}
+		skill->val = static_cast<si32>(value);
+	}
+	else
+	{
+		skill->val += static_cast<si32>(value);
+	}
+	nodeHasChanged();
+}
+
+void CGHeroInstance::setExperience(si64 value, ChangeValueMode mode)
+{
+	if(mode == ChangeValueMode::ABSOLUTE)
+	{
+		exp = value;
+	}
+	else
+	{
+		exp += value;
 	}
 }
 
