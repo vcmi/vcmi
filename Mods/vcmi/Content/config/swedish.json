@@ -28,6 +28,11 @@
 	"vcmi.adventureMap.movementPointsHeroInfo"          : "(Färdpoäng: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented": "Tyvärr, att spela om motståndarens tur är inte implementerat ännu!",
 
+	"vcmi.adventureMap.dwelling2" : "{%s}\n\nVill du anlita enheten %s eller %s?",
+	"vcmi.adventureMap.dwelling3" : "{%s}\n\nVill du anlita enheten %s, %s eller %s?",
+
+	"vcmi.artifact.charges" : "Användning",
+
 	"vcmi.bonusSource.artifact" : "Artefakt",
 	"vcmi.bonusSource.creature" : "Förmåga",
 	"vcmi.bonusSource.spell"    : "Trollformel",
@@ -398,7 +403,10 @@
 	"vcmi.battleWindow.accurateShot.resultDescription.2": "%d %s dödades av träffsäkra skott!",
 	"vcmi.battleWindow.endWithAutocombat"               : "Är du säker på att du vill slutföra striden med auto-strid?",
 
-	"vcmi.battleResultsWindow.applyResultsLabel": "Acceptera stridsresultat?",
+	"vcmi.battleResultsWindow.applyResultsLabel"       : "Acceptera stridsresultat?",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0": "Återstående tid: %d stridsrundor",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1": "Återstående tid: %d stridsrunda",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2": "Återstående tid: %d stridsrundor",
 
 	"vcmi.tutorialWindow.title"                          : "Pekskärmsintroduktion",
 	"vcmi.tutorialWindow.decription.RightClick"          : "Rör vid och håll kvar det element som du vill högerklicka på. Tryck på det fria området för att stänga.",
@@ -619,7 +627,13 @@
 
 	"mapObject.core.hillFort.object.description": "Uppgraderar varelser. Nivåerna 1 - 4 är billigare än i associerad stad.",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dubbelslag}\nAttackerar två gånger.",
+	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Sårbarhetens klot}\nUnder strid upphäver detta klot den naturliga magiresistensen hos alla varelser på slagfältet.",
+	"creatures.core.angel.bonus.raisesMorale"            : "{Ökar allierades moral}\nÄnglar och ärkeänglar ökar allierade enheters moral med en poäng.",
+	"creatures.core.devil.bonus.decreaseLuck"            : "{Minskar fiendens lycka}\nDjävular och ärkedjävular minskar fiendens lycka med en poäng.",
+	"creatures.core.boneDragon.bonus.decreaseMorale"     : "{Minskar fiendens moral}\nBen- och spökdrakar minskar fiendens moral med en poäng.",
+	"creatures.core.marksman.bonus.extraAttack"          : "{Skjuter två gånger}\nDenna enhet kan skjuta två gånger per runda.",
+
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dubbelslag}\nAttackerar två gånger.", // Att göra: separata beskrivningar för närstrid/fjärrstrid
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ytterligare motattacker}\nKan slå tillbaka ${val} extra gång(er).",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attackera runtomkring}\nAttackerar alla angränsande fiender.",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Retaliera ej på avstånd}\nFienden kan inte retaliera på avstånd.",
@@ -638,21 +652,28 @@
 	"core.bonus.ENCHANTER.description" : "{Förtrollare}\nKastar mass-${subtype.spell} varje turomgång.",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Avfärda attack (${val}%)}\nIgnorerar ${val}% av angriparens attack.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Förbigå försvar (${val}%)}\nAttacker ignorerar ${val}% av fiendens försvar.",
-	"core.bonus.FEARLESS.description" : "{Orädd}\nImmun mot rädsla.",
 	"core.bonus.FEAR.description" : "{Rädsla}\nOrsakar rädsla på ett fiendeförband.",
+	"core.bonus.FEARLESS.description" : "{Orädd}\nImmun mot rädsla.",
 	"core.bonus.FEROCITY.description" : "{Vildsint}\n+${val} extra attack(er) om någon dödas.",
 	"core.bonus.FIRE_SHIELD.description" : "{Eldsköld (${val}%)}\nReflekterar en del av närstridsskadorna.",
+	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{Första slaget}\nRetalierar innan den träffas i närstrid.",
+	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged" : "{Första slaget}\nRetalierar innan den träffas av ett skjutvapen.",
 	"core.bonus.FIRST_STRIKE.description" : "{Första slaget}\nRetalierar innan den blir attackerad.",
+	"core.bonus.FLYING.description.bonusSubtype.movementTeleporting" : "{Teleportering}\nDenna enhet kan förflytta sig till valfri ruta och ignorerar hinder på slagfältet.",
 	"core.bonus.FLYING.description" : "{Flygande}\nFlyger vid förflyttning (ignorerar hinder).",
 	"core.bonus.FREE_SHOOTING.description" : "{Skjut på nära håll}\nAnvänd distansattacker på närstridsavstånd.",
 	"core.bonus.GARGOYLE.description" : "{Stenfigur}\nKan varken upplivas eller läkas.",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeMelee" : "{Skadereducering (${val}%)}\nReducerar fysisk skada från närstridsattacker med ${val}%",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeRanged" : "{Skadereducering (${val}%)}\nReducerar fysisk skada från fjärrstridsattacker med ${val}%",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description" : "{Skadereducering (${val}%)}\nReducerar skadan från fiendens attacker.",
 	"core.bonus.HATE.description" : "{Hatar: ${subtype.creature}}\nGör ${val}% mer skada mot ${subtype.creature}.",
 	"core.bonus.HEALER.description" : "{Helare}\nHelar/läker allierade enheter.",
 	"core.bonus.HP_REGENERATION.description" : "{Självläkande}\nÅterfår ${val} hälsa (träffpoäng) varje runda.",
 	"core.bonus.INVINCIBLE.description" : "{Oövervinnerlig}\nKan inte påverkas av någonting.",
 	"core.bonus.JOUSTING.description" : "{Galopperande ridanfall}\n+${val}% skada per rutförflyttning före attack.",
-	"core.bonus.KING.description" : "{Kung}\nSårbar för Dräpar-nivå ${val} eller högre.",
+	"core.bonus.KING.description.2" : "{Utvecklad elitvarelse}\nSårbar för 'Jättedräpar-attacker' på utvecklad nivå.",
+	"core.bonus.KING.description.3" : "{Mästerlig elitvarelse}\nSårbar för 'Jättedräpar-attacker' på mästerlig nivå.",
+	"core.bonus.KING.description" : "{Elitvarelse}\nSårbar för 'Jättedräpar-attacker' av nivå ${val} eller högre.",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.description" : "{Trolldomsimmunitet 1-${val}}\nImmun mot nivå 1-${val}-trollformler.",
 	"core.bonus.LIFE_DRAIN.description" : "{Dränera livskraft (${val}%)}\nDränera ${val}% hälsa av den vållade skadan.",
 	"core.bonus.LIMITED_SHOOTING_RANGE.description" : "{Begränsad skjuträckvidd}\nSkjuträckvidd: ${val} rutor.",
@@ -722,5 +743,16 @@
 	"spell.core.strongholdMoat.name"       : "Spetsiga pålar",
 	"spell.core.strongholdMoatTrigger.name": "Spetsiga pålar",
 	"spell.core.summonDemons.name"         : "Åkalla demoner",
-	"spell.core.towerMoat.name"            : "Landmina"
+	"spell.core.towerMoat.name"            : "Landmina",
+
+	"spell.core.stoneGaze.description.none"    : "{Förstenande blick}\n\nDen drabbade enheten förstenas och kan inte förflytta sig under tre rundor. Om den attackeras åsamkas den endast 50% skada och effekten av förtrollningen upphör.",
+	"spell.core.poison.description.none"       : "{Förgifta}\n\nDen förgiftade enhetens maximala hälsokapacitet minskar med 10% varje stridsrunda under tre rundor. Efter tre rundor försvinner giftet, men enhetens förminskade hälsokapacitet kvarstår.",
+	"spell.core.bind.description.none"         : "{Binda fast}\n\nDen drabbade enheten binds och kan inte förflytta sig förrän den enhet som håller fast den förflyttar sig eller blir tillintetgjord.",
+	"spell.core.disease.description.none"      : "{Sjukdom}\n\nDen levande målenheten blir sjuk och har under tre rundor en minskad attack- och försvarsförmåga med två poäng.",
+	"spell.core.paralyze.description.none"     : "{Förlama}\n\nFörlamade varelser förlorar sin tur resten av den aktuella stridsrundan och de två följande, såvida de inte attackeras. De tar full skada från attacker men kan endast slå tillbaka med en fjärdedel av sin styrka.",
+	"spell.core.age.description.none"          : "{Föråldra}\n\nFöråldrande halverar den maximala hälsokapaciteten för alla varelser i målenheten till 50% under tre rundor.",
+	"spell.core.deathCloud.description.none"   : "{Dödligt moln}\n\nFörutom normal skada från distansattacker i målhexagonen, skapar dödsmolnet en 'dödspuff' som sprider sig till de sex angränsande hexagonerna och skadar alla levande varelser inom dess radie.",
+	"spell.core.thunderbolt.description.none"  : "{Åskblixt}\n\nVid en attack har enheten 20% chans att utlösa en åskblixt som orsakar extra skada innan fiendens motattack. Åskblixtens skada är lika med tio gånger antalet angripande åskfåglar.",
+	"spell.core.dispelHelpful.description.none": "{Bryt hjälpande förtrollningar}\n\nTar bort alla magiska effekter som är fördelaktiga från målenheten.",
+	"spell.core.acidBreath.description.none"   : "{Frätande andedräkt}\n\nAndedräkten minskar målenhetens försvar med 3 poäng och har 20% chans att orsaka ytterligare skada på 25 poäng för varje angripande enhet."
 }
