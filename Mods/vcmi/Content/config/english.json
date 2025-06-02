@@ -629,7 +629,7 @@
 	
 	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Orb of Vulnerability}\nNegates natural magic resistance of all creatures on the battlefield",
 	"creatures.core.angel.bonus.raisesMorale" : "{Increases allies morale}\nAngels and Archangels increase allies Morale by one",
-	"creatures.core.devil.bonus.descreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
+	"creatures.core.devil.bonus.decreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
 	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
 
