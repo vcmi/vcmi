@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CMapService.h"
 
+#include "MapFormatSettings.h"
+
 #include "../json/JsonUtils.h"
 #include "../filesystem/Filesystem.h"
 #include "../filesystem/CBinaryReader.h"
@@ -163,23 +165,11 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 	}
 }
 
-static JsonNode loadPatches(const std::string & path)
-{
-	JsonNode node = JsonUtils::assembleFromFiles(path);
-	for (auto & entry : node.Struct())
-		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
-
-	node.setModScope(ModScope::scopeMap());
-	return node;
-}
-
 std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName)
 {
-	static const JsonNode node = loadPatches("config/mapOverrides.json");
-
 	boost::to_lower(scenarioName);
 	logGlobal->debug("Request to patch map %s", scenarioName);
-	return std::unique_ptr<IMapPatcher>(new CMapPatcher(node[scenarioName]));
+	return std::unique_ptr<IMapPatcher>(new CMapPatcher(LIBRARY->mapFormat->mapOverrides(scenarioName)));
 }
 
 VCMI_LIB_NAMESPACE_END

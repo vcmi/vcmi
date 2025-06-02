@@ -16,6 +16,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../json/JsonUtils.h"
+#include "../modding/ModScope.h"
 
 MapIdentifiersH3M MapFormatSettings::generateMapping(EMapFormat format)
 {
@@ -83,6 +84,10 @@ MapFormatSettings::MapFormatSettings()
 	, campaignOverridesConfig(JsonUtils::assembleFromFiles("config/campaignOverrides.json"))
 	, mapOverridesConfig(JsonUtils::assembleFromFiles("config/mapOverrides.json"))
 {
+	for (auto & entry : mapOverridesConfig.Struct())
+		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+
+	mapOverridesConfig.setModScope(ModScope::scopeMap());
 }
 
 VCMI_LIB_NAMESPACE_END
