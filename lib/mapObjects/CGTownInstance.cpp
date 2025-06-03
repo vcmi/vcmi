@@ -201,7 +201,7 @@ int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds,
 		const auto & dwellingCreatures = dwelling->asOwnable()->providedCreatures();
 		bool hasMatch = false;
 		for (const auto& creature : dwellingCreatures)
-			hasMatch = vstd::contains(creatureIds, creature);
+			hasMatch |= vstd::contains(creatureIds, creature);
 
 		if (hasMatch)
 			totalBonus += 1;
