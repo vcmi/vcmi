@@ -189,22 +189,10 @@ void CMinimap::showAll(Canvas & to)
 	{
 		int3 mapSizes = GAME->interface()->cb->getMapSize();
 
-		//draw radar
-		Rect radar =
-		{
-			screenArea.x * pos.w / mapSizes.x,
-			screenArea.y * pos.h / mapSizes.y,
-			screenArea.w * pos.w / mapSizes.x - 1,
-			screenArea.h * pos.h / mapSizes.y - 1
-		};
-
 		Canvas clippedTarget(to, pos);
-		clippedTarget.drawBorderDashed(radar, Colors::PURPLE);
 
 		if (settings["adventure"]["minimapShowHeroes"].Bool())
 		{
-			static const auto image = ENGINE->renderHandler().loadImage(ImagePath::builtin("minimapIcons/hero"), EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR);
-
 			for (const auto objectID : visibleHeroes)
 			{
 				const auto * object = GAME->interface()->cb->getObj(objectID);
@@ -212,10 +200,20 @@ void CMinimap::showAll(Canvas & to)
 				if (object->anchorPos().z != level)
 					continue;
 
-				image->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
-				clippedTarget.draw(image, tileToPixels(object->visitablePos()) - image->dimensions() / 2);
+				heroIcon->setOverlayColor(graphics->playerColors[object->getOwner().getNum()]);
+				clippedTarget.draw(heroIcon, tileToPixels(object->visitablePos()) - heroIcon->dimensions() / 2);
 			}
 		}
+
+		//draw radar
+		Rect radar =
+			{
+				screenArea.x * pos.w / mapSizes.x,
+				screenArea.y * pos.h / mapSizes.y,
+				screenArea.w * pos.w / mapSizes.x - 1,
+				screenArea.h * pos.h / mapSizes.y - 1
+			};
+		clippedTarget.drawBorderDashed(radar, Colors::PURPLE);
 	}
 }
 
