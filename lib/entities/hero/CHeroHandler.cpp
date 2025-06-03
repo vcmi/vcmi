@@ -21,6 +21,7 @@
 #include "../../json/JsonBonus.h"
 #include "../../json/JsonUtils.h"
 #include "../../modding/IdentifierStorage.h"
+#include "../../CSkillHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -140,7 +141,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 }
 
 /// creates standard H3 hero specialty for creatures
-static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid)
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(CreatureID cid) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
 
@@ -174,6 +175,19 @@ static std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID ci
 		bonus->updater.reset(new GrowsWithLevelUpdater(specCreature.getDefense(false), stepSize));
 		result.push_back(bonus);
 	}
+	return result;
+}
+
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(SecondarySkill skillID) const
+{
+	std::vector<std::shared_ptr<Bonus>> result;
+	const auto & skillPtr = LIBRARY->skillh->objects[skillID.getNum()];
+
+	if (skillPtr->specialtyTargetBonuses.empty())
+		logMod->warn("Skill '%s' does not supports generic specialties!", skillPtr->getJsonKey());
+
+	for (const auto & bonus : skillPtr->specialtyTargetBonuses)
+		result.push_back(std::make_shared<Bonus>(*bonus));
 
 	return result;
 }
@@ -201,15 +215,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 	}
 }
 
-void CHeroHandler::afterLoadFinalization()
-{
-	for(const auto & functor : callAfterLoadFinalization)
-		functor();
-
-	callAfterLoadFinalization.clear();
-}
-
-void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
+void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 {
 	auto prepSpec = [=](std::shared_ptr<Bonus> bonus)
 	{
@@ -230,18 +236,21 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	//creature specialty - alias for simplicity
 	if(!specialtyNode["creature"].isNull())
 	{
-		JsonNode creatureNode = specialtyNode["creature"];
-
-		std::function<void()> specialtyLoader = [creatureNode, hero, prepSpec]
+		LIBRARY->identifiers()->requestIdentifier("creature", specialtyNode["creature"], [this, hero, prepSpec](si32 creature)
 		{
-			LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [hero, prepSpec](si32 creature)
-			{
-				for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
-					hero->specialty.push_back(prepSpec(bonus));
-			});
-		};
+			for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
+				hero->specialty.push_back(prepSpec(bonus));
+		});
+	}
 
-		callAfterLoadFinalization.push_back(specialtyLoader);
+	//secondary skill specialty - alias for simplicity
+	if(!specialtyNode["secondary"].isNull())
+	{
+		LIBRARY->identifiers()->requestIdentifier("secondarySkill", specialtyNode["secondary"], [this, hero, prepSpec](si32 creature)
+		{
+			for (const auto & bonus : createSecondarySkillSpecialty(SecondarySkill(creature)))
+				hero->specialty.push_back(prepSpec(bonus));
+		});
 	}
 
 	for(const auto & keyValue : specialtyNode["bonuses"].Struct())

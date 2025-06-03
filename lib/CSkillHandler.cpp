@@ -14,16 +14,14 @@
 
 #include "CSkillHandler.h"
 
+#include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
-#include "modding/ModUtility.h"
-#include "modding/ModScope.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "texts/TextOperations.h"
 #include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -252,6 +250,23 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
+	}
+
+	for(const auto & b : json["specialty"].Vector())
+	{
+		const auto & bonusNode = json["basic"]["effects"][b.String()];
+
+		if (bonusNode.isStruct())
+		{
+			auto bonus = JsonUtils::parseBonus(bonusNode);
+			bonus->val = 5; // default H3 value, hardcoded for now
+			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
+			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
+			skill->specialtyTargetBonuses.push_back(bonus);
+		}
+		else
+			logMod->warn("Failed to load speciality bonus '%s' for skill '%s'", b.String(), identifier);
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, skill->id.getNum());
 

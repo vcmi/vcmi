@@ -43,7 +43,7 @@
 			}
 		}
 	},
-	"required" : ["name", "basic", "advanced", "expert"],
+	"required" : ["name", "basic", "advanced", "expert", "specialty", "gainChance" ],
 	"properties" : {
 		"name" : {
 			"type" : "string",
@@ -60,6 +60,11 @@
 		"obligatoryMinor" : {
 			"type" : "boolean",
 			"description" : "This skill is minor obligatory (like H3 Magic school)"
+		},
+		"specialty" : {
+			"type" : "array",
+			"description" : "List of bonuses that are affected by hero specialty",
+			"items" : { "type" : "string" }
 		},
 		"gainChance" : {
 			"description" : "Chance for the skill to be offered on level-up (heroClass may override)",

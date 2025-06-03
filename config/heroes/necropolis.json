@@ -85,15 +85,7 @@
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"necromancy" : {
-					"type" : "UNDEAD_RAISE_PERCENTAGE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "necromancy"
 		}
 	},
 	"clavius":
@@ -188,16 +180,7 @@
 			{ "skill" : "sorcery", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"sorcery" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "SPELL_DAMAGE",
-					"subtype" : "spellSchool.any",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "sorcery"
 		}
 	},
 	"nimbus":
@@ -212,15 +195,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"thant":
@@ -277,15 +252,7 @@
 			{ "skill" : "necromancy", "level": "advanced" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"necromancy" : {
-					"type" : "UNDEAD_RAISE_PERCENTAGE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "necromancy"
 		}
 	},
 	"nagash":
