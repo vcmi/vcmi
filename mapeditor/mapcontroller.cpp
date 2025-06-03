@@ -370,7 +370,7 @@ void MapController::copyToClipboard(int level)
 	for(auto * obj : selectedObjects)
 	{
 		assert(obj->pos.z == level);
-		_clipboard.push_back(CMemorySerializer::deepCopy(*obj));
+		_clipboard.push_back(CMemorySerializer::deepCopy(*obj, _cb.get()));
 	}
 }
 
@@ -385,7 +385,7 @@ void MapController::pasteFromClipboard(int level)
 	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
-		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr);
+		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr, _cb.get());
 		QString errorMsg;
 		if(!canPlaceObject(obj.get(), errorMsg))
 		{
