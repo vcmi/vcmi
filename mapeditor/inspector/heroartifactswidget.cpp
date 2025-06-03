@@ -31,7 +31,6 @@ HeroArtifactsWidget::HeroArtifactsWidget(MapController & controller, CGHeroInsta
 
 	connect(ui->saveButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onSaveButtonClicked);
 	connect(ui->cancelButton, &QPushButton::clicked, this, &HeroArtifactsWidget::onCancelButtonClicked);
-
 }
 
 HeroArtifactsWidget::~HeroArtifactsWidget()
@@ -43,8 +42,7 @@ void HeroArtifactsWidget::on_addButton_clicked()
 {
 	auto * artifactWidget = new ArtifactWidget(fittingSet, this);
 	connect(artifactWidget, &ArtifactWidget::saveArtifact, this, &HeroArtifactsWidget::onSaveArtifact);
-	artifactWidget->exec();
-	artifactWidget->deleteLater();
+	artifactWidget->open();
 }
 
 void HeroArtifactsWidget::on_removeButton_clicked()
