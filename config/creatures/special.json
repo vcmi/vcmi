@@ -179,6 +179,7 @@
 			"noDistancePenalty" : { "type" : "NO_DISTANCE_PENALTY" },
 			"noRetalitation" : { "type" : "BLOCKS_RANGED_RETALIATION" },
 			"noLuck" : { "type" : "NO_LUCK" }
+			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
 		},
 		"graphics" :
 		{
