@@ -22,9 +22,13 @@ class DLL_LINKAGE CampaignRegions
 	friend class CampaignProperties;
 	friend class ScenarioProperties;
 
+	/// Shared prefix for all campaign images
 	std::string campPrefix;
+	/// Suffix for enabled/selected/completed campaign region maps
 	std::vector<std::string> campSuffix;
+	/// Custom background name for campaign
 	std::string campBackground;
+	/// Lookup scheme for colored campaign images location
 	int colorSuffixLength = 0;
 
 	struct DLL_LINKAGE RegionDescription
@@ -40,8 +44,9 @@ class DLL_LINKAGE CampaignRegions
 			h & labelPos;
 		}
 
-		static CampaignRegions::RegionDescription fromJson(const JsonNode & node);
-		static JsonNode toJson(CampaignRegions::RegionDescription & rd);
+		RegionDescription() = default;
+		explicit RegionDescription(const JsonNode & node);
+		JsonNode toJson() const;
 	};
 
 	std::vector<RegionDescription> regions;
@@ -69,9 +74,7 @@ public:
 		h & campBackground;
 	}
 
-
-	static JsonNode toJson(CampaignRegions cr);
-	static CampaignRegions getLegacy(int campId);
+	JsonNode toJson() const;
 };
 
 VCMI_LIB_NAMESPACE_END

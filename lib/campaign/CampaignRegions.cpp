@@ -14,28 +14,26 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CampaignRegions::RegionDescription CampaignRegions::RegionDescription::fromJson(const JsonNode & node)
+CampaignRegions::RegionDescription::RegionDescription(const JsonNode & node)
 {
-	CampaignRegions::RegionDescription rd;
-	rd.infix = node["infix"].String();
-	rd.pos = Point(static_cast<int>(node["x"].Float()), static_cast<int>(node["y"].Float()));
+	infix = node["infix"].String();
+	pos = Point(static_cast<int>(node["x"].Float()), static_cast<int>(node["y"].Float()));
 	if(!node["labelPos"].isNull())
-		rd.labelPos = Point(static_cast<int>(node["labelPos"]["x"].Float()), static_cast<int>(node["labelPos"]["y"].Float()));
+		labelPos = Point(static_cast<int>(node["labelPos"]["x"].Float()), static_cast<int>(node["labelPos"]["y"].Float()));
 	else
-		rd.labelPos = std::nullopt;
-	return rd;
+		labelPos = std::nullopt;
 }
 
-JsonNode CampaignRegions::RegionDescription::toJson(CampaignRegions::RegionDescription & rd)
+JsonNode CampaignRegions::RegionDescription::toJson() const
 {
 	JsonNode node;
-	node["infix"].String() = rd.infix;
-	node["x"].Float() = rd.pos.x;
-	node["y"].Float() = rd.pos.y;
-	if(rd.labelPos != std::nullopt)
+	node["infix"].String() = infix;
+	node["x"].Float() = pos.x;
+	node["y"].Float() = pos.y;
+	if(labelPos != std::nullopt)
 	{
-		node["labelPos"]["x"].Float() = (*rd.labelPos).x;
-		node["labelPos"]["y"].Float() = (*rd.labelPos).y;
+		node["labelPos"]["x"].Float() = (*labelPos).x;
+		node["labelPos"]["y"].Float() = (*labelPos).y;
 	}
 	else
 		node["labelPos"].clear();
@@ -50,39 +48,26 @@ CampaignRegions::CampaignRegions(const JsonNode & node)
 	campBackground = node["background"].isNull() ? "" : node["background"].String();
 
 	for(const JsonNode & desc : node["desc"].Vector())
-		regions.push_back(CampaignRegions::RegionDescription::fromJson(desc));
+		regions.push_back(CampaignRegions::RegionDescription(desc));
 }
 
-JsonNode CampaignRegions::toJson(CampaignRegions cr)
+JsonNode CampaignRegions::toJson() const
 {
 	JsonNode node;
-	node["prefix"].String() = cr.campPrefix;
-	node["colorSuffixLength"].Float() = cr.colorSuffixLength;
-	if(cr.campSuffix.empty())
+	node["prefix"].String() = campPrefix;
+	node["colorSuffixLength"].Float() = colorSuffixLength;
+	if(campSuffix.empty())
 		node["suffix"].clear();
 	else
-		node["suffix"].Vector() = JsonVector{ JsonNode(cr.campSuffix[0]), JsonNode(cr.campSuffix[1]), JsonNode(cr.campSuffix[2]) };
-	if(cr.campBackground.empty())
+		node["suffix"].Vector() = JsonVector{ JsonNode(campSuffix[0]), JsonNode(campSuffix[1]), JsonNode(campSuffix[2]) };
+	if(campBackground.empty())
 		node["background"].clear();
 	else
-		node["background"].String() = cr.campBackground;
+		node["background"].String() = campBackground;
 	node["desc"].Vector() = JsonVector();
-	for(auto & region : cr.regions)
-		node["desc"].Vector().push_back(CampaignRegions::RegionDescription::toJson(region));
+	for(const auto & region : regions)
+		node["desc"].Vector().push_back(region.toJson());
 	return node;
-}
-
-CampaignRegions CampaignRegions::getLegacy(int campId)
-{
-	static std::vector<CampaignRegions> campDescriptions;
-	if(campDescriptions.empty()) //read once
-	{
-		const JsonNode config(JsonPath::builtin("config/campaign_regions.json"));
-		for(const JsonNode & campaign : config["campaign_regions"].Vector())
-			campDescriptions.push_back(CampaignRegions(campaign));
-	}
-
-	return campDescriptions.at(campId);
 }
 
 ImagePath CampaignRegions::getBackgroundName() const

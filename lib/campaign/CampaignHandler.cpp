@@ -176,7 +176,7 @@ JsonNode CampaignHandler::writeHeaderToJson(CampaignHeader & header)
 {
 	JsonNode node;
 	node["version"].Integer() = static_cast<ui64>(CampaignVersion::VCMI);
-	node["regions"] = CampaignRegions::toJson(header.campaignRegions);
+	node["regions"] = header.campaignRegions.toJson();
 	node["name"].String() = header.name.toString();
 	node["description"].String() = header.description.toString();
 	node["author"].String() = header.author.toString();
