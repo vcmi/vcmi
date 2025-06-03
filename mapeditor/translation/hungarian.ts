@@ -553,7 +553,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="348"/>
+        <location filename="../mainwindow.cpp" line="349"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI térképszerkesztő</translation>
     </message>
@@ -707,8 +707,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1083"/>
         <location filename="../mainwindow.ui" line="1086"/>
-        <location filename="../mainwindow.cpp" line="954"/>
-        <location filename="../mainwindow.cpp" line="955"/>
+        <location filename="../mainwindow.cpp" line="959"/>
+        <location filename="../mainwindow.cpp" line="960"/>
         <source>View underground</source>
         <translation>Földalatti nézet</translation>
     </message>
@@ -855,9 +855,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1240"/>
-        <location filename="../mainwindow.cpp" line="1227"/>
-        <location filename="../mainwindow.cpp" line="1231"/>
-        <location filename="../mainwindow.cpp" line="1288"/>
+        <location filename="../mainwindow.cpp" line="1238"/>
+        <location filename="../mainwindow.cpp" line="1242"/>
+        <location filename="../mainwindow.cpp" line="1299"/>
         <source>Update appearance</source>
         <translation>Megjelenés frissítése</translation>
     </message>
@@ -1049,240 +1049,265 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="324"/>
+        <location filename="../mainwindow.cpp" line="325"/>
         <source>Confirmation</source>
         <translation>Megerősítés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="324"/>
+        <location filename="../mainwindow.cpp" line="325"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Nem mentett változások el fognak veszni, biztos benne?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="398"/>
+        <location filename="../mainwindow.cpp" line="403"/>
         <source>Mods are required</source>
         <translation>Modok szükségesek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="403"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>Failed to open map</source>
         <translation>Nem sikerült a térkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="429"/>
+        <location filename="../mainwindow.cpp" line="434"/>
         <source>Open map</source>
         <translation>Térkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="431"/>
+        <location filename="../mainwindow.cpp" line="436"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Minden támogatott térkép (*.vmap *.h3m);;VCMI térképek (*.vmap);;HoMM3 térképek (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="485"/>
+        <location filename="../mainwindow.cpp" line="490"/>
         <source>Recently Opened Files</source>
         <translation>Legutóbb megnyitott fájlok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="538"/>
+        <location filename="../mainwindow.cpp" line="543"/>
         <source>Map validation</source>
         <translation>Térkép érvényesítése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="540"/>
+        <location filename="../mainwindow.cpp" line="545"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>A térképen kritikus hibák vannak, és valószínűleg nem játszható. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="542"/>
+        <location filename="../mainwindow.cpp" line="547"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>A térképen hibák vannak. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="566"/>
+        <location filename="../mainwindow.cpp" line="571"/>
         <source>Failed to save map</source>
         <translation>Nem sikerült a térkép mentése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="584"/>
         <source>Save map</source>
         <translation>Térkép mentése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="584"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI térképek (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="776"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="789"/>
+        <location filename="../mainwindow.cpp" line="794"/>
         <source>Towns</source>
         <translation>Városok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="790"/>
+        <location filename="../mainwindow.cpp" line="795"/>
         <source>Objects</source>
         <translation>Objektumok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="791"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>Heroes</source>
         <translation>Hősök</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="792"/>
+        <location filename="../mainwindow.cpp" line="797"/>
         <source>Artifacts</source>
         <translation>Tárgyak</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="793"/>
+        <location filename="../mainwindow.cpp" line="798"/>
         <source>Resources</source>
         <translation>Erőforrások</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="794"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Banks</source>
         <translation>Bankok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="795"/>
+        <location filename="../mainwindow.cpp" line="800"/>
         <source>Dwellings</source>
         <translation>Lakhelyek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="796"/>
+        <location filename="../mainwindow.cpp" line="801"/>
         <source>Grounds</source>
         <translation>Talajok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="802"/>
         <source>Teleports</source>
         <translation>Teleportok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="798"/>
+        <location filename="../mainwindow.cpp" line="803"/>
         <source>Mines</source>
         <translation>Bányák</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="799"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Triggers</source>
         <translation>Indítók</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="800"/>
+        <location filename="../mainwindow.cpp" line="805"/>
         <source>Monsters</source>
         <translation>Szörnyek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="801"/>
+        <location filename="../mainwindow.cpp" line="806"/>
         <source>Quests</source>
         <translation>Küldetések</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="802"/>
+        <location filename="../mainwindow.cpp" line="807"/>
         <source>Wog Objects</source>
         <translation>Wog Objektumok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="803"/>
+        <location filename="../mainwindow.cpp" line="808"/>
         <source>Obstacles</source>
         <translation>Akadályok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="804"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>Other</source>
         <translation>Egyéb</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Mods loading problem</source>
         <translation>Mod betöltési probléma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>Kritikus hiba történt a Modok betöltése során. Tiltsa le az érvénytelen modokat és indítsa újra.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="959"/>
-        <location filename="../mainwindow.cpp" line="960"/>
+        <location filename="../mainwindow.cpp" line="964"/>
+        <location filename="../mainwindow.cpp" line="965"/>
         <source>View surface</source>
         <translation>Felszín megtekintése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1238"/>
         <source>No objects selected</source>
         <translation>Nincs kiválasztott objektum</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1231"/>
+        <location filename="../mainwindow.cpp" line="1242"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Ez a művelet visszafordíthatatlan. Folytatja?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1288"/>
+        <location filename="../mainwindow.cpp" line="1299"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Hibák történtek. %1 objektum nem lett frissítve</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1328"/>
+        <location filename="../mainwindow.cpp" line="1339"/>
         <source>Save to image</source>
         <translation>Mentés képként</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1347"/>
+        <location filename="../mainwindow.cpp" line="1358"/>
         <source>Select maps to convert</source>
         <translation>Térképek kiválasztása konvertáláshoz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1349"/>
+        <location filename="../mainwindow.cpp" line="1360"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>HoMM3 térképek (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1353"/>
+        <location filename="../mainwindow.cpp" line="1364"/>
         <source>Choose directory to save converted maps</source>
         <translation>Könyvtár kiválasztása a konvertált térképek mentéséhez</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1366"/>
+        <location filename="../mainwindow.cpp" line="1377"/>
         <source>Operation completed</source>
         <translation>Művelet befejezve</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1366"/>
+        <location filename="../mainwindow.cpp" line="1377"/>
         <source>Successfully converted %1 maps</source>
         <translation>Sikeresen konvertálva: %1 térkép</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1370"/>
+        <location filename="../mainwindow.cpp" line="1381"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Nem sikerült a térkép konvertálása. Művelet megszakítva</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1376"/>
+        <location filename="../mainwindow.cpp" line="1387"/>
         <source>Select campaign to convert</source>
         <translation>Kampány kiválasztása konvertáláshoz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1378"/>
+        <location filename="../mainwindow.cpp" line="1389"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>HoMM3 kampányok (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1382"/>
+        <location filename="../mainwindow.cpp" line="1393"/>
         <source>Select destination file</source>
         <translation>Célfájl kiválasztása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1384"/>
+        <location filename="../mainwindow.cpp" line="1395"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>VCMI kampányok (*.vcmp)</translation>
+    </message>
+</context>
+<context>
+    <name>MapController</name>
+    <message>
+        <location filename="../mapcontroller.cpp" line="591"/>
+        <source>Hero %1 cannot be created as NEUTRAL.</source>
+        <translation type="unfinished">A(z) %1 hős nem hozható létre SEMLEGESKÉNT.</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="605"/>
+        <source>Missing Required Mod</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="605"/>
+        <source>
+
+Do you want to do that now ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="615"/>
+        <source>This object&apos;s mod is mandatory for map to remain valid.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1476,6 +1501,29 @@
     </message>
 </context>
 <context>
+    <name>PlayerSelectionDialog</name>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="45"/>
+        <source>Select Player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="54"/>
+        <source>Hero cannot be created as NEUTRAL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="60"/>
+        <source>Switch to one of the available players:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="89"/>
+        <source>Shortcut: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PlayerSettings</name>
     <message>
         <location filename="../playersettings.ui" line="20"/>
@@ -1520,27 +1568,27 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="20"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="22"/>
         <source>Beginner</source>
         <translation>Kezdő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="21"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="23"/>
         <source>Advanced</source>
         <translation>Haladó</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="22"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
         <source>Expert</source>
         <translation>Szakértő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="166"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="168"/>
         <source>Default secondary skills:</source>
         <translation>Alapértelmezett másodlagos képességek:</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="171"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="173"/>
         <source>Secondary skills:</source>
         <translation>Másodlagos képességek:</translation>
     </message>
@@ -1896,34 +1944,41 @@
         <translation>NEM ZÁSZLÓZHATÓ</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="385"/>
+        <location filename="../mapcontroller.cpp" line="391"/>
         <source>Can&apos;t place object</source>
         <translation>Nem lehet objektumot elhelyezni</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="555"/>
+        <location filename="../mapcontroller.cpp" line="573"/>
         <source>There can only be one grail object on the map.</source>
         <translation>Csak egy Szent Grál objektum lehet a térképen.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="561"/>
-        <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation>A(z) %1 hős nem hozható létre SEMLEGESKÉNT.</translation>
+        <location filename="../mapcontroller.cpp" line="628"/>
+        <source> (submod of %1)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="145"/>
-        <location filename="../inspector/townspellswidget.cpp" line="175"/>
+        <location filename="../mapcontroller.cpp" line="630"/>
+        <source>The mod &apos;%1&apos;%2, is required by an object on the map.
+Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
+        <comment>should be consistent with Map-&gt;General menu entry translation</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.cpp" line="147"/>
+        <location filename="../inspector/townspellswidget.cpp" line="177"/>
         <source>Custom Spells:</source>
         <translation>Egyéni varázslatok:</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="154"/>
-        <location filename="../inspector/townspellswidget.cpp" line="195"/>
+        <location filename="../inspector/herospellwidget.cpp" line="156"/>
+        <location filename="../inspector/townspellswidget.cpp" line="197"/>
         <source>Default Spells</source>
         <translation>Alapértelmezett varázslatok</translation>
     </message>
     <message>
-        <location filename="../inspector/portraitwidget.cpp" line="145"/>
+        <location filename="../inspector/portraitwidget.cpp" line="147"/>
         <source>Default</source>
         <translation>Alapértelmezett</translation>
     </message>
@@ -1944,13 +1999,13 @@
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
-        <location filename="../inspector/rewardswidget.cpp" line="768"/>
+        <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Hero Level: %1</source>
         <translation>Hős szint: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
-        <location filename="../inspector/rewardswidget.cpp" line="769"/>
+        <location filename="../inspector/rewardswidget.cpp" line="770"/>
         <source>Hero Experience: %1</source>
         <translation>Hős tapasztalat: %1</translation>
     </message>
@@ -1961,43 +2016,43 @@
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
-        <location filename="../inspector/rewardswidget.cpp" line="771"/>
+        <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Mana Percentage: %1</source>
         <translation>Mana százalék: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
-        <location filename="../inspector/rewardswidget.cpp" line="774"/>
+        <location filename="../inspector/rewardswidget.cpp" line="775"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Elsődleges képességek: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="466"/>
-        <location filename="../inspector/rewardswidget.cpp" line="786"/>
+        <location filename="../inspector/rewardswidget.cpp" line="787"/>
         <source>Resources: %1</source>
         <translation>Erőforrások: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="473"/>
-        <location filename="../inspector/rewardswidget.cpp" line="792"/>
+        <location filename="../inspector/rewardswidget.cpp" line="793"/>
         <source>Artifacts: %1</source>
         <translation>Tárgyak: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="480"/>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/rewardswidget.cpp" line="799"/>
         <source>Spells: %1</source>
         <translation>Varázslatok: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="487"/>
-        <location filename="../inspector/rewardswidget.cpp" line="804"/>
+        <location filename="../inspector/rewardswidget.cpp" line="805"/>
         <source>Secondary Skills: %1</source>
         <translation>Másodlagos képességek: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="494"/>
-        <location filename="../inspector/rewardswidget.cpp" line="810"/>
+        <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Creatures: %1</source>
         <translation>Egységek: %1</translation>
     </message>
@@ -2017,37 +2072,37 @@
         <translation>Játékosok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="764"/>
+        <location filename="../inspector/rewardswidget.cpp" line="765"/>
         <source>Rewards:</source>
         <translation>Jutalmak:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="767"/>
+        <location filename="../inspector/rewardswidget.cpp" line="768"/>
         <source>Reward Message: %1</source>
         <translation>Jutalom üzenet: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="770"/>
+        <location filename="../inspector/rewardswidget.cpp" line="771"/>
         <source>Mana Diff: %1</source>
         <translation>Mana különbség: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="772"/>
+        <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Move Points: %1</source>
         <translation>Mozgáspontok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="773"/>
+        <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Move Percentage: %1</source>
         <translation>Mozgás százalék: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="813"/>
+        <location filename="../inspector/rewardswidget.cpp" line="814"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Varázslat használat: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="820"/>
+        <location filename="../inspector/rewardswidget.cpp" line="821"/>
         <source>Bonuses: %1</source>
         <translation>Bónuszok: %1</translation>
     </message>
@@ -2067,12 +2122,12 @@
         <translation>Városi események:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="176"/>
+        <location filename="../inspector/townspellswidget.cpp" line="178"/>
         <source>Required:</source>
         <translation>Szükséges:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="183"/>
+        <location filename="../inspector/townspellswidget.cpp" line="185"/>
         <source>Possible:</source>
         <translation>Lehetséges:</translation>
     </message>
@@ -2473,18 +2528,18 @@
         <translation>Játékosok</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="49"/>
+        <location filename="../inspector/rewardswidget.cpp" line="50"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="51"/>
+        <location filename="../inspector/rewardswidget.cpp" line="52"/>
         <source>Day %1</source>
         <translation>Nap %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="242"/>
-        <location filename="../inspector/rewardswidget.cpp" line="613"/>
+        <location filename="../inspector/rewardswidget.cpp" line="243"/>
+        <location filename="../inspector/rewardswidget.cpp" line="614"/>
         <source>Reward %1</source>
         <translation>Jutalom %1</translation>
     </message>
@@ -2836,7 +2891,7 @@
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
         <location filename="../campaigneditor/startingbonus.ui" line="184"/>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="326"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="335"/>
         <source>Building</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2863,14 +2918,14 @@
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
         <location filename="../campaigneditor/startingbonus.ui" line="364"/>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="334"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="343"/>
         <source>Secondary skill</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="336"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="345"/>
         <source>Resource</source>
         <translation type="unfinished">Erőforrás</translation>
     </message>
@@ -2931,67 +2986,67 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="59"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="62"/>
         <source>Strongest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="60"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="63"/>
         <source>Generated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="61"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
         <source>Random</source>
         <translation type="unfinished">Véletlen</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="112"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="121"/>
         <source>Common (%1 and %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="117"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="126"/>
         <source>Rare (%1, %2, %3, %4)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="289"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="298"/>
         <source>strongest hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="291"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="300"/>
         <source>generated hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="293"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="302"/>
         <source>random hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="331"/>
         <source>%1 spell for %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="333"/>
         <source>%1 %2 for %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="328"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="337"/>
         <source>%1 artifact for %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="330"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="339"/>
         <source>%1 spell scroll for %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="332"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="341"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3344,112 +3399,112 @@
         <translation>Térkép érvényességi eredmények</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="54"/>
+        <location filename="../validator.cpp" line="46"/>
         <source>Map is not loaded</source>
         <translation>A térkép nincs betöltve</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="76"/>
+        <location filename="../validator.cpp" line="68"/>
         <source>No factions allowed for player %1</source>
         <translation>Nincs engedélyezett frakció a(z) %1 játékos számára</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="79"/>
+        <location filename="../validator.cpp" line="71"/>
         <source>No players allowed to play this map</source>
         <translation>Nincs játékos, aki játszhatná ezt a térképet</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="81"/>
+        <location filename="../validator.cpp" line="73"/>
         <source>Map is allowed for one player and cannot be started</source>
         <translation>A térkép csak egy játékos számára engedélyezett, és nem indítható</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="83"/>
+        <location filename="../validator.cpp" line="75"/>
         <source>No human players allowed to play this map</source>
         <translation>Nincsenek emberi játékosok, akik játszhatnák ezt a térképet</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="99"/>
-        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>A(z) %1 páncélozott objektum UNFLAGGABLE, de semlegesnek vagy játékos tulajdonában lévőnek kell lennie</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="105"/>
+        <location filename="../validator.cpp" line="93"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>A(z) %1 objektum egy nem játszható játékoshoz van rendelve: %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="150"/>
+        <location filename="../validator.cpp" line="138"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>A(z) %1 varázstekercsnek nincs hozzárendelt példánya, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="156"/>
+        <location filename="../validator.cpp" line="144"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation>A(z) %1 tárgy tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="170"/>
+        <location filename="../validator.cpp" line="158"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation>A(z) %1 játékosnak nincs hozzárendelt városa és hőse</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="118"/>
+        <location filename="../validator.cpp" line="106"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation>A(z) %1 börtönnek semlegesnek kell lennie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="123"/>
+        <location filename="../validator.cpp" line="87"/>
+        <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="111"/>
         <source>Hero %1 must have an owner</source>
         <translation>A(z) %1 hősnek tulajdonossal kell rendelkeznie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="130"/>
+        <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation>A(z) %1 hős tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="133"/>
+        <location filename="../validator.cpp" line="121"/>
         <source>Hero %1 has duplicate on map</source>
         <translation>A(z) %1 hős duplikátumként szerepel a térképen</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="136"/>
+        <location filename="../validator.cpp" line="124"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation>A(z) %1 hős típus nélküli, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="147"/>
+        <location filename="../validator.cpp" line="135"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation>A(z) %1 varázstekercs tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="172"/>
+        <location filename="../validator.cpp" line="160"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>A(z) %1 játékosnak nincs kezdővárosa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="178"/>
+        <location filename="../validator.cpp" line="166"/>
         <source>Map name is not specified</source>
         <translation>A térkép neve nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="180"/>
+        <location filename="../validator.cpp" line="168"/>
         <source>Map description is not specified</source>
         <translation>A térkép leírása nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="187"/>
-        <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>A térkép a(z) &quot;%1&quot; modból származó objektumot tartalmaz, de nem igényli azt</translation>
+        <location filename="../validator.cpp" line="206"/>
+        <source>The map is valid and has no issues.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="193"/>
+        <location filename="../validator.cpp" line="179"/>
         <source>Exception occurs during validation: %1</source>
         <translation>Hiba történt az érvényesítés során: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="197"/>
+        <location filename="../validator.cpp" line="183"/>
         <source>Unknown exception occurs during validation</source>
         <translation>Ismeretlen hiba történt az érvényesítés során</translation>
     </message>
@@ -3482,52 +3537,52 @@
         <translation>Paraméterek</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>No special victory</source>
         <translation>Nincs különleges győzelem</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Capture artifact</source>
         <translation>Tárgy megszerzése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>Hire creatures</source>
         <translation>Lények felvétele</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Accumulate resources</source>
         <translation>Erőforrások felhalmozása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Construct building</source>
         <translation>Épület felépítése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Capture town</source>
         <translation>Város elfoglalása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Defeat hero</source>
         <translation>Hős legyőzése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Transport artifact</source>
         <translation>Tárgy szállítása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
         <source>Kill monster</source>
         <translation>Szörny megölése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="433"/>
         <source>Any town</source>
         <translation>Bármely város</translation>
     </message>
@@ -3748,27 +3803,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="102"/>
+        <location filename="../mainwindow.cpp" line="103"/>
         <source>Filepath of the map to open.</source>
         <translation>A megnyitni kívánt térkép fájlútvonala.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="105"/>
+        <location filename="../mainwindow.cpp" line="106"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Az eredeti H3 archívumok kibontása egy külön mappába.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="106"/>
+        <location filename="../mainwindow.cpp" line="107"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Egy kibontott archívumból a TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 és Un44 fájlokat egyedi PNG-kre bontja.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="107"/>
+        <location filename="../mainwindow.cpp" line="108"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Egy kibontott archívumból az egyedi képeket (az Images mappában találhatók) .pcx formátumból png formátumba konvertálja.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="108"/>
+        <location filename="../mainwindow.cpp" line="109"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>Az eredeti fájlokat törli azok helyett, amelyek szétbontásra/konvertálásra kerültek.</translation>
     </message>
