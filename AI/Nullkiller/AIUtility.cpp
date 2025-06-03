@@ -410,9 +410,9 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 			if (bonus->subtype == BonusCustomSubtype::damageTypeMelee)
 				return veryRelevant * (1 - getArmyPercentageWithBonus(BonusType::SHOOTER));
 			return 0;
-		case BonusType::FULL_MANA_REGENERATION:
+		case BonusType::MANA_PERCENTAGE_REGENERATION:
 		case BonusType::MANA_REGENERATION:
-			return hero->mana < hero->manaLimit() ? relevant : notRelevant;
+			return hero->hasSpellbook() ? relevant : notRelevant;
 		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
 			return hero->hasBonusOfType(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT) ? relevant : notRelevant;
 		case BonusType::NO_DISTANCE_PENALTY:
@@ -483,8 +483,8 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 			return 0;
 		case BonusType::CREATURE_GROWTH:
 			return (1+bonus->subtype.getNum()) * bonus->val * 400;
-		case BonusType::FULL_MANA_REGENERATION:
-			return 15000;
+		case BonusType::MANA_PERCENTAGE_REGENERATION:
+			return bonus->val * 150;
 		case BonusType::MANA_REGENERATION:
 			return bonus->val * 500;
 		case BonusType::SPELLS_OF_SCHOOL:

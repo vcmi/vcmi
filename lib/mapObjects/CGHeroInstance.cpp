@@ -1067,10 +1067,11 @@ int CGHeroInstance::getSightRadius() const
 
 si32 CGHeroInstance::manaRegain() const
 {
-	if (hasBonusOfType(BonusType::FULL_MANA_REGENERATION))
-		return manaLimit();
+	int percentageRegeneration = valOfBonuses(BonusType::MANA_PERCENTAGE_REGENERATION);
+	int regeneratedByPercentage = manaLimit() * percentageRegeneration / 100;
+	int regeneratedByValue = valOfBonuses(BonusType::MANA_REGENERATION);
 
-	return valOfBonuses(BonusType::MANA_REGENERATION);
+	return std::max(regeneratedByValue, regeneratedByPercentage);
 }
 
 si32 CGHeroInstance::getManaNewTurn() const
