@@ -95,9 +95,12 @@ int3 IBoatGenerator::bestLocation() const
 			continue;
 
 		if (tile->blocked())
+			continue;
+
+		if (tile->visitable())
 		{
 			bool hasBoat = false;
-			for (auto const & objectID : tile->blockingObjects)
+			for (auto const & objectID : tile->visitableObjects)
 			{
 				const auto * object = getObject()->cb->getObj(objectID);
 				if (object->ID == Obj::BOAT || object->ID == Obj::HERO)
