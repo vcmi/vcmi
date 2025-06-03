@@ -33,9 +33,9 @@ using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
-using TLimiterPtr = std::shared_ptr<ILimiter>;
-using TPropagatorPtr = std::shared_ptr<IPropagator>;
-using TUpdaterPtr = std::shared_ptr<IUpdater>;
+using TLimiterPtr = std::shared_ptr<const ILimiter>;
+using TPropagatorPtr = std::shared_ptr<const IPropagator>;
+using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {
@@ -59,15 +59,15 @@ public:
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
 {
 	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values - 2 bytes
-	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 	si32 val = 0;
+	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE; // 1 byte
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus - 1 byte
 	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE. - 1 byte
 	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
 	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; // 1 byte
-	// 3 bytes padding
+	// 1 bytes padding
 
 	BonusSubtypeID subtype;
 	BonusSourceID sid; //source id: id of object/artifact/spell
@@ -82,6 +82,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 
 	ImagePath customIconPath;
 	MetaString description;
+	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);

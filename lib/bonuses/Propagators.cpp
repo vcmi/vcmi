@@ -24,7 +24,7 @@ const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
 }; //untested
 
-bool IPropagator::shouldBeAttached(CBonusSystemNode *dest)
+bool IPropagator::shouldBeAttached(CBonusSystemNode *dest) const
 {
 	return false;
 }
@@ -44,7 +44,7 @@ CBonusSystemNode::ENodeTypes CPropagatorNodeType::getPropagatorType() const
 	return nodeType;
 }
 
-bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
+bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest) const
 {
 	return nodeType == dest->getNodeType();
 }

@@ -44,8 +44,9 @@ enum class ESerializationVersion : int32_t
 	RANDOMIZATION_REWORK, // random rolls logic has been moved to server
 	CUSTOM_BONUS_ICONS, // support for custom icons in bonuses
 	SERVER_STATISTICS, // statistics now only saved on server
+	OPPOSITE_SIDE_LIMITER_OWNER, // opposite side limiter no longer stores owner in itself
 
-	CURRENT = SERVER_STATISTICS,
+	CURRENT = OPPOSITE_SIDE_LIMITER_OWNER,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
