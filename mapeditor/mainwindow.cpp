@@ -46,7 +46,7 @@
 #include "mapsettings/mapsettings.h"
 #include "mapsettings/translations.h"
 #include "mapsettings/modsettings.h"
-#include "playersettings.h"
+#include "PlayerSettingsDialog.h"
 #include "validator.h"
 #include "helper.h"
 #include "campaigneditor/campaigneditor.h"
@@ -1143,7 +1143,7 @@ void MainWindow::on_actionMapSettings_triggered()
 
 void MainWindow::on_actionPlayers_settings_triggered()
 {
-	auto settingsDialog = new PlayerSettings(controller, this);
+	auto settingsDialog = new PlayerSettingsDialog(controller, this);
 	settingsDialog->setWindowModality(Qt::WindowModal);
 	settingsDialog->setModal(true);
 	connect(settingsDialog, &QDialog::finished, this, &MainWindow::onPlayersChanged);
