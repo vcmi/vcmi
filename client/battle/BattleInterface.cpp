@@ -231,7 +231,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 {
 	stacksController->stacksAreAttacked(attackedInfos);
 
-	BattleSideArray<int> killedBySide;
+	BattleSideArray<int> killedBySide{0,0};
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{
