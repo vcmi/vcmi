@@ -2219,8 +2219,8 @@
 	{
 		"bonuses" : {
 			"mana" : {
-				"type" : "FULL_MANA_REGENERATION",
-				"val" : 0,
+				"type" : "MANA_PERCENTAGE_REGENERATION",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
 		},

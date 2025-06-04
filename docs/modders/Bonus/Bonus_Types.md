@@ -105,9 +105,11 @@ Restores specific amount of mana points for affected heroes on new turn
 
 - val: amount of spell points to restore
 
-### FULL_MANA_REGENERATION
+### MANA_PERCENTAGE_REGENERATION
 
-Restores entire mana pool for affected heroes on new turn
+Restores specific percentage of mana pool for affected heroes on new turn. If hero has both MANA_REGENERATION and MANA_PERCENTAGE_REGENERATION, only bonus that gives more mana points will be active
+
+- val: percentage of spell points to restore
 
 ### NONEVIL_ALIGNMENT_MIX
 
