@@ -851,6 +851,10 @@ void CStackWindow::initBonusesList()
 	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
 	BonusList abilities = info->creature->getExportedBonusList();
 
+	// remove all bonuses that are not propagated away
+	// such bonuses should be present in received bonuses, and if not - this means that they are behind inactive limiter, such as inactive stack experience bonuses
+	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr;});
+
 	const auto & bonusSortingPredicate = [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
