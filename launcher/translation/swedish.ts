@@ -26,7 +26,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation>Konstruktionsinformation</translation>
+        <translation>Versionsinformation</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
@@ -102,27 +102,27 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="74"/>
         <source>Downloadable</source>
-        <translation>Nedladdningsbar</translation>
+        <translation>Nedladdningsbara</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="79"/>
         <source>Installed</source>
-        <translation>Installerad</translation>
+        <translation>Installerade</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="84"/>
         <source>Updatable</source>
-        <translation>Uppdaterbar</translation>
+        <translation>Uppdaterbara</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation>Aktiv</translation>
+        <translation>Aktiva</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
         <source>Inactive</source>
-        <translation>Inaktiv</translation>
+        <translation>Inaktiva</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
@@ -472,12 +472,12 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationsredigerare</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna redigerare</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
@@ -579,7 +579,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorera ljudavstängningsknappen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
@@ -779,7 +779,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
         <source>Autosave</source>
-        <translation>Automatisk-sparfunktion i spelet</translation>
+        <translation>Automatisk sparfunktion i spelet</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
@@ -871,37 +871,37 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fil:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">Stäng</translation>
+        <translation>Stäng</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurationsredigerare</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Osparade förändringar</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translation>Vill du avbryta ändringarna?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="122"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-filen är ogiltig!</translation>
     </message>
 </context>
 <context>
@@ -1084,7 +1084,7 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation>Installera VCMI-modd-förinställningar</translation>
+        <translation>Installera VCMI-modd-förinställning</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
@@ -1167,7 +1167,7 @@ Vänligen välj mappen med Heroes III: Complete Edition eller Heroes III: Shadow
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte öppna filen: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
@@ -1318,12 +1318,12 @@ Bin (%n byte):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translation>Vitryska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translation>Bulgariska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
@@ -1358,7 +1358,7 @@ Bin (%n byte):
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translation>Grekiska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
@@ -1373,7 +1373,7 @@ Bin (%n byte):
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translation>Japanska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
@@ -1383,7 +1383,7 @@ Bin (%n byte):
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translation>Norska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
@@ -1398,7 +1398,7 @@ Bin (%n byte):
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumänska</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1669,7 +1669,7 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Kampanjer</translation>
+        <translation>Kampanjer</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1903,12 +1903,12 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="305"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation>Din Heroes III-version använder ett annat språk. VCMI tillhandahåller översättningar av spelet till olika språk som du kan använda. Använd det här alternativet för att automatiskt installera en sådan översättning till ditt valda språk.</translation>
+        <translation>Din Heroes III-version är på ett annat språk än originalspråket (engelska). VCMI tillhandahåller översättningar av spelet till olika språk som du kan använda. Välj det här alternativet för att automatiskt installera en översättning till ditt valda språk.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="315"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation>Översättning av Heroes III till ditt språk är installerat men har stängts av. Använd det här alternativet för att aktivera översättningen.</translation>
+        <translation>Översättning av Heroes III till ditt språk är installerat men har stängts av. Välj det här alternativet för att aktivera översättningen.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="325"/>
@@ -1966,13 +1966,13 @@ För att lösa problemet måste du kopiera de saknade datafilerna från Heroes I
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Import av förinställning misslyckades</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translation>Det går inte att importera förinställning - data i urklipp ser inte ut som en modd-förinställning!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>
@@ -2010,7 +2010,7 @@ För att lösa problemet måste du kopiera de saknade datafilerna från Heroes I
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>Misslyckades med att läsa in JSON från URL (JSON-data kan vara felaktiga)</translation>
+        <translation>Kan inte läsa in JSON från URL (JSON-data kan vara felaktiga)</translation>
     </message>
 </context>
 </TS>
