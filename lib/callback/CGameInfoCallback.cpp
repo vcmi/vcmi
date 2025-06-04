@@ -718,6 +718,20 @@ int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned 
 	return ret;
 }
 
+std::vector<const CGHeroInstance*> CGameInfoCallback::getHeroes(PlayerColor player) const
+{
+	std::vector<const CGHeroInstance*> ret;
+	const PlayerState *p = gameState().getPlayerState(player);
+	ERROR_RET_VAL_IF(!p, "No such player!", ret);
+
+	for(const auto & hero : p->getHeroes())
+	{
+		if(!getPlayerID().has_value() || isVisibleFor(hero, *getPlayerID()) || hero->getOwner() == getPlayerID())
+			ret.push_back(hero);
+	}
+	return ret;
+}
+
 bool CGameInfoCallback::isPlayerMakingTurn(PlayerColor player) const
 {
 	return gameState().actingPlayers.count(player);

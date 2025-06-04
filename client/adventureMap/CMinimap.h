@@ -17,6 +17,7 @@ VCMI_LIB_NAMESPACE_END
 
 class Canvas;
 class CMinimap;
+class IImage;
 
 class CMinimapInstance : public CIntObject
 {
@@ -40,6 +41,9 @@ class CMinimap : public CIntObject
 {
 	std::shared_ptr<CPicture> aiShield; //the graphic displayed during AI turn
 	std::shared_ptr<CMinimapInstance> minimap;
+	std::vector<ObjectInstanceID> visibleHeroes;
+	std::shared_ptr<IImage> heroIcon;
+
 	Rect screenArea;
 	int level;
 
@@ -48,6 +52,7 @@ class CMinimap : public CIntObject
 	void showPopupWindow(const Point & cursorPosition) override;
 	void hover(bool on) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
+	void updateVisibleHeroes();
 
 	/// relocates center of adventure map screen to currently hovered tile
 	void moveAdvMapSelection(const Point & positionGlobal);

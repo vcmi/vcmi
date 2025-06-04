@@ -1163,9 +1163,6 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
-	if(!player)
-		return true;
-
 	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
 	if (player == obj->tempOwner)
 		return true;
@@ -1188,8 +1185,6 @@ bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) 
 	}
 	return false;
 }
-
-
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
 {
