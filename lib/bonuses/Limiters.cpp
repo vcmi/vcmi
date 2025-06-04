@@ -97,13 +97,6 @@ JsonNode ILimiter::toJsonNode() const
 	return root;
 }
 
-void ILimiter::acceptUpdater(IUpdater& visitor) {}
-
-TLimiterPtr ILimiter::clone() const
-{
-	throw std::runtime_error("Clone not implemented for this limiter");
-}
-
 ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
@@ -141,16 +134,6 @@ JsonNode CCreatureTypeLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(includeUpgrades);
 
 	return root;
-}
-
-void CCreatureTypeLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr CCreatureTypeLimiter::clone() const
-{
-	return std::make_shared<CCreatureTypeLimiter>(*this);
 }
 
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( BonusType bonus )
@@ -236,16 +219,6 @@ JsonNode HasAnotherBonusLimiter::toJsonNode() const
 	return root;
 }
 
-void HasAnotherBonusLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr HasAnotherBonusLimiter::clone() const
-{
-	return std::make_shared<HasAnotherBonusLimiter>(*this);
-}
-
 ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &context) const
 {
 	const auto * stack = retrieveStackBattle(&context.node);
@@ -274,16 +247,6 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 		root["parameters"].Vector().emplace_back(hex.toInt());
 
 	return root;
-}
-
-void UnitOnHexLimiter::acceptUpdater(IUpdater& visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr UnitOnHexLimiter::clone() const
-{
-	return std::make_shared<UnitOnHexLimiter>(*this);
 }
 
 CreatureTerrainLimiter::CreatureTerrainLimiter()
@@ -365,16 +328,6 @@ JsonNode CreatureTerrainLimiter::toJsonNode() const
 	return root;
 }
 
-void CreatureTerrainLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr CreatureTerrainLimiter::clone() const
-{
-	return std::make_shared<CreatureTerrainLimiter>(*this);
-}
-
 FactionLimiter::FactionLimiter(FactionID creatureFaction)
 	: faction(creatureFaction)
 {
@@ -420,16 +373,6 @@ JsonNode FactionLimiter::toJsonNode() const
 	return root;
 }
 
-void FactionLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr FactionLimiter::clone() const
-{
-	return std::make_shared<FactionLimiter>(*this);
-}
-
 CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel) :
 	minLevel(minLevel),
 	maxLevel(maxLevel)
@@ -462,16 +405,6 @@ JsonNode CreatureLevelLimiter::toJsonNode() const
 	root["parameters"].Vector().emplace_back(maxLevel);
 
 	return root;
-}
-
-void CreatureLevelLimiter::acceptUpdater(IUpdater& visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr CreatureLevelLimiter::clone() const
-{
-	return std::make_shared<CreatureLevelLimiter>(*this);
 }
 
 CreatureAlignmentLimiter::CreatureAlignmentLimiter(EAlignment Alignment)
@@ -513,16 +446,6 @@ JsonNode CreatureAlignmentLimiter::toJsonNode() const
 	return root;
 }
 
-void CreatureAlignmentLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr CreatureAlignmentLimiter::clone() const
-{
-	return std::make_shared<CreatureAlignmentLimiter>(*this);
-}
-
 RankRangeLimiter::RankRangeLimiter(ui8 Min, ui8 Max)
 	:minRank(Min), maxRank(Max)
 {
@@ -548,39 +471,18 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	return ILimiter::EDecision::NOT_APPLICABLE;
 }
 
-void RankRangeLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr RankRangeLimiter::clone() const
-{
-	return std::make_shared<RankRangeLimiter>(*this);
-}
-
-
-OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
-	owner(std::move(Owner))
+OppositeSideLimiter::OppositeSideLimiter()
 {
 }
 
 ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & context) const
 {
-	auto contextOwner = context.node.getOwner();
+	PlayerColor contextOwner = context.node.getOwner();
+	PlayerColor bonusOwner = context.b.bonusOwner;
 	if (contextOwner == PlayerColor::UNFLAGGABLE)
 		contextOwner = PlayerColor::NEUTRAL;
-	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
+	auto decision = (bonusOwner == contextOwner || bonusOwner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
 	return decision;
-}
-
-void OppositeSideLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
-}
-
-TLimiterPtr OppositeSideLimiter::clone() const
-{
-	return std::make_shared<OppositeSideLimiter>(*this);
 }
 
 // Aggregate/Boolean Limiters
@@ -603,11 +505,6 @@ JsonNode AggregateLimiter::toJsonNode() const
 	for(const auto & l : limiters)
 		result.Vector().push_back(l->toJsonNode());
 	return result;
-}
-
-void AggregateLimiter::acceptUpdater(IUpdater & visitor)
-{
-	visitor.visitLimiter(*this);
 }
 
 const std::string AllOfLimiter::aggregator = "allOf";
@@ -637,15 +534,6 @@ ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) 
 	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
 }
 
-TLimiterPtr AllOfLimiter::clone() const
-{
-	std::vector<TLimiterPtr> clonedLimiters;
-	clonedLimiters.reserve(limiters.size());
-	for (const auto& limiter : limiters)
-		clonedLimiters.push_back(limiter->clone());
-	return std::make_shared<AllOfLimiter>(clonedLimiters);
-}
-
 const std::string AnyOfLimiter::aggregator = "anyOf";
 const std::string & AnyOfLimiter::getAggregator() const
 {
@@ -671,15 +559,6 @@ ILimiter::EDecision AnyOfLimiter::limit(const BonusLimitationContext & context) 
 	}
 
 	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::DISCARD;
-}
-
-TLimiterPtr AnyOfLimiter::clone() const
-{
-	std::vector<TLimiterPtr> clonedLimiters;
-	clonedLimiters.reserve(limiters.size());
-	for (const auto& limiter : limiters)
-		clonedLimiters.push_back(limiter->clone());
-	return std::make_shared<AnyOfLimiter>(clonedLimiters);
 }
 
 const std::string NoneOfLimiter::aggregator = "noneOf";
@@ -709,15 +588,6 @@ ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context)
 	}
 
 	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
-}
-
-TLimiterPtr NoneOfLimiter::clone() const
-{
-	std::vector<TLimiterPtr> clonedLimiters;
-	clonedLimiters.reserve(limiters.size());
-	for (const auto& limiter : limiters)
-		clonedLimiters.push_back(limiter->clone());
-	return std::make_shared<NoneOfLimiter>(clonedLimiters);
 }
 
 VCMI_LIB_NAMESPACE_END

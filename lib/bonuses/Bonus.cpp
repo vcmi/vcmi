@@ -274,17 +274,14 @@ std::shared_ptr<Bonus> Bonus::addLimiter(const TLimiterPtr & Limiter)
 {
 	if (limiter)
 	{
-		//If we already have limiter list, retrieve it
-		auto limiterList = std::dynamic_pointer_cast<AllOfLimiter>(limiter);
-		if(!limiterList)
-		{
-			//Create a new limiter list with old limiter and the new one will be pushed later
-			limiterList = std::make_shared<AllOfLimiter>();
-			limiterList->add(limiter);
-			limiter = limiterList;
-		}
+		auto newLimiterList = std::make_shared<AllOfLimiter>();
+		auto oldLimiterList = std::dynamic_pointer_cast<const AllOfLimiter>(limiter);
 
-		limiterList->add(Limiter);
+		if(oldLimiterList)
+			newLimiterList->limiters = oldLimiterList->limiters;
+
+		newLimiterList->add(Limiter);
+		limiter = newLimiterList;
 	}
 	else
 	{

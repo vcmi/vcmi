@@ -32,20 +32,9 @@ class DLL_LINKAGE IUpdater : public Serializeable
 public:
 	virtual ~IUpdater() = default;
 
-	virtual std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context);
+	virtual std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const;
 	virtual std::string toString() const;
 	virtual JsonNode toJsonNode() const;
-
-	virtual void visitLimiter(AggregateLimiter & limiter);
-	virtual void visitLimiter(CCreatureTypeLimiter& limiter);
-	virtual void visitLimiter(HasAnotherBonusLimiter & limiter);
-	virtual void visitLimiter(CreatureTerrainLimiter & limiter);
-	virtual void visitLimiter(CreatureLevelLimiter & limiter);
-	virtual void visitLimiter(FactionLimiter & limiter);
-	virtual void visitLimiter(CreatureAlignmentLimiter & limiter) ;
-	virtual void visitLimiter(OppositeSideLimiter & limiter);
-	virtual void visitLimiter(RankRangeLimiter & limiter);
-	virtual void visitLimiter(UnitOnHexLimiter & limiter);
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -68,7 +57,7 @@ public:
 		h & stepSize;
 	}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
@@ -81,7 +70,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
@@ -95,7 +84,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
@@ -109,7 +98,7 @@ public:
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
@@ -128,26 +117,22 @@ public:
 		: divideStackLevel(std::make_shared<DivideStackLevelUpdater>())
 	{}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
 class DLL_LINKAGE OwnerUpdater : public IUpdater
 {
-protected:
-	PlayerColor owner;
-
 public:
 	template <typename Handler> void serialize(Handler& h)
 	{
 		h & static_cast<IUpdater &>(*this);
 	}
 
-	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) override;
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
-	void visitLimiter(OppositeSideLimiter& limiter) override;
 };
 
 VCMI_LIB_NAMESPACE_END

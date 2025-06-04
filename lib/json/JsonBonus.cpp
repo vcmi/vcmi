@@ -399,13 +399,13 @@ static BonusParams convertDeprecatedBonus(const JsonNode &ability)
 
 static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 {
-	const std::map<std::string, std::function<TUpdaterPtr()>> bonusUpdaterMap =
+	const std::map<std::string, std::shared_ptr<IUpdater>> bonusUpdaterMap =
 	{
-			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>},
-			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>},
-			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>},
-			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>},
-			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>}
+			{"TIMES_HERO_LEVEL", std::make_shared<TimesHeroLevelUpdater>()},
+			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>()},
+			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>()},
+			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
+			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>()}
 	};
 
 	switch(updaterJson.getType())
@@ -414,7 +414,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 		{
 			auto it = bonusUpdaterMap.find(updaterJson.String());
 			if (it != bonusUpdaterMap.end())
-				return it->second();
+				return it->second;
 
 			logGlobal->error("Unknown bonus updater type '%s'", updaterJson.String());
 			return nullptr;
@@ -458,7 +458,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	return b;
 }
 
-std::shared_ptr<ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
+std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 {
 	switch(limiter.getType())
 	{

@@ -22,7 +22,7 @@ class DLL_LINKAGE IPropagator : public Serializeable
 {
 public:
 	virtual ~IPropagator() = default;
-	virtual bool shouldBeAttached(CBonusSystemNode *dest);
+	virtual bool shouldBeAttached(CBonusSystemNode *dest) const;
 	virtual CBonusSystemNode::ENodeTypes getPropagatorType() const;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -35,7 +35,7 @@ class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 
 public:
 	CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType = CBonusSystemNode::ENodeTypes::UNKNOWN);
-	bool shouldBeAttached(CBonusSystemNode *dest) override;
+	bool shouldBeAttached(CBonusSystemNode *dest) const override;
 	CBonusSystemNode::ENodeTypes getPropagatorType() const override;
 
 	template <typename Handler> void serialize(Handler &h)
