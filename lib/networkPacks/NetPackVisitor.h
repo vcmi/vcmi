@@ -38,7 +38,9 @@ public:
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetRewardableConfiguration(SetRewardableConfiguration & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}
-	virtual void visitSetPrimSkill(SetPrimSkill & pack) {}
+	virtual void visitSetPrimarySkill(SetPrimarySkill & pack) {}
+	virtual void visitSetHeroExperience(SetHeroExperience & pack) {}
+	virtual void visitGiveStackExperience(GiveStackExperience & pack) {}
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}
 	virtual void visitHeroVisitCastle(HeroVisitCastle & pack) {}
 	virtual void visitChangeSpells(ChangeSpells & pack) {}

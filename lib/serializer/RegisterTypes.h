@@ -145,7 +145,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<DaysWithoutTown>(89);
 	s.template registerType<TurnTimeUpdate>(90);
 	s.template registerType<SetResources>(91);
-	s.template registerType<SetPrimSkill>(92);
+	s.template registerType<SetPrimarySkill>(92);
 	s.template registerType<SetSecSkill>(93);
 	s.template registerType<HeroVisitCastle>(94);
 	s.template registerType<ChangeSpells>(95);
@@ -296,6 +296,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyDelete>(244);
 	s.template registerType<TimesHeroLevelDivideStackLevelUpdater>(245);
 	s.template registerType<DivideStackLevelUpdater>(246);
+	s.template registerType<SetHeroExperience>(247);
+	s.template registerType<GiveStackExperience>(248);
 }
 
 VCMI_LIB_NAMESPACE_END

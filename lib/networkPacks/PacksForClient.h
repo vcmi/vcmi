@@ -199,7 +199,7 @@ struct DLL_LINKAGE SetResources : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE SetPrimSkill : public CPackForClient
+struct DLL_LINKAGE SetPrimarySkill : public CPackForClient
 {
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -213,6 +213,36 @@ struct DLL_LINKAGE SetPrimSkill : public CPackForClient
 		h & mode;
 		h & id;
 		h & which;
+		h & val;
+	}
+};
+
+struct DLL_LINKAGE SetHeroExperience : public CPackForClient
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ChangeValueMode mode = ChangeValueMode::RELATIVE;
+	ObjectInstanceID id;
+	si64 val = 0;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & mode;
+		h & id;
+		h & val;
+	}
+};
+
+struct DLL_LINKAGE GiveStackExperience : public CPackForClient
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	ObjectInstanceID id;
+	std::map<SlotID, si64> val;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & id;
 		h & val;
 	}
 };

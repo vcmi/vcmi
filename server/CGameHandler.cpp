@@ -154,7 +154,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	logGlobal->trace("%s got level %d", hero->getNameTranslated(), hero->level);
 	auto primarySkill = randomizer->rollPrimarySkillForLevelup(hero);
 
-	SetPrimSkill sps;
+	SetPrimarySkill sps;
 	sps.id = hero->id;
 	sps.which = primarySkill;
 	sps.mode = ChangeValueMode::RELATIVE;
@@ -338,6 +338,19 @@ void CGameHandler::expGiven(const CGHeroInstance *hero)
 		levelUpCommander(hero->getCommander());
 }
 
+void CGameHandler::giveStackExperience(const CArmedInstance * army, TExpType val)
+{
+	GiveStackExperience gse;
+	gse.id = army->id;
+
+	for (const auto & stack : army->Slots())
+	{
+		int experienceBonusMultiplier = stack.second->valOfBonuses(BonusType::STACK_EXPERIENCE_GAIN_PERCENT);
+		gse.val[stack.first] = val + val * experienceBonusMultiplier / 100;
+	}
+	sendAndApply(gse);
+}
+
 void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
 	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
@@ -362,12 +375,11 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		sendAndApply(iw);
 	}
 
-	SetPrimSkill sps;
-	sps.id = hero->id;
-	sps.which = PrimarySkill::EXPERIENCE;
-	sps.mode = ChangeValueMode::RELATIVE;
-	sps.val = amountToGain;
-	sendAndApply(sps);
+	SetHeroExperience she;
+	she.id = hero->id;
+	she.mode = ChangeValueMode::RELATIVE;
+	she.val = amountToGain;
+	sendAndApply(she);
 
 	//hero may level up
 	if (hero->getCommander() && hero->getCommander()->alive)
@@ -385,7 +397,7 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 
 void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)
 {
-	SetPrimSkill sps;
+	SetPrimarySkill sps;
 	sps.id = hero->id;
 	sps.which = which;
 	sps.mode = mode;

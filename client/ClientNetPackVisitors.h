@@ -32,7 +32,8 @@ public:
 	}
 
 	void visitSetResources(SetResources & pack) override;
-	void visitSetPrimSkill(SetPrimSkill & pack) override;
+	void visitSetPrimarySkill(SetPrimarySkill & pack) override;
+	void visitSetHeroExperience(SetHeroExperience & pack) override;
 	void visitSetSecSkill(SetSecSkill & pack) override;
 	void visitHeroVisitCastle(HeroVisitCastle & pack) override;
 	void visitSetMana(SetMana & pack) override;

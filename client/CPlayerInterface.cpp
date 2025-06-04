@@ -462,18 +462,17 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 	ENGINE->windows().pushWindow(newCastleInt);
 }
 
+void CPlayerInterface::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	for(auto ctw : ENGINE->windows().findWindows<IMarketHolder>())
+		ctw->updateExperience();
+}
+
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (which == PrimarySkill::EXPERIENCE)
-	{
-		for(auto ctw : ENGINE->windows().findWindows<IMarketHolder>())
-			ctw->updateExperience();
-	}
-	else
-	{
-		adventureInt->onHeroChanged(hero);
-	}
+	adventureInt->onHeroChanged(hero);
 }
 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)

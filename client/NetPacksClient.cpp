@@ -122,7 +122,18 @@ void ApplyClientNetPackVisitor::visitSetResources(SetResources & pack)
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::receivedResource);
 }
 
-void ApplyClientNetPackVisitor::visitSetPrimSkill(SetPrimSkill & pack)
+void ApplyClientNetPackVisitor::visitSetHeroExperience(SetHeroExperience & pack)
+{
+	const CGHeroInstance * h = cl.gameInfo().getHero(pack.id);
+	if(!h)
+	{
+		logNetwork->error("Cannot find hero with pack.id %d", pack.id.getNum());
+		return;
+	}
+	callInterfaceIfPresent(cl, h->tempOwner, &IGameEventsReceiver::heroExperienceChanged, h, pack.val);
+}
+
+void ApplyClientNetPackVisitor::visitSetPrimarySkill(SetPrimarySkill & pack)
 {
 	const CGHeroInstance * h = cl.gameInfo().getHero(pack.id);
 	if(!h)

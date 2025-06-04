@@ -331,8 +331,12 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		gameHandler->swapGarrisonOnSiege(winnerHero->getVisitedTown()->id); //return defending visitor from garrison to its rightful place
 	}
 	//give exp
-	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide] && winnerHero)
-		gameHandler->giveExperience(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
+	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide])
+	{
+		gameHandler->giveStackExperience(battle.battleGetArmyObject(finishingBattle->winnerSide), battleResult->exp[finishingBattle->winnerSide]);
+		if (winnerHero)
+			gameHandler->giveExperience(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
+	}
 
 	// Add statistics
 	if(loserHero && !finishingBattle->isDraw())
