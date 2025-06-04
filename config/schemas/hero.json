@@ -132,6 +132,10 @@
 				"creature" : {
 					"type" : "string",
 					"description" : "Shortcut for defining creature specialty, using standard H3 rules."
+				},
+				"secondary" : {
+					"type" : "string",
+					"description" : "Shortcut for defining secondary skill specialty, using standard H3 rules."
 				}
 			}
 		},

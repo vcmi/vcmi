@@ -26,6 +26,11 @@
 		"advanced": {Skill level format},
 		"expert":   {Skill level format},
 		
+		// Names of bonuses of the skill that are affected by default secondary skill specialty of a hero
+		"specialty" : [
+			"main"
+		],
+		
 		// Chance for the skill to be offered on level-up (heroClass may override)
 		"gainChance" : {
 			// Chance for hero classes with might affinity

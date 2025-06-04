@@ -71,6 +71,9 @@ public:
 
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 
+	/// Bonuses that should be given to hero that specializes in this skill
+	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;
+
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
