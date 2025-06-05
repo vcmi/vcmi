@@ -574,15 +574,13 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	: type(spell->getTargetType()),
 	smart(false),
 	massive(false),
-	clearAffected(false),
-	clearTarget(false)
+	clearAffected(false)
 {
 	const auto & levelInfo = spell->getLevelInfo(level);
 
 	smart = levelInfo.smartTarget;
 	massive = levelInfo.range.empty();
 	clearAffected = levelInfo.clearAffected;
-	clearTarget = levelInfo.clearTarget;
 }
 
 bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
@@ -647,7 +645,8 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 			for(const auto & name : NFaction::names)
 				chances[name].Integer() = static_cast<si64>(parser.readNumber());
 
-			auto AIVals = parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
+			// Unused, AI values
+			parser.readNumArray<si32>(GameConstants::SPELL_SCHOOL_LEVELS);
 
 			std::vector<std::string> descriptions;
 			for(size_t i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
@@ -662,7 +661,6 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData()
 				level["description"].String() = descriptions[i];
 				level["cost"].Integer() = costs[i];
 				level["power"].Integer() = powers[i];
-				level["aiValue"].Integer() = AIVals[i];
 			}
 
 			legacyData.push_back(lineNode);
@@ -1022,9 +1020,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
-		levelObject.AIValue       = static_cast<si32>(levelNode["aiValue"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
-		levelObject.clearTarget   = levelNode["targetModifier"]["clearTarget"].Bool();
 		levelObject.clearAffected = levelNode["targetModifier"]["clearAffected"].Bool();
 		levelObject.range         = spellRangeInHexes(levelNode["range"].String());
 
