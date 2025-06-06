@@ -55,8 +55,8 @@
 		},
 
 		// List of flags that describe this spell
-		// positive - this spell is positive to target (buff)
-		// negative - this spell is negative to target (debuff)
+		// positive - this spell is positive to target (buff) and can target allies
+		// negative - this spell is negative to target (debuff) and can target enemies
 		// indifferent - spell is neither positive, nor negative
 		// damage - spell does damage (direct or indirect). 
 		// If set, AI will avoid obstacles with such effect, and spellbook popup will also list damage of the spell
@@ -216,7 +216,7 @@ TODO
 	// modifiers make sense for creature target
 	"targetModifier":
 	{
-		// If true, then if this spell targets area, it will exclude targets if:
+		// If true, then this spell will not affect units if:
 		// - target is friendly and spell is negative
 		// - target is enemy, and spell is positive
 		// Othervice, all units in affected area will be hit by a spell, provided they are not immune
@@ -284,6 +284,10 @@ Power of `damage`, `heal`, `summon`, and `demonSummon` effects cast by hero can 
 Following bonuses will only affect `damage`, `heal` and `demonSummon` effects
 - SPELL_DAMAGE for specific spell school (Sorcery)
 - SPECIFIC_SPELL_DAMAGE for the spell (Luna / Ciele)
+
+## Smart target modifier
+
+To restrict spell from casting it on "wrong" side in combat, you can use `smart` target modifier. If this flag is set, and spell has `positive` flag, it can only affect friendly units. Similarly, spells with `negative` flag and `smart` target modifier can only affect enemies. This affects both primary targets and any secondary targets in case of area of effect or massive spells.
 
 ## Configurable battle effects
 

@@ -1054,7 +1054,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			levelObject.cumulativeEffects.push_back(b);
 		}
 
-		if(levelNode["battleEffects"].getType() == JsonNode::JsonType::DATA_STRUCT && !levelNode["battleEffects"].Struct().empty())
+		if(!levelNode["battleEffects"].Struct().empty())
 		{
 			levelObject.battleEffects = levelNode["battleEffects"];
 

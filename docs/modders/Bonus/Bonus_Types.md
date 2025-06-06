@@ -546,10 +546,12 @@ Examples:
 - Prism Breath (mods): `[ "FL", "FF", "FR" ]` — a more powerful version of Dragon Breath; all units behind the target are attacked.
 
 This is how all tiles can be referenced in the event of a frontal attack (green is the attacker and red is the defender). The hex on which defender is located is always included unconditionally.
-![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../images/Bonus_Multihex_Attack_Horizontal.svg)
+
+![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../../images/Bonus_Multihex_Attack_Horizontal.svg)
 
 In the case of a double-wide unit that can attack hexes to the left and right (e.g. Cerberi), the left or right hex may end up inside the attacker in certain attack configurations. To avoid this, the hex that ends up inside the unit will be 'pushed' one hex forward. This does not affect single-wide units. See below for reference:
-![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../images/Bonus_Multihex_Attack_Vertical.svg)
+
+![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../../images/Bonus_Multihex_Attack_Vertical.svg)
 
 ### MULTIHEX_ENEMY_ATTACK
 
