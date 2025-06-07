@@ -1295,19 +1295,25 @@
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>Missing Required Mod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Erforderliches Mod fehlt</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+
+
+Möchten Sie das jetzt tun?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="615"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Das Mod dieses Objekts ist erforderlich, damit die Karte gültig bleibt.</translation>
     </message>
 </context>
 <context>
@@ -1505,22 +1511,26 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Spieler auswählen</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Held kann nicht als NEUTRAL erstellt werden</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Wechseln Sie zu einem der verfügbaren Spieler:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tastenkombination: %1</translation>
     </message>
 </context>
 <context>
@@ -1957,14 +1967,17 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapcontroller.cpp" line="628"/>
         <source> (submod of %1)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> (Submodul von %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="630"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Das Mod „%1“%2 wird von einem Objekt auf der Karte benötigt.
+Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellungen hinzu.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="147"/>
@@ -3452,7 +3465,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="87"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Besitzbares Objekt %1 kann nicht markiert werden, muss aber NEUTRAL oder einem Spieler gehören</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="111"/>
@@ -3497,7 +3511,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>The map is valid and has no issues.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Die Karte ist gültig und weist keine Probleme auf.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>
