@@ -1,6 +1,19 @@
 # Bonus System Guide
 
+Bonuses are effects that can be given to various game entities. A lot of game mechanics in VCMI are implemented as bonuses. Most notably, but not limited to:
+
+- All artifact effects
+- All hero specialties
+- All secondary skill effects
+- All creature abilities
+- Large number of spells
+- Some of town building
+
+While they don't provide same level of flexibility as ERM scripting from WoG, they are way easier to use and generally can be undestood by AI. List of supported effects is rather long, and covers all H3 mechanics, as well as some additions to support WoG creature abilities, HotA, and extensions requested by modders for VCMI.
+
 ## Basic Usage
+
+See also: [List of Bonus Types](../Bonus/Bonus_Types.md)
 
 ### Bonuses without parameters
 
@@ -72,7 +85,7 @@ In addition to the `type`, `subtype` and `val` parameters, some bonuses may requ
 }
 ```
 
-This bonus allows a hero with such an artefact to upgrade any mage in their army to an enchanter. For information on how to configure addInfo for a particular bonus, please refer to the bonus types documentation.
+This bonus allows a hero with such an artefact to upgrade any mage in their army to an enchanter. For information on how to configure addInfo for a particular bonus, please refer to the [bonus types documentation](../Bonus/Bonus_Types.md).
 
 ## Advanced Usage
 
@@ -103,7 +116,7 @@ For example, a bonus given to a player would affect all their heroes, towns and 
 }
 ```
 
-This speciality increases the attack of all Pixies in the army by 3, but does not affect any other units or the hero himself. The game supports multiple other limiters for various other use cases. Please refer to the bonus system reference for details.
+This speciality increases the attack of all Pixies in the army by 3, but does not affect any other units or the hero himself. The game supports multiple other limiters for various other use cases. Please refer to the [bonus limiters documentation](../Bonus/Bonus_Limiters.md). for details.
 
 ### Bonus Propagators
 
@@ -120,7 +133,7 @@ In some cases, it is preferable to extend the effect of bonuses instead. A typic
 }
 ```
 
-This propagator extends the ability to all units in the hero's army, including the unit from which it originates. It is possible to propagate the bonus to most entities that form part of the bonus system. Please refer to the bonus system reference for details.
+This propagator extends the ability to all units in the hero's army, including the unit from which it originates. It is possible to propagate the bonus to most entities that form part of the bonus system. Please refer to the [bonus propagators documentation](../Bonus/Bonus_Propagators.md) for details.
 
 ### Bonus Updaters
 
@@ -140,6 +153,8 @@ Unlike propagators and limiters, updaters do not modify the entities affected by
 ```
 
 This speciality increases the hero's attack by 1, multiplied by their level. For example, a level 20 hero would have an attack of +20.
+
+Full list of supported bonus updaters can be found in [bonus updaters documentation](../Bonus/Bonus_Updaters.md)
 
 ### Only enemy side bonus
 
@@ -171,7 +186,7 @@ As can be seen from the example, such bonuses must perform the following operati
 
 As mentioned in previous parts, the propagator allows bonuses to be propagated 'upwards', and bonuses only affect entities 'downwards' by default. Generally, it is clear which entities lie 'upwards' or 'downwards' – for example, creatures belong to an army, which belongs to a hero, who belongs to a player. Some cases might not be so clear, but you can consult the diagram below for help.
 
-In this diagram, all entities connected to an entity above are considered to be 'below', and vice versa:
+In this diagram, all entities connected to an entity above it are considered to be 'below', and vice versa:
 
 ![Bonus System Nodes Diagram](../../images/Bonus_System_Nodes.svg)
 

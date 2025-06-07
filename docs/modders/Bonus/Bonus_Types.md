@@ -255,7 +255,7 @@ Gives additional bonus to effect of all spells of selected school
 
 ### SPECIFIC_SPELL_DAMAGE
 
-For `damage` and `heal` spell effects, increases spell power by specific percentage
+For `damage`, `heal` and `demonSummon` spell effects, increases spell power by specific percentage
 
 - subtype: identifier of affected spell
 - val: bonus to spell effect, percentage

@@ -330,7 +330,7 @@ Casting the spell with "massive" target will randomly pick selected number of ta
 
 ```json
 
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:catapult"
 
 	// How many targets will be attacked by the spell
@@ -362,7 +362,7 @@ Casting the spell with "massive" target will randomly pick selected number of ta
 Configurable version of Clone spell. Casting the spell will create clone of targeted unit that belongs to side of spell caster.
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:clone"
 
 	// Maximal tier of unit on which this spell can be cast
@@ -383,7 +383,7 @@ Target with SPELL_DAMAGE_REDUCTION bonus with value greater than 100% for any of
 
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:damage",
 	"killByCount": false, 
 	"killByPercentage" : false,
@@ -402,7 +402,7 @@ Only bonuses from spells with specified positiveness(es) will be dispelled. See 
 
 ```json
 
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:dispel",
 	
 	/// if set, spell will dispell other spells with "positive" flag
@@ -425,7 +425,7 @@ If parameter `minFullUnits` is non-zero, spell can only be cast if it will at le
 Spell can be used on dead units, but only if corpse is not blocked by a living unit.
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:heal",
 	
 	/// Minimal amount of health points that this spell can restore, based on target creature health
@@ -442,21 +442,109 @@ Spell can be used on dead units, but only if corpse is not blocked by a living u
 }
 ```
 
+### Sacrifice
+
+Sacrifice spell. Allows to destroy first target, while healing the second one. Destroyed unit is completely removed from the game.
+
+Effect configuration is identical to [Heal effect](#heal).
+
+```json
+"firstSpellEffect":{
+	"type": "core:sacrifice"
+	"minFullUnits" : 1,
+	"healLevel" : "heal",
+	"healPower" : "permanent"
+}
+```
+
 ### Obstacle
 
 TODO
+
+```json
+"firstSpellEffect":{
+	"type": "core:obstacle"
+	
+	"hidden" : false,
+	"passable" : false,
+	"trap" : false,
+	"removeOnTrigger" : false,
+	"hideNative" : false,
+
+	"patchCount" : 1,
+	"turnsRemaining" : 1,
+	"triggerAbility" : "obstacleTriggerAbility",
+	
+	"attacker" : {
+		"shape" : [],
+		"range" : [],
+		"appearSound" : {},
+		"appearAnimation" : {},
+		"animation" : {},
+		"offsetY" : 0
+	},
+	
+	"defender" : {
+		"shape" : [],
+		"range" : [],
+		"appearSound" : {},
+		"appearAnimation" : {},
+		"animation" : {},
+		"offsetY" : 0
+	}
+}
+```
 
 ### Moat
 
 TODO
 
+```json
+"firstSpellEffect":{
+	"type": "core:moat"
+	
+	"hidden" : false,
+	"trap" : false,
+	"removeOnTrigger" : false,
+	"dispellable" : false,
+
+	"moatDamage" : 90,
+	"moatHexes" : [],
+
+	"triggerAbility" : "obstacleTriggerAbility",
+	
+	"defender" : {
+		"shape" : [],
+		"range" : [],
+		"appearSound" : {},
+		"appearAnimation" : {},
+		"animation" : {},
+		"offsetY" : 0
+	}
+}
+```
+
 ### Remove obstacle
 
-TODO
+Effect removes an obstacle from targeted hex
 
-### Sacrifice
+```json
+"firstSpellEffect":{
+	"type": "core:removeObstacle",
+	
+	/// If set to true, spell can remove large ("absolute") obstacles
+	"removeAbsolute" : false,
 
-TODO
+	/// If set to true, spell can remove small obstacles (H3 behavior)
+	"removeUsual" : true,
+	
+	// If set to true, spell can remove any obstacle that was created by spell
+	"removeAllSpells" : true,
+	
+	// If set to true, spell can remove obstacles that were created with specific spell
+	"removeSpells" : [ "spellA", "spellB" ],
+}
+```
 
 ### Summon
 
@@ -472,7 +560,7 @@ if `summonSameUnit` flag is set, and same creature was already summoned before, 
 
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:summon",
 	
 	/// Unit to summon
@@ -495,7 +583,7 @@ Raised amount of units is limited by (rounded down):
 - total stack size of summoned unit can not be greater than stack size of dead unit
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:demonSummon",
 	
 	/// Unit to summon
@@ -511,7 +599,7 @@ Raised amount of units is limited by (rounded down):
 Effect instantly moves unit from its current location to targeted tile
 
 ```json
-"mod:effectId":{
+"firstSpellEffect":{
 	"type": "core:teleport",
 	
 	/// If true, unit will trigger obstacles on destination location
@@ -540,7 +628,7 @@ Value of all bonuses can be affected by following bonuses:
 - SPECIAL_FIXED_VALUE_ENCHANT: value from addInfo replaces val of bonus
 
 ```json
-"mod:effectId" : {
+"firstSpellEffect" : {
 	"type": "core:timed",
 
 	// if set to true, recasting same spell will accumulate (and prolong) effects of previous spellcast
