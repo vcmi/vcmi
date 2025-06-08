@@ -91,8 +91,8 @@ class JsonNode;
 	BONUS_NAME(DEFENSIVE_STANCE) /* val - bonus to defense while defending */ \
 	BONUS_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
 	BONUS_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
-	BONUS_NAME(FEAR)									\
-	BONUS_NAME(FEARLESS)								\
+	BONUS_NAME(FEARFUL)									\
+	BONUS_NAME(LIVING)									\
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
 	BONUS_NAME(ENCHANTER)/* for Enchanter spells, val - skill level, subtype - spell id, additionalInfo - cooldown */ \
 	BONUS_NAME(HEALER)									\

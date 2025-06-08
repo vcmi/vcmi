@@ -186,14 +186,7 @@ ui32 ACreature::getMovementRange(int turn) const
 
 bool ACreature::isLiving() const //TODO: theoreticaly there exists "LIVING" bonus in stack experience documentation
 {
-	static const std::string cachingStr = "ACreature::isLiving";
-	static const CSelector selector = Selector::type()(BonusType::UNDEAD)
-		.Or(Selector::type()(BonusType::NON_LIVING))
-		.Or(Selector::type()(BonusType::MECHANICAL))
-		.Or(Selector::type()(BonusType::GARGOYLE))
-		.Or(Selector::type()(BonusType::SIEGE_WEAPON));
-
-	return !getBonusBearer()->hasBonus(selector, cachingStr);
+	return getBonusBearer()->hasBonusOfType(BonusType::LIVING);
 }
 
 

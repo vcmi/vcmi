@@ -66,7 +66,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		return;
 	}
 	//don't show animation when no HP is regenerated
-	switch(static_cast<BonusType>(bte.effect))
+	switch(bte.effect)
 	{
 		case BonusType::HP_REGENERATION:
 			displayEffect(EBattleEffect::REGENERATION, AudioPath::builtin("REGENER"), stack->getPosition(), 0.5);
@@ -77,7 +77,7 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 		case BonusType::POISON:
 			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
-		case BonusType::FEAR:
+		case BonusType::FEARFUL:
 			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition(), 0.5);
 			break;
 		case BonusType::MORALE:

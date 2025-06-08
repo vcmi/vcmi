@@ -936,6 +936,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
+	static const CSelector livingSelector = Selector::type()(BonusType::UNDEAD)
+		.Or(Selector::type()(BonusType::NON_LIVING))
+		.Or(Selector::type()(BonusType::MECHANICAL))
+		.Or(Selector::type()(BonusType::GARGOYLE))
+		.Or(Selector::type()(BonusType::SIEGE_WEAPON));
+
+	if (!creature->hasBonus(livingSelector))
+		creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
+
 	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = FactionID(faction);
@@ -1076,7 +1085,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.subtype = BonusCustomSubtype::deathStareGorgon;
 		break;
 	case 'F':
-		b.type = BonusType::FEAR; break;
+		b.type = BonusType::FEARFUL; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
 		b.subtype = BonusSubtypeID(SpellSchool::ANY);
@@ -1105,7 +1114,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'D':
 				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = BonusType::FEARLESS; break;
+				b.type = BonusType::FEARFUL; break;
 			case 'F':
 				b.type = BonusType::FLYING; break;
 			case 'm':

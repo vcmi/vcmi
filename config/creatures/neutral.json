@@ -83,13 +83,20 @@
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
-			"fear" :
+			"fearful" :
 			{
-				"type" : "FEAR"
+				"type" : "FEARFUL",
+				"val" : 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"limiters" : [ "OPPOSITE_SIDE", "LIVING" ]
 			},
-			"fearless" :
+			"fearfulImmune" :
 			{
-				"type" : "FEARLESS"
+				"type" : "FEARFUL",
+				"valueType" : "INDEPENDENT_MAX",
+				"val" : 0
+				
 			},
 			"spellImmunity" :
 			{

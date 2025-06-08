@@ -1191,7 +1191,7 @@ void GameStatePackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 {
 	CStack * st = gs.getBattle(pack.battleID)->getStack(pack.stackID);
 	assert(st);
-	switch(static_cast<BonusType>(pack.effect))
+	switch(pack.effect)
 	{
 		case BonusType::HP_REGENERATION:
 		{
@@ -1218,11 +1218,11 @@ void GameStatePackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 		case BonusType::ENCHANTER:
 		case BonusType::MORALE:
 			break;
-		case BonusType::FEAR:
+		case BonusType::FEARFUL:
 			st->fear = true;
 			break;
 		default:
-			logNetwork->error("Unrecognized trigger effect type %d", pack.effect);
+			logNetwork->error("Unrecognized trigger effect type %d", static_cast<int>(pack.effect));
 	}
 }
 
