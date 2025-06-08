@@ -413,6 +413,12 @@ Increases starting amount of shots that unit has in battle
 
 ## Static abilities and immunities
 
+### LIVING
+
+Affected unit is considered to be alive. Automatically granted to any unit that is not UNDEAD, NON_LIVING, MECHANICAL, GARGOYLE, or SIEGE_WEAPON.
+
+Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
+
 ### NON_LIVING
 
 Affected unit is considered to not be alive and not affected by morale and certain spells
@@ -494,6 +500,12 @@ Affected unit can retaliate multiple times per turn (basic Griffin)
 Affected unit will deal more damage based on movement distance (Champions)
 
 - val: additional damage per passed tile, percentage
+
+### VULNERABLE_FROM_BACK
+
+Affected unit will receive more damage when attacked from behind. Attacked unit will not turn around to face the attacker
+
+- val: additional damage for attacks from behind, percentage (0-100)
 
 ### HATE
 

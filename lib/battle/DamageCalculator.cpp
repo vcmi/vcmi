@@ -275,6 +275,15 @@ double DamageCalculator::getAttackJoustingFactor() const
 	return 0.0;
 }
 
+double DamageCalculator::getAttackFromBackFactor() const
+{
+	int value = info.defender->valOfBonuses(BonusType::VULNERABLE_FROM_BACK);
+
+	if (value != 0 && callback.isToReverse(info.attacker, info.defender, info.attackerPos, info.defenderPos))
+		return value / 100.0;
+	return 0;
+}
+
 double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
@@ -462,6 +471,7 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackBlessFactor(),
 		getAttackLuckFactor(),
 		getAttackJoustingFactor(),
+		getAttackFromBackFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
 		getAttackHateFactor(),
