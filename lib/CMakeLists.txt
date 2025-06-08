@@ -69,7 +69,6 @@ set(lib_MAIN_SRCS
 	bonuses/BonusCache.cpp
 	bonuses/BonusEnum.cpp
 	bonuses/BonusList.cpp
-	bonuses/BonusParams.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
 	bonuses/CBonusSystemNode.cpp
@@ -450,7 +449,6 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
 	bonuses/BonusList.h
-	bonuses/BonusParams.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
 	bonuses/CBonusSystemNode.h

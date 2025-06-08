@@ -15,7 +15,6 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../GameLibrary.h"
-#include "../bonuses/BonusParams.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
@@ -370,33 +369,6 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 	}
 }
 
-static BonusParams convertDeprecatedBonus(const JsonNode &ability)
-{
-	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
-	{
-		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toString());
-		auto params = BonusParams(ability["type"].String(),
-											ability["subtype"].isString() ? ability["subtype"].String() : "",
-											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
-		if(params.isConverted)
-		{
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
-			{
-				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
-				params.targetType = BonusSource::SECONDARY_SKILL;
-			}
-
-			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toString());
-			return params;
-		}
-		else
-			logMod->error("Cannot convert bonus!\n%s", ability.toString());
-	}
-	BonusParams ret;
-	ret.isConverted = false;
-	return ret;
-}
-
 static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 {
 	const std::map<std::string, std::shared_ptr<IUpdater>> bonusUpdaterMap =
@@ -657,34 +629,21 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
-	auto params = std::make_unique<BonusParams>(false);
 	if (it == bonusNameMap.end())
 	{
-		params = std::make_unique<BonusParams>(convertDeprecatedBonus(ability));
-		if(!params->isConverted)
-		{
-			logMod->error("Error: invalid ability type %s.", type);
-			return false;
-		}
-		b->type = params->type;
-		b->val = params->val.value_or(0);
-		b->valType = params->valueType.value_or(BonusValueType::ADDITIVE_VALUE);
-		if(params->targetType)
-			b->targetSourceType = params->targetType.value();
+		logMod->error("Error: invalid ability type %s.", type);
+		return false;
 	}
 	else
 		b->type = it->second;
 
-	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson()["subtype"] : ability["subtype"]);
+	loadBonusSubtype(b->subtype, b->type, ability["subtype"]);
 
-	if(!params->isConverted)
-	{
-		b->val = static_cast<si32>(ability["val"].Float());
+	b->val = static_cast<si32>(ability["val"].Float());
 
-		value = &ability["valueType"];
-		if (!value->isNull())
-			b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
-	}
+	value = &ability["valueType"];
+	if (!value->isNull())
+		b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
 
 	b->stacking = ability["stacking"].String();
 
