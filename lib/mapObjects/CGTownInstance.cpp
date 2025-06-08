@@ -683,7 +683,15 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState().getMap().townUniversitySkills;
+		for (const auto & buildingID : builtBuildings)
+		{
+			const auto * buildingPtr = getTown()->buildings.at(buildingID).get();
+			if (vstd::contains(buildingPtr->marketModes, mode))
+				return buildingPtr->marketOffer;
+		}
+
+		logMod->warn("Town has resource-skill trade but has no skills to offer!");
+		return {};
 	}
 	else
 		return IMarket::availableItemsIds(mode);

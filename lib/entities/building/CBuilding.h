@@ -15,6 +15,7 @@
 #include "../../LogicalExpression.h"
 #include "../../ResourceSet.h"
 #include "../../bonuses/BonusList.h"
+#include "../../networkPacks/TradeItem.h"
 #include "../../rewardable/Info.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -39,6 +40,7 @@ public:
 	ArtifactID warMachine;
 	TownFortifications fortifications;
 	std::set<EMarketMode> marketModes;
+	std::vector<TradeItemBuy> marketOffer;
 
 	BuildingID bid; //structure ID
 	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty

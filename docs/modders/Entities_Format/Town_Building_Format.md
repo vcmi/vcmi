@@ -213,6 +213,10 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	
 	// If the building is a market, it requires market mode.
 	"marketModes" : [ "resource-resource", "resource-player" ],
+	
+	// Required if building offers resource-skill trade.
+	// NOTE: multiple resource-skill buildings in the same town are not supported
+	"marketOffer" : [ "fireMagic", "airMagic", "waterMagic", "earthMagic" ],
 }
 ```
 

@@ -134,5 +134,13 @@
 			},
 			"description" : "List of modes available in this market"
 		}
+		
+		"marketOffer" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "List of predefined items available on market from this building"
+		}
 	}
 }

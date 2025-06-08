@@ -386,7 +386,23 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	for(const auto & element : source["marketModes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
-			ret->marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
+		{
+			auto mode = MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String());
+			ret->marketModes.insert(mode);
+
+			if (mode == EMarketMode::RESOURCE_SKILL)
+			{
+				const auto & items = source["marketOffer"].Vector();
+				ret->marketOffer.resize(items.size());
+				for (int i = 0; i < items.size(); ++i)
+				{
+					LIBRARY->identifiers()->requestIdentifier("secondarySkill", items[i], [ret, i](si32 identifier)
+					{
+						ret->marketOffer[i] = SecondarySkill(identifier);
+					});
+				}
+			}
+		}
 	}
 
 	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
