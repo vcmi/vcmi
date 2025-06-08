@@ -31,6 +31,7 @@ class CListBox;
 class CTabbedInt;
 class CGStatusBar;
 class CGarrisonInt;
+class CMultiLineLabel;
 
 class CKingdHeroList;
 class CKingdTownList;
@@ -271,6 +272,9 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 
 	std::vector<std::shared_ptr<CCreaInfo>> available;
 	std::vector<std::shared_ptr<CCreaInfo>> growth;
+
+	std::shared_ptr<CMultiLineLabel> labelCreatureAvailable;
+	std::shared_ptr<CMultiLineLabel> labelCreatureGrowth;
 
 	std::shared_ptr<LRClickableAreaOpenTown> openTown;
 
