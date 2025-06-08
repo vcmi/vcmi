@@ -270,20 +270,24 @@ Most of battle effects are scaled based on spell effect value. This value is sam
 ```text
 caster spell power * base spell power + spell mastery power(caster spell school)
 ```
+
 Where:
-- `caster spell school` is assumed spell school level for the spell. For unit this is value of SPELLCASTER bonus. For hero this is value of MAGIC_SCHOOL_SKILL or SPELL bonus, whichever is greater
+
+- `caster spell school` is assumed spell school level for the spell. For unit this is value of [SPELLCASTER](../bonus/Bonus_Types.md#spellcaster) bonus. For hero this is value of [MAGIC_SCHOOL_SKILL](../bonus/Bonus_Types.md#magic_school_skill) or [SPELL](../bonus/Bonus_Types.md#spell) bonus, whichever is greater
 - `spell mastery power` is `power` parameter defined in config of corresponding mastery level of the spell
 - `base spell power` is `power` parameter, as defined in config of spell itself
-- `caster spell power` is spellpower of the hero, or CREATURE_SPELL_POWER bonus for units
+- `caster spell power` is spellpower of the hero, or [CREATURE_SPELL_POWER](../bonus/Bonus_Types.md#creature_spell_power) bonus for units
 
-If unit has SPECIFIC_SPELL_POWER bonus for corresponding spell, game will use value of the bonus instead
+If unit has [SPECIFIC_SPELL_POWER](../bonus/Bonus_Types.md#specific_spell_power) bonus for corresponding spell, game will use value of the bonus instead
 
 Power of `damage`, `heal`, `summon`, and `demonSummon` effects cast by hero can also be affected by following bonuses:
-- SPECIAL_SPELL_LEV bonus for the spell, scaled down by target level (Solmyr / Deemer)
+
+- [SPECIAL_SPELL_LEV](../bonus/Bonus_Types.md#special_spell_lev) bonus for the spell, scaled down by target level (Solmyr / Deemer)
 
 Following bonuses will only affect `damage`, `heal` and `demonSummon` effects
-- SPELL_DAMAGE for specific spell school (Sorcery)
-- SPECIFIC_SPELL_DAMAGE for the spell (Luna / Ciele)
+
+- [SPELL_DAMAGE](../bonus/Bonus_Types.md#spell_damage) for specific spell school (Sorcery)
+- [SPECIFIC_SPELL_DAMAGE](../bonus/Bonus_Types.md#specific_spell_damage) for the spell (Luna / Ciele)
 
 ## Smart target modifier
 
@@ -373,14 +377,14 @@ Configurable version of Clone spell. Casting the spell will create clone of targ
 ### Damage
 
 Deals specified damage to all affected targets based on spell effect value:
+
 - if `killByPercentage` is set, spell will deal damage equal to unit total health * [spell effect power](#spell-power) / 100
 - if `killByCount` is set, spell will deal damage equal to single creature health * [spell effect power](#spell-power)
 - if neither flag is set, spell will deal damage equal to [spell effect power](#spell-power)
 
 If spell has chain effect, damage dealt to chained target will be multiplied by specified `chainFactor`
 
-Target with SPELL_DAMAGE_REDUCTION bonus with value greater than 100% for any of spell school of the spell are immune to this effect
-
+Target with [SPELL_DAMAGE_REDUCTION](../bonus/Bonus_Types.md#spell_damage_reduction) bonus with value greater than 100% for any of spell school of the spell are immune to this effect
 
 ```json
 "firstSpellEffect":{
@@ -393,6 +397,7 @@ Target with SPELL_DAMAGE_REDUCTION bonus with value greater than 100% for any of
 ### Dispel
 
 Dispells all bonuses provided by any other spells from this unit. Following spells can not be dispelled
+
 - Disrupting ray
 - Acid Breath
 - any effects from adventure spells
@@ -401,7 +406,6 @@ Dispells all bonuses provided by any other spells from this unit. Following spel
 Only bonuses from spells with specified positiveness(es) will be dispelled. See configuration example.
 
 ```json
-
 "firstSpellEffect":{
 	"type": "core:dispel",
 	
@@ -558,7 +562,6 @@ If `summonByHealth` option is set, then number of summoned units will be equal t
 
 if `summonSameUnit` flag is set, and same creature was already summoned before, spell will instead heal unit in "overheal" mode, using same [spell effect power](#spell-power).
 
-
 ```json
 "firstSpellEffect":{
 	"type": "core:summon",
@@ -578,6 +581,7 @@ if `summonSameUnit` flag is set, and same creature was already summoned before, 
 Implements Pit Lord's ability with the same name. Raises targeted dead unit as unit specified in spell parameters on casters side. New unit will be placed on the same position as corpse, and corpse will be removed from the battlefield
 
 Raised amount of units is limited by (rounded down):
+
 - total HP of summoned unit can not be larger than [spell effect power](#spell-power) of caster
 - total HP of summoned unit can not be larger than total HP of dead unit
 - total stack size of summoned unit can not be greater than stack size of dead unit
@@ -619,13 +623,14 @@ Timed effect gives affected units specified bonuses for duration of the spell.
 
 Duration of effect is:
 
-- Hero: Spellpower + value of SPELL_DURATION + SPELL_DURATION for specific spell
-- Units: value of CREATURE_ENCHANT_POWER, or 3 if no such bonus
+- Hero: Spellpower + value of [SPELL_DURATION](../bonus/Bonus_Types.md#spell_duration) + [SPELL_DURATION](../bonus/Bonus_Types.md#spell_duration) for specific spell
+- Units: value of [CREATURE_ENCHANT_POWER](../bonus/Bonus_Types.md#creature_enchant_power), or 3 if no such bonus
 
 Value of all bonuses can be affected by following bonuses:
-- SPECIAL_PECULIAR_ENCHANT: value modified by 1-3 according to level of target unit
-- SPECIAL_ADD_VALUE_ENCHANT: value from addInfo is added to val of bonus
-- SPECIAL_FIXED_VALUE_ENCHANT: value from addInfo replaces val of bonus
+
+- [SPECIAL_PECULIAR_ENCHANT](../bonus/Bonus_Types.md#special_peculiar_enchant): value modified by 1-3 according to level of target unit
+- [SPECIAL_ADD_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_add_value_enchant): value from addInfo is added to val of bonus
+- [SPECIAL_FIXED_VALUE_ENCHANT](../bonus/Bonus_Types.md#special_fixed_value_enchant): value from addInfo replaces val of bonus
 
 ```json
 "firstSpellEffect" : {

@@ -78,9 +78,9 @@ Allows flying movement for affected heroes
 
 Eliminates terrain penalty on certain terrain types for affected heroes (Nomads ability).
 
-Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
+Note: to eliminate all terrain penalties see [ROUGH_TERRAIN_DISCOUNT](#rough_terrain_discount) bonus
 
-- subtype: type of terrain, eg `terrain.sand`
+- subtype: type of terrain, eg `sand`
 
 ### TERRAIN_NATIVE
 
@@ -182,7 +182,7 @@ Allows affected heroes to position army before start of battle (Tactics)
 
 ### BEFORE_BATTLE_REPOSITION_BLOCK
 
-Reduces distance in which enemy hero can reposition. Counters BEFORE_BATTLE_REPOSITION bonus
+Reduces distance in which enemy hero can reposition. Counters [BEFORE_BATTLE_REPOSITION](#before_battle_reposition) bonus
 
 - val: distance within which hero can reposition his troops
 
@@ -200,7 +200,7 @@ Increases experience gain from combat by affected units. No effect if stack expe
 
 ### UNDEAD_RAISE_PERCENTAGE
 
-Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by IMPROVED_NECROMANCY bonus
+Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by [IMPROVED_NECROMANCY](#improved_necromancy) bonus
 
 - val: percentage of raised troops
 

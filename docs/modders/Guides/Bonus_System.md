@@ -137,7 +137,7 @@ This propagator extends the ability to all units in the hero's army, including t
 
 ### Bonus Updaters
 
-Unlike propagators and limiters, updaters do not modify the entities affected by the bonus; instead, they modify the bonus itself. This is primarily used for H3 hero specialties, which are often scaled according to the level of the hero or the level of the affected unit. However, it is possible to use updaters in other areas if desired. Example: 
+Unlike propagators and limiters, updaters do not modify the entities affected by the bonus; instead, they modify the bonus itself. This is primarily used for H3 hero specialties, which are often scaled according to the level of the hero or the level of the affected unit. However, it is possible to use updaters in other areas if desired. Example:
 
 ```json
 "specialty" : {
@@ -176,6 +176,7 @@ For example, to implement the morale-reducing ability of Ghost Dragons, you can 
 ```
 
 As can be seen from the example, such bonuses must perform the following operations to work:
+
 - The `BATTLE_WIDE` propagator extends the effect of the bonus to the entire battlefield.
 - a `BONUS_OWNER_UPDATER` propagation updater – to indicate which side of the battlefield the bonus originates from
 - an `OPPOSITE_SIDE` limiter to restrict the bonus to units (or heroes) belonging to the other side of the battle.
@@ -190,9 +191,10 @@ In this diagram, all entities connected to an entity above it are considered to 
 
 ![Bonus System Nodes Diagram](../../images/Bonus_System_Nodes.svg)
 
-### Combining updaters, propagators and limiters 
+### Combining updaters, propagators and limiters
 
 When the game evaluates bonuses, the following order of operations is performed:
+
 - If the bonus has a propagator, the game will attempt to look upwards through the bonus tree to find the entity to which the bonus should be propagated.
 - If such an entity is found and the bonus has a propagation updater, the updater is executed using the context of the bonus source.
 - The bonus is then moved to the entity to which it was propagated.
@@ -200,6 +202,7 @@ When the game evaluates bonuses, the following order of operations is performed:
 - Once all bonuses have been collected, the game executes the limiter on each bonus and drops the bonus on a negative result.
 
 As a result, there are some considerations you should bear in mind.
+
 - The bonus updater is executed on every entity between the bonus source (or the bonus propagation target if a propagator is used). For example, a bonus propagated to a hero from a creature can use updaters that require either the hero or the creature.
 - The bonus propagation updater, however, can only be used with updaters that require a creature as context in the case of a creature ability.
-- A bonus limiter can only be used on the final entity through which the game accesses the bonus system for this particular bonus. For example, the SPECIAL_UPGRADE bonus is checked from the hero's perspective and can only be used with limiters that are valid for heroes.
+- A bonus limiter can only be used on the final entity through which the game accesses the bonus system for this particular bonus. For example, the SIGHT_RADIUS bonus is checked from the hero's perspective and can only be used with limiters that are valid for heroes.
