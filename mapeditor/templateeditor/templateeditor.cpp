@@ -12,6 +12,7 @@
 #include "ui_templateeditor.h"
 #include "graphicelements.h"
 #include "terrainselector.h"
+#include "factionselector.h"
 #include "algorithm.h"
 
 #include "../helper.h"
@@ -1022,14 +1023,12 @@ void TemplateEditor::on_pushButtonOpenBannedTerrainTypes_clicked()
 
 void TemplateEditor::on_pushButtonAllowedTowns_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	FactionSelector::showFactionSelector(templates[selectedTemplate]->getZones().at(selectedZone)->townTypes);
 }
 
 void TemplateEditor::on_pushButtonBannedTowns_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	FactionSelector::showFactionSelector(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTownTypes);
 }
 
 void TemplateEditor::on_pushButtonTownHints_clicked()
@@ -1040,14 +1039,12 @@ void TemplateEditor::on_pushButtonTownHints_clicked()
 
 void TemplateEditor::on_pushButtonAllowedMonsters_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	FactionSelector::showFactionSelector(templates[selectedTemplate]->getZones().at(selectedZone)->monsterTypes);
 }
 
 void TemplateEditor::on_pushButtonBannedMonsters_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	FactionSelector::showFactionSelector(templates[selectedTemplate]->getZones().at(selectedZone)->bannedMonsters);
 }
 
 void TemplateEditor::on_pushButtonTreasure_clicked()
