@@ -49,7 +49,8 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="134"/>
         <source>VCMI Campaign Editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Editor Campagna VCMI</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
@@ -100,24 +101,28 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Proprietà della Campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Proprietà dello Scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
         <source>Show full background</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mostra sfondo completo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="99"/>
         <source>Scenario editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Editor scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="122"/>
@@ -137,12 +142,14 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="167"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tutte le campagne supportate (*.vcmp *.h3c);;Campagne VCMI (*.vcmp);;Campagne HoMM3 (*.h3c)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
         <source>Save campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Salva campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
@@ -156,7 +163,8 @@
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
         <location filename="../campaigneditor/campaignproperties.cpp" line="27"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Proprietà della Campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
@@ -166,12 +174,14 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
         <source>Campaign name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nome della campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="46"/>
         <source>Campaign description</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Descrizione della campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
@@ -181,58 +191,69 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
         <source>Author contact (e.g. e-mail)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Contatto dell&apos;autore (es. e-mail)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="76"/>
         <source>Campaign creation date</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Data di creazione della campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="86"/>
         <source>Campaign version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Versione della campagna</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="96"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Musica</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="106"/>
         <source>Scenario difficulty is user selectable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">La difficoltà dello scenario è selezionabile dall&apos;utente</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Regioni</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Preset delle Regioni</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sfondo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="147"/>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Suffisso</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="173"/>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prefisso</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="183"/>
         <source>Color suffix length</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lunghezza suffisso colore</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
@@ -247,37 +268,44 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
         <source>Misc</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Varie</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="264"/>
         <source>Loading background image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Caricamento immagine di sfondo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="274"/>
         <source>Video rim image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Immagine bordo video</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
         <source>Intro video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Video introduttivo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
         <source>Outro video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Video finale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="45"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Personalizzato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Infix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Intersuffisso</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
@@ -292,22 +320,26 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Posizione etichetta X</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Posizione etichetta Y</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Meno scenari</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">La nuova configurazione della regione supporta meno scenari di prima. Alcuni verranno rimossi. Continuare?</translation>
     </message>
 </context>
 <context>
@@ -661,7 +693,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1033"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1043"/>
@@ -676,7 +709,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1054"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1059"/>
@@ -686,7 +720,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1062"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1067"/>
@@ -702,7 +737,8 @@
         <location filename="../mainwindow.ui" line="1075"/>
         <location filename="../mainwindow.ui" line="1078"/>
         <source>Campaign editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Editor campagna</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1083"/>
@@ -715,7 +751,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1089"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1097"/>
@@ -725,7 +762,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1100"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Maiusc+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1105"/>
@@ -735,7 +773,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1108"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1113"/>
@@ -745,7 +784,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1121"/>
@@ -755,7 +795,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1124"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1129"/>
@@ -775,7 +816,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1146"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1154"/>
@@ -790,7 +832,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1160"/>
         <source>Ctrl+Enter</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Invio</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1168"/>
@@ -800,7 +843,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1171"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1179"/>
@@ -811,7 +855,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1185"/>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1196"/>
@@ -821,7 +866,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1199"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1210"/>
@@ -831,7 +877,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1213"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Canc</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1221"/>
@@ -841,7 +888,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1224"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1229"/>
@@ -851,7 +899,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1232"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Maiusc+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1240"/>
@@ -874,7 +923,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1273"/>
@@ -884,7 +934,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1284"/>
@@ -894,7 +945,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1287"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1295"/>
@@ -904,7 +956,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1298"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1306"/>
@@ -914,7 +967,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1309"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1317"/>
@@ -924,7 +978,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1320"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1328"/>
@@ -934,7 +989,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1331"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1339"/>
@@ -944,7 +1000,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1347"/>
@@ -954,7 +1011,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1350"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
@@ -975,7 +1033,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1372"/>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Maiusc+M</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -986,7 +1045,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1383"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Maiusc+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1388"/>
@@ -1026,7 +1086,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1413"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
@@ -1295,19 +1356,25 @@
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>Missing Required Mod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mod mancante richiesto</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+
+
+Vuoi farlo ora?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="615"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">La mod di questo oggetto è obbligatoria affinché la mappa rimanga valida.</translation>
     </message>
 </context>
 <context>
@@ -1505,22 +1572,26 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona giocatore</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">L'eroe non può essere creato come NEUTRALE</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Passa a uno dei giocatori disponibili:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Scorciatoia: %1</translation>
     </message>
 </context>
 <context>
@@ -1957,14 +2028,17 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapcontroller.cpp" line="628"/>
         <source> (submod of %1)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> (sottomodulo di %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="630"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">La mod &apos;%1&apos;%2 è richiesta da un oggetto sulla mappa.
+Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="147"/>
@@ -2579,7 +2653,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Proprietà dello scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="30"/>
@@ -2589,32 +2664,38 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
         <source>Region name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nome regione</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="50"/>
         <source>Region color</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Colore regione</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="60"/>
         <source>Scenario name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nome scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="74"/>
         <source>Map file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">File mappa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="90"/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Importa...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="97"/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Esporta...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="104"/>
@@ -2625,27 +2706,32 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="113"/>
         <source>Default difficulty</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Difficoltà predefinita</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="123"/>
         <source>Prerequisites</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prerequisiti</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="133"/>
         <source>Region right-click text</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Testo clic destro regione</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="144"/>
         <source>Prologue/Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prologo/Epilogo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="150"/>
         <source>Prologue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prologo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="156"/>
@@ -2657,19 +2743,22 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="245"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Video</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="262"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Musica</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Voice</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Voce</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="214"/>
@@ -2680,17 +2769,20 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="227"/>
         <source>Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Epilogo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="305"/>
         <source>Crossover</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Continuità</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="311"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gli eroi di continuità mantengono</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="317"/>
@@ -2705,7 +2797,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="331"/>
         <source>Secondary skills</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità secondarie</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="338"/>
@@ -2720,7 +2813,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="378"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tutti</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="385"/>
@@ -2730,74 +2824,88 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Artefatti di continuità</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="441"/>
         <source>Starting</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Inizio</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="447"/>
         <source>Starting options are</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Le opzioni iniziali sono</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="454"/>
         <source>Starting bonus options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Opzioni bonus iniziale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="461"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Opzioni eroe di continuità</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="468"/>
         <source>Starting hero options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Opzioni eroe iniziale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="486"/>
         <source>Bonus</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bonus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="492"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Player position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Posizione del giocatore</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="502"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Opzione bonus iniziale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="513"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Continuità/Eroe iniziale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="531"/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Aggiungi...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="538"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Modifica...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="115"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Più forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="116"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Generato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="117"/>
@@ -2807,7 +2915,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="134"/>
         <source>No map</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nessuna mappa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="177"/>
@@ -2828,13 +2937,15 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Errore</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Could not open the file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Impossibile aprire il file.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
@@ -2844,22 +2955,26 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>VCMI maps (*.vmap);</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mappe VCMI (*.vmap);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>HoMM3 maps (*.h3m);</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mappe HoMM3 (*.h3m);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Source scenario</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Scenario di origine</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Eroe</translation>
     </message>
 </context>
 <context>
@@ -2867,12 +2982,14 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="14"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Proprietà dello scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="20"/>
         <source>Select a bonus type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona un tipo di bonus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="27"/>
@@ -2886,7 +3003,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Creatura</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
@@ -2894,7 +3012,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="335"/>
         <source>Building</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Edificio</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="48"/>
@@ -2907,13 +3026,15 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
         <location filename="../campaigneditor/startingbonus.ui" line="254"/>
         <source>Spell scroll</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Pergamena magica</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità primaria</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
@@ -2921,7 +3042,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="343"/>
         <source>Secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità secondaria</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
@@ -2938,28 +3060,33 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="300"/>
         <location filename="../campaigneditor/startingbonus.ui" line="370"/>
         <source>Recipient</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Destinatario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tipo di creatura</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
         <location filename="../campaigneditor/startingbonus.ui" line="430"/>
         <source>Quantity</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Quantità</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="310"/>
         <source>Attack skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità attacco</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="320"/>
         <source>Defense skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità difesa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
@@ -2974,27 +3101,32 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
         <source>Mastery</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Padronanza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="420"/>
         <source>Resource type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tipo di risorsa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="34"/>
         <source>Edit Starting Bonus</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Modifica bonus iniziale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="62"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Più forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="63"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Generato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
@@ -3004,52 +3136,62 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="121"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Comune (%1 e %2)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="126"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Raro (%1, %2, %3, %4)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="298"/>
         <source>strongest hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">eroe più forte</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="300"/>
         <source>generated hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">eroe generato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="302"/>
         <source>random hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">eroe casuale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="331"/>
         <source>%1 spell for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 incantesimo per %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="333"/>
         <source>%1 %2 for %3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 %2 per %3</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="337"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 artefatto per %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="339"/>
         <source>%1 spell scroll for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 pergamena magica per %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="341"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità primaria (Attacco: %1, Difesa: %2, Magia: %3, Conoscenza: %4) per %5</translation>
     </message>
 </context>
 <context>
@@ -3452,7 +3594,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="87"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">L&apos;oggetto possedibile %1 NON PUÒ ESSERE SEGNATO ma deve avere un proprietario NEUTRALE o giocatore</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="111"/>
@@ -3497,7 +3640,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>The map is valid and has no issues.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">La mappa è valida e non presenta problemi.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>
