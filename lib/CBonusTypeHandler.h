@@ -36,6 +36,7 @@ private:
 	std::map<int, std::string> valueDescriptions;
 	std::string identifier;
 
+	bool creatureNature;
 	bool hidden;
 };
 
@@ -55,6 +56,8 @@ public:
 
 	BonusType stringToBonus(const std::string & name) const;
 	const std::string bonusToString(BonusType bonus) const;
+
+	bool isCreatureNatureBonus(BonusType bonus) const;
 
 	std::vector<BonusType> getAllObjets() const;
 private:

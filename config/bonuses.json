@@ -98,14 +98,6 @@
 		}
 	},
 
-	"FEAR":
-	{
-	},
-
-	"FEARLESS":
-	{
-	},
-
 	"FEROCITY":
 	{
 	},
@@ -123,6 +115,7 @@
 
 	"GARGOYLE":
 	{
+		"creatureNature" : true,
 	},
 
 	"GENERAL_DAMAGE_REDUCTION":
@@ -178,6 +171,11 @@
 	"LIMITED_SHOOTING_RANGE":
 	{
 	},
+	
+	"LIVING":
+	{
+		"creatureNature" : true
+	},
 
 	"MANA_CHANNELING":
 	{
@@ -193,6 +191,11 @@
 
 	"MAGIC_RESISTANCE":
 	{
+	},
+	
+	"MECHANICAL":
+	{
+		"creatureNature" : true
 	},
 
 	"MIND_IMMUNITY":
@@ -231,6 +234,7 @@
 
 	"NON_LIVING":
 	{
+		"creatureNature" : true
 	},
 
 	"MECHANICAL":
@@ -268,6 +272,11 @@
 
 	"REVENGE":
 	{
+	},
+	
+	"SIEGE_WEAPON":
+	{
+		"creatureNature" : true
 	},
 
 	"SHOOTER":
@@ -348,6 +357,7 @@
 
 	"UNDEAD":
 	{
+		"creatureNature" : true,
 	},
 	
 	"UNLIMITED_RETALIATIONS":

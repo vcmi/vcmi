@@ -69,6 +69,15 @@ int AFactionMember::getMaxDamage(bool ranged) const
 	return getBonusBearer()->valOfBonuses(selector, cachingStr);
 }
 
+bool AFactionMember::unaffectedByMorale() const
+{
+	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::MECHANICAL)).Or(Selector::type()(BonusType::UNDEAD))
+													   .Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
+
+	static const std::string cachingStrUn = "AFactionMember::unaffectedByMoraleSelector";
+	return getBonusBearer()->hasBonus(unaffectedByMoraleSelector, cachingStrUn);
+}
+
 int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 {
 	int32_t maxGoodMorale = LIBRARY->engineSettings()->getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE).size();
@@ -81,12 +90,7 @@ int AFactionMember::moraleValAndBonusList(TConstBonusListPtr & bonusList) const
 		return maxGoodMorale;
 	}
 
-	static const auto unaffectedByMoraleSelector = Selector::type()(BonusType::NON_LIVING).Or(Selector::type()(BonusType::MECHANICAL)).Or(Selector::type()(BonusType::UNDEAD))
-													.Or(Selector::type()(BonusType::SIEGE_WEAPON)).Or(Selector::type()(BonusType::NO_MORALE));
-
-	static const std::string cachingStrUn = "AFactionMember::unaffectedByMoraleSelector";
-	auto unaffected = getBonusBearer()->hasBonus(unaffectedByMoraleSelector, cachingStrUn);
-	if(unaffected)
+	if(unaffectedByMorale())
 	{
 		if(bonusList && !bonusList->empty())
 			bonusList = std::make_shared<const BonusList>();

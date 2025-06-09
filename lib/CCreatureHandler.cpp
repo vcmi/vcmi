@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
 
 #include "ResourceSet.h"
@@ -900,6 +901,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
+	bool hasCreatureNatureBonus = false;
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
 	//FIXME: MOD COMPATIBILITY
@@ -913,36 +915,13 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = BonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
-		}
-	}
-	else
-	{
-		for(const JsonNode &ability : config["abilities"].Vector())
-		{
-			if(ability.getType() == JsonNode::JsonType::DATA_VECTOR)
-			{
-				logMod->error("Ignored outdated creature ability format in %s", creature->getJsonKey());
-			}
-			else
-			{
-				auto b = JsonUtils::parseBonus(ability);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
+				hasCreatureNatureBonus |= LIBRARY->bth->isCreatureNatureBonus(b->type);
 				creature->addNewBonus(b);
 			}
 		}
 	}
 
-	static const CSelector livingSelector = Selector::type()(BonusType::UNDEAD)
-		.Or(Selector::type()(BonusType::NON_LIVING))
-		.Or(Selector::type()(BonusType::MECHANICAL))
-		.Or(Selector::type()(BonusType::GARGOYLE))
-		.Or(Selector::type()(BonusType::SIEGE_WEAPON));
-
-	if (!creature->hasBonus(livingSelector))
+	if (!hasCreatureNatureBonus)
 		creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
 
 	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)

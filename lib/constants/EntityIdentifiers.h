@@ -819,8 +819,6 @@ public:
 		BONE_DRAGON = 68, // for Skeleton Transformer
 		TROGLODYTES = 70, // for Abandoned Mine
 		MEDUSA = 76, // for Siege UI workaround
-		HYDRA = 110, // for Skeleton Transformer
-		CHAOS_HYDRA = 111, // for Skeleton Transformer
 		AIR_ELEMENTAL = 112, // for tests
 		FIRE_ELEMENTAL = 114, // for tests
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability

@@ -411,33 +411,35 @@ Increases starting amount of shots that unit has in battle
 
 ## Creature abilities
 
-## Static abilities and immunities
+## Creature Natures
 
 ### LIVING
 
-Affected unit is considered to be alive. Automatically granted to any unit that is not UNDEAD, NON_LIVING, MECHANICAL, GARGOYLE, or SIEGE_WEAPON.
+Affected unit is considered to be alive. Automatically granted to any unit that does not have any other creature nature bonus
 
 Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
 
 ### NON_LIVING
 
-Affected unit is considered to not be alive and not affected by morale and certain spells
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells
 
 ### MECHANICAL
 
-Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
 
 ### GARGOYLE
 
-Affected unit is considered to be a gargoyle and not affected by certain spells
+Creature nature bonus. Affected unit is considered to be a gargoyle and not affected by certain spells
 
 ### UNDEAD
 
-Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
+Creature nature bonus. Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
 
 ### SIEGE_WEAPON
 
-Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+Creature nature bonus. Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+
+## Static abilities and immunities
 
 ### DRAGON_NATURE
 

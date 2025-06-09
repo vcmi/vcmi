@@ -122,12 +122,22 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	BonusType bonus = stringToBonus(name);
-
-	CBonusType & bt = bonusTypes[vstd::to_underlying(bonus)];
-
-	loadItem(data, bt, name);
-	logBonus->trace("Loaded bonus type %s", name);
+	if (vstd::contains(bonusNames, name))
+	{
+		//h3 bonus
+		BonusType bonus = stringToBonus(name);
+		CBonusType & bt = bonusTypes[vstd::to_underlying(bonus)];
+		loadItem(data, bt, name);
+		logBonus->trace("Loaded bonus type %s", name);
+	}
+	else
+	{
+		// new bonus
+		bonusNames.push_back(name);
+		bonusTypes.emplace_back();
+		loadItem(data, bonusTypes.back(), name);
+		logBonus->trace("New bonus type %s", name);
+	}
 }
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -139,6 +149,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 {
 	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
+	dest.creatureNature = source["creatureNature"].Bool(); //Null -> false
 
 	if (!dest.hidden)
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
@@ -195,6 +206,11 @@ BonusType CBonusTypeHandler::stringToBonus(const std::string & name) const
 const std::string CBonusTypeHandler::bonusToString(BonusType bonus) const
 {
 	return bonusNames.at(static_cast<int>(bonus));
+}
+
+bool CBonusTypeHandler::isCreatureNatureBonus(BonusType bonus) const
+{
+	return bonusTypes.at(static_cast<int>(bonus)).creatureNature;
 }
 
 std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
