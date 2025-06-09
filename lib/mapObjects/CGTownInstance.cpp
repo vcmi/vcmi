@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "CGTownInstance.h"
 
+#include "IGameSettings.h"
 #include "TownBuildingInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
@@ -42,17 +43,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int CGTownInstance::getSightRadius() const //returns sight distance
+int CGTownInstance::getSightRadius() const
 {
-	auto ret = CBuilding::HEIGHT_NO_TOWER;
-
-	for(const auto & bid : builtBuildings)
-	{
-		auto height = getTown()->buildings.at(bid)->height;
-		if(ret < height)
-			ret = height;
-	}
-	return ret;
+	int baseValue = LIBRARY->engineSettings()->getInteger(EGameSettings::TOWNS_BASE_SCOUNTING_RANGE);
+	return applyBonuses(BonusType::SIGHT_RADIUS, baseValue);
 }
 
 void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)

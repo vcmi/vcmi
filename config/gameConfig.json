@@ -314,6 +314,9 @@
 			"movementPointsLand" : [ 1500, 1500, 1500, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
 			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
 			"movementPointsSea" : [ 1500 ]
+			
+			/// Base scouting range for hero without any range modifiers
+			"baseScoutingRange" : 5,
 		},
 
 		"towns":
@@ -335,7 +338,10 @@
 			// How much researchs/skips per day are possible? (array index is spell tier)
 			"spellResearchPerDay": [ 2, 2, 2, 2, 1 ],
 			// Exponent for increasing cost for each research (factor 1 disables this; array index is spell tier)
-			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ]
+			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ],
+			
+			// Base scouting range for town without any range modifiers
+			"baseScoutingRange" : 5,
 		},
 
 		"combat":
@@ -579,12 +585,6 @@
 				{
 					"type" : "MANA_REGENERATION", //default mana regeneration
 					"val" : 1,
-					"valueType" : "BASE_NUMBER"
-				},
-				"sightRadius" :
-				{
-					"type" : "SIGHT_RADIUS", //default sight radius
-					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				"experienceGain" : 

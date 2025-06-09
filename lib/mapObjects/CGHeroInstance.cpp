@@ -1062,7 +1062,8 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 
 int CGHeroInstance::getSightRadius() const
 {
-	return valOfBonuses(BonusType::SIGHT_RADIUS); // scouting gives SIGHT_RADIUS bonus
+	int baseValue = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_BASE_SCOUNTING_RANGE);
+	return applyBonuses(BonusType::SIGHT_RADIUS, baseValue);
 }
 
 si32 CGHeroInstance::manaRegain() const

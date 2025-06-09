@@ -27,12 +27,6 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 - subtype: school of magic
 - val: level
 
-### DARKNESS
-
-On each turn, hides area in fog of war around affected town for all players other than town owner. Currently does not work for any entities other than towns.
-
-- val: radius in tiles
-
 ## Player bonuses
 
 Intended to be setup as global effect, AI cheat etc.
@@ -98,6 +92,27 @@ Changes selected primary skill for affected heroes and units
 Reveal area of fog of war around affected heroes when hero is recruited or moves
 
 - val: radius in tiles
+
+### DARKNESS
+
+On each turn, hides area in fog of war around affected objects for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+NOTE: when used by heroes, effect would still activate only on new turn, and not on every hero movement
+
+- val: radius in tiles
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_SCOUTING
+
+On each turn, reveals entire map for owner of the bonus
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_DARKNESS
+
+On each turn, hides entire map in fog of war for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
 
 ### MANA_REGENERATION
 

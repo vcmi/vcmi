@@ -60,17 +60,7 @@ public:
 		BUILD_GRAIL    // 3 - grail - building requires grail to be built
 	} mode;
 
-	enum ETowerHeight // for lookup towers and some grails
-	{
-		HEIGHT_NO_TOWER = 5, // building has not 'lookout tower' ability
-		HEIGHT_LOW = 10,     // low lookout tower, but castle without lookout tower gives radius 5
-		HEIGHT_AVERAGE = 15,
-		HEIGHT_HIGH = 20,    // such tower is in the Tower town
-		HEIGHT_SKYSHIP = std::numeric_limits<int>::max()  // grail, open entire map
-	} height;
-
 	static const std::map<std::string, CBuilding::EBuildMode> MODES;
-	static const std::map<std::string, CBuilding::ETowerHeight> TOWER_TYPES;
 
 	CBuilding() : town(nullptr), mode(BUILD_NORMAL) {};
 

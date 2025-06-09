@@ -283,8 +283,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		? CBuilding::BUILD_GRAIL
 		: vstd::find_or(CBuilding::MODES, source["mode"].String(), CBuilding::BUILD_NORMAL);
 
-	ret->height = vstd::find_or(CBuilding::TOWER_TYPES, source["height"].String(), CBuilding::HEIGHT_NO_TOWER);
-
 	ret->identifier = stringID;
 	ret->modScope = source.getModScope();
 	ret->town = town;

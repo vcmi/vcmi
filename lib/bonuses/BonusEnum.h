@@ -190,6 +190,8 @@ class JsonNode;
 	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
 	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
 	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
+	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
+	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
 	/* end of list */
 
 

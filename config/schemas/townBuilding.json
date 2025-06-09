@@ -44,11 +44,6 @@
 			"enum" : [ "normal", "auto", "special", "grail" ],
 			"description" : "Mode in which this building will be built"
 		},
-		"height" : {
-			"type" : "string",
-			"enum" : [ "skyship", "high", "average", "low"],
-			"description" : "Height for lookout towers and some grails"
-		},
 		"requires" : {
 			"$ref" : "#/definitions/buildingRequirement",
 			"description" : "List of town buildings that must be built before this one"

@@ -15,10 +15,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr) const
+int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr, int baseValue) const
 {
 	TConstBonusListPtr hlp = getAllBonuses(selector, nullptr, cachingStr);
-	return hlp->totalValue();
+	return hlp->totalValue(baseValue);
 }
 
 bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachingStr) const
@@ -63,14 +63,17 @@ TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type, BonusSubtypeID
 	return getBonuses(s, cachingStr);
 }
 
-int IBonusBearer::valOfBonuses(BonusType type) const
+int IBonusBearer::applyBonuses(BonusType type, int baseValue) const
 {
 	//This part is performance-critical
 	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type));
-
 	CSelector s = Selector::type()(type);
+	return valOfBonuses(s, cachingStr, baseValue);
+}
 
-	return valOfBonuses(s, cachingStr);
+int IBonusBearer::valOfBonuses(BonusType type) const
+{
+	return applyBonuses(type, 0);
 }
 
 bool IBonusBearer::hasBonusOfType(BonusType type) const

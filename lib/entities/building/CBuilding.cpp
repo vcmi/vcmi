@@ -25,14 +25,6 @@ const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 		{ "grail", CBuilding::BUILD_GRAIL }
 };
 
-const std::map<std::string, CBuilding::ETowerHeight> CBuilding::TOWER_TYPES =
-	{
-		{ "low", CBuilding::HEIGHT_LOW },
-		{ "average", CBuilding::HEIGHT_AVERAGE },
-		{ "high", CBuilding::HEIGHT_HIGH },
-		{ "skyship", CBuilding::HEIGHT_SKYSHIP }
-};
-
 BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 {
 	return BuildingTypeUniqueID(town->faction->getId(), bid);
