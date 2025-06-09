@@ -75,6 +75,7 @@ public:
 	bool levelHOTA5 = false; // 1.7.0
 	bool levelHOTA6 = false; // 1.7.1
 	bool levelHOTA7 = false; // 1.7.2
+	bool levelHOTA8 = false; // 1.7.3
 };
 
 VCMI_LIB_NAMESPACE_END
