@@ -13,6 +13,7 @@
 #include "graphicelements.h"
 #include "terrainselector.h"
 #include "factionselector.h"
+#include "mineselector.h"
 #include "algorithm.h"
 
 #include "../helper.h"
@@ -1055,8 +1056,8 @@ void TemplateEditor::on_pushButtonTreasure_clicked()
 
 void TemplateEditor::on_pushButtonMines_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	MineSelector::showMineSelector(templates[selectedTemplate]->getZones().at(selectedZone)->mines);
+	updateZoneCards(selectedZone);
 }
 
 void TemplateEditor::on_pushButtonCustomObjects_clicked()

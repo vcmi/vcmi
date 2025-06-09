@@ -58,6 +58,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/algorithm.cpp
 		templateeditor/terrainselector.cpp
 		templateeditor/factionselector.cpp
+		templateeditor/mineselector.cpp
 	)
 endif()
 
@@ -122,6 +123,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/algorithm.h
 		templateeditor/terrainselector.h
 		templateeditor/factionselector.h
+		templateeditor/mineselector.h
 	)
 endif()
 
@@ -165,6 +167,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/templateeditor.ui
 		templateeditor/terrainselector.ui
 		templateeditor/factionselector.ui
+		templateeditor/mineselector.ui
 	)
 endif()
 

@@ -19,7 +19,6 @@
 class CRmgTemplate;
 class CardItem;
 class LineItem;
-class ZoneOptions;
 namespace rmg {
 class ZoneOptions;
 }
