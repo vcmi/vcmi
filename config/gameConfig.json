@@ -321,6 +321,11 @@
 			
 			/// Base scouting range for hero without any range modifiers
 			"baseScoutingRange" : 5,
+
+			/// Strength of generic secondary skill specialties ( "secondary" : "skillName" ) per level
+			"specialtySecondarySkillGrowth" : 5,
+			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
+			"specialtyCreatureGrowth" : 5,
 		},
 
 		"towns":

@@ -13,7 +13,7 @@
 #include <cctype>
 
 #include "CSkillHandler.h"
-
+#include "IGameSettings.h"
 #include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
@@ -259,7 +259,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		if (bonusNode.isStruct())
 		{
 			auto bonus = JsonUtils::parseBonus(bonusNode);
-			bonus->val = 5; // default H3 value, hardcoded for now
+			bonus->val = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH);
 			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
 			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;

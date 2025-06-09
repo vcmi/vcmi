@@ -160,7 +160,7 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(Creatu
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::PRIMARY_SKILL;
 		bonus->subtype = BonusSubtypeID(skill);
-		bonus->val = 5;
+		bonus->val = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_CREATURE_GROWTH);
 		bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 		bonus->targetSourceType = BonusSource::CREATURE_ABILITY;
 		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
