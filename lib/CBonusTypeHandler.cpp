@@ -203,7 +203,7 @@ BonusType CBonusTypeHandler::stringToBonus(const std::string & name) const
 	return BonusType::NONE;
 }
 
-const std::string CBonusTypeHandler::bonusToString(BonusType bonus) const
+const std::string & CBonusTypeHandler::bonusToString(BonusType bonus) const
 {
 	return bonusNames.at(static_cast<int>(bonus));
 }

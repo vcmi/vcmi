@@ -13,6 +13,8 @@
 
 #include "../json/JsonNode.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 std::vector<JsonNode> SpellSchoolHandler::loadLegacyData()
 {
 	objects.resize(4);
@@ -54,3 +56,5 @@ std::vector<SpellSchool> SpellSchoolHandler::getAllObjects() const
 
 	return result;
 }
+
+VCMI_LIB_NAMESPACE_END

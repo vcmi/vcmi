@@ -76,7 +76,7 @@ public:
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
-		 if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+		if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
 			h & stepSize;
 	}
 

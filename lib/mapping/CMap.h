@@ -344,7 +344,7 @@ public:
 		h & obeliskCount;
 		h & obelisksVisited;
 		h & townMerchantArtifacts;
-		if (!h.hasFeature(Handler::Version::STORE_UID_COUNTER_IN_CMAP))
+		if (!h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
 		{
 			std::vector<TradeItemBuy> townUniversitySkills;
 			h & townUniversitySkills;

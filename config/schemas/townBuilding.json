@@ -128,8 +128,7 @@
 				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"],
 			},
 			"description" : "List of modes available in this market"
-		}
-		
+		},
 		"marketOffer" : {
 			"type" : "array",
 			"items" : {

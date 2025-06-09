@@ -349,6 +349,10 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
+			"draconicSkeleton" :
+			{
+				"type" : "DRACONIC_SKELETON"
+			},
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -384,6 +388,10 @@
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"draconicSkeleton" :
+			{
+				"type" : "DRACONIC_SKELETON"
 			},
 			"noRetaliation" :
 			{

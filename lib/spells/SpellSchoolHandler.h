@@ -40,7 +40,7 @@ public:
 		return spellBordersPath;
 	}
 
-	int getIndex()
+	int getIndex() const
 	{
 		return id.getNum();
 	}

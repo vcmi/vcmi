@@ -154,8 +154,8 @@ std::string CSpell::getNameTranslated() const
 
 std::string CSpell::getDescriptionTextID(int32_t level) const
 {
-	TextIdentifier id("spell", modScope, identifier, "description", LEVEL_NAMES[level]);
-	return id.get();
+	TextIdentifier textID("spell", modScope, identifier, "description", LEVEL_NAMES[level]);
+	return textID.get();
 }
 
 std::string CSpell::getDescriptionTranslated(int32_t level) const
@@ -748,7 +748,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if (schoolJson.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [=](si32 schoolID)
+			LIBRARY->identifiers()->requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
 			{
 				spell->schools.emplace(schoolID);
 			});

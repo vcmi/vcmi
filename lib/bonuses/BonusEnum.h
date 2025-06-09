@@ -142,7 +142,7 @@ class JsonNode;
 	BONUS_NAME(MANUAL_CONTROL) /* manually control warmachine with id = subtype, chance = val */  \
 	BONUS_NAME(WIDE_BREATH) /* initial desigh: dragon breath affecting multiple nearby hexes */\
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
-	BONUS_NAME(SYNERGY_TARGET) /* dummy skill for alternative upgrades mod */\
+	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighbouring with target) without spell-like mechanics */\
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
@@ -189,7 +189,6 @@ class JsonNode;
 	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
 	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
 	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
-	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
 	/* end of list */

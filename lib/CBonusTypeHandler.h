@@ -55,7 +55,7 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	BonusType stringToBonus(const std::string & name) const;
-	const std::string bonusToString(BonusType bonus) const;
+	const std::string & bonusToString(BonusType bonus) const;
 
 	bool isCreatureNatureBonus(BonusType bonus) const;
 
