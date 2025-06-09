@@ -56,6 +56,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/templateview.cpp
 		templateeditor/graphicelements.cpp
 		templateeditor/algorithm.cpp
+		templateeditor/terrainselector.cpp
 	)
 endif()
 
@@ -118,6 +119,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/templateview.h
 		templateeditor/graphicelements.h
 		templateeditor/algorithm.h
+		templateeditor/terrainselector.h
 	)
 endif()
 
@@ -159,6 +161,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_FORMS
 		${editor_FORMS}
 		templateeditor/templateeditor.ui
+		templateeditor/terrainselector.ui
 	)
 endif()
 

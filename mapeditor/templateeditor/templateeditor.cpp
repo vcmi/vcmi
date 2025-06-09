@@ -11,6 +11,7 @@
 #include "templateeditor.h"
 #include "ui_templateeditor.h"
 #include "graphicelements.h"
+#include "terrainselector.h"
 #include "algorithm.h"
 
 #include "../helper.h"
@@ -1011,14 +1012,12 @@ void TemplateEditor::on_pushButtonConnectionAdd_clicked()
 
 void TemplateEditor::on_pushButtonOpenTerrainTypes_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->terrainTypes);
 }
 
 void TemplateEditor::on_pushButtonOpenBannedTerrainTypes_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTerrains);
 }
 
 void TemplateEditor::on_pushButtonAllowedTowns_clicked()
