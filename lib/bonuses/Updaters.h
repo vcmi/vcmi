@@ -64,10 +64,20 @@ public:
 
 class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
 {
+	int stepSize = 1;
 public:
+	TimesHeroLevelUpdater() = default;
+	TimesHeroLevelUpdater(int stepSize)
+		: stepSize(stepSize)
+	{
+		assert(stepSize > 0);
+	}
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
+		 if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+			h & stepSize;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;

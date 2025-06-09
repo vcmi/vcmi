@@ -76,7 +76,7 @@ std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shar
 	{
 		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		auto newBonus = std::make_shared<Bonus>(*b);
-		newBonus->val *= level;
+		newBonus->val *= level / stepSize;
 		return newBonus;
 	}
 	return b;
