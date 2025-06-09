@@ -41,6 +41,7 @@ private:
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
+	std::vector<std::string> bonusNames;
 public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
@@ -52,6 +53,10 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
+	BonusType stringToBonus(const std::string & name) const;
+	const std::string bonusToString(BonusType bonus) const;
+
+	std::vector<BonusType> getAllObjets() const;
 private:
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 

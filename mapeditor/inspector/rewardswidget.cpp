@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CBonusTypeHandler.h"
 #include "rewardswidget.h"
 #include "ui_rewardswidget.h"
 #include "../lib/GameLibrary.h"
@@ -183,8 +184,8 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	//fill bonuses
 	for(auto & s : bonusDurationMap)
 		ui->bonusDuration->addItem(QString::fromStdString(s.first));
-	for(auto & s : bonusNameMap)
-		ui->bonusType->addItem(QString::fromStdString(s.first));
+	for(auto & s : LIBRARY->bth->getAllObjets())
+		ui->bonusType->addItem(QString::fromStdString(LIBRARY->bth->bonusToString(s)));
 	
 	//set default values
 	if(dynamic_cast<CGPandoraBox*>(&object))
@@ -340,7 +341,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	for(int i = 0; i < ui->bonuses->rowCount(); ++i)
 	{
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
-		auto typ = bonusNameMap.at(ui->bonuses->item(i, 1)->text().toStdString());
+		auto typ = LIBRARY->bth->stringToBonus(ui->bonuses->item(i, 1)->text().toStdString());
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
 		vinfo.reward.heroBonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
 	}
@@ -490,7 +491,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			}
 		}
 		
-		auto typ = vstd::findKey(bonusNameMap, i.type);
+		std::string typ = LIBRARY->bth->bonusToString(i.type);
 		for(int i = 0; i < ui->bonusType->count(); ++i)
 		{
 			if(ui->bonusType->itemText(i) == QString::fromStdString(typ))
@@ -816,7 +817,8 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		QStringList bonusesList;
 		for (auto & bonus : vinfo.reward.heroBonuses)
 		{
-			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(vstd::findKey(bonusNameMap, bonus.type))).arg(bonus.val);
+			std::string bonusName = LIBRARY->bth->bonusToString(bonus.type);
+			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(bonusName)).arg(bonus.val);
 		}
 		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
 	}

@@ -355,12 +355,7 @@ public:
 	{
 		if(type == "bonus")
 		{
-			//TODO: support custom bonus types
-			auto it = bonusNameMap.find(identifier);
-			if(it != bonusNameMap.end())
-				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
-
-			logMod->error("Invalid bonus type %s in spell target condition.", identifier);
+			return std::make_shared<SelectorCondition>(Selector::type()(LIBRARY->bth->stringToBonus(identifier)));
 		}
 		else if(type == "creature")
 		{

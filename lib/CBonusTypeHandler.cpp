@@ -45,14 +45,19 @@ CBonusTypeHandler::CBonusTypeHandler()
 {
 	//register predefined bonus types
 
-	#define BONUS_NAME(x) \
+#define BONUS_NAME(x) { #x },
+	bonusNames = {
+		BONUS_LIST
+	};
+#undef BONUS_NAME
+
+#define BONUS_NAME(x) \
 	do { \
 		bonusTypes.push_back(CBonusType()); \
 	} while(0);
 
-
 	BONUS_LIST;
-	#undef BONUS_NAME
+#undef BONUS_NAME
 }
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
@@ -117,19 +122,12 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto it = bonusNameMap.find(name);
+	BonusType bonus = stringToBonus(name);
 
-	if(it == bonusNameMap.end())
-	{
-		logBonus->warn("Unrecognized bonus name! (%s)", name);
-	}
-	else
-	{
-		CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
+	CBonusType & bt = bonusTypes[vstd::to_underlying(bonus)];
 
-		loadItem(data, bt, name);
-		logBonus->trace("Loaded bonus type %s", name);
-	}
+	loadItem(data, bt, name);
+	logBonus->trace("Loaded bonus type %s", name);
 }
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
@@ -183,6 +181,29 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 		int value = std::stoi(additionalDescription.first);
 		dest.valueDescriptions[value] = stringID;
 	}
+}
+
+BonusType CBonusTypeHandler::stringToBonus(const std::string & name) const
+{
+	auto it	= boost::range::find(bonusNames, name);
+
+	if (it != bonusNames.end())
+		return static_cast<BonusType>(it - bonusNames.begin());
+	return BonusType::NONE;
+}
+
+const std::string CBonusTypeHandler::bonusToString(BonusType bonus) const
+{
+	return bonusNames.at(static_cast<int>(bonus));
+}
+
+std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
+{
+	std::vector<BonusType> ret;
+	for (int i = 0; i < bonusNames.size(); ++i)
+		ret.push_back(static_cast<BonusType>(i));
+
+	return ret;
 }
 
 VCMI_LIB_NAMESPACE_END

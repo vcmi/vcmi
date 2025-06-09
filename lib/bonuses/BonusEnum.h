@@ -224,11 +224,12 @@ class JsonNode;
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 
-enum class BonusType : uint8_t
+enum class BonusType : uint16_t
 {
 #define BONUS_NAME(x) x,
     BONUS_LIST
 #undef BONUS_NAME
+    BUILTIN_BONUSES_COUNT
 };
 namespace BonusDuration  //when bonus is automatically removed
 {
@@ -273,7 +274,6 @@ enum class BonusValueType : uint8_t
 #undef BONUS_VALUE
 };
 
-extern DLL_LINKAGE const std::map<std::string, BonusType> bonusNameMap;
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;

@@ -12,6 +12,7 @@
 
 #include <cctype>
 
+#include "CBonusTypeHandler.h"
 #include "CSpellHandler.h"
 #include "Problem.h"
 
@@ -473,26 +474,14 @@ JsonNode CSpell::convertTargetCondition(const BTVector & immunity, const BTVecto
 	static const std::string CONDITION_NORMAL = "normal";
 	static const std::string CONDITION_ABSOLUTE = "absolute";
 
-#define BONUS_NAME(x) { BonusType::x, #x },
-	static const std::map<BonusType, std::string> bonusNameRMap = { BONUS_LIST };
-#undef BONUS_NAME
-
 	JsonNode res;
 
 	auto convertVector = [&](const std::string & targetName, const BTVector & source, const std::string & value)
 	{
 		for(auto bonusType : source)
 		{
-			auto iter = bonusNameRMap.find(bonusType);
-			if(iter != bonusNameRMap.end())
-			{
-				auto fullId = ModUtility::makeFullIdentifier("", "bonus", iter->second);
-				res[targetName][fullId].String() = value;
-			}
-			else
-			{
-				logGlobal->error("Invalid bonus type %d", static_cast<int32_t>(bonusType));
-			}
+			std::string bonusName = LIBRARY->bth->bonusToString(bonusType);
+			res[targetName][bonusName].String() = value;
 		}
 	};
 
@@ -886,19 +875,6 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 	spell->onlyOnWaterMap = json["onlyOnWaterMap"].Bool();
 
-	auto findBonus = [&](const std::string & name, std::vector<BonusType> & vec)
-	{
-		auto it = bonusNameMap.find(name);
-		if(it == bonusNameMap.end())
-		{
-			logMod->error("Spell %s: invalid bonus name %s", spell->getNameTranslated(), name);
-		}
-		else
-		{
-			vec.push_back(static_cast<BonusType>(it->second));
-		}
-	};
-
 	auto readBonusStruct = [&](const std::string & name, std::vector<BonusType> & vec)
 	{
 		for(auto bonusData: json[name].Struct())
@@ -907,7 +883,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			const bool flag = bonusData.second.Bool();
 
 			if(flag)
-				findBonus(bonusId, vec);
+				vec.push_back(LIBRARY->bth->stringToBonus(bonusId));
 		}
 	};
 

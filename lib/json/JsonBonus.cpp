@@ -9,6 +9,7 @@
  */
 
 #include "StdInc.h"
+#include "CBonusTypeHandler.h"
 #include "JsonBonus.h"
 
 #include "JsonValidator.h"
@@ -184,10 +185,10 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			break;
 		}
 		default:
-			for(const auto & i : bonusNameMap)
-				if(i.second == type)
-					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
+		{
+			logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
 			subtype =  BonusSubtypeID();
+		}
 	}
 }
 
@@ -258,10 +259,7 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 			}
 			break;
 		default:
-			for(const auto & i : bonusNameMap)
-				if(i.second == type)
-					logMod->warn("Bonus type %s does not supports addInfo!", i.first );
-
+			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
 }
 
@@ -414,14 +412,8 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
 	std::string type = ability_vec[0].String();
-	auto it = bonusNameMap.find(type);
-	if (it == bonusNameMap.end())
-	{
-		logMod->error("Error: invalid ability type %s.", type);
-		return b;
-	}
-	b->type = it->second;
 
+	b->type = LIBRARY->bth->stringToBonus(type);
 	b->val = static_cast<si32>(ability_vec[1].Float());
 	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
 	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
@@ -505,15 +497,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 				if (!parameters[0].isNull())
 				{
 					std::string anotherBonusType = parameters[0].String();
-					auto it = bonusNameMap.find(anotherBonusType);
-					if(it != bonusNameMap.end())
-					{
-						bonusLimiter->type = it->second;
-					}
-					else
-					{
-						logMod->error("Error: invalid ability type %s.", anotherBonusType);
-					}
+					bonusLimiter->type = LIBRARY->bth->stringToBonus(anotherBonusType);
 				}
 
 				auto findSource = [&](const JsonNode & parameter)
@@ -627,15 +611,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 {
 	const JsonNode * value = nullptr;
 
-	std::string type = ability["type"].String();
-	auto it = bonusNameMap.find(type);
-	if (it == bonusNameMap.end())
-	{
-		logMod->error("Error: invalid ability type %s.", type);
-		return false;
-	}
-	else
-		b->type = it->second;
+	b->type = LIBRARY->bth->stringToBonus(ability["type"].String());
 
 	loadBonusSubtype(b->subtype, b->type, ability["subtype"]);
 
@@ -771,12 +747,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["type"];
 	if(value->isString())
 	{
-		auto it = bonusNameMap.find(value->String());
-		if(it != bonusNameMap.end())
-		{
-			type = it->second;
-			ret = ret.And(Selector::type()(it->second));
-		}
+		ret = ret.And(Selector::type()(LIBRARY->bth->stringToBonus(value->String())));
 	}
 	value = &ability["subtype"];
 	if(!value->isNull() && type != BonusType::NONE)
