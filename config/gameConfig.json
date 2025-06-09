@@ -99,6 +99,10 @@
 		"config/spells/vcmiAbility.json",
 		"config/spells/moats.json"
 	],
+	"spellSchools" :
+	[
+		"config/spellSchools.json"
+	],
 	"skills" :
 	[
 		"config/skills.json"

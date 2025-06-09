@@ -25,7 +25,6 @@ namespace GameConstants
 	constexpr int CREATURES_PER_TOWN = 8; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
-	constexpr int DEFAULT_SCHOOLS = 4;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;

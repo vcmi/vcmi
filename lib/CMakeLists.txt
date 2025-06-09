@@ -255,6 +255,7 @@ set(lib_MAIN_SRCS
 	spells/ObstacleCasterProxy.cpp
 	spells/Problem.cpp
 	spells/ProxyCaster.cpp
+	spells/SpellSchoolHandler.cpp
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
 
@@ -699,6 +700,7 @@ set(lib_MAIN_HEADERS
 	spells/ObstacleCasterProxy.h
 	spells/Problem.h
 	spells/ProxyCaster.h
+	spells/SpellSchoolHandler.h
 	spells/TargetCondition.h
 	spells/ViewSpellInt.h
 

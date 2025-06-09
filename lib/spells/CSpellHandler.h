@@ -35,21 +35,8 @@ namespace test
 
 namespace spells
 {
-
-class ISpellMechanicsFactory;
-class IBattleCast;
-
-struct SchoolInfo
-{
-	SpellSchool id; //backlink
-	std::string jsonName;
-};
-
-}
-
-namespace SpellConfig
-{
-	extern const spells::SchoolInfo SCHOOL[4];
+	class ISpellMechanicsFactory;
+	class IBattleCast;
 }
 
 enum class VerticalPosition : ui8{TOP, CENTER, BOTTOM};
@@ -148,7 +135,7 @@ public:
 	using BTVector = std::vector<BonusType>;
 
 
-	std::map<SpellSchool, bool> school;
+	std::set<SpellSchool> schools;
 	std::map<FactionID, si32> probabilities; //% chance to gain for castles
 
 	bool onlyOnWaterMap; //Spell will be banned on maps without water
