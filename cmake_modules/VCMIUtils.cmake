@@ -133,7 +133,7 @@ function(vcmi_deploy_qt deployQtToolName deployQtOptions)
 	find_program(TOOL_DEPLOYQT NAMES ${deployQtToolName} PATHS "${qtBinDir}")
 	if(TOOL_DEPLOYQT)
 		install(CODE "
-			execute_process(COMMAND \"${TOOL_DEPLOYQT}\" ${deployQtOptions} -verbose 2)
+			execute_process(COMMAND \"${TOOL_DEPLOYQT}\" ${deployQtOptions} -verbose=2)
 		")
 	else()
 		message(WARNING "${deployQtToolName} not found, running cpack would result in broken package")
