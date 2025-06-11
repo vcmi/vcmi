@@ -33,7 +33,9 @@ JsonNode IUpdater::toJsonNode() const
 	return JsonNode();
 }
 
-GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize) : valPer20(valPer20), stepSize(stepSize)
+GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize)
+	: valPer20(valPer20)
+	, stepSize(stepSize)
 {
 }
 
@@ -111,6 +113,40 @@ std::string TimesHeroLevelDivideStackLevelUpdater::toString() const
 JsonNode TimesHeroLevelDivideStackLevelUpdater::toJsonNode() const
 {
 	return JsonNode("TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL");
+}
+
+std::shared_ptr<Bonus> TimesStackSizeUpdater::apply(const std::shared_ptr<Bonus> & b, int count) const
+{
+	auto newBonus = std::make_shared<Bonus>(*b);
+	newBonus->val *= std::clamp(count / stepSize, minimum, maximum);
+	newBonus->updater = nullptr; // prevent double-apply
+	return newBonus;
+}
+
+std::shared_ptr<Bonus> TimesStackSizeUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
+{
+	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
+	{
+		int count = dynamic_cast<const CStackInstance &>(context).getCount();
+		return apply(b, count);
+	}
+
+	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	{
+		const auto & stack = dynamic_cast<const CStack &>(context);
+		return apply(b, stack.getCount());
+	}
+	return b;
+}
+
+std::string TimesStackSizeUpdater::toString() const
+{
+	return "TimesStackSizeUpdater";
+}
+
+JsonNode TimesStackSizeUpdater::toJsonNode() const
+{
+	return JsonNode("TIMES_STACK_SIZE");
 }
 
 std::shared_ptr<Bonus> TimesStackLevelUpdater::apply(const std::shared_ptr<Bonus> & b, int level) const

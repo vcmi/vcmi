@@ -85,6 +85,34 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
+class DLL_LINKAGE TimesStackSizeUpdater : public IUpdater
+{
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int count) const;
+
+	int minimum;
+	int maximum;
+	int stepSize;
+public:
+	TimesStackSizeUpdater() = default;
+	TimesStackSizeUpdater(int minimum, int maximum, int stepSize)
+		: minimum(minimum)
+		, maximum(maximum)
+		, stepSize(stepSize)
+	{}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
+	}
+};
+
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;

@@ -396,12 +396,29 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
-			auto updater = std::make_shared<GrowsWithLevelUpdater>();
+			// MOD COMPATIBILITY - parameters is deprecated in 1.7
 			const JsonVector param = updaterJson["parameters"].Vector();
-			updater->valPer20 = static_cast<int>(param[0].Integer());
-			if(param.size() > 1)
-				updater->stepSize = static_cast<int>(param[1].Integer());
-			return updater;
+			int valPer20 = updaterJson["valPer20"].isNull() ? param[0].Integer() : updaterJson["valPer20"].Integer();
+			int stepSize = updaterJson["stepSize"].isNull() ? param[1].Integer() : updaterJson["stepSize"].Integer();
+
+			return std::make_shared<GrowsWithLevelUpdater>(valPer20, std::max(1, stepSize));
+		}
+		if(updaterJson["type"].String() == "TIMES_HERO_LEVEL")
+		{
+			int stepSize = updaterJson["stepSize"].Integer();
+			return std::make_shared<TimesHeroLevelUpdater>(std::max(1, stepSize));
+		}
+		if(updaterJson["type"].String() == "TIMES_STACK_SIZE")
+		{
+			int minimum = updaterJson["minimum"].isNull() ? std::numeric_limits<int>::min() : updaterJson["minimum"].Integer();
+			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
+			int stepSize = updaterJson["stepSize"].Integer();
+			if (minimum > maximum)
+			{
+				logMod->warn("TIMES_STACK_SIZE updater: minimum value (%d) is above maximum value(%d)!", minimum, maximum);
+				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize));
+			}
+			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize));
 		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
