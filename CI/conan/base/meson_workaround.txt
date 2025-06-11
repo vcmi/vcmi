@@ -1,2 +1,0 @@
-[properties]
-sys_root = ''

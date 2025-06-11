@@ -1,2 +1,0 @@
-include(android-64)
-include(base/android-ndk)
