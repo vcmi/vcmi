@@ -191,6 +191,7 @@ class JsonNode;
 	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
+	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
 	/* end of list */
 
 
