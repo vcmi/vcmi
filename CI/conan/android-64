@@ -1,5 +1,0 @@
-include(base/android)
-
-[settings]
-arch=armv8
-os.api_level=21
