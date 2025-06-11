@@ -115,6 +115,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::HATE:
 		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
+		case BonusType::SKELETON_TRANSFORMER_TARGET:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{

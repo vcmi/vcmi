@@ -981,83 +981,79 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	bool hasImprovedNecromancy = hasBonusOfType(BonusType::IMPROVED_NECROMANCY);
+	TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
 
 	// need skill or cloak of undead king - lesser artifacts don't work without skill
-	if (hasImprovedNecromancy)
+	if (improvedNecromancy->empty())
+		return CStackBasicDescriptor();
+
+	int raisedUnitsPercentage = std::clamp(valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE), 0, 100);
+	if (raisedUnitsPercentage == 0)
+		return CStackBasicDescriptor();
+
+	const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
+	if(casualties.empty())
+		return CStackBasicDescriptor();
+
+	// figure out what to raise - pick strongest creature meeting requirements
+	CreatureID bestCreature = CreatureID::NONE;
+	int necromancerPower = improvedNecromancy->totalValue();
+
+	// pick best bonus available
+	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
-		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
-		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
-		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
-		if(casualties.empty())
-			return CStackBasicDescriptor();
-		// figure out what to raise - pick strongest creature meeting requirements
-		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
-		int requiredCasualtyLevel = 1;
-		TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
-		if(!improvedNecromancy->empty())
+		// addInfo[0] = required necromancy skill
+		if(newPick->additionalInfo[0] > necromancerPower)
+			continue;
+
+		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
+
+		if(!bestCreature.hasValue())
 		{
-			int maxCasualtyLevel = 1;
-			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, LIBRARY->creatures()->getById(casualty.first)->getLevel());
-			// pick best bonus available
-			std::shared_ptr<Bonus> topPick;
-			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
-			{
-				// addInfo[0] = required necromancy skill, addInfo[1] = required casualty level
-				if(newPick->additionalInfo[0] > necromancyLevel || newPick->additionalInfo[1] > maxCasualtyLevel)
-					continue;
-				if(!topPick)
-				{
-					topPick = newPick;
-				}
-				else
-				{
-					auto quality = [](const std::shared_ptr<Bonus> & pick) -> std::tuple<int, int, int>
-					{
-						const auto * c = pick->subtype.as<CreatureID>().toCreature();
-						return std::tuple<int, int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue()), -pick->additionalInfo[1]};
-					};
-					if(quality(topPick) < quality(newPick))
-						topPick = newPick;
-				}
-			}
-			if(topPick)
-			{
-				creatureTypeRaised = topPick->subtype.as<CreatureID>();
-				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
-			}
+			bestCreature = newCreature;
 		}
-		assert(creatureTypeRaised != CreatureID::NONE);
-		// raise upgraded creature (at 2/3 rate) if no space available otherwise
-		if(getSlotFor(creatureTypeRaised) == SlotID())
+		else
 		{
-			for (const auto & slot : Slots())
+			auto quality = [](CreatureID pick) -> std::tuple<int, int>
 			{
-				if (creatureTypeRaised.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
-				{
-					creatureTypeRaised = slot.second->getCreatureID();
-					necromancySkill *= 2/3.0;
-					break;
-				}
-			}
+				const auto * c = pick.toCreature();
+				return std::tuple<int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue())};
+			};
+			if(quality(bestCreature) < quality(newCreature))
+				bestCreature = newCreature;
 		}
-		// calculate number of creatures raised - low level units contribute at 50% rate
-		const double raisedUnitHealth = creatureTypeRaised.toCreature()->getMaxHealth();
-		double raisedUnits = 0;
-		for(const auto & casualty : casualties)
-		{
-			const CCreature * c = casualty.first.toCreature();
-			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
-			if(c->getLevel() < requiredCasualtyLevel)
-				raisedFromCasualty *= 0.5;
-			raisedUnits += raisedFromCasualty;
-		}
-		return CStackBasicDescriptor(creatureTypeRaised, std::max(static_cast<int>(raisedUnits), 1));
 	}
 
-	return CStackBasicDescriptor();
+	assert(bestCreature != CreatureID::NONE);
+	CreatureID selectedCreature = bestCreature;
+
+	// raise upgraded creature (at 2/3 rate) if no space available otherwise
+	if(getSlotFor(selectedCreature) == SlotID())
+	{
+		for (const auto & slot : Slots())
+		{
+			if (selectedCreature.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
+			{
+				selectedCreature = slot.second->getCreatureID();
+				break;
+			}
+		}
+	}
+
+	// calculate number of creatures raised - low level units contribute at 50% rate
+	const double raisedUnitHealth = selectedCreature.toCreature()->getMaxHealth();
+	double raisedUnits = 0;
+	for(const auto & casualty : casualties)
+	{
+		const CCreature * c = casualty.first.toCreature();
+		double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * raisedUnitsPercentage;
+		raisedUnits += raisedFromCasualty;
+	}
+
+	if (bestCreature != selectedCreature)
+		return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits * 2 / 3), 1));
+	else
+		return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits), 1));
 }
 
 int CGHeroInstance::getSightRadius() const

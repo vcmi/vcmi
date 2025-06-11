@@ -138,18 +138,23 @@ Changes surrender cost for affected heroes
 
 ### IMPROVED_NECROMANCY
 
-Allows to raise different creatures than Skeletons after battle.
+Bonus allows the hero to raise specific creatures from corpses after battle.
+
+If the hero has multiple bonuses of the same type, the game will select the unit with the higher level. If the units have the same level, the game will select the unit with the higher market value (the total cost of the unit in gold, including converted resources).
+
+If the hero has no free space for the target creature but has space for its upgrade (including subsequent upgrades), the upgraded unit will be raised instead at a rate of two-thirds.
 
 - subtype: creature raised
 - val: Necromancer power
-- addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
-- Example (from Cloak Of The Undead King):
+- addInfo: Requried total level of Necromancer power for this bonus to be active (val of all bonuses of this type)
 
+Example (from Cloak Of The Undead King):
 ```json
 {
     "type" : "IMPROVED_NECROMANCY",
     "subtype" : "creature.walkingDead",
-    "addInfo" : 1
+    "addInfo" : 1, // requires 1 val of IMPROVED_NECROMANCY from other source, e.g. skill
+    "val" : 0 // does not provides levels of necromancer power on its own
 }
 ```
 
