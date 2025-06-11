@@ -9,20 +9,19 @@
  */
 
 #include "StdInc.h"
+#include "CSkillHandler.h"
 
 #include <cctype>
 
-#include "CSkillHandler.h"
-#include "IGameSettings.h"
+#include "GameLibrary.h"
 #include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
-#include "json/JsonBonus.h"
-#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "GameLibrary.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -259,7 +258,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		if (bonusNode.isStruct())
 		{
 			auto bonus = JsonUtils::parseBonus(bonusNode);
-			bonus->val = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH);
+			bonus->val = 0; // set by HeroHandler on specialty load
 			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
 			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;

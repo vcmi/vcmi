@@ -816,7 +816,6 @@ public:
 		IMP = 42, // for Deity of Fire
 		FAMILIAR = 43, // for Deity of Fire
 		SKELETON = 56, // for Skeleton Transformer
-		BONE_DRAGON = 68, // for Skeleton Transformer
 		TROGLODYTES = 70, // for Abandoned Mine
 		MEDUSA = 76, // for Siege UI workaround
 		AIR_ELEMENTAL = 112, // for tests

@@ -8,12 +8,12 @@
  *
  */
 #include "StdInc.h"
-#include "CBonusTypeHandler.h"
 #include "rewardswidget.h"
 #include "ui_rewardswidget.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
+#include "../lib/CBonusTypeHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
 #include "../lib/entities/artifact/CArtifact.h"

@@ -140,13 +140,23 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 	}
 }
 
-/// creates standard H3 hero specialty for creatures
-std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(CreatureID cid) const
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
-
 	const auto & specCreature = *cid.toCreature();
-	int level = specCreature.hasBonusOfType(BonusType::SIEGE_WEAPON) ? 5 : specCreature.getLevel();
+
+	if (fixedLevel == 0)
+		fixedLevel = specCreature.getLevel();
+
+	if (fixedLevel == 0)
+	{
+		fixedLevel = 5;
+		logMod->warn("Creature '%s' of level 0 has hero with generic specialty! Please specify level explicitly or give creature non-zero level", specCreature.getJsonKey());
+	}
+
+	if (growthPerStep == 0)
+		growthPerStep = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_CREATURE_GROWTH);
+
 	{
 		auto bonus = std::make_shared<Bonus>();
 		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
@@ -160,17 +170,17 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(Creatu
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::PRIMARY_SKILL;
 		bonus->subtype = BonusSubtypeID(skill);
-		bonus->val = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_CREATURE_GROWTH);
+		bonus->val = growthPerStep;
 		bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 		bonus->targetSourceType = BonusSource::CREATURE_ABILITY;
 		bonus->limiter.reset(new CCreatureTypeLimiter(specCreature, true));
-		bonus->updater.reset(new TimesHeroLevelUpdater(level));
+		bonus->updater.reset(new TimesHeroLevelUpdater(fixedLevel));
 		result.push_back(bonus);
 	}
 	return result;
 }
 
-std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(SecondarySkill skillID) const
+std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
 	const auto & skillPtr = LIBRARY->skillh->objects[skillID.getNum()];
@@ -178,8 +188,15 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(
 	if (skillPtr->specialtyTargetBonuses.empty())
 		logMod->warn("Skill '%s' does not supports generic specialties!", skillPtr->getJsonKey());
 
+	if (growthPerStep == 0)
+		growthPerStep = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH);
+
 	for (const auto & bonus : skillPtr->specialtyTargetBonuses)
-		result.push_back(std::make_shared<Bonus>(*bonus));
+	{
+		auto bonusCopy = std::make_shared<Bonus>(*bonus);
+		bonusCopy->val = growthPerStep;
+		result.push_back(bonusCopy);
+	}
 
 	return result;
 }
@@ -228,9 +245,13 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 	//creature specialty - alias for simplicity
 	if(!specialtyNode["creature"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", specialtyNode["creature"], [this, hero, prepSpec](si32 creature)
+		const JsonNode & creatureNode = specialtyNode["creature"];
+		int targetLevel = specialtyNode["creatureLevel"].Integer();
+		int stepSize = specialtyNode["stepSize"].Integer();
+
+		LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [this, hero, prepSpec, targetLevel, stepSize](si32 creature)
 		{
-			for (const auto & bonus : createCreatureSpecialty(CreatureID(creature)))
+			for (const auto & bonus : createCreatureSpecialty(CreatureID(creature), targetLevel, stepSize))
 				hero->specialty.push_back(prepSpec(bonus));
 		});
 	}
@@ -238,9 +259,12 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 	//secondary skill specialty - alias for simplicity
 	if(!specialtyNode["secondary"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("secondarySkill", specialtyNode["secondary"], [this, hero, prepSpec](si32 creature)
+		const JsonNode & skillNode = specialtyNode["secondary"];
+		int stepSize = specialtyNode["stepSize"].Integer();
+
+		LIBRARY->identifiers()->requestIdentifier("secondarySkill", skillNode, [this, hero, prepSpec, stepSize](si32 creature)
 		{
-			for (const auto & bonus : createSecondarySkillSpecialty(SecondarySkill(creature)))
+			for (const auto & bonus : createSecondarySkillSpecialty(SecondarySkill(creature), stepSize))
 				hero->specialty.push_back(prepSpec(bonus));
 		});
 	}

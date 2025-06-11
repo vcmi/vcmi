@@ -9,7 +9,6 @@
  */
 
 #include "StdInc.h"
-#include "CBonusTypeHandler.h"
 #include "JsonBonus.h"
 
 #include "JsonValidator.h"
@@ -19,6 +18,7 @@
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
 

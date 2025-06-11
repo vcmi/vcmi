@@ -24,7 +24,8 @@
 			{ "skill" : "offence", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"dace":

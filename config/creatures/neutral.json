@@ -94,7 +94,13 @@
 				"val" : 10,
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"limiters" : [ "OPPOSITE_SIDE", "LIVING" ]
+				"limiters" : [ 
+					"OPPOSITE_SIDE", 
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "LIVING" ]
+					}
+				]
 			},
 			"fearfulImmune" :
 			{

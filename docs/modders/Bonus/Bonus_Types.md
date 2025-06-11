@@ -126,6 +126,12 @@ Restores specific percentage of mana pool for affected heroes on new turn. If he
 
 - val: percentage of spell points to restore
 
+### SKELETON_TRANSFORMER_TARGET
+
+Unit affected by this bonus will be transformed into creature other than Skeleton when placed into Skeleton Transformer
+
+- subtype: type of creature to which this unit should be converted
+
 ### NONEVIL_ALIGNMENT_MIX
 
 Allows mixing of creaturs of neutral and good factions in affected armies without penalty to morale (Angelic Alliance effect)
@@ -149,6 +155,7 @@ If the hero has no free space for the target creature but has space for its upgr
 - addInfo: Requried total level of Necromancer power for this bonus to be active (val of all bonuses of this type)
 
 Example (from Cloak Of The Undead King):
+
 ```json
 {
     "type" : "IMPROVED_NECROMANCY",
@@ -445,7 +452,7 @@ Creature nature bonus. Affected unit is considered to not be alive and not affec
 
 ### MECHANICAL
 
-Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (HotA Factory).
 
 ### GARGOYLE
 
@@ -453,7 +460,7 @@ Creature nature bonus. Affected unit is considered to be a gargoyle and not affe
 
 ### UNDEAD
 
-Creature nature bonus. Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
+Creature nature bonus. Affected unit is considered to be undead, which makes it immune to many effects, not affected by morale, and also reduce morale of allied living units.
 
 ### SIEGE_WEAPON
 
@@ -463,17 +470,13 @@ Creature nature bonus. Affected unit is considered to be a siege machine and can
 
 ### DRAGON_NATURE
 
-Affected unit is dragon. This bonus proved no effect, but is used as limiter several effects.
+Affected unit is dragon. This bonus provides no effects on its own, but is used as limiter for Mutare specialty
 
 ### KING
 
 Affected unit will take more damage from units under Slayer spell effect
 
 - val: required skill mastery of Slayer spell to affect this unit
-
-### FEARLESS
-
-Affected unit is immune to Fear ability
 
 ### NO_LUCK
 
@@ -525,7 +528,7 @@ Affected unit will deal more damage based on movement distance (Champions)
 
 ### VULNERABLE_FROM_BACK
 
-Affected unit will receive more damage when attacked from behind. Attacked unit will not turn around to face the attacker
+When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
 
 - val: additional damage for attacks from behind, percentage (0-100)
 
@@ -681,6 +684,10 @@ Affected units have chance to transform attacked unit to other creature type
   - transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
 
+### TRANSMUTATION_IMMUNITY
+
+Affected unit is immune to TRANSMUTATION bonus effects
+
 ### SUMMON_GUARDIANS
 
 When battle starts, affected units will be surrounded from all side with summoned units
@@ -817,7 +824,9 @@ Affected unit has chance to deal double damage on attack (Death Knight)
 
 ### FEAR
 
-If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance (Azure Dragon). Blocked by FEARLESS bonus.
+Units affected by this bonus have a chance to skip their turn and freeze in fear (Azure Dragon).
+
+- val: chance to trigger, percentage
 
 ### HEALER
 
@@ -1103,10 +1112,6 @@ Blocks casting spells of the level below specified one in battles affected by th
 Dummy bonus that acts as marker for Dendroid's Bind ability
 
 - addInfo: ID of stack that have bound the unit
-
-### SYNERGY_TARGET
-
-Dummy skill for alternative upgrades mod
 
 ### THIEVES_GUILD_ACCESS
 

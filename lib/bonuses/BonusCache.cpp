@@ -17,7 +17,7 @@
 
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
-#include "spells/SpellSchoolHandler.h"
+#include "../spells/SpellSchoolHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

@@ -85,6 +85,10 @@
 	"ENEMY_DEFENCE_REDUCTION":
 	{
 	},
+	
+	"FEARFUL":
+	{
+	},
 
 	"FIRE_SHIELD":
 	{
@@ -110,6 +114,14 @@
 	},
 
 	"FREE_SHOOTING":
+	{
+	},
+	
+	"FULL_MAP_DARKNESS":
+	{
+	},
+	
+	"FULL_MAP_SCOUTING":
 	{
 	},
 
@@ -237,10 +249,6 @@
 		"creatureNature" : true
 	},
 
-	"MECHANICAL":
-	{
-	},
-
 	"OPENING_BATTLE_SPELL":
 	{
 	},
@@ -277,6 +285,10 @@
 	"SIEGE_WEAPON":
 	{
 		"creatureNature" : true
+	},
+	
+	"SKELETON_TRANSFORMER_TARGET":
+	{
 	},
 
 	"SHOOTER":
@@ -355,6 +367,10 @@
 	{
 	},
 
+	"TRANSMUTATION_IMMUNITY":
+	{
+	},
+
 	"UNDEAD":
 	{
 		"creatureNature" : true,
@@ -367,6 +383,10 @@
 	"VISIONS":
 	{
 		"hidden": true
+	},
+	
+	"VULNERABLE_FROM_BACK":
+	{
 	},
 	
 	"WIDE_BREATH":

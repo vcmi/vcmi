@@ -1047,13 +1047,14 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	{
 		const CCreature * c = casualty.first.toCreature();
 		double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * raisedUnitsPercentage;
-		raisedUnits += raisedFromCasualty;
+
+		if (bestCreature != selectedCreature)
+			raisedUnits += raisedFromCasualty * 2 / 3 / 100;
+		else
+			raisedUnits += raisedFromCasualty / 100;
 	}
 
-	if (bestCreature != selectedCreature)
-		return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits * 2 / 3), 1));
-	else
-		return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits), 1));
+	return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits), 1));
 }
 
 int CGHeroInstance::getSightRadius() const

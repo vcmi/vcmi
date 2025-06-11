@@ -274,6 +274,10 @@
 			"description" : "List of configuration files for artifacts",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"spellSchools" : {
+			"description" : "List of configuration files for spell schools",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"spells" : {
 			"description" : "List of configuration files for spells",
 			"$ref" : "#/definitions/fileListOrObject"

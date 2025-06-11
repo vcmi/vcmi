@@ -8,9 +8,9 @@
  *
  */
 #include "StdInc.h"
-#include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
 
+#include "CBonusTypeHandler.h"
 #include "ResourceSet.h"
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
