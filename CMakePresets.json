@@ -154,14 +154,16 @@
             "name": "windows-msvc-release",
             "displayName": "Windows x64 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "architecture": {
                 "value": "x64",
                 "strategy": "set"
             },
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
@@ -169,10 +171,12 @@
             "name": "windows-msvc-release-x86",
             "displayName": "Windows x86 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
                 "CMAKE_GENERATOR_PLATFORM": "WIN32"
             }
@@ -181,14 +185,16 @@
             "name": "windows-msvc-release-arm64",
             "displayName": "Windows ARM64 RelWithDebInfo",
             "description": "VCMI Windows ARM64 build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "architecture": {
                 "value": "ARM64",
                 "strategy": "set"
             },
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
@@ -202,56 +208,37 @@
             }
         },
         {
-          "name": "windows-msvc-ninja-release",
-          "displayName": "Windows x64 RelWithDebInfo (Ninja)",
-          "description": "VCMI RelWithDebInfo build using Ninja + sccache",
-          "inherits": "default-release",
-          "generator": "Ninja",
-          "cacheVariables": {
-            "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-            "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-            "FORCE_BUNDLED_MINIZIP": "ON",
-            "ENABLE_CCACHE": "ON",
-            "CMAKE_C_COMPILER_LAUNCHER": "sccache",
-            "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
-            "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
-            "ENABLE_MULTI_PROCESS_BUILDS": "OFF",
-            "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-            "CMAKE_C_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
-            "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7"
-          }
-        },
-        {
-          "name": "windows-msvc-ninja-release-x86",
-          "displayName": "Windows x86 RelWithDebInfo (Ninja)",
-          "description": "VCMI RelWithDebInfo build using Ninja + sccache (x86)",
-          "inherits": "windows-msvc-ninja-release",
-          "cacheVariables": {
-            "VCPKG_TARGET_TRIPLET": "x86-windows"
-          }
-        },
-        {
-          "name": "windows-msvc-ninja-release-arm64",
-          "displayName": "Windows ARM64 RelWithDebInfo (Ninja)",
-          "description": "VCMI RelWithDebInfo build using Ninja + sccache (ARM64)",
-          "inherits": "windows-msvc-ninja-release",
-          "cacheVariables": {
-            "VCPKG_TARGET_TRIPLET": "arm64-windows"
-          }
-        },
-        {
-            "name": "windows-mingw-conan-linux",
-            "displayName": "Ninja+Conan release",
-            "description": "VCMI Windows Ninja using Conan on Linux",
+            "name": "windows-msvc-ninja-release",
+            "displayName": "Windows x64 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache",
             "inherits": [
                 "build-with-conan",
                 "default-release"
             ],
+            "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "FORCE_BUNDLED_FL": "ON",
-                "ENABLE_TEMPLATE_EDITOR": "OFF"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "ENABLE_CCACHE": "ON",
+                "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
+                "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+                "ENABLE_MULTI_PROCESS_BUILDS": "OFF",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7"
             }
+        },
+        {
+            "name": "windows-msvc-ninja-release-x86",
+            "displayName": "Windows x86 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache (x86)",
+            "inherits": "windows-msvc-ninja-release"
+        },
+        {
+            "name": "windows-msvc-ninja-release-arm64",
+            "displayName": "Windows ARM64 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache (ARM64)",
+            "inherits": "windows-msvc-ninja-release"
         },
         {
             "name": "macos-ninja-release",
@@ -518,12 +505,6 @@
         	"inherits": "default-release"
         },
         {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
-            "inherits": "default-release",
-            "configuration": "Release"
-        },
-        {
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
@@ -607,11 +588,6 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
-            "inherits": "default-release"
-        },
-        {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]
