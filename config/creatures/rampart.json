@@ -366,6 +366,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -410,6 +415,11 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{

@@ -3254,11 +3254,10 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	//resulting creature - bone dragons or skeletons
 	CreatureID resCreature = CreatureID::SKELETON;
 
-	if (!s.hasBonusOfType(BonusType::UNDEAD))
-	{
-		if (s.hasBonusOfType(BonusType::DRAGON_NATURE) || s.hasBonusOfType(BonusType::DRACONIC_SKELETON))
-			resCreature = CreatureID::BONE_DRAGON;
-	}
+	auto customTargerBonus = s.getBonusesOfType(BonusType::SKELETON_TRANSFORMER_TARGET);
+	if (!customTargerBonus->empty())
+		resCreature = customTargerBonus->front()->subtype.as<CreatureID>();
+
 	changeStackType(StackLocation(army->id, slot), resCreature.toCreature());
 	return true;
 }

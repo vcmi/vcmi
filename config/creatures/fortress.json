@@ -349,9 +349,10 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"draconicSkeleton" :
+			"dragonSkeleton" : 
 			{
-				"type" : "DRACONIC_SKELETON"
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"noRetaliation" :
 			{
@@ -389,9 +390,10 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
-			"draconicSkeleton" :
+			"dragonSkeleton" : 
 			{
-				"type" : "DRACONIC_SKELETON"
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"noRetaliation" :
 			{
