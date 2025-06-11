@@ -102,24 +102,6 @@ android {
 	}
 }
 
-def CommandOutput(final cmd, final arguments, final cwd) {
-	try {
-		new ByteArrayOutputStream().withStream { final os ->
-			exec {
-				executable cmd
-				args arguments
-				workingDir cwd
-				standardOutput os
-			}
-			return os.toString().trim()
-		}
-	}
-	catch (final Exception ex) {
-		print("Broken: " + cmd + " " + arguments + " in " + cwd + " :: " + ex.toString())
-		return ""
-	}
-}
-
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
 	return file("${basePath}/${signingConfigKey}.properties")
 }
@@ -142,7 +124,6 @@ def LoadSigningConfig(final signingConfigKey) {
 			&& props.containsKey('KEY_ALIAS')) {
 
 			signingConfig.storeFile = SigningKeystorePath(signingRoot, props['STORE_FILE'])
-			signingConfig.storePassword = props['STORE_PASSWORD']
 			signingConfig.keyAlias = props['KEY_ALIAS']
 
 			if(props.containsKey('STORE_PASSWORD'))
