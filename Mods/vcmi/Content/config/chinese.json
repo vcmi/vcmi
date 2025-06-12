@@ -28,6 +28,11 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
 
+	"vcmi.adventureMap.dwelling2" : "{%s}\n\n你想招募%s还是%s？",
+	"vcmi.adventureMap.dwelling3" : "{%s}\n\n你想招募%s、%s还是%s？",
+
+	"vcmi.artifact.charges" : "充能",
+
 	"vcmi.bonusSource.artifact" : "宝物",
 	"vcmi.bonusSource.creature" : "技能",
 	"vcmi.bonusSource.spell" : "法术",
@@ -340,6 +345,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "将地图卷动速度设置为即刻。",
 	"vcmi.adventureOptions.hideBackground.hover" : "隐藏背景",
 	"vcmi.adventureOptions.hideBackground.help" : "{隐藏背景}\n\n隐藏冒险地图背景，以显示贴图代替。",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "在小地图上显示英雄",
+	"vcmi.adventureOptions.minimapShowHeroes.help" : "{在小地图上显示英雄}\n\n在小地图上显示额外的英雄可视图标，使之在大地图上更容易被找到。",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "回合顺序指示器",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "关闭",
@@ -399,6 +406,9 @@
 	"vcmi.battleWindow.endWithAutocombat" : "您确定想以自动战斗立即结束吗？",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "接受战斗结果",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0" : "剩余持续时间： %d回合",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "剩余持续时间： %d回合",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "剩余持续时间： %d回合",
 
 	"vcmi.tutorialWindow.title" : "触摸屏介绍",
 	"vcmi.tutorialWindow.decription.RightClick" : "长按要右键单击的元素。 触摸其他区域以关闭。",
@@ -509,7 +519,7 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "同时进行: 1 周, 屏蔽联系",
 	"vcmi.optionsTab.simturns.blocked2"       : "同时进行: 2 周, 屏蔽联系",
 	"vcmi.optionsTab.simturns.blocked4"       : "同时进行: 1 月, 屏蔽联系",
-	
+
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
 	"vcmi.optionsTab.simturns.days.0" : " %d 天",
@@ -619,6 +629,12 @@
 
 	"mapObject.core.hillFort.object.description" : "升级生物，1-4级生物升级比城镇中更便宜。",
 
+	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Orb of Vulnerability}\nNegates natural magic resistance of all creatures on the battlefield",
+	"creatures.core.angel.bonus.raisesMorale" : "{Increases allies morale}\nAngels and Archangels increase allies Morale by one",
+	"creatures.core.devil.bonus.decreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
+	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
+	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
+
 	"core.bonus.ADDITIONAL_ATTACK.description": "{双击}\n生物可以攻击两次",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{额外反击}\n每回合额外获得${val}次反击机会",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{环击}\n攻击所有相邻敌人",
@@ -642,17 +658,24 @@
 	"core.bonus.FEARLESS.description": "{无惧}\n免疫恐惧特质",
 	"core.bonus.FEROCITY.description": "{凶猛追击}\n杀死任意生物后额外攻击${val}次",
 	"core.bonus.FIRE_SHIELD.description": "{烈火神盾 (${val}%)}\n反弹部分受到的近战伤害",
+	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{抢先反击}\n该生物的反击将会在被近战攻击前进行",
+	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeRanged" : "{抢先反击}\n该生物的反击将会在被远程攻击前进行",
 	"core.bonus.FIRST_STRIKE.description": "{抢先反击}\n该生物的反击将会在被攻击前进行",
+	"core.bonus.FLYING.description.bonusSubtype.movementTeleporting" : "{航送}\n该生物可以传送到任一一格，无视战场障碍。",
 	"core.bonus.FLYING.description": "{飞行能力}\n以飞行的方式移动(无视障碍)",
 	"core.bonus.FREE_SHOOTING.description": "{近身射击}\n能在近战范围内进行射击",
 	"core.bonus.GARGOYLE.description": "{石像鬼属性}\n不能被复活或治疗",
-	"core.bonus.GENERAL_DAMAGE_REDUCTION.description": "{减少伤害 (${val}%)}\n减少从远程和近战中遭受的物理伤害",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeMelee" : "{减少伤害(${val}%)}\n减少遭受的近战物理伤害${val}%",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeRanged" : "{减少伤害(${val}%)}\n减少遭受的远程物理伤害${val}%",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description": "{减少伤害(${val}%)}\n减少遭受的远程和近战物理伤害${val}%",
 	"core.bonus.HATE.description": "{憎恨${subtype.creature}}\n对${subtype.creature}造成额外${val}%伤害",
 	"core.bonus.HEALER.description": "{治疗者}\n可以治疗友军单位",
 	"core.bonus.HP_REGENERATION.description": "{再生}\n每回合恢复${val}点生命值",
 	"core.bonus.INVINCIBLE.description": "{无敌}\n不受任何效果影响",
 	"core.bonus.JOUSTING.description": "{勇士冲锋}\n每移动一格 +${val}%伤害",
-	"core.bonus.KING.description": "{王牌}\n受${val}级或更高级屠戮成性影响",
+	"core.bonus.KING.description.2" : "{中级王牌}\n受中级屠戮成性法术影响的单位会对其造成额外伤害",
+	"core.bonus.KING.description.3" : "{高级王牌}\n受高级屠戮成性法术影响的单位会对其造成额外伤害",
+	"core.bonus.KING.description": "{王牌}\n受屠戮成性法术影响的单位会对其造成额外伤害",
 	"core.bonus.LEVEL_SPELL_IMMUNITY.description": "{免疫1-${val}级魔法}\n免疫1-${val}级的魔法",
 	"core.bonus.LIFE_DRAIN.description": "{吸取生命 (${val}%)}\n吸取${val}%伤害回复自身",
 	"core.bonus.LIMITED_SHOOTING_RANGE.description": "{射程限制}\n无法瞄准${val}格以外的单位",
@@ -722,5 +745,16 @@
 	"spell.core.strongholdMoat.name" : "栅栏",
 	"spell.core.strongholdMoatTrigger.name" : "栅栏",
 	"spell.core.summonDemons.name" : "召唤恶鬼",
-	"spell.core.towerMoat.name" : "埋设地雷"
+	"spell.core.towerMoat.name" : "埋设地雷",
+
+	"spell.core.stoneGaze.description.none" : "{石化凝视}\n\n目标单位被石化，三回合内无法行动。当其被攻击时受到50%的伤害并解除石化效果。",
+	"spell.core.poison.description.none" : "{中毒}\n\n目标生物中毒时，它最大生命值每回合减少10%，持续三回合。三回合后中毒解除，但减少的最大生命值不会恢复。",
+	"spell.core.bind.description.none" : "{缠绕}\n\n目标单位被束缚在原地，无法移动，效果持续到束缚它的部队离开或死亡。",
+	"spell.core.disease.description.none" : "{染病}\n\n目标有生命的部队染上疾病，其攻击力和防御力减少两点，持续三回合。",
+	"spell.core.paralyze.description.none" : "{麻痹}\n\n目标单位被麻痹，在接下来的战斗中跳过它的当前回合和接下来的两个回合，受到攻击后解除。被麻痹的生物将会受到全额攻击伤害，但其反击只会造成四分之一的伤害。",
+	"spell.core.age.description.none" : "{老化}\n\n老化减少目标部队50%的最大生命值，持续三回合。",
+	"spell.core.deathCloud.description.none" : "{死亡之云}\n\n死亡之云除了对远程攻击的格子中的目标造成正常伤害之外，还会对相邻6个格子范围内的所有有生命的生物造成伤害。",
+	"spell.core.thunderbolt.description.none" : "{闪电攻击}\n\n此部队攻击时，有20%的几率在敌人反击前进行一次闪电打击。如触发，闪电打击将造成等同于10倍雷鸟攻击者数量的伤害。",
+	"spell.core.dispelHelpful.description.none" : "{驱散有益法术}\n\n移除目标单位上所有的有益法术效果",
+	"spell.core.acidBreath.description.none" : "{酸液攻击}\n\n龙息减少目标部队3点防御力，且有20%的几率造成额外伤害，每个攻击生物会造成25点额外伤害。"
 }
