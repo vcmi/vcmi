@@ -748,17 +748,30 @@ uint64_t CGHeroInstance::getValueForDiplomacy() const
 	return heroStrength * armyStrength;
 }
 
-uint32_t CGHeroInstance::getValueForCampaign() const
+bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
 {
-	// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
-	// Additional info from wiki: https://heroes.thelazy.net/index.php/Power_rating
-	uint32_t score = level;
-	score += getPrimSkillLevel(PrimarySkill::ATTACK);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
-	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+	// https://heroes.thelazy.net/index.php/Power_rating
 
-	return score;
+	uint32_t leftLevel = left->level;
+	uint64_t leftExperience = left->exp;
+	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t leftPrimaryAndLevel = leftPrimary + leftLevel;
+
+	uint32_t rightLevel = right->level;
+	uint64_t rightExperience = right->exp;
+	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t rightPrimaryAndLevel = rightPrimary + rightLevel;
+
+	if (leftPrimaryAndLevel != rightPrimaryAndLevel)
+		return leftPrimaryAndLevel > rightPrimaryAndLevel;
+
+	if (leftLevel != rightLevel)
+		return leftLevel > rightLevel;
+
+	if (leftExperience != rightExperience)
+		return leftExperience > rightExperience;
+
+	return left->getHeroTypeID() > right->getHeroTypeID();
 }
 
 ui64 CGHeroInstance::getTotalStrength() const

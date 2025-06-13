@@ -553,7 +553,7 @@ void CGameStateCampaign::initHeroes()
 			int maxB = -1;
 			for (int b=0; b<heroes.size(); ++b)
 			{
-				if (maxB == -1 || heroes[b]->getValueForCampaign() > heroes[maxB]->getValueForCampaign())
+				if(maxB == -1 || CGHeroInstance::compareCampaignValue(heroes[b], heroes[maxB]))
 				{
 					maxB = b;
 				}

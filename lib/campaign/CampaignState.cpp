@@ -218,7 +218,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 {
 	boost::range::sort(heroes, [](const CGHeroInstance * a, const CGHeroInstance * b)
 	{
-		return a->getValueForCampaign() > b->getValueForCampaign();
+		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
 	logGlobal->info("Scenario %d of campaign %s (%s) has been completed", currentMap->getNum(), getFilename(), getNameTranslated());

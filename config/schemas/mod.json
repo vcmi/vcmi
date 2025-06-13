@@ -270,6 +270,10 @@
 			"description" : "List of configuration files for creatures",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"campaignRegions" : {
+			"description" : "List of configuration files for campaign regions",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"artifacts" : {
 			"description" : "List of configuration files for artifacts",
 			"$ref" : "#/definitions/fileListOrObject"
