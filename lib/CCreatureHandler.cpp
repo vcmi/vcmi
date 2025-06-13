@@ -901,7 +901,6 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
-	bool hasCreatureNatureBonus = false;
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
 	//FIXME: MOD COMPATIBILITY
@@ -915,14 +914,10 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 				b->source = BonusSource::CREATURE_ABILITY;
 				b->sid = BonusSourceID(creature->getId());
 				b->duration = BonusDuration::PERMANENT;
-				hasCreatureNatureBonus |= LIBRARY->bth->isCreatureNatureBonus(b->type);
 				creature->addNewBonus(b);
 			}
 		}
 	}
-
-	if (!hasCreatureNatureBonus)
-		creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
 
 	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
@@ -1352,7 +1347,18 @@ CCreatureHandler::~CCreatureHandler()
 
 void CCreatureHandler::afterLoadFinalization()
 {
+	for(auto & creature : objects)
+	{
+		if (!creature)
+			continue;
 
+		auto natureBonuses = creature->getBonuses([](const Bonus * b){
+				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		});
+
+		if (natureBonuses->empty())
+			creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
+	}
 }
 
 std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const

@@ -22,7 +22,7 @@ class JsonNode;
 class DLL_LINKAGE CBonusType
 {
 public:
-	CBonusType();
+	CBonusType() = default;
 
 	std::string getDescriptionTextID() const;
 
@@ -36,8 +36,8 @@ private:
 	std::map<int, std::string> valueDescriptions;
 	std::string identifier;
 
-	bool creatureNature;
-	bool hidden;
+	bool creatureNature = false;
+	bool hidden = true;
 };
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
@@ -54,7 +54,6 @@ public:
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	BonusType stringToBonus(const std::string & name) const;
 	const std::string & bonusToString(BonusType bonus) const;
 
 	bool isCreatureNatureBonus(BonusType bonus) const;

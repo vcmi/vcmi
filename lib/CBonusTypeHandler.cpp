@@ -30,10 +30,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ///CBonusType
 
-CBonusType::CBonusType():
-	hidden(true)
-{}
-
 std::string CBonusType::getDescriptionTextID() const
 {
 	return TextIdentifier( "core", "bonus", identifier, "description").get();
@@ -50,6 +46,11 @@ CBonusTypeHandler::CBonusTypeHandler()
 		BONUS_LIST
 	};
 #undef BONUS_NAME
+
+	for (int i = 0; i < bonusNames.size(); ++i)
+	{
+		registerObject(ModScope::scopeBuiltin(), "bonus", bonusNames[i], i);
+	}
 
 #define BONUS_NAME(x) \
 	do { \
@@ -125,7 +126,7 @@ void CBonusTypeHandler::loadObject(std::string scope, std::string name, const Js
 	if (vstd::contains(bonusNames, name))
 	{
 		//h3 bonus
-		BonusType bonus = stringToBonus(name);
+		BonusType bonus = static_cast<BonusType>(vstd::find_pos(bonusNames, name));
 		CBonusType & bt = bonusTypes[vstd::to_underlying(bonus)];
 		loadItem(data, bt, name);
 		logBonus->trace("Loaded bonus type %s", name);
@@ -133,6 +134,7 @@ void CBonusTypeHandler::loadObject(std::string scope, std::string name, const Js
 	else
 	{
 		// new bonus
+		registerObject(scope, "bonus", name, bonusNames.size());
 		bonusNames.push_back(name);
 		bonusTypes.emplace_back();
 		loadItem(data, bonusTypes.back(), name);
@@ -192,15 +194,6 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 		int value = std::stoi(additionalDescription.first);
 		dest.valueDescriptions[value] = stringID;
 	}
-}
-
-BonusType CBonusTypeHandler::stringToBonus(const std::string & name) const
-{
-	auto it	= boost::range::find(bonusNames, name);
-
-	if (it != bonusNames.end())
-		return static_cast<BonusType>(it - bonusNames.begin());
-	return BonusType::NONE;
 }
 
 const std::string & CBonusTypeHandler::bonusToString(BonusType bonus) const

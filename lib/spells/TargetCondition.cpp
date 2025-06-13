@@ -355,7 +355,11 @@ public:
 	{
 		if(type == "bonus")
 		{
-			return std::make_shared<SelectorCondition>(Selector::type()(LIBRARY->bth->stringToBonus(identifier)));
+			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			if (bonusID)
+				return std::make_shared<SelectorCondition>(Selector::type()(BonusType(*bonusID)));
+			else
+				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}
 		else if(type == "creature")
 		{

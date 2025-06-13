@@ -844,11 +844,13 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		for(auto bonusData: json[name].Struct())
 		{
-			const std::string bonusId = bonusData.first;
-			const bool flag = bonusData.second.Bool();
+			if(!bonusData.second.Bool())
+				continue;
 
-			if(flag)
-				vec.push_back(LIBRARY->bth->stringToBonus(bonusId));
+			LIBRARY->identifiers()->requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
+			{
+				vec.push_back(BonusType(bonusID));
+			});
 		}
 	};
 

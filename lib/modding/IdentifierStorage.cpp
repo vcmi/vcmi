@@ -86,21 +86,7 @@ CIdentifierStorage::CIdentifierStorage()
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-		logMod->warn("BIG WARNING: identifier %s seems to be broken!", ID);
-	else
-	{
-		size_t pos = 0;
-		do
-		{
-			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
-			{
-				logMod->warn("Warning: identifier %s is not in camelCase!", ID);
-				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
-			}
-			pos = ID.find('.', pos);
-		}
-		while(pos++ != std::string::npos);
-	}
+		logMod->error("BIG WARNING: identifier %s seems to be broken!", ID);
 }
 
 void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const

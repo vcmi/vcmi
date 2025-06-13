@@ -18,6 +18,8 @@
 #include "../lib/constants/StringConstants.h"
 #include "../lib/entities/artifact/CArtifact.h"
 #include "../lib/mapping/CMap.h"
+#include "../lib/modding/IdentifierStorage.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/rewardable/Configuration.h"
 #include "../lib/rewardable/Limiter.h"
 #include "../lib/rewardable/Reward.h"
@@ -341,7 +343,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 	for(int i = 0; i < ui->bonuses->rowCount(); ++i)
 	{
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
-		auto typ = LIBRARY->bth->stringToBonus(ui->bonuses->item(i, 1)->text().toStdString());
+		auto typ = static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "bonus", ui->bonuses->item(i, 1)->text().toStdString()));
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
 		vinfo.reward.heroBonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
 	}

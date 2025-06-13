@@ -193,7 +193,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	}
 }
 
-static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & node)
+static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & value)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -203,7 +203,6 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 			return jsonNode;
 	};
 
-	const JsonNode & value = node["addInfo"];
 	if (value.isNull())
 		return;
 
@@ -432,11 +431,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
-	std::string type = ability_vec[0].String();
 
-	b->type = LIBRARY->bth->stringToBonus(type);
+	const JsonNode & typeNode = ability_vec[0];
+	const JsonNode & subtypeNode = ability_vec[2];
+
+	LIBRARY->identifiers()->requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
+	{
+		b->type = BonusType(bonusID);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode);
+	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
-	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
 	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
@@ -517,8 +521,10 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 
 				if (!parameters[0].isNull())
 				{
-					std::string anotherBonusType = parameters[0].String();
-					bonusLimiter->type = LIBRARY->bth->stringToBonus(anotherBonusType);
+					LIBRARY->identifiers()->requestIdentifier("bonus", parameters[0], [bonusLimiter](si32 bonusID)
+					{
+						bonusLimiter->type = BonusType(bonusID);
+					});
 				}
 
 				auto findSource = [&](const JsonNode & parameter)
@@ -631,10 +637,15 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const Text
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
+	const JsonNode & subtypeNode = ability["subtype"];
+	const JsonNode & addinfoNode = ability["addInfo"];
 
-	b->type = LIBRARY->bth->stringToBonus(ability["type"].String());
-
-	loadBonusSubtype(b->subtype, b->type, ability["subtype"]);
+	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
+	{
+		b->type = BonusType(bonusID);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode);
+		loadBonusAddInfo(b->additionalInfo, b->type, addinfoNode);
+	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
 
@@ -643,9 +654,6 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
 
 	b->stacking = ability["stacking"].String();
-
-	loadBonusAddInfo(b->additionalInfo, b->type, ability);
-
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
 	if(!ability["description"].isNull())
@@ -768,7 +776,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["type"];
 	if(value->isString())
 	{
-		ret = ret.And(Selector::type()(LIBRARY->bth->stringToBonus(value->String())));
+		ret = ret.And(Selector::type()(static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier("bonus", value->String()))));
 	}
 	value = &ability["subtype"];
 	if(!value->isNull() && type != BonusType::NONE)
