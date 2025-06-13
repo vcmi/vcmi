@@ -435,7 +435,8 @@
         <location filename="../inspector/heroskillswidget.ui" line="48"/>
         <location filename="../inspector/heroskillswidget.ui" line="58"/>
         <source>TextLabel</source>
-        <translation></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Textový štítek</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
@@ -1295,19 +1296,25 @@
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>Missing Required Mod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Chybějící povinný mod</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="605"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+
+
+Chcete to udělat nyní?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="615"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mod tohoto objektu je povinný, aby mapa zůstala platná.</translation>
     </message>
 </context>
 <context>
@@ -1505,22 +1512,26 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vyberte hráče</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hrdina nemůže být vytvořen jako NEUTRÁLNÍ</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Přepněte na jednoho z dostupných hráčů:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zkratka: %1</translation>
     </message>
 </context>
 <context>
@@ -1958,14 +1969,17 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapcontroller.cpp" line="628"/>
         <source> (submod of %1)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> (submodul %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="630"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mod &apos;%1&apos;%2 je vyžadován objektem na mapě.
+Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="147"/>
@@ -3453,7 +3467,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="87"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Objekt %1 je UNFLAGGABLE, ale musí mít vlastníka – NEUTRÁLNÍHO nebo hráče</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="111"/>
@@ -3498,7 +3513,8 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>The map is valid and has no issues.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mapa je platná a nemá žádné problémy.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>
