@@ -168,6 +168,14 @@ void CMapLoaderH3M::readHeader()
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(features);
 
+		if(features.levelHOTA8)
+		{
+			int hotaVersionMajor = reader->readUInt32();
+			int hotaVersionMinor = reader->readUInt32();
+			int hotaVersionPatch = reader->readUInt32();
+			logGlobal->trace("Loading HotA map, version %d.%d.%d", hotaVersionMajor, hotaVersionMinor, hotaVersionPatch);
+		}
+
 		if(features.levelHOTA1)
 		{
 			bool isMirrorMap = reader->readBool();
@@ -210,6 +218,13 @@ void CMapLoaderH3M::readHeader()
 
 			if (!canHireDefeatedHeroes)
 				logGlobal->warn("Map '%s': Option to block hiring of defeated heroes is not implemented!", mapName);
+		}
+
+		if(features.levelHOTA8)
+		{
+			bool forceMatchingVersion = reader->readBool();
+			if (forceMatchingVersion)
+				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", mapName);
 		}
 	}
 	else
@@ -2401,7 +2416,8 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
 		{
-			assert(questsToResolve.count(guard) == 0);
+			// NOTE: assert might fail on multi-quest seers
+			//assert(questsToResolve.count(guard) == 0);
 			questsToResolve[guard] = reader->readUInt32();
 			break;
 		}

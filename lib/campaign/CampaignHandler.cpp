@@ -552,12 +552,24 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 
 	if (ret.version == CampaignVersion::HotA)
 	{
-		[[maybe_unused]] int32_t unknownA = reader.readInt32();
-		[[maybe_unused]] int32_t unknownB = reader.readInt32();
-		[[maybe_unused]] int32_t unknownC = reader.readInt8();
+		int32_t formatVersion = reader.readInt32();
+
+		if (formatVersion == 2)
+		{
+			int hotaVersionMajor = reader.readUInt32();
+			int hotaVersionMinor = reader.readUInt32();
+			int hotaVersionPatch = reader.readUInt32();
+			logGlobal->trace("Loading HotA campaign, version %d.%d.%d", hotaVersionMajor, hotaVersionMinor, hotaVersionPatch);
+
+			bool forceMatchingVersion = reader.readBool();
+			if (forceMatchingVersion)
+				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", filename);
+		}
+
+		[[maybe_unused]] int32_t unknownB = reader.readInt8();
+		[[maybe_unused]] int32_t unknownC = reader.readInt32();
 		ret.numberOfScenarios = reader.readInt32();
 
-		assert(unknownA == 1);
 		assert(unknownB == 1);
 		assert(unknownC == 0);
 		assert(ret.numberOfScenarios <= 8);
