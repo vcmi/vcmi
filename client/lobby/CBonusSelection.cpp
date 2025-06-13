@@ -48,7 +48,6 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
-#include "../../lib/entities/building/CBuildingHandler.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
 #include "../../lib/entities/faction/CTownHandler.h"
@@ -60,6 +59,7 @@
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "mapping/MapFormatSettings.h"
 
 std::shared_ptr<CampaignState> CBonusSelection::getCampaign()
 {
@@ -219,16 +219,21 @@ void CBonusSelection::createBonusesIcons()
 				}
 				assert(faction.hasValue());
 
-				BuildingID buildID;
-				if(getCampaign()->formatVCMI())
-					buildID = bonusValue.building;
-				else
-					buildID = CBuildingHandler::campToERMU(bonusValue.building, faction, std::set<BuildingID>());
-				picName = graphics->ERMUtoPicture[faction.getNum()][buildID.getNum()];
+				BuildingID buildID = bonusValue.buildingDecoded;
+				if (bonusValue.buildingH3M.hasValue())
+				{
+					auto mapping = LIBRARY->mapFormat->getMapping(getCampaign()->getFormat());
+					buildID = mapping.remapBuilding(faction, bonusValue.buildingH3M);
+				}
+
+				for (const auto & townStructure : faction.toFaction()->town->clientInfo.structures)
+					if (townStructure->building && townStructure->building->bid == buildID)
+						picName = townStructure->campaignBonus.getOriginalName();
+
 				picNumber = -1;
 
-				if(vstd::contains((*LIBRARY->townh)[faction]->town->buildings, buildID))
-					desc.appendTextID((*LIBRARY->townh)[faction]->town->buildings.find(buildID)->second->getNameTextID());
+				if(vstd::contains(faction.toFaction()->town->buildings, buildID))
+					desc.appendTextID(faction.toFaction()->town->buildings.find(buildID)->second->getNameTextID());
 				break;
 			}
 			case CampaignBonusType::ARTIFACT:

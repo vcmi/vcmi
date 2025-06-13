@@ -17,7 +17,6 @@
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/building/CBuilding.h"
-#include "../entities/building/CBuildingHandler.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../entities/hero/CHero.h"
 #include "../mapping/CMapEditManager.h"
@@ -29,6 +28,7 @@
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
+#include "mapping/MapFormatSettings.h"
 
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
@@ -661,11 +661,13 @@ void CGameStateCampaign::initTowns()
 		if (town->anchorPos() != pi.posOfMainTown)
 			continue;
 
-		BuildingID newBuilding;
-		if(gameState->scenarioOps->campState->formatVCMI())
-			newBuilding = bonusValue.building;
-		else
-			newBuilding = CBuildingHandler::campToERMU(bonusValue.building, town->getFactionID(), town->getBuildings());
+		BuildingID newBuilding = bonusValue.buildingDecoded;
+
+		if (bonusValue.buildingH3M.hasValue())
+		{
+			auto mapping = LIBRARY->mapFormat->getMapping(gameState->scenarioOps->campState->getFormat());
+			newBuilding = mapping.remapBuilding(town->getFactionID(), bonusValue.buildingH3M);
+		}
 
 		// Build granted building & all prerequisites - e.g. Mages Guild Lvl 3 should also give Mages Guild Lvl 1 & 2
 		while(true)

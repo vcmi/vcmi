@@ -67,7 +67,7 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	TextContainerRegistrable textContainer;
 public:
 	bool playerSelectedDifficulty() const;
-	bool formatVCMI() const;
+	CampaignVersion getFormat() const;
 
 	std::string getDescriptionTranslated() const;
 	std::string getNameTranslated() const;

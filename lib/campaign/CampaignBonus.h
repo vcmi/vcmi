@@ -46,11 +46,13 @@ struct CampaignBonusCreatures
 
 struct CampaignBonusBuilding
 {
-	BuildingID building;
+	BuildingID buildingH3M;
+	BuildingID buildingDecoded;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & building;
+		h & buildingH3M;
+		h & buildingDecoded;
 	}
 };
 
@@ -143,9 +145,9 @@ struct CampaignBonusStartingHero
 class CampaignBonus
 {
 	using Variant = std::variant<
-		CampaignBonusSpell,
+		CampaignBonusSpell, // UNTESTED
 		CampaignBonusCreatures,
-		CampaignBonusBuilding,
+		CampaignBonusBuilding, // UNTESTED - broken, Long Live the King, Liberation last
 		CampaignBonusArtifact,
 		CampaignBonusSpellScroll,
 		CampaignBonusPrimarySkill,

@@ -31,7 +31,7 @@ struct ObjectTypeIdentifier
 	}
 };
 
-class MapIdentifiersH3M
+class DLL_LINKAGE MapIdentifiersH3M
 {
 	std::map<BuildingID, BuildingID> mappingBuilding;
 	std::map<FactionID, std::map<BuildingID, BuildingID>> mappingFactionBuilding;

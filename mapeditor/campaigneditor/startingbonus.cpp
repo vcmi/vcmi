@@ -165,7 +165,7 @@ void StartingBonus::loadBonus()
 			const auto & bonusValue = bonus.getValue<CampaignBonusBuilding>();
 			ui->radioButtonBuilding->setChecked(true);
 			on_radioButtonBuilding_toggled();
-			setComboBoxValue(ui->comboBoxBuildingBuilding, bonusValue.building.getNum());
+			setComboBoxValue(ui->comboBoxBuildingBuilding, bonusValue.buildingDecoded.getNum());
 			break;
 		}
 		case CampaignBonusType::ARTIFACT:
@@ -238,6 +238,7 @@ void StartingBonus::saveBonus()
 		};
 	else if(ui->radioButtonBuilding->isChecked())
 		bonus = CampaignBonusBuilding{
+			BuildingID{},
 			BuildingID(ui->comboBoxBuildingBuilding->currentData().toInt())
 		};
 	else if(ui->radioButtonArtifact->isChecked())

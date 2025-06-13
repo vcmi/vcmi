@@ -102,7 +102,6 @@ set(lib_MAIN_SRCS
 	entities/artifact/CArtifactInstance.cpp
 	entities/artifact/CArtifactSet.cpp
 	entities/building/CBuilding.cpp
-	entities/building/CBuildingHandler.cpp
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
@@ -509,7 +508,6 @@ set(lib_MAIN_HEADERS
 	entities/artifact/CArtifactSet.h
 	entities/artifact/EArtifactClass.h
 	entities/building/CBuilding.h
-	entities/building/CBuildingHandler.h
 	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h

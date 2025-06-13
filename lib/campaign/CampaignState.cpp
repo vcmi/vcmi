@@ -39,9 +39,9 @@ bool CampaignHeader::playerSelectedDifficulty() const
 	return difficultyChosenByPlayer;
 }
 
-bool CampaignHeader::formatVCMI() const
+CampaignVersion CampaignHeader::getFormat() const
 {
-	return version == CampaignVersion::VCMI;
+	return version;
 }
 
 std::string CampaignHeader::getDescriptionTranslated() const

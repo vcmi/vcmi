@@ -80,7 +80,7 @@ CampaignBonus::CampaignBonus(CBinaryReader & reader, const MapIdentifiersH3M & r
 				case CampaignBonusType::BUILDING:
 				{
 					BuildingID building(reader.readUInt8());
-					data = CampaignBonusBuilding{remapper.remapBuilding(std::nullopt, building)};
+					data = CampaignBonusBuilding{building, remapper.remapBuilding(std::nullopt, building)};
 					break;
 				}
 				case CampaignBonusType::ARTIFACT:
@@ -197,7 +197,7 @@ CampaignBonus::CampaignBonus(const JsonNode & bjson, CampaignStartOptions mode)
 		case CampaignBonusType::BUILDING:
 		{
 			BuildingID building(vstd::find_pos(EBuildingType::names, bjson["buildingType"].String()));
-			data = CampaignBonusBuilding{building};
+			data = CampaignBonusBuilding{building, building};
 			break;
 		}
 		case CampaignBonusType::ARTIFACT:
@@ -292,7 +292,7 @@ JsonNode CampaignBonus::toJson() const
 		case CampaignBonusType::BUILDING:
 		{
 			const auto & bonusValue = getValue<CampaignBonusBuilding>();
-			bnode["buildingType"].String() = EBuildingType::names[bonusValue.building.getNum()];
+			bnode["buildingType"].String() = EBuildingType::names[bonusValue.buildingDecoded.getNum()];
 			break;
 		}
 		case CampaignBonusType::ARTIFACT:
