@@ -849,7 +849,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 			LIBRARY->identifiers()->requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
 			{
-				vec.push_back(BonusType(bonusID));
+				vec.push_back(static_cast<BonusType>(bonusID));
 			});
 		}
 	};

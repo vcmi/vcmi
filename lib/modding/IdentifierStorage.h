@@ -67,7 +67,7 @@ class DLL_LINKAGE CIdentifierStorage
 	void debugDumpIdentifiers();
 
 	/// Check if identifier can be valid (camelCase, point as separator)
-	static void checkIdentifier(std::string & ID);
+	static void checkIdentifier(const std::string & ID);
 
 	void requestIdentifier(ObjectCallback callback) const;
 	bool resolveIdentifier(const ObjectCallback & callback) const;

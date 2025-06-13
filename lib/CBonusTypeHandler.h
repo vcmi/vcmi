@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-class DLL_LINKAGE CBonusType
+class DLL_LINKAGE CBonusType : boost::noncopyable
 {
 public:
 	CBonusType() = default;
@@ -42,7 +42,7 @@ private:
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
-	std::vector<std::string> bonusNames;
+	std::vector<std::string> builtinBonusNames;
 public:
 	CBonusTypeHandler();
 	virtual ~CBonusTypeHandler();
@@ -62,7 +62,7 @@ public:
 private:
 	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
-	std::vector<CBonusType> bonusTypes; //index = BonusType
+	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType
 };
 
 VCMI_LIB_NAMESPACE_END

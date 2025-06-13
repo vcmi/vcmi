@@ -629,11 +629,8 @@
 
 	"mapObject.core.hillFort.object.description" : "升级生物，1-4级生物升级比城镇中更便宜。",
 
-	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{Orb of Vulnerability}\nNegates natural magic resistance of all creatures on the battlefield",
-	"creatures.core.angel.bonus.raisesMorale" : "{Increases allies morale}\nAngels and Archangels increase allies Morale by one",
-	"creatures.core.devil.bonus.decreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
-	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
-	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
+	"creatures.core.azureDragon.bonus.fearful": "{恐惧}\n使得敌方一只部队恐惧",
+	"creatures.core.azureDragon.bonus.fearless": "{无惧}\n免疫恐惧特质",
 
 	"core.bonus.ADDITIONAL_ATTACK.description": "{双击}\n生物可以攻击两次",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{额外反击}\n每回合额外获得${val}次反击机会",
@@ -654,8 +651,6 @@
 	"core.bonus.ENCHANTER.description": "{施法者}\n每回合群体施放${subtype.spell}",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description": "{忽略攻击 (${val}%)}\n被攻击时，进攻方${val}%的攻击力将被无视。",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{忽略防御 (${val}%)}\n发动攻击时，防御方${val}%的防御力将被无视。",
-	"core.bonus.FEAR.description": "{恐惧}\n使得敌方一只部队恐惧",
-	"core.bonus.FEARLESS.description": "{无惧}\n免疫恐惧特质",
 	"core.bonus.FEROCITY.description": "{凶猛追击}\n杀死任意生物后额外攻击${val}次",
 	"core.bonus.FIRE_SHIELD.description": "{烈火神盾 (${val}%)}\n反弹部分受到的近战伤害",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{抢先反击}\n该生物的反击将会在被近战攻击前进行",
@@ -717,7 +712,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water": "{水系免疫}\n此单位免疫所有水系魔法",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description": "{魔法免疫}\n此单位免疫所有魔法",
 	"core.bonus.SUMMON_GUARDIANS.description": "{召唤守卫}\n战斗开始时召唤${subtype.creature}(${val}%)",
-	"core.bonus.SYNERGY_TARGET.description": "{协同攻击}\n生物受到协助攻击的影响",
 	"core.bonus.THREE_HEADED_ATTACK.description": "{半环攻击}\n攻击三格邻接单位",
 	"core.bonus.TRANSMUTATION.description": "{变形术}\n${val}%机会将被攻击单位变成其他生物",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description": "{吐息}\n吐息攻击(2格范围)",

@@ -83,7 +83,7 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "spell", "spellbook_preset", SpellID::SPELLBOOK_PRESET);
 }
 
-void CIdentifierStorage::checkIdentifier(std::string & ID)
+void CIdentifierStorage::checkIdentifier(const std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
 		logMod->error("BIG WARNING: identifier %s seems to be broken!", ID);

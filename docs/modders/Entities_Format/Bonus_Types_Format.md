@@ -1,6 +1,6 @@
 # Battlefield Format
 
-WARNING: currently custom bonus types can only be used for custom "traits", for example to use them in limiters. At the moment it is not possible to provide custom mechanics for such bonus
+WARNING: currently custom bonus types can only be used for custom "traits", for example to use them in limiters. At the moment it is not possible to provide custom mechanics for such bonus, or have custom bonuses with subtypes or addInfo parameters
 
 ```json
 {

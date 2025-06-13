@@ -676,7 +676,7 @@ Affected unit will gain new creatures for each enemy killed by this unit
 
 ### TRANSMUTATION
 
-Affected units have chance to transform attacked unit to other creature type
+Affected units have chance to transform attacked, living unit to other creature type, unless attacked unit is under TRANSMUTATION_IMMUNITY bonus
 
 - val: chance for ability to trigger, percentage
 - subtype:

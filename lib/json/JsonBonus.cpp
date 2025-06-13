@@ -437,7 +437,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 
 	LIBRARY->identifiers()->requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
 	{
-		b->type = BonusType(bonusID);
+		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
@@ -523,7 +523,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 				{
 					LIBRARY->identifiers()->requestIdentifier("bonus", parameters[0], [bonusLimiter](si32 bonusID)
 					{
-						bonusLimiter->type = BonusType(bonusID);
+						bonusLimiter->type = static_cast<BonusType>(bonusID);
 					});
 				}
 
@@ -642,7 +642,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 
 	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
 	{
-		b->type = BonusType(bonusID);
+		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
 		loadBonusAddInfo(b->additionalInfo, b->type, addinfoNode);
 	});

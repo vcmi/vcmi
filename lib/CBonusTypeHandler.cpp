@@ -24,8 +24,6 @@
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 
-template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///CBonusType
@@ -42,30 +40,23 @@ CBonusTypeHandler::CBonusTypeHandler()
 	//register predefined bonus types
 
 #define BONUS_NAME(x) { #x },
-	bonusNames = {
+	builtinBonusNames = {
 		BONUS_LIST
 	};
 #undef BONUS_NAME
 
-	for (int i = 0; i < bonusNames.size(); ++i)
-	{
-		registerObject(ModScope::scopeBuiltin(), "bonus", bonusNames[i], i);
-	}
+	for (int i = 0; i < builtinBonusNames.size(); ++i)
+		bonusTypes.push_back(std::make_shared<CBonusType>());
 
-#define BONUS_NAME(x) \
-	do { \
-		bonusTypes.push_back(CBonusType()); \
-	} while(0);
-
-	BONUS_LIST;
-#undef BONUS_NAME
+	for (int i = 0; i < builtinBonusNames.size(); ++i)
+		registerObject(ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], i);
 }
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
 
 std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
-	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
+	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
 	int bonusValue = bearer->valOfBonuses(bonus->type, bonus->subtype);
 	if(bt.hidden)
 		return "";
@@ -99,7 +90,7 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 
 ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
-	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
+	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
 
 	if (bonus->type == BonusType::SPELL_IMMUNITY && bonus->subtype.as<SpellID>().hasValue())
 	{
@@ -123,21 +114,20 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	if (vstd::contains(bonusNames, name))
+	if (vstd::contains(builtinBonusNames, name))
 	{
 		//h3 bonus
-		BonusType bonus = static_cast<BonusType>(vstd::find_pos(bonusNames, name));
-		CBonusType & bt = bonusTypes[vstd::to_underlying(bonus)];
+		BonusType bonus = static_cast<BonusType>(vstd::find_pos(builtinBonusNames, name));
+		CBonusType & bt =*bonusTypes.at(vstd::to_underlying(bonus));
 		loadItem(data, bt, name);
 		logBonus->trace("Loaded bonus type %s", name);
 	}
 	else
 	{
 		// new bonus
-		registerObject(scope, "bonus", name, bonusNames.size());
-		bonusNames.push_back(name);
-		bonusTypes.emplace_back();
-		loadItem(data, bonusTypes.back(), name);
+		registerObject(scope, "bonus", name, bonusTypes.size());
+		bonusTypes.push_back(std::make_shared<CBonusType>());
+		loadItem(data, *bonusTypes.back(), name);
 		logBonus->trace("New bonus type %s", name);
 	}
 }
@@ -198,18 +188,18 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 
 const std::string & CBonusTypeHandler::bonusToString(BonusType bonus) const
 {
-	return bonusNames.at(static_cast<int>(bonus));
+	return bonusTypes.at(static_cast<int>(bonus))->identifier;
 }
 
 bool CBonusTypeHandler::isCreatureNatureBonus(BonusType bonus) const
 {
-	return bonusTypes.at(static_cast<int>(bonus)).creatureNature;
+	return bonusTypes.at(static_cast<int>(bonus))->creatureNature;
 }
 
 std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
 {
 	std::vector<BonusType> ret;
-	for (int i = 0; i < bonusNames.size(); ++i)
+	for (int i = 0; i < bonusTypes.size(); ++i)
 		ret.push_back(static_cast<BonusType>(i));
 
 	return ret;

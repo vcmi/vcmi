@@ -94,6 +94,7 @@
 				"val" : 10,
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "PLACEHOLDER",
 				"limiters" : [ 
 					"OPPOSITE_SIDE", 
 					{
@@ -102,10 +103,11 @@
 					}
 				]
 			},
-			"fearfulImmune" :
+			"fearless" :
 			{
 				"type" : "FEARFUL",
 				"valueType" : "INDEPENDENT_MAX",
+				"description" : "PLACEHOLDER",
 				"val" : 0
 				
 			},

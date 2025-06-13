@@ -632,6 +632,8 @@
 	"creatures.core.devil.bonus.decreaseLuck"            : "{Minskar fiendens lycka}\nDjävular och ärkedjävular minskar fiendens lycka med en poäng.",
 	"creatures.core.boneDragon.bonus.decreaseMorale"     : "{Minskar fiendens moral}\nBen- och spökdrakar minskar fiendens moral med en poäng.",
 	"creatures.core.marksman.bonus.extraAttack"          : "{Skjuter två gånger}\nDenna enhet kan skjuta två gånger per runda.",
+	"creatures.core.azureDragon.bonus.fearful" : "{Rädsla}\nOrsakar rädsla på ett fiendeförband",
+	"creatures.core.azureDragon.bonus.fearless" : "{Orädd}\nImmun mot rädsla.",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dubbelslag}\nAttackerar två gånger.", // Att göra: separata beskrivningar för närstrid/fjärrstrid
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ytterligare motattacker}\nKan slå tillbaka ${val} extra gång(er).",
@@ -652,8 +654,6 @@
 	"core.bonus.ENCHANTER.description" : "{Förtrollare}\nKastar mass-${subtype.spell} varje turomgång.",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Avfärda attack (${val}%)}\nIgnorerar ${val}% av angriparens attack.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Förbigå försvar (${val}%)}\nAttacker ignorerar ${val}% av fiendens försvar.",
-	"core.bonus.FEAR.description" : "{Rädsla}\nOrsakar rädsla på ett fiendeförband.",
-	"core.bonus.FEARLESS.description" : "{Orädd}\nImmun mot rädsla.",
 	"core.bonus.FEROCITY.description" : "{Vildsint}\n+${val} extra attack(er) om någon dödas.",
 	"core.bonus.FIRE_SHIELD.description" : "{Eldsköld (${val}%)}\nReflekterar en del av närstridsskadorna.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{Första slaget}\nRetalierar innan den träffas i närstrid.",
@@ -715,7 +715,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Immun mot all magi}\nEnheten är helt immun mot all magi.",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Immun mot vattenmagi}\nEnheten är helt immun mot all vattenmagi.",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Åkalla väktare}\nVid strid åkallas: ${subtype.creature} ${val}%.",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergibar}\nDenna varelse är sårbar för synergieffekt.",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Trehövdad attack}\nAttackerar upp till tre enheter framför sig.",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutation}\n${val}% chans att förvandla angripen enhet.",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Dödlig andedräkt}\nAndningsattack (2 rutors räckvidd).",
