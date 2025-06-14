@@ -148,7 +148,10 @@ DLL_LINKAGE const std::vector<ArtifactPosition> & ArtifactUtils::commanderSlots(
 		ArtifactPosition::COMMANDER3,
 		ArtifactPosition::COMMANDER4,
 		ArtifactPosition::COMMANDER5,
-		ArtifactPosition::COMMANDER6
+		ArtifactPosition::COMMANDER6,
+		ArtifactPosition::COMMANDER7,
+		ArtifactPosition::COMMANDER8,
+		ArtifactPosition::COMMANDER9
 	};
 
 	return positions;
