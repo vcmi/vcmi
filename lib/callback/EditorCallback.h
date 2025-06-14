@@ -15,13 +15,12 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE EditorCallback : public MapInfoCallback
 {
-protected:
-	const CMap * getMapConstPtr() const override;
 
 public:
 	explicit EditorCallback(const CMap * map);
 
 	void setMap(const CMap * map);
+	const CMap * getMapConstPtr() const override;
 
 	// Access to full game state — not available in editor
 	CGameState & gameState() override;
