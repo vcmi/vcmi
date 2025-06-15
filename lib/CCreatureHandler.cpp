@@ -903,19 +903,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
-	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
+	for(const auto & ability : config["abilities"].Struct())
 	{
-		for(const auto & ability : config["abilities"].Struct())
+		if (!ability.second.isNull())
 		{
-			if (!ability.second.isNull())
-			{
-				auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
+			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			b->source = BonusSource::CREATURE_ABILITY;
+			b->sid = BonusSourceID(creature->getId());
+			b->duration = BonusDuration::PERMANENT;
+			creature->addNewBonus(b);
 		}
 	}
 
