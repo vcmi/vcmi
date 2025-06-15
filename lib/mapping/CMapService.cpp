@@ -169,7 +169,7 @@ std::unique_ptr<IMapPatcher> CMapService::getMapPatcher(std::string scenarioName
 {
 	boost::to_lower(scenarioName);
 	logGlobal->debug("Request to patch map %s", scenarioName);
-	return std::unique_ptr<IMapPatcher>(new CMapPatcher(LIBRARY->mapFormat->mapOverrides(scenarioName)));
+	return std::make_unique<CMapPatcher>(LIBRARY->mapFormat->mapOverrides(scenarioName));
 }
 
 VCMI_LIB_NAMESPACE_END

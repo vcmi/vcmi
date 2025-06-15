@@ -55,8 +55,6 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
-const HeroTypeID HeroTypeID::GEM(27);
-const HeroTypeID HeroTypeID::SOLMYR(45);
 const HeroTypeID HeroTypeID::CAMP_STRONGEST(-3);
 const HeroTypeID HeroTypeID::CAMP_GENERATED(-2);
 const HeroTypeID HeroTypeID::CAMP_RANDOM(-1);

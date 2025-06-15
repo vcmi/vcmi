@@ -51,12 +51,12 @@ public:
 		return mapping.at(campaignToMap.at(format));
 	}
 
-	const JsonNode & campaignOverrides(std::string & campaignName)
+	const JsonNode & campaignOverrides(const std::string & campaignName)
 	{
 		return campaignOverridesConfig[campaignName];
 	}
 
-	const JsonNode & mapOverrides(std::string & mapName)
+	const JsonNode & mapOverrides(const std::string & mapName)
 	{
 		return mapOverridesConfig[mapName];
 	}

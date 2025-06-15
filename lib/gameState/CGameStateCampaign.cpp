@@ -577,9 +577,10 @@ void CGameStateCampaign::initHeroes()
 	}
 
 	auto campaignState = gameState->scenarioOps->campState;
-	auto * yog = gameState->getUsedHero(HeroTypeID::SOLMYR);
-	if (yog && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
+	if (campaignState->getYogWizardID().hasValue() && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
 	{
+		auto * yog = gameState->getUsedHero(campaignState->getYogWizardID());
+		assert(yog);
 		assert(yog->isCampaignYog());
 		gameState->giveHeroArtifact(yog, ArtifactID::ANGELIC_ALLIANCE);
 	}
