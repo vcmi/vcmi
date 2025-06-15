@@ -209,6 +209,8 @@ void CMap::hideObject(CGObjectInstance * obj)
 
 void CMap::showObject(CGObjectInstance * obj)
 {
+	if (!obj->appearance)
+		return;
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{

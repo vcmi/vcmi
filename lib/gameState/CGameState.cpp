@@ -557,7 +557,8 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 	}
 
 	hero->tempOwner = playerColor;
-	hero->setAnchorPos(townPos + hero->getVisitableOffset());
+	int3 offset = hero->appearance ? hero->getVisitableOffset() : int3();
+	hero->setAnchorPos(townPos + offset);
 	map->getEditManager()->insertObject(hero);
 }
 
