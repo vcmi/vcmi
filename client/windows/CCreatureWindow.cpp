@@ -485,7 +485,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getArtifactPos = [](int index)
 	{
-		return Point(269 + 47 * (index % 3), 22 + 47 * (index / 3));
+		return Point(269 + 52 * (index % 3), 22 + 52 * (index / 3));
 	};
 
 	for(auto equippedArtifact : parent->info->commander->artifactsWorn)

@@ -99,7 +99,7 @@ namespace NArtifactPosition
 
 	inline constexpr std::array namesCommander =
 	{
-		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6",
+		"commander1", "commander2", "commander3", "commander4", "commander5", "commander6", "commander7", "commander8", "commander9"
 	};
 
 
