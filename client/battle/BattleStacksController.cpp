@@ -442,7 +442,9 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 
 		// FIXME: this check is better, however not usable since stacksAreAttacked is called after net pack is applied - petrification is already removed
 		// if (needsReverse && !attackedInfo.defender->isFrozen())
-		if (needsReverse && stackAnimation[attackedInfo.defender->unitId()]->getType() != ECreatureAnimType::FROZEN)
+		if (needsReverse &&
+		   stackAnimation[attackedInfo.defender->unitId()]->getType() != ECreatureAnimType::FROZEN &&
+		   !attackedInfo.defender->hasBonusOfType(BonusType::VULNERABLE_FROM_BACK))
 		{
 			owner.addToAnimationStage(EAnimationEvents::MOVEMENT, [this, attackedInfo]()
 			{

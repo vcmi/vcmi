@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "entities/artifact/CArtHandler.h"
@@ -178,6 +179,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(biomeHandler);
 	createHandler(objh);
 	createHandler(objtypeh);
+	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(skillh);
 	createHandler(terviewh);

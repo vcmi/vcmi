@@ -29,9 +29,10 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
-#include "CCreatureHandler.h"//todo: remove
-#include "spells/CSpellHandler.h" //todo: remove
-#include "CSkillHandler.h"//todo: remove
+#include "CCreatureHandler.h"
+#include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
+#include "CSkillHandler.h"
 #include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
@@ -39,7 +40,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"
-#include "TerrainHandler.h" //TODO: remove
+#include "TerrainHandler.h"
 #include "RiverHandler.h"
 #include "RoadHandler.h"
 #include "BattleFieldHandler.h"
@@ -77,8 +78,8 @@ const TeamID TeamID::NO_TEAM(-1);
 const SpellSchool SpellSchool::ANY(-1);
 const SpellSchool SpellSchool::AIR(0);
 const SpellSchool SpellSchool::FIRE(1);
-const SpellSchool SpellSchool::WATER(2);
-const SpellSchool SpellSchool::EARTH(3);
+const SpellSchool SpellSchool::EARTH(2);
+const SpellSchool SpellSchool::WATER(3);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
@@ -595,7 +596,7 @@ std::string SpellSchool::encode(const si32 index)
 	if (index == ANY.getNum())
 		return "any";
 
-	return SpellConfig::SCHOOL[index].jsonName;
+	return LIBRARY->spellSchoolHandler->getById(SpellSchool(index))->getJsonKey();
 }
 
 std::string SpellSchool::entityType()

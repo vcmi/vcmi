@@ -619,6 +619,9 @@
 	
 	"mapObject.core.hillFort.object.description" : "Aufwertungen von Kreaturen. Die Stufen 1 - 4 sind billiger als in der zugehörigen Stadt.",
 
+	"creatures.core.azureDragon.bonus.fearful" : "{Furcht}\nVerursacht Furcht bei einem gegnerischen Stapel",
+	"creatures.core.azureDragon.bonus.fearless" : "{Furchtlos}\nimmun gegen die Fähigkeit Furcht",
+
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Doppelschlag}\nGreift zweimal an",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Zusätzliche Vergeltungsmaßnahmen}\nKann ${val} zusätzliche Male vergelten",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Rundum angreifen}\nGreift alle benachbarten Gegner an",
@@ -638,8 +641,6 @@
 	"core.bonus.ENCHANTER.description" : "{Verzauberer}\nKann jede Runde eine Masse von ${subtype.spell} zaubern",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Angriff ignorieren (${val}%)}\nBei Angriff, wird ${val}% des Angreifers ignoriert.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Ignoriere Verteidigung (${val}%)}\nIgnoriert einen Teil der Verteidigung für den Angriff",
-	"core.bonus.FEARLESS.description" : "{Furchtlos}\nimmun gegen die Fähigkeit Furcht",
-	"core.bonus.FEAR.description" : "{Furcht}\nVerursacht Furcht bei einem gegnerischen Stapel",
 	"core.bonus.FEROCITY.description" : "{Wildheit}\nGreift ${val} zusätzliche Male an, wenn jemand getötet wird",
 	"core.bonus.FIRE_SHIELD.description" : "{Feuerschild (${val}%)}\nReflektiert einen Teil des Nahkampfschadens",
 	"core.bonus.FIRST_STRIKE.description" : "{Erstschlag}\nDiese Kreatur greift zuerst an, anstatt zu vergelten",
@@ -694,7 +695,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Wasser-Immunität}\nImmunität gegen Zauber der Wasser-Schule",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Zauber-Immunität}\nImmunität gegen alle Zauber-Schulen",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Wächter beschwören}\nBeschwört bei Kampfbeginn ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergierbar}\nDiese Kreatur ist anfällig für Synergieeffekte",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Dreiköpfiger Angriff}\nGreift drei benachbarte Einheiten an",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutation}\n${val}% Chance, angegriffene Einheit in einen anderen Typ zu verwandeln",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Atem}\nAtem-Angriff (2-Hex-Bereich)",

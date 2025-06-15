@@ -903,7 +903,7 @@ void CGameInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 		logGlobal->error("Illegal call to getTilesInRange!");
 		return;
 	}
-	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
+	if(radious == GameConstants::FULL_MAP_RANGE)
 		getAllTiles (tiles, player, -1, [](auto * tile){return true;});
 	else
 	{

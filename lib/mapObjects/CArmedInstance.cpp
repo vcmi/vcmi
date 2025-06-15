@@ -70,9 +70,6 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	std::set<FactionID> factions;
 	bool hasUndead = false;
 
-	const std::string undeadCacheKey = "type_UNDEAD";
-	static const CSelector undeadSelector = Selector::type()(BonusType::UNDEAD);
-
 	for(const auto & slot : Slots())
 	{
 		const auto * creature  = slot.second->getCreatureID().toEntity(LIBRARY);
@@ -82,7 +79,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		if (!hasUndead)
 		{
 			//this is costly check, let's skip it at first undead
-			hasUndead |= slot.second->hasBonus(undeadSelector, undeadCacheKey);
+			hasUndead |= slot.second->hasBonusOfType(BonusType::UNDEAD);
 		}
 	}
 

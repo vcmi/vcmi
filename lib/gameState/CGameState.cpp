@@ -787,12 +787,6 @@ void CGameState::initTowns(vstd::RNG & randomGenerator)
 	if (campaign)
 		campaign->initTowns();
 
-	map->townUniversitySkills.clear();
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
-
 	for (const auto & townID : map->getAllTowns())
 	{
 		auto vti = getTown(townID);

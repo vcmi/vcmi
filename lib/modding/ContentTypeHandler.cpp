@@ -39,6 +39,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
 #include "../spells/CSpellHandler.h"
+#include "../spells/SpellSchoolHandler.h"
 #include "../GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -248,6 +249,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
 	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
+	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
 	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
 	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
 #if SCRIPTING_ENABLED

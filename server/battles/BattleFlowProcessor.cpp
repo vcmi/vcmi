@@ -279,7 +279,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 		BattleTriggerEffect bte;
 		bte.battleID = battle.getBattle()->getBattleID();
 		bte.stackID = stack->unitId();
-		bte.effect = vstd::to_underlying(BonusType::HP_REGENERATION);
+		bte.effect = BonusType::HP_REGENERATION;
 
 		const int32_t lostHealth = stack->getMaxHealth() - stack->getFirstHPleft();
 		if(stack->hasBonusOfType(BonusType::HP_REGENERATION))
@@ -529,7 +529,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 			BattleTriggerEffect bte;
 			bte.battleID = battle.getBattle()->getBattleID();
 			bte.stackID = next->unitId();
-			bte.effect = vstd::to_underlying(BonusType::MORALE);
+			bte.effect = BonusType::MORALE;
 			bte.val = 1;
 			bte.additionalInfo = 0;
 			gameHandler->sendAndApply(bte); //play animation
@@ -667,7 +667,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	BattleTriggerEffect bte;
 	bte.battleID = battle.getBattle()->getBattleID();
 	bte.stackID = st->unitId();
-	bte.effect = -1;
+	bte.effect = BonusType::NONE;
 	bte.val = 0;
 	bte.additionalInfo = 0;
 	if (st->alive())
@@ -710,7 +710,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(BonusType::POISON)));
 				if (bte.val < b->val) //(negative) poison effect increases - update it
 				{
-					bte.effect = vstd::to_underlying(BonusType::POISON);
+					bte.effect = BonusType::POISON;
 					gameHandler->sendAndApply(bte);
 				}
 			}
@@ -724,28 +724,21 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				vstd::amin(manaDrained, opponentHero->mana);
 				if(manaDrained)
 				{
-					bte.effect = vstd::to_underlying(BonusType::MANA_DRAIN);
+					bte.effect = BonusType::MANA_DRAIN;
 					bte.val = manaDrained;
 					bte.additionalInfo = opponentHero->id.getNum(); //for sanity
 					gameHandler->sendAndApply(bte);
 				}
 			}
 		}
-		if (st->isLiving() && !st->hasBonusOfType(BonusType::FEARLESS))
+		if (st->hasBonusOfType(BonusType::FEARFUL))
 		{
+			int chance = st->valOfBonuses(BonusType::FEARFUL);
 			ObjectInstanceID opponentArmyID = battle.battleGetArmyObject(battle.otherSide(st->unitSide()))->id;
-			bool fearsomeCreature = false;
-			for (const CStack * stack : battle.battleGetAllStacks(true))
+
+			if (gameHandler->randomizer->rollCombatAbility(opponentArmyID, chance))
 			{
-				if (battle.battleMatchOwner(st, stack) && stack->alive() && stack->hasBonusOfType(BonusType::FEAR))
-				{
-					fearsomeCreature = true;
-					break;
-				}
-			}
-			if (fearsomeCreature && gameHandler->randomizer->rollCombatAbility(opponentArmyID, 10)) //fixed 10%
-			{
-				bte.effect = vstd::to_underlying(BonusType::FEAR);
+				bte.effect = BonusType::FEARFUL;
 				gameHandler->sendAndApply(bte);
 			}
 		}

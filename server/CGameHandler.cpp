@@ -654,6 +654,19 @@ void CGameHandler::onNewTurn()
 		addStatistics(*statistics); // write at end of turn
 	}
 
+	const auto & currentDaySelector = [day = gameState().day+1](const Bonus * bonus)
+	{
+		if (bonus->additionalInfo[0] <= 0)
+			return true;
+		if ((day % bonus->additionalInfo[0]) == 0)
+			return true;
+		return false;
+	};
+
+	const auto & fullMapScoutingSelector = Selector::type()(BonusType::FULL_MAP_SCOUTING).And(currentDaySelector);
+	const auto & fullMapDarknessSelector = Selector::type()(BonusType::FULL_MAP_DARKNESS).And(currentDaySelector);
+	const auto & darknessSelector = Selector::type()(BonusType::DARKNESS).And(currentDaySelector);
+
 	for (const auto & townID : gameState().getMap().getAllTowns())
 	{
 		const auto * t = gameState().getTown(townID);
@@ -661,25 +674,27 @@ void CGameHandler::onNewTurn()
 
 		// Skyship, probably easier to handle same as Veil of darkness
 		// do it every new day before veils
-		if(t->hasBuilt(BuildingID::GRAIL)
-		   && player.isValidPlayer()
-			&& t->getTown()->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
-		{
-			changeFogOfWar(t->getSightCenter(), t->getSightRadius(), player, ETileVisibility::REVEALED);
-		}
+		if(t->hasBonus(fullMapScoutingSelector) && player.isValidPlayer())
+			changeFogOfWar(t->getSightCenter(), GameConstants::FULL_MAP_RANGE, player, ETileVisibility::REVEALED);
 	}
 
-	for (const auto & townID : gameState().getMap().getAllTowns())
+	for (const auto & object : gameState().getMap().getObjects<CArmedInstance>())
 	{
-		const auto * t = gameState().getTown(townID);
-		if(t->hasBonusOfType(BonusType::DARKNESS))
+		if(!object->hasBonus(darknessSelector) && !object->hasBonus(fullMapDarknessSelector))
+			continue;
+
+		for(const auto & player : gameState().players)
 		{
-			for(const auto & player : gameState().players)
-			{
-				if (gameInfo().getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
-					gameInfo().getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->getSightCenter(), t->valOfBonuses(BonusType::DARKNESS), player.first, ETileVisibility::HIDDEN);
-			}
+			if (gameInfo().getPlayerStatus(player.first) != EPlayerStatus::INGAME)
+				continue;
+
+			if (gameInfo().getPlayerRelations(player.first, object->getOwner()) != PlayerRelations::ENEMIES)
+				continue;
+
+			if (object->hasBonus(fullMapDarknessSelector))
+				changeFogOfWar(object->getSightCenter(), GameConstants::FULL_MAP_RANGE, player.first, ETileVisibility::HIDDEN);
+			else
+				changeFogOfWar(object->getSightCenter(), object->valOfBonuses(darknessSelector), player.first, ETileVisibility::HIDDEN);
 		}
 	}
 
@@ -3239,11 +3254,10 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	//resulting creature - bone dragons or skeletons
 	CreatureID resCreature = CreatureID::SKELETON;
 
-	if ((s.hasBonusOfType(BonusType::DRAGON_NATURE)
-			&& !(s.hasBonusOfType(BonusType::UNDEAD)))
-			|| (s.getCreatureID() == CreatureID::HYDRA)
-			|| (s.getCreatureID() == CreatureID::CHAOS_HYDRA))
-		resCreature = CreatureID::BONE_DRAGON;
+	auto customTargerBonus = s.getBonusesOfType(BonusType::SKELETON_TRANSFORMER_TARGET);
+	if (!customTargerBonus->empty())
+		resCreature = customTargerBonus->front()->subtype.as<CreatureID>();
+
 	changeStackType(StackLocation(army->id, slot), resCreature.toCreature());
 	return true;
 }
@@ -4146,7 +4160,6 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 	if (mode == ETileVisibility::HIDDEN)
 	{
 		// do not hide tiles observed by owned objects. May lead to disastrous AI problems
-		// FIXME: this leads to a bug - shroud of darkness from Necropolis does can not override Skyship from Tower
 		std::unordered_set<int3> observedTiles;
 		const auto * p = gameInfo().getPlayerState(player);
 		for (const auto * obj : p->getOwnedObjects())

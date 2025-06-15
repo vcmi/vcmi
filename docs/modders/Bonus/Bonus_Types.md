@@ -27,12 +27,6 @@ Changes mastery level of spells of affected heroes and units. Examples are magic
 - subtype: school of magic
 - val: level
 
-### DARKNESS
-
-On each turn, hides area in fog of war around affected town for all players other than town owner. Currently does not work for any entities other than towns.
-
-- val: radius in tiles
-
 ## Player bonuses
 
 Intended to be setup as global effect, AI cheat etc.
@@ -99,6 +93,27 @@ Reveal area of fog of war around affected heroes when hero is recruited or moves
 
 - val: radius in tiles
 
+### DARKNESS
+
+On each turn, hides area in fog of war around affected objects for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+NOTE: when used by heroes, effect would still activate only on new turn, and not on every hero movement
+
+- val: radius in tiles
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_SCOUTING
+
+On each turn, reveals entire map for owner of the bonus
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
+### FULL_MAP_DARKNESS
+
+On each turn, hides entire map in fog of war for all players other than town owner. Areas within scouting range of owned objects are not affected
+
+- addInfo: optional, activation period (e.g. 7 = weekly, 28 = monthly)
+
 ### MANA_REGENERATION
 
 Restores specific amount of mana points for affected heroes on new turn
@@ -110,6 +125,12 @@ Restores specific amount of mana points for affected heroes on new turn
 Restores specific percentage of mana pool for affected heroes on new turn. If hero has both MANA_REGENERATION and MANA_PERCENTAGE_REGENERATION, only bonus that gives more mana points will be active
 
 - val: percentage of spell points to restore
+
+### SKELETON_TRANSFORMER_TARGET
+
+Unit affected by this bonus will be transformed into creature other than Skeleton when placed into Skeleton Transformer
+
+- subtype: type of creature to which this unit should be converted
 
 ### NONEVIL_ALIGNMENT_MIX
 
@@ -123,18 +144,24 @@ Changes surrender cost for affected heroes
 
 ### IMPROVED_NECROMANCY
 
-Allows to raise different creatures than Skeletons after battle.
+Bonus allows the hero to raise specific creatures from corpses after battle.
+
+If the hero has multiple bonuses of the same type, the game will select the unit with the higher level. If the units have the same level, the game will select the unit with the higher market value (the total cost of the unit in gold, including converted resources).
+
+If the hero has no free space for the target creature but has space for its upgrade (including subsequent upgrades), the upgraded unit will be raised instead at a rate of two-thirds.
 
 - subtype: creature raised
 - val: Necromancer power
-- addInfo: Level of Necromancy secondary skill (1 - Basic, 3 - Expert)
-- Example (from Cloak Of The Undead King):
+- addInfo: Requried total level of Necromancer power for this bonus to be active (val of all bonuses of this type)
+
+Example (from Cloak Of The Undead King):
 
 ```json
 {
     "type" : "IMPROVED_NECROMANCY",
     "subtype" : "creature.walkingDead",
-    "addInfo" : 1
+    "addInfo" : 1, // requires 1 val of IMPROVED_NECROMANCY from other source, e.g. skill
+    "val" : 0 // does not provides levels of necromancer power on its own
 }
 ```
 
@@ -411,41 +438,45 @@ Increases starting amount of shots that unit has in battle
 
 ## Creature abilities
 
-## Static abilities and immunities
+## Creature Natures
+
+### LIVING
+
+Affected unit is considered to be alive. Automatically granted to any unit that does not have any other creature nature bonus
+
+Living units can be affected by TRANSMUTATION, LIFE_DRAIN, and SOUL_STEAL bonuses
 
 ### NON_LIVING
 
-Affected unit is considered to not be alive and not affected by morale and certain spells
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells
 
 ### MECHANICAL
 
-Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (factory).
+Creature nature bonus. Affected unit is considered to not be alive and not affected by morale and certain spells but should be repairable from engineers (HotA Factory).
 
 ### GARGOYLE
 
-Affected unit is considered to be a gargoyle and not affected by certain spells
+Creature nature bonus. Affected unit is considered to be a gargoyle and not affected by certain spells
 
 ### UNDEAD
 
-Affected unit is considered to be undead, which makes it immune to many effects, and also reduce morale of allied living units.
+Creature nature bonus. Affected unit is considered to be undead, which makes it immune to many effects, not affected by morale, and also reduce morale of allied living units.
 
 ### SIEGE_WEAPON
 
-Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+Creature nature bonus. Affected unit is considered to be a siege machine and can not be raised, healed, have morale or move. All War Machines should have this bonus.
+
+## Static abilities and immunities
 
 ### DRAGON_NATURE
 
-Affected unit is dragon. This bonus proved no effect, but is used as limiter several effects.
+Affected unit is dragon. This bonus provides no effects on its own, but is used as limiter for Mutare specialty
 
 ### KING
 
 Affected unit will take more damage from units under Slayer spell effect
 
 - val: required skill mastery of Slayer spell to affect this unit
-
-### FEARLESS
-
-Affected unit is immune to Fear ability
 
 ### NO_LUCK
 
@@ -494,6 +525,12 @@ Affected unit can retaliate multiple times per turn (basic Griffin)
 Affected unit will deal more damage based on movement distance (Champions)
 
 - val: additional damage per passed tile, percentage
+
+### VULNERABLE_FROM_BACK
+
+When affected unit is attacked from behind, it will receive more damage when attacked and will not turn around to face the attacker
+
+- val: additional damage for attacks from behind, percentage (0-100)
 
 ### HATE
 
@@ -639,13 +676,17 @@ Affected unit will gain new creatures for each enemy killed by this unit
 
 ### TRANSMUTATION
 
-Affected units have chance to transform attacked unit to other creature type
+Affected units have chance to transform attacked, living unit to other creature type, unless attacked unit is under TRANSMUTATION_IMMUNITY bonus
 
 - val: chance for ability to trigger, percentage
 - subtype:
   - transmutationPerHealth: transformed unit will have same HP pool as original stack,
   - transmutationPerUnit: transformed unit will have same number of units as original stack
 - addInfo: creature to transform to. If not set, creature will transform to same unit as attacker
+
+### TRANSMUTATION_IMMUNITY
+
+Affected unit is immune to TRANSMUTATION bonus effects
 
 ### SUMMON_GUARDIANS
 
@@ -783,7 +824,9 @@ Affected unit has chance to deal double damage on attack (Death Knight)
 
 ### FEAR
 
-If enemy army has creatures affected by this bonus, they will skip their turn with 10% chance (Azure Dragon). Blocked by FEARLESS bonus.
+Units affected by this bonus have a chance to skip their turn and freeze in fear (Azure Dragon).
+
+- val: chance to trigger, percentage
 
 ### HEALER
 
@@ -921,6 +964,7 @@ Affected unit is permanently enchanted with a spell, that is cast again every tu
 Affected unit is immune to all spell with level below or equal to value of this bonus
 
 - val: level of spell up to which this unit is immune to
+- addInfo: if set to 1, this will be "absolute immunity" that can not be negated by Orb of Vulnerability
 
 ### MAGIC_RESISTANCE
 
@@ -1069,10 +1113,6 @@ Blocks casting spells of the level below specified one in battles affected by th
 Dummy bonus that acts as marker for Dendroid's Bind ability
 
 - addInfo: ID of stack that have bound the unit
-
-### SYNERGY_TARGET
-
-Dummy skill for alternative upgrades mod
 
 ### THIEVES_GUILD_ACCESS
 

@@ -45,8 +45,9 @@ enum class ESerializationVersion : int32_t
 	CUSTOM_BONUS_ICONS, // support for custom icons in bonuses
 	SERVER_STATISTICS, // statistics now only saved on server
 	OPPOSITE_SIDE_LIMITER_OWNER, // opposite side limiter no longer stores owner in itself
+	UNIVERSITY_CONFIG, // town university is configurable
 
-	CURRENT = OPPOSITE_SIDE_LIMITER_OWNER,
+	CURRENT = UNIVERSITY_CONFIG,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

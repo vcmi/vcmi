@@ -25,7 +25,6 @@ namespace GameConstants
 	constexpr int CREATURES_PER_TOWN = 8; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
-	constexpr int DEFAULT_SCHOOLS = 4;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
@@ -54,6 +53,8 @@ namespace GameConstants
 	constexpr int TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD = 144*144*2; //map tiles count threshold for 2 dimension door casts with tournament rules
 	constexpr int KINGDOM_WINDOW_HEROES_SLOTS = 4;
 	constexpr int INFO_WINDOW_ARTIFACTS_MAX_ITEMS = 14;
+
+	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -629,6 +629,9 @@
 	
 	"mapObject.core.hillFort.object.description" : "Ulepsza jednostki. Koszt ulepszenia dla poziomów 1 - 4 jest bardziej korzystny niż w mieście.",
 
+	"creatures.core.azureDragon.bonus.fearful" : "{Strach}\nWzbudza strach na wrogim stworzeniu",
+	"creatures.core.azureDragon.bonus.fearless" : "{Nieustraszony}\nOdporny na strach",
+
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Podwójne Uderzenie}\nAtakuje dwa razy",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Dodatkowy odwet}\n${val} dodatkowy kontratak",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Obrotowy atak}\nAtakuje wszystkich sąsiadujących wrogów",
@@ -648,8 +651,6 @@
 	"core.bonus.ENCHANTER.description" : "{Czarodziej}\nRzuca czar ${subtype.spell}",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Ignoruje Atak (${val}%)}\nPrzy zostaniu zaatakowanym ignoruje ${val}% ataku wroga",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Osłabienie Obrony (${val}%)}\nOsłabia obronę wroga podczas ataku",
-	"core.bonus.FEARLESS.description" : "{Nieustraszony}\nOdporny na strach",
-	"core.bonus.FEAR.description" : "{Strach}\nWzbudza strach na wrogim stworzeniu",
 	"core.bonus.FEROCITY.description" : "{Dzikość}\nDodatkowe ${val} ataków jeżeli zabito kogokolwiek",
 	"core.bonus.FIRE_SHIELD.description" : "{Ognista tarcza (${val}%)}\nOdbija część obrażeń z walki wręcz",
 	"core.bonus.FIRST_STRIKE.description" : "{Pierwsze Uderzenie}\nTo stworzenie atakuje pierwsze w ramach kontrataku",
@@ -695,7 +696,6 @@
 	"core.bonus.SPELL_LIKE_ATTACK.description" : "{Atak czaropodobny}\nAtakuje z użyciem ${subtype.spell}",
 	"core.bonus.SPELL_RESISTANCE_AURA.description" : "{O ${val}% słabszy}\nefekt czarów dla pobl. stwor.",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Wzywa na początku walki}\n${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergiczny}\nTo stworzenie jest podatne na efekt synergii",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Atak trzema głowami}\nAtakuje trzy sąsiadujące jednostki",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutacja}\n${val}% szans aby przetransformować atakowaną jednostkę na inny typ",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Zionięcie}\nAtak zionący (zasięg 2 heksów)",
