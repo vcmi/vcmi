@@ -119,6 +119,13 @@ static std::string notCheck(JsonValidator & validator, const JsonNode & baseSche
 	return "";
 }
 
+static std::string ifCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+{
+	if (validator.check(schema, data).empty())
+		return validator.check(baseSchema["then"], data);
+	return "";
+}
+
 static std::string enumCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 {
 	for(const auto & enumEntry : schema.Vector())
@@ -544,6 +551,8 @@ JsonValidator::TValidatorMap createCommonFields()
 	ret["type"]  = typeCheck;
 	ret["not"]   = notCheck;
 	ret["$ref"]  = refCheck;
+	ret["if"]  = ifCheck;
+	ret["then"]  = emptyCheck; // implemented as part of "if check"
 
 	// fields that don't need implementation
 	ret["title"] = emptyCheck;

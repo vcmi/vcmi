@@ -86,8 +86,11 @@ set(lib_MAIN_SRCS
 	callback/CPlayerSpecificInfoCallback.cpp
 	callback/GameRandomizer.cpp
 
+	campaign/CampaignBonus.cpp
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
+	campaign/CampaignRegions.cpp
+	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
 
@@ -99,7 +102,6 @@ set(lib_MAIN_SRCS
 	entities/artifact/CArtifactInstance.cpp
 	entities/artifact/CArtifactSet.cpp
 	entities/building/CBuilding.cpp
-	entities/building/CBuildingHandler.cpp
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
@@ -171,6 +173,7 @@ set(lib_MAIN_SRCS
 	mapping/MapFormatH3M.cpp
 	mapping/MapReaderH3M.cpp
 	mapping/MapFormatJson.cpp
+	mapping/MapFormatSettings.cpp
 	mapping/ObstacleProxy.cpp
 
 	modding/ActiveModsInSaveList.cpp
@@ -480,9 +483,11 @@ set(lib_MAIN_HEADERS
 	callback/IGameRandomizer.h
 	callback/GameRandomizer.h
 
-
+	campaign/CampaignBonus.h
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
+	campaign/CampaignRegions.h
+	campaign/CampaignRegionsHandler.h
 	campaign/CampaignScenarioPrologEpilog.h
 	campaign/CampaignState.h
 
@@ -503,7 +508,6 @@ set(lib_MAIN_HEADERS
 	entities/artifact/CArtifactSet.h
 	entities/artifact/EArtifactClass.h
 	entities/building/CBuilding.h
-	entities/building/CBuildingHandler.h
 	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
@@ -586,6 +590,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapFeaturesH3M.h
 	mapping/MapFormatH3M.h
 	mapping/MapFormat.h
+	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h

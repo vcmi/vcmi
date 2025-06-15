@@ -119,8 +119,67 @@
 			"additionalProperties" : false
 		}
 	},
-	"required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
+	"required" : ["type", "name", "school", "level", "power", "flags", "levels"],
 	"additionalProperties" : false,
+	
+	"allOf": [
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"enum" : ["adventure", "combat"],
+					},
+					
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none", "basic", "advanced", "expert"]
+					},
+					"graphics" : {
+						"required" : ["iconBook", "iconScroll", "iconEffect", "iconImmune", "iconScenarioBonus"]
+					},
+				}
+			}
+		},
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"const" : "ability"
+					}
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none"]
+					},
+					"graphics" : {
+						"required" : ["iconEffect", "iconImmune"]
+					},
+				}
+			}
+		}
+	],
+	
 	"properties" : {
 		"index" : {
 			"type" : "number",
@@ -265,7 +324,7 @@
 				},
 				"iconEffect" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for spell effects during battle" ,
+					"description" : "Resourse path of icon for spell effects during battle",
 					"format" : "imageFile"
 				},
 				"iconImmune" : {
@@ -275,7 +334,7 @@
 				},
 				"iconScenarioBonus" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for scenario bonus" ,
+					"description" : "Resourse path of 58x64 icon for scenario bonus",
 					"format" : "imageFile"
 				}
 			}
@@ -293,7 +352,6 @@
 		"levels" : {
 			 "type" : "object",
 			 "additionalProperties" : false,
-			 "required" : ["none", "basic", "advanced", "expert"],
 			 "properties" : {
 				"base" : {
 					"type" : "object",

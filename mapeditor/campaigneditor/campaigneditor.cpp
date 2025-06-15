@@ -19,6 +19,7 @@
 
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/campaign/CampaignRegionsHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
 
@@ -200,7 +201,7 @@ void CampaignEditor::on_actionNew_triggered()
 		return;
 	
 	campaignState = std::make_unique<CampaignState>();
-	campaignState->campaignRegions = CampaignRegions::getLegacy(0);
+	campaignState->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
 	for (int i = 0; i < campaignState->campaignRegions.regions.size(); i++)
 	{
 		CampaignScenario s;

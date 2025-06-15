@@ -15,7 +15,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct CampaignBonus;
+class CampaignBonus;
 struct CampaignTravel;
 class CGHeroInstance;
 class CGameState;

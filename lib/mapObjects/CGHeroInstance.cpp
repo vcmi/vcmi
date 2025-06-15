@@ -748,19 +748,30 @@ uint64_t CGHeroInstance::getValueForDiplomacy() const
 	return heroStrength * armyStrength;
 }
 
-uint32_t CGHeroInstance::getValueForCampaign() const
+bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
 {
-	/// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
-	uint32_t score = 0;
-	score += getPrimSkillLevel(PrimarySkill::ATTACK);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
-	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+	// https://heroes.thelazy.net/index.php/Power_rating
 
-	for (const auto& secondary : secSkills)
-		score += secondary.second;
+	uint32_t leftLevel = left->level;
+	uint64_t leftExperience = left->exp;
+	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t leftPrimaryAndLevel = leftPrimary + leftLevel;
 
-	return score;
+	uint32_t rightLevel = right->level;
+	uint64_t rightExperience = right->exp;
+	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t rightPrimaryAndLevel = rightPrimary + rightLevel;
+
+	if (leftPrimaryAndLevel != rightPrimaryAndLevel)
+		return leftPrimaryAndLevel > rightPrimaryAndLevel;
+
+	if (leftLevel != rightLevel)
+		return leftLevel > rightLevel;
+
+	if (leftExperience != rightExperience)
+		return leftExperience > rightExperience;
+
+	return left->getHeroTypeID() > right->getHeroTypeID();
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
@@ -1804,37 +1815,13 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 bool CGHeroInstance::isCampaignYog() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getYogWizardID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::GEM) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
 }
 
 ResourceSet CGHeroInstance::dailyIncome() const

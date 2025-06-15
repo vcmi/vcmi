@@ -83,6 +83,8 @@ level fields become optional if they equal "base" configuration.
 		"medium" : "",
 		// 82x93 skill icon
 		"large" : "",
+		// 58x64 skill icon for campaign scenario bonus
+		"scenarioBonus" : ""
 	}
 }
 ```

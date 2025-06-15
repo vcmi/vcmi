@@ -239,10 +239,17 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
 			// 3 numbers
-			var.resize(3);
-			var[0] = value[0].Integer();
-			var[1] = value[1].Integer();
-			var[2] = value[2].Integer();
+			if (value.isNumber())
+			{
+				var = getFirstValue(value).Integer();
+			}
+			else
+			{
+				var.resize(3);
+				var[0] = value[0].Integer();
+				var[1] = value[1].Integer();
+				var[2] = value[2].Integer();
+			}
 			break;
 		case BonusType::MULTIHEX_UNIT_ATTACK:
 		case BonusType::MULTIHEX_ENEMY_ATTACK:

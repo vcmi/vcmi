@@ -102,7 +102,6 @@ std::string CArtifact::getModScope() const
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "ARTIFACT", image);
-	cb(getIconIndex(), 0, "ARTIFACTLARGE", large);
 }
 
 ArtifactID CArtifact::getId() const
@@ -359,7 +358,7 @@ void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, con
 {
 	iconIndex = newIconIndex;
 	image = newImage;
-	large = newLargeImage;
+	scenarioBonus = newLargeImage;
 }
 
 

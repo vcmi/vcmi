@@ -131,6 +131,9 @@ void CChargedArtifactInstance::onChargesChanged()
 	auto artInst = static_cast<CArtifactInstance*>(this);
 	const auto artType = artInst->getType();
 
+	if(!artType->isCharged())
+		return;
+
 	const auto bonusSelector = artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST ?
 		Selector::type()(BonusType::SPELL) : Selector::all;
 

@@ -450,6 +450,7 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->hiddenUpgrade = source["hidden"].Bool();
 	ret->defName = AnimationPath::fromJson(source["animation"]);
 	ret->borderName = ImagePath::fromJson(source["border"]);
+	ret->campaignBonus = ImagePath::fromJson(source["campaignBonus"]);
 	ret->areaName = ImagePath::fromJson(source["area"]);
 
 	town.clientInfo.structures.emplace_back(ret);

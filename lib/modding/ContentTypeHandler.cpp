@@ -18,6 +18,7 @@
 #include "../BattleFieldHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CConfigHandler.h"
+#include "../campaign/CampaignRegionsHandler.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClassHandler.h"
@@ -245,6 +246,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
 	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
 	handlers.insert(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
+	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
 	handlers.insert(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
 	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
 	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));

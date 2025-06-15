@@ -115,9 +115,6 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
-	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
-	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
-
 	static const HeroTypeID CAMP_STRONGEST;
 	static const HeroTypeID CAMP_GENERATED;
 	static const HeroTypeID CAMP_RANDOM;
@@ -1065,9 +1062,9 @@ public:
 		MITHRIL,
 		COUNT,
 
-		WOOD_AND_ORE = 127,  // special case for town bonus resource
-		COMMON = 0xFD, // campaign bonus
-		RARE = 0xFE, // campaign bonus
+		WOOD_AND_ORE = -4,  // special case for town bonus resource
+		COMMON = -3, // campaign bonus
+		RARE = -2, // campaign bonus
 		NONE = -1
 	};
 };
@@ -1121,6 +1118,13 @@ public:
 
 	static const CampaignScenarioID NONE;
 };
+
+class DLL_LINKAGE CampaignRegionID : public StaticIdentifier<CampaignRegionID>
+{
+public:
+	using StaticIdentifier<CampaignRegionID>::StaticIdentifier;
+};
+
 
 // Deprecated
 // TODO: remove

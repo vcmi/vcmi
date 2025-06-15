@@ -762,7 +762,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	//you can't request action from action-response thread
 	executeActionAsync("showGarrisonDialog", [this, down, up, removableUnits, queryID]()
 	{
-		if(removableUnits && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
+		if(removableUnits && !cb->getStartInfo()->restrictedGarrisonsForAI())
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);
