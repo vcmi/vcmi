@@ -486,12 +486,8 @@ set(lib_MAIN_HEADERS
 	callback/GameRandomizer.h
 	callback/MapInfoCallback.h
 	callback/EditorCallback.h
-<<<<<<< HEAD
 	
 	campaign/CampaignBonus.h
-=======
-
->>>>>>> eeff61da6 (Integrate EditorCallback into mapeditor)
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
 	campaign/CampaignRegions.h
