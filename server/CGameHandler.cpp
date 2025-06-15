@@ -4366,7 +4366,9 @@ void CGameHandler::useChargedArtifactUsed(const ObjectInstanceID & heroObjectID,
 		}
 	}
 
-	assert(!chargedArts.empty());
+	if (chargedArts.empty())
+		return;
+
 	DischargeArtifact msg(chargedArts.front().second, 1);
 	msg.artLoc.emplace(hero->id, chargedArts.front().first);
 	sendAndApply(msg);
