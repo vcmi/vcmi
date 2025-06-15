@@ -964,6 +964,7 @@ Affected unit is permanently enchanted with a spell, that is cast again every tu
 Affected unit is immune to all spell with level below or equal to value of this bonus
 
 - val: level of spell up to which this unit is immune to
+- addInfo: if set to 1, this will be "absolute immunity" that can not be negated by Orb of Vulnerability
 
 ### MAGIC_RESISTANCE
 

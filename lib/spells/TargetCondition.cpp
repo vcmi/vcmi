@@ -357,7 +357,7 @@ public:
 		{
 			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
 			if (bonusID)
-				return std::make_shared<SelectorCondition>(Selector::type()(BonusType(*bonusID)));
+				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
 			else
 				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}

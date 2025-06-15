@@ -220,6 +220,7 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::PRIMARY_SKILL:
 		case BonusType::ENCHANTER:
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
 		case BonusType::FULL_MAP_SCOUTING:
 		case BonusType::FULL_MAP_DARKNESS:

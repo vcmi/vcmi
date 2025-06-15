@@ -89,7 +89,7 @@ void CIdentifierStorage::checkIdentifier(const std::string & ID)
 		logMod->error("BIG WARNING: identifier %s seems to be broken!", ID);
 }
 
-void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const
+void CIdentifierStorage::requestIdentifier(const ObjectCallback & callback) const
 {
 	checkIdentifier(callback.type);
 	checkIdentifier(callback.name);

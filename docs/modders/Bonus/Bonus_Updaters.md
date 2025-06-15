@@ -25,8 +25,8 @@ Example: The following updater will cause a bonus to grow by 3 for every 20 leve
 ```json
 "updater" : {
     "type" : "GROWS_WITH_LEVEL",
-    "valPer20" : 6,
-    "stepSize" : 2
+    "valPer20" : 3,
+    "stepSize" : 1
 }
 ```
 
