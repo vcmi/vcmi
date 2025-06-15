@@ -345,6 +345,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help" : "Nastavit posouvání mapy na okamžité",
 	"vcmi.adventureOptions.hideBackground.hover" : "Skrýt pozadí",
 	"vcmi.adventureOptions.hideBackground.help" : "{Skrýt pozadí}\n\nSkryje mapu dobrodružství na pozadí a místo ní zobrazí texturu.",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Zobrazit hrdiny na minimapě",
+	"vcmi.adventureOptions.minimapShowHeroes.help" : "{Zobrazit hrdiny na minimapě}\n\nZobrazí dodatečnou ikonu pro všechny hrdiny viditelné na minimapě, aby byli lépe rozpoznatelní na velkých mapách",
 
 	"vcmi.battleOptions.queueSizeLabel.hover" : "Zobrazit frontu pořadí tahů",
 	"vcmi.battleOptions.queueSizeNoneButton.hover" : "VYPNUTO",
