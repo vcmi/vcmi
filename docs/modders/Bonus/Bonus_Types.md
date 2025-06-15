@@ -78,9 +78,9 @@ Allows flying movement for affected heroes
 
 Eliminates terrain penalty on certain terrain types for affected heroes (Nomads ability).
 
-Note: to eliminate all terrain penalties see ROUGH_TERRAIN_DISCOUNT bonus
+Note: to eliminate all terrain penalties see [ROUGH_TERRAIN_DISCOUNT](#rough_terrain_discount) bonus
 
-- subtype: type of terrain, eg `terrain.sand`
+- subtype: type of terrain, eg `sand`
 
 ### TERRAIN_NATIVE
 
@@ -182,7 +182,7 @@ Allows affected heroes to position army before start of battle (Tactics)
 
 ### BEFORE_BATTLE_REPOSITION_BLOCK
 
-Reduces distance in which enemy hero can reposition. Counters BEFORE_BATTLE_REPOSITION bonus
+Reduces distance in which enemy hero can reposition. Counters [BEFORE_BATTLE_REPOSITION](#before_battle_reposition) bonus
 
 - val: distance within which hero can reposition his troops
 
@@ -200,7 +200,7 @@ Increases experience gain from combat by affected units. No effect if stack expe
 
 ### UNDEAD_RAISE_PERCENTAGE
 
-Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by IMPROVED_NECROMANCY bonus
+Defines percentage of enemy troops that will be raised after battle into own army (Necromancy). Raised unit is determined by [IMPROVED_NECROMANCY](#improved_necromancy) bonus
 
 - val: percentage of raised troops
 
@@ -255,7 +255,7 @@ Gives additional bonus to effect of all spells of selected school
 
 ### SPECIFIC_SPELL_DAMAGE
 
-Gives additional bonus to effect of specific spell
+For `damage`, `heal` and `demonSummon` spell effects, increases spell power by specific percentage
 
 - subtype: identifier of affected spell
 - val: bonus to spell effect, percentage
@@ -546,10 +546,12 @@ Examples:
 - Prism Breath (mods): `[ "FL", "FF", "FR" ]` — a more powerful version of Dragon Breath; all units behind the target are attacked.
 
 This is how all tiles can be referenced in the event of a frontal attack (green is the attacker and red is the defender). The hex on which defender is located is always included unconditionally.
-![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../images/Bonus_Multihex_Attack_Horizontal.svg)
+
+![MULTIHEX_UNIT_ATTACK frontal attack hexes indexing](../../images/Bonus_Multihex_Attack_Horizontal.svg)
 
 In the case of a double-wide unit that can attack hexes to the left and right (e.g. Cerberi), the left or right hex may end up inside the attacker in certain attack configurations. To avoid this, the hex that ends up inside the unit will be 'pushed' one hex forward. This does not affect single-wide units. See below for reference:
-![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../images/Bonus_Multihex_Attack_Vertical.svg)
+
+![MULTIHEX_UNIT_ATTACK vertical attack hexes indexing](../../images/Bonus_Multihex_Attack_Vertical.svg)
 
 ### MULTIHEX_ENEMY_ATTACK
 

@@ -103,7 +103,6 @@ public:
 	{
 		si32 cost = 0;
 		si32 power = 0;
-		si32 AIValue = 0;
 
 		bool smartTarget = true;
 		bool clearTarget = false;
@@ -142,7 +141,6 @@ public:
 		bool smart;
 		bool massive;
 		bool clearAffected;
-		bool clearTarget;
 
 		TargetInfo(const CSpell * spell, const int32_t level, spells::Mode mode);
 	};

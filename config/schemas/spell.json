@@ -58,7 +58,7 @@
 		},
 		"levelInfo" : {
 			"type" : "object",
-			"required" :["range", "description", "cost", "power", "aiValue"],
+			"required" :["range", "description", "cost", "power"],
 
 			"additionalProperties" : false,
 			"properties" : {
@@ -76,9 +76,6 @@
 				"range" : {
 					"type" : "string",
 					"description" : "spell range description in SRSL"
-				},
-				"aiValue" : {
-					"type" : "number"
 				},
 				"effects" : {
 					"type" : "object",
@@ -107,11 +104,6 @@
 						"smart" : {
 							"type" : "boolean",
 							"description" : "true: friendly/hostile based on positiveness; false: all targets"
-						},
-						"clearTarget" :
-						{
-							"type" : "boolean",
-							"description" : "LOCATION target only. Target hex/tile must be clear"
 						},
 						"clearAffected" :
 						{
