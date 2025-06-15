@@ -23,7 +23,7 @@
 #include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
 
-std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * ecb)
+std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * cb)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
@@ -50,7 +50,7 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
 		
-		return mapService.loadMap(resId, ecb);
+		return mapService.loadMap(resId, cb);
 	}
 	else
 		throw std::runtime_error("Corrupted map");

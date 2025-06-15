@@ -1717,6 +1717,9 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 
 	if(handler.saving)
 	{
+		// FIXME: EditorCallback (used in map editor) has no access to GameState.
+		// serializeJsonArtifacts expects non-const CMap *
+		// Find some cleaner solution
 		if(auto * ecb = dynamic_cast<EditorCallback *>(cb))
 			CArtifactSet::serializeJsonArtifacts(handler, "artifacts", const_cast<CMap *>(ecb->getMapConstPtr()));
 		else

@@ -17,9 +17,11 @@ class CMap;
 
 class DLL_LINKAGE MapInfoCallback : public IGameInfoCallback
 {
+protected:
+	virtual const CMap * getMapConstPtr() const = 0;
+
 public:
 	virtual ~MapInfoCallback();
-	virtual const CMap * getMapConstPtr() const = 0;
 
 	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
 	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const override;
