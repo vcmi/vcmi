@@ -142,15 +142,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-		{
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->bonusesPerLevel.back().second);
-		}
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
+
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-		{
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->thresholdBonuses.back().second);
-		}
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
 	}
 
 	art->id = ArtifactID(index);

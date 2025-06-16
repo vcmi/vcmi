@@ -404,7 +404,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
 			// MOD COMPATIBILITY - parameters is deprecated in 1.7
-			const JsonVector param = updaterJson["parameters"].Vector();
+			const JsonNode & param = updaterJson["parameters"];
 			int valPer20 = updaterJson["valPer20"].isNull() ? param[0].Integer() : updaterJson["valPer20"].Integer();
 			int stepSize = updaterJson["stepSize"].isNull() ? param[1].Integer() : updaterJson["stepSize"].Integer();
 
@@ -647,6 +647,12 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	const JsonNode * value = nullptr;
 	const JsonNode & subtypeNode = ability["subtype"];
 	const JsonNode & addinfoNode = ability["addInfo"];
+
+	if (ability["type"].isNull())
+	{
+		logMod->error("Failed to parse bonus. Description: '%s'. Config: '%s'", descriptionID.get(), ability.toCompactString());
+		return false;
+	}
 
 	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
 	{

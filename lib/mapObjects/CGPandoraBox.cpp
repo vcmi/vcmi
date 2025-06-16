@@ -109,10 +109,10 @@ void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const
 	
 	for(auto b : vi.reward.heroBonuses)
 	{
-		if(b.val && b.type == BonusType::MORALE)
-			txt = setText(b.val > 0, 179, 178, h);
-		if(b.val && b.type == BonusType::LUCK)
-			txt = setText(b.val > 0, 181, 180, h);
+		if(b->val && b->type == BonusType::MORALE)
+			txt = setText(b->val > 0, 179, 178, h);
+		if(b->val && b->type == BonusType::LUCK)
+			txt = setText(b->val > 0, 181, 180, h);
 	}
 	sendInfoWindow(txt, temp);
 	
@@ -229,11 +229,11 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		int val = 0;
 		handler.serializeInt("morale", val, 0);
 		if(val)
-			vinfo.reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		
 		handler.serializeInt("luck", val, 0);
 		if(val)
-			vinfo.reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		
 		vinfo.reward.resources.serializeJson(handler, "resources");
 		{

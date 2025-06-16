@@ -54,15 +54,15 @@ class DLL_LINKAGE CGrowingArtifact
 protected:
 	CGrowingArtifact() = default;
 
-	std::vector<std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
-	std::vector<std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> bonusesPerLevel; // Bonus given each n levels
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> thresholdBonuses; // After certain level they will be added once
 public:
 	bool isGrowing() const;
 
-	std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel();
-	const std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
-	std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses();
-	const std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses() const;
 };
 
 class DLL_LINKAGE CChargedArtifact

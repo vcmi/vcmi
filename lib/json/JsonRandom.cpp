@@ -580,13 +580,13 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		return ret;
 	}
 
-	std::vector<Bonus> JsonRandom::loadBonuses(const JsonNode & value)
+	std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value)
 	{
-		std::vector<Bonus> ret;
+		std::vector<std::shared_ptr<Bonus>> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
 			if(auto bonus = JsonUtils::parseBonus(entry))
-				ret.push_back(*bonus);
+				ret.push_back(bonus);
 		}
 		return ret;
 	}

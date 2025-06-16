@@ -269,7 +269,7 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 	boat->onboardAssaultAllowed = onboardAssaultAllowed;
 	boat->onboardVisitAllowed = onboardVisitAllowed;
 	for(auto & b : bonuses)
-		boat->addNewBonus(std::make_shared<Bonus>(b));
+		boat->addNewBonus(b);
 }
 
 AnimationPath BoatInstanceConstructor::getBoatAnimationName() const

@@ -109,7 +109,7 @@ void CGrowingArtifactInstance::growingUp()
 			// Every n levels
 			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) % bonus.first == 0)
 			{
-				artInst->accumulateBonus(std::make_shared<Bonus>(bonus.second));
+				artInst->accumulateBonus(std::make_shared<Bonus>(*bonus.second));
 			}
 		}
 		for(const auto & bonus : artType->getThresholdBonuses())
@@ -117,7 +117,7 @@ void CGrowingArtifactInstance::growingUp()
 			// At n level
 			if(artInst->valOfBonuses(BonusType::ARTIFACT_GROWING) == bonus.first)
 			{
-				artInst->addNewBonus(std::make_shared<Bonus>(bonus.second));
+				artInst->addNewBonus(std::make_shared<Bonus>(*bonus.second));
 			}
 		}
 

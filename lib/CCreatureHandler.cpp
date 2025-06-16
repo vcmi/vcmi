@@ -903,19 +903,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
-	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
+	for(const auto & ability : config["abilities"].Struct())
 	{
-		for(const auto & ability : config["abilities"].Struct())
+		if (!ability.second.isNull())
 		{
-			if (!ability.second.isNull())
-			{
-				auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
+			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			b->source = BonusSource::CREATURE_ABILITY;
+			b->sid = BonusSourceID(creature->getId());
+			b->duration = BonusDuration::PERMANENT;
+			creature->addNewBonus(b);
 		}
 	}
 
@@ -983,7 +979,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
@@ -1003,7 +999,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());

@@ -345,7 +345,7 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
 		auto typ = static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "bonus", ui->bonuses->item(i, 1)->text().toStdString()));
 		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
-		vinfo.reward.heroBonuses.emplace_back(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id));
+		vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id)));
 	}
 	
 	vinfo.limiter.dayOfWeek = ui->lDayOfWeek->currentIndex();
@@ -483,7 +483,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 	
 	for(auto & i : vinfo.reward.heroBonuses)
 	{
-		auto dur = vstd::findKey(bonusDurationMap, i.duration);
+		auto dur = vstd::findKey(bonusDurationMap, i->duration);
 		for(int i = 0; i < ui->bonusDuration->count(); ++i)
 		{
 			if(ui->bonusDuration->itemText(i) == QString::fromStdString(dur))
@@ -493,7 +493,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			}
 		}
 		
-		std::string typ = LIBRARY->bth->bonusToString(i.type);
+		std::string typ = LIBRARY->bth->bonusToString(i->type);
 		for(int i = 0; i < ui->bonusType->count(); ++i)
 		{
 			if(ui->bonusType->itemText(i) == QString::fromStdString(typ))
@@ -503,7 +503,7 @@ void RewardsWidget::loadCurrentVisitInfo(int index)
 			}
 		}
 		
-		ui->bonusValue->setValue(i.val);
+		ui->bonusValue->setValue(i->val);
 		on_bonusAdd_clicked();
 	}
 	
@@ -819,8 +819,8 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		QStringList bonusesList;
 		for (auto & bonus : vinfo.reward.heroBonuses)
 		{
-			std::string bonusName = LIBRARY->bth->bonusToString(bonus.type);
-			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus.duration))).arg(QString::fromStdString(bonusName)).arg(bonus.val);
+			std::string bonusName = LIBRARY->bth->bonusToString(bonus->type);
+			bonusesList += QString("%1 %2 (%3)").arg(QString::fromStdString(vstd::findKey(bonusDurationMap, bonus->duration))).arg(QString::fromStdString(bonusName)).arg(bonus->val);
 		}
 		textList += QObject::tr("Bonuses: %1").arg(bonusesList.join(", "));
 	}

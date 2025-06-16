@@ -822,11 +822,11 @@ Affected unit has chance to deal double damage on attack (Death Knight)
 
 - val: chance to trigger, percentage
 
-### FEAR
+### FEARFUL
 
-Units affected by this bonus have a chance to skip their turn and freeze in fear (Azure Dragon).
+Affected unit has chance to freeze in fear and entirely skip its turn (Azure Dragons)
 
-- val: chance to trigger, percentage
+- val: chance for the unit to freeze in fear
 
 ### HEALER
 

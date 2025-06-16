@@ -546,9 +546,6 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	resultsApplied.loser = finishingBattle->loser;
 	gameHandler->sendAndApply(resultsApplied);
 
-	//handle victory/loss of engaged players
-	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
-
 	// Remove beaten hero
 	if(loserHero)
 	{
@@ -563,6 +560,9 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
 	}
+
+	//handle victory/loss of engaged players
+	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
