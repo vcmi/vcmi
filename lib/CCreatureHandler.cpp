@@ -979,7 +979,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
@@ -999,7 +999,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
