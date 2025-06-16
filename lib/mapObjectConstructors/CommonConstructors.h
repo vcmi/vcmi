@@ -110,7 +110,7 @@ class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGB
 protected:
 	void initTypeData(const JsonNode & config) override;
 	
-	std::vector<Bonus> bonuses;
+	std::vector<std::shared_ptr<Bonus>> bonuses;
 	EPathfindingLayer layer;
 	bool onboardAssaultAllowed; //if true, hero can attack units from transport
 	bool onboardVisitAllowed; //if true, hero can visit objects from transport

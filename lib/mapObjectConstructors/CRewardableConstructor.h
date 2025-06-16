@@ -20,7 +20,7 @@ class DLL_LINKAGE CRewardableConstructor : public AObjectTypeHandler
 {
 	Rewardable::Info objectInfo;
 
-	void assignBonuses(std::vector<Bonus> & bonuses, MapObjectID objectID) const;
+	void assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses, MapObjectID objectID) const;
 	void initTypeData(const JsonNode & config) override;
 	
 	bool blockVisit = false;

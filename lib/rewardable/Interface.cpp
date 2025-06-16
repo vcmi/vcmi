@@ -152,24 +152,24 @@ void Rewardable::Interface::grantRewardAfterLevelup(IGameEventCallback & gameEve
 		gameEvents.setMovePoints(&smp);
 	}
 
-	for(const Bonus & bonus : info.reward.heroBonuses)
+	for(const auto & bonus : info.reward.heroBonuses)
 	{
-		GiveBonus gb(GiveBonus::ETarget::OBJECT, hero->id, bonus);
+		GiveBonus gb(GiveBonus::ETarget::OBJECT, hero->id, *bonus);
 		gameEvents.giveHeroBonus(&gb);
 	}
 
 	if (hero->getCommander())
 	{
-		for(const Bonus & bonus : info.reward.commanderBonuses)
+		for(const auto & bonus : info.reward.commanderBonuses)
 		{
-			GiveBonus gb(GiveBonus::ETarget::HERO_COMMANDER, hero->id, bonus);
+			GiveBonus gb(GiveBonus::ETarget::HERO_COMMANDER, hero->id, *bonus);
 			gameEvents.giveHeroBonus(&gb);
 		}
 	}
 
-	for(const Bonus & bonus : info.reward.playerBonuses)
+	for(const auto & bonus : info.reward.playerBonuses)
 	{
-		GiveBonus gb(GiveBonus::ETarget::PLAYER, hero->getOwner(), bonus);
+		GiveBonus gb(GiveBonus::ETarget::PLAYER, hero->getOwner(), *bonus);
 		gameEvents.giveHeroBonus(&gb);
 	}
 
