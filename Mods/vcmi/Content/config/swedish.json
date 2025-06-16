@@ -345,6 +345,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help"            : "Ställ in kartans rullningshastighet till 'Omedelbar'.",
 	"vcmi.adventureOptions.hideBackground.hover"            : "Dölj bakgrund",
 	"vcmi.adventureOptions.hideBackground.help"             : "{Dölj bakgrund}\n\nDöljer äventyrskartan i bakgrunden och visar en textur istället.",
+	"vcmi.adventureOptions.minimapShowHeroes.hover"         : "Visa hjältar på minikartan",
+	"vcmi.adventureOptions.minimapShowHeroes.help"          : "{Visa hjältar på minikartan}\n\nVisa en extra ikon för alla hjältar på minikartan för att göra dem lättare att urskilja på stora kartor.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover"            : "Visa turordningskö",
 	"vcmi.battleOptions.queueSizeNoneButton.hover"       : "AV",
