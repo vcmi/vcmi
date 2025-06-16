@@ -88,20 +88,11 @@ const IBonusBearer* CGHeroInstance::getBonusBearer() const
 
 TerrainId CGHeroInstance::getNativeTerrain() const
 {
-	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
-	// This is clearly bug in H3 however intended behaviour is not clear.
-	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
-	// will always have best penalty without any influence from player-defined stacks order
-	// and army that consist solely from neutral will always be considered to be on native terrain
-
 	TerrainId nativeTerrain = ETerrainId::ANY_TERRAIN;
 
 	for(const auto & stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
-
-		if(stackNativeTerrain == ETerrainId::NONE)
-			continue;
 
 		if(nativeTerrain == ETerrainId::ANY_TERRAIN)
 			nativeTerrain = stackNativeTerrain;
