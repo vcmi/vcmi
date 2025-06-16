@@ -9,16 +9,16 @@
  */
 
 #include "StdInc.h"
-#include "playersettings.h"
-#include "ui_playersettings.h"
+#include "PlayerSettingsDialog.h"
+#include "ui_PlayerSettingsDialog.h"
 #include "playerparams.h"
 #include "mainwindow.h"
 
 #include "../lib/mapping/CMap.h"
 
-PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
+PlayerSettingsDialog::PlayerSettingsDialog(MapController & ctrl, QWidget *parent) :
 	QDialog(parent),
-	ui(new Ui::PlayerSettings),
+	ui(new Ui::PlayerSettingsDialog),
 	controller(ctrl)
 {
 	ui->setupUi(this);
@@ -48,13 +48,13 @@ PlayerSettings::PlayerSettings(MapController & ctrl, QWidget *parent) :
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
-PlayerSettings::~PlayerSettings()
+PlayerSettingsDialog::~PlayerSettingsDialog()
 {
 	controller.settingsDialog = nullptr;
 	delete ui;
 }
 
-void PlayerSettings::on_playersCount_currentIndexChanged(int index)
+void PlayerSettingsDialog::on_playersCount_currentIndexChanged(int index)
 {
 	const auto selectedPlayerCount = index + 1;
 	assert(selectedPlayerCount <= controller.map()->players.size());
@@ -90,7 +90,7 @@ void PlayerSettings::on_playersCount_currentIndexChanged(int index)
 }
 
 
-void PlayerSettings::on_pushButton_clicked()
+void PlayerSettingsDialog::on_pushButton_clicked()
 {
 	for(auto * w : paramWidgets)
 	{

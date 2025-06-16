@@ -594,7 +594,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
-				controller->createObject(sc->level, factory->create(nullptr, templ));
+				controller->createObject(sc->level, factory->create(controller->getCallback(), templ));
 			}
 		}
 		

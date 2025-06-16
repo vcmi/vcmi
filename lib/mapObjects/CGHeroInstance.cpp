@@ -18,6 +18,7 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
+#include "../callback/EditorCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -1706,7 +1707,15 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
+	{
+		// FIXME: EditorCallback (used in map editor) has no access to GameState.
+		// serializeJsonArtifacts expects non-const CMap *
+		// Find some cleaner solution
+		if(auto * ecb = dynamic_cast<EditorCallback *>(cb))
+			CArtifactSet::serializeJsonArtifacts(handler, "artifacts", const_cast<CMap *>(ecb->getMapConstPtr()));
+		else
+			CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
+	}
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)

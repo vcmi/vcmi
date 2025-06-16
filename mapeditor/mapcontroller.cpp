@@ -51,6 +51,7 @@ MapController::MapController(MainWindow * m): main(m)
 		_miniscenes[i].reset(new MinimapScene(i));
 	}
 	connectScenes();
+	_cb = std::make_unique<EditorCallback>(nullptr);
 }
 
 void MapController::connectScenes()
@@ -68,6 +69,16 @@ void MapController::connectScenes()
 MapController::~MapController()
 {
 	main = nullptr;
+}
+
+void MapController::setCallback(std::unique_ptr<EditorCallback> cb)
+{
+	_cb = std::move(cb);
+}
+
+EditorCallback * MapController::getCallback()
+{
+	return _cb.get();
 }
 
 const std::unique_ptr<CMap> & MapController::getMapUniquePtr() const
@@ -104,6 +115,8 @@ void MapController::repairMap(CMap * map)
 {
 	if(!map)
 		return;
+
+	assert(map->cb);
 	
 	//make sure events/rumors has name to have proper identifiers
 	int emptyNameId = 1;
@@ -201,7 +214,9 @@ void MapController::repairMap(CMap * map)
 
 void MapController::setMap(std::unique_ptr<CMap> cmap)
 {
+	cmap->cb = _cb.get();
 	_map = std::move(cmap);
+	_cb->setMap(_map.get());
 	
 	repairMap();
 	
@@ -355,7 +370,7 @@ void MapController::copyToClipboard(int level)
 	for(auto * obj : selectedObjects)
 	{
 		assert(obj->pos.z == level);
-		_clipboard.push_back(CMemorySerializer::deepCopy(*obj));
+		_clipboard.push_back(CMemorySerializer::deepCopy(*obj, _cb.get()));
 	}
 }
 
@@ -370,7 +385,7 @@ void MapController::pasteFromClipboard(int level)
 	QStringList errors;
 	for(auto & objUniquePtr : _clipboard)
 	{
-		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr);
+		auto obj = CMemorySerializer::deepCopyShared(*objUniquePtr, _cb.get());
 		QString errorMsg;
 		if(!canPlaceObject(obj.get(), errorMsg))
 		{
@@ -381,7 +396,8 @@ void MapController::pasteFromClipboard(int level)
 		if(_map->isInTheMap(newPos))
 			obj->pos = newPos;
 		obj->pos.z = level;
-		
+
+		obj->id = {};
 		Initializer init(*this, obj.get(), defaultPlayer);
 		_map->getEditManager()->insertObject(obj);
 		_scenes[level]->selectionObjectsView.selectObject(obj.get());

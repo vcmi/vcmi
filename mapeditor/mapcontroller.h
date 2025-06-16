@@ -13,6 +13,7 @@
 #include "maphandler.h"
 #include "mapview.h"
 #include "lib/modding/ModVerificationInfo.h"
+#include "../lib/callback/EditorCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 using ModCompatibilityInfo = std::map<std::string, ModVerificationInfo>;
@@ -31,6 +32,8 @@ public:
 	MapController(const MapController &&) = delete;
 	~MapController();
 	
+	void setCallback(std::unique_ptr<EditorCallback>);
+	EditorCallback * getCallback();
 	void setMap(std::unique_ptr<CMap>);
 	void initObstaclePainters(CMap * map);
 	
@@ -93,6 +96,7 @@ signals:
 	void requestModsUpdate(const ModCompatibilityInfo & mods, bool leaveCheckedUnchanged) const;
 	
 private:
+	std::unique_ptr<EditorCallback> _cb;
 	std::unique_ptr<CMap> _map;
 	std::unique_ptr<MapHandler> _mapHandler;
 	MainWindow * main;
