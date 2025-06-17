@@ -28,8 +28,8 @@ Bonus is only active if affected entity has another bonus that meets conditions
 Parameters:
 
 - Bonus type
-- bonus subtype
-- bonus sourceType and sourceId in struct
+- Bonus subtype (only used if bonus type is set)
+- Bonus source type and bonus source ID
 
 All parameters are optional. Values that don't need checking can be replaces with `null`
 
@@ -42,11 +42,11 @@ Examples:
 		{
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
 			"parameters" : [
-				null,
-				null,
+				null, // bonus type is ignored
+				null, // bonus subtype is also ignored
 				{
-					"type" : "SPELL_EFFECT",
-					"id" : "spell.bless"
+					"type" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
+					"id" : "spell.bless"     // ... from spell "Bless"
 				}
 				]
 		}
