@@ -1346,25 +1346,6 @@ void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
 	}
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
-{
-	if(!getVisitedTown())
-		return nullptr;
-
-	if (isBattleOutsideTown)
-		return const_cast<CTownAndVisitingHero *>(&getVisitedTown()->townAndVis);
-
-	return const_cast<CGTownInstance*>(getVisitedTown());
-}
-
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState & gs)
-{
-	if(getVisitedTown())
-		return whereShouldBeAttachedOnSiege(getVisitedTown()->isBattleOutsideTown(this));
-
-	return &CArmedInstance::whereShouldBeAttached(gs);
-}
-
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(visitedTown.hasValue())

@@ -322,14 +322,6 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	const auto winnerHero = battle.battleGetFightingHero(finishingBattle->winnerSide);
 	const auto loserHero = battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
 
-	if(battleResult->winner == BattleSide::DEFENDER
-	   && winnerHero
-	   && winnerHero->getVisitedTown()
-	   && !winnerHero->isGarrisoned()
-	   && winnerHero->getVisitedTown()->getGarrisonHero() == winnerHero)
-	{
-		gameHandler->swapGarrisonOnSiege(winnerHero->getVisitedTown()->id); //return defending visitor from garrison to its rightful place
-	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide])
 	{

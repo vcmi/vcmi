@@ -276,9 +276,6 @@ public:
 	///IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState & gs);
-
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
 	int32_t getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
