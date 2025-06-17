@@ -42,6 +42,7 @@
 #include "../networkPacks/ArtifactLocation.h"
 #include "../spells/CSpellHandler.h"
 #include "../texts/TextOperations.h"
+#include "entities/hero/CHeroClass.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -843,8 +844,9 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		if(!custom)
 			continue;
 
-		auto hero = std::make_shared<CGHeroInstance>(map->cb);
-		hero->ID = Obj::HERO;
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+		auto object = handler->create(map->cb, handler->getTemplates().front());
+		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->subID = heroID;
 
 		bool hasExp = reader->readBool();
