@@ -49,6 +49,12 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
 
+		if (settings["adventure"]["minimapShowHeroes"].Bool())
+		{
+			if (obj->ID == MapObjectID::HERO)
+				continue;
+		}
+
 		if (player.isValidPlayer())
 			return graphics->playerColors[player.getNum()];
 	}
@@ -134,8 +140,8 @@ Point CMinimap::tileToPixels(const int3 &tile) const
 	double stepX = static_cast<double>(pos.w) / mapSizes.x;
 	double stepY = static_cast<double>(pos.h) / mapSizes.y;
 
-	int x = static_cast<int>(stepX * tile.x);
-	int y = static_cast<int>(stepY * tile.y);
+	int x = static_cast<int>(stepX * (tile.x + 0.5));
+	int y = static_cast<int>(stepY * (tile.y + 0.5));
 
 	return Point(x,y);
 }
