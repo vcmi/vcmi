@@ -21,7 +21,6 @@
 #include "../render/Colors.h"
 
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 
 #include "../CPlayerInterface.h"
 

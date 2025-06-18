@@ -15,7 +15,6 @@
 
 #include "../CPlayerInterface.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../eventsSDL/InputHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"

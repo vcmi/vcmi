@@ -11,11 +11,10 @@
 #include "BattleSiegeController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
-#include "BattleStacksController.h"
 #include "BattleFieldController.h"
+#include "BattleInterface.h"
 #include "BattleRenderer.h"
+#include "BattleStacksController.h"
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
