@@ -299,10 +299,10 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 		try {
 			ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
 		}
-		catch (const std::exception & e)
+		catch (const std::exception &)
 		{
 			logGlobal->error("Failed to parse campaign bonus: %s", bjson.toCompactString());
-			throw e;
+			throw;
 		}
 	}
 

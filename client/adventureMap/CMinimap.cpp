@@ -49,11 +49,8 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
 
-		if (settings["adventure"]["minimapShowHeroes"].Bool())
-		{
-			if (obj->ID == MapObjectID::HERO)
-				continue;
-		}
+		if (settings["adventure"]["minimapShowHeroes"].Bool() && obj->ID == MapObjectID::HERO)
+			continue;
 
 		if (player.isValidPlayer())
 			return graphics->playerColors[player.getNum()];
