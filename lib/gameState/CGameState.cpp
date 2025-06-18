@@ -554,6 +554,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->ID = Obj::HERO;
 		hero->setHeroType(heroTypeId);
+		assert(hero->appearance != nullptr);
 	}
 
 	hero->tempOwner = playerColor;

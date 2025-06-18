@@ -90,6 +90,7 @@
 		},
 		"version" : {
 			"type" : "string",
+			"format" : "version",
 			"description" : "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
 		},
 		"changelog" : {

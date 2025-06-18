@@ -453,19 +453,6 @@ void VCAI::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initi
 	//clear resource manager goal cache
 	ah->removeOutdatedObjectives(checkRemovalValidity);
 
-	//TODO: Find better way to handle hero boat removal
-	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
-	{
-		if(hero->inBoat())
-		{
-			vstd::erase_if_present(visitableObjs, hero->getBoat());
-			vstd::erase_if_present(alreadyVisited, hero->getBoat());
-
-			for(auto h : cb->getHeroesInfo())
-				unreserveObject(h, hero->getBoat());
-		}
-	}
-
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
 	//

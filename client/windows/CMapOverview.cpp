@@ -34,7 +34,7 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-
+#include "../../lib/callback/EditorCallback.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
@@ -105,7 +105,8 @@ std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(con
 	std::unique_ptr<CMap> map;
 	try
 	{
-		map = mapService.loadMap(resource, nullptr);
+		auto cb = std::make_unique<EditorCallback>(map.get());
+		map = mapService.loadMap(resource, cb.get());
 	}
 	catch (const std::exception & e)
 	{

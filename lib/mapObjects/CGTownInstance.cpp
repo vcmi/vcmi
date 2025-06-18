@@ -307,19 +307,12 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 		if(armedGarrison() || getVisitingHero())
 		{
 			const CGHeroInstance * defendingHero = getVisitingHero() ? getVisitingHero() : getGarrisonHero();
-			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : this;
+			const CArmedInstance * defendingArmy = defendingHero ? static_cast<const CArmedInstance*>(defendingHero) : this;
 			const bool isBattleOutside = isBattleOutsideTown(defendingHero);
 
-			if(!isBattleOutside && getVisitingHero() && defendingHero == getVisitingHero())
-			{
-				//we have two approaches to merge armies: mergeGarrisonOnSiege() and used in the CGameHandler::garrisonSwap(ObjectInstanceID tid)
-				auto * nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
+			if(!isBattleOutside && defendingHero == getVisitingHero())
+				mergeGarrisonOnSiege(gameEvents);
 
-				if(nodeSiege == (CBonusSystemNode *)this)
-					gameEvents.swapGarrisonOnSiege(this->id);
-
-				const_cast<CGHeroInstance *>(defendingHero)->setVisitedTown(this, false); //hack to return visitor from garrison after battle
-			}
 			gameEvents.startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(*cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
 		else

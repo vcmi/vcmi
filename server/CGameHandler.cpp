@@ -2548,33 +2548,6 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 	}
 }
 
-bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
-{
-	const CGTownInstance * town = gameInfo().getTown(tid);
-
-	if(!town->getGarrisonHero() == !town->getVisitingHero())
-		return false;
-
-	SetHeroesInTown intown;
-	intown.tid = tid;
-
-	if(town->getGarrisonHero()) //garrison -> vising
-	{
-		intown.garrison = ObjectInstanceID();
-		intown.visiting = town->getGarrisonHero()->id;
-	}
-	else //visiting -> garrison
-	{
-		if(town->armedGarrison())
-			town->mergeGarrisonOnSiege(*this);
-
-		intown.visiting = ObjectInstanceID();
-		intown.garrison = town->getVisitingHero()->id;
-	}
-	sendAndApply(intown);
-	return true;
-}
-
 bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 {
 	const CGTownInstance * town = gameInfo().getTown(tid);

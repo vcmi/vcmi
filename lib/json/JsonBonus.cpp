@@ -502,7 +502,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 	case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
 		{
 			std::string limiterType = limiter["type"].String();
-			const JsonVector & parameters = limiter["parameters"].Vector();
+			const JsonNode & parameters = limiter["parameters"];
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
 				auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
@@ -512,7 +512,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 				});
 				auto includeUpgrades = false;
 
-				if(parameters.size() > 1)
+				if(parameters.Vector().size() > 1)
 				{
 					bool success = true;
 					includeUpgrades = parameters[1].TryBoolFromString(success);
@@ -527,43 +527,37 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			{
 				auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 
-				if (!parameters[0].isNull())
+				static const JsonNode nullNode;
+				const JsonNode & jsonType = parameters[0];
+				const JsonNode & jsonSubtype = parameters.Vector().size() > 2 ? parameters[1] : nullNode;
+				const JsonNode & jsonSource = parameters.Vector().size() > 2 ? parameters[2] : parameters[1];
+
+				if (!jsonType.isNull())
 				{
-					LIBRARY->identifiers()->requestIdentifier("bonus", parameters[0], [bonusLimiter](si32 bonusID)
+					LIBRARY->identifiers()->requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
 					{
 						bonusLimiter->type = static_cast<BonusType>(bonusID);
+						if (jsonSubtype.isNull())
+							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
 					});
 				}
 
-				auto findSource = [&](const JsonNode & parameter)
+				if(!jsonSource.isNull())
 				{
-					if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+					auto sourceIt = bonusSourceMap.find(jsonSource["type"].String());
+					if(sourceIt != bonusSourceMap.end())
 					{
-						auto sourceIt = bonusSourceMap.find(parameter["type"].String());
-						if(sourceIt != bonusSourceMap.end())
-						{
-							bonusLimiter->source = sourceIt->second;
-							bonusLimiter->isSourceRelevant = true;
-							if(!parameter["id"].isNull()) {
-								loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
-								bonusLimiter->isSourceIDRelevant = true;
-							}
+						bonusLimiter->source = sourceIt->second;
+						bonusLimiter->isSourceRelevant = true;
+						if(!jsonSource["id"].isNull()) {
+							loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSource["id"]);
+							bonusLimiter->isSourceIDRelevant = true;
 						}
 					}
-					return false;
-				};
-				if(parameters.size() > 1)
-				{
-					if(findSource(parameters[1]) && parameters.size() == 2)
-						return bonusLimiter;
 					else
-					{
-						loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
-						bonusLimiter->isSubtypeRelevant = true;
-						if(parameters.size() > 2)
-							findSource(parameters[2]);
-					}
+						logMod->warn("HAS_ANOTHER_BONUS_LIMITER: unknown bonus source type '%s'!", jsonSource["type"].String());
 				}
+
 				return bonusLimiter;
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
@@ -586,7 +580,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			else if(limiterType == "CREATURE_LEVEL_LIMITER")
 			{
 				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
-				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				if(!parameters.Vector().empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
 				{
 					levelLimiter->minLevel = parameters[0].Integer();
 					if(parameters[1].isNumber())
@@ -597,7 +591,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
 				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
-				if(!parameters.empty())
+				if(!parameters.Vector().empty())
 				{
 					LIBRARY->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
 					{
@@ -608,9 +602,9 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			}
 			else if(limiterType == "UNIT_ON_HEXES") {
 				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
-				if(!parameters.empty())
+				if(!parameters.Vector().empty())
 				{
-					for (const auto & parameter: parameters){
+					for (const auto & parameter : parameters.Vector()){
 						if(parameter.isNumber())
 							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
 					}

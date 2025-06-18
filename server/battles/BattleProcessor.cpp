@@ -78,6 +78,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 				SetMana restoreInitialMana;
 				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
 				restoreInitialMana.hid = heroes[i]->id;
+				restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
 				gameHandler->sendAndApply(restoreInitialMana);
 			}
 		}
