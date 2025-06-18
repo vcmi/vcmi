@@ -74,7 +74,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	labels.push_back(std::make_shared<CLabel>(232, 332, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[408]));
 	labels.push_back(std::make_shared<CLabel>(232, 428, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[409]));
 
-	std::string sideNames[2] = {"N/A", "N/A"};
+	std::array<std::string, 2> sideNames = {"N/A", "N/A"};
 
 	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
@@ -114,17 +114,18 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	//printing casualties
 	for(auto step : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		if(br.casualties[step].size()==0)
+		if(br.casualties[step].empty())
 		{
 			labels.push_back(std::make_shared<CLabel>(235, 360 + 97 * static_cast<int>(step), FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[523]));
 		}
 		else
 		{
-			int xPos = 235 - ((int)br.casualties[step].size()*32 + ((int)br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
+			int casualties = br.casualties[step].size();
+			int xPos = 235 - (casualties*32 + (casualties - 1)*10)/2; //increment by 42 with each picture
 			int yPos = 344 + static_cast<int>(step) * 97;
 			for(auto & elem : br.casualties[step])
 			{
-				auto creature = elem.first.toEntity(LIBRARY);
+				const auto * creature = elem.first.toEntity(LIBRARY);
 				if (creature->getId() == CreatureID::ARROW_TOWERS )
 					continue; // do not show destroyed towers in battle results
 

@@ -59,7 +59,7 @@ private:
 	std::vector<std::string> getVisibleText() const;
 
 public:
-	BattleConsole(const BattleInterface & owner, std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point & size);
+	BattleConsole(const BattleInterface & owner, const std::shared_ptr<CPicture> & backgroundSource, const Point & objectPos, const Point & imagePos, const Point & size);
 
 	void showAll(Canvas & to) override;
 	void deactivate() override;

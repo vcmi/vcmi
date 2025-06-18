@@ -56,7 +56,7 @@ class StackQueue : public CIntObject
 	std::vector<std::shared_ptr<StackBox>> stackBoxes;
 	BattleInterface & owner;
 
-	int32_t getSiegeShooterIconID();
+	int32_t getSiegeShooterIconID() const;
 
 public:
 	const bool embedded;

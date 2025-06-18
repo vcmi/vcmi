@@ -63,7 +63,7 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 	auto luck = stack->luckVal();
 
 	auto killed = stack->getKilled();
-	auto healthRemaining = TextOperations::formatMetric(std::max(stack->getAvailableHealth() - (stack->getCount() - 1) * health, (si64)0), 4);
+	auto healthRemaining = TextOperations::formatMetric(std::max<int64_t>(stack->getAvailableHealth() - static_cast<int64_t>(stack->getCount() - 1) * health, 0), 4);
 
 	//primary stats*/
 	labels.push_back(std::make_shared<CLabel>(9, 75, EFonts::FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->allTexts[380] + ":"));
@@ -118,12 +118,14 @@ void StackInfoBasicPanel::initializeData(const CStack * stack)
 			icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect.getNum() + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
 			if(settings["general"]["enableUiEnhancements"].Bool())
 				labels.push_back(std::make_shared<CLabel>(firstPos.x + offset.x * printed + 46, firstPos.y + offset.y * printed + 36, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(duration)));
-			if(++printed >= 3 || (printed == 2 && spells.size() > 3)) // interface limit reached
+
+			++printed;
+			if(printed >= 3 || (printed == 2 && spells.size() > 3)) // interface limit reached
 				break;
 		}
 	}
 
-	if(spells.size() == 0)
+	if(spells.empty())
 		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x, firstPos.y, 48, 36), EFonts::FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[674]));
 	if(spells.size() > 3)
 		labelsMultiline.push_back(std::make_shared<CMultiLineLabel>(Rect(firstPos.x + offset.x * 2, firstPos.y + offset.y * 2 - 4, 48, 36), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "..."));

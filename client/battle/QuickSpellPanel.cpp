@@ -31,6 +31,7 @@
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 	: CIntObject(0)
 	, owner(owner)
+	, isEnabled(true)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -64,7 +65,7 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 	}
 
 	// autofill empty slots with spells if possible
-	auto hero = owner.getBattle()->battleGetMyHero();
+	const auto * hero = owner.getBattle()->battleGetMyHero();
 	for(int i = 0; i < QUICKSPELL_SLOTS; i++)
 	{
 		if(spellIds[i] != SpellID::NONE)
@@ -97,7 +98,7 @@ void QuickSpellPanel::create()
 	buttons.clear();
 	buttonsDisabled.clear();
 
-	auto hero = owner.getBattle()->battleGetMyHero();
+	const auto * hero = owner.getBattle()->battleGetMyHero();
 	if(!hero)
 		return;
 

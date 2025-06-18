@@ -430,7 +430,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
-		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
+		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, true);
 		defenderStackWindow->setEnabled(showInfoWindows);
 	}
 	else
@@ -438,7 +438,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	
 	if(stack && stack->unitSide() == BattleSide::ATTACKER)
 	{
-		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
+		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, true);
 		attackerStackWindow->setEnabled(showInfoWindows);
 	}
 	else

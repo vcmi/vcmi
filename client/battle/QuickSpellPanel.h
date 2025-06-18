@@ -30,7 +30,7 @@ private:
 	BattleInterface & owner;
 
 public:
-	int QUICKSPELL_SLOTS = 12;
+	static constexpr int QUICKSPELL_SLOTS = 12;
 
 	bool isEnabled; // isActive() is not working on multiple conditions, because of this we need a seperate flag
 

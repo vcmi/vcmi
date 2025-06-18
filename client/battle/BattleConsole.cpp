@@ -124,7 +124,7 @@ bool BattleConsole::addText(const std::string & text)
 	auto newLines = splitText(text);
 
 	logEntries.insert(logEntries.end(), newLines.begin(), newLines.end());
-	scrollPosition = (int)logEntries.size() - 1;
+	scrollPosition = static_cast<int>(logEntries.size()) - 1;
 	redraw();
 	return true;
 }
@@ -142,7 +142,7 @@ void BattleConsole::scrollDown(ui32 by)
 	redraw();
 }
 
-BattleConsole::BattleConsole(const BattleInterface & owner, std::shared_ptr<CPicture> backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
+BattleConsole::BattleConsole(const BattleInterface & owner, const std::shared_ptr<CPicture> & backgroundSource, const Point & objectPos, const Point & imagePos, const Point &size)
 	: CIntObject(LCLICK)
 	, owner(owner)
 	, scrollPosition(-1)

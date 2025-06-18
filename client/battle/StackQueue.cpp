@@ -97,7 +97,7 @@ void StackQueue::update()
 		stackBoxes[boxIndex]->setUnit(nullptr);
 }
 
-int32_t StackQueue::getSiegeShooterIconID()
+int32_t StackQueue::getSiegeShooterIconID() const
 {
 	return owner.siegeController->getSiegedTown()->getFactionID().getNum();
 }

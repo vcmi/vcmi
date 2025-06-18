@@ -29,7 +29,7 @@ private:
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 
 public:
-	StackInfoBasicPanel(const CStack * stack, bool initializeBackground = true);
+	StackInfoBasicPanel(const CStack * stack, bool initializeBackground);
 
 	void show(Canvas & to) override;
 

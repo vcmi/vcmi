@@ -147,7 +147,7 @@ void BattleHero::heroRightClicked()
 	InfoAboutHero targetHero;
 	if(owner.makingTurn() || settings["session"]["spectate"].Bool())
 	{
-		auto h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
+		const auto * h = defender ? owner.defendingHeroInstance : owner.attackingHeroInstance;
 		targetHero.initFromHero(h, InfoAboutHero::EInfoLevel::INBATTLE);
 		ENGINE->windows().createAndPushWindow<HeroInfoWindow>(targetHero, &windowPosition);
 	}
