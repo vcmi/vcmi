@@ -634,6 +634,8 @@
 	"creatures.core.devil.bonus.decreaseLuck"            : "{Minskar fiendens lycka}\nDjävular och ärkedjävular minskar fiendens lycka med en poäng.",
 	"creatures.core.boneDragon.bonus.decreaseMorale"     : "{Minskar fiendens moral}\nBen- och spökdrakar minskar fiendens moral med en poäng.",
 	"creatures.core.marksman.bonus.extraAttack"          : "{Skjuter två gånger}\nDenna enhet kan skjuta två gånger per runda.",
+	"creatures.core.azureDragon.bonus.fearful"           : "{Rädsla}\nFramkallar rädsla hos fiendetrupper.",
+	"creatures.core.azureDragon.bonus.fearless"          : "{Orädd}\nImmun mot rädsla.",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dubbelslag}\nAttackerar två gånger.", // Att göra: separata beskrivningar för närstrid/fjärrstrid
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ytterligare motattacker}\nKan slå tillbaka ${val} extra gång(er).",
@@ -654,8 +656,6 @@
 	"core.bonus.ENCHANTER.description" : "{Förtrollare}\nKastar mass-${subtype.spell} varje turomgång.",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Avfärda attack (${val}%)}\nIgnorerar ${val}% av angriparens attack.",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Förbigå försvar (${val}%)}\nAttacker ignorerar ${val}% av fiendens försvar.",
-	"core.bonus.FEAR.description" : "{Rädsla}\nFramkallar rädsla hos fiendetrupper.",
-	"core.bonus.FEARLESS.description" : "{Oräddhet}\nImmun mot rädsla.",
 	"core.bonus.FEROCITY.description" : "{Vildsint}\n+${val} extra attack(er) om någon dödas.",
 	"core.bonus.FIRE_SHIELD.description" : "{Eldsköld (${val}%)}\nReflekterar en del av närstridsskadorna.",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{Första slaget}\nRetalierar innan den träffas i närstrid.",
