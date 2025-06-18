@@ -31,6 +31,7 @@ struct DLL_LINKAGE CStructure
 	int3 pos;
 	AnimationPath defName;
 	ImagePath borderName;
+	ImagePath campaignBonus;
 	ImagePath areaName;
 	std::string identifier;
 

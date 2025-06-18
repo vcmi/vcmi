@@ -90,6 +90,7 @@
 		},
 		"version" : {
 			"type" : "string",
+			"format" : "version",
 			"description" : "Current mod version, up to 3 numbers, dot-separated. Format: A.B.C"
 		},
 		"changelog" : {
@@ -270,8 +271,16 @@
 			"description" : "List of configuration files for creatures",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"campaignRegions" : {
+			"description" : "List of configuration files for campaign regions",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"artifacts" : {
 			"description" : "List of configuration files for artifacts",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
+		"spellSchools" : {
+			"description" : "List of configuration files for spell schools",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
 		"spells" : {

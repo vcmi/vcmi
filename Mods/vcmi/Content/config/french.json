@@ -180,6 +180,9 @@
 	"vcmi.stackExperience.rank.8" : "Élite",
 	"vcmi.stackExperience.rank.9" : "Maître",
 	"vcmi.stackExperience.rank.10" : "As",
+	
+	"creatures.core.azureDragon.bonus.fearful" : "{Peur}\nProvoque la peur sur une pile ennemie",
+	"creatures.core.azureDragon.bonus.fearless" : "{Intrépide}\nImmunité à la peur",
 
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Double frappe}\nAttaque deux fois",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Représailles supplémentaires}\nPeut riposter ${val} fois de plus",
@@ -198,8 +201,6 @@
 	"core.bonus.ENCHANTED.description": "{Enchanté}\nAffecté par ${subtype.spell} permanent",
 	"core.bonus.ENCHANTER.description": "{Enchanteur}\nPeut lancer en masse ${subtype.spell} à chaque tour",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description": "{Ignorer la défense (${val}%)}\nLors de l'attaque, ${val}% de la défense du défenseur est ignorée",
-	"core.bonus.FEAR.description": "{Peur}\nProvoque la peur sur une pile ennemie",
-	"core.bonus.FEARLESS.description": "{Intrépide}\nImmunité à la peur",
 	"core.bonus.FIRE_SHIELD.description": "{Bouclier de feu (${val}%)}\nReflète une partie des dégâts de mêlée",
 	"core.bonus.FIRST_STRIKE.description": "{Premier coup}\nCette créature riposte avant d'être attaquée",
 	"core.bonus.FLYING.description": "{Vol}\nVole en se déplaçant (ignore les obstacles)",
@@ -240,7 +241,6 @@
 	"core.bonus.SPELL_LIKE_ATTACK.description": "{Attaque semblable à un sort}\nAttaque avec ${subtype.spell}",
 	"core.bonus.SPELL_RESISTANCE_AURA.description": "{Aura de résistance}\nLes piles à proximité obtiennent ${val}% de résistance magique",
 	"core.bonus.SUMMON_GUARDIANS.description": "{Invoquer des gardiens}\nAu début de la bataille, invoque ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description": "{Synergique}\nCette créature est vulnérable à l'effet de synergie",
 	"core.bonus.THREE_HEADED_ATTACK.description": "{Attaque à trois têtes}\nAttaque trois unités adjacentes",
 	"core.bonus.TRANSMUTATION.description": "{Transmutation}\n${val}% de chances de transformer l'unité attaquée en un type différent",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description": "{Souffle}\nAttaque de souffle (portée de 2 hexagones)",

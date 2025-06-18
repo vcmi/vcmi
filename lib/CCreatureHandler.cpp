@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
+#include "CBonusTypeHandler.h"
 #include "ResourceSet.h"
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
@@ -902,37 +903,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
-	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
+	for(const auto & ability : config["abilities"].Struct())
 	{
-		for(const auto & ability : config["abilities"].Struct())
+		if (!ability.second.isNull())
 		{
-			if (!ability.second.isNull())
-			{
-				auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
-		}
-	}
-	else
-	{
-		for(const JsonNode &ability : config["abilities"].Vector())
-		{
-			if(ability.getType() == JsonNode::JsonType::DATA_VECTOR)
-			{
-				logMod->error("Ignored outdated creature ability format in %s", creature->getJsonKey());
-			}
-			else
-			{
-				auto b = JsonUtils::parseBonus(ability);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
+			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			b->source = BonusSource::CREATURE_ABILITY;
+			b->sid = BonusSourceID(creature->getId());
+			b->duration = BonusDuration::PERMANENT;
+			creature->addNewBonus(b);
 		}
 	}
 
@@ -1000,7 +979,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
@@ -1020,7 +999,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
@@ -1076,7 +1055,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.subtype = BonusCustomSubtype::deathStareGorgon;
 		break;
 	case 'F':
-		b.type = BonusType::FEAR; break;
+		b.type = BonusType::FEARFUL; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
 		b.subtype = BonusSubtypeID(SpellSchool::ANY);
@@ -1105,7 +1084,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'D':
 				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = BonusType::FEARLESS; break;
+				b.type = BonusType::FEARFUL; break;
 			case 'F':
 				b.type = BonusType::FLYING; break;
 			case 'm':
@@ -1364,7 +1343,18 @@ CCreatureHandler::~CCreatureHandler()
 
 void CCreatureHandler::afterLoadFinalization()
 {
+	for(auto & creature : objects)
+	{
+		if (!creature)
+			continue;
 
+		auto natureBonuses = creature->getBonuses([](const Bonus * b){
+				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		});
+
+		if (natureBonuses->empty())
+			creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
+	}
 }
 
 std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const

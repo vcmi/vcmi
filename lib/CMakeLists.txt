@@ -69,7 +69,6 @@ set(lib_MAIN_SRCS
 	bonuses/BonusCache.cpp
 	bonuses/BonusEnum.cpp
 	bonuses/BonusList.cpp
-	bonuses/BonusParams.cpp
 	bonuses/BonusSelector.cpp
 	bonuses/BonusCustomTypes.cpp
 	bonuses/CBonusSystemNode.cpp
@@ -86,9 +85,14 @@ set(lib_MAIN_SRCS
 	callback/CNonConstInfoCallback.cpp
 	callback/CPlayerSpecificInfoCallback.cpp
 	callback/GameRandomizer.cpp
+	callback/MapInfoCallback.cpp
+	callback/EditorCallback.cpp
 
+	campaign/CampaignBonus.cpp
 	campaign/CampaignHandler.cpp
 	campaign/CampaignState.cpp
+	campaign/CampaignRegions.cpp
+	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
 
@@ -100,7 +104,6 @@ set(lib_MAIN_SRCS
 	entities/artifact/CArtifactInstance.cpp
 	entities/artifact/CArtifactSet.cpp
 	entities/building/CBuilding.cpp
-	entities/building/CBuildingHandler.cpp
 	entities/faction/CFaction.cpp
 	entities/faction/CTown.cpp
 	entities/faction/CTownHandler.cpp
@@ -172,6 +175,7 @@ set(lib_MAIN_SRCS
 	mapping/MapFormatH3M.cpp
 	mapping/MapReaderH3M.cpp
 	mapping/MapFormatJson.cpp
+	mapping/MapFormatSettings.cpp
 	mapping/ObstacleProxy.cpp
 
 	modding/ActiveModsInSaveList.cpp
@@ -256,6 +260,7 @@ set(lib_MAIN_SRCS
 	spells/ObstacleCasterProxy.cpp
 	spells/Problem.cpp
 	spells/ProxyCaster.cpp
+	spells/SpellSchoolHandler.cpp
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
 
@@ -450,7 +455,6 @@ set(lib_MAIN_HEADERS
 	bonuses/BonusCache.h
 	bonuses/BonusEnum.h
 	bonuses/BonusList.h
-	bonuses/BonusParams.h
 	bonuses/BonusSelector.h
 	bonuses/BonusCustomTypes.h
 	bonuses/CBonusSystemNode.h
@@ -480,10 +484,14 @@ set(lib_MAIN_HEADERS
 	callback/IGameInfoCallback.h
 	callback/IGameRandomizer.h
 	callback/GameRandomizer.h
-
-
+	callback/MapInfoCallback.h
+	callback/EditorCallback.h
+	
+	campaign/CampaignBonus.h
 	campaign/CampaignConstants.h
 	campaign/CampaignHandler.h
+	campaign/CampaignRegions.h
+	campaign/CampaignRegionsHandler.h
 	campaign/CampaignScenarioPrologEpilog.h
 	campaign/CampaignState.h
 
@@ -504,7 +512,6 @@ set(lib_MAIN_HEADERS
 	entities/artifact/CArtifactSet.h
 	entities/artifact/EArtifactClass.h
 	entities/building/CBuilding.h
-	entities/building/CBuildingHandler.h
 	entities/building/TownFortifications.h
 	entities/faction/CFaction.h
 	entities/faction/CTown.h
@@ -587,6 +594,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapFeaturesH3M.h
 	mapping/MapFormatH3M.h
 	mapping/MapFormat.h
+	mapping/MapFormatSettings.h
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
@@ -701,6 +709,7 @@ set(lib_MAIN_HEADERS
 	spells/ObstacleCasterProxy.h
 	spells/Problem.h
 	spells/ProxyCaster.h
+	spells/SpellSchoolHandler.h
 	spells/TargetCondition.h
 	spells/ViewSpellInt.h
 

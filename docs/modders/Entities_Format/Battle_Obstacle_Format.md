@@ -36,7 +36,7 @@ How blocked tiles are defined depends on whether obstacle is `absolute` or not:
 
 Non-absolute obstacles specify their coordinates relative to bottom-left corner of obstacle. If you wish to have obstacle that takes multiple rows, substracting 17 from hex number would block tile directly above bottom-left corner of your obstacle.
 
-For example, obstacle that blocks tiles `[1, 2, 3, -15, -16, -31]` would result in following layout on the battlefield:
+For example, obstacle that blocks tiles `[1, 2, 3, -14, -15, -31]` would result in following layout on the battlefield:
 
 ![Battlefield Relative Obstacle Example](../../images/Battle_Field_Relative_Obstacle.svg)
 

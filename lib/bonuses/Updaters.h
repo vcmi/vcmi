@@ -64,10 +64,20 @@ public:
 
 class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
 {
+	int stepSize = 1;
 public:
+	TimesHeroLevelUpdater() = default;
+	TimesHeroLevelUpdater(int stepSize)
+		: stepSize(stepSize)
+	{
+		assert(stepSize > 0);
+	}
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
+		if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+			h & stepSize;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
@@ -75,15 +85,39 @@ public:
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
+class DLL_LINKAGE TimesStackSizeUpdater : public IUpdater
 {
-	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int count) const;
+
+	int minimum;
+	int maximum;
+	int stepSize;
 public:
+	TimesStackSizeUpdater() = default;
+	TimesStackSizeUpdater(int minimum, int maximum, int stepSize)
+		: minimum(minimum)
+		, maximum(maximum)
+		, stepSize(stepSize)
+	{}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
 	}
+};
 
+class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
+{
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
+
+public:
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
@@ -92,12 +126,8 @@ public:
 class DLL_LINKAGE DivideStackLevelUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
-public:
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<IUpdater &>(*this);
-	}
 
+public:
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
@@ -125,11 +155,6 @@ public:
 class DLL_LINKAGE OwnerUpdater : public IUpdater
 {
 public:
-	template <typename Handler> void serialize(Handler& h)
-	{
-		h & static_cast<IUpdater &>(*this);
-	}
-
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;

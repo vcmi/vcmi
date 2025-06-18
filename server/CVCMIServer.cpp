@@ -832,12 +832,16 @@ void CVCMIServer::setCampaignBonus(int bonusId)
 	campaignBonus = bonusId;
 
 	const CampaignScenario & scenario = si->campState->scenario(campaignMap);
-	const std::vector<CampaignBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CampaignBonusType::HERO || bonDescs[bonusId].type == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
+	const CampaignBonus & bonus = scenario.travelOptions.bonusesToChoose.at(bonusId);
+	if(bonus.getType() == CampaignBonusType::HERO || bonus.getType() == CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO)
 	{
+		PlayerColor startingPlayer = bonus.getType() == CampaignBonusType::HERO ?
+			bonus.getValue<CampaignBonusStartingHero>().startingPlayer :
+			bonus.getValue<CampaignBonusHeroesFromScenario>().startingPlayer;
+
 		for(auto & elem : si->playerInfos)
 		{
-			if(elem.first == PlayerColor(bonDescs[bonusId].info1))
+			if(elem.first == startingPlayer)
 				setPlayerConnectedId(elem.second, 1);
 			else
 				setPlayerConnectedId(elem.second, PlayerSettings::PLAYER_AI);

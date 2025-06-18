@@ -349,6 +349,11 @@
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"noRetaliation" :
 			{
 				"type" : "BLOCKS_RETALIATION"
@@ -384,6 +389,11 @@
 			"attackAllAdjacent" :
 			{
 				"type" : "ATTACKS_ALL_ADJACENT"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"noRetaliation" :
 			{

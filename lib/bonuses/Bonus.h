@@ -65,9 +65,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE; // 1 byte
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus - 1 byte
 	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE. - 1 byte
-	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
 	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; // 1 byte
-	// 1 bytes padding
+	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 2 bytes
 
 	BonusSubtypeID subtype;
 	BonusSourceID sid; //source id: id of object/artifact/spell

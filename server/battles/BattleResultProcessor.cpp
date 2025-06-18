@@ -322,14 +322,6 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	const auto winnerHero = battle.battleGetFightingHero(finishingBattle->winnerSide);
 	const auto loserHero = battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
 
-	if(battleResult->winner == BattleSide::DEFENDER
-	   && winnerHero
-	   && winnerHero->getVisitedTown()
-	   && !winnerHero->isGarrisoned()
-	   && winnerHero->getVisitedTown()->getGarrisonHero() == winnerHero)
-	{
-		gameHandler->swapGarrisonOnSiege(winnerHero->getVisitedTown()->id); //return defending visitor from garrison to its rightful place
-	}
 	//give exp
 	if(!finishingBattle->isDraw() && battleResult->exp[finishingBattle->winnerSide])
 	{
@@ -546,9 +538,6 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	resultsApplied.loser = finishingBattle->loser;
 	gameHandler->sendAndApply(resultsApplied);
 
-	//handle victory/loss of engaged players
-	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
-
 	// Remove beaten hero
 	if(loserHero)
 	{
@@ -563,6 +552,9 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
 			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
 	}
+
+	//handle victory/loss of engaged players
+	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
 	if (result.result == EBattleResult::SURRENDER)
 	{

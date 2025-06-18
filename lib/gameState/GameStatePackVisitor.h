@@ -17,6 +17,7 @@ class CGameState;
 
 class GameStatePackVisitor final : public ICPackVisitor
 {
+	void restorePreBattleState(BattleID battleID);
 private:
 	CGameState & gs;
 

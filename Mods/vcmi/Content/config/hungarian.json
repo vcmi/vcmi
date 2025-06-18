@@ -606,6 +606,9 @@
 	
 	"mapObject.core.hillFort.object.description" : "Lények fejlesztése. Az 1-4. szint olcsóbb, mint az adott városban.",
 
+	"creatures.core.azureDragon.bonus.fearful" : "{Félelem}\nFélelmet kelt az ellenséges egységekben",
+	"creatures.core.azureDragon.bonus.fearless" : "{Félelem nélküli}\nImmunis a félelem képességre",
+
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dupla csapás}\nKétszer támad",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{További visszatámadások}\nMég ${val} alkalommal visszatámadhat",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Mindenirányú támadás}\nMinden szomszédos ellenséget támad",
@@ -625,8 +628,6 @@
 	"core.bonus.ENCHANTER.description" : "{Varázsló}\nTömeges ${subtype.spell} varázslatot használ minden körben",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Támadás figyelmen kívül hagyása (${val}%)}\nTámadáskor az ellenség támadásának ${val}%-át figyelmen kívül hagyja",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Védelem figyelmen kívül hagyása (${val}%)}\nTámadáskor az ellenség védekezésének ${val}%-át figyelmen kívül hagyja",
-	"core.bonus.FEARLESS.description" : "{Félelem nélküli}\nImmunis a félelem képességre",
-	"core.bonus.FEAR.description" : "{Félelem}\nFélelmet kelt az ellenséges egységekben",
 	"core.bonus.FEROCITY.description" : "{Vadság}\n${val} további alkalommal támad, ha bárkit megölt",
 	"core.bonus.FIRE_SHIELD.description" : "{Tűzpajzs (${val}%)}\nVisszaver egy részét a közelharci sebzésnek",
 	"core.bonus.FIRST_STRIKE.description" : "{Első csapás}\nEz a lény még a támadás előtt visszatámad",
@@ -681,7 +682,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Varázslatimmunitás}\nEz az egység immunis minden varázslattal szemben",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Víz immunitás}\nEz az egység immunis minden víz mágia iskolájához tartozó varázslattal szemben",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Őrök idézése}\nA csata kezdetén idézi a(z) ${subtype.creature} lényeket (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Szinkronizálható}\nEz a lény érzékeny a szinergiahatásokra",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Háromfejű támadás}\nHárom szomszédos egységet támad",
 	"core.bonus.TRANSMUTATION.description" : "{Átalakítás}\n${val}% eséllyel az ellenfelet más egységtípussá alakítja",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Lélegzet}\nLélegzési támadás (2 hatszögnyi távolság)",

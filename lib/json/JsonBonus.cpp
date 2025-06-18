@@ -15,10 +15,10 @@
 
 #include "../texts/CGeneralTextHandler.h"
 #include "../GameLibrary.h"
-#include "../bonuses/BonusParams.h"
 #include "../bonuses/Limiters.h"
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
+#include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierStorage.h"
 
@@ -115,6 +115,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::HATE:
 		case BonusType::SUMMON_GUARDIANS:
 		case BonusType::MANUAL_CONTROL:
+		case BonusType::SKELETON_TRANSFORMER_TARGET:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&subtype](int32_t identifier)
 			{
@@ -185,14 +186,14 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			break;
 		}
 		default:
-			for(const auto & i : bonusNameMap)
-				if(i.second == type)
-					logMod->warn("Bonus type %s does not supports subtypes!", i.first );
+		{
+			logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
 			subtype =  BonusSubtypeID();
+		}
 	}
 }
 
-static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & node)
+static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & value)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -202,7 +203,6 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 			return jsonNode;
 	};
 
-	const JsonNode & value = node["addInfo"];
 	if (value.isNull())
 		return;
 
@@ -220,6 +220,10 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 		case BonusType::PRIMARY_SKILL:
 		case BonusType::ENCHANTER:
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
+		case BonusType::SPELL_IMMUNITY:
+		case BonusType::DARKNESS:
+		case BonusType::FULL_MAP_SCOUTING:
+		case BonusType::FULL_MAP_DARKNESS:
 			// 1 number
 			var = getFirstValue(value).Integer();
 			break;
@@ -235,10 +239,17 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
 			// 3 numbers
-			var.resize(3);
-			var[0] = value[0].Integer();
-			var[1] = value[1].Integer();
-			var[2] = value[2].Integer();
+			if (value.isNumber())
+			{
+				var = getFirstValue(value).Integer();
+			}
+			else
+			{
+				var.resize(3);
+				var[0] = value[0].Integer();
+				var[1] = value[1].Integer();
+				var[2] = value[2].Integer();
+			}
 			break;
 		case BonusType::MULTIHEX_UNIT_ATTACK:
 		case BonusType::MULTIHEX_ENEMY_ATTACK:
@@ -259,10 +270,7 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & no
 			}
 			break;
 		default:
-			for(const auto & i : bonusNameMap)
-				if(i.second == type)
-					logMod->warn("Bonus type %s does not supports addInfo!", i.first );
-
+			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}
 }
 
@@ -370,33 +378,6 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 	}
 }
 
-static BonusParams convertDeprecatedBonus(const JsonNode &ability)
-{
-	if(vstd::contains(deprecatedBonusSet, ability["type"].String()))
-	{
-		logMod->warn("There is deprecated bonus found:\n%s\nTrying to convert...", ability.toString());
-		auto params = BonusParams(ability["type"].String(),
-											ability["subtype"].isString() ? ability["subtype"].String() : "",
-											   ability["subtype"].isNumber() ? ability["subtype"].Integer() : -1);
-		if(params.isConverted)
-		{
-			if(ability["type"].String() == "SECONDARY_SKILL_PREMY" && bonusValueMap.find(ability["valueType"].String())->second == BonusValueType::PERCENT_TO_BASE) //assume secondary skill special
-			{
-				params.valueType = BonusValueType::PERCENT_TO_TARGET_TYPE;
-				params.targetType = BonusSource::SECONDARY_SKILL;
-			}
-
-			logMod->warn("Please, use this bonus:\n%s\nConverted successfully!", params.toJson().toString());
-			return params;
-		}
-		else
-			logMod->error("Cannot convert bonus!\n%s", ability.toString());
-	}
-	BonusParams ret;
-	ret.isConverted = false;
-	return ret;
-}
-
 static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 {
 	const std::map<std::string, std::shared_ptr<IUpdater>> bonusUpdaterMap =
@@ -422,12 +403,29 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	case JsonNode::JsonType::DATA_STRUCT:
 		if(updaterJson["type"].String() == "GROWS_WITH_LEVEL")
 		{
-			auto updater = std::make_shared<GrowsWithLevelUpdater>();
-			const JsonVector param = updaterJson["parameters"].Vector();
-			updater->valPer20 = static_cast<int>(param[0].Integer());
-			if(param.size() > 1)
-				updater->stepSize = static_cast<int>(param[1].Integer());
-			return updater;
+			// MOD COMPATIBILITY - parameters is deprecated in 1.7
+			const JsonNode & param = updaterJson["parameters"];
+			int valPer20 = updaterJson["valPer20"].isNull() ? param[0].Integer() : updaterJson["valPer20"].Integer();
+			int stepSize = updaterJson["stepSize"].isNull() ? param[1].Integer() : updaterJson["stepSize"].Integer();
+
+			return std::make_shared<GrowsWithLevelUpdater>(valPer20, std::max(1, stepSize));
+		}
+		if(updaterJson["type"].String() == "TIMES_HERO_LEVEL")
+		{
+			int stepSize = updaterJson["stepSize"].Integer();
+			return std::make_shared<TimesHeroLevelUpdater>(std::max(1, stepSize));
+		}
+		if(updaterJson["type"].String() == "TIMES_STACK_SIZE")
+		{
+			int minimum = updaterJson["minimum"].isNull() ? std::numeric_limits<int>::min() : updaterJson["minimum"].Integer();
+			int maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
+			int stepSize = updaterJson["stepSize"].Integer();
+			if (minimum > maximum)
+			{
+				logMod->warn("TIMES_STACK_SIZE updater: minimum value (%d) is above maximum value(%d)!", minimum, maximum);
+				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize));
+			}
+			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize));
 		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
@@ -441,17 +439,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 {
 	auto b = std::make_shared<Bonus>();
-	std::string type = ability_vec[0].String();
-	auto it = bonusNameMap.find(type);
-	if (it == bonusNameMap.end())
-	{
-		logMod->error("Error: invalid ability type %s.", type);
-		return b;
-	}
-	b->type = it->second;
 
+	const JsonNode & typeNode = ability_vec[0];
+	const JsonNode & subtypeNode = ability_vec[2];
+
+	LIBRARY->identifiers()->requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
+	{
+		b->type = static_cast<BonusType>(bonusID);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode);
+	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
-	loadBonusSubtype(b->subtype, b->type, ability_vec[2]);
 	b->additionalInfo = static_cast<si32>(ability_vec[3].Float());
 	b->duration = BonusDuration::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
@@ -505,7 +502,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 	case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
 		{
 			std::string limiterType = limiter["type"].String();
-			const JsonVector & parameters = limiter["parameters"].Vector();
+			const JsonNode & parameters = limiter["parameters"];
 			if(limiterType == "CREATURE_TYPE_LIMITER")
 			{
 				auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
@@ -515,7 +512,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 				});
 				auto includeUpgrades = false;
 
-				if(parameters.size() > 1)
+				if(parameters.Vector().size() > 1)
 				{
 					bool success = true;
 					includeUpgrades = parameters[1].TryBoolFromString(success);
@@ -530,49 +527,37 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			{
 				auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 
-				if (!parameters[0].isNull())
+				static const JsonNode nullNode;
+				const JsonNode & jsonType = parameters[0];
+				const JsonNode & jsonSubtype = parameters.Vector().size() > 2 ? parameters[1] : nullNode;
+				const JsonNode & jsonSource = parameters.Vector().size() > 2 ? parameters[2] : parameters[1];
+
+				if (!jsonType.isNull())
 				{
-					std::string anotherBonusType = parameters[0].String();
-					auto it = bonusNameMap.find(anotherBonusType);
-					if(it != bonusNameMap.end())
+					LIBRARY->identifiers()->requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
 					{
-						bonusLimiter->type = it->second;
-					}
-					else
-					{
-						logMod->error("Error: invalid ability type %s.", anotherBonusType);
-					}
+						bonusLimiter->type = static_cast<BonusType>(bonusID);
+						if (jsonSubtype.isNull())
+							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
+					});
 				}
 
-				auto findSource = [&](const JsonNode & parameter)
+				if(!jsonSource.isNull())
 				{
-					if(parameter.getType() == JsonNode::JsonType::DATA_STRUCT)
+					auto sourceIt = bonusSourceMap.find(jsonSource["type"].String());
+					if(sourceIt != bonusSourceMap.end())
 					{
-						auto sourceIt = bonusSourceMap.find(parameter["type"].String());
-						if(sourceIt != bonusSourceMap.end())
-						{
-							bonusLimiter->source = sourceIt->second;
-							bonusLimiter->isSourceRelevant = true;
-							if(!parameter["id"].isNull()) {
-								loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, parameter["id"]);
-								bonusLimiter->isSourceIDRelevant = true;
-							}
+						bonusLimiter->source = sourceIt->second;
+						bonusLimiter->isSourceRelevant = true;
+						if(!jsonSource["id"].isNull()) {
+							loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSource["id"]);
+							bonusLimiter->isSourceIDRelevant = true;
 						}
 					}
-					return false;
-				};
-				if(parameters.size() > 1)
-				{
-					if(findSource(parameters[1]) && parameters.size() == 2)
-						return bonusLimiter;
 					else
-					{
-						loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, parameters[1]);
-						bonusLimiter->isSubtypeRelevant = true;
-						if(parameters.size() > 2)
-							findSource(parameters[2]);
-					}
+						logMod->warn("HAS_ANOTHER_BONUS_LIMITER: unknown bonus source type '%s'!", jsonSource["type"].String());
 				}
+
 				return bonusLimiter;
 			}
 			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
@@ -595,7 +580,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			else if(limiterType == "CREATURE_LEVEL_LIMITER")
 			{
 				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
-				if(!parameters.empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
+				if(!parameters.Vector().empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
 				{
 					levelLimiter->minLevel = parameters[0].Integer();
 					if(parameters[1].isNumber())
@@ -606,7 +591,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
 			{
 				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
-				if(!parameters.empty())
+				if(!parameters.Vector().empty())
 				{
 					LIBRARY->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
 					{
@@ -617,9 +602,9 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 			}
 			else if(limiterType == "UNIT_ON_HEXES") {
 				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
-				if(!parameters.empty())
+				if(!parameters.Vector().empty())
 				{
-					for (const auto & parameter: parameters){
+					for (const auto & parameter : parameters.Vector()){
 						if(parameter.isNumber())
 							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
 					}
@@ -654,42 +639,29 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const Text
 bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
+	const JsonNode & subtypeNode = ability["subtype"];
+	const JsonNode & addinfoNode = ability["addInfo"];
 
-	std::string type = ability["type"].String();
-	auto it = bonusNameMap.find(type);
-	auto params = std::make_unique<BonusParams>(false);
-	if (it == bonusNameMap.end())
+	if (ability["type"].isNull())
 	{
-		params = std::make_unique<BonusParams>(convertDeprecatedBonus(ability));
-		if(!params->isConverted)
-		{
-			logMod->error("Error: invalid ability type %s.", type);
-			return false;
-		}
-		b->type = params->type;
-		b->val = params->val.value_or(0);
-		b->valType = params->valueType.value_or(BonusValueType::ADDITIVE_VALUE);
-		if(params->targetType)
-			b->targetSourceType = params->targetType.value();
+		logMod->error("Failed to parse bonus. Description: '%s'. Config: '%s'", descriptionID.get(), ability.toCompactString());
+		return false;
 	}
-	else
-		b->type = it->second;
 
-	loadBonusSubtype(b->subtype, b->type, params->isConverted ? params->toJson()["subtype"] : ability["subtype"]);
-
-	if(!params->isConverted)
+	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode](si32 bonusID)
 	{
-		b->val = static_cast<si32>(ability["val"].Float());
+		b->type = static_cast<BonusType>(bonusID);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode);
+		loadBonusAddInfo(b->additionalInfo, b->type, addinfoNode);
+	});
 
-		value = &ability["valueType"];
-		if (!value->isNull())
-			b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
-	}
+	b->val = static_cast<si32>(ability["val"].Float());
+
+	value = &ability["valueType"];
+	if (!value->isNull())
+		b->valType = static_cast<BonusValueType>(parseByMapN(bonusValueMap, value, "value type "));
 
 	b->stacking = ability["stacking"].String();
-
-	loadBonusAddInfo(b->additionalInfo, b->type, ability);
-
 	b->turnsRemain = static_cast<si32>(ability["turns"].Float());
 
 	if(!ability["description"].isNull())
@@ -812,12 +784,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["type"];
 	if(value->isString())
 	{
-		auto it = bonusNameMap.find(value->String());
-		if(it != bonusNameMap.end())
-		{
-			type = it->second;
-			ret = ret.And(Selector::type()(it->second));
-		}
+		ret = ret.And(Selector::type()(static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier("bonus", value->String()))));
 	}
 	value = &ability["subtype"];
 	if(!value->isNull() && type != BonusType::NONE)

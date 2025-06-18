@@ -18,7 +18,7 @@ struct DLL_LINKAGE CampaignScenarioPrologEpilog
 {
 	bool hasPrologEpilog = false;
 	VideoPath prologVideo;
-	AudioPath prologMusic; // from CmpMusic.txt
+	AudioPath prologMusic;
 	AudioPath prologVoice;
 	MetaString prologText;
 

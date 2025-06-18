@@ -12,6 +12,7 @@
 #include "Limiters.h"
 #include "Updaters.h"
 
+#include "../CBonusTypeHandler.h"
 #include "../GameLibrary.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
@@ -188,7 +189,7 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 
 std::string HasAnotherBonusLimiter::toString() const
 {
-	std::string typeName = vstd::findKey(bonusNameMap, type);
+	std::string typeName = LIBRARY->bth->bonusToString(type);
 	if(isSubtypeRelevant)
 	{
 		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%s)");
@@ -206,7 +207,7 @@ std::string HasAnotherBonusLimiter::toString() const
 JsonNode HasAnotherBonusLimiter::toJsonNode() const
 {
 	JsonNode root;
-	std::string typeName = vstd::findKey(bonusNameMap, type);
+	std::string typeName = LIBRARY->bth->bonusToString(type);
 	auto sourceTypeName = vstd::findKey(bonusSourceMap, source);
 
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";

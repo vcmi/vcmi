@@ -1,0 +1,21 @@
+{
+	"air" : {
+		"index" : 0,
+		"schoolBorders" : "SplevA"
+	},
+	
+	"fire" : {
+		"index" : 1,
+		"schoolBorders" : "SplevF"
+	},
+	
+	"earth" : {
+		"index" : 2,
+		"schoolBorders" : "SplevE"
+	},
+	
+	"water" : {
+		"index" : 3,
+		"schoolBorders" : "SplevW"
+	}
+}

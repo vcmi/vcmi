@@ -187,7 +187,6 @@ static void publishMap(lua_State * L, const std::map<T , std::bitset<N>> & map)
 
 void BonusProxy::adjustStaticTable(lua_State * L) const
 {
-	publishMap(L, bonusNameMap);
 	publishMap(L, bonusValueMap);
 	publishMap(L, bonusSourceMap);
 	publishMap(L, bonusDurationMap);

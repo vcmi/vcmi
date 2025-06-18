@@ -91,7 +91,7 @@ public:
 	std::vector<HeroTypeID> loadHeroes(const JsonNode & value);
 	std::vector<HeroClassID> loadHeroClasses(const JsonNode & value);
 
-	static std::vector<Bonus> loadBonuses(const JsonNode & value);
+	static std::vector<std::shared_ptr<Bonus>> loadBonuses(const JsonNode & value);
 };
 
 VCMI_LIB_NAMESPACE_END

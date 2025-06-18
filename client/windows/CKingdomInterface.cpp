@@ -831,6 +831,9 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	{
 		ENGINE->windows().createAndPushWindow<CCastleInterface>(town);
 	});
+
+	labelCreatureGrowth = std::make_shared<CMultiLineLabel>(Rect(4, 76, 50, 35), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.genrltxt.265"));
+	labelCreatureAvailable = std::make_shared<CMultiLineLabel>(Rect(349, 76, 57, 35), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.genrltxt.266"));
 }
 
 void CTownItem::updateGarrisons()

@@ -14,12 +14,6 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-#define BONUS_NAME(x) { #x, BonusType::x },
-	const std::map<std::string, BonusType> bonusNameMap = {
-		BONUS_LIST
-	};
-#undef BONUS_NAME
-
 #define BONUS_VALUE(x) { #x, BonusValueType::x },
 	const std::map<std::string, BonusValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE

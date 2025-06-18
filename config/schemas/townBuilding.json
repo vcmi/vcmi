@@ -44,11 +44,6 @@
 			"enum" : [ "normal", "auto", "special", "grail" ],
 			"description" : "Mode in which this building will be built"
 		},
-		"height" : {
-			"type" : "string",
-			"enum" : [ "skyship", "high", "average", "low"],
-			"description" : "Height for lookout towers and some grails"
-		},
 		"requires" : {
 			"$ref" : "#/definitions/buildingRequirement",
 			"description" : "List of town buildings that must be built before this one"
@@ -133,6 +128,13 @@
 				"enum" : [ "resource-resource", "resource-player", "creature-resource", "resource-artifact", "artifact-resource", "artifact-experience", "creature-experience", "creature-undead", "resource-skill"],
 			},
 			"description" : "List of modes available in this market"
+		},
+		"marketOffer" : {
+			"type" : "array",
+			"items" : {
+				"type" : "string"
+			},
+			"description" : "List of predefined items available on market from this building"
 		}
 	}
 }

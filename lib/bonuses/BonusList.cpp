@@ -69,7 +69,11 @@ int BonusList::totalValue(int baseValue) const
 		int indepMax = std::numeric_limits<int>::min();
 	};
 
-	auto applyPercentage = [](int base, int percent) -> int {
+	auto applyPercentageRoundUp = [](int base, int percent) -> int {
+		return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+	};
+
+	auto applyPercentageRoundDown = [](int base, int percent) -> int {
 		return (static_cast<int64_t>(base) * (100 + percent)) / 100;
 	};
 
@@ -96,7 +100,11 @@ int BonusList::totalValue(int baseValue) const
 	for(const auto & b : bonuses)
 	{
 		int sourceIndex = vstd::to_underlying(b->source);
-		int valModified	= applyPercentage(b->val, percentToSource[sourceIndex]);
+		// Workaround: creature hero specialties in H3 is the only place that uses rounding up in bonuses
+		// TODO: try to find more elegant solution?
+		int valModified	= b->source == BonusSource::CREATURE_ABILITY ?
+			applyPercentageRoundUp(b->val, percentToSource[sourceIndex]):
+			applyPercentageRoundDown(b->val, percentToSource[sourceIndex]);
 
 		switch(b->valType)
 		{
@@ -123,9 +131,9 @@ int BonusList::totalValue(int baseValue) const
 		}
 	}
 
-	accumulated.base = applyPercentage(accumulated.base, accumulated.percentToBase);
+	accumulated.base = applyPercentageRoundDown(accumulated.base, accumulated.percentToBase);
 	accumulated.base += accumulated.additive;
-	auto valFirst = applyPercentage(accumulated.base ,accumulated.percentToAll);
+	auto valFirst = applyPercentageRoundDown(accumulated.base ,accumulated.percentToAll);
 
 	if(indexMinCount && indexMaxCount && accumulated.indepMin < accumulated.indepMax)
 		accumulated.indepMax = accumulated.indepMin;

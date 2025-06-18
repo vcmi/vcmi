@@ -272,7 +272,6 @@ public:
 	std::map<TeamID, ui8> obelisksVisited; //map: team_id => how many obelisks has been visited
 
 	std::vector<ArtifactID> townMerchantArtifacts;
-	std::vector<TradeItemBuy> townUniversitySkills;
 
 	void overrideGameSettings(const JsonNode & input);
 	void overrideGameSetting(EGameSettings option, const JsonNode & input);
@@ -345,7 +344,11 @@ public:
 		h & obeliskCount;
 		h & obelisksVisited;
 		h & townMerchantArtifacts;
-		h & townUniversitySkills;
+		if (!h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+		{
+			std::vector<TradeItemBuy> townUniversitySkills;
+			h & townUniversitySkills;
+		}
 
 		h & instanceNames;
 		h & *gameSettings;

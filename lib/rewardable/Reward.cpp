@@ -81,10 +81,10 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	
 	for (auto & bonus : heroBonuses)
 	{
-		if (bonus.type == BonusType::MORALE)
-			comps.emplace_back(ComponentType::MORALE, bonus.val);
-		if (bonus.type == BonusType::LUCK)
-			comps.emplace_back(ComponentType::LUCK, bonus.val);
+		if (bonus->type == BonusType::MORALE)
+			comps.emplace_back(ComponentType::MORALE, bonus->val);
+		if (bonus->type == BonusType::LUCK)
+			comps.emplace_back(ComponentType::LUCK, bonus->val);
 	}
 	
 	if (heroExperience)

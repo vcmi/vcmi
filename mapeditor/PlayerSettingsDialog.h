@@ -14,16 +14,16 @@
 #include "playerparams.h"
 
 namespace Ui {
-class PlayerSettings;
+class PlayerSettingsDialog;
 }
 
-class PlayerSettings : public QDialog
+class PlayerSettingsDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit PlayerSettings(MapController & controller, QWidget *parent = nullptr);
-	~PlayerSettings();
+	explicit PlayerSettingsDialog(MapController & controller, QWidget *parent = nullptr);
+	~PlayerSettingsDialog();
 
 private slots:
 
@@ -32,7 +32,7 @@ private slots:
 	void on_pushButton_clicked();
 
 private:
-	Ui::PlayerSettings *ui;
+	Ui::PlayerSettingsDialog *ui;
 
 	std::vector<PlayerParams*> paramWidgets;
 	

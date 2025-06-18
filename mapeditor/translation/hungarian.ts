@@ -49,7 +49,8 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="134"/>
         <source>VCMI Campaign Editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI kampány szerkesztő</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
@@ -100,24 +101,28 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="153"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Szintró tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="167"/>
         <source>Show full background</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Teljes háttér megjelenítése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="99"/>
         <source>Scenario editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Szintró szerkesztő</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="122"/>
@@ -137,12 +142,14 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="167"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Minden támogatott kampány (*.vcmp *.h3c);;VCMI kampányok (*.vcmp);;HoMM3 kampányok (*.h3c)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
         <source>Save campaign</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány mentése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="182"/>
@@ -156,7 +163,8 @@
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
         <location filename="../campaigneditor/campaignproperties.cpp" line="27"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
@@ -166,12 +174,14 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
         <source>Campaign name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="46"/>
         <source>Campaign description</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány leírása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
@@ -181,58 +191,69 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
         <source>Author contact (e.g. e-mail)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Szerző elérhetősége (pl. e-mail)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="76"/>
         <source>Campaign creation date</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány létrehozásának dátuma</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="86"/>
         <source>Campaign version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány verziója</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="96"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zene</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="106"/>
         <source>Scenario difficulty is user selectable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A szintró nehézsége választható</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Régiók</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Régió előbeállítás</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Háttér</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="147"/>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Utótag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="173"/>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Előtag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="183"/>
         <source>Color suffix length</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Szín utótag hossza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
@@ -247,37 +268,44 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
         <source>Misc</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Egyéb</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="264"/>
         <source>Loading background image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Háttérkép betöltése</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="274"/>
         <source>Video rim image</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Videó szegély képe</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="284"/>
         <source>Intro video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bevezető videó</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="294"/>
         <source>Outro video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Záró videó</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="45"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Egyéni</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Infix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Köztag</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
@@ -292,22 +320,26 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Címke X pozíció</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="127"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Címke Y pozíció</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kevesebb szintró</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="179"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Az új régióbeállítás kevesebb szintrót támogat, mint korábban. Néhány törlésre kerül. Folytatja?</translation>
     </message>
 </context>
 <context>
@@ -553,7 +585,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="348"/>
+        <location filename="../mainwindow.cpp" line="349"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI térképszerkesztő</translation>
     </message>
@@ -661,7 +693,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1033"/>
         <source>Ctrl+O</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1043"/>
@@ -676,7 +709,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1054"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1059"/>
@@ -686,7 +720,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1062"/>
         <source>Ctrl+N</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1067"/>
@@ -702,20 +737,22 @@
         <location filename="../mainwindow.ui" line="1075"/>
         <location filename="../mainwindow.ui" line="1078"/>
         <source>Campaign editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kampány szerkesztő</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1083"/>
         <location filename="../mainwindow.ui" line="1086"/>
-        <location filename="../mainwindow.cpp" line="954"/>
-        <location filename="../mainwindow.cpp" line="955"/>
+        <location filename="../mainwindow.cpp" line="959"/>
+        <location filename="../mainwindow.cpp" line="960"/>
         <source>View underground</source>
         <translation>Földalatti nézet</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1089"/>
         <source>Ctrl+U</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1097"/>
@@ -725,7 +762,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1100"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1105"/>
@@ -735,7 +773,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1108"/>
         <source>Ctrl+X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1113"/>
@@ -745,7 +784,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1116"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1121"/>
@@ -755,7 +795,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1124"/>
         <source>Ctrl+V</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1129"/>
@@ -775,7 +816,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1146"/>
         <source>Ctrl+G</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1154"/>
@@ -790,7 +832,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1160"/>
         <source>Ctrl+Enter</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1168"/>
@@ -800,7 +843,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1171"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1179"/>
@@ -811,7 +855,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1185"/>
         <source>Ctrl+Z</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1196"/>
@@ -821,7 +866,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1199"/>
         <source>Ctrl+Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1210"/>
@@ -831,7 +877,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1213"/>
         <source>Del</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Del</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1221"/>
@@ -841,7 +888,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1224"/>
         <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1229"/>
@@ -851,13 +899,14 @@
     <message>
         <location filename="../mainwindow.ui" line="1232"/>
         <source>Ctrl+Shift+V</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1240"/>
-        <location filename="../mainwindow.cpp" line="1227"/>
-        <location filename="../mainwindow.cpp" line="1231"/>
-        <location filename="../mainwindow.cpp" line="1288"/>
+        <location filename="../mainwindow.cpp" line="1238"/>
+        <location filename="../mainwindow.cpp" line="1242"/>
+        <location filename="../mainwindow.cpp" line="1299"/>
         <source>Update appearance</source>
         <translation>Megjelenés frissítése</translation>
     </message>
@@ -874,7 +923,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1265"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1273"/>
@@ -884,7 +934,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1284"/>
@@ -894,7 +945,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1287"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1295"/>
@@ -904,7 +956,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1298"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1306"/>
@@ -914,7 +967,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1309"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1317"/>
@@ -924,7 +978,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1320"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1328"/>
@@ -934,7 +989,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1331"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1339"/>
@@ -944,7 +1000,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1347"/>
@@ -954,7 +1011,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1350"/>
         <source>Ctrl+E</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1358"/>
@@ -975,7 +1033,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1372"/>
         <source>Ctrl+Shift+M</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1377"/>
@@ -986,7 +1045,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1383"/>
         <source>Ctrl+Shift+C</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1388"/>
@@ -1026,7 +1086,8 @@
     <message>
         <location filename="../mainwindow.ui" line="1413"/>
         <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1418"/>
@@ -1049,240 +1110,271 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="324"/>
+        <location filename="../mainwindow.cpp" line="325"/>
         <source>Confirmation</source>
         <translation>Megerősítés</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="324"/>
+        <location filename="../mainwindow.cpp" line="325"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Nem mentett változások el fognak veszni, biztos benne?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="398"/>
+        <location filename="../mainwindow.cpp" line="403"/>
         <source>Mods are required</source>
         <translation>Modok szükségesek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="403"/>
+        <location filename="../mainwindow.cpp" line="408"/>
         <source>Failed to open map</source>
         <translation>Nem sikerült a térkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="429"/>
+        <location filename="../mainwindow.cpp" line="434"/>
         <source>Open map</source>
         <translation>Térkép megnyitása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="431"/>
+        <location filename="../mainwindow.cpp" line="436"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Minden támogatott térkép (*.vmap *.h3m);;VCMI térképek (*.vmap);;HoMM3 térképek (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="485"/>
+        <location filename="../mainwindow.cpp" line="490"/>
         <source>Recently Opened Files</source>
         <translation>Legutóbb megnyitott fájlok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="538"/>
+        <location filename="../mainwindow.cpp" line="543"/>
         <source>Map validation</source>
         <translation>Térkép érvényesítése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="540"/>
+        <location filename="../mainwindow.cpp" line="545"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>A térképen kritikus hibák vannak, és valószínűleg nem játszható. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="542"/>
+        <location filename="../mainwindow.cpp" line="547"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>A térképen hibák vannak. Nyissa meg az Ellenőrzőt a Térkép menüből, hogy megnézze a hibákat</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="566"/>
+        <location filename="../mainwindow.cpp" line="571"/>
         <source>Failed to save map</source>
         <translation>Nem sikerült a térkép mentése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="584"/>
         <source>Save map</source>
         <translation>Térkép mentése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="584"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI térképek (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="776"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Type</source>
         <translation>Típus</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="789"/>
+        <location filename="../mainwindow.cpp" line="794"/>
         <source>Towns</source>
         <translation>Városok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="790"/>
+        <location filename="../mainwindow.cpp" line="795"/>
         <source>Objects</source>
         <translation>Objektumok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="791"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>Heroes</source>
         <translation>Hősök</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="792"/>
+        <location filename="../mainwindow.cpp" line="797"/>
         <source>Artifacts</source>
         <translation>Tárgyak</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="793"/>
+        <location filename="../mainwindow.cpp" line="798"/>
         <source>Resources</source>
         <translation>Erőforrások</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="794"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Banks</source>
         <translation>Bankok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="795"/>
+        <location filename="../mainwindow.cpp" line="800"/>
         <source>Dwellings</source>
         <translation>Lakhelyek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="796"/>
+        <location filename="../mainwindow.cpp" line="801"/>
         <source>Grounds</source>
         <translation>Talajok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="802"/>
         <source>Teleports</source>
         <translation>Teleportok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="798"/>
+        <location filename="../mainwindow.cpp" line="803"/>
         <source>Mines</source>
         <translation>Bányák</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="799"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Triggers</source>
         <translation>Indítók</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="800"/>
+        <location filename="../mainwindow.cpp" line="805"/>
         <source>Monsters</source>
         <translation>Szörnyek</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="801"/>
+        <location filename="../mainwindow.cpp" line="806"/>
         <source>Quests</source>
         <translation>Küldetések</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="802"/>
+        <location filename="../mainwindow.cpp" line="807"/>
         <source>Wog Objects</source>
         <translation>Wog Objektumok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="803"/>
+        <location filename="../mainwindow.cpp" line="808"/>
         <source>Obstacles</source>
         <translation>Akadályok</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="804"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>Other</source>
         <translation>Egyéb</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Mods loading problem</source>
         <translation>Mod betöltési probléma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="941"/>
+        <location filename="../mainwindow.cpp" line="946"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>Kritikus hiba történt a Modok betöltése során. Tiltsa le az érvénytelen modokat és indítsa újra.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="959"/>
-        <location filename="../mainwindow.cpp" line="960"/>
+        <location filename="../mainwindow.cpp" line="964"/>
+        <location filename="../mainwindow.cpp" line="965"/>
         <source>View surface</source>
         <translation>Felszín megtekintése</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1238"/>
         <source>No objects selected</source>
         <translation>Nincs kiválasztott objektum</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1231"/>
+        <location filename="../mainwindow.cpp" line="1242"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Ez a művelet visszafordíthatatlan. Folytatja?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1288"/>
+        <location filename="../mainwindow.cpp" line="1299"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Hibák történtek. %1 objektum nem lett frissítve</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1328"/>
+        <location filename="../mainwindow.cpp" line="1339"/>
         <source>Save to image</source>
         <translation>Mentés képként</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1347"/>
+        <location filename="../mainwindow.cpp" line="1358"/>
         <source>Select maps to convert</source>
         <translation>Térképek kiválasztása konvertáláshoz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1349"/>
+        <location filename="../mainwindow.cpp" line="1360"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>HoMM3 térképek (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1353"/>
+        <location filename="../mainwindow.cpp" line="1364"/>
         <source>Choose directory to save converted maps</source>
         <translation>Könyvtár kiválasztása a konvertált térképek mentéséhez</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1366"/>
+        <location filename="../mainwindow.cpp" line="1377"/>
         <source>Operation completed</source>
         <translation>Művelet befejezve</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1366"/>
+        <location filename="../mainwindow.cpp" line="1377"/>
         <source>Successfully converted %1 maps</source>
         <translation>Sikeresen konvertálva: %1 térkép</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1370"/>
+        <location filename="../mainwindow.cpp" line="1381"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Nem sikerült a térkép konvertálása. Művelet megszakítva</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1376"/>
+        <location filename="../mainwindow.cpp" line="1387"/>
         <source>Select campaign to convert</source>
         <translation>Kampány kiválasztása konvertáláshoz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1378"/>
+        <location filename="../mainwindow.cpp" line="1389"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>HoMM3 kampányok (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1382"/>
+        <location filename="../mainwindow.cpp" line="1393"/>
         <source>Select destination file</source>
         <translation>Célfájl kiválasztása</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1384"/>
+        <location filename="../mainwindow.cpp" line="1395"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>VCMI kampányok (*.vcmp)</translation>
+    </message>
+</context>
+<context>
+    <name>MapController</name>
+    <message>
+        <location filename="../mapcontroller.cpp" line="591"/>
+        <source>Hero %1 cannot be created as NEUTRAL.</source>
+        <translation type="unfinished">A(z) %1 hős nem hozható létre SEMLEGESKÉNT.</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="605"/>
+        <source>Missing Required Mod</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hiányzó szükséges mod</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="605"/>
+        <source>
+
+Do you want to do that now ?</source>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+
+
+Szeretnéd ezt most megtenni?</translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="615"/>
+        <source>This object&apos;s mod is mandatory for map to remain valid.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ennek az objektumnak a modja kötelező ahhoz, hogy a térkép érvényes maradjon.</translation>
     </message>
 </context>
 <context>
@@ -1476,6 +1568,33 @@
     </message>
 </context>
 <context>
+    <name>PlayerSelectionDialog</name>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="45"/>
+        <source>Select Player</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Játékos kiválasztása</translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="54"/>
+        <source>Hero cannot be created as NEUTRAL</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A hős nem hozható létre SEMLEGESKÉNT</translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="60"/>
+        <source>Switch to one of the available players:</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Váltás az egyik elérhető játékosra:</translation>
+    </message>
+    <message>
+        <location filename="../PlayerSelectionDialog.cpp" line="89"/>
+        <source>Shortcut: %1</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gyorsbillentyű: %1</translation>
+    </message>
+</context>
+<context>
     <name>PlayerSettings</name>
     <message>
         <location filename="../playersettings.ui" line="20"/>
@@ -1520,27 +1639,27 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="20"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="22"/>
         <source>Beginner</source>
         <translation>Kezdő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="21"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="23"/>
         <source>Advanced</source>
         <translation>Haladó</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="22"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="24"/>
         <source>Expert</source>
         <translation>Szakértő</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="166"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="168"/>
         <source>Default secondary skills:</source>
         <translation>Alapértelmezett másodlagos képességek:</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="171"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="173"/>
         <source>Secondary skills:</source>
         <translation>Másodlagos képességek:</translation>
     </message>
@@ -1896,34 +2015,44 @@
         <translation>NEM ZÁSZLÓZHATÓ</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="385"/>
+        <location filename="../mapcontroller.cpp" line="391"/>
         <source>Can&apos;t place object</source>
         <translation>Nem lehet objektumot elhelyezni</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="555"/>
+        <location filename="../mapcontroller.cpp" line="573"/>
         <source>There can only be one grail object on the map.</source>
         <translation>Csak egy Szent Grál objektum lehet a térképen.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="561"/>
-        <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation>A(z) %1 hős nem hozható létre SEMLEGESKÉNT.</translation>
+        <location filename="../mapcontroller.cpp" line="628"/>
+        <source> (submod of %1)</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> (%1 almodulja)</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="145"/>
-        <location filename="../inspector/townspellswidget.cpp" line="175"/>
+        <location filename="../mapcontroller.cpp" line="630"/>
+        <source>The mod &apos;%1&apos;%2, is required by an object on the map.
+Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
+        <comment>should be consistent with Map-&gt;General menu entry translation</comment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A(z) &apos;%1&apos;%2 modot egy objektum igényli a térképen.
+Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállításokban.</translation>
+    </message>
+    <message>
+        <location filename="../inspector/herospellwidget.cpp" line="147"/>
+        <location filename="../inspector/townspellswidget.cpp" line="177"/>
         <source>Custom Spells:</source>
         <translation>Egyéni varázslatok:</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="154"/>
-        <location filename="../inspector/townspellswidget.cpp" line="195"/>
+        <location filename="../inspector/herospellwidget.cpp" line="156"/>
+        <location filename="../inspector/townspellswidget.cpp" line="197"/>
         <source>Default Spells</source>
         <translation>Alapértelmezett varázslatok</translation>
     </message>
     <message>
-        <location filename="../inspector/portraitwidget.cpp" line="145"/>
+        <location filename="../inspector/portraitwidget.cpp" line="147"/>
         <source>Default</source>
         <translation>Alapértelmezett</translation>
     </message>
@@ -1944,13 +2073,13 @@
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="449"/>
-        <location filename="../inspector/rewardswidget.cpp" line="768"/>
+        <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Hero Level: %1</source>
         <translation>Hős szint: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="450"/>
-        <location filename="../inspector/rewardswidget.cpp" line="769"/>
+        <location filename="../inspector/rewardswidget.cpp" line="770"/>
         <source>Hero Experience: %1</source>
         <translation>Hős tapasztalat: %1</translation>
     </message>
@@ -1961,43 +2090,43 @@
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
-        <location filename="../inspector/rewardswidget.cpp" line="771"/>
+        <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Mana Percentage: %1</source>
         <translation>Mana százalék: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
-        <location filename="../inspector/rewardswidget.cpp" line="774"/>
+        <location filename="../inspector/rewardswidget.cpp" line="775"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Elsődleges képességek: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="466"/>
-        <location filename="../inspector/rewardswidget.cpp" line="786"/>
+        <location filename="../inspector/rewardswidget.cpp" line="787"/>
         <source>Resources: %1</source>
         <translation>Erőforrások: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="473"/>
-        <location filename="../inspector/rewardswidget.cpp" line="792"/>
+        <location filename="../inspector/rewardswidget.cpp" line="793"/>
         <source>Artifacts: %1</source>
         <translation>Tárgyak: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="480"/>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/rewardswidget.cpp" line="799"/>
         <source>Spells: %1</source>
         <translation>Varázslatok: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="487"/>
-        <location filename="../inspector/rewardswidget.cpp" line="804"/>
+        <location filename="../inspector/rewardswidget.cpp" line="805"/>
         <source>Secondary Skills: %1</source>
         <translation>Másodlagos képességek: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="494"/>
-        <location filename="../inspector/rewardswidget.cpp" line="810"/>
+        <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Creatures: %1</source>
         <translation>Egységek: %1</translation>
     </message>
@@ -2017,37 +2146,37 @@
         <translation>Játékosok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="764"/>
+        <location filename="../inspector/rewardswidget.cpp" line="765"/>
         <source>Rewards:</source>
         <translation>Jutalmak:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="767"/>
+        <location filename="../inspector/rewardswidget.cpp" line="768"/>
         <source>Reward Message: %1</source>
         <translation>Jutalom üzenet: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="770"/>
+        <location filename="../inspector/rewardswidget.cpp" line="771"/>
         <source>Mana Diff: %1</source>
         <translation>Mana különbség: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="772"/>
+        <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Move Points: %1</source>
         <translation>Mozgáspontok: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="773"/>
+        <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Move Percentage: %1</source>
         <translation>Mozgás százalék: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="813"/>
+        <location filename="../inspector/rewardswidget.cpp" line="814"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Varázslat használat: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="820"/>
+        <location filename="../inspector/rewardswidget.cpp" line="821"/>
         <source>Bonuses: %1</source>
         <translation>Bónuszok: %1</translation>
     </message>
@@ -2067,12 +2196,12 @@
         <translation>Városi események:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="176"/>
+        <location filename="../inspector/townspellswidget.cpp" line="178"/>
         <source>Required:</source>
         <translation>Szükséges:</translation>
     </message>
     <message>
-        <location filename="../inspector/townspellswidget.cpp" line="183"/>
+        <location filename="../inspector/townspellswidget.cpp" line="185"/>
         <source>Possible:</source>
         <translation>Lehetséges:</translation>
     </message>
@@ -2473,18 +2602,18 @@
         <translation>Játékosok</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="49"/>
+        <location filename="../inspector/rewardswidget.cpp" line="50"/>
         <source>None</source>
         <translation>Nincs</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="51"/>
+        <location filename="../inspector/rewardswidget.cpp" line="52"/>
         <source>Day %1</source>
         <translation>Nap %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="242"/>
-        <location filename="../inspector/rewardswidget.cpp" line="613"/>
+        <location filename="../inspector/rewardswidget.cpp" line="243"/>
+        <location filename="../inspector/rewardswidget.cpp" line="614"/>
         <source>Reward %1</source>
         <translation>Jutalom %1</translation>
     </message>
@@ -2523,7 +2652,8 @@
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forgatókönyv tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="30"/>
@@ -2533,32 +2663,38 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
         <source>Region name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Régió neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="50"/>
         <source>Region color</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Régió színe</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="60"/>
         <source>Scenario name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forgatókönyv neve</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="74"/>
         <source>Map file</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Térkép fájl</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="90"/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Importálás...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="97"/>
         <source>Export...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Exportálás...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="104"/>
@@ -2569,27 +2705,32 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="113"/>
         <source>Default difficulty</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Alapértelmezett nehézség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="123"/>
         <source>Prerequisites</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Előfeltételek</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="133"/>
         <source>Region right-click text</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Jobb kattintás szövege a régión</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="144"/>
         <source>Prologue/Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prológus/Epilógus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="150"/>
         <source>Prologue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Prológus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="156"/>
@@ -2601,19 +2742,22 @@
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="245"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Videó</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="185"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="262"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zene</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="202"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="279"/>
         <source>Voice</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hang</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="214"/>
@@ -2624,17 +2768,20 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="227"/>
         <source>Epilogue</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Epilógus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="305"/>
         <source>Crossover</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Átvezetés</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="311"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Átvezetett hősök megtartása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="317"/>
@@ -2649,7 +2796,8 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="331"/>
         <source>Secondary skills</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Másodlagos képességek</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="338"/>
@@ -2664,7 +2812,8 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="378"/>
         <source>All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Összes</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="385"/>
@@ -2674,74 +2823,88 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Átvezetett tárgyak</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="441"/>
         <source>Starting</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="447"/>
         <source>Starting options are</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő beállítások</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="454"/>
         <source>Starting bonus options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő bónusz opciók</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="461"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hős átvezetési opciók</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="468"/>
         <source>Starting hero options</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő hős opciók</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="486"/>
         <source>Bonus</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bónusz</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="492"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Player position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Játékos pozíció</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="502"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő bónusz opció</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="513"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Átvezetett / Kezdő hős</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="531"/>
         <source>Add...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hozzáadás...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="538"/>
         <source>Edit...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Szerkesztés...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="115"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Leghatalmasabb</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="116"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Generált</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="117"/>
@@ -2751,7 +2914,8 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="134"/>
         <source>No map</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nincs térkép</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="177"/>
@@ -2772,13 +2936,15 @@
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hiba</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="376"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="402"/>
         <source>Could not open the file.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nem sikerült megnyitni a fájlt.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
@@ -2788,22 +2954,26 @@
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>VCMI maps (*.vmap);</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI térképek (*.vmap);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="395"/>
         <source>HoMM3 maps (*.h3m);</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">HoMM3 térképek (*.h3m);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="431"/>
         <source>Source scenario</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forrás forgatókönyv</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="441"/>
         <source>Hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hős</translation>
     </message>
 </context>
 <context>
@@ -2811,12 +2981,14 @@
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="14"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forgatókönyv tulajdonságai</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="20"/>
         <source>Select a bonus type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bónusz típus kiválasztása</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="27"/>
@@ -2830,15 +3002,17 @@
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lény</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
         <location filename="../campaigneditor/startingbonus.ui" line="184"/>
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="326"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="335"/>
         <source>Building</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Épület</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="48"/>
@@ -2851,26 +3025,29 @@
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
         <location filename="../campaigneditor/startingbonus.ui" line="254"/>
         <source>Spell scroll</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Varázstekercs</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elsődleges képesség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
         <location filename="../campaigneditor/startingbonus.ui" line="364"/>
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="334"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="343"/>
         <source>Secondary skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Másodlagos képesség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
-        <location filename="../campaigneditor/startingbonus.cpp" line="336"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="345"/>
         <source>Resource</source>
         <translation type="unfinished">Erőforrás</translation>
     </message>
@@ -2882,28 +3059,33 @@
         <location filename="../campaigneditor/startingbonus.ui" line="300"/>
         <location filename="../campaigneditor/startingbonus.ui" line="370"/>
         <source>Recipient</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Címzett</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lénytípus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
         <location filename="../campaigneditor/startingbonus.ui" line="430"/>
         <source>Quantity</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mennyiség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="310"/>
         <source>Attack skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Támadó képesség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="320"/>
         <source>Defense skill</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Védő képesség</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
@@ -2918,82 +3100,97 @@
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
         <source>Mastery</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Jártasság</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="420"/>
         <source>Resource type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Erőforrás típusa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="34"/>
         <source>Edit Starting Bonus</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kezdő bónusz szerkesztése</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="59"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="62"/>
         <source>Strongest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Leghatalmasabb</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="60"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="63"/>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Generált</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="61"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
         <source>Random</source>
         <translation type="unfinished">Véletlen</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="112"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="121"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gyakori (%1 és %2)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="117"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="126"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ritka (%1, %2, %3, %4)</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="289"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="298"/>
         <source>strongest hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">leghatalmasabb hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="291"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="300"/>
         <source>generated hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">generált hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="293"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="302"/>
         <source>random hero</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">véletlen hős</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="322"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="331"/>
         <source>%1 spell for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 varázslat %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="324"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="333"/>
         <source>%1 %2 for %3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 %2 %3 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="328"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="337"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 tárgy %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="330"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="339"/>
         <source>%1 spell scroll for %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 varázstekercs %2 számára</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/startingbonus.cpp" line="332"/>
+        <location filename="../campaigneditor/startingbonus.cpp" line="341"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elsődleges képesség (Támadás: %1, Védekezés: %2, Mágia: %3, Tudás: %4) %5 számára</translation>
     </message>
 </context>
 <context>
@@ -3344,112 +3541,114 @@
         <translation>Térkép érvényességi eredmények</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="54"/>
+        <location filename="../validator.cpp" line="46"/>
         <source>Map is not loaded</source>
         <translation>A térkép nincs betöltve</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="76"/>
+        <location filename="../validator.cpp" line="68"/>
         <source>No factions allowed for player %1</source>
         <translation>Nincs engedélyezett frakció a(z) %1 játékos számára</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="79"/>
+        <location filename="../validator.cpp" line="71"/>
         <source>No players allowed to play this map</source>
         <translation>Nincs játékos, aki játszhatná ezt a térképet</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="81"/>
+        <location filename="../validator.cpp" line="73"/>
         <source>Map is allowed for one player and cannot be started</source>
         <translation>A térkép csak egy játékos számára engedélyezett, és nem indítható</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="83"/>
+        <location filename="../validator.cpp" line="75"/>
         <source>No human players allowed to play this map</source>
         <translation>Nincsenek emberi játékosok, akik játszhatnák ezt a térképet</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="99"/>
-        <source>Armored instance %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation>A(z) %1 páncélozott objektum UNFLAGGABLE, de semlegesnek vagy játékos tulajdonában lévőnek kell lennie</translation>
-    </message>
-    <message>
-        <location filename="../validator.cpp" line="105"/>
+        <location filename="../validator.cpp" line="93"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>A(z) %1 objektum egy nem játszható játékoshoz van rendelve: %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="150"/>
+        <location filename="../validator.cpp" line="138"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>A(z) %1 varázstekercsnek nincs hozzárendelt példánya, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="156"/>
+        <location filename="../validator.cpp" line="144"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation>A(z) %1 tárgy tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="170"/>
+        <location filename="../validator.cpp" line="158"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation>A(z) %1 játékosnak nincs hozzárendelt városa és hőse</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="118"/>
+        <location filename="../validator.cpp" line="106"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation>A(z) %1 börtönnek semlegesnek kell lennie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="123"/>
+        <location filename="../validator.cpp" line="87"/>
+        <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A birtokolható objektum %1 NEM ZÁSZLÓZHATÓ, de semleges vagy játékos tulajdonossal kell rendelkeznie</translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="111"/>
         <source>Hero %1 must have an owner</source>
         <translation>A(z) %1 hősnek tulajdonossal kell rendelkeznie</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="130"/>
+        <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation>A(z) %1 hős tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="133"/>
+        <location filename="../validator.cpp" line="121"/>
         <source>Hero %1 has duplicate on map</source>
         <translation>A(z) %1 hős duplikátumként szerepel a térképen</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="136"/>
+        <location filename="../validator.cpp" line="124"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation>A(z) %1 hős típus nélküli, ezért el kell távolítani</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="147"/>
+        <location filename="../validator.cpp" line="135"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation>A(z) %1 varázstekercs tiltva van a térképbeállítások szerint</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="172"/>
+        <location filename="../validator.cpp" line="160"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>A(z) %1 játékosnak nincs kezdővárosa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="178"/>
+        <location filename="../validator.cpp" line="166"/>
         <source>Map name is not specified</source>
         <translation>A térkép neve nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="180"/>
+        <location filename="../validator.cpp" line="168"/>
         <source>Map description is not specified</source>
         <translation>A térkép leírása nincs megadva</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="187"/>
-        <source>Map contains object from mod &quot;%1&quot;, but doesn&apos;t require it</source>
-        <translation>A térkép a(z) &quot;%1&quot; modból származó objektumot tartalmaz, de nem igényli azt</translation>
+        <location filename="../validator.cpp" line="206"/>
+        <source>The map is valid and has no issues.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">A térkép érvényes és nem tartalmaz hibákat.</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="193"/>
+        <location filename="../validator.cpp" line="179"/>
         <source>Exception occurs during validation: %1</source>
         <translation>Hiba történt az érvényesítés során: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="197"/>
+        <location filename="../validator.cpp" line="183"/>
         <source>Unknown exception occurs during validation</source>
         <translation>Ismeretlen hiba történt az érvényesítés során</translation>
     </message>
@@ -3482,52 +3681,52 @@
         <translation>Paraméterek</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="38"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
         <source>No special victory</source>
         <translation>Nincs különleges győzelem</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
         <source>Capture artifact</source>
         <translation>Tárgy megszerzése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>Hire creatures</source>
         <translation>Lények felvétele</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Accumulate resources</source>
         <translation>Erőforrások felhalmozása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Construct building</source>
         <translation>Épület felépítése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Capture town</source>
         <translation>Város elfoglalása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Defeat hero</source>
         <translation>Hős legyőzése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Transport artifact</source>
         <translation>Tárgy szállítása</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
         <source>Kill monster</source>
         <translation>Szörny megölése</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="432"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="433"/>
         <source>Any town</source>
         <translation>Bármely város</translation>
     </message>
@@ -3748,27 +3947,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="102"/>
+        <location filename="../mainwindow.cpp" line="103"/>
         <source>Filepath of the map to open.</source>
         <translation>A megnyitni kívánt térkép fájlútvonala.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="105"/>
+        <location filename="../mainwindow.cpp" line="106"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Az eredeti H3 archívumok kibontása egy külön mappába.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="106"/>
+        <location filename="../mainwindow.cpp" line="107"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Egy kibontott archívumból a TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 és Un44 fájlokat egyedi PNG-kre bontja.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="107"/>
+        <location filename="../mainwindow.cpp" line="108"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Egy kibontott archívumból az egyedi képeket (az Images mappában találhatók) .pcx formátumból png formátumba konvertálja.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="108"/>
+        <location filename="../mainwindow.cpp" line="109"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>Az eredeti fájlokat törli azok helyett, amelyek szétbontásra/konvertálásra kerültek.</translation>
     </message>

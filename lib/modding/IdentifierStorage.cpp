@@ -23,10 +23,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CIdentifierStorage::CIdentifierStorage()
 {
-	//TODO: moddable spell schools
-	for (auto i = 0; i < GameConstants::DEFAULT_SCHOOLS; ++i)
-		registerObject(ModScope::scopeBuiltin(), "spellSchool", SpellConfig::SCHOOL[i].jsonName, SpellConfig::SCHOOL[i].id.getNum());
-
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
 
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
@@ -87,27 +83,13 @@ CIdentifierStorage::CIdentifierStorage()
 	registerObject(ModScope::scopeBuiltin(), "spell", "spellbook_preset", SpellID::SPELLBOOK_PRESET);
 }
 
-void CIdentifierStorage::checkIdentifier(std::string & ID)
+void CIdentifierStorage::checkIdentifier(const std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-		logMod->warn("BIG WARNING: identifier %s seems to be broken!", ID);
-	else
-	{
-		size_t pos = 0;
-		do
-		{
-			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
-			{
-				logMod->warn("Warning: identifier %s is not in camelCase!", ID);
-				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
-			}
-			pos = ID.find('.', pos);
-		}
-		while(pos++ != std::string::npos);
-	}
+		logMod->error("BIG WARNING: identifier %s seems to be broken!", ID);
 }
 
-void CIdentifierStorage::requestIdentifier(ObjectCallback callback) const
+void CIdentifierStorage::requestIdentifier(const ObjectCallback & callback) const
 {
 	checkIdentifier(callback.type);
 	checkIdentifier(callback.name);

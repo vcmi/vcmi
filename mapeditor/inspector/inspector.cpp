@@ -41,6 +41,7 @@ Initializer::Initializer(MapController & controller, CGObjectInstance * o, const
 	, defaultPlayer(pl)
 {
 	logGlobal->info("New object instance initialized");
+	o->cb = controller.getCallback();
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
 	INIT_OBJ_TYPE(CGArtifact);
@@ -74,10 +75,10 @@ void Initializer::initialize(CGSignBottle * o)
 void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
-	
+
 	o->character = CGCreature::Character::HOSTILE;
 	if(!o->hasStackAtSlot(SlotID(0)))
-		o->putStack(SlotID(0), std::make_unique<CStackInstance>(o->cb, CreatureID(o->subID), 0, false));
+		o->putStack(SlotID(0), std::make_unique<CStackInstance>(o->cb, CreatureID(o->subID), 1, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
@@ -206,6 +207,13 @@ void Initializer::initialize(CGArtifact * o)
 		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->setArtifactInstance(a);
 	}
+	else if(o->ID == Obj::ARTIFACT)
+	{
+		auto instance = controller.map()->createArtifact(o->getArtifactType());
+		o->setArtifactInstance(instance);
+	}
+	else
+		throw std::runtime_error("Unimplemented initializer for CGArtifact object ID = "+ std::to_string(o->ID.getNum()));
 }
 
 void Initializer::initialize(CGMine * o)
@@ -365,11 +373,11 @@ void Inspector::updateProperties(CGTownInstance * o)
 void Inspector::updateProperties(CGArtifact * o)
 {
 	if(!o) return;
-	
+
 	addProperty(QObject::tr("Message"), o->message, false);
-	
+
 	const CArtifactInstance * instance = o->getArtifactInstance();
-	if(instance)
+	if(instance && o->ID == Obj::SPELL_SCROLL)
 	{
 		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != SpellID::NONE)
