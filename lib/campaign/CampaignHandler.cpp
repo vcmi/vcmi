@@ -295,7 +295,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 		ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
 
 	for(auto & bjson : reader["bonuses"].Vector())
-		ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
+	{
+		try {
+			ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
+		}
+		catch (const std::exception & e)
+		{
+			logGlobal->error("Failed to parse campaign bonus: %s", bjson.toCompactString());
+			throw e;
+		}
+	}
 
 	return ret;
 }
