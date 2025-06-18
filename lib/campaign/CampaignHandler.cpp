@@ -295,7 +295,16 @@ CampaignTravel CampaignHandler::readScenarioTravelFromJson(JsonNode & reader)
 		ret.playerColor = PlayerColor(PlayerColor::decode(reader["playerColor"].String()));
 
 	for(auto & bjson : reader["bonuses"].Vector())
-		ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
+	{
+		try {
+			ret.bonusesToChoose.emplace_back(bjson, ret.startOptions);
+		}
+		catch (const std::exception &)
+		{
+			logGlobal->error("Failed to parse campaign bonus: %s", bjson.toCompactString());
+			throw;
+		}
+	}
 
 	return ret;
 }
@@ -356,9 +365,12 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	const auto & mapping = LIBRARY->mapFormat->getMapping(ret.version);
 
 	CampaignRegionID campaignMapId(reader.readUInt8());
-	ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
-	if(ret.version != CampaignVersion::HotA)
-		ret.numberOfScenarios = ret.campaignRegions.regionsCount();
+	if(ret.version != CampaignVersion::Chr)
+	{
+		ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
+		if(ret.version != CampaignVersion::HotA)
+			ret.numberOfScenarios = ret.campaignRegions.regionsCount();
+	}
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	ret.author.appendRawString("");

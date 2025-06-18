@@ -517,6 +517,7 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	{
 		case TryMoveHero::EMBARK:
 			GAME->map().onBeforeHeroEmbark(h, pack.start, pack.end);
+			GAME->map().waitForOngoingAnimations(); // required - hero must play fade-out animation on his pre-embark position
 			break;
 		case TryMoveHero::TELEPORTATION:
 			GAME->map().onBeforeHeroTeleported(h, pack.start, pack.end);
