@@ -85,7 +85,9 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 	auto saver = std::make_shared<CZipSaver>(io, filename.toStdString());
 	for(auto & scenario : campaignState->allScenarios())
 	{
-		auto map = campaignState->getMap(scenario, nullptr);
+		EditorCallback cb(nullptr);
+		auto map = campaignState->getMap(scenario, &cb);
+		cb.setMap(map.get());
 		MapController::repairMap(map.get());
 		CMemoryBuffer serializeBuffer;
 		{

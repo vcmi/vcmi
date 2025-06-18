@@ -139,6 +139,9 @@ void MapController::repairMap(CMap * map)
 
 	for(auto obj : allImpactedObjects)
 	{
+		if(obj == nullptr)
+			continue;
+
 		//fix flags
 		if(obj->asOwnable() != nullptr && obj->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
