@@ -19,6 +19,7 @@
 #include "../modding/CModHandler.h"
 #include "../texts/TextOperations.h"
 #include "../ScopeGuard.h"
+#include "modding/CModVersion.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -538,6 +539,14 @@ static std::string videoFile(const JsonNode & node)
 }
 #undef TEST_FILE
 
+static std::string version(const JsonNode & node)
+{
+	auto version = CModVersion::fromString(node.String());
+	if (version == CModVersion())
+		return "Failed to parse mod version: " + node.toCompactString() + ". Expected format X.Y.Z, where X, Y, Z are non-negative numbers";
+	return "";
+}
+
 JsonValidator::TValidatorMap createCommonFields()
 {
 	JsonValidator::TValidatorMap ret;
@@ -629,6 +638,7 @@ JsonValidator::TFormatMap createFormatMap()
 	ret["animationFile"] = animationFile;
 	ret["imageFile"]     = imageFile;
 	ret["videoFile"]     = videoFile;
+	ret["version"]     = version;
 
 	//TODO:
 	// uri-reference
