@@ -522,6 +522,9 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("visiblePositionX", visiblePosition.x);
 	handler.serializeInt("visiblePositionY", visiblePosition.y);
 	handler.serializeFloat("visibleSize", visibleSize);
+
+	if(!handler.saving && visibleSize < 0.01)
+		visibleSize = 1.0;
 }
 
 ZoneConnection::ZoneConnection():

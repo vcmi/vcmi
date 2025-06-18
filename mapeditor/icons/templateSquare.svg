@@ -154,46 +154,46 @@
    style="font-size:3.07692px;fill:#ffffff;"
    x="4.0261083"
    y="21.015579"
-   id="textWood"
+   id="textwood"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="8.2191515"
    y="21.010046"
-   id="textOre"
+   id="textore"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="12.484079"
    y="21.049248"
-   id="textMercury"
+   id="textmercury"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="16.661751"
    y="21.020365"
-   id="textSulfur"
+   id="textsulfur"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="20.896933"
    y="21.078743"
-   id="textCrystal"
+   id="textcrystal"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="25.133026"
    y="21.049547"
-   id="textGems"
+   id="textgems"
    text-anchor="middle">99</text>
 	<text
    style="font-size:3.07692px;fill:#ffffff;"
    x="4.0413303"
    y="27.417381"
-   id="textGold"
+   id="textgold"
    text-anchor="middle">99</text>
 	<g
-   id="iconSulfur"
+   id="iconsulfur"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-76.735738,-145.67812)">
 		<path
@@ -218,7 +218,7 @@
    id="path3" />
 	</g>
 	<g
-   id="iconGold"
+   id="icongold"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-90.060712,-144.27231)">
 		<path
@@ -329,7 +329,7 @@
    transform="translate(-84.553401,34.893164)" />
 	</g>
 	<g
-   id="iconOre"
+   id="iconore"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-97.429655,-129.12754)">
 		<path
@@ -406,7 +406,7 @@
    id="path47" />
 	</g>
 	<g
-   id="iconWood"
+   id="iconwood"
    opacity="1.0"
    transform="matrix(0.95215139,5.818528e-4,-0.16788999,0.88218099,-70.889511,-135.64427)"
    style="stroke-width:0.951609">
@@ -682,7 +682,7 @@
 		</g>
 	</g>
 	<g
-   id="iconGems"
+   id="icongems"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-74.159393,-117.99296)">
 		<path
@@ -771,7 +771,7 @@
    id="path73" />
 	</g>
 	<g
-   id="iconMercury"
+   id="iconmercury"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-64.001803,-150.87368)">
 		<path
@@ -876,7 +876,7 @@
    id="path91" />
 	</g>
 	<g
-   id="iconCrystal"
+   id="iconcrystal"
    opacity="1.0"
    transform="matrix(0.87219868,0,0,0.87219868,-78.871113,-144.49622)">
 		<path

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../lib/filesystem/ResourcePath.h"
+
 class CMap;
 class CampaignState;
 class CRmgTemplate;

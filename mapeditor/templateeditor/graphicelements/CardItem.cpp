@@ -14,6 +14,7 @@
 #include <QObject>
 
 #include "../../../lib/constants/EntityIdentifiers.h"
+#include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/rmg/CRmgTemplate.h"
 
 QDomElement CardItem::getElementById(const QDomDocument& doc, const QString& id)
@@ -148,21 +149,11 @@ int CardItem::getId()
 
 void CardItem::setResAmount(GameResID res, int val)
 {
-	std::map<GameResID, QString> names =
-	{
-		{ GameResID::WOOD,    "Wood"    },
-		{ GameResID::ORE,     "Ore"     },
-		{ GameResID::MERCURY, "Mercury" },
-		{ GameResID::SULFUR,  "Sulfur"  },
-		{ GameResID::CRYSTAL, "Crystal" },
-		{ GameResID::GEMS,    "Gems"    },
-		{ GameResID::GOLD,    "Gold"    },
-	};
-	auto textElem = getElementById(doc, "text" + names[res]);
+	auto textElem = getElementById(doc, "text" + QString::fromStdString(GameConstants::RESOURCE_NAMES[res]));
 	textElem.setAttribute("style", textElem.attribute("style").replace(QRegularExpression("fill:.*?;"), "fill:" + QColor(useBlackText ? Qt::black : Qt::white).name() + ";"));
 	textElem.firstChild().setNodeValue(val ? QString::number(val) : "");
 
-	auto iconElem = getElementById(doc, "icon" + names[res]);
+	auto iconElem = getElementById(doc, "icon" + QString::fromStdString(GameConstants::RESOURCE_NAMES[res]));
 	iconElem.setAttribute("opacity", val ? "1.0" : "0.1");
 }
 

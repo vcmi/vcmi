@@ -27,13 +27,13 @@
 #include "../lib/serializer/JsonDeserializer.h"
 #include "../lib/serializer/CSaveFile.h"
 
-std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * cb)
+ResourcePath addFilesystemAndGetResource(const QString & filenameSelect, EResType type, const std::string & typeName)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
 	std::string fdir = fi.dir().path().toStdString();
 	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::MAP);
+	ResourcePath resId("MAPEDITOR/" + fname, type);
 	
 	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
 	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
@@ -41,7 +41,14 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
 	
 	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open map from this folder");
+		throw std::runtime_error("Cannot open " + typeName + " from this folder");
+
+	return resId;
+}
+
+std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * cb)
+{
+	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::MAP, "map");
 	
 	CMapService mapService;
 	if(auto header = mapService.loadMapHeader(resId))
@@ -62,19 +69,8 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 
 std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & filenameSelect)
 {
-	QFileInfo fi(filenameSelect);
-	std::string fname = fi.fileName().toStdString();
-	std::string fdir = fi.dir().path().toStdString();
-	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::CAMPAIGN);
-	
-	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
-	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
-	
-	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open campaign from this folder");
+	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::CAMPAIGN, "campaign");
+
 	if(auto campaign = CampaignHandler::getCampaign(resId.getName()))
 		return campaign;
 	else
@@ -83,19 +79,7 @@ std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & file
 
 std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInternal(const QString & filenameSelect)
 {
-	QFileInfo fi(filenameSelect);
-	std::string fname = fi.fileName().toStdString();
-	std::string fdir = fi.dir().path().toStdString();
-	
-	ResourcePath resId("MAPEDITOR/" + fname, EResType::JSON);
-	
-	//addFilesystem takes care about memory deallocation if case of failure, no memory leak here
-	auto mapEditorFilesystem = std::make_unique<CFilesystemLoader>("MAPEDITOR/", fdir, 0);
-	CResourceHandler::removeFilesystem("local", "mapEditor");
-	CResourceHandler::addFilesystem("local", "mapEditor", std::move(mapEditorFilesystem));
-	
-	if(!CResourceHandler::get("mapEditor")->existsResource(resId))
-		throw std::runtime_error("Cannot open template from this folder");
+	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::JSON, "template");
 
 	auto data = CResourceHandler::get()->load(resId)->readAll();
 	JsonNode nodes(reinterpret_cast<std::byte *>(data.first.get()), data.second, resId.getName());

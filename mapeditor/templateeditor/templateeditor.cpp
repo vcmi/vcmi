@@ -129,10 +129,6 @@ void TemplateEditor::loadContent(bool autoPosition)
 	auto & zones = templates[selectedTemplate]->getZones();
 	if(autoPosition || std::all_of(zones.begin(), zones.end(), [](auto & item){ return item.second->getVisiblePosition().x == 0 && item.second->getVisiblePosition().y == 0; }))
 		autoPositionZones();
-	
-	for(auto & zone : zones)
-		if(zone.second->getVisibleSize() < 0.01)
-			zone.second->setVisibleSize(1.0);
 
 	for(auto & zone : zones)
 	{
