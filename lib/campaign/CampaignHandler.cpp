@@ -356,9 +356,12 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	const auto & mapping = LIBRARY->mapFormat->getMapping(ret.version);
 
 	CampaignRegionID campaignMapId(reader.readUInt8());
-	ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
-	if(ret.version != CampaignVersion::HotA)
-		ret.numberOfScenarios = ret.campaignRegions.regionsCount();
+	if(ret.version != CampaignVersion::Chr)
+	{
+		ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
+		if(ret.version != CampaignVersion::HotA)
+			ret.numberOfScenarios = ret.campaignRegions.regionsCount();
+	}
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
 	ret.description.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "description"));
 	ret.author.appendRawString("");
