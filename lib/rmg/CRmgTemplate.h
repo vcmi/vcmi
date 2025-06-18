@@ -241,11 +241,11 @@ public:
 	TRmgTemplateZoneId getCustomObjectsLikeZone() const;
 	TRmgTemplateZoneId getTownsLikeZone() const;
 
-	Point getVisPosition() const;
-	void setVisPosition(Point value);
+	Point getVisiblePosition() const;
+	void setVisiblePosition(Point value);
 
-	float getVisSize() const;
-	void setVisSize(float value);
+	float getVisibleSize() const;
+	void setVisibleSize(float value);
 
 protected:
 	TRmgTemplateZoneId id;
@@ -254,8 +254,8 @@ protected:
 	ui32 maxTreasureValue;
 	std::optional<int> owner;
 
-	Point visPosition;
-	float visSize;
+	Point visiblePosition;
+	float visibleSize;
 
 	ObjectConfig objectConfig;
 	CTownInfo playerTowns;

@@ -1,5 +1,5 @@
 /*
- * algorithm.h, part of VCMI engine
+ * GeometryAlgorithm.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,7 +11,7 @@
 
 #include "../StdInc.h"
 
-class Algorithm
+class GeometryAlgorithm
 {
 public:
     struct Node

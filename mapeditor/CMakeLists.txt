@@ -54,8 +54,9 @@ if(ENABLE_TEMPLATE_EDITOR)
 		${editor_SRCS}
 		templateeditor/templateeditor.cpp
 		templateeditor/templateview.cpp
-		templateeditor/graphicelements.cpp
-		templateeditor/algorithm.cpp
+		templateeditor/graphicelements/CardItem.cpp
+		templateeditor/graphicelements/LineItem.cpp
+		templateeditor/GeometryAlgorithm.cpp
 		templateeditor/terrainselector.cpp
 		templateeditor/factionselector.cpp
 		templateeditor/mineselector.cpp
@@ -119,8 +120,9 @@ if(ENABLE_TEMPLATE_EDITOR)
 		${editor_HEADERS}
 		templateeditor/templateeditor.h
 		templateeditor/templateview.h
-		templateeditor/graphicelements.h
-		templateeditor/algorithm.h
+		templateeditor/graphicelements/CardItem.h
+		templateeditor/graphicelements/LineItem.h
+		templateeditor/GeometryAlgorithm.h
 		templateeditor/terrainselector.h
 		templateeditor/factionselector.h
 		templateeditor/mineselector.h

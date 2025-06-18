@@ -1,5 +1,5 @@
 /*
- * algorithm.cpp, part of VCMI engine
+ * GeometryAlgorithm.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,14 +9,14 @@
  */
 #include "StdInc.h"
 
-#include "algorithm.h"
+#include "GeometryAlgorithm.h"
 
-double Algorithm::distance(double x1, double y1, double x2, double y2)
+double GeometryAlgorithm::distance(double x1, double y1, double x2, double y2)
 {
     return std::sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)) + 1e-9;
 }
 
-bool Algorithm::edgesIntersect(const Node& a, const Node& b, const Node& c, const Node& d)
+bool GeometryAlgorithm::edgesIntersect(const Node& a, const Node& b, const Node& c, const Node& d)
 {
     auto cross = [](double x1, double y1, double x2, double y2) {
         return x1 * y2 - y1 * x2;
@@ -35,7 +35,7 @@ bool Algorithm::edgesIntersect(const Node& a, const Node& b, const Node& c, cons
     return s > 0 && s < 1 && t > 0 && t < 1;
 }
 
-void Algorithm::forceDirectedLayout(std::vector<Node> & nodes, const std::vector<Edge> & edges, int iterations, double width, double height)
+void GeometryAlgorithm::forceDirectedLayout(std::vector<Node> & nodes, const std::vector<Edge> & edges, int iterations, double width, double height)
 {
     const double area = width * height;
     const double k = std::sqrt(area / nodes.size());

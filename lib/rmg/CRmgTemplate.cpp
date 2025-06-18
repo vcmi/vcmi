@@ -153,8 +153,8 @@ ZoneOptions::ZoneOptions():
 	terrainTypeLikeZone(NO_ZONE),
 	treasureLikeZone(NO_ZONE),
 	customObjectsLikeZone(NO_ZONE),
-	visPosition(Point(0, 0)),
-	visSize(1.0)
+	visiblePosition(Point(0, 0)),
+	visibleSize(1.0)
 {
 }
 
@@ -334,24 +334,24 @@ TRmgTemplateZoneId ZoneOptions::getTownsLikeZone() const
 	return townsLikeZone;
 }
 
-Point ZoneOptions::getVisPosition() const
+Point ZoneOptions::getVisiblePosition() const
 {
-	return visPosition;
+	return visiblePosition;
 }
 
-void ZoneOptions::setVisPosition(Point value)
+void ZoneOptions::setVisiblePosition(Point value)
 {
-	visPosition = value;
+	visiblePosition = value;
 }
 
-float ZoneOptions::getVisSize() const
+float ZoneOptions::getVisibleSize() const
 {
-	return visSize;
+	return visibleSize;
 }
 
-void ZoneOptions::setVisSize(float value)
+void ZoneOptions::setVisibleSize(float value)
 {
-	visSize = value;
+	visibleSize = value;
 }
 
 void ZoneOptions::addConnection(const ZoneConnection & connection)
@@ -519,9 +519,9 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeStruct("customObjects", objectConfig);
-	handler.serializeInt("visPositionX", visPosition.x);
-	handler.serializeInt("visPositionY", visPosition.y);
-	handler.serializeFloat("visSize", visSize);
+	handler.serializeInt("visiblePositionX", visiblePosition.x);
+	handler.serializeInt("visiblePositionY", visiblePosition.y);
+	handler.serializeFloat("visibleSize", visibleSize);
 }
 
 ZoneConnection::ZoneConnection():

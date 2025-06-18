@@ -1,5 +1,5 @@
 /*
- * graphicelements.h, part of VCMI engine
+ * CardItem.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,9 +11,9 @@
 #include <QWidget>
 #include <QGraphicsSvgItem>
 
-#include "../StdInc.h"
-#include "../../lib/constants/EntityIdentifiers.h"
-#include "../../lib/rmg/CRmgTemplate.h"
+#include "../../StdInc.h"
+#include "../../../lib/constants/EntityIdentifiers.h"
+#include "../../../lib/rmg/CRmgTemplate.h"
 
 class CardItem : public QGraphicsSvgItem
 {
@@ -44,30 +44,10 @@ public:
 	int getId();
 	void setResAmount(GameResID res, int val);
 	void setChestValue(int val);
-	void setSword(EMonsterStrength::EMonsterStrength val);
+	void setMonsterStrength(EMonsterStrength::EMonsterStrength val);
 
 protected:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-};
-
-class LineItem : public QGraphicsLineItem
-{
-private:
-	std::vector<QGraphicsTextItem *> textItem;
-	std::function<void()> clickCallback;
-	int id = -1;
-
-	static constexpr int CLICKABLE_PADDING_AROUND_LINE = 10;
-public:
-	LineItem();
-	void setClickCallback(std::function<void()> func);
-	void setText(QString text);
-	void setId(int val);
-	int getId();
-	void setLineToolTip(const QString &toolTip);
-
-protected:
-	void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 };

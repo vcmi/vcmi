@@ -10,11 +10,12 @@
 #include "StdInc.h"
 #include "templateeditor.h"
 #include "ui_templateeditor.h"
-#include "graphicelements.h"
+#include "graphicelements/CardItem.h"
+#include "graphicelements/LineItem.h"
 #include "terrainselector.h"
 #include "factionselector.h"
 #include "mineselector.h"
-#include "algorithm.h"
+#include "GeometryAlgorithm.h"
 
 #include "../helper.h"
 
@@ -88,29 +89,29 @@ void TemplateEditor::autoPositionZones()
 {
 	auto & zones = templates[selectedTemplate]->getZones();
 
-	std::vector<Algorithm::Node> nodes;
+	std::vector<GeometryAlgorithm::Node> nodes;
 	std::default_random_engine rng(0);
 	std::uniform_real_distribution<double> distX(0.0, 500);
 	std::uniform_real_distribution<double> distY(0.0, 500);
 	for(auto & item : zones)
 	{
-		Algorithm::Node node;
+		GeometryAlgorithm::Node node;
 		node.x = distX(rng);
 		node.y = distY(rng);
 		node.id = item.first;
 		nodes.push_back(node);
 	}
-	std::vector<Algorithm::Edge> edges;
+	std::vector<GeometryAlgorithm::Edge> edges;
 	for(auto & item : templates[selectedTemplate]->getConnectedZoneIds())
 		edges.push_back({
 			vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneA(); }),
 			vstd::find_pos_if(nodes, [item](auto & elem){ return elem.id == item.getZoneB(); })
 		});
 		
-	Algorithm::forceDirectedLayout(nodes, edges, 1000, 500, 500);
+	GeometryAlgorithm::forceDirectedLayout(nodes, edges, 1000, 500, 500);
 
 	for(auto & item : nodes)
-		zones.at(item.id)->setVisPosition(Point(CardItem::GRID_SIZE * round(item.x / CardItem::GRID_SIZE), CardItem::GRID_SIZE * round(item.y / CardItem::GRID_SIZE)));
+		zones.at(item.id)->setVisiblePosition(Point(CardItem::GRID_SIZE * round(item.x / CardItem::GRID_SIZE), CardItem::GRID_SIZE * round(item.y / CardItem::GRID_SIZE)));
 }
 
 void TemplateEditor::loadContent(bool autoPosition)
@@ -126,12 +127,12 @@ void TemplateEditor::loadContent(bool autoPosition)
 		return;
 
 	auto & zones = templates[selectedTemplate]->getZones();
-	if(autoPosition || std::all_of(zones.begin(), zones.end(), [](auto & item){ return item.second->getVisPosition().x == 0 && item.second->getVisPosition().y == 0; }))
+	if(autoPosition || std::all_of(zones.begin(), zones.end(), [](auto & item){ return item.second->getVisiblePosition().x == 0 && item.second->getVisiblePosition().y == 0; }))
 		autoPositionZones();
 	
 	for(auto & zone : zones)
-		if(zone.second->getVisSize() < 0.01)
-			zone.second->setVisSize(1.0);
+		if(zone.second->getVisibleSize() < 0.01)
+			zone.second->setVisibleSize(1.0);
 
 	for(auto & zone : zones)
 	{
@@ -153,8 +154,8 @@ void TemplateEditor::loadContent(bool autoPosition)
 			for(auto & zone : templates[selectedTemplate]->getZones())
 				if(zone.first == svgItem->getId())
 				{
-					zone.second->setVisPosition(Point(svgItem->pos().toPoint().rx() + (svgItem->boundingRect().width() * svgItem->scale() / 2), svgItem->pos().toPoint().ry() + (svgItem->boundingRect().height() * svgItem->scale() / 2)));
-					zone.second->setVisSize(svgItem->scale());
+					zone.second->setVisiblePosition(Point(svgItem->pos().toPoint().rx() + (svgItem->boundingRect().width() * svgItem->scale() / 2), svgItem->pos().toPoint().ry() + (svgItem->boundingRect().height() * svgItem->scale() / 2)));
+					zone.second->setVisibleSize(svgItem->scale());
 				}
 			loadZoneMenuContent(true);
 		});
@@ -241,8 +242,8 @@ void TemplateEditor::updateZonePositions()
 	for(auto & card : cards)
 	{
 		auto & zone = templates[selectedTemplate]->getZones().at(card.first);
-		card.second->setPos(zone->getVisPosition().x - (card.second->boundingRect().width() * card.second->scale() / 2), zone->getVisPosition().y - (card.second->boundingRect().height() * card.second->scale() / 2));
-		card.second->setScale(zone->getVisSize());
+		card.second->setPos(zone->getVisiblePosition().x - (card.second->boundingRect().width() * card.second->scale() / 2), zone->getVisiblePosition().y - (card.second->boundingRect().height() * card.second->scale() / 2));
+		card.second->setScale(zone->getVisibleSize());
 	}
 
 	updateConnectionLines();
@@ -282,9 +283,9 @@ void TemplateEditor::updateZoneCards(TRmgTemplateZoneId id)
 		for(auto & res : {GameResID::WOOD, GameResID::ORE, GameResID::MERCURY, GameResID::SULFUR, GameResID::CRYSTAL, GameResID::GEMS, GameResID::GOLD})
 			card.second->setResAmount(res, zone->getMinesInfo().count(res) ? zone->getMinesInfo().at(res) : 0);
 		card.second->setChestValue(zone->getMaxTreasureValue());
-		card.second->setSword(zone->monsterStrength);
+		card.second->setMonsterStrength(zone->monsterStrength);
 		card.second->setToolTip(getZoneToolTip(zone));
-		card.second->setScale(zone->getVisSize());
+		card.second->setScale(zone->getVisibleSize());
 		card.second->updateContent();
 	}
 }
@@ -296,9 +297,9 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	
 	auto setValue = [](auto& target, const auto& newValue){ target->setValue(newValue); };
 	auto & zone = templates[selectedTemplate]->getZones().at(selectedZone);
-	setValue(ui->spinBoxZoneVisPosX, zone->getVisPosition().x);
-	setValue(ui->spinBoxZoneVisPosY, zone->getVisPosition().y);
-	setValue(ui->doubleSpinBoxZoneVisSize, zone->getVisSize());
+	setValue(ui->spinBoxZoneVisPosX, zone->getVisiblePosition().x);
+	setValue(ui->spinBoxZoneVisPosY, zone->getVisiblePosition().y);
+	setValue(ui->doubleSpinBoxZoneVisSize, zone->getVisibleSize());
 	
 	if(onlyPosition)
 		return;
@@ -467,8 +468,8 @@ void TemplateEditor::saveZoneMenuContent()
 	auto zone = templates[selectedTemplate]->getZones().at(selectedZone);
 	auto type = static_cast<ETemplateZoneType>(ui->comboBoxZoneType->currentData().toInt());
 
-	zone->setVisPosition(Point(ui->spinBoxZoneVisPosX->value(), ui->spinBoxZoneVisPosY->value()));
-	zone->setVisSize(ui->doubleSpinBoxZoneVisSize->value());
+	zone->setVisiblePosition(Point(ui->spinBoxZoneVisPosX->value(), ui->spinBoxZoneVisPosY->value()));
+	zone->setVisibleSize(ui->doubleSpinBoxZoneVisSize->value());
 	zone->setType(type);
 	zone->setSize(ui->spinBoxZoneSize->value());
 	zone->playerTowns.townCount = ui->spinBoxTownCountPlayer->value();
