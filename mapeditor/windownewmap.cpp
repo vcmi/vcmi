@@ -275,6 +275,8 @@ void WindowNewMap::on_okButton_clicked()
 	saveUserSettings();
 
 	std::unique_ptr<CMap> nmap;
+	auto & mapController = static_cast<MainWindow *>(parent())->controller;
+
 	if(ui->randomMapCheck->isChecked())
 	{
 		//verify map template
@@ -290,7 +292,7 @@ void WindowNewMap::on_okButton_clicked()
 		if(ui->checkSeed->isChecked() && ui->lineSeed->value() != 0)
 			seed = ui->lineSeed->value();
 			
-		CMapGenerator generator(mapGenOptions, nullptr, seed);
+		CMapGenerator generator(mapGenOptions, mapController.getCallback(), seed);
 		auto progressBarWnd = new GeneratorProgress(generator, this);
 		progressBarWnd->show();
 	
@@ -312,8 +314,8 @@ void WindowNewMap::on_okButton_clicked()
 	}
 	
 	nmap->mods = MapController::modAssessmentMap(*nmap);
-	static_cast<MainWindow*>(parent())->controller.setMap(std::move(nmap));
-	static_cast<MainWindow*>(parent())->initializeMap(true);
+	mapController.setMap(std::move(nmap));
+	static_cast<MainWindow *>(parent())->initializeMap(true);
 	close();
 }
 
