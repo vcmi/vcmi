@@ -573,11 +573,23 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 
 	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
-	info.guildWindow = ImagePath::fromJson(source["guildWindow"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
-
-	info.guildBackground = ImagePath::fromJson(source["guildBackground"]);
 	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
+
+	auto loadStringOrVector = [](auto & target, auto & node){
+		if(node.isVector())
+		{
+			target.clear();
+			for(auto & background : node.Vector())
+			{
+				target.push_back(ImagePath::fromJson(background));
+			}
+		}
+		else
+			target = {ImagePath::fromJson(node)};
+	};
+	loadStringOrVector(info.guildBackground, source["guildBackground"]);
+	loadStringOrVector(info.guildWindow, source["guildWindow"]);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);

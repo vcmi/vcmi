@@ -123,9 +123,9 @@
 			"musicTheme" : [ "music/InfernoTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBINBACK.bmp",
-			"guildWindow": "TPMAGEIN.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLINFR.DEF",
 			"hallBackground": "TPTHBKIN.BMP",
 			"hallSlots":

@@ -122,9 +122,9 @@
 			"musicTheme" : [ "music/FortressTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBFRBACK.bmp",
-			"guildWindow": "TPMAGEFR.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLFORT.DEF",
 			"hallBackground": "TPTHBKFR.BMP",
 			"hallSlots":

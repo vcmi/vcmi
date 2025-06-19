@@ -122,9 +122,9 @@
 			"musicTheme" : [ "music/CstleTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
 			"townBackground": "TBCSBACK.bmp",
-			"guildWindow": "TPMAGECS.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLCSTL.DEF",
 			"hallBackground": "TPTHBKCS.BMP",
 			"hallSlots":

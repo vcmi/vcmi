@@ -126,9 +126,9 @@
 			"musicTheme" : [ "music/Rampart" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBRMBACK.bmp",
-			"guildWindow": "TPMAGERM.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLRAMP.DEF",
 			"hallBackground": "TPTHBKRM.BMP",
 			"hallSlots":

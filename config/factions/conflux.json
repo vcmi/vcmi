@@ -126,9 +126,9 @@
 			"musicTheme" : [ "music/ElemTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBELBACK.bmp",
-			"guildWindow": "TPMAGEEL.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLELEM.DEF",
 			"hallBackground": "TPTHBKFR.BMP",
 			"hallSlots":

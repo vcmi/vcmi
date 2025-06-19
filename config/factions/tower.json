@@ -121,9 +121,9 @@
 			"musicTheme" : [ "music/TowerTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBTWBACK.bmp",
-			"guildWindow": "TPMAGETW.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLTOWR.DEF",
 			"hallBackground": "TPTHBKTW.BMP",
 			"hallSlots":

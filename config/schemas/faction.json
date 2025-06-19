@@ -166,13 +166,22 @@
 					"format" : "imageFile"
 				},
 				"guildWindow" : {
-					"type" : "string",
-					"description" : "Image with small view on town from mage guild"
+					"type" : "array",
+					"description" : "Image with small view on town from mage guild (each array element for different mage guild level; if one element only this will be always selected)",
+					"minItems" : 1,
+					"items" : { 
+						"type" : "string",
+						"format" : "imageFile"
+					}
 				},
 				"guildBackground" : {
-					"type" : "string",
-					"description" : "Image with background of mage guild",
-					"format" : "imageFile"
+					"type" : "array",
+					"description" : "Image with background of mage guild (each array element for different mage guild level; if one element only this will be always selected)",
+					"minItems" : 1,
+					"items" : { 
+						"type" : "string",
+						"format" : "imageFile"
+					}
 				},
 				"hallBackground" : {
 					"type" : "string",

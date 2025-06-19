@@ -120,9 +120,9 @@
 			"musicTheme" : [ "music/Stronghold" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
-			"townBackground": "TBSTBACK.bmp",
-			"guildWindow": "TPMAGEST.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
+			"townBackground": "TBCSBACK.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLSTRN.DEF",
 			"hallBackground": "TPTHBKTW.BMP",
 			"hallSlots":
