@@ -55,7 +55,7 @@ std::vector<std::tuple<SpellID, bool>> QuickSpellPanel::getSpells() const
 		{
 			id = SpellID::decode(spellIdentifier);
 		}
-		catch(const IdentifierResolutionException & e)
+		catch(const IdentifierResolutionException &)
 		{
 			id = SpellID::NONE;
 		}

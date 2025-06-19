@@ -13,7 +13,10 @@
 
 class CLabel;
 class CAnimImage;
+
+VCMI_LIB_NAMESPACE_BEGIN
 struct InfoAboutHero;
+VCMI_LIB_NAMESPACE_END
 
 class HeroInfoBasicPanel : public CIntObject //extracted from InfoWindow to fit better as non-popup embed element
 {
@@ -23,7 +26,7 @@ private:
 	std::vector<std::shared_ptr<CAnimImage>> icons;
 
 public:
-	HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground = true);
+	HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground = true);
 
 	void show(Canvas & to) override;
 
@@ -37,5 +40,5 @@ private:
 	std::shared_ptr<HeroInfoBasicPanel> content;
 
 public:
-	HeroInfoWindow(const InfoAboutHero & hero, Point * position);
+	HeroInfoWindow(const InfoAboutHero & hero, const Point * position);
 };

@@ -94,7 +94,7 @@ std::vector<std::string> BattleConsole::getVisibleText() const
 	return {logEntries[scrollPosition - 1], logEntries[scrollPosition]};
 }
 
-std::vector<std::string> BattleConsole::splitText(const std::string & text)
+std::vector<std::string> BattleConsole::splitText(const std::string & text) const
 {
 	std::vector<std::string> lines;
 	std::vector<std::string> output;

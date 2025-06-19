@@ -74,7 +74,7 @@ public:
 	/// activates if needed, all activity enabled (Warning: may not be symmetric with disable if recActions was limited!)
 	void enable();
 	/// returns true if element was disabled via disable() call
-	bool isDisabled();
+	bool isDisabled() const;
 
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);

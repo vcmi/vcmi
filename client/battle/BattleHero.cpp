@@ -31,7 +31,7 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
-const CGHeroInstance * BattleHero::instance()
+const CGHeroInstance * BattleHero::instance() const
 {
 	return hero;
 }
@@ -127,7 +127,7 @@ void BattleHero::heroLeftClicked()
 	}
 }
 
-void BattleHero::heroRightClicked()
+void BattleHero::heroRightClicked() const
 {
 	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
 		return;

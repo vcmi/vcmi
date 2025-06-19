@@ -17,7 +17,7 @@
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, Point * position, bool initializeBackground)
+HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point * position, bool initializeBackground)
 	: CIntObject(0)
 {
 	OBJECT_CONSTRUCTION;
@@ -84,7 +84,7 @@ void HeroInfoBasicPanel::show(Canvas & to)
 	CIntObject::show(to);
 }
 
-HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, Point * position)
+HeroInfoWindow::HeroInfoWindow(const InfoAboutHero & hero, const Point * position)
 	: CWindowObject(RCLICK_POPUP | SHADOW_DISABLED, ImagePath::builtin("CHRPOP"))
 {
 	OBJECT_CONSTRUCTION;

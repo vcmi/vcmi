@@ -31,8 +31,8 @@
 #include "../../lib/texts/TextOperations.h"
 
 StackQueue::StackQueue(bool Embedded, BattleInterface & owner)
-	: embedded(Embedded),
-	owner(owner)
+	: owner(owner)
+	, embedded(Embedded)
 {
 	OBJECT_CONSTRUCTION;
 

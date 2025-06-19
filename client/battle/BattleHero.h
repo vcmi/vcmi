@@ -46,7 +46,7 @@ class BattleHero : public CIntObject
 
 	void render(Canvas & canvas); //prints next frame of animation to to
 public:
-	const CGHeroInstance * instance();
+	const CGHeroInstance * instance() const;
 
 	void setPhase(EHeroAnimType newPhase); //sets phase of hero animation
 
@@ -60,7 +60,7 @@ public:
 	void play();
 
 	void heroLeftClicked();
-	void heroRightClicked();
+	void heroRightClicked() const;
 
 	BattleHero(const BattleInterface & owner, const CGHeroInstance * hero, bool defender);
 };

@@ -53,7 +53,7 @@ private:
 	bool enteringText;
 
 	/// splits text into individual strings for battle log
-	std::vector<std::string> splitText(const std::string & text);
+	std::vector<std::string> splitText(const std::string & text) const;
 
 	/// select line(s) that will be visible in UI
 	std::vector<std::string> getVisibleText() const;

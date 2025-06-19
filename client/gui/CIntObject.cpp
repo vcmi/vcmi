@@ -121,7 +121,7 @@ void CIntObject::enable()
 	recActions = ALL_ACTIONS;
 }
 
-bool CIntObject::isDisabled()
+bool CIntObject::isDisabled() const
 {
 	return recActions == NO_ACTIONS;
 }

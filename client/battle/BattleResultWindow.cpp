@@ -42,12 +42,12 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	background->setPlayerColor(owner.playerID);
 	pos = center(background->pos);
 
-	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [&](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
+	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [this](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 
 	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
 	{
-		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [&](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
+		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [this](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);
 		labels.push_back(std::make_shared<CLabel>(232, 520, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.battleResultsWindow.applyResultsLabel")));
 	}
@@ -79,7 +79,7 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
 		auto heroInfo = owner.cb->getBattle(br.battleID)->battleGetHeroInfo(i);
-		const int xs[] = {21, 392};
+		const std::array xs = {21, 392};
 
 		if(heroInfo.portraitSource.isValid()) //attacking hero
 		{
