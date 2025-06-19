@@ -160,14 +160,16 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
-		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  (secSkillSlider && i%2 == 1) ? 120 : 136,  42);
+		bool isSmallBox = (secSkillSlider && i%2 == 1);
+		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2), isSmallBox ? 120 : 136,  42);
 		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::MEDIUM));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
+		int width = isSmallBox ? 71 : 87;
 
-		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT));
-		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT));
+		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
+		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
 	}
 
 	// various texts
@@ -244,9 +246,16 @@ void CHeroWindow::update()
 	}
 
 	//secondary skills support
-	for(size_t g=0; g< secSkills.size(); ++g)
+	for(size_t g=0; g < secSkills.size(); ++g)
 	{
 		int offset = secSkillSlider ? secSkillSlider->getValue() * 2 : 0;
+		if(curHero->secSkills.size() < g + offset + 1)
+		{
+			secSkillNames[g]->setText("");
+			secSkillValues[g]->setText("");
+			secSkills[g]->setSkill(SecondarySkill::NONE);
+			break;
+		}
 		SecondarySkill skill = curHero->secSkills[g + offset].first;
 		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
