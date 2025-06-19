@@ -18,6 +18,8 @@ Examples:
 `vcmiskill learning` - give expert level learning skill
 `vcmiskill leadership 2` - give advanced level leadership skill
 `vcmiskill wisdom 0` - remove wisdom skill
+`vcmiskill every` - give all skills on expert level 
+`vcmiskill every 0` - remove all skills
 
 ### Army
 

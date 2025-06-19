@@ -17,6 +17,7 @@
 #include "../TurnTimerHandler.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/constants/Enumerations.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
@@ -720,13 +721,18 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 		mastery = MasteryLevel::Type::EXPERT;
 	}
 
-	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", identifier, false);
+	if(identifier == "every")
+	{
+		for(const auto & skill : LIBRARY->skillh->objects)
+			gameHandler->changeSecSkill(hero, SecondarySkill(skill->getId()), mastery, ChangeValueMode::ABSOLUTE);
+		return;
+	}
 
+	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", identifier, false);
 	if(!skillId.has_value())
 		return;
 	
 	auto skill = SecondarySkill(skillId.value());
-
 	gameHandler->changeSecSkill(hero, skill, mastery, ChangeValueMode::ABSOLUTE);
 }
 
