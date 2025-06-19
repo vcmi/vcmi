@@ -1593,7 +1593,8 @@ void CCastleInterface::keyPressed(EShortcut key)
 		townlist->selectNext();
 		break;
 	case EShortcut::TOWN_OPEN_FORT:
-		ENGINE->windows().createAndPushWindow<CFortScreen>(town);
+		if(town->fortLevel() > CGTownInstance::NONE)
+			ENGINE->windows().createAndPushWindow<CFortScreen>(town);
 		break;
 	case EShortcut::TOWN_OPEN_MARKET:
 		builds->enterAnyMarket();
