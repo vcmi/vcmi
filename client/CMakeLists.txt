@@ -33,6 +33,7 @@ set(vcmiclientcommon_SRCS
 	battle/QuickSpellPanel.cpp
 	battle/StackInfoBasicPanel.cpp
 	battle/StackQueue.cpp
+	battle/UnitActionPanel.cpp
 
 	eventsSDL/NotificationHandler.cpp
 	eventsSDL/InputHandler.cpp
@@ -235,6 +236,7 @@ set(vcmiclientcommon_HEADERS
 	battle/QuickSpellPanel.h
 	battle/StackInfoBasicPanel.h
 	battle/StackQueue.h
+	battle/UnitActionPanel.h
 
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h

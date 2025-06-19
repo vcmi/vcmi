@@ -32,6 +32,12 @@
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
 	
 	"vcmi.artifact.charges" : "Charges",
+	
+	"vcmi.battle.action.move" : "Move unit to specified location",
+	"vcmi.battle.action.info" : "Show unit information",
+	"vcmi.battle.action.shoot" : "Use ranged attack",
+	"vcmi.battle.action.attack" : "Use melee attack",
+	"vcmi.battle.action.return" : "Use melee attack and return",
 
 	"vcmi.bonusSource.artifact" : "Artifact",
 	"vcmi.bonusSource.creature" : "Ability",

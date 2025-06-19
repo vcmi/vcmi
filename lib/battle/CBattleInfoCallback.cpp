@@ -1901,7 +1901,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	if (!bl->size())
 		return SpellID::NONE;
 
-	if(bl->size() == 1)
+	if(bl->size() == 1 && bl->front()->additionalInfo[0] > 0) // there is one random spell -> select it
 		return bl->front()->subtype.as<SpellID>();
 
 	int totalWeight = 0;

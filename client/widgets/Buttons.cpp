@@ -62,6 +62,11 @@ void CButton::setBorderColor(std::optional<ColorRGBA> newBorderColor)
 	borderColor = newBorderColor;
 }
 
+void CButton::setHighlightedBorderColor(std::optional<ColorRGBA> newBorderColor)
+{
+	highlightedBorderColor = newBorderColor;
+}
+
 void CButton::addCallback(const std::function<void()> & callback)
 {
 	this->callback += callback;
@@ -378,6 +383,12 @@ void CButton::showAll(Canvas & to)
 
 	if (borderColor)
 		to.drawBorder(Rect::createAround(pos, 1), *borderColor);
+
+	if (highlightedBorderColor && isHighlighted())
+	{
+		to.drawBorder(pos, *highlightedBorderColor);
+		to.drawBorder(Rect(pos.topLeft() + Point(1,1), pos.dimensions() - Point(1,1)), *highlightedBorderColor);
+	}
 }
 
 std::pair<std::string, std::string> CButton::tooltip()

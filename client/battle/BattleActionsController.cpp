@@ -148,7 +148,10 @@ void BattleActionsController::endCastingSpell()
 	}
 
 	if(owner.stacksController->getActiveStack())
+	{
 		possibleActions = getPossibleActionsForStack(owner.stacksController->getActiveStack()); //restore actions after they were cleared
+		owner.windowObject->setPossibleActions(possibleActions);
+	}
 
 	selectedStack = nullptr;
 	ENGINE->fakeMouseMove();
@@ -624,7 +627,7 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 			return (targetStack && targetStackOwned && targetStack->getMovementRange() > 0);
 
 		case PossiblePlayerBattleAction::CREATURE_INFO:
-			return (targetStack && targetStackOwned && targetStack->alive());
+			return (targetStack && targetStack->alive());
 
 		case PossiblePlayerBattleAction::HERO_INFO:
 			if (targetHex == BattleHex::HERO_ATTACKER)
@@ -1037,33 +1040,7 @@ void BattleActionsController::activateStack()
 		tryActivateStackSpellcasting(s);
 
 		possibleActions = getPossibleActionsForStack(s);
-		std::list<PossiblePlayerBattleAction> actionsToSelect;
-		if(!possibleActions.empty())
-		{
-			auto primaryAction = possibleActions.front().get();
-
-			if(primaryAction == PossiblePlayerBattleAction::SHOOT || primaryAction == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE
-				|| primaryAction == PossiblePlayerBattleAction::ANY_LOCATION || primaryAction == PossiblePlayerBattleAction::ATTACK_AND_RETURN)
-			{
-				actionsToSelect.push_back(possibleActions.front());
-
-				auto shootActionPredicate = [](const PossiblePlayerBattleAction& action)
-				{
-					return action.get() == PossiblePlayerBattleAction::SHOOT;
-				};
-				bool hasShootSecondaryAction = std::any_of(possibleActions.begin() + 1, possibleActions.end(), shootActionPredicate);
-
-				if(hasShootSecondaryAction) //casters may have shooting capabilities, for example storm elementals
-					actionsToSelect.emplace_back(PossiblePlayerBattleAction::SHOOT);
-
-				/* TODO: maybe it would also make sense to check spellcast as non-top priority action ("NO_SPELLCAST_BY_DEFAULT" bonus)?
-				 * it would require going beyond this "if" block for melee casters
-				 * F button helps, but some mod creatures may have that bonus and more than 1 castable spell */
-
-				actionsToSelect.emplace_back(PossiblePlayerBattleAction::ATTACK); //always allow melee attack as last option
-			}
-		}
-		owner.windowObject->setAlternativeActions(actionsToSelect);
+		owner.windowObject->setPossibleActions(possibleActions);
 	}
 }
 
@@ -1123,14 +1100,9 @@ const std::vector<PossiblePlayerBattleAction> & BattleActionsController::getPoss
 	return possibleActions;
 }
 
-void BattleActionsController::removePossibleAction(PossiblePlayerBattleAction action)
+void BattleActionsController::setPriorityActions(const std::vector<PossiblePlayerBattleAction> & actions)
 {
-	vstd::erase(possibleActions, action);
-}
-
-void BattleActionsController::pushFrontPossibleAction(PossiblePlayerBattleAction action)
-{
-	possibleActions.insert(possibleActions.begin(), action);
+	possibleActions = actions;
 }
 
 void BattleActionsController::resetCurrentStackPossibleActions()
