@@ -183,6 +183,17 @@
 						"format" : "imageFile"
 					}
 				},
+				"guildWindowPosition" : { 
+					"type" : "array",
+					"items" : {
+						"type" : "object",
+						"additionalProperties" : false,
+						"properties" : {
+							"x" :     { "type" : "number", "description" : "X coordinate on screen" },
+							"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
+						}
+					}
+				},
 				"guildSpellPositions" : {
 					"type" : "array",
 					"description" : "Positions of spells in mage guild",

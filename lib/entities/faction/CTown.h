@@ -90,6 +90,7 @@ public:
 		ImagePath townBackground;
 		std::vector<ImagePath> guildBackground;
 		std::vector<ImagePath> guildWindow;
+		Point guildWindowPosition;
 		std::vector<std::vector<Point>> guildSpellPositions;
 		AnimationPath buildingsIcons;
 		ImagePath hallBackground;

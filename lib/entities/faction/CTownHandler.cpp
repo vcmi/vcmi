@@ -565,6 +565,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
 	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
+	info.guildWindowPosition  = Point(source["guildWindowPosition"]["x"].Integer(), source["guildWindowPosition"]["y"].Integer());
 
 	info.guildSpellPositions.clear();
 	for(auto & level : source["guildSpellPositions"].Vector())

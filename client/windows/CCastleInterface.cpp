@@ -2120,7 +2120,10 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 	assert(guildWindow.size() == 1 || guildWindow.size() == GAME->interface()->castleInt->town->getTown()->mageLevel);
 	auto selectedGuildWindow = guildWindow.size() == 1 ? guildWindow[0] : guildWindow[owner->town->mageGuildLevel() - 1];
 
-	window = std::make_shared<CPicture>(selectedGuildWindow, 332, 76);
+	auto windowPosition = owner->town->getTown()->clientInfo.guildWindowPosition;
+	if(windowPosition == Point(0, 0)) // TODO: remove legacy for compatibility
+		windowPosition = Point(332, 76);
+	window = std::make_shared<CPicture>(selectedGuildWindow, windowPosition.x, windowPosition.y);
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
 	resdatabar->moveBy(pos.topLeft(), true);

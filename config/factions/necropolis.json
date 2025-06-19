@@ -159,6 +159,7 @@
 				[ { "x": 183, "y":  42 }, { "x": 183, "y": 148 }, { "x": 183, "y": 253 } ],
 				[ { "x": 491, "y": 325 }, { "x": 591, "y": 325 } ]
 			],
+			"guildWindowPosition": { "x": 332, "y": 76 },
 			"moatAbility" : "necropolisMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 

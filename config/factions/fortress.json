@@ -152,6 +152,7 @@
 				[ { "x":  48, "y":  53 }, { "x":  48, "y": 147 }, { "x":  48, "y": 241 }, { "x":  48, "y": 335 }, { "x":  48, "y": 429 } ],
 				[ { "x": 570, "y":  82 }, { "x": 672, "y":  82 }, { "x": 570, "y": 157 }, { "x": 672, "y": 157 } ]
 			],
+			"guildWindowPosition": { "x": 332, "y": 76 },
 			"moatAbility" : "fortressMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
