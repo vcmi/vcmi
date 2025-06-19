@@ -79,6 +79,11 @@ void CBattleCallback::onBattleEnded(const BattleID & battleID)
 	activeBattles.erase(battleID);
 }
 
+std::map<BattleID, std::shared_ptr<CPlayerBattleCallback>> CBattleCallback::getActiveBattles()
+{
+	return activeBattles;
+}
+
 void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const BattleAction & action)
 {
 	assert(action.actionType == EActionType::HERO_SPELL);

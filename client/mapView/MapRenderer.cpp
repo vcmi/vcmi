@@ -465,6 +465,12 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
+	
+	if(context.isMonsterAttacked(obj))
+	{
+		auto img = ENGINE->renderHandler().loadImage(ImagePath::builtin("AvWattak:0:0"), EImageBlitMode::SIMPLE);
+		return img;
+	}
 
 	size_t frameIndex = context.objectImageIndex(obj->id, animation->size(groupIndex));
 

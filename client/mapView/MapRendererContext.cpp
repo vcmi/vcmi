@@ -25,6 +25,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/IBattleState.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -81,6 +83,18 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 				return true;
 		}
 	}
+
+	return false;
+}
+
+bool MapRendererBaseContext::isMonsterAttacked(const CGObjectInstance * obj) const
+{
+	if(obj->ID != Obj::MONSTER)
+		return false;
+		
+	for(auto & battle : GAME->interface()->cb->getActiveBattles())
+		if(obj->pos == battle.second->getBattle()->getLocation())
+			return true;
 
 	return false;
 }
