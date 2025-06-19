@@ -32,8 +32,6 @@ private:
 public:
 	static constexpr int QUICKSPELL_SLOTS = 12;
 
-	bool isEnabled; // isActive() is not working on multiple conditions, because of this we need a seperate flag
-
 	QuickSpellPanel(BattleInterface & owner);
 
 	void create();

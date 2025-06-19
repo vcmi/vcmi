@@ -121,6 +121,11 @@ void CIntObject::enable()
 	recActions = ALL_ACTIONS;
 }
 
+bool CIntObject::isDisabled()
+{
+	return recActions == NO_ACTIONS;
+}
+
 void CIntObject::setEnabled(bool on)
 {
 	if (on)

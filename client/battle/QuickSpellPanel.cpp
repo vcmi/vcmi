@@ -31,7 +31,6 @@
 QuickSpellPanel::QuickSpellPanel(BattleInterface & owner)
 	: CIntObject(0)
 	, owner(owner)
-	, isEnabled(true)
 {
 	OBJECT_CONSTRUCTION;
 

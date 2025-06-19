@@ -214,7 +214,6 @@ void BattleWindow::hideStickyQuickSpellWindow()
 	showStickyQuickSpellWindow->Bool() = false;
 
 	quickSpellWindow->disable();
-	quickSpellWindow->isEnabled = false;
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
@@ -229,15 +228,9 @@ void BattleWindow::showStickyQuickSpellWindow()
 	auto hero = owner.getBattle()->battleGetMyHero();
 
 	if(ENGINE->screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
-	{
 		quickSpellWindow->enable();
-		quickSpellWindow->isEnabled = true;
-	}
 	else
-	{
 		quickSpellWindow->disable();
-		quickSpellWindow->isEnabled = false;
-	}
 
 	setPositionInfoWindow();
 	createTimerInfoWindows();
@@ -248,7 +241,7 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJECT_CONSTRUCTION;
 
-	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
 
 	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || GAME->interface()->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
@@ -385,7 +378,7 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::setPositionInfoWindow()
 {
-	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
 	if(defenderHeroWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
