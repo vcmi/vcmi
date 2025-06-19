@@ -269,12 +269,13 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	artPlace->slot = slot;
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
+		const auto curArt = slotInfo->getArt();
+
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->getArt()->getTypeId(), slotInfo->getArt()->getScrollSpellID());
+		artPlace->setArtifact(curArt->getTypeId(), curArt->getScrollSpellID());
 		if(slotInfo->locked)
 			return;
 
-		const auto curArt = slotInfo->getArt();
 		// If the artifact has charges, add charges information
 		if(curArt->getType()->isCharged())
 			artPlace->addChargedArtInfo(curArt->getCharges());

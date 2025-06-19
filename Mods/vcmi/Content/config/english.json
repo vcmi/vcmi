@@ -634,6 +634,8 @@
 	"creatures.core.devil.bonus.decreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
 	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
+	"creatures.core.azureDragon.bonus.fearful" : "{Fear}\nEnemy units have a 10% chance of freezing in fear",
+	"creatures.core.azureDragon.bonus.fearless" : "{Fearless}\nImmune to Fear ability",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
@@ -654,8 +656,6 @@
 	"core.bonus.ENCHANTER.description" : "{Enchanter}\nCan cast ${subtype.spell} every turn",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Ignore Attack (${val}%) }\nWhen being attacked, ${val}% of the attacker's attack is ignored",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Ignore Defense (${val}%) }\nWhen attacking, ${val}% of the defender's defense is ignored",
-	"core.bonus.FEAR.description" : "{Fear}\nEnemy units have a 10% chance of freezing in fear",
-	"core.bonus.FEARLESS.description" : "{Fearless}\nImmune to Fear ability",
 	"core.bonus.FEROCITY.description" : "{Ferocity}\nAttacks ${val} additional times if killed anybody",
 	"core.bonus.FIRE_SHIELD.description" : "{Fire Shield (${val}%) }\nThe unit reflects ${val} of the melee damage received",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{First Strike}\nThe unit retaliates before being attacked in melee",
@@ -699,6 +699,7 @@
 	"core.bonus.REVENGE.description" : "{Revenge}\nDeals extra damage based on attacker's lost health in battle",
 	"core.bonus.SHOOTER.description" : "{Shoots}\nThis unit can use its ammo to perform ranged attacks",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description" : "{Shoot all around}\nThis unit’s ranged attacks strike all targets in a small area",
+	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{Skeleton Transformation}\nThe Skeleton Transformer will turn this unit into a ${subtype.creature}",
 	"core.bonus.SOUL_STEAL.description" : "{Soul Steal}\nGains ${val} new creatures for each enemy killed",
 	"core.bonus.SPELL_AFTER_ATTACK.description" : "{Cast After Attack}\nHas a ${val}% chance to cast ${subtype.spell} after it attacks",
 	"core.bonus.SPELL_BEFORE_ATTACK.description" : "{Cast Before Attack}\nHas a ${val}% chance to cast ${subtype.spell} before it attacks",
@@ -717,7 +718,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.fire"  : "{Immune to Fire Magic}\nImmune to all spells from the school of Fire Magic",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Immune to Water Magic}\nImmune to all spells from the school of Water Magic",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Summon guardians}\nAt the start of battle summons ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergizable}\nThis creature is vulnerable to synergy effect",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Three-headed attack}\nAttacks three adjacent units",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutation}\n${val}% chance to transform attacked unit to a different type",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Breath Attack}\nAttacks by this unit will also hit any unit positioned immediately behind the target",

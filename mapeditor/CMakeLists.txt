@@ -21,7 +21,7 @@ set(editor_SRCS
 		mapsettings/rumorsettings.cpp
 		mapsettings/translations.cpp
 		PlayerSelectionDialog.cpp
-		playersettings.cpp
+		PlayerSettingsDialog.cpp
 		playerparams.cpp
 		scenelayer.cpp
 		mapcontroller.cpp
@@ -72,7 +72,7 @@ set(editor_HEADERS
 		mapsettings/rumorsettings.h
 		mapsettings/translations.h
 		PlayerSelectionDialog.h
-		playersettings.h
+		PlayerSettingsDialog.h
 		playerparams.h
 		scenelayer.h
 		mapcontroller.h
@@ -116,7 +116,7 @@ set(editor_FORMS
 		mapsettings/eventsettings.ui
 		mapsettings/rumorsettings.ui
 		mapsettings/translations.ui
-		playersettings.ui
+		PlayerSettingsDialog.ui
 		playerparams.ui
 		validator.ui
 		inspector/townbuildingswidget.ui

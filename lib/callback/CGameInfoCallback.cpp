@@ -34,11 +34,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 #define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
 #define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
-PlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
+const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
 {
-	const CGObjectInstance *obj = getObj(heroID);
-	ERROR_RET_VAL_IF(!obj, "No such object!", PlayerColor::CANNOT_DETERMINE);
-	return obj->tempOwner;
+	const CGObjectInstance * obj = getObj(objid, false);
+	return dynamic_cast<const IMarket*>(obj);
 }
 
 int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
@@ -52,21 +51,6 @@ int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) const
 {
 	return &gameState().getStartInfo()->getIthPlayersSettings(color);
-}
-
-bool CGameInfoCallback::isAllowed(SpellID id) const
-{
-	return gameState().getMap().allowedSpells.count(id) != 0;
-}
-
-bool CGameInfoCallback::isAllowed(ArtifactID id) const
-{
-	return gameState().getMap().allowedArtifact.count(id) != 0;
-}
-
-bool CGameInfoCallback::isAllowed(SecondarySkill id) const
-{
-	return gameState().getMap().allowedAbilities.count(id) != 0;
 }
 
 std::optional<PlayerColor> CGameInfoCallback::getPlayerID() const
@@ -129,20 +113,10 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 
 const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
 {
-	if (!objid.hasValue())
-	{
-		if(verbose)
-			logGlobal->error("Cannot get object with id %d. No such object", objid.getNum());
-		return nullptr;
-	}
+	const CGObjectInstance * ret = MapInfoCallback::getObj(objid, verbose);
 
-	const CGObjectInstance *ret = gameState().getMap().getObject(objid);
 	if(!ret)
-	{
-		if(verbose)
-			logGlobal->error("Cannot get object with id %d. Object was removed", objid.getNum());
 		return nullptr;
-	}
 
 	if(getPlayerID().has_value() && !isVisibleFor(ret, *getPlayerID()) && ret->tempOwner != getPlayerID())
 	{
@@ -152,32 +126,6 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	}
 
 	return ret;
-}
-
-const CGHeroInstance* CGameInfoCallback::getHero(ObjectInstanceID objid) const
-{
-	const CGObjectInstance *obj = getObj(objid, false);
-	if(obj)
-		return dynamic_cast<const CGHeroInstance*>(obj);
-	else
-		return nullptr;
-}
-const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
-{
-	const CGObjectInstance *obj = getObj(objid, false);
-	if(obj)
-		return dynamic_cast<const CGTownInstance*>(obj);
-	else
-		return nullptr;
-}
-
-const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const
-{
-	const CGObjectInstance * obj = getObj(objid, false);
-	if(obj)
-		return dynamic_cast<const IMarket*>(obj);
-	else
-		return nullptr;
 }
 
 void CGameInfoCallback::fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo & out) const
@@ -293,11 +241,6 @@ bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown
 	else
 		return false;
 	return true;
-}
-
-const IGameSettings & CGameInfoCallback::getSettings() const
-{
-	return gameState().getSettings();
 }
 
 int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
@@ -506,7 +449,7 @@ std::vector<const CGObjectInstance *> CGameInfoCallback::getAllVisitableObjs() c
 	return ret;
 }
 
-const CGObjectInstance * CGameInfoCallback::getTopObj (int3 pos) const
+const CGObjectInstance * CGameInfoCallback::getTopObj(int3 pos) const
 {
 	return vstd::backOrNull(getVisitableObjs(pos));
 }
@@ -523,11 +466,6 @@ std::vector <const CGObjectInstance *> CGameInfoCallback::getFlaggableObjects(in
 			ret.push_back(obj);
 	}
 	return ret;
-}
-
-int3 CGameInfoCallback::getMapSize() const
-{
-	return int3(gameState().getMap().width, gameState().getMap().height, gameState().getMap().twoLevel ? 2 : 1);
 }
 
 std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const CGObjectInstance * townOrTavern) const
@@ -643,7 +581,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	return EBuildingState::ALLOWED;
 }
 
-const CMapHeader * CGameInfoCallback::getMapHeader() const
+const CMap * CGameInfoCallback::getMapConstPtr() const
 {
 	return &gameState().getMap();
 }
@@ -778,11 +716,6 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 	}
 }
 
-bool CGameInfoCallback::isInTheMap(const int3 &pos) const
-{
-	return gameState().getMap().isInTheMap(pos);
-}
-
 void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
 	gameState().getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, *getPlayerID(),  distanceFormula);
@@ -791,16 +724,6 @@ void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, 
 void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const
 {
 	gameState().calculatePaths(config);
-}
-
-const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
-{
-	return gameState().getMap().getArtifactInstance(aid);
-}
-
-const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
-{
-	return gameState().getMap().getObject((oid));
 }
 
 const CArtifactSet * CGameInfoCallback::getArtSet(const ArtifactLocation & loc) const
@@ -903,7 +826,7 @@ void CGameInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 		logGlobal->error("Illegal call to getTilesInRange!");
 		return;
 	}
-	if(radious == CBuilding::HEIGHT_SKYSHIP) //reveal entire map
+	if(radious == GameConstants::FULL_MAP_RANGE)
 		getAllTiles (tiles, player, -1, [](auto * tile){return true;});
 	else
 	{

@@ -13,7 +13,7 @@
 #include "lib/constants/EntityIdentifiers.h"
 #include "lib/campaign/CampaignState.h"
 
-struct CampaignBonus;
+class CampaignBonus;
 class CMap;
 
 namespace Ui {

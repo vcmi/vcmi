@@ -16,8 +16,7 @@ enum class EMapFormat : uint8_t;
 
 struct MapFormatFeaturesH3M
 {
-public:
-	static MapFormatFeaturesH3M find(EMapFormat format, uint32_t hotaVersion);
+private:
 	static MapFormatFeaturesH3M getFeaturesROE();
 	static MapFormatFeaturesH3M getFeaturesAB();
 	static MapFormatFeaturesH3M getFeaturesSOD();
@@ -25,7 +24,10 @@ public:
 	static MapFormatFeaturesH3M getFeaturesWOG();
 	static MapFormatFeaturesH3M getFeaturesHOTA(uint32_t hotaVersion);
 
+public:
 	MapFormatFeaturesH3M() = default;
+
+	static MapFormatFeaturesH3M find(EMapFormat format, uint32_t hotaVersion);
 
 	// number of bytes in bitmask of appropriate type
 
@@ -75,6 +77,7 @@ public:
 	bool levelHOTA5 = false; // 1.7.0
 	bool levelHOTA6 = false; // 1.7.1
 	bool levelHOTA7 = false; // 1.7.2
+	bool levelHOTA8 = false; // 1.7.3
 };
 
 VCMI_LIB_NAMESPACE_END

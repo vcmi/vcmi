@@ -90,22 +90,9 @@ std::string StartInfo::getCampaignName() const
 		return LIBRARY->generaltexth->allTexts[508];
 }
 
-bool StartInfo::isRestorationOfErathiaCampaign() const
+bool StartInfo::restrictedGarrisonsForAI() const
 {
-	constexpr std::array roeCampaigns = {
-		"DATA/GOOD1",
-		"DATA/EVIL1",
-		"DATA/GOOD2",
-		"DATA/NEUTRAL1",
-		"DATA/EVIL2",
-		"DATA/GOOD3",
-		"DATA/SECRET1",
-	};
-
-	if (!campState)
-		return false;
-
-	return vstd::contains(roeCampaigns, campState->getFilename());
+	return campState && campState->restrictedGarrisonsForAI();
 }
 
 void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const

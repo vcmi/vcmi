@@ -38,6 +38,10 @@ private slots:
 
 	void on_removeButton_clicked();
 
+	void onSaveButtonClicked();
+
+	void onCancelButtonClicked();
+
 private:
 	enum Column
 	{

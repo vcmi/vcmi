@@ -892,7 +892,7 @@ void CPlayerInterface::battleTriggerEffect(const BattleID & battleID, const Batt
 
 	battleInt->effectsController->battleTriggerEffect(bte);
 
-	if(bte.effect == vstd::to_underlying(BonusType::MANA_DRAIN))
+	if(bte.effect == BonusType::MANA_DRAIN)
 	{
 		const CGHeroInstance * manaDrainedHero = GAME->interface()->cb->getHero(ObjectInstanceID(bte.additionalInfo));
 		battleInt->windowObject->heroManaPointsChanged(manaDrainedHero);

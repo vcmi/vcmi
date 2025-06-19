@@ -345,6 +345,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help" : "Nastavit posouvání mapy na okamžité",
 	"vcmi.adventureOptions.hideBackground.hover" : "Skrýt pozadí",
 	"vcmi.adventureOptions.hideBackground.help" : "{Skrýt pozadí}\n\nSkryje mapu dobrodružství na pozadí a místo ní zobrazí texturu.",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Zobrazit hrdiny na minimapě",
+	"vcmi.adventureOptions.minimapShowHeroes.help" : "{Zobrazit hrdiny na minimapě}\n\nZobrazí dodatečnou ikonu pro všechny hrdiny viditelné na minimapě, aby byli lépe rozpoznatelní na velkých mapách",
 
 	"vcmi.battleOptions.queueSizeLabel.hover" : "Zobrazit frontu pořadí tahů",
 	"vcmi.battleOptions.queueSizeNoneButton.hover" : "VYPNUTO",
@@ -632,6 +634,9 @@
 	"creatures.core.devil.bonus.decreaseLuck" : "{Snižuje štěstí nepřátel}\nĎáblové a arciďáblové snižují štěstí nepřátel o 1 bod",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Snižuje morálku nepřátel}\nKostění a přizrační draci snižují morálku nepřátel o 1 bod",
 	"creatures.core.marksman.bonus.extraAttack" : "{Střílí dvakrát}\nTato jednotka může vystřelit dvakrát za kolo",
+	"creatures.core.azureDragon.bonus.fearful" : "{Strach}\nVyvolává strach u nepřátelské jednotky",
+	"creatures.core.azureDragon.bonus.fearless" : "{Nebojácnost}\nImunní vůči schopnosti Strach",
+
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dvojitý útok}\nÚtočí dvakrát", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Další odvetné útoky}\nMůže odvetně zaútočit ${val} krát navíc",
@@ -652,8 +657,6 @@
 	"core.bonus.ENCHANTER.description" : "{Zaklínač}\nMůže každé kolo sesílat masové kouzlo ${subtype.spell}",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Ignorování útoku (${val}%)}\nPři útoku je ignorováno ${val}% útočníkovy síly",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Ignorování obrany (${val}%)}\nPří útoku nebude bráno v potaz ${val}% bodů obrany obránce",
-	"core.bonus.FEAR.description" : "{Strach}\nVyvolává strach u nepřátelské jednotky",
-	"core.bonus.FEARLESS.description" : "{Nebojácnost}\nImunní vůči schopnosti Strach",
 	"core.bonus.FEROCITY.description" : "{Zuřivost}\nÚtočí ${val} krát navíc, pokud někoho zabije",
 	"core.bonus.FIRE_SHIELD.description" : "{Ohnivý štít (${val}%)}\nOdrazí část zranění při útoku z blízka",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{První úder}\nJednotka zasazuje protiúder dříve, než je zasažena v boji na blízko",
@@ -715,7 +718,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Imunita vůči kouzlům}\nJednotka je imunní vůči všem kouzlům.",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Vodní imunita}\nJednotka je imunní vůči všem kouzlům magie vody.",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Přivolání ochránců}\nNa začátku bitvy přivolá ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergizovatelný}\nTato jednotka je náchylná k synergickým efektům",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Tříhlavý útok}\nÚtočí na tři sousední jednotky",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutace}\n${val}% šance na přeměnu napadené jednotky na jiný typ",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Dech}\nÚtok dechem (dosah 2 polí)",

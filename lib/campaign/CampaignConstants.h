@@ -27,7 +27,7 @@ enum class CampaignVersion : uint8_t
 	VCMI_MAX = 1,
 };
 
-enum class CampaignStartOptions: int8_t
+enum class CampaignStartOptions : int8_t
 {
 	NONE = 0,
 	START_BONUS,
@@ -37,7 +37,6 @@ enum class CampaignStartOptions: int8_t
 
 enum class CampaignBonusType : int8_t
 {
-	NONE = -1,
 	SPELL,
 	MONSTER,
 	BUILDING,

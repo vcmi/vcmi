@@ -54,15 +54,15 @@ class DLL_LINKAGE CGrowingArtifact
 protected:
 	CGrowingArtifact() = default;
 
-	std::vector<std::pair<ui16, Bonus>> bonusesPerLevel; // Bonus given each n levels
-	std::vector<std::pair<ui16, Bonus>> thresholdBonuses; // After certain level they will be added once
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> bonusesPerLevel; // Bonus given each n levels
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> thresholdBonuses; // After certain level they will be added once
 public:
 	bool isGrowing() const;
 
-	std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel();
-	const std::vector<std::pair<ui16, Bonus>> & getBonusesPerLevel() const;
-	std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses();
-	const std::vector<std::pair<ui16, Bonus>> & getThresholdBonuses() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getBonusesPerLevel() const;
+	std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses();
+	const std::vector<std::pair<ui16, std::shared_ptr<Bonus>>> & getThresholdBonuses() const;
 };
 
 class DLL_LINKAGE CChargedArtifact
@@ -91,7 +91,6 @@ class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode,
 {
 	ArtifactID id;
 	std::string image;
-	std::string large; // big image for custom artifacts, used in drag & drop
 	std::string advMapDef; // used for adventure map object
 	std::string modScope;
 	std::string identifier;
@@ -104,6 +103,8 @@ class DLL_LINKAGE CArtifact final : public Artifact, public CBonusSystemNode,
 public:
 	/// Bonuses that are created for each instance of artifact
 	std::vector<std::shared_ptr<Bonus>> instanceBonuses;
+
+	std::string scenarioBonus;
 
 	EArtifactClass aClass = EArtifactClass::ART_SPECIAL;
 	bool onlyOnWaterMap;

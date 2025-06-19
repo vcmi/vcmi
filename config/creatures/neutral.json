@@ -75,6 +75,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -83,13 +88,28 @@
 			{
 				"type" : "TWO_HEX_ATTACK_BREATH"
 			},
-			"fear" :
+			"fearful" :
 			{
-				"type" : "FEAR"
+				"type" : "FEARFUL",
+				"val" : 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "PLACEHOLDER",
+				"limiters" : [ 
+					"OPPOSITE_SIDE", 
+					{
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"parameters" : [ "LIVING" ]
+					}
+				]
 			},
 			"fearless" :
 			{
-				"type" : "FEARLESS"
+				"type" : "FEARFUL",
+				"valueType" : "INDEPENDENT_MAX",
+				"description" : "PLACEHOLDER",
+				"val" : 0
+				
 			},
 			"spellImmunity" :
 			{
@@ -127,6 +147,11 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"crystals" :
 			{
@@ -168,6 +193,11 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{
@@ -276,6 +306,11 @@
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{

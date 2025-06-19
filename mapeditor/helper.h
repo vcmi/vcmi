@@ -12,10 +12,11 @@
 
 class CMap;
 class CampaignState;
+class IGameInfoCallback;
 
 namespace Helper
 {
-	std::unique_ptr<CMap> openMapInternal(const QString &);
+	std::unique_ptr<CMap> openMapInternal(const QString &, IGameInfoCallback *);
 	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);
 	void saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename);
 }

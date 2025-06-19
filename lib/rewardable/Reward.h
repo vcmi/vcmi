@@ -86,9 +86,9 @@ struct DLL_LINKAGE Reward final
 	std::vector<CStackBasicDescriptor> guards;
 
 	/// list of bonuses, e.g. morale/luck
-	std::vector<Bonus> heroBonuses;
-	std::vector<Bonus> commanderBonuses;
-	std::vector<Bonus> playerBonuses;
+	std::vector<std::shared_ptr<Bonus>> heroBonuses;
+	std::vector<std::shared_ptr<Bonus>> commanderBonuses;
+	std::vector<std::shared_ptr<Bonus>> playerBonuses;
 
 	/// skills that hero may receive or lose
 	std::vector<si32> primary;

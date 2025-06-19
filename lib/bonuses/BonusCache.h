@@ -171,7 +171,7 @@ class MagicSchoolMasteryCache
 {
 	const IBonusBearer * target;
 	mutable std::atomic<int32_t> version = 0;
-	mutable std::array<std::atomic<int32_t>, 4+1> schools;
+	mutable std::vector<std::atomic<int32_t>> schools;
 
 	void update() const;
 public:

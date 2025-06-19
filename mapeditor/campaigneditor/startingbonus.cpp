@@ -139,131 +139,139 @@ void StartingBonus::loadBonus()
 			comboBox->setCurrentIndex(index);
 	};
 
-	switch (bonus.type)
+	switch(bonus.getType())
 	{
-	case CampaignBonusType::SPELL:
-		ui->radioButtonSpell->setChecked(true);
-		on_radioButtonSpell_toggled();
-		setComboBoxValue(ui->comboBoxSpellRecipient, bonus.info1);
-		setComboBoxValue(ui->comboBoxSpellSpell, bonus.info2);
-		break;
-	case CampaignBonusType::MONSTER:
-		ui->radioButtonCreature->setChecked(true);
-		on_radioButtonCreature_toggled();
-		setComboBoxValue(ui->comboBoxCreatureRecipient, bonus.info1);
-		setComboBoxValue(ui->comboBoxCreatureCreatureType, bonus.info2);
-		ui->spinBoxCreatureQuantity->setValue(bonus.info3);
-		break;
-	case CampaignBonusType::BUILDING:
-		ui->radioButtonBuilding->setChecked(true);
-		on_radioButtonBuilding_toggled();
-		setComboBoxValue(ui->comboBoxBuildingBuilding, bonus.info1);
-		break;
-	case CampaignBonusType::ARTIFACT:
-		ui->radioButtonArtifact->setChecked(true);
-		on_radioButtonArtifact_toggled();
-		setComboBoxValue(ui->comboBoxArtifactRecipient, bonus.info1);
-		setComboBoxValue(ui->comboBoxArtifactArtifact, bonus.info2);
-		break;
-	case CampaignBonusType::SPELL_SCROLL:
-		ui->radioButtonSpellScroll->setChecked(true);
-		on_radioButtonSpellScroll_toggled();
-		setComboBoxValue(ui->comboBoxSpellScrollRecipient, bonus.info1);
-		setComboBoxValue(ui->comboBoxSpellScrollSpell, bonus.info2);
-		break;
-	case CampaignBonusType::PRIMARY_SKILL:
-		ui->radioButtonPrimarySkill->setChecked(true);
-		on_radioButtonPrimarySkill_toggled();
-		setComboBoxValue(ui->comboBoxPrimarySkillRecipient, bonus.info1);
-		ui->spinBoxPrimarySkillAttack->setValue((bonus.info2 >> 0) & 0xff);
-		ui->spinBoxPrimarySkillDefense->setValue((bonus.info2 >> 8) & 0xff);
-		ui->spinBoxPrimarySkillSpell->setValue((bonus.info2 >> 16) & 0xff);
-		ui->spinBoxPrimarySkillKnowledge->setValue((bonus.info2 >> 24) & 0xff);
-		break;
-	case CampaignBonusType::SECONDARY_SKILL:
-		ui->radioButtonSecondarySkill->setChecked(true);
-		on_radioButtonSecondarySkill_toggled();
-		setComboBoxValue(ui->comboBoxSecondarySkillRecipient, bonus.info1);
-		setComboBoxValue(ui->comboBoxSecondarySkillSecondarySkill, bonus.info2);
-		setComboBoxValue(ui->comboBoxSecondarySkillMastery, bonus.info3);
-		break;
-	case CampaignBonusType::RESOURCE:
-		ui->radioButtonResource->setChecked(true);
-		on_radioButtonResource_toggled();
-		setComboBoxValue(ui->comboBoxResourceResourceType, bonus.info1);
-		ui->spinBoxResourceQuantity->setValue(bonus.info2);
-		break;
-	
-	default:
-		break;
+		case CampaignBonusType::SPELL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusSpell>();
+			ui->radioButtonSpell->setChecked(true);
+			on_radioButtonSpell_toggled();
+			setComboBoxValue(ui->comboBoxSpellRecipient, bonusValue.hero.getNum());
+			setComboBoxValue(ui->comboBoxSpellSpell, bonusValue.spell.getNum());
+			break;
+		}
+		case CampaignBonusType::MONSTER:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
+			ui->radioButtonCreature->setChecked(true);
+			on_radioButtonCreature_toggled();
+			setComboBoxValue(ui->comboBoxCreatureRecipient, bonusValue.hero.getNum());
+			setComboBoxValue(ui->comboBoxCreatureCreatureType, bonusValue.creature.getNum());
+			ui->spinBoxCreatureQuantity->setValue(bonusValue.amount);
+			break;
+		}
+		case CampaignBonusType::BUILDING:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusBuilding>();
+			ui->radioButtonBuilding->setChecked(true);
+			on_radioButtonBuilding_toggled();
+			setComboBoxValue(ui->comboBoxBuildingBuilding, bonusValue.buildingDecoded.getNum());
+			break;
+		}
+		case CampaignBonusType::ARTIFACT:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusArtifact>();
+			ui->radioButtonArtifact->setChecked(true);
+			on_radioButtonArtifact_toggled();
+			setComboBoxValue(ui->comboBoxArtifactRecipient, bonusValue.hero.getNum());
+			setComboBoxValue(ui->comboBoxArtifactArtifact, bonusValue.artifact.getNum());
+			break;
+		}
+		case CampaignBonusType::SPELL_SCROLL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusSpellScroll>();
+			ui->radioButtonSpellScroll->setChecked(true);
+			on_radioButtonSpellScroll_toggled();
+			setComboBoxValue(ui->comboBoxSpellScrollRecipient, bonusValue.hero.getNum());
+			setComboBoxValue(ui->comboBoxSpellScrollSpell, bonusValue.spell.getNum());
+			break;
+		}
+		case CampaignBonusType::PRIMARY_SKILL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusPrimarySkill>();
+			ui->radioButtonPrimarySkill->setChecked(true);
+			on_radioButtonPrimarySkill_toggled();
+			setComboBoxValue(ui->comboBoxPrimarySkillRecipient, bonusValue.hero.getNum());
+			ui->spinBoxPrimarySkillAttack->setValue(bonusValue.amounts[0]);
+			ui->spinBoxPrimarySkillDefense->setValue(bonusValue.amounts[0]);
+			ui->spinBoxPrimarySkillSpell->setValue(bonusValue.amounts[0]);
+			ui->spinBoxPrimarySkillKnowledge->setValue(bonusValue.amounts[0]);
+			break;
+		}
+		case CampaignBonusType::SECONDARY_SKILL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusSecondarySkill>();
+			ui->radioButtonSecondarySkill->setChecked(true);
+			on_radioButtonSecondarySkill_toggled();
+			setComboBoxValue(ui->comboBoxSecondarySkillRecipient, bonusValue.hero.getNum());
+			setComboBoxValue(ui->comboBoxSecondarySkillSecondarySkill, bonusValue.skill.getNum());
+			setComboBoxValue(ui->comboBoxSecondarySkillMastery, bonusValue.mastery);
+			break;
+		}
+		case CampaignBonusType::RESOURCE:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusStartingResources>();
+			ui->radioButtonResource->setChecked(true);
+			on_radioButtonResource_toggled();
+			setComboBoxValue(ui->comboBoxResourceResourceType, bonusValue.resource.getNum());
+			ui->spinBoxResourceQuantity->setValue(bonusValue.amount);
+			break;
+		}
+
+		default:
+			break;
 	}
 }
 
 void StartingBonus::saveBonus()
 {
 	if(ui->radioButtonSpell->isChecked())
-		bonus.type = CampaignBonusType::SPELL;
+		bonus = CampaignBonusSpell{
+			HeroTypeID(ui->comboBoxSpellRecipient->currentData().toInt()),
+			SpellID(ui->comboBoxSpellSpell->currentData().toInt())
+		};
 	else if(ui->radioButtonCreature->isChecked())
-		bonus.type = CampaignBonusType::MONSTER;
+		bonus = CampaignBonusCreatures{
+			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			CreatureID(ui->comboBoxCreatureCreatureType->currentData().toInt()),
+			int32_t(ui->spinBoxCreatureQuantity->value())
+		};
 	else if(ui->radioButtonBuilding->isChecked())
-		bonus.type = CampaignBonusType::BUILDING;
+		bonus = CampaignBonusBuilding{
+			BuildingID{},
+			BuildingID(ui->comboBoxBuildingBuilding->currentData().toInt())
+		};
 	else if(ui->radioButtonArtifact->isChecked())
-		bonus.type = CampaignBonusType::ARTIFACT;
+		bonus = CampaignBonusArtifact{
+			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			ArtifactID(ui->comboBoxArtifactArtifact->currentData().toInt())
+		};
 	else if(ui->radioButtonSpellScroll->isChecked())
-		bonus.type = CampaignBonusType::SPELL_SCROLL;
+		bonus = CampaignBonusSpellScroll{
+			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			SpellID(ui->comboBoxSpellScrollSpell->currentData().toInt())
+		};
 	else if(ui->radioButtonPrimarySkill->isChecked())
-		bonus.type = CampaignBonusType::PRIMARY_SKILL;
+		bonus = CampaignBonusPrimarySkill{
+			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			{
+				uint8_t(ui->spinBoxPrimarySkillAttack->value()),
+				uint8_t(ui->spinBoxPrimarySkillDefense->value()),
+				uint8_t(ui->spinBoxPrimarySkillSpell->value()),
+				uint8_t(ui->spinBoxPrimarySkillKnowledge->value()),
+			}
+		};
 	else if(ui->radioButtonSecondarySkill->isChecked())
-		bonus.type = CampaignBonusType::SECONDARY_SKILL;
+		bonus = CampaignBonusSecondarySkill{
+			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			SecondarySkill(ui->comboBoxSecondarySkillSecondarySkill->currentData().toInt()),
+			int32_t(ui->comboBoxSecondarySkillMastery->currentData().toInt())
+		};
 	else if(ui->radioButtonResource->isChecked())
-		bonus.type = CampaignBonusType::RESOURCE;
-
-	bonus.info1 = 0;
-	bonus.info2 = 0;
-	bonus.info3 = 0;
-
-	switch (bonus.type)
-	{
-	case CampaignBonusType::SPELL:
-		bonus.info1 = ui->comboBoxSpellRecipient->currentData().toInt();
-		bonus.info2 = ui->comboBoxSpellSpell->currentData().toInt();
-		break;
-	case CampaignBonusType::MONSTER:
-		bonus.info1 = ui->comboBoxCreatureRecipient->currentData().toInt();
-		bonus.info2 = ui->comboBoxCreatureCreatureType->currentData().toInt();
-		bonus.info3 = ui->spinBoxCreatureQuantity->value();
-		break;
-	case CampaignBonusType::BUILDING:
-		bonus.info1 = ui->comboBoxBuildingBuilding->currentData().toInt();
-		break;
-	case CampaignBonusType::ARTIFACT:
-		bonus.info1 = ui->comboBoxArtifactRecipient->currentData().toInt();
-		bonus.info2 = ui->comboBoxArtifactArtifact->currentData().toInt();
-		break;
-	case CampaignBonusType::SPELL_SCROLL:
-		bonus.info1 = ui->comboBoxSpellScrollRecipient->currentData().toInt();
-		bonus.info2 = ui->comboBoxSpellScrollSpell->currentData().toInt();
-		break;
-	case CampaignBonusType::PRIMARY_SKILL:
-		bonus.info1 = ui->comboBoxPrimarySkillRecipient->currentData().toInt();
-		bonus.info2 |= ui->spinBoxPrimarySkillAttack->value() << 0;
-		bonus.info2 |= ui->spinBoxPrimarySkillDefense->value() << 8;
-		bonus.info2 |= ui->spinBoxPrimarySkillSpell->value() << 16;
-		bonus.info2 |= ui->spinBoxPrimarySkillKnowledge->value() << 24;
-		break;
-	case CampaignBonusType::SECONDARY_SKILL:
-		bonus.info1 = ui->comboBoxSecondarySkillRecipient->currentData().toInt();
-		bonus.info2 = ui->comboBoxSecondarySkillSecondarySkill->currentData().toInt();
-		bonus.info3 = ui->comboBoxSecondarySkillMastery->currentData().toInt();
-		break;
-	case CampaignBonusType::RESOURCE:
-		bonus.info1 = ui->comboBoxResourceResourceType->currentData().toInt();
-		bonus.info2 = ui->spinBoxResourceQuantity->value();
-		break;
-	
-	default:
-		break;
-	}
+		bonus = CampaignBonusStartingResources{
+			GameResID(ui->comboBoxResourceResourceType->currentData().toInt()),
+			int32_t(ui->spinBoxResourceQuantity->value())
+		};
 }
 
 void StartingBonus::on_buttonBox_clicked(QAbstractButton * button)
@@ -309,40 +317,66 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 		}
 		return QString::fromStdString(tmp.toString());
 	};
-	auto getSpellName = [](int id){
+	auto getSpellName = [](SpellID id){
 		MetaString tmp;
-		tmp.appendName(SpellID(id));
+		tmp.appendName(id);
 		return QString::fromStdString(tmp.toString());
 	};
-	auto getMonsterName = [](int id, int amount){
+	auto getMonsterName = [](CreatureID id, int amount){
 		MetaString tmp;
-		tmp.appendName(CreatureID(id), amount);
+		tmp.appendName(id, amount);
 		return QString::fromStdString(tmp.toString());
 	};
-	auto getArtifactName = [](int id){
+	auto getArtifactName = [](ArtifactID id){
 		MetaString tmp;
-		tmp.appendName(ArtifactID(id));
+		tmp.appendName(id);
 		return QString::fromStdString(tmp.toString());
 	};
 
-	switch (bonus.type)
+	switch(bonus.getType())
 	{
-	case CampaignBonusType::SPELL:
-		return tr("%1 spell for %2").arg(getSpellName(bonus.info2)).arg(getHeroName(bonus.info1));
-	case CampaignBonusType::MONSTER:
-		return tr("%1 %2 for %3").arg(bonus.info3).arg(getMonsterName(bonus.info2, bonus.info3)).arg(getHeroName(bonus.info1));
-	case CampaignBonusType::BUILDING:
-		return tr("Building");
-	case CampaignBonusType::ARTIFACT:
-		return tr("%1 artifact for %2").arg(getArtifactName(bonus.info2)).arg(getHeroName(bonus.info1));
-	case CampaignBonusType::SPELL_SCROLL:
-		return tr("%1 spell scroll for %2").arg(getSpellName(bonus.info2)).arg(getHeroName(bonus.info1));
-	case CampaignBonusType::PRIMARY_SKILL:
-		return tr("Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5").arg((bonus.info2 >> 0) & 0xff).arg((bonus.info2 >> 8) & 0xff).arg((bonus.info2 >> 16) & 0xff).arg((bonus.info2 >> 24) & 0xff).arg(getHeroName(bonus.info1));
-	case CampaignBonusType::SECONDARY_SKILL:
-		return tr("Secondary skill");
-	case CampaignBonusType::RESOURCE:
-		return tr("Resource");
+		case CampaignBonusType::SPELL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusSpell>();
+			return tr("%1 spell for %2").arg(getSpellName(bonusValue.spell)).arg(getHeroName(bonusValue.hero));
+		}
+		case CampaignBonusType::MONSTER:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusCreatures>();
+			return tr("%1 %2 for %3").arg(bonusValue.amount).arg(getMonsterName(bonusValue.creature, bonusValue.amount)).arg(getHeroName(bonusValue.hero));
+		}
+		case CampaignBonusType::BUILDING:
+		{
+			return tr("Building");
+		}
+		case CampaignBonusType::ARTIFACT:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusArtifact>();
+			return tr("%1 artifact for %2").arg(getArtifactName(bonusValue.artifact)).arg(getHeroName(bonusValue.hero));
+		}
+		case CampaignBonusType::SPELL_SCROLL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusSpellScroll>();
+			return tr("%1 spell scroll for %2").arg(getSpellName(bonusValue.spell)).arg(getHeroName(bonusValue.hero));
+		}
+		case CampaignBonusType::PRIMARY_SKILL:
+		{
+			const auto & bonusValue = bonus.getValue<CampaignBonusPrimarySkill>();
+			return tr("Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5")
+				.arg(bonusValue.amounts[0])
+				.arg(bonusValue.amounts[1])
+				.arg(bonusValue.amounts[2])
+				.arg(bonusValue.amounts[3])
+				.arg(getHeroName(bonusValue.hero));
+		}
+		case CampaignBonusType::SECONDARY_SKILL:
+		{
+			return tr("Secondary skill");
+		}
+		case CampaignBonusType::RESOURCE:
+		{
+			return tr("Resource");
+		}
 	}
 	return {};
 }

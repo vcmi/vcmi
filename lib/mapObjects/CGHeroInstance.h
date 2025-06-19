@@ -212,7 +212,8 @@ public:
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
 	double getHeroStrength() const; // includes fighting and magic strength
 
-	uint32_t getValueForCampaign() const;
+	/// Returns true if 'left' hero is stronger than 'right' when considering campaign transfer priority
+	static bool compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right);
 	uint64_t getValueForDiplomacy() const;
 	
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
@@ -274,9 +275,6 @@ public:
 
 	///IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
-
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState & gs);
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;

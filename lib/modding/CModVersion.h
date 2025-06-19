@@ -32,7 +32,7 @@ struct DLL_LINKAGE CModVersion
 	CModVersion(int mj, int mi, int p): major(mj), minor(mi), patch(p) {}
 
 	static CModVersion GameVersion();
-	static CModVersion fromString(std::string from);
+	static CModVersion fromString(const std::string & from);
 	std::string toString() const;
 
 	bool operator !=(const CModVersion & other) const;

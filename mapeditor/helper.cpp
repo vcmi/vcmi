@@ -23,7 +23,7 @@
 #include "../lib/mapping/MapFormatJson.h"
 #include "../lib/modding/ModIncompatibility.h"
 
-std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
+std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IGameInfoCallback * cb)
 {
 	QFileInfo fi(filenameSelect);
 	std::string fname = fi.fileName().toStdString();
@@ -50,7 +50,7 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect)
 		if(!modList.empty())
 			throw ModIncompatibility(modList);
 		
-		return mapService.loadMap(resId, nullptr);
+		return mapService.loadMap(resId, cb);
 	}
 	else
 		throw std::runtime_error("Corrupted map");
@@ -85,7 +85,9 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 	auto saver = std::make_shared<CZipSaver>(io, filename.toStdString());
 	for(auto & scenario : campaignState->allScenarios())
 	{
-		auto map = campaignState->getMap(scenario, nullptr);
+		EditorCallback cb(nullptr);
+		auto map = campaignState->getMap(scenario, &cb);
+		cb.setMap(map.get());
 		MapController::repairMap(map.get());
 		CMemoryBuffer serializeBuffer;
 		{

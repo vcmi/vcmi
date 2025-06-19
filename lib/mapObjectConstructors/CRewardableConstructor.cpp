@@ -46,12 +46,12 @@ std::shared_ptr<CGObjectInstance> CRewardableConstructor::create(IGameInfoCallba
 	return ret;
 }
 
-void CRewardableConstructor::assignBonuses(std::vector<Bonus> & bonuses, MapObjectID objectID) const
+void CRewardableConstructor::assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses, MapObjectID objectID) const
 {
 	for (auto & bonus : bonuses)
 	{
-		bonus.source = BonusSource::OBJECT_TYPE;
-		bonus.sid = BonusSourceID(objectID);
+		bonus->source = BonusSource::OBJECT_TYPE;
+		bonus->sid = BonusSourceID(objectID);
 	}
 }
 

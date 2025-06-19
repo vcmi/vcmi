@@ -48,7 +48,10 @@
 				"movementCostBase"  :         { "type" : "number" },
 				"movementPointsLand" :        { "type" : "array" },
 				"movementPointsSea" :         { "type" : "array" },
-				"skillPerHero" :              { "type" : "number" }
+				"skillPerHero" :              { "type" : "number" },
+				"specialtyCreatureGrowth" :    { "type" : "number" },
+				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"baseScoutingRange" :         { "type" : "number" }
 			}
 		},
 		"towns" : {
@@ -60,7 +63,8 @@
 				"spellResearch" :                        { "type" : "boolean" },
 				"spellResearchCost" :                    { "type" : "array" },
 				"spellResearchPerDay" :                  { "type" : "array" },
-				"spellResearchCostExponentPerResearch" : { "type" : "array" }
+				"spellResearchCostExponentPerResearch" : { "type" : "array" },
+				"baseScoutingRange" :                    { "type" : "number" }
 			}
 		},
 		"combat": {
