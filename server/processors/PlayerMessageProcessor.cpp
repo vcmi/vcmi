@@ -18,6 +18,7 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/constants/Enumerations.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -694,6 +695,41 @@ void PlayerMessageProcessor::cheatMaxMorale(PlayerColor player, const CGHeroInst
 	gameHandler->giveHeroBonus(&gb);
 }
 
+void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
+{
+	if (!hero)
+		return;
+
+	std::string identifier;
+	try
+	{
+		identifier = words.at(0);
+	}
+	catch(std::logic_error&)
+	{
+		return;
+	}
+
+	MasteryLevel::Type mastery;
+	try
+	{
+		mastery = static_cast<MasteryLevel::Type>(std::stoi(words.at(1)));
+	}
+	catch(std::logic_error&)
+	{
+		mastery = MasteryLevel::Type::EXPERT;
+	}
+
+	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", identifier, false);
+
+	if(!skillId.has_value())
+		return;
+	
+	auto skill = SecondarySkill(skillId.value());
+
+	gameHandler->changeSecSkill(hero, skill, mastery, ChangeValueMode::ABSOLUTE);
+}
+
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
@@ -736,7 +772,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		                           "vcmiluck",        "nwcfollowthewhiterabbit",                       "nwccastleanthrax",
 		                           "vcmimorale",      "nwcmorpheus",                                   "nwcmuchrejoicing",
 		                           "vcmigod",         "nwctheone",
-		                           "vcmiscrolls"
+		                           "vcmiscrolls",
+		                           "vcmiskill"
 	};
 
 	if(vstd::contains(localCheats, cheatName))
@@ -829,7 +866,8 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		cheatMovement(player, hero, { });
 		cheatFly(player, hero);
 	};
-	const auto & doColorSchemeChange = [&](ColorScheme filter) { cheatColorSchemeChange(player, filter); };
+	const auto & doCheatColorSchemeChange = [&](ColorScheme filter) { cheatColorSchemeChange(player, filter); };
+	const auto & doCheatSkill = [&]() { cheatSkill(player, hero, words); };
 
 	std::map<std::string, std::function<void()>> callbacks = {
 		{"vcmiainur",               [&] () {doCheatGiveArmyFixed({ "archangel", "5" });}        },
@@ -909,9 +947,10 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"vcmigod",                 doCheatTheOne                                               },
 		{"nwctheone",               doCheatTheOne                                               },
 		{"vcmiscrolls",             doCheatGiveScrolls                                          },
-		{"vcmicolor",               [&] () {doColorSchemeChange(ColorScheme::H2_SCHEME);}       },
-		{"nwcphisherprice",         [&] () {doColorSchemeChange(ColorScheme::H2_SCHEME);}       },
-		{"vcmigray",                [&] () {doColorSchemeChange(ColorScheme::GRAYSCALE);}       },
+		{"vcmicolor",               [&] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
+		{"nwcphisherprice",         [&] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
+		{"vcmigray",                [&] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
+		{"vcmiskill",               doCheatSkill                                                },
 	};
 
 	assert(callbacks.count(cheatName));
