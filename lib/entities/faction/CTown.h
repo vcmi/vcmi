@@ -90,6 +90,7 @@ public:
 		ImagePath townBackground;
 		std::vector<ImagePath> guildBackground;
 		std::vector<ImagePath> guildWindow;
+		std::vector<std::vector<Point>> guildSpellPositions;
 		AnimationPath buildingsIcons;
 		ImagePath hallBackground;
 		/// vector[row][column] = list of buildings in this slot

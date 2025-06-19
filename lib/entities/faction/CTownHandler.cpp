@@ -561,35 +561,33 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	readIcon(source["icons"]["fort"]["normal"], info.iconSmall[1][0], info.iconLarge[1][0]);
 	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
-	if (source["musicTheme"].isVector())
-	{
-		for (auto const & entry : source["musicTheme"].Vector())
-			info.musicTheme.push_back(AudioPath::fromJson(entry));
-	}
-	else
-	{
-		info.musicTheme.push_back(AudioPath::fromJson(source["musicTheme"]));
-	}
-
 	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
 	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
 
-	auto loadStringOrVector = [](auto & target, auto & node){
+	info.guildSpellPositions.clear();
+	for(auto & level : source["guildSpellPositions"].Vector())
+	{
+		std::vector<Point> points;
+		for(auto & item : level.Vector())
+			points.push_back(Point(item["x"].Integer(), item["y"].Integer()));
+		info.guildSpellPositions.push_back(points);
+	}
+
+	auto loadStringOrVector = [](auto & target, auto & node, auto fromJsonFunc){
 		if(node.isVector())
 		{
 			target.clear();
 			for(auto & background : node.Vector())
-			{
-				target.push_back(ImagePath::fromJson(background));
-			}
+				target.push_back(fromJsonFunc(background));
 		}
 		else
-			target = {ImagePath::fromJson(node)};
+			target = {fromJsonFunc(node)};
 	};
-	loadStringOrVector(info.guildBackground, source["guildBackground"]);
-	loadStringOrVector(info.guildWindow, source["guildWindow"]);
+	loadStringOrVector(info.musicTheme, source["musicTheme"], AudioPath::fromJson);
+	loadStringOrVector(info.guildBackground, source["guildBackground"], ImagePath::fromJson);
+	loadStringOrVector(info.guildWindow, source["guildWindow"], ImagePath::fromJson);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);

@@ -183,6 +183,24 @@
 						"format" : "imageFile"
 					}
 				},
+				"guildSpellPositions" : {
+					"type" : "array",
+					"description" : "Positions of spells in mage guild",
+					"items" : { 
+						"type" : "array",
+						"items" : { 
+							"type" : "array",
+							"items" : {
+								"type" : "object",
+								"additionalProperties" : false,
+								"properties" : {
+									"x" :     { "type" : "number", "description" : "X coordinate on screen" },
+									"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
+								}
+							}
+						}
+					}
+				},
 				"hallBackground" : {
 					"type" : "string",
 					"description" : "background image for town hall",
@@ -268,7 +286,7 @@
 						"properties" : {
 							"index" : { "type" : "number", "description" : "Order in which images will be opened" },
 							"x" :     { "type" : "number", "description" : "X coordinate on screen" },
-							"y" :     { "type" : "number", "description" : "X coordinate on screen" }
+							"y" :     { "type" : "number", "description" : "Y coordinate on screen" }
 						}
 					}
 				},
