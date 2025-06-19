@@ -34,7 +34,6 @@ namespace GameConstants
 	constexpr int BATTLE_SHOOTING_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	constexpr int BATTLE_SHOOTING_RANGE_DISTANCE = std::numeric_limits<uint8_t>::max(); // used when shooting stack has no shooting range limit
 	constexpr int ARMY_SIZE = 7;
-	constexpr int SKILL_PER_HERO = 8;
 	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
 	constexpr int SKILL_QUANTITY=28;

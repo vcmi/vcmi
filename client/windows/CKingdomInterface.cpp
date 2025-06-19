@@ -40,7 +40,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
+#include "../../lib/GameSettings.h"
 
 static const std::string OVERVIEW_BACKGROUND = "OvCast.pcx";
 static const size_t OVERVIEW_SIZE = 4;
@@ -978,7 +979,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+(int)i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
 	}
 
-	for(size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
+	for(size_t i=0; i<GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO); i++)
 	{
 		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+(int)i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));

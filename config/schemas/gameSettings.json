@@ -47,7 +47,8 @@
 				"minimalPrimarySkills" :      { "type" : "array" },
 				"movementCostBase"  :         { "type" : "number" },
 				"movementPointsLand" :        { "type" : "array" },
-				"movementPointsSea" :         { "type" : "array" }
+				"movementPointsSea" :         { "type" : "array" },
+				"skillPerHero" :              { "type" : "number" }
 			}
 		},
 		"towns" : {

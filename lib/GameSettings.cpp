@@ -86,6 +86,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::HEROES_MOVEMENT_COST_BASE,                        "heroes",    "movementCostBase"                     },
 		{EGameSettings::HEROES_MOVEMENT_POINTS_LAND,                      "heroes",    "movementPointsLand"                   },
 		{EGameSettings::HEROES_MOVEMENT_POINTS_SEA,                       "heroes",    "movementPointsSea"                    },
+		{EGameSettings::HEROES_SKILL_PER_HERO,                            "heroes",    "skillPerHero"                         },
 		{EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE,                     "mapFormat", "armageddonsBlade"                     },
 		{EGameSettings::MAP_FORMAT_CHRONICLES,                            "mapFormat", "chronicles"                           },
 		{EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS,                     "mapFormat", "hornOfTheAbyss"                       },
