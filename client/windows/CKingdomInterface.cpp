@@ -982,8 +982,15 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+(int)i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
 	}
 
-	for(size_t i=0; i<GAME->interface()->cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO); i++)
+	int slots = 8;
+	bool isMoreSkillsThanSlots = hero->secSkills.size() > slots;
+	for(size_t i=0; i<slots; i++)
 	{
+		if(isMoreSkillsThanSlots && i == slots - 1)
+		{
+			heroInfoFull = std::make_shared<CMultiLineLabel>(Rect(Point(410+(int)i*36, 5), Point(34, 28)), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+			continue;
+		}
 		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+(int)i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
 	}
