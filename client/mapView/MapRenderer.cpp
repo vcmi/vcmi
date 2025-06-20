@@ -466,10 +466,12 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
 	
-	if(auto attackerPos = context.monsterAttacked(obj))
+	auto attackerPos = context.monsterAttacked(obj);
+	if(attackerPos != -1)
 	{
 		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
-		ImagePath imgPath = (*attackerPos).x < obj->pos.x ? (*creature->getCreatureMap().begin()).first->mapAttackFromLeft : (*creature->getCreatureMap().begin()).first->mapAttackFromRight;
+		auto dir = std::vector<int>({1, 2, 7, 8});
+		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? (*creature->getCreatureMap().begin()).first->mapAttackFromRight : (*creature->getCreatureMap().begin()).first->mapAttackFromLeft;
 		if(!imgPath.empty())
 		{
 			auto img = ENGINE->renderHandler().loadImage(imgPath, EImageBlitMode::SIMPLE);

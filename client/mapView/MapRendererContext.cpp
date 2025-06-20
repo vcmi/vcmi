@@ -87,16 +87,16 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	return false;
 }
 
-std::optional<int3> MapRendererBaseContext::monsterAttacked(const CGObjectInstance * obj) const
+int MapRendererBaseContext::monsterAttacked(const CGObjectInstance * obj) const
 {
 	if(obj->ID != Obj::MONSTER)
-		return std::nullopt;
+		return -1;
 		
 	for(auto & battle : GAME->interface()->cb->getActiveBattles())
 		if(obj->pos == battle.second->getBattle()->getLocation())
-			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->pos;
+			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
 
-	return std::nullopt;
+	return -1;
 }
 
 bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
