@@ -38,6 +38,7 @@
 	"vcmi.battle.action.shoot" : "Use ranged attack",
 	"vcmi.battle.action.attack" : "Use melee attack",
 	"vcmi.battle.action.return" : "Use melee attack and return",
+	"vcmi.battle.action.genie" : "Cast random beneficial spell",
 
 	"vcmi.bonusSource.artifact" : "Artifact",
 	"vcmi.bonusSource.creature" : "Ability",

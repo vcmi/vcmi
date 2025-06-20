@@ -121,6 +121,7 @@ void UnitActionPanel::setPossibleActions(const std::vector<PossiblePlayerBattleA
 	static const std::vector actionsMove = { PossiblePlayerBattleAction::MOVE_STACK };
 	static const std::vector actionsInfo = { PossiblePlayerBattleAction::CREATURE_INFO, PossiblePlayerBattleAction::HERO_INFO };
 	static const std::vector actionsShoot = { PossiblePlayerBattleAction::SHOOT };
+	static const std::vector actionsGenie = { PossiblePlayerBattleAction::RANDOM_GENIE_SPELL };
 	static const std::vector actionsAttack = { PossiblePlayerBattleAction::ATTACK, PossiblePlayerBattleAction::WALK_AND_ATTACK };
 	static const std::vector actionsReturn = { PossiblePlayerBattleAction::ATTACK_AND_RETURN };
 
@@ -128,6 +129,7 @@ void UnitActionPanel::setPossibleActions(const std::vector<PossiblePlayerBattleA
 	testAndAddAction(newActions, actionsReturn, ImagePath::builtin("battle/actionReturn"), "vcmi.battle.action.return");
 	testAndAddAction(newActions, actionsAttack, ImagePath::builtin("battle/actionAttack"), "vcmi.battle.action.attack");
 	testAndAddAction(newActions, actionsShoot, ImagePath::builtin("battle/actionShoot"), "vcmi.battle.action.shoot");
+	testAndAddAction(newActions, actionsGenie, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie");
 
 	std::vector<SpellID> spells;
 

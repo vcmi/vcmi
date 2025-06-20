@@ -28,6 +28,15 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
 
+	"vcmi.artifact.charges" : "Заряди",
+	
+	"vcmi.battle.action.move" : "Перемістити загін у вказане місце",
+	"vcmi.battle.action.info" : "Показати інформацію про загін",
+	"vcmi.battle.action.shoot" : "Застосовувати дистанційну атаку",
+	"vcmi.battle.action.attack" : "Застосувати атаку в ближньому бою",
+	"vcmi.battle.action.return" : "Застосовувати атаку ближнього бою та повернутися",
+	"vcmi.battle.action.genie" : "Накласти випадкове корисне закляття",
+
 	"vcmi.bonusSource.artifact" : "Артифакт",
 	"vcmi.bonusSource.creature" : "Здібність",
 	"vcmi.bonusSource.spell" : "Закляття",
