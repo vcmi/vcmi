@@ -50,6 +50,9 @@
 #include "validator.h"
 #include "helper.h"
 #include "campaigneditor/campaigneditor.h"
+#ifdef ENABLE_TEMPLATE_EDITOR
+#include "templateeditor/templateeditor.h"
+#endif
 
 QJsonValue jsonFromPixmap(const QPixmap &p)
 {
@@ -261,6 +264,11 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->actionZoom_out->setIcon(QIcon{":/icons/zoom_minus.png"});
 	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
 	ui->actionCampaignEditor->setIcon(QIcon{":/icons/mapeditor.64x64.png"});
+	ui->actionTemplateEditor->setIcon(QIcon{":/icons/dice.png"});
+
+#ifndef ENABLE_TEMPLATE_EDITOR
+	ui->actionTemplateEditor->setVisible(false);
+#endif
 
 	loadUserSettings(); //For example window size
 	setTitle();
@@ -604,6 +612,17 @@ void MainWindow::on_actionCampaignEditor_triggered()
 
 	hide();
 	CampaignEditor::showCampaignEditor();
+}
+
+void MainWindow::on_actionTemplateEditor_triggered()
+{
+#ifdef ENABLE_TEMPLATE_EDITOR
+	if(!getAnswerAboutUnsavedChanges())
+		return;
+
+	hide();
+	TemplateEditor::showTemplateEditor();
+#endif
 }
 
 void MainWindow::on_actionNew_triggered()

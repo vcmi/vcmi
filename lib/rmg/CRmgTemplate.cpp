@@ -144,14 +144,17 @@ ZoneOptions::ZoneOptions():
 	type(ETemplateZoneType::PLAYER_START),
 	size(1),
 	maxTreasureValue(0),
-	owner(std::nullopt),
+	owner(PlayerColor(0)),
 	matchTerrainToTown(true),
 	townsAreSameType(false),
 	monsterStrength(EMonsterStrength::ZONE_NORMAL),
 	townsLikeZone(NO_ZONE),
 	minesLikeZone(NO_ZONE),
 	terrainTypeLikeZone(NO_ZONE),
-	treasureLikeZone(NO_ZONE)
+	treasureLikeZone(NO_ZONE),
+	customObjectsLikeZone(NO_ZONE),
+	visiblePosition(Point(0, 0)),
+	visibleSize(1.0)
 {
 }
 
@@ -331,6 +334,26 @@ TRmgTemplateZoneId ZoneOptions::getTownsLikeZone() const
 	return townsLikeZone;
 }
 
+Point ZoneOptions::getVisiblePosition() const
+{
+	return visiblePosition;
+}
+
+void ZoneOptions::setVisiblePosition(Point value)
+{
+	visiblePosition = value;
+}
+
+float ZoneOptions::getVisibleSize() const
+{
+	return visibleSize;
+}
+
+void ZoneOptions::setVisibleSize(float value)
+{
+	visibleSize = value;
+}
+
 void ZoneOptions::addConnection(const ZoneConnection & connection)
 {
 	connectedZoneIds.push_back(connection.getOtherZoneId(getId()));
@@ -496,6 +519,12 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 
 	handler.serializeStruct("customObjects", objectConfig);
+	handler.serializeInt("visiblePositionX", visiblePosition.x);
+	handler.serializeInt("visiblePositionY", visiblePosition.y);
+	handler.serializeFloat("visibleSize", visibleSize);
+
+	if(!handler.saving && visibleSize < 0.01)
+		visibleSize = 1.0;
 }
 
 ZoneConnection::ZoneConnection():

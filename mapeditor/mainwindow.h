@@ -80,6 +80,8 @@ private slots:
 
 	void on_actionCampaignEditor_triggered();
 
+	void on_actionTemplateEditor_triggered();
+
 	void on_actionNew_triggered();
 
 	void on_actionLevel_triggered();

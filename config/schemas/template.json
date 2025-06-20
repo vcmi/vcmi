@@ -43,6 +43,10 @@
 				"terrainTypeLikeZone" : { "type" : "number" },
 				"treasureLikeZone" : { "type" : "number" },
 				"customObjectsLikeZone" : { "type" : "number" },
+
+				"visiblePositionX" : { "type" : "number" },
+				"visiblePositionY" : { "type" : "number" },
+				"visibleSize" : { "type" : "number" },
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},

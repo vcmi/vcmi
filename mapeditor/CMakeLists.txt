@@ -49,6 +49,19 @@ set(editor_SRCS
 		campaigneditor/startingbonus.cpp
 		campaigneditor/campaignview.cpp
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_SRCS
+		${editor_SRCS}
+		templateeditor/templateeditor.cpp
+		templateeditor/templateview.cpp
+		templateeditor/graphicelements/CardItem.cpp
+		templateeditor/graphicelements/LineItem.cpp
+		templateeditor/GeometryAlgorithm.cpp
+		templateeditor/terrainselector.cpp
+		templateeditor/factionselector.cpp
+		templateeditor/mineselector.cpp
+	)
+endif()
 
 set(editor_HEADERS
 		StdInc.h
@@ -102,6 +115,19 @@ set(editor_HEADERS
 		campaigneditor/startingbonus.h
 		campaigneditor/campaignview.h
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_HEADERS
+		${editor_HEADERS}
+		templateeditor/templateeditor.h
+		templateeditor/templateview.h
+		templateeditor/graphicelements/CardItem.h
+		templateeditor/graphicelements/LineItem.h
+		templateeditor/GeometryAlgorithm.h
+		templateeditor/terrainselector.h
+		templateeditor/factionselector.h
+		templateeditor/mineselector.h
+	)
+endif()
 
 set(editor_FORMS
 		mainwindow.ui
@@ -137,6 +163,15 @@ set(editor_FORMS
 		campaigneditor/scenarioproperties.ui
 		campaigneditor/startingbonus.ui
 )
+if(ENABLE_TEMPLATE_EDITOR)
+	set(editor_FORMS
+		${editor_FORMS}
+		templateeditor/templateeditor.ui
+		templateeditor/terrainselector.ui
+		templateeditor/factionselector.ui
+		templateeditor/mineselector.ui
+	)
+endif()
 
 set(editor_RESOURCES
 	resources.qrc
@@ -254,6 +289,10 @@ if(APPLE)
 	set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER vcmieditor)
 endif()
 
+if(ENABLE_TEMPLATE_EDITOR)
+	target_compile_definitions(vcmieditor PRIVATE ENABLE_TEMPLATE_EDITOR)
+endif()
+
 # Qt defines 'emit' as macros, which conflicts with TBB definition of method with same name
 target_compile_definitions(vcmieditor PRIVATE QT_NO_EMIT)
 
@@ -262,6 +301,12 @@ if(ENABLE_STATIC_LIBS OR NOT (ENABLE_EDITOR AND ENABLE_LAUNCHER))
 endif()
 
 target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+if(ENABLE_TEMPLATE_EDITOR)
+	target_link_libraries(vcmieditor vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Xml)
+	if(QT_VERSION_MAJOR EQUAL 6)
+		target_link_libraries(vcmieditor vcmi vcmiqt Qt6::SvgWidgets)
+	endif()
+endif()
 target_include_directories(vcmieditor
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )

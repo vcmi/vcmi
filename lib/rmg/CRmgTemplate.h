@@ -12,6 +12,7 @@
 
 #include "../int3.h"
 #include "../GameConstants.h"
+#include "../Point.h"
 #include "../ResourceSet.h"
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
@@ -21,6 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonSerializeFormat;
 struct CompoundMapObjectID;
+class TemplateEditor;
 
 enum class ETemplateZoneType
 {
@@ -93,6 +95,10 @@ enum class ERoadOption
 
 class DLL_LINKAGE ZoneConnection
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 
 	ZoneConnection();
@@ -120,11 +126,18 @@ private:
 
 class DLL_LINKAGE ZoneOptions
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 	static const TRmgTemplateZoneId NO_ZONE;
 
 	class DLL_LINKAGE CTownInfo
 	{
+#ifdef ENABLE_TEMPLATE_EDITOR
+		friend class ::TemplateEditor;
+#endif
 	public:
 		CTownInfo();
 
@@ -228,12 +241,21 @@ public:
 	TRmgTemplateZoneId getCustomObjectsLikeZone() const;
 	TRmgTemplateZoneId getTownsLikeZone() const;
 
+	Point getVisiblePosition() const;
+	void setVisiblePosition(Point value);
+
+	float getVisibleSize() const;
+	void setVisibleSize(float value);
+
 protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType type;
 	int size;
 	ui32 maxTreasureValue;
 	std::optional<int> owner;
+
+	Point visiblePosition;
+	float visibleSize;
 
 	ObjectConfig objectConfig;
 	CTownInfo playerTowns;
@@ -268,11 +290,18 @@ protected:
 /// The CRmgTemplate describes a random map template.
 class DLL_LINKAGE CRmgTemplate : boost::noncopyable
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ::TemplateEditor;
+#endif
+
 public:
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<rmg::ZoneOptions>>;
 
 	class DLL_LINKAGE CPlayerCountRange
 	{
+#ifdef ENABLE_TEMPLATE_EDITOR
+		friend class ::TemplateEditor;
+#endif
 	public:
 		void addRange(int lower, int upper);
 		void addNumber(int value);
