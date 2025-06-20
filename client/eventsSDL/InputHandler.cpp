@@ -289,12 +289,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		return;
 	}
 
+#ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
+#endif
 
 	{
 		std::unique_lock<std::mutex> lock(eventsMutex);
