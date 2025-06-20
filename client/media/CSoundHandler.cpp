@@ -201,7 +201,7 @@ int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useC
 
 	if(chunk)
 	{
-		channel = Mix_PlayChannel(-1, chunk, 0);
+		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if(channel == -1)
 		{
 			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), Mix_GetError());
