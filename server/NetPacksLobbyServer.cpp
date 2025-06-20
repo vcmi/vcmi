@@ -15,12 +15,13 @@
 
 #include "../lib/StartInfo.h"
 
+#include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
-#include "../lib/gameState/CGameState.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/mapping/CMapInfo.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/serializer/Connection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -368,7 +369,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	switch(pack.action) {
 		case LobbyPvPAction::COIN:
 			txt.appendTextID("vcmi.lobby.pvp.coin.hover");
-			txt.appendRawString(" - " + std::to_string(srv.gh->getRandomGenerator().nextInt(1)));
+			txt.appendRawString(" - " + std::to_string(CRandomGenerator::getDefault().nextInt(1)));
 			srv.announceTxt(txt);
 			break;
 		case LobbyPvPAction::RANDOM_TOWN:
