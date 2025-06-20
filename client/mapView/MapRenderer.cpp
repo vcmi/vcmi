@@ -470,8 +470,9 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 	if(attackerPos != -1)
 	{
 		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
+		auto const & creatureType = LIBRARY->creh->objects[creature->appearance->subid];
 		auto dir = std::vector<int>({1, 2, 7, 8});
-		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? (*creature->getCreatureMap().begin()).first->mapAttackFromRight : (*creature->getCreatureMap().begin()).first->mapAttackFromLeft;
+		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? creatureType->mapAttackFromRight : creatureType->mapAttackFromLeft;
 		if(!imgPath.empty())
 		{
 			auto img = ENGINE->renderHandler().loadImage(imgPath, EImageBlitMode::SIMPLE);
