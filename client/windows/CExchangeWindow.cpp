@@ -81,7 +81,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE));
 
 
-		for(int m=0; m < hero->secSkills.size(); ++m)
+		for(int m=0; m < std::min(static_cast<int>(hero->secSkills.size()), 8); ++m)
 			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::SMALL,
 				hero->secSkills[m].first, hero->secSkills[m].second));
 
@@ -377,6 +377,10 @@ void CExchangeWindow::questLogShortcut()
 
 void CExchangeWindow::update()
 {
+	const bool qeLayout = isQuickExchangeLayoutAvailable();
+
+	OBJECT_CONSTRUCTION;
+
 	CWindowWithArtifacts::update();
 
 	for(size_t leftRight : {0, 1})
@@ -389,8 +393,22 @@ void CExchangeWindow::update()
 			primSkillValues[leftRight][m]->setText(std::to_string(value));
 		}
 
-		for(int m=0; m < hero->secSkills.size(); ++m)
+		int slots = 8;
+		bool isMoreSkillsThanSlots = hero->secSkills.size() > slots;
+		for(int m=0; m < std::min(static_cast<int>(hero->secSkills.size()), 8); ++m)
 		{
+			if(m == slots - 1)
+			{
+				if(isMoreSkillsThanSlots)
+				{
+					secSkillsFull = std::make_shared<CMultiLineLabel>(Rect(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), Point(34, 28)), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+					secSkills[leftRight][m]->setSkill(SecondarySkill::NONE);
+					continue;
+				}
+				else
+					secSkillsFull.reset();
+			}
+
 			int id = hero->secSkills[m].first;
 			int level = hero->secSkills[m].second;
 
