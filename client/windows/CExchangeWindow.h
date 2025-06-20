@@ -14,6 +14,7 @@
 
 class CGarrisonSlot;
 class CMultiLineLabel;
+class LRClickableAreaWText;
 
 class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public CWindowWithArtifacts
 {
@@ -29,6 +30,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
 	std::array<std::vector<std::shared_ptr<CSecSkillPlace>>, 2> secSkills;
 	std::array<std::shared_ptr<CMultiLineLabel>, 2> secSkillsFull;
+	std::array<std::shared_ptr<LRClickableAreaWText>, 2> secSkillsFullArea;
 
 	std::array<std::shared_ptr<CHeroArea>, 2> heroAreas;
 	std::array<std::shared_ptr<LRClickableAreaWText>, 2> specialtyAreas;

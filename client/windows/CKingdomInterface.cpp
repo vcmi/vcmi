@@ -988,7 +988,9 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	{
 		if(isMoreSkillsThanSlots && i == slots - 1)
 		{
-			heroInfoFull = std::make_shared<CMultiLineLabel>(Rect(Point(410+(int)i*36, 5), Point(34, 28)), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+			Rect r(Point(410+(int)i*36, 5), Point(34, 28));
+			heroInfoFull = std::make_shared<CMultiLineLabel>(r, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+			heroInfoFullArea = std::make_shared<LRClickableAreaWText>(r, LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.hover"), LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.help"));
 			continue;
 		}
 		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);

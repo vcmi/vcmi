@@ -435,6 +435,9 @@
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Not enough resources to upgrade all creatures. Do you want to upgrade following creatures?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Not enough resources to upgrade any creature.",
 
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "More skills",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{More skills}\n\nThis hero has more skills.\nYou can see all of them in the hero overview.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Any of the following:",
 	"vcmi.logicalExpressions.allOf"  : "All of the following:",
 	"vcmi.logicalExpressions.noneOf" : "None of the following:",
