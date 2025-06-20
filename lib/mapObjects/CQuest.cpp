@@ -459,7 +459,7 @@ void CGSeerHut::initObj(IGameRandomizer & gameRandomizer)
 	
 	if(getQuest().questName == getQuest().missionName(EQuestMission::NONE))
 	{
-		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seehut", "empty", getQuest().completedOption).get());
+		getQuest().firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "empty", getQuest().completedOption).get());
 	}
 	else
 	{
