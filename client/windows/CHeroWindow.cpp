@@ -28,6 +28,7 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../render/IRenderHandler.h"
 
 #include "../lib/CConfigHandler.h"
@@ -148,16 +149,27 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
+	if(hero->secSkills.size() > 8)
+	{
+		auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
+		int lines = divisionRoundUp(hero->secSkills.size(), 2);
+		secSkillSlider = std::make_shared<CSlider>(Point(284, 276), 189, [this](int val){ CHeroWindow::update(); }, 4, lines, 0, Orientation::VERTICAL, CSlider::BROWN);
+		secSkillSlider->setPanningStep(48);
+		secSkillSlider->setScrollBounds(Rect(-266, 0, secSkillSlider->pos.x - pos.x + secSkillSlider->pos.w, secSkillSlider->pos.h));
+	}
+
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
-		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
+		bool isSmallBox = (secSkillSlider && i%2 == 1);
+		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2), isSmallBox ? 120 : 136,  42);
 		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::MEDIUM));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
+		int width = isSmallBox ? 71 : 87;
 
-		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT));
-		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT));
+		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
+		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
 	}
 
 	// various texts
@@ -175,6 +187,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 void CHeroWindow::update()
 {
+	OBJECT_CONSTRUCTION;
+
 	CWindowWithArtifacts::update();
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
@@ -195,7 +209,6 @@ void CHeroWindow::update()
 	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
-		OBJECT_CONSTRUCTION;
 		if(!garr)
 		{
 			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
@@ -233,9 +246,17 @@ void CHeroWindow::update()
 	}
 
 	//secondary skills support
-	for(size_t g=0; g< secSkills.size(); ++g)
+	for(size_t g=0; g < secSkills.size(); ++g)
 	{
-		SecondarySkill skill = curHero->secSkills[g].first;
+		int offset = secSkillSlider ? secSkillSlider->getValue() * 2 : 0;
+		if(curHero->secSkills.size() < g + offset + 1)
+		{
+			secSkillNames[g]->setText("");
+			secSkillValues[g]->setText("");
+			secSkills[g]->setSkill(SecondarySkill::NONE);
+			break;
+		}
+		SecondarySkill skill = curHero->secSkills[g + offset].first;
 		int	level = curHero->getSecSkillLevel(skill);
 		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
 		std::string skillValue = LIBRARY->generaltexth->levels[level-1];

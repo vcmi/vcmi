@@ -41,7 +41,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
+#include "../../lib/GameSettings.h"
 
 static const std::string OVERVIEW_BACKGROUND = "OvCast.pcx";
 static const size_t OVERVIEW_SIZE = 4;
@@ -983,8 +984,17 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+(int)i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
 	}
 
-	for(size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
+	int slots = 8;
+	bool isMoreSkillsThanSlots = hero->secSkills.size() > slots;
+	for(size_t i=0; i<slots; i++)
 	{
+		if(isMoreSkillsThanSlots && i == slots - 1)
+		{
+			Rect r(Point(410+(int)i*36, 5), Point(34, 28));
+			heroInfoFull = std::make_shared<CMultiLineLabel>(r, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+			heroInfoFullArea = std::make_shared<LRClickableAreaWText>(r, LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.hover"), LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.help"));
+			continue;
+		}
 		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+(int)i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
 	}

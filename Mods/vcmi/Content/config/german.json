@@ -425,6 +425,9 @@
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Nicht genügend Ressourcen um alle Kreaturen aufzurüsten. Folgende Kreaturen aufrüsten?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Nicht genügend Ressourcen um mindestens eine Kreatur aufzurüsten.",
 
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "Mehr skills",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{Mehr skills}\n\nDieser Held hat mehr Skills.\nIn der Heldenübersicht können alle eingesehen werden.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Eines der folgenden:",
 	"vcmi.logicalExpressions.allOf"  : "Alles der folgenden:",
 	"vcmi.logicalExpressions.noneOf" : "Keines der folgenden:",

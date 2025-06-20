@@ -33,6 +33,7 @@ class CToggleGroup;
 class CGStatusBar;
 class CTextBox;
 class CGarrisonInt;
+class CSlider;
 
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
@@ -77,6 +78,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::vector< std::shared_ptr<CSecSkillPlace>> secSkills;
 	std::vector<std::shared_ptr<CLabel>> secSkillNames;
 	std::vector<std::shared_ptr<CLabel>> secSkillValues;
+	std::shared_ptr<CSlider> secSkillSlider;
 
 	std::shared_ptr<CButton> quitButton;
 	std::shared_ptr<CTextBox> dismissLabel;

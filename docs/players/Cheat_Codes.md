@@ -10,6 +10,17 @@ To use cheat code, press `Tab` key or click/tap on status bar to open game chat 
 
 `nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero. Also allows casting spell up to 100 times per combat round
 
+### Secondary Skills
+
+`vcmiskill <skillID> <mastery>` - give a secondary skill to currently selected hero
+
+Examples:
+`vcmiskill learning` - give expert level learning skill
+`vcmiskill leadership 2` - give advanced level leadership skill
+`vcmiskill wisdom 0` - remove wisdom skill
+`vcmiskill every` - give all skills on expert level
+`vcmiskill every 0` - remove all skills
+
 ### Army
 
 `nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  

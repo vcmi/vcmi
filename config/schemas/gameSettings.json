@@ -48,6 +48,7 @@
 				"movementCostBase"  :         { "type" : "number" },
 				"movementPointsLand" :        { "type" : "array" },
 				"movementPointsSea" :         { "type" : "array" },
+				"skillPerHero" :              { "type" : "number" },
 				"specialtyCreatureGrowth" :    { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
 				"baseScoutingRange" :         { "type" : "number" }

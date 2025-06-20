@@ -31,6 +31,7 @@
 #include "../CCreatureHandler.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
+#include "../GameSettings.h"
 #include "CGTownInstance.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -167,7 +168,7 @@ int3 CGHeroInstance::convertFromVisitablePos(const int3 & position) const
 
 bool CGHeroInstance::canLearnSkill() const
 {
-	return secSkills.size() < GameConstants::SKILL_PER_HERO;
+	return secSkills.size() < cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO);
 }
 
 bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
