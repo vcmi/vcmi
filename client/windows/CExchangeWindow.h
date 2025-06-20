@@ -28,7 +28,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 
 	std::vector<std::shared_ptr<LRClickableAreaWTextComp>> primSkillAreas;
 	std::array<std::vector<std::shared_ptr<CSecSkillPlace>>, 2> secSkills;
-	std::shared_ptr<CMultiLineLabel> secSkillsFull;
+	std::array<std::shared_ptr<CMultiLineLabel>, 2> secSkillsFull;
 
 	std::array<std::shared_ptr<CHeroArea>, 2> heroAreas;
 	std::array<std::shared_ptr<LRClickableAreaWText>, 2> specialtyAreas;
