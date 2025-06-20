@@ -17,7 +17,6 @@
 #include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"

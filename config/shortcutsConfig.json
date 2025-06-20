@@ -67,7 +67,6 @@
 		"battleOpenActiveUnit":     "I",
 		"battleOpenHoveredUnit":    "V",
 		"battleRetreat":            "R",
-		"battleSelectAction":       "S",
 		"battleToggleQuickSpell":   "T",
 		"battleSpellShortcut0":     "1",
 		"battleSpellShortcut1":     "2",

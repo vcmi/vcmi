@@ -24,7 +24,7 @@
 #include "battle/BattleEffectsController.h"
 #include "battle/BattleFieldController.h"
 #include "battle/BattleInterface.h"
-#include "battle/BattleInterfaceClasses.h"
+#include "battle/BattleResultWindow.h"
 #include "battle/BattleWindow.h"
 
 #include "eventsSDL/InputHandler.h"

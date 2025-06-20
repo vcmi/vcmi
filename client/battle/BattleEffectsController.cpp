@@ -11,18 +11,17 @@
 #include "BattleEffectsController.h"
 
 #include "BattleAnimationClasses.h"
-#include "BattleWindow.h"
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleFieldController.h"
-#include "BattleStacksController.h"
+#include "BattleInterface.h"
 #include "BattleRenderer.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../media/ISoundPlayer.h"
-#include "../render/Canvas.h"
 #include "../render/CAnimation.h"
+#include "../render/Canvas.h"
 #include "../render/Graphics.h"
 
 #include "../../lib/CStack.h"
