@@ -37,6 +37,7 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
@@ -130,9 +131,10 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	switch (type)
 	{
 	case HERO_MANA:
-	case HERO_EXPERIENCE:
 	case HERO_PRIMARY_SKILL:
 		return std::to_string(getValue());
+	case HERO_EXPERIENCE:
+		return TextOperations::formatMetric(getValue(), 6);
 	case HERO_SPECIAL:
 		return LIBRARY->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
@@ -374,7 +376,7 @@ std::string InfoBoxHeroData::getValueText()
 			return std::to_string(hero->mana) + '/' +
 				std::to_string(hero->manaLimit());
 		case HERO_EXPERIENCE:
-			return std::to_string(hero->exp);
+			return TextOperations::formatMetric(hero->exp, 6);
 		}
 	}
 	return InfoBoxAbstractHeroData::getValueText();
