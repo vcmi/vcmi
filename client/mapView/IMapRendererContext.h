@@ -56,8 +56,8 @@ public:
 	/// returns true if specified object is the currently active hero
 	virtual bool isActiveHero(const CGObjectInstance* obj) const = 0;
 
-	/// returns true if specified object is a monster and currently attacked
-	virtual bool isMonsterAttacked(const CGObjectInstance * obj) const = 0;
+	/// returns pos of attacker if specified object is a monster and currently attacked
+	virtual std::optional<int3> monsterAttacked(const CGObjectInstance * obj) const = 0;
 
 	virtual size_t objectGroupIndex(ObjectInstanceID objectID) const = 0;
 	virtual Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const = 0;

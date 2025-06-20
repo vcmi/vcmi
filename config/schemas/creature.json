@@ -153,6 +153,16 @@
 					"items" : { "type" : "string" },
 					"description" : "Object mask that describes on which tiles object is visible/blocked/activatable"
 				},
+				"mapAttackFromLeft" : {
+					"type" : "string",
+					"description" : "Adventure map creature image when attacked from left",
+					"format" : "imageFile"
+				},
+				"mapAttackFromRight" : {
+					"type" : "string",
+					"description" : "Adventure map creature image when attacked from right",
+					"format" : "imageFile"
+				},
 				"iconLarge" : {
 					"type" : "string",
 					"description" : "Large icon for this creature, used for example in town screen",
