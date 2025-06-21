@@ -889,10 +889,15 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this map object!");
 
 	if (objectToVisit &&
-		objectToVisit->getOwner().isValidPlayer() &&
-		gameInfo().getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
-		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
-		return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
+		objectToVisit->getOwner().isValidPlayer())
+	{
+		if (gameInfo().getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
+		   !turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
+			return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
+
+		if (gs->getBattle(objectToVisit->getOwner()) != nullptr)
+			return complainRet("You cannot move your hero there. This object belongs to another player who is engaged in battle and simultaneous turns are still active!");
+	}
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)

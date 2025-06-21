@@ -197,12 +197,8 @@
 		"school" : {
 			"type" : "object",
 			"description" : "List of spell schools this spell belongs to",
-			"additionalProperties" : false,
-			"properties" : {
-				"air" : {"type" : "boolean"},
-				"fire" : {"type" : "boolean"},
-				"earth" : {"type" : "boolean"},
-				"water" : {"type" : "boolean"}
+			"additionalProperties" : {
+				"type" : "boolean"
 			}
 		},
 		"level" : {

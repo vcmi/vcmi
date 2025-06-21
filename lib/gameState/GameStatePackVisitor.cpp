@@ -418,6 +418,18 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		return;
 	}
 
+	if(obj->ID == Obj::TOWN)
+	{
+		auto * town = dynamic_cast<CGTownInstance *>(obj);
+		town->setVisitingHero(nullptr);
+
+		if (town->getGarrisonHero())
+		{
+			town->setGarrisonedHero(nullptr);
+			gs.getMap().showObject(gs.getHero(town->getGarrisonHero()->id));
+		}
+	}
+
 	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
 	if (quest)
 	{
@@ -429,6 +441,7 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
+	obj->detachFromBonusSystem(gs);
 	gs.getMap().eraseObject(pack.objectID);
 	gs.getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
