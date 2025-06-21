@@ -568,6 +568,8 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 			i->second->heroMoved(pack, verbose);
 		}
 	}
+
+	GAME->map().waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)
