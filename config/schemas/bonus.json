@@ -3,7 +3,7 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI bonus type format",
 	"description" : "Definition of bonus types",
-	"required" : ["type"],
+	"required" : [],
 	"additionalProperties" : false,
 	"properties" : {
 		"hidden" : {
