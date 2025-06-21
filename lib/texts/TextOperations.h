@@ -91,6 +91,9 @@ namespace TextOperations
 
 	// Used for handling paths with non-ASCII characters.
 	DLL_LINKAGE boost::filesystem::path Utf8TofilesystemPath(const std::string& path);
+
+	/// Strip out unwanted characters from map name
+	DLL_LINKAGE std::string convertMapName(std::string input);
 };
 
 template<typename Arithmetic>

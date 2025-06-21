@@ -112,19 +112,6 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	return ret;
 }
 
-static std::string convertMapName(std::string input)
-{
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-
-	size_t slashPos = input.find_last_of("/");
-
-	if (slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
-
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinaryReader & reader, const std::string & filename, const std::string & modName, const std::string & encoding, const std::string & identifier)
 {
 	const std::string & input = TextOperations::toUnicode(reader.readBaseString(), encoding);
@@ -134,7 +121,7 @@ std::string CampaignHandler::readLocalizedString(CampaignHeader & target, CBinar
 
 std::string CampaignHandler::readLocalizedString(CampaignHeader & target, const std::string & text, const std::string & filename, const std::string & modName, const std::string & identifier)
 {
-	TextIdentifier stringID( "campaign", convertMapName(filename), identifier);
+	TextIdentifier stringID( "campaign", TextOperations::convertMapName(filename), identifier);
 
 	if (text.empty())
 		return "";
