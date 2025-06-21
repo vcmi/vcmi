@@ -400,6 +400,13 @@
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Kampfergebnis übernehmen",
 
+	"vcmi.credits.website" : "Webseite",
+	"vcmi.credits.vcmi" : "VCMI",
+	"vcmi.credits.heroes" : "Heroes of Might and Magic III",
+	"vcmi.credits.idea" : "Idee",
+	"vcmi.credits.developing" : "Entwicklung",
+	"vcmi.credits.testing" : "Tester",
+
 	"vcmi.tutorialWindow.title" : "Touchscreen Einführung",
 	"vcmi.tutorialWindow.decription.RightClick" : "Berührt und haltet das Element, auf das mit der rechten Maustaste geklickt werden soll. Berührt den freien Bereich, um zu schließen.",
 	"vcmi.tutorialWindow.decription.MapPanning" : "Berührt und zieht mit einem Finger, um die Karte zu verschieben.",

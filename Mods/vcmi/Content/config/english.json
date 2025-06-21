@@ -410,6 +410,13 @@
 	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Remaining duration : %d combat round",
 	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Remaining duration : %d combat rounds",
 
+	"vcmi.credits.website" : "Website",
+	"vcmi.credits.vcmi" : "VCMI",
+	"vcmi.credits.heroes" : "Heroes of Might and Magic III",
+	"vcmi.credits.idea" : "Idea",
+	"vcmi.credits.developing" : "Developing",
+	"vcmi.credits.testing" : "Testing",
+
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
 	"vcmi.tutorialWindow.decription.MapPanning" : "Touch and drag with one finger to move the map.",

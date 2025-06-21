@@ -17,7 +17,9 @@
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 #include "../../AUTHORS.h"
 
@@ -36,7 +38,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	for (auto & element : contributors) 
 	{
 		if(element[0] != contributorsTask)
-			contributorsText += "\r\n{" + element[0] + ":}\r\n";
+			contributorsText += "\r\n\r\n{" + LIBRARY->generaltexth->translate("vcmi.credits." + boost::to_lower_copy(element[0])) + ":}\r\n";
 		contributorsText += (element[2] != "" ? element[2] : element[1]) + "\r\n";
 		contributorsTask = element[0];
 	}
@@ -45,7 +47,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	std::string text((char *)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"') + 1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote);
-	text = "{- VCMI -}\r\n\r\n" + contributorsText + "\r\n\r\n{Website:}\r\nhttps://vcmi.eu\r\n\r\n\r\n\r\n\r\n{- Heroes of Might and Magic III -}\r\n\r\n" + text;
+	text = "{- " + LIBRARY->generaltexth->translate("vcmi.credits.vcmi") + " -}\r\n" + contributorsText + "\r\n\r\n{" + LIBRARY->generaltexth->translate("vcmi.credits.website") + ":}\r\nhttps://vcmi.eu\r\n\r\n\r\n\r\n\r\n{- " + LIBRARY->generaltexth->translate("vcmi.credits.heroes") + " -}\r\n\r\n\r\n" + text;
 	credits = std::make_shared<CMultiLineLabel>(Rect(pos.w - 350, 0, 350, 600), FONT_CREDITS, ETextAlignment::CENTER, Colors::WHITE, text);
 	credits->scrollTextTo(-600); // move all text below the screen
 }
