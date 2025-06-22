@@ -39,7 +39,7 @@ CreditsScreen::CreditsScreen(Rect rect)
 	{
 		if(element[0] != contributorsTask)
 			contributorsText += "\r\n\r\n{" + LIBRARY->generaltexth->translate("vcmi.credits." + boost::to_lower_copy(element[0])) + ":}\r\n";
-		contributorsText += (element[2] != "" ? element[2] : element[1]) + "\r\n";
+		contributorsText += (element[1] != "" ? element[1] : element[2]) + "\r\n";
 		contributorsTask = element[0];
 	}
 
