@@ -245,7 +245,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		{
 			moveUnitFromRightToLeftButtons.push_back(
 				std::make_shared<CButton>(
-					Point(484 + 36 * i, 155),
+					Point(483 + 36 * i, 155),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(false, SlotID(i)); }));
@@ -253,7 +253,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			moveUnitFromLeftToRightButtons.push_back(
 				std::make_shared<CButton>(
-					Point(66 + 36 * i, 155),
+					Point(65 + 36 * i, 155),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(true, SlotID(i)); }));
