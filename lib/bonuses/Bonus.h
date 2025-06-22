@@ -86,6 +86,7 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
+	Bonus(const Bonus & inst, const BonusSourceID & sourceId);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h)

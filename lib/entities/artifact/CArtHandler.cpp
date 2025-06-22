@@ -181,6 +181,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		for(const auto & b : node["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus(b);
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -191,6 +192,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			if (b.second.isNull())
 				continue;
 			auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -200,6 +202,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		if (b.second.isNull())
 			continue;
 		auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->description.appendTextID(art->getNameTextID());

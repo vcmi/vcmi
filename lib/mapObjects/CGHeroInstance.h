@@ -153,6 +153,7 @@ public:
 	void addSpellToSpellbook(const SpellID & spell);
 	void removeSpellFromSpellbook(const SpellID & spell);
 	bool spellbookContainsSpell(const SpellID & spell) const;
+	std::vector<BonusSourceID> getSourcesForSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;

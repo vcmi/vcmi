@@ -236,6 +236,12 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
+Bonus::Bonus(const Bonus & inst, const BonusSourceID & sourceId)
+	: Bonus(inst)
+{
+	sid = sourceId;
+}
+
 std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 {
 	propagator = Propagator;

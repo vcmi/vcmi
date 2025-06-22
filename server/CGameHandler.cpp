@@ -4337,34 +4337,29 @@ void CGameHandler::useChargeBasedSpell(const ObjectInstanceID & heroObjectID, co
 	assert(hero);
 	assert(hero->canCastThisSpell(spellID.toSpell()));
 
-	std::optional<std::tuple<ArtifactPosition, ArtifactInstanceID, uint16_t>> chargedArt;
-
 	// Check if hero used charge based spell
-	// To do this, we create a local copy of the hero with the necessary magical bonuses, except for the bonuses of charged artifacts
-	CGHeroInstance caster(&gameInfo());
-	caster.setHypothetic(true);
-	for(const auto & b : *hero->getAllBonuses(Selector::type()(BonusType::SPELLS_OF_LEVEL), nullptr))
-		caster.addNewBonus(b);
-	for(const auto & b : *hero->getAllBonuses(Selector::type()(BonusType::SPELLS_OF_SCHOOL), nullptr))
-		caster.addNewBonus(b);
-	for(const auto & spell : hero->getSpellsInSpellbook())
-		caster.addSpellToSpellbook(spell);
-	for(const auto & [slot, slotInfo] : hero->artifactsWorn)
+	// Try to find other sources of the spell besides the charged artifacts. If there are any, we use them.
+	std::optional<std::tuple<ArtifactPosition, ArtifactInstanceID, uint16_t>> chargedArt;
+	for(const auto & source : hero->getSourcesForSpell(spellID))
 	{
-		const auto * artInst = slotInfo.getArt();
-		const auto * artType = artInst->getType();
-		if(artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+		if(const auto * artInst = hero->getArtByInstanceId(source.as<ArtifactInstanceID>()))
 		{
-			if(const auto spellCost = artType->getChargeCost(spellID))
+			const auto * artType = artInst->getType();
+			const auto spellCost = artType->getChargeCost(spellID);
+			if(spellCost.has_value() && artType->getDischargeCondition()== DischargeArtifactCondition::SPELLCAST)
 			{
-				chargedArt.emplace(slot, artInst->getId(), spellCost.value());
-				continue;
+				chargedArt.emplace(hero->getArtPos(artInst), artInst->getId(), spellCost.value());
+			}
+			else
+			{
+				return;
 			}
 		}
-		caster.putArtifact(slot, artInst);
+		else
+		{
+			return;
+		}
 	}
-	if(caster.canCastThisSpell(spellID.toSpell()))
-		return;
 
 	assert(chargedArt.has_value());
 	DischargeArtifact msg(std::get<1>(chargedArt.value()), std::get<2>(chargedArt.value()));
