@@ -1119,7 +1119,7 @@ Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&
         <translation>Wybierz plik %1...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="377"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Musisz wybrać plik %1!</translation>
@@ -1136,19 +1136,19 @@ Instalator offline składa się z dwóch plików: &quot;.exe&quot; i &quot;.bin&
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>GOG installer</source>
         <translation>Instalator GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Pliki Heroes III: HD Edition nie są obsługiwane przez VCMI.  
 Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Nieznana lub nieobsługiwana wersja Heroes III została wykryta.  
@@ -1156,52 +1156,52 @@ Wybierz katalog z Heroes III: Complete Edition lub Heroes III: Shadow of Death.<
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="333"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
         <source>GOG data</source>
         <translation>Dane GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="370"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="439"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Podany plik jest instalatorem GOG Galaxy! Ten plik nie zawiera gry. Proszę pobrać zapasowy instalator offline gry!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="466"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
         <source>Hash error!</source>
         <translation>Błąd sumy kontrolnej!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>No Heroes III data!</source>
         <translation>Brak danych Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Wybrane pliki nie zawierają danych Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="515"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="516"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Nieudane znalezienie poprawnych plików Heroes III w podanej lokalizacji.
 Proszę wybrać folder z zainstalowanymi danymi Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="518"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="532"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="519"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="533"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Heroes III data not found!</source>
         <translation>Nie odnaleziono danych Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
         <source>Extracting error!</source>
         <translation>Błąd wypakowywania!</translation>
     </message>
@@ -1565,12 +1565,12 @@ Bin (%n bytes):
         <translation>Nieudane wyodrębnienie danych moda</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="251"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="256"/>
         <source>Mod data was not found</source>
         <translation>Nie znaleziono danych moda</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Mod jest umiejscowiony w chronionym folderze, proszę go usunąć ręcznie:</translation>

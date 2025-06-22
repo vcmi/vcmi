@@ -1142,7 +1142,7 @@ Cài đặt ngoại tuyến bao gồm hai tệp tin sau: &quot;.exe&quot; và &q
         <translation>Chọn tệp tin %1...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="377"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Bạn phải chọn tệp tin %1!</translation>
@@ -1159,24 +1159,24 @@ Cài đặt ngoại tuyến bao gồm hai tệp tin sau: &quot;.exe&quot; và &q
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>GOG installer</source>
         <translation>Trình cài đặt GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="439"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Bạn đã cung cấp bộ cài đặt GOG Galaxy! Tệp tin này không chứa dữ liệu trò chơi. Hãy tải về bộ cài đặt trò chơi Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>VCMI không hỗ trợ các tập tin Heroes III: HD Edition.
 Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Phiên bản Heroes III không đúng hoặc không được hỗ trợ.
@@ -1184,47 +1184,47 @@ Hãy chọn thư mục có Heroes III: Complete Edition hoặc Heroes III: Shado
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="333"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
         <source>GOG data</source>
         <translation>Dữ liệu GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="370"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
         <source>Extracting error!</source>
         <translation>Có lỗi khi giải nén</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="466"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
         <source>Hash error!</source>
         <translation>Lỗi hàm Hash!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>No Heroes III data!</source>
         <translation>Không có dữ liệu Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Các tệp tin đã chọn không chứa dữ liệu Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="515"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="516"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Không tìm thấy dữ liệu Heroes III trong thư mục đã chọn.
 Hãy chọn đúng thư mục chứa dữ liệu Heroes III đã cài đặt.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="518"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="532"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="519"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="533"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Heroes III data not found!</source>
         <translation>Không tìm thấy dữ liệu Heroes III!</translation>
     </message>
@@ -1578,12 +1578,12 @@ Bin (%n bytes):
         <translation>Không trích xuất được dữ liệu mod</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="251"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="256"/>
         <source>Mod data was not found</source>
         <translation>Không tìm thấy dữ liệu mod</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Mod nằm trong thư mục được bảo vệ, hãy xóa thủ công:
