@@ -748,7 +748,7 @@ void TemplateEditor::on_pushButtonAddSubTemplate_clicked()
 
 	if(templates.count(text.toStdString()))
 	{
-		QMessageBox::critical(this, tr("Already existing!"), tr("At template with this name is already existing."));
+		QMessageBox::critical(this, tr("Already existing!"), tr("A template with this name is already existing."));
 		return;
 	}
 

@@ -344,12 +344,12 @@
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished"></translation>
+        <translation>Fraktionen auswählen</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="25"/>
         <source>Faction Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Fraktions-Wähler</translation>
     </message>
 </context>
 <context>
@@ -438,12 +438,12 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
         <source>Save</source>
-        <translation type="unfinished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="165"/>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
 </context>
 <context>
@@ -732,7 +732,7 @@
         <location filename="../mainwindow.ui" line="1085"/>
         <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Template-Editor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1093"/>
@@ -1320,30 +1320,26 @@
     <message>
         <location filename="../mapcontroller.cpp" line="610"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">Held %1 kann nicht als NEUTRAL erstellt werden.</translation>
+        <translation>Held %1 kann nicht als NEUTRAL erstellt werden.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="624"/>
         <source>Missing Required Mod</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Erforderliches Mod fehlt</translation>
+        <translation>Erforderliche Mod fehlt</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="624"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
-
+        <translation>
 
 Möchten Sie das jetzt tun?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="634"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Das Mod dieses Objekts ist erforderlich, damit die Karte gültig bleibt.</translation>
+        <translation>Die Mod dieses Objekts ist erforderlich, damit die Karte gültig bleibt.</translation>
     </message>
 </context>
 <context>
@@ -1436,22 +1432,22 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Minen auswählen</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="27"/>
         <source>Mine Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Minen-Wähler</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="33"/>
         <source>Resource</source>
-        <translation type="unfinished">Ressource</translation>
+        <translation>Ressource</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="33"/>
         <source>Mines</source>
-        <translation type="unfinished">Minen</translation>
+        <translation>Minen</translation>
     </message>
 </context>
 <context>
@@ -1565,26 +1561,22 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Spieler auswählen</translation>
+        <translation>Spieler auswählen</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Held kann nicht als NEUTRAL erstellt werden</translation>
+        <translation>Held kann nicht als NEUTRAL erstellt werden</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Wechseln Sie zu einem der verfügbaren Spieler:</translation>
+        <translation>Wechsele zu einem der verfügbaren Spieler:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Tastenkombination: %1</translation>
+        <translation>Tastenkombination: %1</translation>
     </message>
 </context>
 <context>
@@ -1592,22 +1584,22 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation type="unfinished">Spieler-Einstellungen</translation>
+        <translation>Spieler-Einstellungen</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished">Spieler</translation>
+        <translation>Spieler</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
@@ -2021,17 +2013,15 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="647"/>
         <source> (submod of %1)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished"> (Submodul von %1)</translation>
+        <translation> (Submodul von %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="649"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Das Mod „%1“%2 wird von einem Objekt auf der Karte benötigt.
-Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellungen hinzu.</translation>
+        <translation>Die Mod „%1“%2 wird von einem Objekt auf der Karte benötigt.
+Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellungen hinzu.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="147"/>
@@ -3125,196 +3115,196 @@ Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellunge
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
         <location filename="../templateeditor/templateeditor.cpp" line="586"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Template-Editor</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">Datei</translation>
+        <translation>Datei</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">Bearbeiten</translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="53"/>
         <source>View</source>
-        <translation type="unfinished">Ansicht</translation>
+        <translation>Ansicht</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="68"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Werkzeugleiste</translation>
+        <translation>Werkzeugleiste</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="114"/>
         <source>Selected Template:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Template:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1276"/>
         <location filename="../templateeditor/templateeditor.cpp" line="224"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="144"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="151"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenennen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="215"/>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="221"/>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="233"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="245"/>
         <source>Min Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Min Größe</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="264"/>
         <location filename="../templateeditor/templateeditor.ui" line="363"/>
         <location filename="../templateeditor/templateeditor.ui" line="548"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="294"/>
         <location filename="../templateeditor/templateeditor.ui" line="393"/>
         <location filename="../templateeditor/templateeditor.ui" line="578"/>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="324"/>
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
         <location filename="../templateeditor/templateeditor.ui" line="1329"/>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="344"/>
         <source>Max Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Max Größe</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
         <location filename="../templateeditor/templateeditor.ui" line="449"/>
         <source>Players</source>
-        <translation type="unfinished">Spieler</translation>
+        <translation>Spieler</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
         <source>Human</source>
-        <translation type="unfinished"></translation>
+        <translation>Mensch</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="472"/>
         <source>Allowed water content</source>
-        <translation type="unfinished"></translation>
+        <translation>Wasser-Inhalt erlaubt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
         <location filename="../templateeditor/templateeditor.cpp" line="362"/>
         <location filename="../templateeditor/templateeditor.cpp" line="367"/>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="492"/>
         <source>Islands</source>
-        <translation type="unfinished">Inseln</translation>
+        <translation>Inseln</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="524"/>
         <source>Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="530"/>
         <source>Visualisation</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualisierung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="536"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Position</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="608"/>
         <location filename="../templateeditor/templateeditor.ui" line="664"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="636"/>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="652"/>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="680"/>
         <source>Owner</source>
-        <translation type="unfinished">Besitzer</translation>
+        <translation>Besitzer</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="692"/>
         <source>Zone link</source>
-        <translation type="unfinished"></translation>
+        <translation>Zonen-Verknüpfung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="698"/>
         <location filename="../templateeditor/templateeditor.ui" line="1196"/>
         <location filename="../templateeditor/templateeditor.ui" line="1202"/>
         <source>Mines</source>
-        <translation type="unfinished">Minen</translation>
+        <translation>Minen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="705"/>
         <location filename="../templateeditor/templateeditor.ui" line="1218"/>
         <source>Custom objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierte Objekte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="712"/>
         <location filename="../templateeditor/templateeditor.ui" line="1090"/>
         <source>Towns</source>
-        <translation type="unfinished">Städte</translation>
+        <translation>Städte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="719"/>
         <location filename="../templateeditor/templateeditor.ui" line="1060"/>
         <source>Terrain</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="736"/>
@@ -3322,17 +3312,17 @@ Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellunge
         <location filename="../templateeditor/templateeditor.ui" line="1186"/>
         <location filename="../templateeditor/templateeditor.cpp" line="337"/>
         <source>Treasure</source>
-        <translation type="unfinished"></translation>
+        <translation>Schatz</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="799"/>
         <source>Town info</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadtinfo</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="805"/>
         <source>Town count</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadtanzahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="817"/>
@@ -3340,7 +3330,7 @@ Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellunge
         <location filename="../templateeditor/templateeditor.ui" line="943"/>
         <location filename="../templateeditor/templateeditor.ui" line="1006"/>
         <source>Player</source>
-        <translation type="unfinished">Spieler</translation>
+        <translation>Spieler</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="843"/>
@@ -3348,386 +3338,388 @@ Fügen Sie es zu den erforderlichen Mods unter Karte → Allgemeine Einstellunge
         <location filename="../templateeditor/templateeditor.ui" line="969"/>
         <location filename="../templateeditor/templateeditor.ui" line="1032"/>
         <source>Neutral</source>
-        <translation type="unfinished">Neutral</translation>
+        <translation>Neutral</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="868"/>
         <source>Castle count</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlossanzahl</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="931"/>
         <source>Town density</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadtdichte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="994"/>
         <source>Castle density</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlossdichte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1066"/>
         <source>Match terrain to town</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain der Stadt anpassen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1073"/>
         <source>Terrain types</source>
-        <translation type="unfinished"></translation>
+        <translation>Terraintypen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1080"/>
         <source>Banned terrain types</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbotene Terraintypen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1096"/>
         <source>Towns are same type</source>
-        <translation type="unfinished"></translation>
+        <translation>Städte sind vom gleichen Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1103"/>
         <source>Allowed towns</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubte Städte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1110"/>
         <source>Banned towns</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbotene STädte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
         <source>Town hints</source>
-        <translation type="unfinished"></translation>
+        <translation>Stadt-Hinweise</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1127"/>
         <source>Monsters</source>
-        <translation type="unfinished">Monster</translation>
+        <translation>Monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1133"/>
         <source>Allowed monsters</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubte Monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1140"/>
         <source>Banned monsters</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbotene Monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1158"/>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>Stärke</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1212"/>
         <source>Objects</source>
-        <translation type="unfinished">Objekte</translation>
+        <translation>Objekte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1250"/>
         <source>Connections</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1294"/>
         <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1302"/>
         <source>Save</source>
-        <translation type="unfinished">Speichern</translation>
+        <translation>Speichern</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1310"/>
         <source>New</source>
-        <translation type="unfinished">Neu</translation>
+        <translation>Neu</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1318"/>
         <source>Save as...</source>
-        <translation type="unfinished">Speichern unter...</translation>
+        <translation>Speichern unter...</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1321"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Strg+Shift+S</translation>
+        <translation>Strg+Shift+S</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1326"/>
         <source>Add zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone hinzufügen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1337"/>
         <source>Remove zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone entfernen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1340"/>
         <location filename="../templateeditor/templateeditor.cpp" line="417"/>
         <source>Del</source>
-        <translation type="unfinished">Entf</translation>
+        <translation>Entf</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1345"/>
         <source>Auto position</source>
-        <translation type="unfinished"></translation>
+        <translation>Auto-Positionierung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1348"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished">Strg+P</translation>
+        <translation>Strg+P</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1353"/>
         <source>Zoom in</source>
-        <translation type="unfinished">Heranzoomen</translation>
+        <translation>Heranzoomen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1356"/>
         <source>Ctrl++</source>
-        <translation type="unfinished">Strg++</translation>
+        <translation>Strg++</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1361"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Herauszoomen</translation>
+        <translation>Herauszoomen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1364"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Strg+-</translation>
+        <translation>Strg+-</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1369"/>
         <source>Zoom auto</source>
-        <translation type="unfinished"></translation>
+        <translation>Autozoom</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1372"/>
         <source>Ctrl+Shift+:</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+Shift+:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1377"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">Zoom zurücksetzen</translation>
+        <translation>Zoom zurücksetzen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1380"/>
         <source>Ctrl+Shift+=</source>
-        <translation type="unfinished">Strg+Umschalt+=</translation>
+        <translation>Strg+Umschalt+=</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktion</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="213"/>
         <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
         <source>ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ID: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Max Schatz: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="335"/>
         <source>Player start</source>
-        <translation type="unfinished"></translation>
+        <translation>Spieler-Start</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="336"/>
         <source>CPU start</source>
-        <translation type="unfinished"></translation>
+        <translation>CPU-Start</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="338"/>
         <source>Junction</source>
-        <translation type="unfinished"></translation>
+        <translation>Kreuzung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="339"/>
         <source>Water</source>
-        <translation type="unfinished"></translation>
+        <translation>Wasser</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="340"/>
         <source>Sealed</source>
-        <translation type="unfinished"></translation>
+        <translation>Versiegelt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="368"/>
         <location filename="../templateeditor/templateeditor.cpp" line="405"/>
         <source>Random</source>
-        <translation type="unfinished">Zufall</translation>
+        <translation>Zufall</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Weak</source>
-        <translation type="unfinished">Schwach</translation>
+        <translation>Schwach</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Strong</source>
-        <translation type="unfinished">Stark</translation>
+        <translation>Stark</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Zone A</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone A</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Zone B</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone B</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Guard</source>
-        <translation type="unfinished"></translation>
+        <translation>Wächter</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Road</source>
-        <translation type="unfinished"></translation>
+        <translation>Straße</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="400"/>
         <source>Guarded</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewacht</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="401"/>
         <source>Fictive</source>
-        <translation type="unfinished"></translation>
+        <translation>Fiktiv</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="402"/>
         <source>Repulsive</source>
-        <translation type="unfinished"></translation>
+        <translation>Abstoßend</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="403"/>
         <source>Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>Weit</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="404"/>
         <source>Force portal</source>
-        <translation type="unfinished"></translation>
+        <translation>Portal erzwingen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="406"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="407"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="514"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone A: %1
+Zone B: %2
+Wächter: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="574"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Bestätigung</translation>
+        <translation>Bestätigung</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="574"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht gespeicherte Änderungen gehen verloren, seid Ihr sicher?</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="616"/>
         <source>Open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Template öffnen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="618"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI-Templates(*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="631"/>
         <source>Save template</source>
-        <translation type="unfinished"></translation>
+        <translation>Template speichern</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="631"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI-Templates (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="744"/>
         <location filename="../templateeditor/templateeditor.cpp" line="784"/>
         <source>Enter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Namen eingeben</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="744"/>
         <location filename="../templateeditor/templateeditor.cpp" line="784"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
         <source>Already existing!</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereits vorhanden!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
-        <source>At template with this name is already existing.</source>
-        <translation type="unfinished"></translation>
+        <source>A template with this name is already existing.</source>
+        <translation>Ein Template mit diesem Namen ist bereits vorhanden.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="767"/>
         <source>To few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu wenig Templates!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="767"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach dem Entfernen sollte mindestens ein Template übrig bleiben.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
         <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
         <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
         <source>Not implemented yet!</source>
-        <translation type="unfinished"></translation>
+        <translation>Noch nicht implementiert!</translation>
     </message>
 </context>
 <context>
@@ -3736,12 +3728,12 @@ Guard: %3</source>
         <location filename="../templateeditor/terrainselector.ui" line="14"/>
         <location filename="../templateeditor/terrainselector.ui" line="20"/>
         <source>Select Terrains</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain auswählen</translation>
     </message>
     <message>
         <location filename="../templateeditor/terrainselector.cpp" line="25"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Terrain-Wähler</translation>
     </message>
 </context>
 <context>
@@ -4090,32 +4082,32 @@ Guard: %3</source>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished"></translation>
+        <translation>Schätze auswählen</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="26"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>Schätze-Wähler</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Density</source>
-        <translation type="unfinished"></translation>
+        <translation>Dichte</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktion</translation>
     </message>
 </context>
 <context>
@@ -4178,8 +4170,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="87"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Besitzbares Objekt %1 kann nicht markiert werden, muss aber NEUTRAL oder einem Spieler gehören</translation>
+        <translation>Besitzbares Objekt %1 kann nicht markiert werden, muss aber NEUTRAL oder einem Spieler gehören</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="111"/>
@@ -4224,8 +4215,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>The map is valid and has no issues.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Die Karte ist gültig und weist keine Probleme auf.</translation>
+        <translation>Die Karte ist gültig und weist keine Probleme auf.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>

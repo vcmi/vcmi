@@ -4253,7 +4253,7 @@ Guard: %3</source>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
-        <source>At template with this name is already existing.</source>
+        <source>A template with this name is already existing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

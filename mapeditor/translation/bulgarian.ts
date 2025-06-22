@@ -1874,7 +1874,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Играч(и)</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
@@ -3761,7 +3761,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
         <location filename="../templateeditor/templateeditor.ui" line="449"/>
         <source>Players</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Играч(и)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
@@ -4246,7 +4246,7 @@ Guard: %3</source>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
-        <source>At template with this name is already existing.</source>
+        <source>A template with this name is already existing.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
