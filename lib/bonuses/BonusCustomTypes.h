@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../constants/VariantIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -75,5 +76,8 @@ public:
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
 };
+
+using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
+using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, ArtifactInstanceID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 
 VCMI_LIB_NAMESPACE_END

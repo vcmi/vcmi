@@ -871,12 +871,7 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	}
 
 	for (const auto & bonus : art->instanceBonuses)
-	{
-		auto instBonus = std::make_shared<Bonus>(*bonus, artInst->getId());
-		if(const auto srcLimiter = std::static_pointer_cast<const HasChargesLimiter>(bonus->limiter))
-			instBonus->limiter = std::make_shared<HasChargesLimiter>(*srcLimiter, artInst->getId());
-		artInst->addNewBonus(instBonus);
-	}
+		artInst->addNewBonus(std::make_shared<Bonus>(*bonus, artInst->getId()));
 
 	return artInst;
 }

@@ -4346,7 +4346,7 @@ void CGameHandler::useChargeBasedSpell(const ObjectInstanceID & heroObjectID, co
 		{
 			const auto * artType = artInst->getType();
 			const auto spellCost = artType->getChargeCost(spellID);
-			if(spellCost.has_value() && artType->getDischargeCondition()== DischargeArtifactCondition::SPELLCAST)
+			if(spellCost.has_value() && spellCost.value() <= artInst->getCharges() && artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
 			{
 				chargedArt.emplace(hero->getArtPos(artInst), artInst->getId(), spellCost.value());
 			}

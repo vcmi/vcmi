@@ -11,29 +11,21 @@
 
 #include "BonusEnum.h"
 #include "BonusCustomTypes.h"
-#include "../constants/VariantIdentifier.h"
-#include "../constants/EntityIdentifiers.h"
+#include "Limiters.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
 #include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct Bonus;
 class IBonusBearer;
-class CBonusSystemNode;
-class ILimiter;
 class IPropagator;
 class IUpdater;
-class BonusList;
 class CSelector;
 class IGameInfoCallback;
 
-using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
-using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, ArtifactInstanceID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
-using TLimiterPtr = std::shared_ptr<const ILimiter>;
 using TPropagatorPtr = std::shared_ptr<const IPropagator>;
 using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 

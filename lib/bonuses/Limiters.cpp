@@ -14,13 +14,9 @@
 
 #include "../CBonusTypeHandler.h"
 #include "../GameLibrary.h"
-#include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
-#include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../CSkillHandler.h"
 #include "../CStack.h"
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"
@@ -81,7 +77,7 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	}
 }
 
-ILimiter::EDecision ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
+ILimiter::EDecision ILimiter::limit(const BonusLimitationContext &context) const
 {
 	return ILimiter::EDecision::ACCEPT;
 }
@@ -596,23 +592,17 @@ HasChargesLimiter::HasChargesLimiter(const uint16_t cost)
 {
 }
 
-HasChargesLimiter::HasChargesLimiter(const HasChargesLimiter & inst, const BonusSourceID & id)
-	: HasChargesLimiter(inst)
-{
-	chargesSourceId = id;
-}
-
 ILimiter::EDecision HasChargesLimiter::limit(const BonusLimitationContext & context) const
 {
 	for(const auto & bonus : context.stillUndecided)
 	{
-		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == chargesSourceId)
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == context.b.sid)
 			return ILimiter::EDecision::NOT_SURE;
 	}
 
 	for(const auto & bonus : context.alreadyAccepted)
 	{
-		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == chargesSourceId)
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == context.b.sid)
 			return bonus->val >= chargeCost ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	}
 	return ILimiter::EDecision::DISCARD;
