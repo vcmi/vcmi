@@ -32,6 +32,13 @@
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nChceš najmout jednotku %s, %s nebo %s?",
 	
 	"vcmi.artifact.charges" : "Použití",
+	
+	"vcmi.battle.action.move" : "Přesunout jednotku na určené místo",
+	"vcmi.battle.action.info" : "Zobrazit informace o jednotce",
+	"vcmi.battle.action.shoot" : "Použít střelecký útok",
+	"vcmi.battle.action.attack" : "Použít útok zblízka",
+	"vcmi.battle.action.return" : "Zaútočit zblízka a vrátit se",
+	"vcmi.battle.action.genie" : "Seslat náhodné podpůrné kouzlo",
 
 	"vcmi.bonusSource.artifact" : "Artefakt",
 	"vcmi.bonusSource.creature" : "Schopnost",
@@ -435,6 +442,9 @@
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Nemáte dostatek surovin na vylepšení všech jednotek. Chcete vylepšit následující jednotky?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Nemáte dostatek surovin na vylepšení žádné z jednotek.",
 
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "Další druhotné dovednosti",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{Další druhotné dovednosti}\n\nTento hrdina má více druhotných dovedností.\nVšechny si můžeš prohlédnout v přehledu hrdiny.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Nějaké z následujících:",
 	"vcmi.logicalExpressions.allOf"  : "Všechny následující:",
 	"vcmi.logicalExpressions.noneOf" : "Žádné z následujících:",
@@ -637,7 +647,6 @@
 	"creatures.core.azureDragon.bonus.fearful" : "{Strach}\nVyvolává strach u nepřátelské jednotky",
 	"creatures.core.azureDragon.bonus.fearless" : "{Nebojácnost}\nImunní vůči schopnosti Strach",
 
-
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dvojitý útok}\nÚtočí dvakrát", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Další odvetné útoky}\nMůže odvetně zaútočit ${val} krát navíc",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Útok na všechny kolem}\nÚtočí na všechny sousední nepřátele",
@@ -700,6 +709,7 @@
 	"core.bonus.REVENGE.description" : "{Pomsta}\nZpůsobuje extra poškození na základě ztrát útočníka v bitvě",
 	"core.bonus.SHOOTER.description" : "{Střelec}\nJednotka může střílet",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description" : "{Střílí všude kolem}\nStřelecký útok této jednotky zasáhne všechny cíle v malé oblasti",
+	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{Přeměna na kostlivce}\nMěnič na kostlivce přemění tuto jednotku na ${subtype.creature}.",
 	"core.bonus.SOUL_STEAL.description" : "{Zloděj duší}\nZískává ${val} nové jednotky za každého zabitého nepřítele",
 	"core.bonus.SPELL_AFTER_ATTACK.description" : "{Sesílá po útoku}\nMá ${val}% šanci seslat ${subtype.spell} po útoku",
 	"core.bonus.SPELL_BEFORE_ATTACK.description" : "{Sesílá před útokem}\nMá ${val}% šanci seslat ${subtype.spell} před útokem",
