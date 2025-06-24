@@ -74,6 +74,11 @@ void PackageApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPackageApplied(*this);
 }
 
+void PackageReceived::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPackageReceived(*this);
+}
+
 void SystemMessage::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSystemMessage(*this);

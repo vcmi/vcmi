@@ -52,23 +52,58 @@ using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 struct DLL_LINKAGE PackageApplied : public CPackForClient
 {
 	PackageApplied() = default;
-	explicit PackageApplied(ui8 Result)
-		: result(Result)
+	PackageApplied(PlayerColor player, uint32_t requestID, uint16_t packType, bool result)
+		: player(player)
+		, requestID(requestID)
+		, packType(packType)
+		, result(result)
 	{
 	}
+
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	ui8 result = 0; //0 - something went wrong, request hasn't been realized; 1 - OK
-	ui32 packType = 0; //type id of applied package
-	ui32 requestID = 0; //an ID given by client to the request that was applied
+	/// ID of player that sent this package
 	PlayerColor player;
+	/// request ID, as provided by player
+	uint32_t requestID = 0;
+	/// type id of applied package
+	uint16_t packType = 0;
+	/// If false, then pack failed to apply, for example - illegal request
+	bool result = false;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & result;
-		h & packType;
-		h & requestID;
 		h & player;
+		h & requestID;
+		h & packType;
+		h & result;
+	}
+};
+
+struct DLL_LINKAGE PackageReceived : public CPackForClient
+{
+	PackageReceived() = default;
+	PackageReceived(PlayerColor player, uint32_t requestID, uint16_t packType)
+		: player(player)
+		, requestID(requestID)
+		, packType(packType)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	/// ID of player that sent this package
+	PlayerColor player;
+	/// request ID, as provided by player
+	uint32_t requestID;
+	/// type id of applied package
+	uint16_t packType;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & player;
+		h & requestID;
+		h & packType;
 	}
 };
 

@@ -92,6 +92,7 @@ public:
 	void visitCatapultAttack(CatapultAttack & pack) override;
 	void visitEndAction(EndAction & pack) override;
 	void visitPackageApplied(PackageApplied & pack) override;
+	void visitPackageReceived(PackageReceived & pack) override;
 	void visitSystemMessage(SystemMessage & pack) override;
 	void visitPlayerBlocked(PlayerBlocked & pack) override;
 	void visitPlayerStartsTurn(PlayerStartsTurn & pack) override;

@@ -481,13 +481,22 @@ void CGameHandler::handleReceivedPack(std::shared_ptr<CConnection> connection, C
 	//prepare struct informing that action was applied
 	auto sendPackageResponse = [&](bool successfullyApplied)
 	{
-		PackageApplied applied;
-		applied.player = pack.player;
-		applied.result = successfullyApplied;
-		applied.packType = CTypeList::getInstance().getTypeID(&pack);
-		applied.requestID = pack.requestID;
+		PackageApplied applied(
+			pack.player,
+			pack.requestID,
+			CTypeList::getInstance().getTypeID(&pack),
+			successfullyApplied
+		);
 		connection->sendPack(applied);
 	};
+
+	PackageReceived received(
+		pack.player,
+		pack.requestID,
+		CTypeList::getInstance().getTypeID(&pack)
+	);
+	connection->sendPack(received);
+
 
 	if(isBlockedByQueries(&pack, pack.player))
 	{
