@@ -317,7 +317,7 @@ bool DimensionDoorMechanics::canBeCastImpl(spells::Problem & problem, const IGam
 	std::stringstream cachingStr;
 	cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << owner->id.num;
 
-	int castsAlreadyPerformedThisTurn = caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), Selector::all, cachingStr.str())->size();
+	int castsAlreadyPerformedThisTurn = caster->getHeroCaster()->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)), cachingStr.str())->size();
 	int castsLimit = owner->getLevelPower(schoolLevel);
 
 	bool isTournamentRulesLimitEnabled = cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TOURNAMENT_RULES_LIMIT);

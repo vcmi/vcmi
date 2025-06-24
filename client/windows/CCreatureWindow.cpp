@@ -848,7 +848,7 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent));
 	BonusList abilities = info->creature->getExportedBonusList();
 
 	// remove all bonuses that are not propagated away

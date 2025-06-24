@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 int IBonusBearer::valOfBonuses(const CSelector &selector, const std::string &cachingStr, int baseValue) const
 {
-	TConstBonusListPtr hlp = getAllBonuses(selector, nullptr, cachingStr);
+	TConstBonusListPtr hlp = getAllBonuses(selector, cachingStr);
 	return hlp->totalValue(baseValue);
 }
 
@@ -27,19 +27,9 @@ bool IBonusBearer::hasBonus(const CSelector &selector, const std::string &cachin
 	return !getBonuses(selector, cachingStr)->empty();
 }
 
-bool IBonusBearer::hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
-{
-	return !getBonuses(selector, limit, cachingStr)->empty();
-}
-
 TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
-	return getAllBonuses(selector, nullptr, cachingStr);
-}
-
-TConstBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
-{
-	return getAllBonuses(selector, limit, cachingStr);
+	return getAllBonuses(selector, cachingStr);
 }
 
 TConstBonusListPtr IBonusBearer::getBonusesFrom(BonusSource source) const
@@ -120,7 +110,7 @@ bool IBonusBearer::hasBonusFrom(BonusSource source) const
 
 std::shared_ptr<const Bonus> IBonusBearer::getBonus(const CSelector &selector) const
 {
-	auto bonuses = getAllBonuses(selector, Selector::all);
+	auto bonuses = getAllBonuses(selector);
 	return bonuses->getFirst(Selector::all);
 }
 

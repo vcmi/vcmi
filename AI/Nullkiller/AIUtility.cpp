@@ -290,7 +290,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 
 		for (const auto & slot : hero->Slots())
 		{
-			const auto allBonuses = slot.second->getAllBonuses(Selector::all, Selector::all);
+			const auto allBonuses = slot.second->getAllBonuses(Selector::all);
 			BonusLimitationContext context = {*bonus, *slot.second, *allBonuses, stillUndecided};
 
 			uint64_t unitStrength = slot.second->getPower();

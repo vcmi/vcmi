@@ -80,7 +80,7 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
+TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	if (cachingEnabled)
 	{
@@ -103,7 +103,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 		{
 			// Cached bonuses are up-to-date - use shared/read access and compute results
 			std::shared_lock lock(sync);
-			cachedBonuses.getBonuses(*ret, selector, limit);
+			cachedBonuses.getBonuses(*ret, selector);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 			if (cachedLast == nodeChanged)
 			{
 				// While our thread was waiting, another one have updated bonus tree. Use cached bonuses.
-				cachedBonuses.getBonuses(*ret, selector, limit);
+				cachedBonuses.getBonuses(*ret, selector);
 			}
 			else
 			{
@@ -126,7 +126,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 				limitBonuses(allBonuses, cachedBonuses);
 				cachedBonuses.stackBonuses();
 				cachedLast = nodeChanged;
-				cachedBonuses.getBonuses(*ret, selector, limit);
+				cachedBonuses.getBonuses(*ret, selector);
 			}
 		}
 
@@ -147,11 +147,11 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 	}
 	else
 	{
-		return getAllBonusesWithoutCaching(selector, limit);
+		return getAllBonusesWithoutCaching(selector);
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const
+TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector) const
 {
 	auto ret = std::make_shared<BonusList>();
 
@@ -160,7 +160,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 	BonusList afterLimiting;
 	getAllBonusesRec(beforeLimiting);
 	limitBonuses(beforeLimiting, afterLimiting);
-	afterLimiting.getBonuses(*ret, selector, limit);
+	afterLimiting.getBonuses(*ret, selector);
 	ret->stackBonuses();
 	return ret;
 }
@@ -300,7 +300,7 @@ void CBonusSystemNode::removeBonusesRecursive(const CSelector & s)
 void CBonusSystemNode::reduceBonusDurations(const CSelector &s)
 {
 	BonusList bl;
-	exportedBonuses.getBonuses(bl, s, Selector::all);
+	exportedBonuses.getBonuses(bl, s);
 	for(const auto & b : bl)
 	{
 		b->turnsRemain--;
@@ -351,7 +351,7 @@ void CBonusSystemNode::removeBonus(const std::shared_ptr<Bonus>& b)
 void CBonusSystemNode::removeBonuses(const CSelector & selector)
 {
 	BonusList toRemove;
-	exportedBonuses.getBonuses(toRemove, selector, Selector::all);
+	exportedBonuses.getBonuses(toRemove, selector);
 	for(const auto & bonus : toRemove)
 		removeBonus(bonus);
 }

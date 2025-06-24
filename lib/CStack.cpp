@@ -134,7 +134,7 @@ std::vector<SpellID> CStack::activeSpells() const
 		return b->type != BonusType::NONE && b->sid.as<SpellID>().toSpell() && !b->sid.as<SpellID>().toSpell()->isAdventure();
 	}));
 
-	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
+	TConstBonusListPtr spellEffects = getBonuses(selector, cachingStr.str());
 	for(const auto & it : *spellEffects)
 	{
 		if(!vstd::contains(ret, it->sid.as<SpellID>()))  //do not duplicate spells with multiple effects

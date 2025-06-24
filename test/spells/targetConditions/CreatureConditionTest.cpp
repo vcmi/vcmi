@@ -21,7 +21,7 @@ class CreatureConditionTest : public TargetConditionItemTest
 public:
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(0);
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(0);
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(0);
 	}
 

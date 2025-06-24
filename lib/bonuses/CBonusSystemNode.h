@@ -70,7 +70,7 @@ private:
 	mutable std::shared_mutex sync;
 
 	void getAllBonusesRec(BonusList &out) const;
-	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
+	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 
@@ -101,7 +101,7 @@ public:
 	explicit CBonusSystemNode(ENodeTypes NodeType);
 	virtual ~CBonusSystemNode();
 
-	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector &selector, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	/// Returns first bonus matching selector

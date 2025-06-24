@@ -329,7 +329,7 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
-	exported.getBonuses(existing, selector, Selector::all);
+	exported.getBonuses(existing, selector);
 
 	if(existing.empty())
 	{
