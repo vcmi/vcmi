@@ -89,9 +89,9 @@ class DLL_LINKAGE TimesStackSizeUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int count) const;
 
-	int minimum;
-	int maximum;
-	int stepSize;
+	int minimum = std::numeric_limits<int>::min();
+	int maximum = std::numeric_limits<int>::max();
+	int stepSize = 1;
 public:
 	TimesStackSizeUpdater() = default;
 	TimesStackSizeUpdater(int minimum, int maximum, int stepSize)

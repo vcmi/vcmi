@@ -119,7 +119,6 @@ std::shared_ptr<Bonus> TimesStackSizeUpdater::apply(const std::shared_ptr<Bonus>
 {
 	auto newBonus = std::make_shared<Bonus>(*b);
 	newBonus->val *= std::clamp(count / stepSize, minimum, maximum);
-	newBonus->updater = nullptr; // prevent double-apply
 	return newBonus;
 }
 

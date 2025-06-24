@@ -84,15 +84,25 @@ Usage:
 
 Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in current unit stack
 
-Parameters `minimum` and `maximum` are optional and can be dropped if not needed
+Example of short form with default parameters:
 
-Example:
+```json
+"updater" : "TIMES_STACK_SIZE"
+```
+
+Example of long form with custom parameters:
 
 ```json
 "updater" : {
     "type" : "TIMES_STACK_SIZE",
+    
+    // Optional, by default - unlimited
     "minimum" : 0,
+    
+    // Optional, by default - unlimited
     "maximum" : 100,
+    
+    // Optional, by default - 1
     "stepSize" : 2
 }
 ```

@@ -386,6 +386,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>()},
 			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>()},
 			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
+			{"TIMES_STACK_SIZE", std::make_shared<TimesStackSizeUpdater>()},
 			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>()}
 	};
 
