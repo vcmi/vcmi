@@ -64,22 +64,18 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 	}
 }
 
-void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & selector) const
+void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
 	BonusList beforeUpdate;
 
 	for(const auto * parent : parentsToInherit)
-		parent->getAllBonusesRec(beforeUpdate, selector);
+		parent->getAllBonusesRec(beforeUpdate);
 
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(const auto & b : beforeUpdate)
 	{
-		//We should not run updaters on non-selected bonuses
-		auto updated = selector(b.get()) && b->updater
-			? getUpdatedBonus(b, b->updater)
-			: b;
-
+		auto updated = b->updater ? getUpdatedBonus(b, b->updater) : b;
 		out.push_back(updated);
 	}
 }
@@ -126,7 +122,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 
 				cachedBonuses.clear();
 
-				getAllBonusesRec(allBonuses, Selector::all);
+				getAllBonusesRec(allBonuses);
 				limitBonuses(allBonuses, cachedBonuses);
 				cachedBonuses.stackBonuses();
 				cachedLast = nodeChanged;
@@ -162,7 +158,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector
 	// Get bonus results without caching enabled.
 	BonusList beforeLimiting;
 	BonusList afterLimiting;
-	getAllBonusesRec(beforeLimiting, selector);
+	getAllBonusesRec(beforeLimiting);
 	limitBonuses(beforeLimiting, afterLimiting);
 	afterLimiting.getBonuses(*ret, selector, limit);
 	ret->stackBonuses();
@@ -382,7 +378,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 			: b;
 		bonuses.push_back(propagated);
 		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(nullptr), nodeName());
-		nodeHasChanged();
+		invalidateChildrenNodes(nodeChanged);
 	}
 
 	TNodes lchildren;
@@ -404,7 +400,7 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 		{
 			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
 			{
-				nodeHasChanged();
+				invalidateChildrenNodes(nodeChanged);
 				return true;
 			}
 			return false;
@@ -617,12 +613,29 @@ void CBonusSystemNode::nodeHasChanged()
 	invalidateChildrenNodes(++globalCounter);
 }
 
+void CBonusSystemNode::recomputePropagationUpdaters(const CBonusSystemNode & source)
+{
+	for(const auto & b : exportedBonuses)
+	{
+		if (b->propagator && b->propagationUpdater)
+		{
+			unpropagateBonus(b);
+			propagateBonus(b,  source);
+		}
+	}
+}
+
 void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
 {
 	if (nodeChanged == changeCounter)
 		return;
 
 	nodeChanged = changeCounter;
+
+	recomputePropagationUpdaters(*this);
+	for(const CBonusSystemNode * parent : parentsToInherit)
+		if (parent->actsAsBonusSourceOnly())
+			recomputePropagationUpdaters(*parent);
 
 	for(CBonusSystemNode * child : children)
 		child->invalidateChildrenNodes(changeCounter);

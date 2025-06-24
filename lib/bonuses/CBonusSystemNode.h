@@ -69,7 +69,7 @@ private:
 	mutable RequestsMap cachedRequests;
 	mutable std::shared_mutex sync;
 
-	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
+	void getAllBonusesRec(BonusList &out) const;
 	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
@@ -82,6 +82,7 @@ private:
 
 	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
+	void recomputePropagationUpdaters(const CBonusSystemNode & source);
 	bool actsAsBonusSourceOnly() const;
 
 	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed

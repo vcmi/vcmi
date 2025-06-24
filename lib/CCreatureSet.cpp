@@ -833,6 +833,7 @@ void CStackInstance::setCount(TQuantity newCount)
 	}
 
 	CStackBasicDescriptor::setCount(newCount);
+	nodeHasChanged();
 }
 
 std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus) const
