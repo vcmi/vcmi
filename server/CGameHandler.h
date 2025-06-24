@@ -57,10 +57,11 @@ class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
+class IGameServer;
 
 class CGameHandler : public Environment, public IGameEventCallback
 {
-	CVCMIServer * lobby;
+	IGameServer & server;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
@@ -81,8 +82,6 @@ public:
 
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
-	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
-
 	//queries stuff
 	QueryID QID;
 
@@ -92,7 +91,7 @@ public:
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	CVCMIServer & gameLobby() const;
+	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
@@ -110,7 +109,7 @@ public:
 	void createHole(const int3 & visitablePosition, PlayerColor initiator);
 	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
 
-	explicit CGameHandler(CVCMIServer * lobby);
+	explicit CGameHandler(IGameServer & server);
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -237,7 +236,7 @@ public:
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
 	void save(const std::string &fname);
-	bool load(const std::string &fname);
+	void load(const StartInfo &info);
 
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);

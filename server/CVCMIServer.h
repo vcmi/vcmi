@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "IGameServer.h"
+
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
@@ -32,14 +34,7 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
-enum class EServerState : ui8
-{
-	LOBBY,
-	GAMEPLAY,
-	SHUTDOWN
-};
-
-class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
 {
 	/// Network server instance that receives and processes incoming connections on active socket
 	std::unique_ptr<INetworkServer> networkServer;
@@ -59,7 +54,18 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	uint16_t port;
 	bool runByClient;
 
+
+	bool loadSavedGame(const StartInfo &info);
 public:
+
+	// IGameServer impl
+	void setState(EServerState value) override;
+	EServerState getState() const override;
+	bool isPlayerHost(const PlayerColor & color) const override;
+	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const override;
+	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
+	void broadcastPack(const CPackForClient & pack) override;
+
 	/// List of all active connections
 	std::vector<std::shared_ptr<CConnection>> activeConnections;
 
@@ -108,9 +114,6 @@ public:
 
 	INetworkHandler & getNetworkHandler();
 	INetworkServer & getNetworkServer();
-
-	void setState(EServerState value);
-	EServerState getState() const;
 
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);

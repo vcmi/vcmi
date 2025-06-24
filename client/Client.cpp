@@ -144,7 +144,7 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gamestate = initializedGameState;
 	gamestate->preInit(LIBRARY);
-	gamestate->updateOnLoad(GAME->server().si.get());
+	gamestate->updateOnLoad(*GAME->server().si);
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();

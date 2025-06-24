@@ -128,9 +128,9 @@ events::EventBus * CGameHandler::eventBus() const
 	return serverEventBus.get();
 }
 
-CVCMIServer & CGameHandler::gameLobby() const
+IGameServer & CGameHandler::gameServer() const
 {
-	return *lobby;
+	return server;
 }
 
 void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
@@ -439,38 +439,36 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 void CGameHandler::handleClientDisconnection(const std::shared_ptr<CConnection> & c)
 {
-	if(gameLobby().getState() == EServerState::SHUTDOWN || !gameState().getStartInfo())
+	if(gameServer().getState() == EServerState::SHUTDOWN || !gameState().getStartInfo())
 	{
 		assert(0); // game should have shut down before reaching this point!
 		return;
 	}
-	
-	for(auto & playerConnections : connections)
-	{
-		PlayerColor playerId = playerConnections.first;
 
-		auto playerConnection = vstd::find(playerConnections.second, c);
-		if(playerConnection == playerConnections.second.end())
+	std::vector<PlayerColor> disconnectedPlayers;
+	std::vector<PlayerColor> remainingPlayers;
+
+	// this player have left the game - broadcast infowindow to all in-game players
+	for (const auto & player : gameState().players)
+	{
+		if (gameInfo().getPlayerState(player.first)->status != EPlayerStatus::INGAME)
 			continue;
 
-		logGlobal->trace("Player %s disconnected. Notifying remaining players", playerId.toString());
+		if (gameServer().hasPlayerAt(player.first, c))
+			disconnectedPlayers.push_back(player.first);
+		else
+			remainingPlayers.push_back(player.first);
+	}
 
-		// this player have left the game - broadcast infowindow to all in-game players
-		for (const auto & player : gameState().players)
+	for (const auto & inGamePlayer : remainingPlayers)
+	{
+		for (const auto & lostPlayer : disconnectedPlayers)
 		{
-			if (player.first == playerId)
-				continue;
-
-			if (gameInfo().getPlayerState(player.first)->status != EPlayerStatus::INGAME)
-				continue;
-
-			logGlobal->trace("Notifying player %s", player.first);
-
 			InfoWindow out;
-			out.player = player.first;
+			out.player = inGamePlayer;
 			out.text.appendTextID("vcmi.server.errors.playerLeft");
-			out.text.replaceName(playerId);
-			out.components.emplace_back(ComponentType::FLAG, playerId);
+			out.text.replaceName(lostPlayer);
+			out.components.emplace_back(ComponentType::FLAG, lostPlayer);
 			sendAndApply(out);
 		}
 	}
@@ -526,8 +524,8 @@ void CGameHandler::handleReceivedPack(std::shared_ptr<CConnection> connection, C
 	}
 }
 
-CGameHandler::CGameHandler(CVCMIServer * lobby)
-	: lobby(lobby)
+CGameHandler::CGameHandler(IGameServer & server)
+	: server(server)
 	, heroPool(std::make_unique<HeroPoolProcessor>(this))
 	, battles(std::make_unique<BattleProcessor>(this))
 	, queries(std::make_unique<QueriesProcessor>())
@@ -740,19 +738,6 @@ void CGameHandler::onNewTurn()
 void CGameHandler::start(bool resume)
 {
 	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
-
-	for (const auto & cc : gameLobby().activeConnections)
-	{
-		auto players = gameLobby().getAllClientPlayers(cc->connectionID);
-		std::stringstream sbuffer;
-		sbuffer << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
-		for (PlayerColor color : players)
-		{
-			sbuffer << color << " ";
-			connections[color].insert(cc);
-		}
-		logGlobal->info(sbuffer.str());
-	}
 
 #if SCRIPTING_ENABLED
 	services()->scripts()->run(serverScripts);
@@ -1516,8 +1501,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::sendToAllClients(const CPackForClient & pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(pack).name());
-	for (const auto & c : gameLobby().activeConnections)
-		c->sendPack(pack);
+	gameServer().broadcastPack(pack);
 }
 
 void CGameHandler::sendAndApply(CPackForClient & pack)
@@ -1625,64 +1609,23 @@ void CGameHandler::save(const std::string & filename)
 	}
 }
 
-bool CGameHandler::load(const std::string & filename)
+void CGameHandler::load(const StartInfo &info)
 {
-	logGlobal->info("Loading from %s", filename);
-	const auto stem	= FileInfo::GetPathStem(filename);
+	logGlobal->info("Loading from %s", info.fileURI);
+	const auto stem	= FileInfo::GetPathStem(info.fileURI);
 
 	reinitScripting();
 
-	try
-	{
-		CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), gs.get());
-		gs = std::make_shared<CGameState>();
-		randomizer = std::make_unique<GameRandomizer>(*gs);
-		gs->loadGame(lf);
-		logGlobal->info("Loading server state");
-		lf.load(*this);
-		logGlobal->info("Game has been successfully loaded!");
-	}
-	catch(const ModIncompatibility & e)
-	{
-		logGlobal->error("Failed to load game: %s", e.what());
-		MetaString errorMsg;
-		if(!e.whatMissing().empty())
-		{
-			errorMsg.appendTextID("vcmi.server.errors.modsToEnable");
-			errorMsg.appendRawString("\n");
-			errorMsg.appendRawString(e.whatMissing());
-		}
-		if(!e.whatExcessive().empty())
-		{
-			errorMsg.appendTextID("vcmi.server.errors.modsToDisable");
-			errorMsg.appendRawString("\n");
-			errorMsg.appendRawString(e.whatExcessive());
-		}
-		gameLobby().announceMessage(errorMsg);
-		return false;
-	}
-	catch(const IdentifierResolutionException & e)
-	{
-		logGlobal->error("Failed to load game: %s", e.what());
-		MetaString errorMsg;
-		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
-		errorMsg.replaceRawString(e.identifierName);
-		gameLobby().announceMessage(errorMsg);
-		return false;
-	}
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), gs.get());
+	gs = std::make_shared<CGameState>();
+	randomizer = std::make_unique<GameRandomizer>(*gs);
+	gs->loadGame(lf);
+	logGlobal->info("Loading server state");
+	lf.load(*this);
+	logGlobal->info("Game has been successfully loaded!");
 
-	catch(const std::exception & e)
-	{
-		logGlobal->error("Failed to load game: %s", e.what());
-		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
-		str.appendRawString(": ");
-		str.appendRawString(e.what());
-		gameLobby().announceMessage(str);
-		return false;
-	}
 	gs->preInit(LIBRARY);
-	gs->updateOnLoad(gameLobby().si.get());
-	return true;
+	gs->updateOnLoad(info);
 }
 
 bool CGameHandler::bulkSplitStack(SlotID slotSrc, ObjectInstanceID srcOwner, si32 howMany)
@@ -2097,12 +2040,12 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 
 bool CGameHandler::hasPlayerAt(PlayerColor player,  const std::shared_ptr<CConnection> & c) const
 {
-	return connections.count(player) && connections.at(player).count(c);
+	return gameServer().hasPlayerAt(player, c);
 }
 
 bool CGameHandler::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
 {
-	return connections.count(left) && connections.count(right) && connections.at(left) == connections.at(right);
+	return gameServer().hasBothPlayersAtSameConnection(left, right);
 }
 
 bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
@@ -3589,7 +3532,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 			if(p->human)
 			{
-				gameLobby().setState(EServerState::SHUTDOWN);
+				gameServer().setState(EServerState::SHUTDOWN);
 			}
 		}
 		else

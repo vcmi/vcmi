@@ -23,6 +23,7 @@
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/Connection.h"
@@ -250,7 +251,7 @@ bool CVCMIServer::prepareToStartGame()
 		}
 	});
 
-	gh = std::make_shared<CGameHandler>(this);
+	gh = std::make_shared<CGameHandler>(*this);
 	switch(si->mode)
 	{
 	case EStartMode::CAMPAIGN:
@@ -271,7 +272,7 @@ bool CVCMIServer::prepareToStartGame()
 
 	case EStartMode::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
-		if(!gh->load(si->mapname))
+		if(!loadSavedGame(*si))
 		{
 			current.finish();
 			progressTrackingThread.join();
@@ -294,6 +295,17 @@ void CVCMIServer::startGameImmediately()
 {
 	for(auto activeConnection : activeConnections)
 		activeConnection->setCallback(gh->gameInfo());
+
+	for(auto activeConnection : activeConnections)
+	{
+		auto players = getAllClientPlayers(activeConnection->connectionID);
+		std::stringstream sbuffer;
+		sbuffer << "Connection " << activeConnection->connectionID << " will handle " << players.size() << " player: ";
+		for (PlayerColor color : players)
+			sbuffer << color << " ";
+
+		logGlobal->info(sbuffer.str());
+	}
 
 	gh->start(si->mode == EStartMode::LOAD_GAME);
 	setState(EServerState::GAMEPLAY);
@@ -1077,3 +1089,78 @@ INetworkServer & CVCMIServer::getNetworkServer()
 {
 	return *networkServer;
 }
+
+bool CVCMIServer::loadSavedGame(const StartInfo &info)
+{
+	try
+	{
+		gh->load(info);
+	}
+	catch(const ModIncompatibility & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		MetaString errorMsg;
+		if(!e.whatMissing().empty())
+		{
+			errorMsg.appendTextID("vcmi.server.errors.modsToEnable");
+			errorMsg.appendRawString("\n");
+			errorMsg.appendRawString(e.whatMissing());
+		}
+		if(!e.whatExcessive().empty())
+		{
+			errorMsg.appendTextID("vcmi.server.errors.modsToDisable");
+			errorMsg.appendRawString("\n");
+			errorMsg.appendRawString(e.whatExcessive());
+		}
+		announceMessage(errorMsg);
+		return false;
+	}
+	catch(const IdentifierResolutionException & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		announceMessage(errorMsg);
+		return false;
+	}
+
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
+		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+		str.appendRawString(": ");
+		str.appendRawString(e.what());
+		announceMessage(str);
+		return false;
+	}
+	return true;
+}
+
+bool CVCMIServer::isPlayerHost(const PlayerColor & color) const
+{
+	return LobbyInfo::isPlayerHost(color);
+}
+
+bool CVCMIServer::hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const
+{
+	return vstd::contains(getAllClientPlayers(c->connectionID), player);
+}
+
+bool CVCMIServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const
+{
+	for (const auto & c : activeConnections)
+	{
+		if (hasPlayerAt(left, c) && hasPlayerAt(right, c))
+			return true;
+	}
+
+	return false;
+}
+
+void CVCMIServer::broadcastPack(const CPackForClient & pack)
+{
+	for (const auto & c : activeConnections)
+		c->sendPack(pack);
+}
+
