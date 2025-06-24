@@ -730,6 +730,7 @@
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Summon guardians}\nAt the start of battle summons ${subtype.creature} (${val}%)",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Three-headed attack}\nAttacks three adjacent units",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutation}\n${val}% chance to transform attacked unit to a different type",
+	"core.bonus.TRANSMUTATION_IMMUNITY.description" : "{Transmutation Immunity}\nThis unit cannot be transformed into another unit by enemy attack",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Breath Attack}\nAttacks by this unit will also hit any unit positioned immediately behind the target",
 	"core.bonus.UNDEAD.description" : "{Undead}\nCreature is Undead and is immune to effects that only affect living",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Unlimited retaliations}\nThis unit can retaliate against an unlimited number of attacks",
