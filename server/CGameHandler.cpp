@@ -1335,12 +1335,11 @@ void CGameHandler::setMovePoints(SetMovePoints * smp)
 	sendAndApply(*smp);
 }
 
-void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode)
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val)
 {
 	SetMovePoints smp;
 	smp.hid = hid;
 	smp.val = val;
-	smp.mode = mode;
 	sendAndApply(smp);
 }
 
