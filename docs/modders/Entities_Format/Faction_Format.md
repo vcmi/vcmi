@@ -177,11 +177,11 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Background scenery for town screen, size must be 800x374
 	"townBackground": "",
 
-	// Small scenery for window in mage guild screen
-	"guildWindow": "",
+	// Small scenery for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	"guildWindow": [""],
 
-	// Background image for window in mage guild screen
-	"guildBackground" : "",
+	// Background image for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	"guildBackground" : [""],
 
 	// Video for tavern window
 	"tavernVideo" : "",
