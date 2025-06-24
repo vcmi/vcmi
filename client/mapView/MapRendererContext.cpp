@@ -87,13 +87,13 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	return false;
 }
 
-int MapRendererBaseContext::monsterAttacked(const CGObjectInstance * obj) const
+int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const
 {
-	if(obj->ID != Obj::MONSTER)
+	if(wanderingMonster->ID != Obj::MONSTER)
 		return -1;
 		
 	for(auto & battle : GAME->interface()->cb->getActiveBattles())
-		if(obj->pos == battle.second->getBattle()->getLocation())
+		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
 			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
 
 	return -1;

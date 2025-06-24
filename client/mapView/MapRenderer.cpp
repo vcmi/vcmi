@@ -420,6 +420,19 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	return ret;
 }
 
+std::shared_ptr<IImage> MapRendererObjects::getImage(const ImagePath & filename) const
+{
+	auto it = images.find(filename);
+
+	if(it != images.end())
+		return it->second;
+
+	auto ret = ENGINE->renderHandler().loadImage(filename, EImageBlitMode::SIMPLE);
+	images[filename] = ret;
+
+	return ret;
+}
+
 std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectInstance* obj)
 {
 	//TODO: relocate to config file?
@@ -456,7 +469,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	return nullptr;
 }
 
-std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
+std::shared_ptr<IImage> MapRendererObjects::getImageToRender(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
 {
 	if(!animation)
 		return nullptr;
@@ -466,7 +479,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
 	
-	auto attackerPos = context.monsterAttacked(obj);
+	auto attackerPos = context.attackedMonsterDirection(obj);
 	if(attackerPos != -1)
 	{
 		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
@@ -474,10 +487,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 		auto dir = std::vector<int>({1, 2, 7, 8});
 		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? creatureType->mapAttackFromRight : creatureType->mapAttackFromLeft;
 		if(!imgPath.empty())
-		{
-			auto img = ENGINE->renderHandler().loadImage(imgPath, EImageBlitMode::SIMPLE);
-			return img;
-		}
+			return getImage(imgPath);
 	}
 
 	size_t frameIndex = context.objectImageIndex(obj->id, animation->size(groupIndex));
@@ -516,9 +526,9 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getOverlayAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
