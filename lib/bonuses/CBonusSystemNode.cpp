@@ -18,6 +18,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 constexpr bool cachingEnabled = true;
+static std::atomic<int32_t> globalCounter = 1;
 
 std::shared_ptr<Bonus> CBonusSystemNode::getLocalBonus(const CSelector & selector)
 {
@@ -214,7 +215,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 		parent.children.push_back(this);
 	}
 
-	nodeHasChanged();
+	parent.nodeHasChanged();
 }
 
 void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
@@ -263,7 +264,7 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 							, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
 		}
 	}
-	nodeHasChanged();
+	parent.nodeHasChanged();
 }
 
 
@@ -378,7 +379,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 			: b;
 		bonuses.push_back(propagated);
 		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(nullptr), nodeName());
-		invalidateChildrenNodes(nodeChanged);
+		invalidateChildrenNodes(globalCounter);
 	}
 
 	TNodes lchildren;
@@ -396,15 +397,17 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 		else
 			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(nullptr), nodeName());
 
-		bonuses.remove_if([this, b](const auto & bonus)
+		bonuses.remove_if([b](const auto & bonus)
 		{
 			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
 			{
-				invalidateChildrenNodes(nodeChanged);
+
 				return true;
 			}
 			return false;
 		});
+
+		invalidateChildrenNodes(globalCounter);
 	}
 
 	TNodes lchildren;
@@ -608,8 +611,6 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 
 void CBonusSystemNode::nodeHasChanged()
 {
-	static std::atomic<int32_t> globalCounter = 1;
-
 	invalidateChildrenNodes(++globalCounter);
 }
 
@@ -623,6 +624,11 @@ void CBonusSystemNode::recomputePropagationUpdaters(const CBonusSystemNode & sou
 			propagateBonus(b,  source);
 		}
 	}
+
+	for(const CBonusSystemNode * parent : source.parentsToInherit)
+		if (parent->actsAsBonusSourceOnly())
+			recomputePropagationUpdaters(*parent);
+
 }
 
 void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
@@ -633,9 +639,6 @@ void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
 	nodeChanged = changeCounter;
 
 	recomputePropagationUpdaters(*this);
-	for(const CBonusSystemNode * parent : parentsToInherit)
-		if (parent->actsAsBonusSourceOnly())
-			recomputePropagationUpdaters(*parent);
 
 	for(CBonusSystemNode * child : children)
 		child->invalidateChildrenNodes(changeCounter);
