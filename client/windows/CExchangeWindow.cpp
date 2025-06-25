@@ -261,7 +261,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		}
 	}
 
-	CExchangeWindow::update();
+	CExchangeWindow::updateArtifacts();
 }
 
 void CExchangeWindow::creatureArrowButtonCallback(bool leftToRight, SlotID slotId)
@@ -361,7 +361,7 @@ void CExchangeWindow::updateGarrisons()
 {
 	garr->recreateSlots();
 
-	update();
+	updateArtifacts();
 }
 
 bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
@@ -375,13 +375,13 @@ void CExchangeWindow::questLogShortcut()
 	GAME->interface()->showQuestLog();
 }
 
-void CExchangeWindow::update()
+void CExchangeWindow::updateArtifacts()
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
 	OBJECT_CONSTRUCTION;
 
-	CWindowWithArtifacts::update();
+	CWindowWithArtifacts::updateArtifacts();
 
 	for(size_t leftRight : {0, 1})
 	{
