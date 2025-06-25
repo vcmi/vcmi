@@ -930,7 +930,7 @@ void CGGarrison::addAntimagicGarrisonBonus()
 	bonus->type = BonusType::BLOCK_ALL_MAGIC;
 	bonus->source = BonusSource::OBJECT_TYPE;
 	bonus->sid = BonusSourceID(this->ID);
-	bonus->propagator = std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	bonus->propagator = std::make_shared<CPropagatorNodeType>(BonusNodeType::BATTLE_WIDE);
 	bonus->duration = BonusDuration::PERMANENT;
 	this->addNewBonus(bonus);
 }
@@ -987,6 +987,7 @@ void CGMagi::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 
 CGBoat::CGBoat(IGameInfoCallback * cb)
 	: CGObjectInstance(cb)
+	, CBonusSystemNode(BonusNodeType::BOAT)
 {
 	direction = 4;
 	layer = EPathfindingLayer::SAIL;

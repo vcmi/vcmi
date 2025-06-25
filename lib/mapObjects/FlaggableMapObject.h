@@ -25,7 +25,7 @@ class DLL_LINKAGE FlaggableMapObject final : public CGObjectInstance, public IOw
 	void initBonuses();
 
 public:
-	using CGObjectInstance::CGObjectInstance;
+	FlaggableMapObject(IGameInfoCallback *cb);
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;

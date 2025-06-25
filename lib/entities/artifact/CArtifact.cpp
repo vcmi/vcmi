@@ -293,10 +293,10 @@ bool CChargedArtifact::getRemoveOnDepletion() const
 }
 
 CArtifact::CArtifact()
-	: iconIndex(ArtifactID::NONE),
+	: CBonusSystemNode(BonusNodeType::ARTIFACT),
+	iconIndex(ArtifactID::NONE),
 	price(0)
 {
-	setNodeType(ARTIFACT);
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];

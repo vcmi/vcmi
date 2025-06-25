@@ -172,21 +172,17 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 	return updater->createUpdatedBonus(b, * this);
 }
 
-CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
-	nodeType(UNKNOWN),
+CBonusSystemNode::CBonusSystemNode(BonusNodeType NodeType, bool isHypotetic):
+	nodeType(NodeType),
 	cachedLast(0),
 	nodeChanged(0),
 	isHypotheticNode(isHypotetic)
 {
 }
 
-CBonusSystemNode::CBonusSystemNode(ENodeTypes NodeType):
-	nodeType(NodeType),
-	cachedLast(0),
-	nodeChanged(0),
-	isHypotheticNode(false)
-{
-}
+CBonusSystemNode::CBonusSystemNode(BonusNodeType NodeType):
+	CBonusSystemNode(NodeType, false)
+{}
 
 CBonusSystemNode::~CBonusSystemNode()
 {
@@ -250,8 +246,8 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 	}
 	else
 	{
-		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
-			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)",
+			nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 	}
 
 	if(!isHypothetic())
@@ -260,8 +256,8 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 			parent.children -= this;
 		else
 		{
-			logBonus->error("Error on Detach. Node %s (nodeType=%d) is not a child of %s (nodeType=%d)"
-							, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+			logBonus->error("Error on Detach. Node %s (nodeType=%d) is not a child of %s (nodeType=%d)",
+				nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 		}
 	}
 	parent.nodeHasChanged();
@@ -284,8 +280,8 @@ void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
 	}
 	else
 	{
-		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
-			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)",
+			nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 	}
 
 	nodeHasChanged();
@@ -361,9 +357,10 @@ bool CBonusSystemNode::actsAsBonusSourceOnly() const
 {
 	switch(nodeType)
 	{
-	case CREATURE:
-	case ARTIFACT:
-	case ARTIFACT_INSTANCE:
+	case BonusNodeType::CREATURE:
+	case BonusNodeType::ARTIFACT:
+	case BonusNodeType::ARTIFACT_INSTANCE:
+	case BonusNodeType::BOAT:
 		return true;
 	default:
 		return false;
@@ -549,7 +546,7 @@ void CBonusSystemNode::exportBonuses()
 		exportBonus(b);
 }
 
-CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
+BonusNodeType CBonusSystemNode::getNodeType() const
 {
 	return nodeType;
 }
@@ -557,11 +554,6 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 const TCNodesVector& CBonusSystemNode::getParentNodes() const
 {
 	return parentsToInherit;
-}
-
-void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
-{
-	nodeType = type;
 }
 
 BonusList & CBonusSystemNode::getExportedBonusList()

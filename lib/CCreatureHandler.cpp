@@ -313,8 +313,8 @@ si32 CCreature::maxAmount(const TResources &res) const //how many creatures can 
 }
 
 CCreature::CCreature()
+	:CBonusSystemNode(BonusNodeType::CREATURE)
 {
-	setNodeType(CBonusSystemNode::CREATURE);
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 

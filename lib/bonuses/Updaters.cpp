@@ -41,7 +41,7 @@ GrowsWithLevelUpdater::GrowsWithLevelUpdater(int valPer20, int stepSize)
 
 std::shared_ptr<Bonus> GrowsWithLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::HERO)
+	if(context.getNodeType() == BonusNodeType::HERO)
 	{
 		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		int steps = stepSize ? level / stepSize : level;
@@ -74,7 +74,7 @@ JsonNode GrowsWithLevelUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> TimesHeroLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::HERO)
+	if(context.getNodeType() == BonusNodeType::HERO)
 	{
 		int level = dynamic_cast<const CGHeroInstance &>(context).level;
 		auto newBonus = std::make_shared<Bonus>(*b);
@@ -96,7 +96,7 @@ JsonNode TimesHeroLevelUpdater::toJsonNode() const
 
 std::shared_ptr<Bonus> TimesHeroLevelDivideStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::HERO)
+	if(context.getNodeType() == BonusNodeType::HERO)
 	{
 		auto newBonus = TimesHeroLevelUpdater::createUpdatedBonus(b, context);
 		newBonus->updater = divideStackLevel;
@@ -124,13 +124,13 @@ std::shared_ptr<Bonus> TimesStackSizeUpdater::apply(const std::shared_ptr<Bonus>
 
 std::shared_ptr<Bonus> TimesStackSizeUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
+	if(context.getNodeType() == BonusNodeType::STACK_INSTANCE || context.getNodeType() == BonusNodeType::COMMANDER)
 	{
 		int count = dynamic_cast<const CStackInstance &>(context).getCount();
 		return apply(b, count);
 	}
 
-	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	if(context.getNodeType() == BonusNodeType::STACK_BATTLE)
 	{
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		return apply(b, stack.getCount());
@@ -158,13 +158,13 @@ std::shared_ptr<Bonus> TimesStackLevelUpdater::apply(const std::shared_ptr<Bonus
 
 std::shared_ptr<Bonus> TimesStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
+	if(context.getNodeType() == BonusNodeType::STACK_INSTANCE || context.getNodeType() == BonusNodeType::COMMANDER)
 	{
 		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
 		return apply(b, level);
 	}
 
-	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	if(context.getNodeType() == BonusNodeType::STACK_BATTLE)
 	{
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		//update if stack doesn't have an instance (summons, war machines)
@@ -202,13 +202,13 @@ std::shared_ptr<Bonus> DivideStackLevelUpdater::apply(const std::shared_ptr<Bonu
 
 std::shared_ptr<Bonus> DivideStackLevelUpdater::createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const
 {
-	if(context.getNodeType() == CBonusSystemNode::STACK_INSTANCE || context.getNodeType() == CBonusSystemNode::COMMANDER)
+	if(context.getNodeType() == BonusNodeType::STACK_INSTANCE || context.getNodeType() == BonusNodeType::COMMANDER)
 	{
 		int level = dynamic_cast<const CStackInstance &>(context).getLevel();
 		return apply(b, level);
 	}
 
-	if(context.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+	if(context.getNodeType() == BonusNodeType::STACK_BATTLE)
 	{
 		const auto & stack = dynamic_cast<const CStack &>(context);
 		//update if stack doesn't have an instance (summons, war machines)

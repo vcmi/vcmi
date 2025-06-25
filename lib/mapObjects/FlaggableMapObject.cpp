@@ -22,6 +22,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+FlaggableMapObject::FlaggableMapObject(IGameInfoCallback *cb)
+	:CGObjectInstance(cb)
+	,CBonusSystemNode(BonusNodeType::UNKNOWN)
+{}
+
 const IOwnableObject * FlaggableMapObject::asOwnable() const
 {
 	return this;

@@ -172,7 +172,7 @@ class TemporaryArmy : public CArmedInstance
 public:
 	void armyChanged() override {}
 	TemporaryArmy()
-		:CArmedInstance(nullptr, true)
+		:CArmedInstance(nullptr, BonusNodeType::UNKNOWN, true)
 	{
 	}
 };

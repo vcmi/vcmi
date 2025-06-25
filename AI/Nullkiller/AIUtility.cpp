@@ -271,7 +271,7 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 
 double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_ptr<Bonus> & bonus)
 {
-	if (bonus->propagator && bonus->limiter && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	if (bonus->propagator && bonus->limiter && bonus->propagator->getPropagatorType() == BonusNodeType::BATTLE_WIDE)
 	{
 		// assume that this is battle wide / other side propagator+limiter
 		// consider it as fully relevant since we don't know about future combat when equipping artifacts
@@ -526,7 +526,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 
 int32_t getArtifactBonusScore(const std::shared_ptr<Bonus> & bonus)
 {
-	if (bonus->propagator && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	if (bonus->propagator && bonus->propagator->getPropagatorType() == BonusNodeType::BATTLE_WIDE)
 	{
 		if (bonus->limiter)
 		{

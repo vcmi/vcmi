@@ -26,13 +26,6 @@ using TCNodesVector = std::vector<const CBonusSystemNode *>;
 class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public virtual Serializeable, public boost::noncopyable
 {
 public:
-	enum ENodeTypes
-	{
-		NONE = -1, 
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
-	};
-
 	struct HashStringCompare {
 		static size_t hash(const std::string& data)
 		{
@@ -53,7 +46,7 @@ private:
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
 	TNodesVector children;
 
-	ENodeTypes nodeType;
+	BonusNodeType nodeType;
 	bool isHypotheticNode;
 
 	mutable BonusList cachedBonuses;
@@ -97,8 +90,8 @@ protected:
 	void exportBonuses();
 
 public:
-	explicit CBonusSystemNode(bool isHypotetic = false);
-	explicit CBonusSystemNode(ENodeTypes NodeType);
+	explicit CBonusSystemNode(BonusNodeType nodeType, bool isHypotetic);
+	explicit CBonusSystemNode(BonusNodeType nodeType);
 	virtual ~CBonusSystemNode();
 
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const std::string &cachingStr = "") const override;
@@ -130,8 +123,7 @@ public:
 
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;
-	CBonusSystemNode::ENodeTypes getNodeType() const;
-	void setNodeType(CBonusSystemNode::ENodeTypes type);
+	BonusNodeType getNodeType() const;
 	const TCNodesVector & getParentNodes() const;
 
 	void nodeHasChanged();

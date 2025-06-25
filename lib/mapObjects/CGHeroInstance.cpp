@@ -244,7 +244,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 }
 
 CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
-	: CArmedInstance(cb),
+	: CArmedInstance(cb, BonusNodeType::HERO, false),
 	CArtifactSet(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
@@ -259,7 +259,6 @@ CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	turnInfoCache(std::make_unique<TurnInfoCache>(this)),
 	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))
 {
-	setNodeType(HERO);
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::NONE, -1);
 }

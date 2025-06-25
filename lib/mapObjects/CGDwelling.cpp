@@ -50,7 +50,11 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 }
 
 CGDwelling::CGDwelling(IGameInfoCallback *cb):
-	CArmedInstance(cb)
+	CGDwelling(cb, BonusNodeType::ARMY)
+{}
+
+CGDwelling::CGDwelling(IGameInfoCallback *cb, BonusNodeType nodeType):
+	CArmedInstance(cb, nodeType, false)
 {}
 
 CGDwelling::~CGDwelling() = default;

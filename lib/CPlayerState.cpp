@@ -22,7 +22,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 PlayerState::PlayerState(IGameInfoCallback *cb)
-	: CBonusSystemNode(PLAYER)
+	: CBonusSystemNode(BonusNodeType::PLAYER)
 	, GameCallbackHolder(cb)
 	, color(-1)
 	, human(false)

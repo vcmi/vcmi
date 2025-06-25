@@ -707,20 +707,22 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	}
 }
 
-CStackInstance::CStackInstance(IGameInfoCallback *cb, bool isHypothetic)
-	: CBonusSystemNode(isHypothetic)
+CStackInstance::CStackInstance(IGameInfoCallback *cb)
+	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
+{}
+
+CStackInstance::CStackInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic)
+	: CBonusSystemNode(nodeType, isHypothetic)
 	, CStackBasicDescriptor(nullptr, 0)
 	, CArtifactSet(cb)
 	, GameCallbackHolder(cb)
 	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
 	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
 	, totalExperience(0)
-{
-	setNodeType(STACK_INSTANCE);
-}
+{}
 
 CStackInstance::CStackInstance(IGameInfoCallback *cb, const CreatureID & id, TQuantity Count, bool isHypothetic)
-	: CStackInstance(cb, false)
+	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
 {
 	setType(id);
 	setCount(Count);
@@ -1040,14 +1042,13 @@ CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb)
 {}
 
 CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb, const CreatureID & id)
-	: CStackInstance(cb)
+	: CStackInstance(cb, BonusNodeType::COMMANDER, false)
 	, name("Commando")
 {
 	alive = true;
 	level = 1;
 	setCount(1);
 	setType(nullptr);
-	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 	setType(id);
 	//TODO - parse them

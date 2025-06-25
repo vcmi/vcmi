@@ -152,9 +152,9 @@ int CGameState::getDate(Date mode) const
 }
 
 CGameState::CGameState()
+	:globalEffects(BonusNodeType::GLOBAL_EFFECTS)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
-	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
 CGameState::~CGameState()
@@ -1596,9 +1596,8 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 }
 
 TeamState::TeamState()
-{
-	setNodeType(TEAM);
-}
+	:CBonusSystemNode(BonusNodeType::TEAM)
+{}
 
 CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
 {
