@@ -226,6 +226,14 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
 	}
 
+	int range = caster->getEffectRange(getSpell());
+	if(mode != Mode::HERO && range > 0 )
+	{
+		int distance = BattleHex::getDistance(spellTarget.front().hexValue, caster->getCasterPosition());
+		if(distance > range)
+			return false;
+	}
+
 	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
 	{
 		if(mainTarget && mainTarget == caster)

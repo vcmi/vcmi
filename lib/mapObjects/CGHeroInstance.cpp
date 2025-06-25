@@ -783,6 +783,11 @@ int32_t CGHeroInstance::getCasterUnitId() const
 	return id.getNum();
 }
 
+BattleHex CGHeroInstance::getCasterPosition() const
+{
+	return BattleHex::INVALID;
+}
+
 int32_t CGHeroInstance::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	int32_t skill = -1; //skill level
@@ -856,6 +861,11 @@ int32_t CGHeroInstance::getEnchantPower(const spells::Spell * spell) const
 }
 
 int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
+{
+	return 0;
+}
+
+int64_t CGHeroInstance::getEffectRange(const spells::Spell * spell) const
 {
 	return 0;
 }

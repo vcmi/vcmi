@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../../../lib/battle/BattleHex.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class PlayerColor;
@@ -36,6 +38,7 @@ public:
 	virtual ~Caster() = default;
 
 	virtual int32_t getCasterUnitId() const = 0;
+	virtual BattleHex getCasterPosition() const = 0;
 
 	/// returns level on which given spell would be cast by this(0 - none, 1 - basic etc);
 	/// caster may not know this spell at all
@@ -59,6 +62,9 @@ public:
 
 	///damage/heal override(ignores spell configuration, effect level and effect power)
 	virtual int64_t getEffectValue(const Spell * spell) const = 0;
+
+	///maximal range of effect
+	virtual int64_t getEffectRange(const Spell * spell) const = 0;
 
 	virtual PlayerColor getCasterOwner() const = 0;
 

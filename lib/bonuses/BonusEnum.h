@@ -192,6 +192,7 @@ class JsonNode;
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
 	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
+	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
 	/* end of list */
 
 

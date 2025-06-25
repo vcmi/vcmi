@@ -278,6 +278,7 @@ public:
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
+	BattleHex getCasterPosition() const override;
 	int32_t getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
 	int64_t getSpellBonus(const spells::Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;
 	int64_t getSpecificSpellBonus(const spells::Spell * spell, int64_t base) const override;
@@ -286,6 +287,7 @@ public:
 	int32_t getEffectPower(const spells::Spell * spell) const override;
 	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
+	int64_t getEffectRange(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;

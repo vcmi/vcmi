@@ -130,6 +130,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::SPECIAL_SPELL_LEV:
 		case BonusType::SPECIFIC_SPELL_DAMAGE:
+		case BonusType::SPECIFIC_SPELL_RANGE:
 		case BonusType::SPELL:
 		case BonusType::OPENING_BATTLE_SPELL:
 		case BonusType::SPELL_LIKE_ATTACK:

@@ -24,6 +24,7 @@ public:
 	virtual ~ProxyCaster();
 
 	int32_t getCasterUnitId() const override;
+	BattleHex getCasterPosition() const override;
 	int32_t getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
 	int32_t getEffectLevel(const Spell * spell) const override;
 	int64_t getSpellBonus(const Spell * spell, int64_t base, const battle::Unit * affectedStack) const override;
@@ -31,6 +32,7 @@ public:
 	int32_t getEffectPower(const Spell * spell) const override;
 	int32_t getEnchantPower(const Spell * spell) const override;
 	int64_t getEffectValue(const Spell * spell) const override;
+	int64_t getEffectRange(const Spell * spell) const override;
 	PlayerColor getCasterOwner() const override;
 	void getCasterName(MetaString & text) const override;
 	void getCastDescription(const Spell * spell, const battle::Units & attacked, MetaString & text) const override;

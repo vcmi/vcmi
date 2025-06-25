@@ -36,6 +36,14 @@ int32_t ProxyCaster::getCasterUnitId() const
 	return -1;
 }
 
+BattleHex ProxyCaster::getCasterPosition() const
+{
+	if(actualCaster)
+		return actualCaster->getCasterPosition();
+
+	return BattleHex::INVALID;
+}
+
 int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	if(actualCaster)
@@ -88,6 +96,14 @@ int64_t ProxyCaster::getEffectValue(const Spell * spell) const
 {
 	if(actualCaster)
 		return actualCaster->getEffectValue(spell);
+
+	return 0;
+}
+
+int64_t ProxyCaster::getEffectRange(const Spell * spell) const
+{
+	if(actualCaster)
+		return actualCaster->getEffectRange(spell);
 
 	return 0;
 }
