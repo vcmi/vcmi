@@ -22,6 +22,7 @@
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -677,7 +678,7 @@ void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target,
 {
 	size_t imageID = selectImage(context, coordinates);
 
-	if (imageID < pathNodes->size())
+	if (imageID < pathNodes->size() && settings["adventure"]["showMovePath"].Bool())
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
 }
 
