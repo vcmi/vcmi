@@ -132,6 +132,18 @@
 				"creature" : {
 					"type" : "string",
 					"description" : "Shortcut for defining creature specialty, using standard H3 rules."
+				},
+				"secondary" : {
+					"type" : "string",
+					"description" : "Shortcut for defining secondary skill specialty, using standard H3 rules."
+				},
+				"creatureLevel" : {
+					"type" : "integer",
+					"description" : "Assumed creature level for creature specialty"
+				},
+				"stepSize" : {
+					"type" : "integer",
+					"description" : "How creature or secondary skill specialty should grow per each step. Default is 5"
 				}
 			}
 		},

@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
-#include "../../../CCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 

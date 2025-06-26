@@ -57,6 +57,7 @@
 #include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
+#include <SDL_thread.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -114,9 +115,13 @@ void CServerHandler::threadRunNetwork()
 	}
 	catch (const TerminationRequestedException &)
 	{
+		// VCMI can run SDL methods on network thread, leading to usage of thread-local storage by SDL
+		// Such storage needs to be cleaned up manually for threads that were not created by SDL
+		SDL_TLSCleanup();
 		logGlobal->info("Terminating network thread");
 		return;
 	}
+	SDL_TLSCleanup();
 	logGlobal->info("Ending network thread");
 }
 
@@ -606,7 +611,7 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
-void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
+void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
@@ -628,17 +633,16 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		throw std::runtime_error("Invalid mode");
 	}
 	// After everything initialized we can accept CPackToClient netpacks
-	logicConnection->enterGameplayConnectionMode(client->gameState());
 	setState(EClientState::GAMEPLAY);
 }
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
 
-	if(victory && client->gameState()->getStartInfo()->campState)
+	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
+		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{

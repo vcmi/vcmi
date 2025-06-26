@@ -18,7 +18,8 @@
 
 #include "../CSkillHandler.h"
 #include "../StartInfo.h"
-#include "../IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
 #include "../constants/StringConstants.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
@@ -36,24 +37,24 @@ void CGPandoraBox::init()
 	for(auto & i : configuration.info)
 	{
 		i.reward.removeObject = true;
-		if(!message.empty() && i.message.empty())
+		if(!message.empty() && i.message.empty() && stacksCount() == 0)
 			i.message = message;
 	}
 }
 
-void CGPandoraBox::initObj(vstd::RNG & rand)
+void CGPandoraBox::initObj(IGameRandomizer & gameRandomizer)
 {
 	init();
 	
-	CRewardableObject::initObj(rand);
+	CRewardableObject::initObj(gameRandomizer);
 }
 
-void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, bool markAsVisit) const
+void CGPandoraBox::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * h, int index, bool markAsVisit) const
 {
 	auto vi = configuration.info.at(index);
 	if(!vi.message.empty())
 	{
-		CRewardableObject::grantRewardWithMessage(h, index, markAsVisit);
+		CRewardableObject::grantRewardWithMessage(gameEvents, h, index, markAsVisit);
 		return;
 	}
 	
@@ -74,7 +75,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 		reward.loadComponents(iw.components, h);
 		iw.type = EInfoWindowMode::MODAL;
 		if(!iw.components.empty())
-			cb->showInfoDialog(&iw);
+			gameEvents.showInfoDialog(&iw);
 	};
 
 	Rewardable::Reward temp;
@@ -83,7 +84,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.heroLevel = vi.reward.heroLevel;
 	temp.primary = vi.reward.primary;
 	temp.secondary = vi.reward.secondary;
-	temp.bonuses = vi.reward.bonuses;
+	temp.heroBonuses = vi.reward.heroBonuses;
 	temp.manaDiff = vi.reward.manaDiff;
 	temp.manaPercentage = vi.reward.manaPercentage;
 	
@@ -106,12 +107,12 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	if(vi.reward.manaDiff || vi.reward.manaPercentage >= 0)
 		txt = setText(temp.manaDiff > 0, 177, 176, h);
 	
-	for(auto b : vi.reward.bonuses)
+	for(auto b : vi.reward.heroBonuses)
 	{
-		if(b.val && b.type == BonusType::MORALE)
-			txt = setText(b.val > 0, 179, 178, h);
-		if(b.val && b.type == BonusType::LUCK)
-			txt = setText(b.val > 0, 181, 180, h);
+		if(b->val && b->type == BonusType::MORALE)
+			txt = setText(b->val > 0, 179, 178, h);
+		if(b->val && b->type == BonusType::LUCK)
+			txt = setText(b->val > 0, 181, 180, h);
 	}
 	sendInfoWindow(txt, temp);
 	
@@ -122,7 +123,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	
 	//artifacts message
 	temp = Rewardable::Reward{};
-	temp.artifacts = vi.reward.artifacts;
+	temp.grantedArtifacts = vi.reward.grantedArtifacts;
 	sendInfoWindow(setText(true, 183, 183, h), temp);
 	
 	//creatures message
@@ -138,7 +139,7 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 			loot.replaceName(c);
 		}
 		
-		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].count == 1)
+		if(vi.reward.creatures.size() == 1 && vi.reward.creatures[0].getCount() == 1)
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 185);
 		else
 			txt.appendLocalString(EMetaText::ADVOB_TXT, 186);
@@ -160,49 +161,49 @@ void CGPandoraBox::grantRewardWithMessage(const CGHeroInstance * h, int index, b
 	temp.manaPercentage = -1;
 	temp.spells.clear();
 	temp.creatures.clear();
-	temp.bonuses.clear();
-	temp.artifacts.clear();
+	temp.heroBonuses.clear();
+	temp.grantedArtifacts.clear();
 	sendInfoWindow(setText(true, 175, 175, h), temp);
 	
 	// grant reward afterwards. Note that it may remove object
 	if(markAsVisit)
-		markAsVisited(h);
-	grantReward(index, h);
+		markAsVisited(gameEvents, h);
+	grantReward(gameEvents, index, h);
 }
 
-void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
+void CGPandoraBox::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	BlockingDialog bd (true, false);
 	bd.player = h->getOwner();
 	bd.text.appendLocalString(EMetaText::ADVOB_TXT, 14);
-	cb->showBlockingDialog(this, &bd);
+	gameEvents.showBlockingDialog(this, &bd);
 }
 
-void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGPandoraBox::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER)
 	{
-		CRewardableObject::onHeroVisit(hero);
+		CRewardableObject::onHeroVisit(gameEvents, hero);
 	}
 }
 
-void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGPandoraBox::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 	{
 		if(stacksCount() > 0) //if pandora's box is protected by army
 		{
-			hero->showInfoDialog(16, 0, EInfoWindowMode::MODAL);
-			cb->startBattle(hero, this); //grants things after battle
+			hero->showInfoDialog(gameEvents, 16, 0, EInfoWindowMode::MODAL);
+			gameEvents.startBattle(hero, this); //grants things after battle
 		}
 		else if(getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 		{
-			hero->showInfoDialog(15);
-			cb->removeObject(this, hero->getOwner());
+			hero->showInfoDialog(gameEvents, 15);
+			gameEvents.removeObject(this, hero->getOwner());
 		}
 		else //if it gives something without battle
 		{
-			CRewardableObject::onHeroVisit(hero);
+			CRewardableObject::onHeroVisit(gameEvents, hero);
 		}
 	}
 }
@@ -219,7 +220,6 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!handler.getCurrent()["guards"].Vector().empty())
 			CCreatureSet::serializeJson(handler, "guards", 7);
 		
-		bool hasSomething = false;
 		Rewardable::VisitInfo vinfo;
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				
@@ -229,24 +229,20 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		int val = 0;
 		handler.serializeInt("morale", val, 0);
 		if(val)
-			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		
 		handler.serializeInt("luck", val, 0);
 		if(val)
-			vinfo.reward.bonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id));
+			vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(id)));
 		
 		vinfo.reward.resources.serializeJson(handler, "resources");
 		{
 			auto s = handler.enterStruct("primarySkills");
 			for(int idx = 0; idx < vinfo.reward.primary.size(); idx ++)
-			{
 				handler.serializeInt(NPrimarySkill::names[idx], vinfo.reward.primary[idx], 0);
-				if(vinfo.reward.primary[idx])
-					hasSomething = true;
-			}
 		}
 		
-		handler.serializeIdArray("artifacts", vinfo.reward.artifacts);
+		handler.serializeIdArray("artifacts", vinfo.reward.grantedArtifacts);
 		handler.serializeIdArray("spells", vinfo.reward.spells);
 		handler.enterArray("creatures").serializeStruct(vinfo.reward.creatures);
 		
@@ -274,18 +270,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 				vinfo.reward.secondary[rawId] = level;
 			}
 		}
-		
-		hasSomething = hasSomething
-		|| vinfo.reward.heroExperience
-		|| vinfo.reward.manaDiff
-		|| vinfo.reward.resources.nonZero()
-		|| !vinfo.reward.artifacts.empty()
-		|| !vinfo.reward.bonuses.empty()
-		|| !vinfo.reward.creatures.empty()
-		|| !vinfo.reward.secondary.empty();
-		
-		if(hasSomething)
-			configuration.info.push_back(vinfo);
+
+		configuration.info.push_back(vinfo);
 	}
 }
 
@@ -297,17 +283,17 @@ void CGEvent::init()
 	for(auto & i : configuration.info)
 	{
 		i.reward.removeObject = removeAfterVisit;
-		if(!message.empty() && i.message.empty())
+		if(!message.empty() && i.message.empty() && stacksCount() == 0)
 			i.message = message;
 	}
 }
 
-void CGEvent::grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
+void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
-	CRewardableObject::grantRewardWithMessage(contextHero, rewardIndex, markAsVisit);
+	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
 }
 
-void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
+void CGEvent::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(availableFor.count(h->tempOwner) == 0)
 		return;
@@ -315,13 +301,13 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 	if(cb->getPlayerSettings(h->tempOwner)->isControlledByHuman())
 	{
 		if(humanActivate)
-			activated(h);
+			activated(gameEvents, h);
 	}
 	else if(computerActivate)
-		activated(h);
+		activated(gameEvents, h);
 }
 
-void CGEvent::activated( const CGHeroInstance * h ) const
+void CGEvent::activated(IGameEventCallback & gameEvents, const CGHeroInstance * h ) const
 {
 	if(stacksCount() > 0)
 	{
@@ -331,12 +317,12 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 			iw.text = message;
 		else
 			iw.text.appendLocalString(EMetaText::ADVOB_TXT, 16);
-		cb->showInfoDialog(&iw);
-		cb->startBattle(h, this);
+		gameEvents.showInfoDialog(&iw);
+		gameEvents.startBattle(h, this);
 	}
 	else
 	{
-		CRewardableObject::onHeroVisit(h);
+		CRewardableObject::onHeroVisit(gameEvents, h);
 	}
 }
 

@@ -31,6 +31,8 @@ class CListBox;
 class CTabbedInt;
 class CGStatusBar;
 class CGarrisonInt;
+class CMultiLineLabel;
+class LRClickableAreaWText;
 
 class CKingdHeroList;
 class CKingdTownList;
@@ -272,6 +274,9 @@ class CTownItem : public CIntObject, public IGarrisonHolder
 	std::vector<std::shared_ptr<CCreaInfo>> available;
 	std::vector<std::shared_ptr<CCreaInfo>> growth;
 
+	std::shared_ptr<CMultiLineLabel> labelCreatureAvailable;
+	std::shared_ptr<CMultiLineLabel> labelCreatureGrowth;
+
 	std::shared_ptr<LRClickableAreaOpenTown> openTown;
 
 	std::shared_ptr<CButton> fastTownHall;
@@ -306,6 +311,8 @@ class CHeroItem : public CIntObject, public IGarrisonHolder
 
 	std::shared_ptr<CToggleGroup> artButtons;
 	std::vector<std::shared_ptr<InfoBox>> heroInfo;
+	std::shared_ptr<CMultiLineLabel> heroInfoFull;
+	std::shared_ptr<LRClickableAreaWText> heroInfoFullArea;
 	std::shared_ptr<MoraleLuckBox> morale;
 	std::shared_ptr<MoraleLuckBox> luck;
 

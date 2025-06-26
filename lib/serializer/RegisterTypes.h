@@ -17,6 +17,7 @@
 #include "../bonuses/Propagators.h"
 #include "../bonuses/Updaters.h"
 #include "../campaign/CampaignState.h"
+#include "../entities/artifact/CArtifact.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/CGameStateCampaign.h"
 #include "../gameState/TavernHeroesPool.h"
@@ -58,10 +59,10 @@ void registerTypes(Serializer &s)
 	static_assert(std::is_abstract_v<CGTeleport>, "If this type is no longer abstract consider registering it for serialization with ID 3");
 	static_assert(std::is_abstract_v<IQuestObject>, "If this type is no longer abstract consider registering it for serialization with ID 11");
 	static_assert(std::is_abstract_v<CArtifactSet>, "If this type is no longer abstract consider registering it for serialization with ID 29");
-	static_assert(std::is_abstract_v<CPackForClient>, "If this type is no longer abstract consider registering it for serialization with ID 83");
-	static_assert(std::is_abstract_v<Query>, "If this type is no longer abstract consider registering it for serialization with ID 153");
-	static_assert(std::is_abstract_v<CGarrisonOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 161");
-	static_assert(std::is_abstract_v<CArtifactOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 168");
+//	static_assert(std::is_abstract_v<CPackForClient>, "If this type is no longer abstract consider registering it for serialization with ID 83");
+//	static_assert(std::is_abstract_v<Query>, "If this type is no longer abstract consider registering it for serialization with ID 153");
+//	static_assert(std::is_abstract_v<CGarrisonOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 161");
+//	static_assert(std::is_abstract_v<CArtifactOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 168");
 
 	s.template registerType<CGObjectInstance>(2);
 	s.template registerType<CGMonolith>(4);
@@ -104,7 +105,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<TimesHeroLevelUpdater>(44);
 	s.template registerType<TimesStackLevelUpdater>(45);
 	s.template registerType<OwnerUpdater>(46);
-	s.template registerType<ArmyMovementUpdater>(47);
 	s.template registerType<ILimiter>(48);
 	s.template registerType<AnyOfLimiter>(49);
 	s.template registerType<NoneOfLimiter>(50);
@@ -145,7 +145,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<DaysWithoutTown>(89);
 	s.template registerType<TurnTimeUpdate>(90);
 	s.template registerType<SetResources>(91);
-	s.template registerType<SetPrimSkill>(92);
+	s.template registerType<SetPrimarySkill>(92);
 	s.template registerType<SetSecSkill>(93);
 	s.template registerType<HeroVisitCastle>(94);
 	s.template registerType<ChangeSpells>(95);
@@ -159,7 +159,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<PlayerEndsGame>(103);
 	s.template registerType<PlayerReinitInterface>(104);
 	s.template registerType<RemoveBonus>(105);
-	s.template registerType<UpdateArtHandlerLists>(106);
 	s.template registerType<ChangeFormation>(107);
 	s.template registerType<RemoveObject>(108);
 	s.template registerType<TryMoveHero>(109);
@@ -219,6 +218,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SwapStacks>(165);
 	s.template registerType<InsertNewStack>(166);
 	s.template registerType<RebalanceStacks>(167);
+	s.template registerType<GrowUpArtifact>(168);
 	s.template registerType<PutArtifact>(169);
 	s.template registerType<BulkEraseArtifacts>(170);
 	s.template registerType<AssembledArtifact>(171);
@@ -226,7 +226,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<BulkMoveArtifacts>(173);
 	s.template registerType<PlayerMessageClient>(174);
 	s.template registerType<BulkRebalanceStacks>(175);
-	s.template registerType<BulkSmartRebalanceStacks>(176);
+	s.template registerType<DischargeArtifact>(176);
 	s.template registerType<SetRewardableConfiguration>(177);
 	s.template registerType<CPackForServer>(179);
 	s.template registerType<EndTurn>(180);
@@ -255,7 +255,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<PlayerMessage>(203);
 	s.template registerType<BulkSplitStack>(204);
 	s.template registerType<BulkMergeStacks>(205);
-	s.template registerType<BulkSmartSplitStack>(206);
+	s.template registerType<BulkSplitAndRebalanceStack>(206);
 	s.template registerType<BulkMoveArmy>(207);
 	s.template registerType<BulkExchangeArtifacts>(208);
 	s.template registerType<ManageBackpackArtifacts>(209);
@@ -294,6 +294,10 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetResearchedSpells>(242);
 	s.template registerType<SaveLocalState>(243);
 	s.template registerType<LobbyDelete>(244);
+	s.template registerType<TimesHeroLevelDivideStackLevelUpdater>(245);
+	s.template registerType<DivideStackLevelUpdater>(246);
+	s.template registerType<SetHeroExperience>(247);
+	s.template registerType<GiveStackExperience>(248);
 }
 
 VCMI_LIB_NAMESPACE_END

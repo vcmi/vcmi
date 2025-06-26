@@ -12,7 +12,6 @@
 
 #include "../AINodeStorage.h"
 #include "../../AIGateway.h"
-#include "../../../../CCallback.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../../../lib/pathfinder/PathfindingRules.h"
 

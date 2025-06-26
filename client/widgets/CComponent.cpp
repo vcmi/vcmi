@@ -24,7 +24,8 @@
 #include "../windows/InfoWindows.h"
 #include "../widgets/TextControls.h"
 
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTown.h"
@@ -34,8 +35,6 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CArtHandler.h"
-#include "../../lib/CArtifactInstance.h"
 #include "../../lib/GameLibrary.h"
 
 #include <vcmi/spells/Service.h>
@@ -183,7 +182,7 @@ size_t CComponent::getIndex() const
 		case ComponentType::MANA:
 			return 5; // for whatever reason, in H3 mana points icon is located in primary skills icons
 		case ComponentType::SEC_SKILL:
-			return data.subType.getNum() * 3 + 3 + data.value.value_or(0) - 1;
+			return data.subType.getNum() * 3 + 3 + data.value.value_or(1) - 1;
 		case ComponentType::RESOURCE:
 		case ComponentType::RESOURCE_PER_DAY:
 			return data.subType.getNum();
@@ -199,7 +198,7 @@ size_t CComponent::getIndex() const
 		case ComponentType::LUCK:
 			return std::clamp(data.value.value_or(0) + 3, 0, 6);
 		case ComponentType::BUILDING:
-			return data.subType.as<BuildingTypeUniqueID>().getBuilding();
+			return data.subType.as<BuildingTypeUniqueID>().getBuilding().getNum();
 		case ComponentType::HERO_PORTRAIT:
 			return LIBRARY->heroTypes()->getById(data.subType.as<HeroTypeID>())->getIconIndex();
 		case ComponentType::FLAG:
@@ -222,7 +221,7 @@ std::string CComponent::getDescription() const
 		case ComponentType::MANA:
 			return LIBRARY->generaltexth->allTexts[149];
 		case ComponentType::SEC_SKILL:
-			return LIBRARY->skillh->getByIndex(data.subType.getNum())->getDescriptionTranslated(data.value.value_or(0));
+			return LIBRARY->skillh->getByIndex(data.subType.getNum())->getDescriptionTranslated(data.value.value_or(1));
 		case ComponentType::RESOURCE:
 		case ComponentType::RESOURCE_PER_DAY:
 			return LIBRARY->generaltexth->allTexts[242];
@@ -281,7 +280,10 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::MANA:
 			return boost::str(boost::format("%+d %s") % data.value.value_or(0) % LIBRARY->generaltexth->allTexts[387]);
 		case ComponentType::SEC_SKILL:
-			return LIBRARY->generaltexth->levels[data.value.value_or(0)-1] + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
+			if (data.value)
+				return LIBRARY->generaltexth->levels[data.value.value_or(1)-1] + "\n" + LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
+			else
+				return LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 		case ComponentType::RESOURCE:
 			return std::to_string(data.value.value_or(0));
 		case ComponentType::RESOURCE_PER_DAY:

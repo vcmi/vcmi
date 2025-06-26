@@ -16,8 +16,6 @@
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
 
-#include "../../CCallback.h"
-
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
 #include "../GameEngine.h"

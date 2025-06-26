@@ -132,6 +132,8 @@ public:
 	virtual std::string getDescription() const;
 
 	const BattleHexArray & getSurroundingHexes(const BattleHex & assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+
+	/// Returns list of hexes from which attacker can attack this unit
 	BattleHexArray getAttackableHexes(const Unit * attacker) const;
 	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 

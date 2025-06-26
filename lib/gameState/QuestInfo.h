@@ -10,45 +10,35 @@
 #pragma once
 
 #include "int3.h"
+#include "../constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CQuest;
 class CGObjectInstance;
+class IGameInfoCallback;
 
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
-	const CQuest * quest;
-	const CGObjectInstance * obj; //related object, most likely Seer Hut
-	int3 tile;
+	ObjectInstanceID obj; //related object, Seer Hut or Border Guard
 
-	QuestInfo()
-		: quest(nullptr), obj(nullptr), tile(-1,-1,-1)
-	{};
-	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (Quest), obj (Obj), tile (Tile){};
+	QuestInfo() = default;
+	explicit QuestInfo(ObjectInstanceID Obj)
+		: obj(Obj)
+	{}
 
-	QuestInfo (const QuestInfo &qi) : quest(qi.quest), obj(qi.obj), tile(qi.tile)
-	{};
-
-	const QuestInfo& operator= (const QuestInfo &qi)
-	{
-		quest = qi.quest;
-		obj = qi.obj;
-		tile = qi.tile;
-		return *this;
-	}
+	const CQuest * getQuest(IGameInfoCallback *cb) const;
+	const CGObjectInstance * getObject(IGameInfoCallback *cb) const;
+	int3 getPosition(IGameInfoCallback *cb) const;
 
 	bool operator== (const QuestInfo & qi) const
 	{
-		return (quest == qi.quest && obj == qi.obj);
+		return obj == qi.obj;
 	}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & quest;
 		h & obj;
-		h & tile;
 	}
 };
 

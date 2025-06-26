@@ -14,7 +14,6 @@
 #include "../../AIGateway.h"
 #include "../Actions/BoatActions.h"
 #include "../Actions/AdventureSpellCastMovementActions.h"
-#include "../../../../CCallback.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../../../lib/pathfinder/PathfindingRules.h"
 

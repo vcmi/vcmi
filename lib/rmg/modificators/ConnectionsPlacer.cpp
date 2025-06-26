@@ -277,7 +277,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 		{
 			assert(zone.getModificator<ObjectManager>());
 			auto & manager = *zone.getModificator<ObjectManager>();
-			auto * monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
+			auto monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 		
 			rmg::Area border(zone.area()->getBorder());
 			border.unite(otherZone->area()->getBorder());
@@ -302,7 +302,7 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				
 				if(monsterType)
 				{
-					rmg::Object monster(*monsterType);
+					rmg::Object monster(monsterType);
 					monster.setPosition(guardPos);
 					manager.placeObject(monster, false, true);
 					//Place objects away from the monster in the other zone, too
@@ -379,10 +379,10 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 			
 			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			auto * gate1 = factory->create(map.mapInstance->cb, nullptr);
-			auto * gate2 = factory->create(map.mapInstance->cb, nullptr);
-			rmg::Object rmgGate1(*gate1);
-			rmg::Object rmgGate2(*gate2);
+			auto gate1 = factory->create(map.mapInstance->cb, nullptr);
+			auto gate2 = factory->create(map.mapInstance->cb, nullptr);
+			rmg::Object rmgGate1(gate1);
+			rmg::Object rmgGate2(gate2);
 			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
 			rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
 			bool guarded1 = manager.addGuard(rmgGate1, connection.getGuardStrength(), true);
@@ -447,8 +447,8 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 	bool allowRoad = shouldGenerateRoad(connection);
 
 	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-	auto * teleport1 = factory->create(map.mapInstance->cb, nullptr);
-	auto * teleport2 = factory->create(map.mapInstance->cb, nullptr);
+	auto teleport1 = factory->create(map.mapInstance->cb, nullptr);
+	auto teleport2 = factory->create(map.mapInstance->cb, nullptr);
 
 	RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
 	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);

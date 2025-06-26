@@ -12,17 +12,20 @@
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 
 namespace Ui {
 class HeroArtifactsWidget;
 }
+
+class MapController;
 
 class HeroArtifactsWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit HeroArtifactsWidget(CGHeroInstance &, QWidget *parent = nullptr);
+	explicit HeroArtifactsWidget(MapController & controller, CGHeroInstance &, QWidget *parent = nullptr);
 	~HeroArtifactsWidget();
 	
 	void obtainData();
@@ -35,6 +38,10 @@ private slots:
 
 	void on_removeButton_clicked();
 
+	void onSaveButtonClicked();
+
+	void onCancelButtonClicked();
+
 private:
 	enum Column
 	{
@@ -42,6 +49,7 @@ private:
 	};
 	Ui::HeroArtifactsWidget * ui;
 	
+	MapController & controller;
 	CGHeroInstance & hero;
 	CArtifactFittingSet fittingSet;
 
@@ -55,7 +63,7 @@ class HeroArtifactsDelegate : public BaseInspectorItemDelegate
 public:
 	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
-	HeroArtifactsDelegate(CGHeroInstance &);
+	HeroArtifactsDelegate(MapController & controller, CGHeroInstance &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
@@ -63,5 +71,6 @@ public:
 	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 private:
+	MapController & controller;
 	CGHeroInstance & hero;
 };

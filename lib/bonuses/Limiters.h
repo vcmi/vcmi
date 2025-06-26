@@ -31,7 +31,13 @@ struct BonusLimitationContext
 class DLL_LINKAGE ILimiter : public Serializeable
 {
 public:
-	enum class EDecision : uint8_t {ACCEPT, DISCARD, NOT_SURE};
+	enum class EDecision : uint8_t
+	{
+		ACCEPT,
+		DISCARD,
+		NOT_SURE, // result may still change based on not yet resolved bonuses
+		NOT_APPLICABLE // limiter is not applicable to current node and is never applicable
+	};
 
 	virtual ~ILimiter() = default;
 
@@ -47,10 +53,10 @@ public:
 class DLL_LINKAGE AggregateLimiter : public ILimiter
 {
 protected:
-	std::vector<TLimiterPtr> limiters;
 	virtual const std::string & getAggregator() const = 0;
 	AggregateLimiter(std::vector<TLimiterPtr> limiters = {});
 public:
+	std::vector<TLimiterPtr> limiters;
 	void add(const TLimiterPtr & limiter);
 	JsonNode toJsonNode() const override;
 
@@ -221,15 +227,18 @@ public:
 class DLL_LINKAGE OppositeSideLimiter : public ILimiter //applies only to creatures of enemy army during combat
 {
 public:
-	PlayerColor owner;
-	OppositeSideLimiter(PlayerColor Owner = PlayerColor::CANNOT_DETERMINE);
+	OppositeSideLimiter();
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
-		h & owner;
+		if (!h.hasFeature(Handler::Version::OPPOSITE_SIDE_LIMITER_OWNER))
+		{
+			PlayerColor owner;
+			h & owner;
+		}
 	}
 };
 

@@ -11,6 +11,8 @@
 #include "herospellwidget.h"
 #include "ui_herospellwidget.h"
 #include "inspector.h"
+
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/spells/CSpellHandler.h"
 

@@ -28,17 +28,17 @@ class DLL_LINKAGE CGResource : public CArmedInstance
 
 	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
 	int getAmountMultiplier() const;
-	void collectRes(const PlayerColor & player) const;
+	void collectRes(IGameEventCallback & gameEvents, const PlayerColor & player) const;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 public:
 	using CArmedInstance::CArmedInstance;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	std::string getHoverText(PlayerColor player) const override;
 
 	GameResID resourceID() const;

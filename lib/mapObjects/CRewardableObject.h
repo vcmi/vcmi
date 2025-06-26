@@ -25,11 +25,13 @@ protected:
 	/// reward selected by player, no serialize
 	ui16 selectedReward = 0;
 	
-	void grantReward(ui32 rewardID, const CGHeroInstance * hero) const override;
-	void markAsVisited(const CGHeroInstance * hero) const override;
+	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
+
+	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
+	void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	const IObjectInterface * getObject() const override;
-	void markAsScouted(const CGHeroInstance * hero) const override;
+	void markAsScouted(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 	
 	/// return true if this object was "cleared" before and no longer has rewards applicable to selected hero
 	/// unlike wasVisited, this method uses information not available to player owner, for example, if object was cleared by another player before
@@ -53,20 +55,21 @@ public:
 	bool wasScouted(PlayerColor player) const;
 	
 	/// gives reward to player or ask for choice in case of multiple rewards
-	void onHeroVisit(const CGHeroInstance *h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const override;
 
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 
 	///possibly resets object state
-	void newTurn(vstd::RNG & rand) const override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
-	void heroLevelUpDone(const CGHeroInstance *hero) const override;
+	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
-	void initObj(vstd::RNG & rand) override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
 
 	bool isCoastVisitable() const override;
 
@@ -74,7 +77,7 @@ public:
 	
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
-	CRewardableObject(IGameCallback *cb);
+	CRewardableObject(IGameInfoCallback *cb);
 	
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;

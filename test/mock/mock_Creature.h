@@ -12,6 +12,8 @@
 
 #include <vcmi/Creature.h>
 
+#include "../../lib/ResourceSet.h"
+
 class IBonusBearer;
 class FactionID;
 

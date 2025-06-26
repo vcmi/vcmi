@@ -349,6 +349,7 @@ void FirstLaunchView::extractGogData()
 		ui->progressBarGog->setVisible(false);
 		ui->pushButtonGogInstall->setVisible(true);
 		setEnabled(true);
+		heroesDataUpdate();
 	});
 #endif
 }

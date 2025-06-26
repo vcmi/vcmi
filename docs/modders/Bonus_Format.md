@@ -40,25 +40,43 @@ All parameters but type are optional.
 	// TODO
 	"effectRange" : "EFFECT_RANGE",
 
-	// TODO
+	// This sections allows to define 'limiter', which allows to limit bonus and only apply it under specific conditions
+	// Typical conditions are "affect only specific creature", or "affect only if target has another, specific bonus"
+	// See Bonus Limiters list below for full list of supported limiters 
 	"limiters" : [
 		"PREDEFINED_LIMITER", optional_parameters (...), //whhich one is preferred?
 		{"type" : LIMITER_TYPE, "parameters" : [1,2,3]}
 	],
 	
-	// TODO
+	// Normally, only entities that are located "below" bonus source are affected by the bonus
+	// For example, bonus on creature will only affect creature itself,
+	// bonus on hero will affect hero itself and all its units, and player bonus will affect all objects owned by player
+	// Propagator allows bonus to affect "upwards" entities. 
+	// For example, creature that has bonus with battle-wide propagator will affect all units in combat, and not just unit itself
+	// See Bonus Propagators list below for full list of supported propagators
 	"propagator" : 	["PROPAGATOR_TYPE", optional_parameters (...)],
 	
-	// TODO
+	// Updaters allow to modify bonus depending on context. 
+	// For example, it can be used to scale bonus based on hero or unit level
+	// See Bonus Updaters list below for full list of supported updaters
 	"updater" :	    {Bonus Updater},
 	
-	// TODO
+	// This is special type of propagator, that is only activated when bonus is being propagated upwards,
+	// using its propagator. It has no effect on bonuses without propagator
 	"propagationUpdater" :	{Bonus Updater, but works during propagation},
 	
-	// TODO
-	"description" : "",
+	// Optional custom description, at the moment limited to creature abilities
+	// Visible only in creature window
+	"description" : "{Ability Name}\nLong description text",
 	
-	// TODO
+	// Optional, path to custom icon that will be visible in creature window
+	"icon" : "",
+	
+	// Stacking string allows to block stacking of bonuses from different entities
+	// For example, devils and archdevils (different entities) both have battle-wide debuff to luck
+	// Normally, having both such units in combat would result in bonus stacking, providing -2 debuff to luck in total
+	// If such behavior is undesired, both such unit must have same, non-empty stacking string
+	// String can contain any text, as long as it not empty and is same for both of such creatures
 	"stacking" :    ""
 }
 ```

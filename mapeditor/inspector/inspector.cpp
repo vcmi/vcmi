@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 #include "inspector.h"
-#include "../lib/ArtifactUtils.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/spells/CSpellHandler.h"
@@ -38,9 +36,12 @@
 #include "../mapcontroller.h"
 
 //===============IMPLEMENT OBJECT INITIALIZATION FUNCTIONS================
-Initializer::Initializer(CGObjectInstance * o, const PlayerColor & pl) : defaultPlayer(pl)
+Initializer::Initializer(MapController & controller, CGObjectInstance * o, const PlayerColor & pl)
+	: controller(controller)
+	, defaultPlayer(pl)
 {
 	logGlobal->info("New object instance initialized");
+	o->cb = controller.getCallback();
 ///IMPORTANT! initialize order should be from base objects to derived objects
 	INIT_OBJ_TYPE(CGResource);
 	INIT_OBJ_TYPE(CGArtifact);
@@ -74,10 +75,10 @@ void Initializer::initialize(CGSignBottle * o)
 void Initializer::initialize(CGCreature * o)
 {
 	if(!o) return;
-	
+
 	o->character = CGCreature::Character::HOSTILE;
 	if(!o->hasStackAtSlot(SlotID(0)))
-	   o->putStack(SlotID(0), new CStackInstance(CreatureID(o->subID), 0, false));
+		o->putStack(SlotID(0), std::make_unique<CStackInstance>(o->cb, CreatureID(o->subID), 1, false));
 }
 
 void Initializer::initialize(CGDwelling * o)
@@ -203,9 +204,16 @@ void Initializer::initialize(CGArtifact * o)
 				out.push_back(spell->id);
 			}
 		}
-		auto a = ArtifactUtils::createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
-		o->storedArtifact = a;
+		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
+		o->setArtifactInstance(a);
 	}
+	else if(o->ID == Obj::ARTIFACT)
+	{
+		auto instance = controller.map()->createArtifact(o->getArtifactType());
+		o->setArtifactInstance(instance);
+	}
+	else
+		throw std::runtime_error("Unimplemented initializer for CGArtifact object ID = "+ std::to_string(o->ID.getNum()));
 }
 
 void Initializer::initialize(CGMine * o)
@@ -320,7 +328,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	auto * delegate = new HeroSkillsDelegate(*o);
 	addProperty(QObject::tr("Skills"), PropertyEditorPlaceholder(), delegate, false);
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new HeroSpellDelegate(*o), false);
-	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(*o), false);
+	addProperty(QObject::tr("Artifacts"), PropertyEditorPlaceholder(), new HeroArtifactsDelegate(controller, *o), false);
 	
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
@@ -365,11 +373,11 @@ void Inspector::updateProperties(CGTownInstance * o)
 void Inspector::updateProperties(CGArtifact * o)
 {
 	if(!o) return;
-	
+
 	addProperty(QObject::tr("Message"), o->message, false);
-	
-	CArtifactInstance * instance = o->storedArtifact;
-	if(instance)
+
+	const CArtifactInstance * instance = o->getArtifactInstance();
+	if(instance && o->ID == Obj::SPELL_SCROLL)
 	{
 		SpellID spellId = instance->getScrollSpellID();
 		if(spellId != SpellID::NONE)
@@ -423,7 +431,7 @@ void Inspector::updateProperties(CGCreature * o)
 	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
 	addProperty(QObject::tr("Artifact reward"), o->gainedArtifact); //TODO: implement in setProperty
 	addProperty(QObject::tr("Army"), PropertyEditorPlaceholder(), true);
-	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->count, false);
+	addProperty(QObject::tr("Amount"), o->stacks[SlotID(0)]->getCount(), false);
 	//addProperty(QObject::tr("Resources reward"), o->resources); //TODO: implement in setProperty
 }
 
@@ -454,26 +462,26 @@ void Inspector::updateProperties(CGEvent * o)
 
 void Inspector::updateProperties(CGSeerHut * o)
 {
-	if(!o || !o->quest) return;
+	if(!o) return;
 	
-	addProperty(QObject::tr("First visit text"), o->quest->firstVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Next visit text"), o->quest->nextVisitText, new MessageDelegate, false);
-	addProperty(QObject::tr("Completed text"), o->quest->completedText, new MessageDelegate, false);
-	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, false);
-	addProperty(QObject::tr("Time limit"), o->quest->lastDay, false);
+	addProperty(QObject::tr("First visit text"), o->getQuest().firstVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Next visit text"), o->getQuest().nextVisitText, new MessageDelegate, false);
+	addProperty(QObject::tr("Completed text"), o->getQuest().completedText, new MessageDelegate, false);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, false);
+	addProperty(QObject::tr("Time limit"), o->getQuest().lastDay, false);
 	
 	{ //Quest
-		auto * delegate = new QuestDelegate(controller, *o->quest);
+		auto * delegate = new QuestDelegate(controller, o->getQuest());
 		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 	}
 }
 
 void Inspector::updateProperties(CGQuestGuard * o)
 {
-	if(!o || !o->quest) return;
+	if(!o) return;
 	
 	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), nullptr, true);
-	addProperty(QObject::tr("Repeat quest"), o->quest->repeatedQuest, true);
+	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, true);
 }
 
 void Inspector::updateProperties()
@@ -638,9 +646,9 @@ void Inspector::setProperty(CGArtifact * o, const QString & key, const QVariant 
 		o->message = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("guards", o->instanceName, "message"), value.toString().toStdString()));
 	
-	if(o->storedArtifact && key == QObject::tr("Spell"))
+	if(key == QObject::tr("Spell"))
 	{
-		o->storedArtifact = ArtifactUtils::createScroll(SpellID(value.toInt()));
+		o->setArtifactInstance(controller.map()->createScroll(SpellID(value.toInt())));
 	}
 }
 
@@ -763,7 +771,7 @@ void Inspector::setProperty(CGCreature * o, const QString & key, const QVariant 
 	if(key == QObject::tr("Not growing"))
 		o->notGrowingTeam = value.toBool();
 	if(key == QObject::tr("Amount"))
-		o->stacks[SlotID(0)]->count = value.toString().toInt();
+		o->stacks[SlotID(0)]->setCount(value.toString().toInt());
 }
 
 void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant & value)
@@ -771,18 +779,18 @@ void Inspector::setProperty(CGSeerHut * o, const QString & key, const QVariant &
 	if(!o) return;
 	
 	if(key == QObject::tr("First visit text"))
-		o->quest->firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().firstVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "firstVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Next visit text"))
-		o->quest->nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().nextVisitText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "nextVisit"), value.toString().toStdString()));
 	if(key == QObject::tr("Completed text"))
-		o->quest->completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
+		o->getQuest().completedText = MetaString::createFromTextID(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("quest", o->instanceName, "completed"), value.toString().toStdString()));
 	if(key == QObject::tr("Repeat quest"))
-		o->quest->repeatedQuest = value.toBool();
+		o->getQuest().repeatedQuest = value.toBool();
 	if(key == QObject::tr("Time limit"))
-		o->quest->lastDay = value.toString().toInt();
+		o->getQuest().lastDay = value.toString().toInt();
 }
 
 void Inspector::setProperty(CGQuestGuard * o, const QString & key, const QVariant & value)

@@ -14,13 +14,13 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
-#include "../CArtHandler.h"
+#include "../CBonusTypeHandler.h"
 #include "../CCreatureHandler.h"
 #include "../CCreatureSet.h"
 #include "../CSkillHandler.h"
-#include "../IGameCallback.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../battle/BattleInfo.h"
@@ -173,7 +173,7 @@ JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root;
 	// only add values that might reasonably be found in config files
-	root["type"].String() = vstd::findKey(bonusNameMap, type);
+	root["type"].String() = LIBRARY->bth->bonusToString(type);
 	if(subtype != BonusSubtypeID())
 		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
@@ -244,9 +244,7 @@ std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
-	for(const auto & i : bonusNameMap)
-	if(i.second == bonus.type)
-		out << "\tType: " << i.first << " \t";
+	out << "\tType: " << LIBRARY->bth->bonusToString(bonus.type) << " \t";
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);
@@ -275,17 +273,14 @@ std::shared_ptr<Bonus> Bonus::addLimiter(const TLimiterPtr & Limiter)
 {
 	if (limiter)
 	{
-		//If we already have limiter list, retrieve it
-		auto limiterList = std::dynamic_pointer_cast<AllOfLimiter>(limiter);
-		if(!limiterList)
-		{
-			//Create a new limiter list with old limiter and the new one will be pushed later
-			limiterList = std::make_shared<AllOfLimiter>();
-			limiterList->add(limiter);
-			limiter = limiterList;
-		}
+		auto newLimiterList = std::make_shared<AllOfLimiter>();
+		auto oldLimiterList = std::dynamic_pointer_cast<const AllOfLimiter>(limiter);
 
-		limiterList->add(Limiter);
+		if(oldLimiterList)
+			newLimiterList->limiters = oldLimiterList->limiters;
+
+		newLimiterList->add(Limiter);
+		limiter = newLimiterList;
 	}
 	else
 	{

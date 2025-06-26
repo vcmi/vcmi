@@ -22,8 +22,6 @@
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
@@ -152,7 +150,7 @@ void MapRendererTerrain::renderTile(IMapRendererContext & context, Canvas & targ
 {
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 
-	int32_t terrainIndex = mapTile.getTerrainID();
+	int32_t terrainIndex = mapTile.getTerrainID().getNum();
 	int32_t imageIndex = mapTile.terView;
 	int32_t rotationIndex = mapTile.extTileFlags % 4;
 
@@ -194,7 +192,7 @@ void MapRendererRiver::renderTile(IMapRendererContext & context, Canvas & target
 	if(!mapTile.hasRiver())
 		return;
 
-	int32_t terrainIndex = mapTile.getRiverID();
+	int32_t terrainIndex = mapTile.getRiverID().getNum();
 	int32_t imageIndex = mapTile.riverDir;
 	int32_t rotationIndex = (mapTile.extTileFlags >> 2) % 4;
 
@@ -231,7 +229,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 		const TerrainTile & mapTileAbove = context.getMapTile(coordinatesAbove);
 		if(mapTileAbove.hasRoad())
 		{
-			int32_t terrainIndex = mapTileAbove.getRoadID();
+			int32_t terrainIndex = mapTileAbove.getRoadID().getNum();
 			int32_t imageIndex = mapTileAbove.roadDir;
 			int32_t rotationIndex = (mapTileAbove.extTileFlags >> 4) % 4;
 
@@ -243,7 +241,7 @@ void MapRendererRoad::renderTile(IMapRendererContext & context, Canvas & target,
 	const TerrainTile & mapTile = context.getMapTile(coordinates);
 	if(mapTile.hasRoad())
 	{
-		int32_t terrainIndex = mapTile.getRoadID();
+		int32_t terrainIndex = mapTile.getRoadID().getNum();
 		int32_t imageIndex = mapTile.roadDir;
 		int32_t rotationIndex = (mapTile.extTileFlags >> 4) % 4;
 
@@ -439,8 +437,8 @@ std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectI
 	if(obj->ID == Obj::BOAT)
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->flagAnimations[boat->hero->tempOwner.getNum()].empty())
-			return getAnimation(boat->flagAnimations[boat->hero->tempOwner.getNum()], true, false);
+		if(boat && boat->getBoardedHero() && !boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()].empty())
+			return getAnimation(boat->flagAnimations[boat->getBoardedHero()->tempOwner.getNum()], true, false);
 	}
 
 	return nullptr;
@@ -452,7 +450,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	{
 		// Boats have additional animation with waves around boat
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
-		if(boat && boat->hero && !boat->overlayAnimation.empty())
+		if(boat && boat->getBoardedHero() && !boat->overlayAnimation.empty())
 			return getAnimation(boat->overlayAnimation, true, false);
 	}
 	return nullptr;

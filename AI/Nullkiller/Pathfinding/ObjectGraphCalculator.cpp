@@ -10,8 +10,7 @@
 #include "StdInc.h"
 #include "ObjectGraphCalculator.h"
 #include "AIPathfinderConfig.h"
-#include "../../../lib/CRandomGenerator.h"
-#include "../../../CCallback.h"
+#include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
@@ -288,17 +287,17 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 {
 	auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(obj->cb)).get();
 
-	CRandomGenerator rng;
+	GameRandomizer randomizer(*obj->cb);
 	auto visitablePos = obj->visitablePos();
 
 	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
-	objectActor->initHero(rng, static_cast<HeroTypeID>(0));
+	objectActor->initHero(randomizer, static_cast<HeroTypeID>(0));
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
-	objectActor->initObj(rng);
+	objectActor->initObj(randomizer);
 
 	if(cb->getTile(visitablePos)->isWater())
 	{
-		objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
+		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}
 
 	assert(objectActor->visitablePos() == visitablePos);
@@ -326,16 +325,16 @@ void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isV
 	auto internalCb = temporaryActorHeroes.front()->cb;
 	auto objectActor = temporaryActorHeroes.emplace_back(std::make_unique<CGHeroInstance>(internalCb)).get();
 
-	CRandomGenerator rng;
+	GameRandomizer randomizer(*internalCb);
 
 	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
-	objectActor->initHero(rng, static_cast<HeroTypeID>(0));
+	objectActor->initHero(randomizer, static_cast<HeroTypeID>(0));
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
-	objectActor->initObj(rng);
+	objectActor->initObj(randomizer);
 
 	if(isVirtualBoat || ai->cb->getTile(visitablePos)->isWater())
 	{
-		objectActor->boat = temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get();
+		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}
 
 	assert(objectActor->visitablePos() == visitablePos);

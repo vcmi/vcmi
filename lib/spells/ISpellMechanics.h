@@ -24,7 +24,7 @@ struct Query;
 class IBattleState;
 class CreatureService;
 class CMap;
-class CGameInfoCallback;
+class IGameInfoCallback;
 class CBattleInfoCallback;
 class JsonNode;
 class CStack;
@@ -56,7 +56,7 @@ public:
 	virtual ~SpellCastEnvironment() = default;
 
 	virtual const CMap * getMap() const = 0;
-	virtual const CGameInfoCallback * getCb() const = 0;
+	virtual const IGameInfoCallback * getCb() const = 0;
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
@@ -355,8 +355,8 @@ public:
 	IAdventureSpellMechanics(const CSpell * s);
 	virtual ~IAdventureSpellMechanics() = default;
 
-	virtual bool canBeCast(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster) const = 0;
-	virtual bool canBeCastAt(spells::Problem & problem, const CGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
+	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
+	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 

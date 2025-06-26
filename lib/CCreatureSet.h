@@ -9,15 +9,15 @@
  */
 #pragma once
 
+#include "CCreatureHandler.h"
+#include "GameConstants.h"
 #include "bonuses/Bonus.h"
 #include "bonuses/BonusCache.h"
 #include "bonuses/CBonusSystemNode.h"
+#include "callback/GameCallbackHolder.h"
 #include "serializer/Serializeable.h"
-#include "GameConstants.h"
-#include "CArtHandler.h"
-#include "CArtifactInstance.h"
-#include "CCreatureHandler.h"
-#include "GameLibrary.h"
+#include "mapObjects/CGObjectInstance.h"
+#include "entities/artifact/CArtifactSet.h"
 
 #include <vcmi/Entity.h>
 
@@ -33,9 +33,9 @@ class JsonSerializeFormat;
 class DLL_LINKAGE CStackBasicDescriptor
 {
 	CreatureID typeID;
-public:
 	TQuantity count = -1; //exact quantity or quantity ID from CCreature::getQuantityID when getting info about enemy army
 
+public:
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(const CreatureID & id, TQuantity Count);
 	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
@@ -47,6 +47,7 @@ public:
 	TQuantity getCount() const;
 
 	virtual void setType(const CCreature * c);
+	virtual void setCount(TQuantity amount);
 
 	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
@@ -70,14 +71,16 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet, public ACreature, public GameCallbackHolder
 {
 	BonusValueCache nativeTerrain;
 	BonusValueCache initiative;
 
-protected:
-	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
+	CArmedInstance * armyInstance = nullptr; //stack must be part of some army, army must be part of some object
 
+	IGameInfoCallback * getCallback() const final { return cb; }
+
+	TExpType totalExperience;//commander needs same amount of exp as hero
 public:
 	struct RandomStackInfo
 	{
@@ -87,25 +90,46 @@ public:
 	// helper variable used during loading map, when object (hero or town) have creatures that must have same alignment.
 	std::optional<RandomStackInfo> randomStack;
 
-	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
-	TExpType experience;//commander needs same amount of exp as hero
+	CArmedInstance * getArmy();
+	const CArmedInstance * getArmy() const; //stack must be part of some army, army must be part of some object
+	void setArmy(CArmedInstance *ArmyObj);
+
+	TExpType getTotalExperience() const;
+	TExpType getAverageExperience() const;
+	virtual bool canGainExperience() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
-		h & _armyObj;
-		h & experience;
 
-		if(!h.saving)
-			deserializationFix();
+		if (h.hasFeature(Handler::Version::STACK_INSTANCE_ARMY_FIX))
+		{
+			// no-op
+		}
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			ObjectInstanceID dummyID;
+			h & dummyID;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> army;
+			h & army;
+		}
+
+		h & totalExperience;
+		if (!h.hasFeature(Handler::Version::STACK_INSTANCE_EXPERIENCE_FIX))
+		{
+			totalExperience *= getCount();
+		}
 	}
 
 	void serializeJson(JsonSerializeFormat & handler);
 
 	//overrides CBonusSystemNode
-	std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const override; // how would bonus description look for this particular type of node
+	std::string bonusToString(const std::shared_ptr<Bonus>& bonus) const override; // how would bonus description look for this particular type of node
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	//IConstBonusProvider
@@ -122,25 +146,28 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	CStackInstance(bool isHypothetic = false);
-	CStackInstance(const CreatureID & id, TQuantity count, bool isHypothetic = false);
-	CStackInstance(const CCreature *cre, TQuantity count, bool isHypothetic = false);
+	CStackInstance(IGameInfoCallback *cb, bool isHypothetic	= false);
+	CStackInstance(IGameInfoCallback *cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 
 	void setType(const CreatureID & creID);
 	void setType(const CCreature * c) final;
-	void setArmyObj(const CArmedInstance *ArmyObj);
-	virtual void giveStackExp(TExpType exp);
+	void setCount(TQuantity amount) final;
+
+	/// Gives specified amount of stack experience that will not be scaled by unit size
+	void giveAverageStackExperience(TExpType exp);
+	void giveTotalStackExperience(TExpType exp);
+
 	bool valid(bool allowUnrandomized) const;
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;//from CArtifactSet
 	void removeArtifact(const ArtifactPosition & pos) override;
-	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
+	ArtBearer bearerType() const override; //from CArtifactSet
 	std::string nodeName() const override; //from CBonusSystemnode
-	void deserializationFix();
 	PlayerColor getOwner() const override;
 
 	int32_t getInitiative(int turn = 0) const final;
 	TerrainId getNativeTerrain() const final;
+	TerrainId getCurrentTerrain() const;
 };
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance
@@ -155,17 +182,17 @@ public:
 	std::vector <ui8> secondarySkills; //ID -> level
 	std::set <ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
-	CCommanderInstance();
-	CCommanderInstance(const CreatureID & id);
+	CCommanderInstance(IGameInfoCallback *cb);
+	CCommanderInstance(IGameInfoCallback *cb, const CreatureID & id);
 	void setAlive (bool alive);
-	void giveStackExp (TExpType exp) override;
 	void levelUp ();
 
+	bool canGainExperience() const override;
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
 	ui64 getPower() const override {return 0;};
 	int getExpRank() const override;
 	int getLevel() const override;
-	ArtBearer::ArtBearer bearerType() const override; //from CArtifactSet
+	ArtBearer bearerType() const override; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -178,7 +205,7 @@ public:
 	}
 };
 
-using TSlots = std::map<SlotID, CStackInstance *>;
+using TSlots = std::map<SlotID, std::unique_ptr<CStackInstance>>;
 using TSimpleSlots = std::map<SlotID, std::pair<CreatureID, TQuantity>>;
 
 using TPairCreatureSlot = std::pair<const CCreature *, SlotID>;
@@ -222,9 +249,8 @@ class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializ
 {
 	CCreatureSet(const CCreatureSet &) = delete;
 	CCreatureSet &operator=(const CCreatureSet&);
+
 public:
-
-
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
 	EArmyFormation formation = EArmyFormation::LOOSE; //0 - wide, 1 - tight
 
@@ -237,22 +263,37 @@ public:
 	const TSlots &Slots() const {return stacks;}
 
 	void addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addToSlot(const SlotID & slot, CStackInstance * stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(const SlotID & slot, std::unique_ptr<CStackInstance> stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clearSlots() override;
 	void setFormation(EArmyFormation tight);
-	CArmedInstance *castToArmyObj();
+	virtual CArmedInstance * getArmy() { return nullptr; }
+	virtual const CArmedInstance * getArmy() const { return nullptr; }
 
 	//basic operations
-	void putStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the army, slot must be empty
+	void putStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack); //adds new stack to the army, slot must be empty
 	void setStackCount(const SlotID & slot, TQuantity count); //stack must exist!
-	CStackInstance * detachStack(const SlotID & slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
+	std::unique_ptr<CStackInstance> detachStack(const SlotID & slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(const SlotID & slot, const CreatureID & type);
-	void giveStackExp(TExpType exp);
-	void setStackExp(const SlotID & slot, TExpType exp);
 
-	//derivative
-	void eraseStack(const SlotID & slot); //slot must be occupied
-	void joinStack(const SlotID & slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
+	/// Give specified amount of experience to all units in army
+	/// Amount of granted experience is scaled by unit stack size
+	void giveAverageStackExperience(TExpType exp);
+
+	/// Give specified amount of experience to unit in specified slot
+	/// Amount of granted experience is not scaled by unit stack size
+	void giveTotalStackExperience(const SlotID & slot, TExpType exp);
+
+	/// Erased stack from specified slot. Slot must be non-empty
+	void eraseStack(const SlotID & slot);
+
+	/// Joins stack into stack that occupies targeted slot.
+	/// Slot must be non-empty and contain same creature type
+	void joinStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack); //adds new stack to the existing stack of the same type
+
+	/// Splits off some units of specified stack and returns newly created stack
+	/// Slot must be non-empty and contain more units that split quantity
+	std::unique_ptr<CStackInstance> splitStack(const SlotID & slot, TQuantity toSplit);
+
 	void changeStackCount(const SlotID & slot, TQuantity toAdd); //stack must exist!
 	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) override; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
@@ -261,7 +302,8 @@ public:
 	CStackInstance * getStackPtr(const SlotID & slot) const; //if stack doesn't exist, returns nullptr
 	const CCreature * getCreature(const SlotID & slot) const; //workaround of map issue;
 	int getStackCount(const SlotID & slot) const;
-	TExpType getStackExperience(const SlotID & slot) const;
+	TExpType getStackTotalExperience(const SlotID & slot) const;
+	TExpType getStackAverageExperience(const SlotID & slot) const;
 	SlotID findStack(const CStackInstance *stack) const; //-1 if none
 	SlotID getSlotFor(const CreatureID & creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	SlotID getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
@@ -291,6 +333,11 @@ public:
 	bool contains(const CStackInstance *stack) const;
 	bool canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks = true) const;
 
+	/// Returns true if this creature set contains all listed units
+	/// If requireLastStack is true, then this function will also
+	/// require presence of any unit other than requested (or more units than requested)
+	bool hasUnits(const std::vector<CStackBasicDescriptor> & units, bool requireLastStack = true) const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & stacks;
@@ -303,7 +350,6 @@ public:
 	{
 		return !stacks.empty();
 	}
-	void sweep();
 };
 
 VCMI_LIB_NAMESPACE_END

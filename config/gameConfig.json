@@ -99,6 +99,10 @@
 		"config/spells/vcmiAbility.json",
 		"config/spells/moats.json"
 	],
+	"spellSchools" :
+	[
+		"config/spellSchools.json"
+	],
 	"skills" :
 	[
 		"config/skills.json"
@@ -123,6 +127,11 @@
 	[
 		"config/obstacles.json"
 	],
+	"campaignRegions" :
+	[
+		"config/campaignRegions.json"
+	],
+	
 	
 	"settings":
 	{
@@ -145,7 +154,6 @@
 			"restorationOfErathia" : { 
 				"supported" : true,
 				"iconIndex" : 0,
-
 				"buildingsCommon": {
 					"townHall"       : 0,
 					"cityHall"       : 1,
@@ -190,7 +198,6 @@
 					"dwellingLvl7"   : 39,
 					"dwellingUpLvl7" : 40
 				},
-
 				"buildings" : {
 					"castle" : {
 						"special1" : 18, // lighthouse
@@ -236,10 +243,88 @@
 						"special3" : 18  // glyphsOfFear
 					}
 				},
-
 				"portraits" : {
 					"catherine" : 128, // In "RoE" Catherine only has portrait
 					"portraitGeneralKendal" : 129
+				},
+				"campaignRegions" : {
+					
+					"good1" : 1,    // Long Live the Queen
+					"good2" : 2,    // Liberation
+					"good3" : 3,    // Song for the Father
+					"evil1" : 4,    // Dungeons and devils
+					"evil2" : 5,    // Long Live the King
+					"neutral1" : 6, // Spoils of War
+					"secret1" : 7   // Seeds Of Discontent 
+				},
+				"campaignMusic" : {
+					"CampainMusic01" : 0,
+					"CampainMusic02" : 1,
+					"CampainMusic03" : 2,
+					"CampainMusic04" : 3,
+					"CampainMusic05" : 4,
+					"CampainMusic06" : 5,
+					"CampainMusic07" : 6,
+					"CampainMusic08" : 7,
+					"CampainMusic09" : 8,
+					"AiTheme0" : 9,
+					"AiTheme1" : 10,
+					"AiTheme2" : 11,
+					"Combat01" : 12,
+					"Combat02" : 13,
+					"Combat03" : 14,
+					"Combat04" : 15,
+					"CstleTown" : 16,
+					"TowerTown" : 17,
+					"Rampart" : 18,
+					"InfernoTown" : 19,
+					"NecroTown" : 20,
+					"Dungeon" : 21,
+					"Stronghold" : 22,
+					"FortressTown" : 23,
+					"ElemTown" : 24,
+					"Dirt" : 25,
+					"Sand" : 26,
+					"Grass" : 27,
+					"Snow" : 28,
+					"Swamp" : 29,
+					"Rough" : 30,
+					"Underground" : 31,
+					"Lava" : 32,
+					"Water" : 33,
+					"GoodTheme" : 34,
+					"NeutralTheme" : 35,
+					"EvilTheme" : 36,
+					"SecretTheme" : 37,
+					"LoopLepr" : 38,
+					"MainMenu" : 39,
+					"Win Scenario" : 40
+				},
+				"campaignVideo" : {
+					"GOOD1A.SMK" : 0,
+					"GOOD1B.SMK" : 1,
+					"GOOD1C.SMK" : 2,
+					"EVIL1A.SMK" : 3,
+					"EVIL1B.SMK" : 4,
+					"EVIL1C.SMK" : 5,
+					"NEUTRALA.SMK" : 6,
+					"NEUTRALB.SMK" : 7,
+					"NEUTRALC.SMK" : 8,
+					"GOOD2A.SMK" : 9,
+					"GOOD2B.SMK" : 10,
+					"GOOD2C.SMK" : 11,
+					"GOOD2D.SMK" : 12,
+					"EVIL2A.SMK" : 13,
+					"EVIL2AP1.SMK" : 14,
+					"EVIL2B.SMK" : 15,
+					"EVIL2C.SMK" : 16,
+					"EVIL2D.SMK" : 17,
+					"GOOD3A.SMK" : 18,
+					"GOOD3B.SMK" : 19,
+					"GOOD3C.SMK" : 20,
+					"SECRETA.SMK" : 21,
+					"SECRETB.SMK" : 22,
+					"SECRETC.SMK" : 23
 				}
 			},
 			"armageddonsBlade" : {
@@ -251,19 +336,69 @@
 						"special2" : 18  // magicUniversity
 					}
 				},
-				
 				"portraits" : {
 					"pasis" : 128,
 					"thunar" : 129,
 					"portraitGeneralKendal" : 156,
 					"portraitYoungCristian" : 157,
 					"portraitOrdwald" : 158
+				},
+				"campaignRegions" : {
+					"dragonSlayer" : 8,
+					"foolhardyWaywardness" : 9,
+					"festivalOfLife" : 10,
+					"dragonsBlood" : 11,
+					"playingWithFire" : 12,
+					"armageddonsBlade" : 13
+				},
+				"campaignMusic" : {
+					"CampainMusic10" : 41,
+					"BladeABCampaign" : 42,
+					"BladeDBCampaign" : 43,
+					"BladeDSCampaign" : 44,
+					"BladeFLCampaign" : 45,
+					"BladeFWCampaign" : 46,
+					"BladePFCampaign" : 47
+				},
+				"campaignVideo" : {
+					"H3ABab1.smk" : 24,
+					"H3ABab2.smk" : 25,
+					"H3ABab3.smk" : 26,
+					"H3ABab4.smk" : 27,
+					"H3ABab5.smk" : 28,
+					"H3ABab6.smk" : 29,
+					"H3ABab7.smk" : 30,
+					"H3ABab8.smk" : 31,
+					"H3ABab9.smk" : 32,
+					"H3ABdb1.smk" : 33,
+					"H3ABdb2.smk" : 34,
+					"H3ABdb3.smk" : 35,
+					"H3ABdb4.smk" : 36,
+					"H3ABdb5.smk" : 37,
+					"H3ABds1.smk" : 38,
+					"H3ABds2.smk" : 39,
+					"H3ABds3.smk" : 40,
+					"H3ABds4.smk" : 41,
+					"H3ABds5.smk" : 42,
+					"H3ABfl1.smk" : 43,
+					"H3ABfl2.smk" : 44,
+					"H3ABfl3.smk" : 45,
+					"H3ABfl4.smk" : 46,
+					"H3ABfl5.smk" : 47,
+					"H3ABfw1.smk" : 48,
+					"H3ABfw2.smk" : 49,
+					"H3ABfw3.smk" : 50,
+					"H3ABfw4.smk" : 51,
+					"H3ABfw5.smk" : 52,
+					"H3ABpf1.smk" : 53,
+					"H3ABpf2.smk" : 54,
+					"H3ABpf3.smk" : 55,
+					"H3ABpf4.smk" : 56
 				}
 			},
 			"shadowOfDeath" : { 
 				"supported" : true,
 				"iconIndex" : 2,
-				
 				"portraits" : {
 					"portraitGeneralKendal" : 156,
 					"portraitYoungCristian" : 157,
@@ -272,6 +407,64 @@
 					"portraitYoungGem" : 160,
 					"portraitYoungSandro" : 161,
 					"portraitYoungYog" : 162
+				},
+				"campaignRegions" : {
+					"hackAndSlash" : 14,
+					"birthOfBarbarian" : 15,
+					"newBeginning" : 16,
+					"elixirOfLife" : 17,
+					"riseOfTheNecromancer" : 18,
+					"unholyAlliance" : 19,
+					"spectreOfPower" : 20
+				},
+				"campaignMusic" : {
+					"CampainMusic11" : 48
+				},
+				"campaignVideo" : {
+			 		"H3x2_BBa.smk" : 57,
+					"H3x2_BBb.smk" : 58,
+					"H3x2_BBc.smk" : 59,
+					"H3x2_BBd.smk" : 60,
+					"H3x2_BBe.smk" : 61,
+					"H3x2_BBf.smk" : 62,
+					"H3x2_Ela.smk" : 63,
+					"H3x2_Elb.smk" : 64,
+					"H3x2_Elc.smk" : 65,
+					"H3x2_Eld.smk" : 66,
+					"H3x2_Ele.smk" : 67,
+					"H3x2_HSa.smk" : 68,
+					"EVIL2C.SMK"   : 69,
+					"H3x2_HSc.smk" : 70,
+					"H3x2_HSd.smk" : 71,
+					"H3x2_HSe.smk" : 72,
+					"H3x2_NBa.smk" : 73,
+					"H3x2_NBb.smk" : 74,
+					"H3x2_Nbc.smk" : 75,
+					"H3x2_Nbd.smk" : 76,
+					"H3x2_Nbe.smk" : 77,
+					"H3x2_RNa.smk" : 78,
+					"H3x2_RNb.smk" : 79,
+					"H3x2_RNc.smk" : 80,
+					"H3x2_RNd.smk" : 81,
+					"H3x2_RNe1.smk": 82,
+					"H3x2_SPa.smk" : 83,
+					"H3x2_SPb.smk" : 84,
+					"H3x2_SPc.smk" : 85,
+					"H3x2_SPd.smk" : 86,
+					"H3x2_SPe.smk" : 87,
+					"H3x2_UAa.smk" : 88,
+					"H3x2_UAb.smk" : 89,
+					"H3x2_UAc.smk" : 90,
+					"H3x2_UAd.smk" : 91,
+					"H3x2_UAe.smk" : 92,
+					"H3x2_UAf.smk" : 93,
+					"H3x2_UAg.smk" : 94,
+					"H3x2_UAh.smk" : 95,
+					"H3x2_UAi.smk" : 96,
+					"H3x2_UAj.smk" : 97,
+					"H3x2_UAk.smk" : 98,
+					"H3x2_UAl.smk" : 99,
+					"H3x2_UAm.smk" : 100 //H3x2_UAm.bik?
 				}
 			},
 			"chronicles" : { 
@@ -295,7 +488,7 @@
 			// number of heroes that player can have active on map at the same time
 			"perPlayerOnMapCap" : 8,
 			// number of heroes that player can have in total, including garrisoned
-			"perPlayerTotalCap" : 16,
+			"perPlayerTotalCap" : 9999,
 			// if enabled, hero that wins a battle without any non-summoned troops left will retreat and become available in tavern instead of being lost
 			"retreatOnWinWithoutTroops" : true,
 			// Chances for a hero with default army to receive corresponding stack out of his predefined starting troops
@@ -313,7 +506,18 @@
 			/// movement points hero can get on start of the turn when on land, depending on speed of slowest creature (0-based list)
 			"movementPointsLand" : [ 1500, 1500, 1500, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
 			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
-			"movementPointsSea" : [ 1500 ]
+			"movementPointsSea" : [ 1500 ],
+      
+			/// maximal secondary skills per hero
+			"skillPerHero" : 8,
+			
+			/// Base scouting range for hero without any range modifiers
+			"baseScoutingRange" : 5,
+
+			/// Strength of generic secondary skill specialties ( "secondary" : "skillName" ) per level
+			"specialtySecondarySkillGrowth" : 5,
+			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
+			"specialtyCreatureGrowth" : 5
 		},
 
 		"towns":
@@ -335,21 +539,40 @@
 			// How much researchs/skips per day are possible? (array index is spell tier)
 			"spellResearchPerDay": [ 2, 2, 2, 2, 1 ],
 			// Exponent for increasing cost for each research (factor 1 disables this; array index is spell tier)
-			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ]
+			"spellResearchCostExponentPerResearch": [ 1.25, 1.25, 1.25, 1.25, 1.25 ],
+			
+			// Base scouting range for town without any range modifiers
+			"baseScoutingRange" : 5
 		},
 
 		"combat":
 		{
+			// defines bias used for percentage-based ability rolls, such Death Blow of Dread Knight
+			// If bias is set to 0, then all rolls will be completely independent - it is possible to get lucky and roll ability with 10% chance
+			// multiple times in a row, or be unlucky and not roll 50% ability multiple times in a row
+			// If bias is non-zero, game will adjust probability based on previous rolls while keeping average chance at desired value
+			// So matter what value is used for bias, actual probability for large (1000+) number of rolls is same as stated in description
+			// However, non-zero bias allows to prevent long streaks of "bad" rolls, and enforce actual probabilities even for small (10-20) number of rolls
+			// Recommended value is ~10-25. Excessively large values, like 100 can make rolls very predictable, for example rolling 20% ability every 5th roll
+			"abilityBias" : 25,
+
 			// defines dice chance and dice size of a morale roll, based on creature's morale.
 			// Resulting chance is chanceValue / diceSize. If list contains 0 values, option will be disabled
 			"goodMoraleChance" : [ 1, 2, 3 ],
 			"badMoraleChance" : [ 2, 4, 6],
-            "moraleDiceSize" : 24,
+			"moraleDiceSize" : 24,
+			// Bias for morale rolls. See abilityBias for detailed description
+			// Recommended value is around moraleDiceSize / 4
+			"moraleBias" : 8,
 
 			// defines dice chance and dice size of a luck roll, based on creature's luck
 			"goodLuckChance" : [ 1, 2, 3 ],
 			"badLuckChance" : [],
-            "luckDiceSize" : 24,
+			"luckDiceSize" : 24,
+			// Bias for luck rolls. See abilityBias for detailed description
+			// Recommended value is around luckDiceSize / 4
+			"luckBias" : 8,
+			
 
 			// Formula for damage increase based on attack and defense during a creature's attack
 			"attackPointDamageFormula": "return clamp((attack - defense) * 0.05, 0, 3)",
@@ -460,6 +683,14 @@
 			"mergeOnRecruit" : true
 		},
 		
+		"mapObjects" : 
+		{
+			// Allow behavior that emulates h3 bug where quest from Seer Hut or Border Guard can take entire army from hero
+			// WARNING: handling of heroes without armies is not tested and may lead to bugs or crashes! Use at own risk!
+			// If this option is off, quests will only allow taking entire army if quest reward also gives creatures
+			"h3BugQuestTakesEntireArmy" : false
+		},
+
 		"markets" : 
 		{
 			// period between restocking of "Black Market" object found on adventure map
@@ -554,12 +785,6 @@
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
-				"sightRadius" :
-				{
-					"type" : "SIGHT_RADIUS", //default sight radius
-					"val" : 5,
-					"valueType" : "BASE_NUMBER"
-				},
 				"experienceGain" : 
 				{
 					"type" : "HERO_EXPERIENCE_GAIN_PERCENT", //default hero xp
@@ -570,6 +795,12 @@
 				{
 					"type" : "MANA_PER_KNOWLEDGE_PERCENTAGE", //1000% mana per knowledge
 					"val" : 1000,
+					"valueType" : "BASE_NUMBER"
+				},
+				"spellCastsPerTurn" :
+				{
+					"type" : "HERO_SPELL_CASTS_PER_COMBAT_TURN", //1 spell can be cast by hero per turn during combat
+					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				}
 			}

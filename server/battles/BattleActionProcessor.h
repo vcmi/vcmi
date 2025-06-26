@@ -8,7 +8,7 @@
  *
  */
 #pragma once
-#include "bonuses/BonusList.h"
+#include "bonuses/Bonus.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -19,7 +19,7 @@ class CBattleInfoCallback;
 class BattleHex;
 class CStack;
 class PlayerColor;
-enum class BonusType : uint8_t;
+enum class BonusType : uint16_t;
 
 namespace battle
 {
@@ -36,12 +36,22 @@ class BattleProcessor;
 /// Processes incoming battle action queries and applies requested action(s)
 class BattleActionProcessor : boost::noncopyable
 {
+	struct MovementResult
+	{
+		/// number of tiles unit moved through, unset for flying units
+		int16_t distance;
+		/// Unit failed to complete movement due to stepping into obstacle
+		bool obstacleHit;
+		/// Unit was unable to move to destination, e.g. invalid request
+		bool invalidRequest;
+	};
+
 	using FireShieldInfo = std::vector<std::pair<const CStack *, int64_t>>;
 
 	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
-	int moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
+	MovementResult moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest); //returned value - travelled distance
 	void makeAttack(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, int distance, const BattleHex & targetHex, bool first, bool ranged, bool counter);
 
 	void handleAttackBeforeCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
@@ -51,7 +61,7 @@ class BattleActionProcessor : boost::noncopyable
 	void handleAfterAttackCasting(const CBattleInfoCallback & battle, bool ranged, const CStack * attacker, const CStack * defender);
 	void attackCasting(const CBattleInfoCallback & battle, bool ranged, BonusType attackMode, const battle::Unit * attacker, const CStack * defender);
 
-	std::set<SpellID> getSpellsForAttackCasting(TConstBonusListPtr spells, const CStack *defender);
+	std::set<SpellID> getSpellsForAttackCasting(const TConstBonusListPtr & spells, const CStack *defender);
 
 	// damage, drain life & fire shield; returns amount of drained life
 	void applyBattleEffects(const CBattleInfoCallback & battle, BattleAttack & bat, std::shared_ptr<battle::CUnitState> attackerState, FireShieldInfo & fireShield, const CStack * def, battle::HealInfo & healInfo, int distance, bool secondary) const;

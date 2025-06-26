@@ -44,17 +44,17 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	{
 		ai->selectedObject = town->id;
 
-		if(town->visitingHero && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
+		if(town->getVisitingHero() && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
 		{
 			ai->myCb->swapGarrisonHero(town);
 		}
 
-		if(town->visitingHero)
-			throw cannotFulfillGoalException("The town is already occupied by " + town->visitingHero->getNameTranslated());
+		if(town->getVisitingHero())
+			throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTranslated());
 	}
 
-	if (hero->inTownGarrison)
-		ai->myCb->swapGarrisonHero(hero->visitedTown);
+	if (hero->isGarrisoned())
+		ai->myCb->swapGarrisonHero(hero->getVisitedTown());
 
 	auto wait = cb->waitTillRealize;
 

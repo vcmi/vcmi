@@ -16,7 +16,6 @@
 #include "MapViewCache.h"
 #include "MapViewModel.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
@@ -27,6 +26,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/UnlockGuard.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -182,7 +182,7 @@ void MapViewController::tick(uint32_t timeDelta)
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
 		double heroMoveTime = GAME->interface()->playerID == hero->getOwner() ?
 			settings["adventure"]["heroMoveTime"].Float() :
@@ -249,7 +249,7 @@ void MapViewController::afterRender()
 		assert(boat || hero);
 
 		if(!hero)
-			hero = boat->hero;
+			hero = boat->getBoardedHero();
 
 		if(movementContext->progress >= 0.999)
 		{
@@ -372,8 +372,8 @@ void MapViewController::fadeOutObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
-			movingObject = hero->boat;
+		if (hero->inBoat())
+			movingObject = hero->getBoat();
 	}
 
 	fadingOutContext->target = movingObject->id;
@@ -393,8 +393,8 @@ void MapViewController::fadeInObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
-			movingObject = hero->boat;
+		if (hero->inBoat())
+			movingObject = hero->getBoat();
 	}
 
 	fadingInContext->target = movingObject->id;
@@ -406,20 +406,20 @@ void MapViewController::removeObject(const CGObjectInstance * obj)
 	if (obj->ID == Obj::BOAT)
 	{
 		auto * boat = dynamic_cast<const CGBoat*>(obj);
-		if (boat->hero)
+		if (boat->getBoardedHero())
 		{
-			view->invalidate(context, boat->hero->id);
-			state->removeObject(boat->hero);
+			view->invalidate(context, boat->getBoardedHero()->id);
+			state->removeObject(boat->getBoardedHero());
 		}
 	}
 
 	if (obj->ID == Obj::HERO)
 	{
 		auto * hero = dynamic_cast<const CGHeroInstance*>(obj);
-		if (hero->boat)
+		if (hero->inBoat())
 		{
-			view->invalidate(context, hero->boat->id);
-			state->removeObject(hero->boat);
+			view->invalidate(context, hero->getBoat()->id);
+			state->removeObject(hero->getBoat());
 		}
 	}
 
@@ -514,8 +514,8 @@ void MapViewController::onAfterHeroTeleported(const CGHeroInstance * obj, const 
 	assert(!hasOngoingAnimations());
 
 	const CGObjectInstance * movingObject = obj;
-	if(obj->boat)
-		movingObject = obj->boat;
+	if(obj->inBoat())
+		movingObject = obj->getBoat();
 
 	removeObject(movingObject);
 	addObject(movingObject);
@@ -541,8 +541,8 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 		return;
 
 	const CGObjectInstance * movingObject = obj;
-	if(obj->boat)
-		movingObject = obj->boat;
+	if(obj->inBoat())
+		movingObject = obj->getBoat();
 
 	removeObject(movingObject);
 

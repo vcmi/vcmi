@@ -10,41 +10,45 @@
 #include "StdInc.h"
 #include "BattleInterface.h"
 
-#include "BattleAnimationClasses.h"
 #include "BattleActionsController.h"
-#include "BattleInterfaceClasses.h"
-#include "CreatureAnimation.h"
-#include "BattleProjectileController.h"
+#include "BattleAnimationClasses.h"
+#include "BattleConsole.h"
 #include "BattleEffectsController.h"
-#include "BattleObstacleController.h"
-#include "BattleSiegeController.h"
 #include "BattleFieldController.h"
-#include "BattleWindow.h"
-#include "BattleStacksController.h"
+#include "BattleHero.h"
+#include "BattleObstacleController.h"
+#include "BattleProjectileController.h"
 #include "BattleRenderer.h"
+#include "BattleResultWindow.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
+#include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/AdventureMapInterface.h"
+#include "../windows/CTutorialWindow.h"
 
-#include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
-#include "../../lib/CStack.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CStack.h"
+#include "../../lib/CThreadHelper.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/TerrainHandler.h"
+#include "../../lib/UnlockGuard.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
-#include "../../lib/UnlockGuard.h"
-#include "../../lib/TerrainHandler.h"
-#include "../../lib/CThreadHelper.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 BattleInterface::BattleInterface(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2,
 		const CGHeroInstance *hero1, const CGHeroInstance *hero2,
@@ -228,7 +232,7 @@ void BattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedI
 {
 	stacksController->stacksAreAttacked(attackedInfos);
 
-	BattleSideArray<int> killedBySide;
+	BattleSideArray<int> killedBySide{0,0};
 
 	for(const StackAttackedInfo & attackedInfo : attackedInfos)
 	{

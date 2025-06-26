@@ -30,8 +30,9 @@
 #include "AdventureOptions.h"
 #include "AdventureState.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -553,7 +554,7 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 
 bool AdventureMapShortcuts::optionCanViewQuests()
 {
-	return optionInMapView() && !GAME->map().getMap()->quests.empty();
+	return optionInMapView() && !GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->quests.empty();
 }
 
 bool AdventureMapShortcuts::optionCanToggleLevel()

@@ -56,7 +56,6 @@ class CStackWindow : public CWindowObject
 {
 	struct BonusInfo
 	{
-		std::string name;
 		std::string description;
 		ImagePath imagePath;
 		BonusSource bonusSource;
@@ -84,7 +83,6 @@ class CStackWindow : public CWindowObject
 	class BonusLineSection : public CWindowSection
 	{
 		std::array<std::shared_ptr<CPicture>, 2> icon;
-		std::array<std::shared_ptr<CLabel>, 2> name;
 		std::array<std::shared_ptr<CMultiLineLabel>, 2> description;
 		std::array<std::shared_ptr<GraphicalPrimitiveCanvas>, 2> frame;
 		std::array<std::vector<std::shared_ptr<CLabel>>, 2> bonusSource;
@@ -165,7 +163,8 @@ class CStackWindow : public CWindowObject
 	std::shared_ptr<CButton> stackArtifactButton;
 
 
-	std::shared_ptr<UnitView> info;
+	std::unique_ptr<UnitView> info;
+	std::unique_ptr<CStackInstance> fakeNode;
 	std::vector<BonusInfo> activeBonuses;
 	size_t activeTab;
 	std::shared_ptr<CTabbedInt> commanderTab;

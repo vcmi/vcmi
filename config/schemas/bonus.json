@@ -3,13 +3,39 @@
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI bonus type format",
 	"description" : "Definition of bonus types",
-	"required" : ["type"],
+	"required" : [],
 	"additionalProperties" : false,
 	"properties" : {
 		"hidden" : {
 			"type" : "boolean",
 			"description" : "If set to true, all instances of this bonus will be hidden in UI"
 		},
+
+		"creatureNature" : {
+			"type" : "boolean",
+			"description" : "If set to true, this bonus will be considered 'creature nature' bonus, and such creature won't be automatically granted LIVING bonus"
+		},
+
+		"description" : {
+			"type" : "string"
+		},
+
+		"subtypeDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus subtype",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
+
+		"valueDescriptions" : {
+			"type" : "object",
+			"description" : "Custom description string for bonus value",
+			"additionalProperties" : {
+				"type" : "string"
+			}
+		},
+
 		"graphics" : {
 			"type" : "object",
 			"additionalProperties" : false,

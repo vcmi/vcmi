@@ -386,7 +386,7 @@ void MapView::mousePressEvent(QMouseEvent *event)
 		sc->selectionTerrainView.clear();
 		sc->selectionTerrainView.draw();
 
-		if(sc->selectionObjectsView.newObject && sc->selectionObjectsView.isSelected(sc->selectionObjectsView.newObject))
+		if(sc->selectionObjectsView.newObject && sc->selectionObjectsView.isSelected(sc->selectionObjectsView.newObject.get()))
 		{
 			if(event->button() == Qt::RightButton)
 				controller->discardObject(sc->level);
@@ -594,7 +594,7 @@ void MapView::dragEnterEvent(QDragEnterEvent * event)
 				auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
 				auto templ = factory->getTemplates()[templateId];
 				controller->discardObject(sc->level);
-				controller->createObject(sc->level, factory->create(nullptr, templ));
+				controller->createObject(sc->level, factory->create(controller->getCallback(), templ));
 			}
 		}
 		
@@ -614,11 +614,11 @@ void MapView::dropEvent(QDropEvent * event)
 	if(sc->selectionObjectsView.newObject)
 	{
 		QString errorMsg;
-		if(controller->canPlaceObject(sc->level, sc->selectionObjectsView.newObject, errorMsg))
+		if(controller->canPlaceObject(sc->selectionObjectsView.newObject.get(), errorMsg))
 		{
-			auto * obj = sc->selectionObjectsView.newObject;
+			auto obj = sc->selectionObjectsView.newObject;
 			controller->commitObjectCreate(sc->level);
-			openObjectProperties(obj, false);
+			openObjectProperties(obj.get(), false);
 		}
 		else
 		{
@@ -643,7 +643,7 @@ void MapView::dragMoveEvent(QDragMoveEvent * event)
 	if(sc->selectionObjectsView.newObject)
 	{
 		sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
-		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject);
+		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject.get());
 		sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
 		sc->selectionObjectsView.draw();
 	}

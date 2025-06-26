@@ -58,7 +58,7 @@
 		},
 		"levelInfo" : {
 			"type" : "object",
-			"required" :["range", "description", "cost", "power", "aiValue"],
+			"required" :["range", "description", "cost", "power"],
 
 			"additionalProperties" : false,
 			"properties" : {
@@ -76,9 +76,6 @@
 				"range" : {
 					"type" : "string",
 					"description" : "spell range description in SRSL"
-				},
-				"aiValue" : {
-					"type" : "number"
 				},
 				"effects" : {
 					"type" : "object",
@@ -108,11 +105,6 @@
 							"type" : "boolean",
 							"description" : "true: friendly/hostile based on positiveness; false: all targets"
 						},
-						"clearTarget" :
-						{
-							"type" : "boolean",
-							"description" : "LOCATION target only. Target hex/tile must be clear"
-						},
 						"clearAffected" :
 						{
 							"type" : "boolean",
@@ -127,8 +119,67 @@
 			"additionalProperties" : false
 		}
 	},
-	"required" : ["type", "name", "school", "level", "power","gainChance","flags","levels"],
+	"required" : ["type", "name", "school", "level", "power", "flags", "levels"],
 	"additionalProperties" : false,
+	
+	"allOf": [
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"enum" : ["adventure", "combat"],
+					},
+					
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none", "basic", "advanced", "expert"]
+					},
+					"graphics" : {
+						"required" : ["iconBook", "iconScroll", "iconEffect", "iconImmune", "iconScenarioBonus"]
+					},
+				}
+			}
+		},
+		{
+			"if": {
+				"not" : {
+					"properties": {
+						"index" : {
+							"type" : "number"
+						}
+					}
+				},
+				"properties": {
+					"type": {
+						"const" : "ability"
+					}
+				}
+			},
+			"then": {
+				"required" : ["school", "gainChance" ],
+				"properties": {
+					"levels": {
+						"required" : ["none"]
+					},
+					"graphics" : {
+						"required" : ["iconEffect", "iconImmune"]
+					},
+				}
+			}
+		}
+	],
+	
 	"properties" : {
 		"index" : {
 			"type" : "number",
@@ -146,12 +197,8 @@
 		"school" : {
 			"type" : "object",
 			"description" : "List of spell schools this spell belongs to",
-			"additionalProperties" : false,
-			"properties" : {
-				"air" : {"type" : "boolean"},
-				"fire" : {"type" : "boolean"},
-				"earth" : {"type" : "boolean"},
-				"water" : {"type" : "boolean"}
+			"additionalProperties" : {
+				"type" : "boolean"
 			}
 		},
 		"level" : {
@@ -273,7 +320,7 @@
 				},
 				"iconEffect" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for spell effects during battle" ,
+					"description" : "Resourse path of icon for spell effects during battle",
 					"format" : "imageFile"
 				},
 				"iconImmune" : {
@@ -283,7 +330,7 @@
 				},
 				"iconScenarioBonus" : {
 					"type" : "string",
-					"description" : "Resourse path of icon for scenario bonus" ,
+					"description" : "Resourse path of 58x64 icon for scenario bonus",
 					"format" : "imageFile"
 				}
 			}
@@ -301,7 +348,6 @@
 		"levels" : {
 			 "type" : "object",
 			 "additionalProperties" : false,
-			 "required" : ["none", "basic", "advanced", "expert"],
 			 "properties" : {
 				"base" : {
 					"type" : "object",

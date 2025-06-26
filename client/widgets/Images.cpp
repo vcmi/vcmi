@@ -21,11 +21,8 @@
 #include "../render/Colors.h"
 
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff

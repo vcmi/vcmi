@@ -387,7 +387,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -452,6 +452,11 @@
 					"type" : "boolean",
 					"default" : false
 				},
+				"minimapShowHeroes" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				
 				"tileZoom" : {
 					"type" : "number",
 					"default" : 32
@@ -659,14 +664,15 @@
 			"additionalProperties" : false,
 			"required" : [ 
 				"setupCompleted", 
-				"defaultRepositoryEnabled", 
-				"defaultRepositoryURL", 
-				"extraRepositoryURL", 
-				"extraRepositoryEnabled", 
-				"autoCheckRepositories", 
+				"defaultRepositoryEnabled",
+				"defaultRepositoryURL",
+				"extraRepositoryURL",
+				"extraRepositoryEnabled",
+				"autoCheckRepositories",
 				"ignoreSslErrors",
-				"updateOnStartup", 
-				"updateConfigUrl"
+				"updateOnStartup",
+				"updateConfigUrl",
+				"trackClipboardState"
 			],
 			"properties" : {
 				"defaultRepositoryEnabled" : {
@@ -704,7 +710,15 @@
 				"updateConfigUrl" : {
 					"type" : "string",
 					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
-				}
+				},
+				"trackClipboardState" : {
+					"type" : "boolean",
+					"default" : true,
+					"defaultIOS": false,
+					"defaultAndroid": false,
+					"defaultDesktop" : true
+
+				},
 			}
 		},
 		"lobby" : {

@@ -11,12 +11,9 @@
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "Actions/WhirlpoolAction.h"
-#include "../Goals/Goals.h"
-#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../CCallback.h"
+#include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
@@ -112,7 +109,7 @@ AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 
 AINodeStorage::~AINodeStorage() = default;
 
-void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
+void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
 	if(heroChainPass != EHeroChainPass::INITIAL)
 		return;
@@ -121,8 +118,8 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
 	const PlayerColor fowPlayer = ai->playerID;
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(fowPlayer)->fogOfWarMap;
-	const int3 sizes = gs->getMapSize();
+	const auto & fow = gameInfo.getPlayerTeam(fowPlayer)->fogOfWarMap;
+	const int3 sizes = gameInfo.getMapSize();
 
 	//Each thread gets different x, but an array of y located next to each other in memory
 
@@ -140,23 +137,23 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 			{
 				for(pos.y = 0; pos.y < sizes.y; ++pos.y)
 				{
-					const TerrainTile & tile = gs->getMap().getTile(pos);
-					if (!tile.getTerrain()->isPassable())
+					const TerrainTile * tile = gameInfo.getTile(pos);
+					if (!tile->getTerrain()->isPassable())
 						continue;
 
-					if (tile.isWater())
+					if (tile->isWater())
 					{
-						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
 						if (useFlying)
-							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 						if (useWaterWalking)
-							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+							resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
 					}
 					else
 					{
-						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
 						if (useFlying)
-							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+							resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 					}
 				}
 			}
@@ -180,7 +177,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + static_cast<uint32_t>(layer)) % ai->settings->getPathfinderBucketsCount();
+	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % ai->settings->getPathfinderBucketsCount();
 	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
@@ -284,7 +281,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 					return;
 				}
 
-				auto weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](std::pair<SlotID, const CStackInstance *> pair) -> int
+				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
 						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
 					});
@@ -904,6 +901,7 @@ ExchangeCandidate HeroChainCalculationTask::calculateExchange(
 	candidate.setCost(carrierParentNode->getCost() + otherParentNode->getCost() / 1000.0);
 	candidate.moveRemains = carrierParentNode->moveRemains;
 	candidate.danger = carrierParentNode->danger;
+	candidate.version = carrierParentNode->version;
 
 	if(carrierParentNode->turns < otherParentNode->turns)
 	{
@@ -958,7 +956,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 	{
 		// do not allow our own heroes in garrison to act on map
 		if(hero.first->getOwner() == ai->playerID
-			&& hero.first->inTownGarrison
+			&& hero.first->isGarrisoned()
 			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
 		{
 			continue;
@@ -969,7 +967,7 @@ void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 
 		if(actor->hero->tempOwner != ai->playerID)
 		{
-			bool onLand = !actor->hero->boat || actor->hero->boat->layer != EPathfindingLayer::SAIL;
+			bool onLand = !actor->hero->inBoat() || actor->hero->getBoat()->layer != EPathfindingLayer::SAIL;
 			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
 		}
 
@@ -987,9 +985,9 @@ void AINodeStorage::setTownsAndDwellings(
 	{
 		uint64_t mask = FirstActorMask << actors.size();
 
-		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE
+		// TODO: investigate logix of second condition || ai->nullkiller->getHeroLockedReason(town->getGarrisonHero()) != HeroLockedReason::DEFENCE
 		// check defence imrove
-		if(!town->garrisonHero)
+		if(!town->getGarrisonHero())
 		{
 			actors.push_back(std::make_shared<TownGarrisonActor>(town, mask));
 		}
@@ -1185,19 +1183,19 @@ void AINodeStorage::calculateTownPortal(
 	{
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero
+			if(targetTown->getVisitingHero()
 				&& targetTown->getUpperArmy()->stacksCount()
-				&& maskMap.find(targetTown->visitingHero.get()) != maskMap.end())
+				&& maskMap.find(targetTown->getVisitingHero()) != maskMap.end())
 			{
-				auto basicMask = maskMap.at(targetTown->visitingHero.get());
+				auto basicMask = maskMap.at(targetTown->getVisitingHero());
 				bool sameActorInTown = actor->chainMask == basicMask;
 
 				if(!sameActorInTown)
 					continue;
 			}
 
-			if (targetTown->visitingHero
-				&& (targetTown->visitingHero.get()->getFactionID() != actor->hero->getFactionID()
+			if (targetTown->getVisitingHero()
+				&& (targetTown->getVisitingHero()->getFactionID() != actor->hero->getFactionID()
 					|| targetTown->getUpperArmy()->stacksCount()))
 				continue;
 

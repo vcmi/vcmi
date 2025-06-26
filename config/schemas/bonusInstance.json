@@ -37,6 +37,78 @@
 					}
 				}
 			]
+		},
+		"updater" : 
+		{
+			"anyOf" : [
+				{
+					"type" : "string",
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
+				},
+				{
+					"description" : "GROWS_WITH_LEVEL updater",
+					"type" : "object",
+					"required" : ["type", "valPer20", "stepSize"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "GROWS_WITH_LEVEL",
+						},
+						"valPer20" : {
+							"type" : "integer",
+							"description" : "Bonus value for each 20 steps"
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						}
+					}
+				},
+				{
+					"description" : "TIMES_HERO_LEVEL updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_HERO_LEVEL",
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						}
+					}
+				},
+				{
+					"description" : "TIMES_STACK_SIZE updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_STACK_SIZE",
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						},
+						"minimum" : {
+							"type" : "integer",
+							"description" : "Minimal bonus value"
+						},
+						"maximum" : {
+							"type" : "integer",
+							"description" : "Maximal bonus value"
+						}
+					}
+				}
+			]
 		}
 	},
 	"additionalProperties" : false,
@@ -69,56 +141,10 @@
 			"enum" : [ "BATTLE_WIDE", "VISITED_TOWN_AND_VISITOR", "PLAYER_PROPAGATOR", "HERO", "TEAM_PROPAGATOR", "GLOBAL_EFFECT" ]
 		},
 		"updater" : {
-			"anyOf" : [
-				{
-					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
-				},
-				{
-					"description" : "updater",
-					"type" : "object",
-					"required" : ["type", "parameters"],
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
-						}
-					}
-				}
-			]
+			"$ref" : "#/definitions/updater"
 		},
 		"propagationUpdater" : {
-			"anyOf" : [
-				{
-					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "ARMY_MOVEMENT", "BONUS_OWNER_UPDATER" ]
-				},
-				{
-					"description" : "propagationUpdater",
-					"type" : "object",
-					"required" : ["type", "parameters"],
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "GROWS_WITH_LEVEL", "ARMY_MOVEMENT" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
-						}
-					}
-				}
-			]
+			"$ref" : "#/definitions/updater"
 		},
 		"limiters" : {
 			"$ref" : "#/definitions/nestedLimiter",
@@ -177,6 +203,11 @@
 		"stacking" : {
 			"type" : "string",
 			"description" : "stacking"
+		},
+		"icon" : {
+			"type" : "string",
+			"description" : "Optional, custom icons to show in creature window",
+			"format" : "imageFile"
 		},
 		"description" : {
 			"anyOf" : [

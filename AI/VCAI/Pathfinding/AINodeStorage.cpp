@@ -10,10 +10,8 @@
 #include "StdInc.h"
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
-#include "../Goals/Goals.h"
-#include "../../../CCallback.h"
+#include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
@@ -29,11 +27,11 @@ AINodeStorage::AINodeStorage(const int3 & Sizes)
 
 AINodeStorage::~AINodeStorage() = default;
 
-void AINodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
+void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
 	int3 pos;
-	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(hero->tempOwner)->fogOfWarMap;
+	const int3 sizes = gameInfo.getMapSize();
+	const auto & fow = gameInfo.getPlayerTeam(hero->tempOwner)->fogOfWarMap;
 	const PlayerColor player = hero->tempOwner;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
@@ -46,23 +44,23 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const CGameSta
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile & tile = gs->getMap().getTile(pos);
-				if(!tile.getTerrain()->isPassable())
+				const TerrainTile * tile = gameInfo.getTile(pos);
+				if(!tile->getTerrain()->isPassable())
 					continue;
 				
-				if(tile.getTerrain()->isWater())
+				if(tile->getTerrain()->isWater())
 				{
-					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 					if(useWaterWalking)
-						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
 				}
 				else
 				{
-					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 				}
 			}
 		}
@@ -88,7 +86,7 @@ bool AINodeStorage::isBattleNode(const CGPathNode * node) const
 
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, const EPathfindingLayer layer, int chainNumber)
 {
-	auto chains = nodes[layer][pos.z][pos.x][pos.y];
+	auto chains = nodes[layer.getNum()][pos.z][pos.x][pos.y];
 
 	for(AIPathNode & node : chains)
 	{
@@ -111,7 +109,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(const int3 & pos, con
 std::vector<CGPathNode *> AINodeStorage::getInitialNodes()
 {
 	auto hpos = hero->visitablePos();
-	auto initialNode = getOrCreateNode(hpos, hero->boat ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
+	auto initialNode = getOrCreateNode(hpos, hero->inBoat() ? EPathfindingLayer::SAIL : EPathfindingLayer::LAND, NORMAL_CHAIN).value();
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = hero->movementPointsRemaining();
@@ -125,7 +123,7 @@ void AINodeStorage::resetTile(const int3 & coord, EPathfindingLayer layer, EPath
 {
 	for(int i = 0; i < NUM_CHAINS; i++)
 	{
-		AIPathNode & heroNode = nodes[layer][coord.z][coord.x][coord.y][i];
+		AIPathNode & heroNode = nodes[layer.getNum()][coord.z][coord.x][coord.y][i];
 
 		heroNode.chainMask = 0;
 		heroNode.danger = 0;
@@ -267,7 +265,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 
 		for(const CGTownInstance * targetTown : towns)
 		{
-			if(targetTown->visitingHero)
+			if(targetTown->getVisitingHero())
 				continue;
 
 			auto nodeOptional = getOrCreateNode(targetTown->visitablePos(), EPathfindingLayer::LAND, srcNode->chainMask | CAST_CHAIN);
@@ -326,7 +324,7 @@ bool AINodeStorage::hasBetterChain(const PathNodeInfo & source, CDestinationNode
 
 bool AINodeStorage::isTileAccessible(const int3 & pos, const EPathfindingLayer layer) const
 {
-	return nodes[layer][pos.z][pos.x][pos.y][0].action != EPathNodeAction::UNKNOWN;
+	return nodes[layer.getNum()][pos.z][pos.x][pos.y][0].action != EPathNodeAction::UNKNOWN;
 }
 
 std::vector<AIPath> AINodeStorage::getChainInfo(const int3 & pos, bool isOnLand) const

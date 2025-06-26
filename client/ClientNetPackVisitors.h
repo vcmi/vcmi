@@ -23,16 +23,17 @@ class ApplyClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	CClient & cl;
-	CGameState & gs;
+	const CGameState & gs;
 
 public:
-	ApplyClientNetPackVisitor(CClient & cl, CGameState & gs)
+	ApplyClientNetPackVisitor(CClient & cl, const CGameState & gs)
 		:cl(cl), gs(gs)
 	{
 	}
 
 	void visitSetResources(SetResources & pack) override;
-	void visitSetPrimSkill(SetPrimSkill & pack) override;
+	void visitSetPrimarySkill(SetPrimarySkill & pack) override;
+	void visitSetHeroExperience(SetHeroExperience & pack) override;
 	void visitSetSecSkill(SetSecSkill & pack) override;
 	void visitHeroVisitCastle(HeroVisitCastle & pack) override;
 	void visitSetMana(SetMana & pack) override;
@@ -46,9 +47,8 @@ public:
 	void visitInsertNewStack(InsertNewStack & pack) override;
 	void visitRebalanceStacks(RebalanceStacks & pack) override;
 	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
-	void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) override;
 	void visitPutArtifact(PutArtifact & pack) override;
-	void visitEraseArtifact(BulkEraseArtifacts & pack) override;
+	void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) override;
 	void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) override;
 	void visitAssembledArtifact(AssembledArtifact & pack) override;
 	void visitDisassembledArtifact(DisassembledArtifact & pack) override;
@@ -104,16 +104,17 @@ public:
 	void visitNewObject(NewObject & pack) override;
 	void visitSetAvailableArtifacts(SetAvailableArtifacts & pack) override;
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
+	void visitPlayerCheated(PlayerCheated & pack) override;
 };
 
 class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
 	CClient & cl;
-	CGameState & gs;
+	const CGameState & gs;
 
 public:
-	ApplyFirstClientNetPackVisitor(CClient & cl, CGameState & gs)
+	ApplyFirstClientNetPackVisitor(CClient & cl, const CGameState & gs)
 		:cl(cl), gs(gs)
 	{
 	}

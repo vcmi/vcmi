@@ -14,9 +14,9 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/entities/artifact/CArtHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGCreature.h"
@@ -175,7 +175,7 @@ void QuestWidget::obtainData()
 	{
 		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
-		ui->lCreatureAmount->setValue(i.count);
+		ui->lCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
 	}
 	for(auto & i : quest.mission.heroes)
@@ -489,7 +489,7 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	QStringList creaturesList;
 	for(const auto & creature : quest.mission.creatures)
 	{
-		creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+		creaturesList += QString("%1 %2").arg(creature.getCount()).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
 	}
 	textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
 

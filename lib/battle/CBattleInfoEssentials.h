@@ -78,7 +78,7 @@ public:
 	bool playerHasAccessToHeroInfo(const PlayerColor & player, const CGHeroInstance * h) const;
 	TownFortifications battleGetFortifications() const;
 	bool battleHasHero(BattleSide side) const;
-	uint32_t battleCastSpells(BattleSide side) const; //how many spells has given side cast
+	int32_t battleCastSpells(BattleSide side) const; //how many spells has given side cast
 	const CGHeroInstance * battleGetFightingHero(BattleSide side) const; //deprecated for players callback, easy to get wrong
 	const CArmedInstance * battleGetArmyObject(BattleSide side) const;
 	InfoAboutHero battleGetHeroInfo(BattleSide side) const;

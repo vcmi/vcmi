@@ -174,8 +174,8 @@ void setPlayerColor(QImage * sur, PlayerColor player)
 std::shared_ptr<QImage> MapHandler::getObjectImage(const CGObjectInstance * obj)
 {
 	if(	!obj
-	   || (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-	   || (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero)) //boat with hero (hero graphics is used)
+	   || (obj->ID==Obj::HERO && dynamic_cast<const CGHeroInstance*>(obj)->isGarrisoned()) //garrisoned hero
+	   || (obj->ID==Obj::BOAT && dynamic_cast<const CGBoat*>(obj)->getBoardedHero())) //boat with hero (hero graphics is used)
 	{
 		return nullptr;
 	}
@@ -259,9 +259,9 @@ void MapHandler::initObjectRects()
 	tileObjects.resize(map->width * map->height * (map->twoLevel ? 2 : 1));
 	
 	//initializing objects / rects
-	for(const CGObjectInstance * elem : map->objects)
+	for(const auto & elem : map->objects)
 	{
-		addObject(elem);
+		addObject(elem.get());
 	}
 	
 	for(auto & tt : tileObjects)
@@ -306,7 +306,7 @@ ObjectRect::~ObjectRect()
 
 std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, int anim, const PlayerColor color, int group) const
 {
-	if(!hero || hero->boat)
+	if(!hero || hero->inBoat())
 		return std::shared_ptr<QImage>();
 	
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);

@@ -406,7 +406,7 @@ bool ObjectManager::createMonoliths()
 			continue;
 		}
 
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, true);
 
@@ -442,7 +442,7 @@ bool ObjectManager::createRequiredObjects()
 	RecursiveLock lock(externalAccessMutex); //In case someone adds more objects
 	for(const auto & objInfo : requiredObjects)
 	{
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 
@@ -466,10 +466,10 @@ bool ObjectManager::createRequiredObjects()
 		
 		for(const auto & nearby : nearbyObjects)
 		{
-			if(nearby.nearbyTarget != nearby.obj)
+			if(nearby.nearbyTarget != nearby.obj.get())
 				continue;
 			
-			rmg::Object rmgNearObject(*nearby.obj);
+			rmg::Object rmgNearObject(nearby.obj);
 			rmg::Area possibleArea(rmgObject.instances().front()->getBlockedArea().getBorderOutside());
 			possibleArea.intersect(zone.areaPossible().get());
 			if(possibleArea.empty())
@@ -487,7 +487,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		Zone::Lock lock(zone.areaMutex);
 
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
 		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject,
@@ -517,7 +517,7 @@ bool ObjectManager::createRequiredObjects()
 			continue;
 		}
 
-		rmg::Object rmgNearObject(*nearby.obj);
+		rmg::Object rmgNearObject(nearby.obj);
 		std::set<int3> blockedArea = targetObject->getBlockedPos();
 		rmg::Area areaForObject(rmg::Area(rmg::Tileset(blockedArea.begin(), blockedArea.end())).getBorderOutside());
 		areaForObject.intersect(zone.areaPossible().get());
@@ -549,7 +549,7 @@ bool ObjectManager::createRequiredObjects()
 	//TODO: implement guards
 	for (const auto &objInfo : instantObjects) //Unused ATM
 	{
-		rmg::Object rmgObject(*objInfo.obj);
+		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setPosition(objInfo.pos);
 		placeObject(rmgObject, false, false);
 	}
@@ -722,7 +722,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	}
 }
 
-CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
+std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 {
 	//precalculate actual (randomized) monster strength based on this post
 	//http://forum.vcmi.eu/viewtopic.php?p=12426#12426
@@ -775,17 +775,17 @@ CGCreature * ObjectManager::chooseGuard(si32 strength, bool zoneGuard)
 	
 	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto * guard = dynamic_cast<CGCreature *>(guardFactory->create(map.mapInstance->cb, nullptr));
+	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
 	guard->character = CGCreature::HOSTILE;
-	auto * hlp = new CStackInstance(creId, amount);
+	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
-	guard->putStack(SlotID(0), hlp);
+	guard->putStack(SlotID(0), std::move(hlp));
 	return guard;
 }
 
 bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard)
 {
-	auto * guard = chooseGuard(strength, zoneGuard);
+	auto guard = chooseGuard(strength, zoneGuard);
 	if(!guard)
 		return false;
 	
@@ -805,10 +805,8 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 	});
 	
 	if(accessibleArea.empty())
-	{
-		delete guard;
 		return false;
-	}
+
 	auto guardTiles = accessibleArea.getTilesVector();
 	auto guardPos = *std::min_element(guardTiles.begin(), guardTiles.end(), [&object](const int3 & l, const int3 & r)
 	{
@@ -822,7 +820,7 @@ bool ObjectManager::addGuard(rmg::Object & object, si32 strength, bool zoneGuard
 		return false;
 	});
 	
-	auto & instance = object.addInstance(*guard);
+	auto & instance = object.addInstance(guard);
 	instance.setAnyTemplate(zone.getRand()); //terrain is irrelevant for monsters, but monsters need some template now
 
 	//Fix HoTA monsters with offset template
@@ -840,7 +838,7 @@ RequiredObjectInfo::RequiredObjectInfo():
 	createRoad(true)
 {}
 
-RequiredObjectInfo::RequiredObjectInfo(CGObjectInstance* obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
+RequiredObjectInfo::RequiredObjectInfo(std::shared_ptr<CGObjectInstance> obj, ui32 guardStrength, bool createRoad, CGObjectInstance* nearbyTarget):
 	obj(obj),
 	nearbyTarget(nearbyTarget),
 	guardStrength(guardStrength),

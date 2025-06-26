@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "PlayerLocalState.h"
 
-#include "../CCallback.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/json/JsonNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGTownInstance.h"
@@ -315,14 +315,14 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 	for (auto const * town : ownedTowns)
 	{
 		JsonNode record;
-		record["id"].Integer() = town->id;
+		record["id"].Integer() = town->id.getNum();
 		dest["towns"].Vector().push_back(record);
 	}
 
 	for (auto const * hero : wanderingHeroes)
 	{
 		JsonNode record;
-		record["id"].Integer() = hero->id;
+		record["id"].Integer() = hero->id.getNum();
 		if (vstd::contains(sleepingHeroes, hero))
 			record["sleeping"].Bool() = true;
 
@@ -340,7 +340,7 @@ void PlayerLocalState::serialize(JsonNode & dest) const
 	dest["spellbook"]["tabAdvmap"].Integer() = spellbookSettings.spellbookLastTabAdvmap;
 
 	if (currentSelection)
-		dest["currentSelection"].Integer() = currentSelection->id;
+		dest["currentSelection"].Integer() = currentSelection->id.getNum();
 }
 
 void PlayerLocalState::deserialize(const JsonNode & source)

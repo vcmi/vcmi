@@ -143,6 +143,7 @@
 			{
 				"type": "ADDITIONAL_ATTACK",
 				"val" : 1,
+				"description" : "@creatures.core.marksman.bonus.extraAttack",
 				"effectRange": "ONLY_DISTANCE_FIGHT"
 			}
 		},
@@ -365,6 +366,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -409,6 +415,11 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{

@@ -20,7 +20,8 @@
 					"seaMovement" : {
 						"type" : "MOVEMENT",
 						"subtype" : "heroMovementSea",
-						"val" : 500
+						"val" : 500,
+						"propagator": "PLAYER_PROPAGATOR"
 					}
 				}
 			}

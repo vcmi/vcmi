@@ -28,11 +28,12 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// helpers for loading to avoid huge load functions
 	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
 	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
 
-	std::vector<std::function<void()>> callAfterLoadFinalization;
+	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const;
 
 public:
 	ui32 level(TExpType experience) const; //calculates level corresponding to given experience amount
@@ -44,7 +45,6 @@ public:
 	void beforeValidate(JsonNode & object) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
 	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-	void afterLoadFinalization() override;
 
 	CHeroHandler();
 	~CHeroHandler();

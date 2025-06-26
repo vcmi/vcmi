@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 
-#include "../../lib/CArtHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 
 namespace test
 {

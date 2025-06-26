@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "MapAudioPlayer.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
@@ -20,6 +19,7 @@
 
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CArmedInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
@@ -132,7 +132,7 @@ std::vector<AudioPath> MapAudioPlayer::getAmbientSounds(const int3 & tile)
 
 	for(auto & objectID : objects[tile.z][tile.x][tile.y])
 	{
-		const auto & object = GAME->map().getMap()->objects[objectID.getNum()];
+		const auto & object = GAME->map().getMap()->getObject(objectID);
 
 		assert(object);
 		if (!object)
@@ -206,10 +206,9 @@ MapAudioPlayer::MapAudioPlayer()
 
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	for(const auto & obj : GAME->map().getMap()->objects)
+	for(const auto & obj : GAME->map().getMap()->getObjects())
 	{
-		if (obj)
-			addObject(obj);
+		addObject(obj);
 	}
 }
 

@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "Global.h"
 #include "NumericConstants.h"
 #include "IdentifierBase.h"
 
@@ -43,7 +44,7 @@ class CCreature;
 class CHero;
 class CSpell;
 class CSkill;
-class CGameInfoCallback;
+class IGameInfoCallback;
 class CNonConstInfoCallback;
 
 class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>
@@ -66,11 +67,22 @@ public:
 	using StaticIdentifier<BattleID>::StaticIdentifier;
 	DLL_LINKAGE static const BattleID NONE;
 };
+
 class DLL_LINKAGE ObjectInstanceID : public StaticIdentifier<ObjectInstanceID>
 {
 public:
 	using StaticIdentifier<ObjectInstanceID>::StaticIdentifier;
 	static const ObjectInstanceID NONE;
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+};
+
+class DLL_LINKAGE QuestInstanceID : public StaticIdentifier<QuestInstanceID>
+{
+public:
+	using StaticIdentifier<QuestInstanceID>::StaticIdentifier;
+	static const QuestInstanceID NONE;
 
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
@@ -103,8 +115,9 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
-	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
-	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
+	static const HeroTypeID CAMP_STRONGEST;
+	static const HeroTypeID CAMP_GENERATED;
+	static const HeroTypeID CAMP_RANDOM;
 
 	bool isValid() const
 	{
@@ -234,8 +247,6 @@ public:
 
 	static const std::array<PrimarySkill, 4> & ALL_SKILLS();
 
-	static const PrimarySkill EXPERIENCE;
-
 	static si32 decode(const std::string& identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
@@ -308,81 +319,24 @@ public:
 		//150-155 reserved for 8. creature with potential upgrades
 		DWELL_LVL_8=150, DWELL_LVL_8_UP=151, DWELL_LVL_8_UP2 = 152, DWELL_LVL_8_UP3 = 153, DWELL_LVL_8_UP4 = 154, DWELL_LVL_8_UP5 = 155,
 	};
-
-private:
-	static std::array<std::array<Type, 8>, 6> getDwellings()
-	{
-		static const std::array<std::array<Type, 8>, 6> allDwellings = {{
-			{ DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 },
-			{ DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP },
-			{ DWELL_LVL_1_UP2, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 },
-			{ DWELL_LVL_1_UP3, DWELL_LVL_2_UP3, DWELL_LVL_3_UP3, DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3, DWELL_LVL_8_UP3 },
-			{ DWELL_LVL_1_UP4, DWELL_LVL_2_UP4, DWELL_LVL_3_UP4, DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4, DWELL_LVL_8_UP4 },
-			{ DWELL_LVL_1_UP5, DWELL_LVL_2_UP5, DWELL_LVL_3_UP5, DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5, DWELL_LVL_8_UP5 }
-		}};
-
-		return allDwellings;
-	}
-
-public:
-	static Type getDwellingFromLevel(int level, int upgradeIndex)
-	{
-		try
-		{
-			return getDwellings().at(upgradeIndex).at(level);
-		}
-		catch (const std::out_of_range &)
-		{
-			return Type::NONE;
-		}
-	}
-
-	static int getLevelFromDwelling(BuildingIDBase dwelling)
-	{
-		for (const auto & level : getDwellings())
-		{
-			auto it = std::find(level.begin(), level.end(), dwelling);
-			if (it != level.end())
-				return std::distance(level.begin(), it);
-		}
-
-		throw std::runtime_error("Call to getLevelFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
-	}
-
-	static int getUpgradedFromDwelling(BuildingIDBase dwelling)
-	{
-		const auto & dwellings = getDwellings();
-
-		for(int i = 0; i < dwellings.size(); i++)
-		{
-			if (vstd::contains(dwellings[i], dwelling))
-				return i;
-		}
-
-		throw std::runtime_error("Call to getUpgradedFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
-	}
-
-	static void advanceDwelling(BuildingIDBase & dwelling)
-	{
-		int level =	getLevelFromDwelling(dwelling);
-		int upgrade = getUpgradedFromDwelling(dwelling);
-
-		dwelling.setNum(getDwellingFromLevel(level, upgrade + 1));
-	}
-
-	bool isDwelling() const
-	{
-		for (const auto & level : getDwellings())
-		{
-			if (vstd::contains(level, num))
-				return true;
-		}
-		return false;
-	}
 };
 
 class DLL_LINKAGE BuildingID : public StaticIdentifierWithEnum<BuildingID, BuildingIDBase>
 {
+	static std::array<std::array<BuildingID, 8>, 6> getDwellings()
+	{
+		static const std::array<std::array<BuildingID, 8>, 6> allDwellings = {{
+				{ DWELL_LVL_1, DWELL_LVL_2, DWELL_LVL_3, DWELL_LVL_4, DWELL_LVL_5, DWELL_LVL_6, DWELL_LVL_7, DWELL_LVL_8 },
+				{ DWELL_LVL_1_UP, DWELL_LVL_2_UP, DWELL_LVL_3_UP, DWELL_LVL_4_UP, DWELL_LVL_5_UP, DWELL_LVL_6_UP, DWELL_LVL_7_UP, DWELL_LVL_8_UP },
+				{ DWELL_LVL_1_UP2, DWELL_LVL_2_UP2, DWELL_LVL_3_UP2, DWELL_LVL_4_UP2, DWELL_LVL_5_UP2, DWELL_LVL_6_UP2, DWELL_LVL_7_UP2, DWELL_LVL_8_UP2 },
+				{ DWELL_LVL_1_UP3, DWELL_LVL_2_UP3, DWELL_LVL_3_UP3, DWELL_LVL_4_UP3, DWELL_LVL_5_UP3, DWELL_LVL_6_UP3, DWELL_LVL_7_UP3, DWELL_LVL_8_UP3 },
+				{ DWELL_LVL_1_UP4, DWELL_LVL_2_UP4, DWELL_LVL_3_UP4, DWELL_LVL_4_UP4, DWELL_LVL_5_UP4, DWELL_LVL_6_UP4, DWELL_LVL_7_UP4, DWELL_LVL_8_UP4 },
+				{ DWELL_LVL_1_UP5, DWELL_LVL_2_UP5, DWELL_LVL_3_UP5, DWELL_LVL_4_UP5, DWELL_LVL_5_UP5, DWELL_LVL_6_UP5, DWELL_LVL_7_UP5, DWELL_LVL_8_UP5 }
+			}};
+
+		return allDwellings;
+	}
+
 public:
 	using StaticIdentifierWithEnum<BuildingID, BuildingIDBase>::StaticIdentifierWithEnum;
 
@@ -399,6 +353,74 @@ public:
 
 	static std::string encode(int32_t index);
 	static si32 decode(const std::string & identifier);
+
+	int getMagesGuildLevel() const
+	{
+		switch (toEnum())
+		{
+			case Type::MAGES_GUILD_1: return 1;
+			case Type::MAGES_GUILD_2: return 2;
+			case Type::MAGES_GUILD_3: return 3;
+			case Type::MAGES_GUILD_4: return 4;
+			case Type::MAGES_GUILD_5: return 5;
+		}
+		throw std::runtime_error("Call to getMageGuildLevel with building '" + std::to_string(getNum()) +"' that is not mages guild!");
+	}
+
+	static BuildingID getDwellingFromLevel(int level, int upgradeIndex)
+	{
+		try
+		{
+			return getDwellings().at(upgradeIndex).at(level);
+		}
+		catch (const std::out_of_range &)
+		{
+			return Type::NONE;
+		}
+	}
+
+	static int getLevelFromDwelling(BuildingID dwelling)
+	{
+		for (const auto & level : getDwellings())
+		{
+			auto it = std::find(level.begin(), level.end(), dwelling);
+			if (it != level.end())
+				return std::distance(level.begin(), it);
+		}
+
+		throw std::runtime_error("Call to getLevelFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
+	}
+
+	static int getUpgradedFromDwelling(BuildingID dwelling)
+	{
+		const auto & dwellings = getDwellings();
+
+		for(int i = 0; i < dwellings.size(); i++)
+		{
+			if (vstd::contains(dwellings[i], dwelling))
+				return i;
+		}
+
+		throw std::runtime_error("Call to getUpgradedFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
+	}
+
+	static void advanceDwelling(BuildingID & dwelling)
+	{
+		int level =	getLevelFromDwelling(dwelling);
+		int upgrade = getUpgradedFromDwelling(dwelling);
+
+		dwelling = getDwellingFromLevel(level, upgrade + 1);
+	}
+
+	bool isDwelling() const
+	{
+		for (const auto & level : getDwellings())
+		{
+			if (vstd::contains(level, BuildingID(num)))
+				return true;
+		}
+		return false;
+	}
 };
 
 class MapObjectBaseID : public IdentifierBase
@@ -720,7 +742,7 @@ public:
 		CREATURE_SLOT = 0,
 		
 		// Commander
-		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6,
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER7, COMMANDER8, COMMANDER9,
 
 		// Altar
 		ALTAR = BACKPACK_START
@@ -730,6 +752,7 @@ public:
 
 	DLL_LINKAGE static si32 decode(const std::string & identifier);
 	DLL_LINKAGE static std::string encode(const si32 index);
+	DLL_LINKAGE static std::string entityType();
 };
 
 class ArtifactPosition : public StaticIdentifierWithEnum<ArtifactPosition, ArtifactPositionBase>
@@ -790,11 +813,8 @@ public:
 		IMP = 42, // for Deity of Fire
 		FAMILIAR = 43, // for Deity of Fire
 		SKELETON = 56, // for Skeleton Transformer
-		BONE_DRAGON = 68, // for Skeleton Transformer
 		TROGLODYTES = 70, // for Abandoned Mine
 		MEDUSA = 76, // for Siege UI workaround
-		HYDRA = 110, // for Skeleton Transformer
-		CHAOS_HYDRA = 111, // for Skeleton Transformer
 		AIR_ELEMENTAL = 112, // for tests
 		FIRE_ELEMENTAL = 114, // for tests
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
@@ -1042,7 +1062,9 @@ public:
 		MITHRIL,
 		COUNT,
 
-		WOOD_AND_ORE = 127,  // special case for town bonus resource
+		WOOD_AND_ORE = -4,  // special case for town bonus resource
+		COMMON = -3, // campaign bonus
+		RARE = -2, // campaign bonus
 		NONE = -1
 	};
 };
@@ -1096,6 +1118,13 @@ public:
 
 	static const CampaignScenarioID NONE;
 };
+
+class DLL_LINKAGE CampaignRegionID : public StaticIdentifier<CampaignRegionID>
+{
+public:
+	using StaticIdentifier<CampaignRegionID>::StaticIdentifier;
+};
+
 
 // Deprecated
 // TODO: remove

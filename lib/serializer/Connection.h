@@ -20,7 +20,7 @@ class INetworkConnection;
 class ConnectionPackReader;
 class ConnectionPackWriter;
 class CGameState;
-class IGameCallback;
+class IGameInfoCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
@@ -36,11 +36,6 @@ class DLL_LINKAGE CConnection : boost::noncopyable
 
 	std::mutex writeMutex;
 
-	void disableStackSendingByID();
-	void enableStackSendingByID();
-	void disableSmartVectorMemberSerialization();
-	void enableSmartVectorMemberSerializatoin(CGameState * gs);
-
 public:
 	bool isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const;
 	std::shared_ptr<INetworkConnection> getConnection();
@@ -55,8 +50,7 @@ public:
 	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();
-	void setCallback(IGameCallback * cb);
-	void enterGameplayConnectionMode(CGameState * gs);
+	void setCallback(IGameInfoCallback & cb);
 	void setSerializationVersion(ESerializationVersion version);
 };
 

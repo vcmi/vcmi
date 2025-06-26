@@ -373,6 +373,11 @@ FFMpegStream::~FFMpegStream()
 	avcodec_free_context(&codecContext);
 
 	avformat_close_input(&formatContext);
+
+	// for some reason, buffer is managed (e.g. reallocated) by FFmpeg
+	// however, it must still be freed manually by user
+	if (context && context->buffer)
+		av_free(context->buffer);
 	av_free(context);
 }
 

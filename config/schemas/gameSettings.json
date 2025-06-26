@@ -47,7 +47,11 @@
 				"minimalPrimarySkills" :      { "type" : "array" },
 				"movementCostBase"  :         { "type" : "number" },
 				"movementPointsLand" :        { "type" : "array" },
-				"movementPointsSea" :         { "type" : "array" }
+				"movementPointsSea" :         { "type" : "array" },
+				"skillPerHero" :              { "type" : "number" },
+				"specialtyCreatureGrowth" :    { "type" : "number" },
+				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"baseScoutingRange" :         { "type" : "number" }
 			}
 		},
 		"towns" : {
@@ -59,19 +63,23 @@
 				"spellResearch" :                        { "type" : "boolean" },
 				"spellResearchCost" :                    { "type" : "array" },
 				"spellResearchPerDay" :                  { "type" : "array" },
-				"spellResearchCostExponentPerResearch" : { "type" : "array" }
+				"spellResearchCostExponentPerResearch" : { "type" : "array" },
+				"baseScoutingRange" :                    { "type" : "number" }
 			}
 		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"abilityBias" :                   { "type" : "number" },
 				"goodMoraleChance" :              { "type" : "array" },
 				"badMoraleChance" :               { "type" : "array" },
 				"moraleDiceSize" :                { "type" : "number" },
+				"moraleBias" :                    { "type" : "number" },
 				"goodLuckChance" :                { "type" : "array" },
 				"badLuckChance" :                 { "type" : "array" },
 				"luckDiceSize" :                  { "type" : "number" },
+				"luckBias" :                      { "type" : "number" },
 				"backpackSize" :                { "type" : "number" },
 				"attackPointDamageFormula" :    { "type" : "string" },
 				"defensePointDamageFormula" :   { "type" : "string" },
@@ -107,6 +115,13 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"blackMarketRestockPeriod" : { "type" : "number" }
+			}
+		},
+		"mapObjects": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
 			}
 		},
 		"banks": {

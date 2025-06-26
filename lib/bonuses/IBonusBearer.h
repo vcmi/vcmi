@@ -21,7 +21,7 @@ public:
 	IBonusBearer() = default;
 	virtual ~IBonusBearer() = default;
 	virtual TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = {}) const = 0;
-	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = {}) const;
+	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = {}, int baseValue = 0) const;
 	bool hasBonus(const CSelector &selector, const std::string &cachingStr = {}) const;
 	bool hasBonus(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = {}) const;
 	TConstBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = {}) const;
@@ -30,6 +30,7 @@ public:
 	std::shared_ptr<const Bonus> getBonus(const CSelector &selector) const; //returns any bonus visible on node that matches (or nullptr if none matches)
 
 	//Optimized interface (with auto-caching)
+	int applyBonuses(BonusType type, int baseValue) const; //subtype -> subtype of bonus;
 	int valOfBonuses(BonusType type) const; //subtype -> subtype of bonus;
 	bool hasBonusOfType(BonusType type) const;//determines if hero has a bonus of given type (and optionally subtype)
 	int valOfBonuses(BonusType type, BonusSubtypeID subtype) const; //subtype -> subtype of bonus;

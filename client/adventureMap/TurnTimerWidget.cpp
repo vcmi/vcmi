@@ -21,10 +21,11 @@
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 TurnTimerWidget::TurnTimerWidget(const Point & position)
 	: TurnTimerWidget(position, PlayerColor::NEUTRAL)
@@ -55,18 +56,18 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 		pos.w = 76;
 
 		pos.h += 20;
-		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player.getNum()], "");
 
 		if (timers.battleTimer != 0)
 		{
 			pos.h += 20;
-			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player.getNum()], "");
 		}
 
 		if (!timers.accumulatingUnitTimer && timers.unitTimer != 0)
 		{
 			pos.h += 20;
-			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player.getNum()], "");
 		}
 
 		updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
@@ -87,7 +88,7 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 				continue;
 
 			pos.h += 20;
-			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player.getNum()], "");
 
 			updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
 		}

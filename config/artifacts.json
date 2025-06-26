@@ -40,872 +40,872 @@
 	},
 	"centaurAxe":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 7,
 		"type" : ["HERO"]
 	},
 	"blackshardOfTheDeadKnight":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 8,
 		"type" : ["HERO"]
 	},
 	"greaterGnollsFlail":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 9,
 		"type" : ["HERO"]
 	},
 	"ogresClubOfHavoc":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 10,
 		"type" : ["HERO"]
 	},
 	"swordOfHellfire":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 11,
 		"type" : ["HERO"]
 	},
 	"titansGladius":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 12,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : -3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 12,
 		"type" : ["HERO"]
 	},
 	"shieldOfTheDwarvenLords":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 13,
 		"type" : ["HERO"]
 	},
 	"shieldOfTheYawningDead":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 14,
 		"type" : ["HERO"]
 	},
 	"bucklerOfTheGnollKing":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 15,
 		"type" : ["HERO"]
 	},
 	"targOfTheRampagingOgre":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 16,
 		"type" : ["HERO"]
 	},
 	"shieldOfTheDamned":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 17,
 		"type" : ["HERO"]
 	},
 	"sentinelsShield":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 12,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : -3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 18,
 		"type" : ["HERO"]
 	},
 	"helmOfTheAlabasterUnicorn":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 19,
 		"type" : ["HERO"]
 	},
 	"skullHelmet":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 20,
 		"type" : ["HERO"]
 	},
 	"helmOfChaos":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 21,
 		"type" : ["HERO"]
 	},
 	"crownOfTheSupremeMagi":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 22,
 		"type" : ["HERO"]
 	},
 	"hellstormHelmet":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 23,
 		"type" : ["HERO"]
 	},
 	"thunderHelmet":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : -2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 24,
 		"type" : ["HERO"]
 	},
 	"breastplateOfPetrifiedWood":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 25,
 		"type" : ["HERO"]
 	},
 	"ribCage":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 26,
 		"type" : ["HERO"]
 	},
 	"scalesOfTheGreaterBasilisk":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 27,
 		"type" : ["HERO"]
 	},
 	"tunicOfTheCyclopsKing":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 28,
 		"type" : ["HERO"]
 	},
 	"breastplateOfBrimstone":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 29,
 		"type" : ["HERO"]
 	},
 	"titansCuirass":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : -2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 30,
 		"type" : ["HERO"]
 	},
 	"armorOfWonder":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 31,
 		"type" : ["HERO"]
 	},
 	"sandalsOfTheSaint":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 32,
 		"type" : ["HERO"]
 	},
 	"celestialNecklaceOfBliss":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 33,
 		"type" : ["HERO"]
 	},
 	"lionsShieldOfCourage":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 34,
 		"type" : ["HERO"]
 	},
 	"swordOfJudgement":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 35,
 		"type" : ["HERO"]
 	},
 	"helmOfHeavenlyEnlightenment":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 36,
 		"type" : ["HERO"]
 	},
 	"quietEyeOfTheDragon":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 37,
 		"type" : ["HERO"]
 	},
 	"redDragonFlameTongue":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 38,
 		"type" : ["HERO"]
 	},
 	"dragonScaleShield":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 39,
 		"type" : ["HERO"]
 	},
 	"dragonScaleArmor":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 40,
 		"type" : ["HERO"]
 	},
 	"dragonboneGreaves":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 41,
 		"type" : ["HERO"]
 	},
 	"dragonWingTabard":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 42,
 		"type" : ["HERO"]
 	},
 	"necklaceOfDragonteeth":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 43,
 		"type" : ["HERO"]
 	},
 	"crownOfDragontooth":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 44,
 		"type" : ["HERO"]
 	},
 	"stillEyeOfTheDragon":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"luck" : {
 				"type" : "LUCK",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 45,
 		"type" : ["HERO"]
 	},
 	"cloverOfFortune":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"luck" : {
 				"type" : "LUCK",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 46,
 		"type" : ["HERO"]
 	},
 	"cardsOfProphecy":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"luck" : {
 				"type" : "LUCK",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 47,
 		"type" : ["HERO"]
 	},
 	"ladybirdOfLuck":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"luck" : {
 				"type" : "LUCK",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 48,
 		"type" : ["HERO"]
 	},
 	"badgeOfCourage":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"mindImmunity" : {
 				"type" : "MIND_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 49,
 		"type" : ["HERO"]
 	},
 	"crestOfValor":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 50,
 		"type" : ["HERO"]
 	},
 	"glyphOfGallantry":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 51,
 		"type" : ["HERO"]
 	},
 	"speculum":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 52,
 		"type" : ["HERO"]
 	},
 	"spyglass":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "SIGHT_RADIUS",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 53,
 		"type" : ["HERO"]
 	},
 	"amuletOfTheUndertaker":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"necromancy" : {
 				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 54,
 		"type" : ["HERO"]
 	},
 	"vampiresCowl":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"necromancy" : {
 				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 55,
 		"type" : ["HERO"]
 	},
 	"deadMansBoots":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"necromancy" : {
 				"type" : "UNDEAD_RAISE_PERCENTAGE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 56,
 		"type" : ["HERO"]
 	},
 	"garnitureOfInterference":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"resistance" : {
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 57,
 		"type" : ["HERO"]
 	},
 	"surcoatOfCounterpoise":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"resistance" : {
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 58,
 		"type" : ["HERO"]
 	},
 	"bootsOfPolarity":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"resistance" : {
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 15,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 59,
 		"type" : ["HERO"]
 	},
 	"bowOfElvenCherrywood":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"archery" : {
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
 				"subtype" : "damageTypeRanged",
 				"val" : 5,
@@ -924,14 +924,14 @@
 					}
 				]
 			}
-		],
+		},
 		"index" : 60,
 		"type" : ["HERO"]
 	},
 	"bowstringOfTheUnicornsMane":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"archery" : {
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
 				"subtype" : "damageTypeRanged",
 				"val" : 10,
@@ -950,14 +950,14 @@
 					}
 				]
 			}
-		],
+		},
 		"index" : 61,
 		"type" : ["HERO"]
 	},
 	"angelFeatherArrows":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"archery" : {
 				"type" : "PERCENTAGE_DAMAGE_BOOST",
 				"subtype" : "damageTypeRanged",
 				"val" : 15,
@@ -976,254 +976,254 @@
 					}
 				]
 			}
-		],
+		},
 		"index" : 62,
 		"type" : ["HERO"]
 	},
 	"birdOfPerception":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"eagleEye" : {
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 5,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 63,
 		"type" : ["HERO"]
 	},
 	"stoicWatchman":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"eagleEye" : {
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 10,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 64,
 		"type" : ["HERO"]
 	},
 	"emblemOfCognizance":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"eagleEye" : {
 				"type" : "LEARN_BATTLE_SPELL_CHANCE",
 				"val" : 15,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 65,
 		"type" : ["HERO"]
 	},
 	"statesmansMedal":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"diplomacy" : {
 				"type" : "SURRENDER_DISCOUNT",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 66,
 		"type" : ["HERO"]
 	},
 	"diplomatsRing":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"diplomacy" : {
 				"type" : "SURRENDER_DISCOUNT",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 67,
 		"type" : ["HERO"]
 	},
 	"ambassadorsSash":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"diplomacy" : {
 				"type" : "SURRENDER_DISCOUNT",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 68,
 		"type" : ["HERO"]
 	},
 	"ringOfTheWayfarer":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"speed" : {
 				"type" : "STACKS_SPEED",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 69,
 		"type" : ["HERO"]
 	},
 	"equestriansGloves":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"movement" : {
 				"type" : "MOVEMENT",
 				"subtype" : "heroMovementLand",
 				"val" : 300,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 70,
 		"type" : ["HERO"]
 	},
 	"necklaceOfOceanGuidance":
 	{
 		"onlyOnWaterMap" : true,
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"movement" : {
 				"type" : "MOVEMENT",
 				"subtype" : "heroMovementSea",
 				"val" : 1000,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 71,
 		"type" : ["HERO"]
 	},
 	"angelWings":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"fly" : {
 				"type" : "FLYING_MOVEMENT",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN"
 			}
-		],
+		},
 		"index" : 72,
 		"type" : ["HERO"]
 	},
 	"charmOfMana":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"mana" : {
 				"type" : "MANA_REGENERATION",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 73,
 		"type" : ["HERO"]
 	},
 	"talismanOfMana":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"mana" : {
 				"type" : "MANA_REGENERATION",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 74,
 		"type" : ["HERO"]
 	},
 	"mysticOrbOfMana":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"mana" : {
 				"type" : "MANA_REGENERATION",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 75,
 		"type" : ["HERO"]
 	},
 	"collarOfConjuring":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"duration" : {
 				"type" : "SPELL_DURATION",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 76,
 		"type" : ["HERO"]
 	},
 	"ringOfConjuring":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"duration" : {
 				"type" : "SPELL_DURATION",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 77,
 		"type" : ["HERO"]
 	},
 	"capeOfConjuring":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"duration" : {
 				"type" : "SPELL_DURATION",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 78,
 		"type" : ["HERO"]
 	},
 	"orbOfTheFirmament":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellDamage" : {
 				"type" : "SPELL_DAMAGE",
 				"subtype" : "spellSchool.air",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 79,
 		"type" : ["HERO"]
 	},
 	"orbOfSilt":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellDamage" : {
 				"type" : "SPELL_DAMAGE",
 				"subtype" : "spellSchool.earth",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 80,
 		"type" : ["HERO"]
 	},
 	"orbOfTempestuousFire":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellDamage" : {
 				"type" : "SPELL_DAMAGE",
 				"subtype" : "spellSchool.fire",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 81,
 		"type" : ["HERO"]
 	},
 	"orbOfDrivingRain":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spellDamage" : {
 				"type" : "SPELL_DAMAGE",
 				"subtype" : "spellSchool.water",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 82,
 		"type" : ["HERO"]
 	},
@@ -1231,495 +1231,496 @@
 	{
 		"index" : 83,
 		"type" : ["HERO"],
-		"bonuses": [
-			{
+		"bonuses": {
+			"magicBlock" : {
 				"type" : "BLOCK_MAGIC_ABOVE",
 				"val" : 2,
 				"valueType" : "INDEPENDENT_MIN",
 				"propagator": "BATTLE_WIDE"
 			}
-		]
+		}
 	},
 	"spiritOfOppression":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"moraleBlock" : {
 				"type" : "MORALE",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
 				"propagator": "BATTLE_WIDE"
 			}
-		],
+		},
 		"index" : 84,
 		"type" : ["HERO"]
 	},
 	"hourglassOfTheEvilHour":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"luckBlock" : {
 				"type" : "LUCK",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
 				"propagator": "BATTLE_WIDE"
 			}
-		],
+		},
 		"index" : 85,
 		"type" : ["HERO"]
 	},
 	"tomeOfFireMagic":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spells" : {
 				"type" : "SPELLS_OF_SCHOOL",
 				"subtype" : "fire",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 86,
 		"type" : ["HERO"]
 	},
 	"tomeOfAirMagic":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spells" : {
 				"type" : "SPELLS_OF_SCHOOL",
 				"subtype" : "air",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 87,
 		"type" : ["HERO"]
 	},
 	"tomeOfWaterMagic":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spells" : {
 				"type" : "SPELLS_OF_SCHOOL",
 				"subtype" : "water",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 88,
 		"type" : ["HERO"]
 	},
 	"tomeOfEarthMagic":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spells" : {
 				"type" : "SPELLS_OF_SCHOOL",
 				"subtype" : "earth",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 89,
 		"type" : ["HERO"]
 	},
 	"bootsOfLevitation":
 	{
 		"onlyOnWaterMap" : true,
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"waterWalking" : {
 				"type" : "WATER_WALKING",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN"
 			}
-		],
+		},
 		"index" : 90,
 		"type" : ["HERO"]
 	},
 	"goldenBow":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"noDistancePenalty" : {
 				"limiters" : ["SHOOTER_ONLY"],
 				"type" : "NO_DISTANCE_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
-			{
+			"noWallPenalty" : {
 				"limiters" : ["SHOOTER_ONLY"],
 				"type" : "NO_WALL_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 91,
 		"type" : ["HERO"]
 	},
 	"sphereOfPermanence":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"noDispel" : {
 				"subtype" : "dispel",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER",
-				"addInfo" : 1
+				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 92,
 		"type" : ["HERO"]
 	},
 	"orbOfVulnerability":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"noImmunities" : {
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
 				"subtype" : "immunityBattleWide",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER",
 				"propagator": "BATTLE_WIDE"
 			},
-			{
+			"noEnemyImmunities" : {
 				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
 				"subtype" : "immunityEnemyHero",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"noResistance" : {
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 0,
+				"description" : "PLACEHOLDER",
 				"valueType" : "INDEPENDENT_MIN",
 				"propagator": "BATTLE_WIDE"
 			},
-			{
+			"noResistanceAura" : {
 				"type" : "SPELL_RESISTANCE_AURA",
 				"val" : 0,
 				"valueType" : "INDEPENDENT_MIN",
+				"description" : "@artifact.core.orbOfVulnerability.bonus.noResistance",
 				"propagator": "BATTLE_WIDE"
 			}
-		],
+		},
 		"index" : 93,
 		"type" : ["HERO"]
 	},
 	"ringOfVitality":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"health" : {
 				"type" : "STACK_HEALTH",
 				"val" : 1,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 94,
 		"type" : ["HERO"]
 	},
 	"ringOfLife":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"health" : {
 				"type" : "STACK_HEALTH",
 				"val" : 1,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 95,
 		"type" : ["HERO"]
 	},
 	"vialOfLifeblood":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"health" : {
 				"type" : "STACK_HEALTH",
 				"val" : 2,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 96,
 		"type" : ["HERO"]
 	},
 	"necklaceOfSwiftness":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"speed" : {
 				"type" : "STACKS_SPEED",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 97,
 		"type" : ["HERO"]
 	},
 	"bootsOfSpeed":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"movement" : {
 				"type" : "MOVEMENT",
 				"subtype" : "heroMovementLand",
 				"val" : 600,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 98,
 		"type" : ["HERO"]
 	},
 	"capeOfVelocity":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"speed" : {
 				"type" : "STACKS_SPEED",
 				"val" : 2,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 99,
 		"type" : ["HERO"]
 	},
 	"pendantOfDispassion":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.berserk",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 100,
 		"type" : ["HERO"]
 	},
 	"pendantOfSecondSight":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.blind",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 101,
 		"type" : ["HERO"]
 	},
 	"pendantOfHoliness":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.curse",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 102,
 		"type" : ["HERO"]
 	},
 	"pendantOfLife":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.deathRipple",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 103,
 		"type" : ["HERO"]
 	},
 	"pendantOfDeath":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"limiters" : ["IS_UNDEAD"],
 				"subtype" : "spell.destroyUndead",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 104,
 		"type" : ["HERO"]
 	},
 	"pendantOfFreeWill":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.hypnotize",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 105,
 		"type" : ["HERO"]
 	},
 	"pendantOfNegativity":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"lightningBolt" : {
 				"subtype" : "spell.lightningBolt",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"chainLightning" : {
 				"subtype" : "spell.chainLightning",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 106,
 		"type" : ["HERO"]
 	},
 	"pendantOfTotalRecall":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"subtype" : "spell.forgetfulness",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 107,
 		"type" : ["HERO"]
 	},
 	"pendantOfCourage":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"morale" : {
 				"type" : "MORALE",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"luck" : {
 				"type" : "LUCK",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 108,
 		"type" : ["HERO"]
 	},
 	"everflowingCrystalCloak":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"crystal" : {
 				"subtype" : "resource.crystal",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 109,
 		"type" : ["HERO"]
 	},
 	"ringOfInfiniteGems":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"gems" : {
 				"subtype" : "resource.gems",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 110,
 		"type" : ["HERO"]
 	},
 	"everpouringVialOfMercury":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"mercury" : {
 				"subtype" : "resource.mercury",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 111,
 		"type" : ["HERO"]
 	},
 	"inexhaustibleCartOfOre":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"ore" : {
 				"subtype" : "resource.ore",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 112,
 		"type" : ["HERO"]
 	},
 	"eversmokingRingOfSulfur":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"sulfur" : {
 				"subtype" : "resource.sulfur",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 113,
 		"type" : ["HERO"]
 	},
 	"inexhaustibleCartOfLumber":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"wood" : {
 				"subtype" : "resource.wood",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 114,
 		"type" : ["HERO"]
 	},
 	"endlessSackOfGold":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"gold" : {
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 1000,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 115,
 		"type" : ["HERO"]
 	},
 	"endlessBagOfGold":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"gold" : {
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 750,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 116,
 		"type" : ["HERO"]
 	},
 	"endlessPurseOfGold":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"gold" : {
 				"subtype" : "resource.gold",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 500,
 				"valueType" : "BASE_NUMBER",
 				"stacking" : "ALWAYS"
 			}
-		],
+		},
 		"index" : 117,
 		"type" : ["HERO"]
 	},
@@ -1727,108 +1728,108 @@
 	{
 		"index" : 118,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"creatureLevel2" : {
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel2",
 				"val" : 5,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
-		]
+		}
 	},
 	"loinsOfLegion":
 	{
 		"index" : 119,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"creatureLevel3" : {
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel3",
 				"val" : 4,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
-		]
+		}
 	},
 	"torsoOfLegion":
 	{
 		"index" : 120,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"creatureLevel4" : {
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel4",
 				"val" : 3,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
-		]
+		}
 	},
 	"armsOfLegion":
 	{
 		"index" : 121,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"creatureLevel5" : {
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel5",
 				"val" : 2,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
-		]
+		}
 	},
 	"headOfLegion":
 	{
 		"index" : 122,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"creatureLevel6" : {
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel6",
 				"val" : 1,
 				"propagator": "VISITED_TOWN_AND_VISITOR"
 			}
-		]
+		}
 	},
 	"seaCaptainsHat":
 	{
 		"onlyOnWaterMap" : true,
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"whirlpool" : {
 				"type" : "WHIRLPOOL_PROTECTION",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"movement" : {
 				"type" : "MOVEMENT",
 				"subtype" : "heroMovementSea",
 				"val" : 500,
 				"valueType" : "ADDITIVE_VALUE"
 			},
-			{
+			"summonBoat" : {
 				"subtype" : "spell.summonBoat",
 				"type" : "SPELL",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX"
 			},
-			{
+			"scuttleBoat" : {
 				"subtype" : "spell.scuttleBoat",
 				"type" : "SPELL",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX"
 			}
-		],
+		},
 		"index" : 123,
 		"type" : ["HERO"]
 	},
 	"spellbindersHat":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"spells" : {
 				"subtype" : "spellLevel5",
 				"type" : "SPELLS_OF_LEVEL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 124,
 		"type" : ["HERO"]
 	},
@@ -1836,106 +1837,105 @@
 	{
 		"index" : 125,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"noRetreat" : {
 				"type" : "BATTLE_NO_FLEEING",
 				"propagator": "BATTLE_WIDE"
 			}
-		]
+		}
 	},
 	"orbOfInhibition":
 	{
 		"index" : 126,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"blockMagic" : {
 				"type" : "BLOCK_ALL_MAGIC",
 				"propagator": "BATTLE_WIDE"
 			}
-		]
+		}
 	},
 	"vialOfDragonBlood":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"attack" : {
 				"limiters" : ["DRAGON_NATURE"],
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"limiters" : ["DRAGON_NATURE"],
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 5,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 127,
 		"class" : "SPECIAL",
 		"type" : ["HERO"]
 	},
 	"armageddonsBlade":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"armageddon" : {
 				"subtype" : "spell.armageddon",
 				"type" : "SPELL",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX"
 			},
-			{
+			"immnunity" : {
 				"subtype" : "spell.armageddon",
 				"type" : "SPELL_IMMUNITY",
 				"val" : 0,
-				"valueType" : "BASE_NUMBER",
-				"addInfo" : 1
+				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 128,
 		"class" : "SPECIAL",
 		"type" : ["HERO"]
 	},
 	"angelicAlliance":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"alignmentMix" : {
 				"type" : "NONEVIL_ALIGNMENT_MIX",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"prayer" : {
 				"subtype" : "spell.prayer",
 				"type" : "OPENING_BATTLE_SPELL",
 				"val" : 10,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 129,
 		"type" : ["HERO"],
 		"components":
@@ -1950,28 +1950,28 @@
 	},
 	"cloakOfTheUndeadKing":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"skeleton" : {
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.skeleton",
 				"addInfo" : 0
 			},
-			{
+			"walkingDead" : {
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.walkingDead",
 				"addInfo" : 1
 			},
-			{
+			"wight" : {
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.wight",
 				"addInfo" : 2
 			},
-			{
+			"lich" : {
 				"type" : "IMPROVED_NECROMANCY",
 				"subtype" : "creature.lich",
 				"addInfo" : 3
 			}
-		],
+		},
 		"index" : 130,
 		"type" : ["HERO"],
 		"components":
@@ -1983,8 +1983,8 @@
 	},
 	"elixirOfLife":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"health" : {
 				"type" : "STACK_HEALTH",
 				"val" : 25,
 				"valueType" : "PERCENT_TO_BASE",
@@ -2009,7 +2009,7 @@
 					}
 				]
 			},
-			{
+			"regeneration" : {
 				"type" : "HP_REGENERATION",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER",
@@ -2030,7 +2030,7 @@
 					}
 				]
 			}
-		],
+		},
 		"index" : 131,
 		"type" : ["HERO"],
 		"components":
@@ -2042,32 +2042,32 @@
 	},
 	"armorOfTheDamned":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"slow" : {
 				"subtype" : "spell.slow",
 				"type" : "OPENING_BATTLE_SPELL",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"curse" : {
 				"subtype" : "spell.curse",
 				"type" : "OPENING_BATTLE_SPELL",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"weakness" : {
 				"subtype" : "spell.weakness",
 				"type" : "OPENING_BATTLE_SPELL",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"misfortune" : {
 				"subtype" : "spell.misfortune",
 				"type" : "OPENING_BATTLE_SPELL",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 132,
 		"type" : ["HERO"],
 		"components":
@@ -2090,49 +2090,49 @@
 			"armsOfLegion",
 			"headOfLegion"
 		],
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"growth" : {
 				"type" : "CREATURE_GROWTH_PERCENT",
 				"val" : 50,
 				"propagator": "PLAYER_PROPAGATOR"
 			}
-		]
+		}
 	},
 	"powerOfTheDragonFather":
 	{
 		"index" : 134,
 		"type" : ["HERO"],
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"immunity" : {
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 4,
 				"valueType" : "INDEPENDENT_MAX"
 			},
-			{
+			"attack" : {
 				"subtype" : "primarySkill.attack",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"defence" : {
 				"subtype" : "primarySkill.defence",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"spellpower" : {
 				"subtype" : "primarySkill.spellpower",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"knowledge" : {
 				"subtype" : "primarySkill.knowledge",
 				"type" : "PRIMARY_SKILL",
 				"val" : 6,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"components":
 		[
 			"quietEyeOfTheDragon",
@@ -2148,14 +2148,14 @@
 	},
 	"titansThunder":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"titanBolt" : {
 				"subtype" : "spell.titanBolt",
 				"type" : "SPELL",
 				"val" : 3,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 135,
 		"type" : ["HERO"],
 		"components":
@@ -2169,13 +2169,13 @@
 	"admiralsHat":
 	{
 		"onlyOnWaterMap" : true,
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"boarding" : {
 				"type" : "FREE_SHIP_BOARDING",
 				"val" : 0,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 136,
 		"type" : ["HERO"],
 		"components":
@@ -2186,26 +2186,26 @@
 	},
 	"bowOfTheSharpshooter":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"noDistancePenalty" : {
 				"limiters" : ["SHOOTER_ONLY"],
 				"type" : "NO_DISTANCE_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
-			{
+			"noWallPenalty" : {
 				"limiters" : ["SHOOTER_ONLY"],
 				"type" : "NO_WALL_PENALTY",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			},
-			{
+			"freeShooting" : {
 				"limiters" : ["SHOOTER_ONLY"],
 				"type" : "FREE_SHOOTING",
 				"val" : 0,
 				"valueType" : "ADDITIVE_VALUE"
 			}
-		],
+		},
 		"index" : 137,
 		"type" : ["HERO"],
 		"components":
@@ -2217,13 +2217,13 @@
 	},
 	"wizardsWell":
 	{
-		"bonuses" : [
-			{
-				"type" : "FULL_MANA_REGENERATION",
-				"val" : 0,
+		"bonuses" : {
+			"mana" : {
+				"type" : "MANA_PERCENTAGE_REGENERATION",
+				"val" : 100,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 138,
 		"type" : ["HERO"],
 		"components":
@@ -2235,13 +2235,13 @@
 	},
 	"ringOfTheMagi":
 	{
-		"bonuses" : [
-			{
+		"bonuses" : {
+			"duration" : {
 				"type" : "SPELL_DURATION",
 				"val" : 50,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 139,
 		"type" : ["HERO"],
 		"components":
@@ -2253,32 +2253,32 @@
 	},
 	"cornucopia":
 	{
-		"bonuses" : [
-			{
+		"instanceBonuses" : {
+			"crystal" : {
 				"subtype" : "resource.crystal",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"gems" : {
 				"subtype" : "resource.gems",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"mercury" : {
 				"subtype" : "resource.mercury",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			},
-			{
+			"sulfur" : {
 				"subtype" : "resource.sulfur",
 				"type" : "GENERATE_RESOURCE",
 				"val" : 4,
 				"valueType" : "BASE_NUMBER"
 			}
-		],
+		},
 		"index" : 140,
 		"type" : ["HERO"],
 		"components":

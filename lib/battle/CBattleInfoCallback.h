@@ -38,13 +38,12 @@ namespace spells
 
 struct DLL_LINKAGE AttackableTiles
 {
+	/// Hexes on which only hostile units will be targeted
 	BattleHexArray hostileCreaturePositions;
-	BattleHexArray friendlyCreaturePositions; //for Dragon Breath
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & hostileCreaturePositions;
-		h & friendlyCreaturePositions;
-	}
+	/// for Dragon Breath, hexes on which both friendly and hostile creatures will be targeted
+	BattleHexArray friendlyCreaturePositions;
+	/// for animation purposes, if any of targets are on specified positions, unit should play alternative animation
+	BattleHexArray overrideAnimationPositions;
 };
 
 struct DLL_LINKAGE BattleClientInterfaceData
@@ -155,7 +154,7 @@ public:
 		BattleHex attackerPos = BattleHex::INVALID,
 		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	
-	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	std::pair<std::set<const CStack*>, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;

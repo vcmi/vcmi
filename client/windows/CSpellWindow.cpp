@@ -33,17 +33,28 @@
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/GameConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
+#include "../../lib/spells/SpellSchoolHandler.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
-#include "../../lib/GameConstants.h"
-
 #include "../../lib/mapObjects/CGHeroInstance.h"
+
+// Ordering of spell school tabs in SpelTab.def
+static const std::array schoolTabOrder =
+{
+	SpellSchool::AIR,
+	SpellSchool::FIRE,
+	SpellSchool::WATER,
+	SpellSchool::EARTH,
+	SpellSchool::ANY
+};
 
 CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
 {
@@ -83,12 +94,11 @@ public:
 		if(A->getLevel() > B->getLevel())
 			return false;
 
-
-		for(auto schoolId = 0; schoolId < GameConstants::DEFAULT_SCHOOLS; schoolId++)
+		for (const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects())
 		{
-			if(A->school.at(SpellSchool(schoolId)) && !B->school.at(SpellSchool(schoolId)))
+			if(A->schools.count(schoolId) && !B->schools.count(schoolId))
 				return true;
-			if(!A->school.at(SpellSchool(schoolId)) && B->school.at(SpellSchool(schoolId)))
+			if(!A->schools.count(schoolId) && B->schools.count(schoolId))
 				return false;
 		}
 
@@ -277,7 +287,7 @@ void CSpellWindow::processSpells()
 
 		spell->forEachSchool([&sitesPerOurTab](const SpellSchool & school, bool & stop)
 		{
-			++sitesPerOurTab[school];
+			++sitesPerOurTab[school.getNum()];
 		});
 	}
 	if(sitesPerTabAdv[4] % spellsPerPage == 0)
@@ -421,7 +431,7 @@ void CSpellWindow::computeSpellsPerArea()
 	for(const CSpell * spell : mySpells)
 	{
 		if(spell->isCombat() ^ !battleSpellsOnly
-			&& ((selectedTab == 4) || spell->school.at(SpellSchool(selectedTab)))
+		   && ((selectedTab == 4) || spell->schools.count(schoolTabOrder.at(selectedTab)))
 			)
 		{
 			spellsCurSite.push_back(spell);
@@ -518,7 +528,7 @@ void CSpellWindow::turnPageRight()
 {
 	OBJECT_CONSTRUCTION;
 	if(settings["video"]["spellbookAnimation"].Bool() && !isBigSpellbook)
-		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRENGINE->SMK"), false, this);
+		video = std::make_shared<VideoWidgetOnce>(Point(13, 14), VideoPath::builtin("PGTRNRGH.SMK"), false, this);
 }
 
 void CSpellWindow::onVideoPlaybackFinished()
@@ -724,31 +734,24 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 	mySpell = spell;
 	if(mySpell)
 	{
-		SpellSchool whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
+		SpellSchool whichSchool;
 		schoolLevel = owner->myHero->getSpellSchoolLevel(mySpell, &whichSchool);
 		auto spellCost = owner->myInt->cb->getSpellCost(mySpell, owner->myHero);
 
-		image->setFrame(mySpell->id);
+		image->setFrame(mySpell->id.getNum());
 		image->visible = true;
 
 		{
 			OBJECT_CONSTRUCTION;
 
-			static const std::array schoolBorders = {
-				AnimationPath::builtin("SplevA.def"),
-				AnimationPath::builtin("SplevF.def"),
-				AnimationPath::builtin("SplevW.def"),
-				AnimationPath::builtin("SplevE.def")
-			};
-
 			schoolBorder.reset();
 			if (owner->selectedTab >= 4)
 			{
-				if (whichSchool.getNum() != SpellSchool())
-					schoolBorder = std::make_shared<CAnimImage>(schoolBorders.at(whichSchool.getNum()), schoolLevel);
+				if (whichSchool.hasValue())
+					schoolBorder = std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(whichSchool)->getSpellBordersPath(), schoolLevel);
 			}
 			else
-				schoolBorder = std::make_shared<CAnimImage>(schoolBorders.at(owner->selectedTab), schoolLevel);
+				schoolBorder = std::make_shared<CAnimImage>(LIBRARY->spellSchoolHandler->getById(schoolTabOrder.at(owner->selectedTab))->getSpellBordersPath(), schoolLevel);
 		}
 
 		ColorRGBA firstLineColor, secondLineColor;

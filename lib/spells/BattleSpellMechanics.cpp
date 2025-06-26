@@ -283,7 +283,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	sc.tile = target.at(0).hexValue;
 
 	sc.castByHero = mode == Mode::HERO;
-	sc.casterStack = caster->getCasterUnitId();
+	if (mode != Mode::HERO)
+		sc.casterStack = caster->getCasterUnitId();
 	sc.manaGained = 0;
 
 	sc.activeCast = false;
@@ -309,10 +310,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			int manaChannel = 0;
 			for(const auto * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->unitOwner() == otherHero->tempOwner)
-				{
+				if(stack->unitOwner() == otherHero->tempOwner && stack->alive())
 					vstd::amax(manaChannel, stack->valOfBonuses(BonusType::MANA_CHANNELING));
-				}
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
 		}

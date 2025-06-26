@@ -10,7 +10,6 @@
 #pragma once
 
 #include "CGoal.h"
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/gameState/QuestInfo.h"
 
 namespace Goals

@@ -21,12 +21,12 @@
 
 #include "../../CPlayerInterface.h"
 
-#include "../../../CCallback.h"
-
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
-#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGMarket.h"
+#include "../../../lib/texts/CGeneralTextHandler.h"
 
 CMarketBase::CMarketBase(const IMarket * market, const CGHeroInstance * hero)
 	: market(market)

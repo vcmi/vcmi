@@ -11,6 +11,7 @@
 #include "FuzzyHelper.h"
 
 #include "Goals/Goals.h"
+#include "Goals/CompleteQuest.h"
 #include "VCAI.h"
 
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"

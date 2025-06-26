@@ -16,11 +16,10 @@
 #include "../battles/BattleProcessor.h"
 
 #include "../../lib/battle/IBattleState.h"
-#include "../../lib/battle/SideInBattle.h"
 #include "../../lib/battle/BattleLayout.h"
+#include "../../lib/battle/SideInBattle.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForServer.h"
 
 void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
@@ -28,7 +27,7 @@ void CBattleQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObje
 	assert(result);
 
 	if(result)
-		visitedObject->battleFinished(visitingHero, *result);
+		visitedObject->battleFinished(*gh, visitingHero, *result);
 }
 
 CBattleQuery::CBattleQuery(CGameHandler * owner, const IBattleInfo * bi):
@@ -65,7 +64,7 @@ void CBattleQuery::onRemoval(PlayerColor color)
 	assert(result);
 
 	if(result)
-		gh->battles->battleAfterLevelUp(battleID, *result);
+		gh->battles->battleFinalize(battleID, *result);
 }
 
 void CBattleQuery::onExposure(QueryPtr topQuery)
@@ -77,7 +76,7 @@ void CBattleQuery::onExposure(QueryPtr topQuery)
 		owner->popQuery(*this);
 }
 
-CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, std::optional<BattleResult> Br):
+CBattleDialogQuery::CBattleDialogQuery(CGameHandler * owner, const IBattleInfo * bi, const std::optional<BattleResult> & Br):
 	CDialogQuery(owner),
 	bi(bi),
 	result(Br)

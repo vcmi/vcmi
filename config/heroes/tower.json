@@ -55,16 +55,7 @@
 			{ "skill" : "armorer", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"armorer" : {
-					"type" : "GENERAL_DAMAGE_REDUCTION",
-					"subtype" : "damageTypeAll",
-					"targetSourceType" : "SECONDARY_SKILL",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "armorer"
 		}
 	},
 	"torosar":
@@ -80,7 +71,8 @@
 			{ "skill" : "tactics", "level": "basic" }
 		],
 		"specialty" : {
-			"creature" : "ballista"
+			"creature" : "ballista",
+			"creatureLevel" : 5
 		}
 	},
 	"fafner":
@@ -167,15 +159,7 @@
 			{ "skill" : "mysticism", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"mysticism" : {
-					"targetSourceType" : "SECONDARY_SKILL",
-					"type" : "MANA_REGENERATION",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE"
-				}
-			}
+			"secondary" : "mysticism"
 		}
 	},
 	"serena":
@@ -190,15 +174,7 @@
 			{ "skill" : "eagleEye", "level": "basic" }
 		],
 		"specialty" : {
-			"bonuses" : {
-				"eagleEye" : {
-					"type" : "LEARN_BATTLE_SPELL_CHANCE",
-					"updater" : "TIMES_HERO_LEVEL",
-					"val" : 5,
-					"valueType" : "PERCENT_TO_TARGET_TYPE",
-					"targetSourceType" : "SECONDARY_SKILL"
-				}
-			}
+			"secondary" : "eagleEye"
 		}
 	},
 	"daremyth":

@@ -66,15 +66,15 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
 	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
 	{
-		auto retrieveHeroPrimSkill = [&](PrimarySkill skill) -> int
-		{
-			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL).And(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill))));
-			return b ? b->val : 0;
-		};
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
 
-		//minDmg and maxDmg are multiplied by hero attack + 1
-		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
+		//minDmg and maxDmg of a Ballista are multiplied by hero attack + 1
+		int heroAttackSkill = info.attacker->valOfBonuses(bonusSelector);
+		minDmg *= heroAttackSkill + 1;
+		maxDmg *= heroAttackSkill + 1;
 	}
 	return { minDmg, maxDmg };
 }
@@ -304,6 +304,15 @@ double DamageCalculator::getAttackJoustingFactor() const
 	return 0.0;
 }
 
+double DamageCalculator::getAttackFromBackFactor() const
+{
+	int value = info.defender->valOfBonuses(BonusType::VULNERABLE_FROM_BACK);
+
+	if (value != 0 && callback.isToReverse(info.attacker, info.defender, info.attackerPos, info.defenderPos))
+		return value / 100.0;
+	return 0;
+}
+
 double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
@@ -492,6 +501,7 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackBlessFactor(),
 		getAttackLuckFactor(),
 		getAttackJoustingFactor(),
+		getAttackFromBackFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
 		getAttackHateFactor(),

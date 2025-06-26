@@ -24,20 +24,9 @@
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 
-template class std::vector<VCMI_LIB_WRAP_NAMESPACE(CBonusType)>;
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 ///CBonusType
-
-CBonusType::CBonusType():
-	hidden(true)
-{}
-
-std::string CBonusType::getNameTextID() const
-{
-	return TextIdentifier( "core", "bonus", identifier, "name").get();
-}
 
 std::string CBonusType::getDescriptionTextID() const
 {
@@ -50,38 +39,45 @@ CBonusTypeHandler::CBonusTypeHandler()
 {
 	//register predefined bonus types
 
-	#define BONUS_NAME(x) \
-	do { \
-		bonusTypes.push_back(CBonusType()); \
-	} while(0);
+#define BONUS_NAME(x) { #x },
+	builtinBonusNames = {
+		BONUS_LIST
+	};
+#undef BONUS_NAME
 
+	for (int i = 0; i < builtinBonusNames.size(); ++i)
+		bonusTypes.push_back(std::make_shared<CBonusType>());
 
-	BONUS_LIST;
-	#undef BONUS_NAME
+	for (int i = 0; i < builtinBonusNames.size(); ++i)
+		registerObject(ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], i);
 }
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
 
-std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer, bool description) const
+std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const
 {
-	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
+	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
+	int bonusValue = bearer->valOfBonuses(bonus->type, bonus->subtype);
 	if(bt.hidden)
 		return "";
 
-	std::string textID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
+	std::string textID = bt.getDescriptionTextID();
 	std::string text = LIBRARY->generaltexth->translate(textID);
 
-	auto school = bonus->subtype.as<SpellSchool>();
-	if (school.hasValue() && school != SpellSchool::ANY)
+	auto subtype = bonus->subtype.getNum();
+	if (bt.subtypeDescriptions.count(subtype))
 	{
-		std::string schoolName = school.encode(school.getNum());
-		std::string baseTextID = description ? bt.getDescriptionTextID() : bt.getNameTextID();
-		std::string fullTextID = baseTextID + '.' + schoolName;
+		std::string fullTextID = textID + '.' + bt.subtypeDescriptions.at(subtype);
+		text = LIBRARY->generaltexth->translate(fullTextID);
+	}
+	else if (bt.valueDescriptions.count(bonusValue))
+	{
+		std::string fullTextID = textID + '.' + bt.valueDescriptions.at(bonusValue);
 		text = LIBRARY->generaltexth->translate(fullTextID);
 	}
 
 	if (text.find("${val}") != std::string::npos)
-		boost::algorithm::replace_all(text, "${val}", std::to_string(bearer->valOfBonuses(bonus->type, bonus->subtype)));
+		boost::algorithm::replace_all(text, "${val}", std::to_string(bonusValue));
 
 	if (text.find("${subtype.creature}") != std::string::npos && bonus->subtype.as<CreatureID>().hasValue())
 		boost::algorithm::replace_all(text, "${subtype.creature}", bonus->subtype.as<CreatureID>().toCreature()->getNamePluralTranslated());
@@ -94,7 +90,13 @@ std::string CBonusTypeHandler::bonusToString(const std::shared_ptr<Bonus> & bonu
 
 ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
 {
-	const CBonusType & bt = bonusTypes[vstd::to_underlying(bonus->type)];
+	const CBonusType & bt = *bonusTypes.at(vstd::to_underlying(bonus->type));
+
+	if (bonus->type == BonusType::SPELL_IMMUNITY && bonus->subtype.as<SpellID>().hasValue())
+	{
+		const CSpell * sp = bonus->subtype.as<SpellID>().toSpell();
+		return sp->getIconImmune();
+	}
 
 	if (bt.subtypeIcons.count(bonus->subtype.getNum()))
 		return bt.subtypeIcons.at(bonus->subtype.getNum());
@@ -112,18 +114,21 @@ std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
 
 void CBonusTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	auto it = bonusNameMap.find(name);
-
-	if(it == bonusNameMap.end())
+	if (vstd::contains(builtinBonusNames, name))
 	{
-		logBonus->warn("Unrecognized bonus name! (%s)", name);
+		//h3 bonus
+		BonusType bonus = static_cast<BonusType>(vstd::find_pos(builtinBonusNames, name));
+		CBonusType & bt =*bonusTypes.at(vstd::to_underlying(bonus));
+		loadItem(data, bt, name);
+		logBonus->trace("Loaded bonus type %s", name);
 	}
 	else
 	{
-		CBonusType & bt = bonusTypes[vstd::to_underlying(it->second)];
-
-		loadItem(data, bt, name);
-		logBonus->trace("Loaded bonus type %s", name);
+		// new bonus
+		registerObject(scope, "bonus", name, bonusTypes.size());
+		bonusTypes.push_back(std::make_shared<CBonusType>());
+		loadItem(data, *bonusTypes.back(), name);
+		logBonus->trace("New bonus type %s", name);
 	}
 }
 
@@ -136,12 +141,10 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 {
 	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
+	dest.creatureNature = source["creatureNature"].Bool(); //Null -> false
 
 	if (!dest.hidden)
-	{
-		LIBRARY->generaltexth->registerString( "vcmi", dest.getNameTextID(), source["name"]);
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
-	}
 
 	const JsonNode & graphics = source["graphics"];
 
@@ -163,6 +166,43 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 		int value = std::stoi(additionalIcon.first);
 		dest.valueIcons[value] = path;
 	}
+
+	for (const auto & additionalDescription : source["subtypeDescriptions"].Struct())
+	{
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		auto stringID = additionalDescription.first;
+		LIBRARY->identifiers()->requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
+		{
+			dest.subtypeDescriptions[index] = stringID;
+		});
+	}
+
+	for (const auto & additionalDescription : source["valueDescriptions"].Struct())
+	{
+		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		auto stringID = additionalDescription.first;
+		int value = std::stoi(additionalDescription.first);
+		dest.valueDescriptions[value] = stringID;
+	}
+}
+
+const std::string & CBonusTypeHandler::bonusToString(BonusType bonus) const
+{
+	return bonusTypes.at(static_cast<int>(bonus))->identifier;
+}
+
+bool CBonusTypeHandler::isCreatureNatureBonus(BonusType bonus) const
+{
+	return bonusTypes.at(static_cast<int>(bonus))->creatureNature;
+}
+
+std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
+{
+	std::vector<BonusType> ret;
+	for (int i = 0; i < bonusTypes.size(); ++i)
+		ret.push_back(static_cast<BonusType>(i));
+
+	return ret;
 }
 
 VCMI_LIB_NAMESPACE_END

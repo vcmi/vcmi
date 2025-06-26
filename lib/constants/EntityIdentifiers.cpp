@@ -29,17 +29,18 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
-#include "CArtHandler.h"//todo: remove
-#include "CCreatureHandler.h"//todo: remove
-#include "spells/CSpellHandler.h" //todo: remove
-#include "CSkillHandler.h"//todo: remove
+#include "CCreatureHandler.h"
+#include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
+#include "CSkillHandler.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "entities/hero/CHeroClass.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"
-#include "TerrainHandler.h" //TODO: remove
+#include "TerrainHandler.h"
 #include "RiverHandler.h"
 #include "RoadHandler.h"
 #include "BattleFieldHandler.h"
@@ -54,8 +55,9 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
-const HeroTypeID HeroTypeID::GEM(27);
-const HeroTypeID HeroTypeID::SOLMYR(45);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(-3);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(-2);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(-1);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
@@ -74,8 +76,8 @@ const TeamID TeamID::NO_TEAM(-1);
 const SpellSchool SpellSchool::ANY(-1);
 const SpellSchool SpellSchool::AIR(0);
 const SpellSchool SpellSchool::FIRE(1);
-const SpellSchool SpellSchool::WATER(2);
-const SpellSchool SpellSchool::EARTH(3);
+const SpellSchool SpellSchool::EARTH(2);
+const SpellSchool SpellSchool::WATER(3);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
@@ -97,7 +99,6 @@ const PrimarySkill PrimarySkill::ATTACK(0);
 const PrimarySkill PrimarySkill::DEFENSE(1);
 const PrimarySkill PrimarySkill::SPELL_POWER(2);
 const PrimarySkill PrimarySkill::KNOWLEDGE(3);
-const PrimarySkill PrimarySkill::EXPERIENCE(4);
 
 const BoatId BoatId::NONE(-1);
 const BoatId BoatId::NECROPOLIS(0);
@@ -255,6 +256,8 @@ si32 HeroTypeID::decode(const std::string & identifier)
 {
 	if (identifier == "random")
 		return -2;
+	if (identifier == "strongest")
+		return -3;
 	return resolveIdentifier("hero", identifier);
 }
 
@@ -264,6 +267,8 @@ std::string HeroTypeID::encode(const si32 index)
 		return "";
 	if (index == -2)
 		return "random";
+	if (index == -3)
+		return "strongest";
 	return LIBRARY->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
@@ -593,7 +598,7 @@ std::string SpellSchool::encode(const si32 index)
 	if (index == ANY.getNum())
 		return "any";
 
-	return SpellConfig::SCHOOL[index].jsonName;
+	return LIBRARY->spellSchoolHandler->getById(SpellSchool(index))->getJsonKey();
 }
 
 std::string SpellSchool::entityType()

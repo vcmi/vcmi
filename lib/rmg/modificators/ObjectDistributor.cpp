@@ -82,7 +82,7 @@ void ObjectDistributor::distributeLimitedObjects()
 					{
 						ObjectInfo oi(primaryID, secondaryID);
 						
-						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]() -> CGObjectInstance *
+						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]()
 						{
 							return LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
 						};

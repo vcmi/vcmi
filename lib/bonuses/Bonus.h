@@ -15,6 +15,7 @@
 #include "../constants/EntityIdentifiers.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
+#include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,9 +33,9 @@ using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID
 using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
-using TLimiterPtr = std::shared_ptr<ILimiter>;
-using TPropagatorPtr = std::shared_ptr<IPropagator>;
-using TUpdaterPtr = std::shared_ptr<IUpdater>;
+using TLimiterPtr = std::shared_ptr<const ILimiter>;
+using TPropagatorPtr = std::shared_ptr<const IPropagator>;
+using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 
 class DLL_LINKAGE CAddInfo : public std::vector<si32>
 {
@@ -54,21 +55,18 @@ public:
 	JsonNode toJsonNode() const;
 };
 
-#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.loadingGamestate) deserializationFix();
-
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Serializeable
 {
 	BonusDuration::Type duration = BonusDuration::PERMANENT; //uses BonusDuration values - 2 bytes
-	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 	si32 val = 0;
+	si16 turnsRemain = 0; //used if duration is N_TURNS, N_DAYS or ONE_WEEK
 
 	BonusValueType valType = BonusValueType::ADDITIVE_VALUE; // 1 byte
 	BonusSource source = BonusSource::OTHER; //source type" uses BonusSource values - what gave that bonus - 1 byte
 	BonusSource targetSourceType = BonusSource::OTHER;//Bonuses of what origin this amplifies, uses BonusSource values. Needed for PERCENT_TO_TARGET_TYPE. - 1 byte
-	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 1 byte
 	BonusLimitEffect effectRange = BonusLimitEffect::NO_LIMIT; // 1 byte
-	// 3 bytes padding
+	BonusType type = BonusType::NONE; //uses BonusType values - says to what is this bonus - 2 bytes
 
 	BonusSubtypeID subtype;
 	BonusSourceID sid; //source id: id of object/artifact/spell
@@ -81,7 +79,9 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	TUpdaterPtr updater;
 	TUpdaterPtr propagationUpdater;
 
+	ImagePath customIconPath;
 	MetaString description;
+	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
 
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
@@ -97,6 +97,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & val;
 		h & sid;
 		h & description;
+		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
+			h & customIconPath;
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;

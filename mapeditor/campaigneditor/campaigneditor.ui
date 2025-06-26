@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CampaignEditor</class>
+ <widget class="QWidget" name="CampaignEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>820</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VCMI Campaign Editor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QMenuBar" name="menubar">
+     <widget class="QMenu" name="menuFile">
+      <property name="title">
+       <string>File</string>
+      </property>
+      <addaction name="actionNew"/>
+      <addaction name="actionOpen"/>
+      <addaction name="actionSave"/>
+      <addaction name="actionSave_as"/>
+     </widget>
+     <widget class="QMenu" name="menuEdit">
+      <property name="title">
+       <string>Edit</string>
+      </property>
+      <addaction name="actionCampaignProperties"/>
+      <addaction name="actionScenarioProperties"/>
+     </widget>
+     <widget class="QMenu" name="menuView">
+      <property name="title">
+       <string>View</string>
+      </property>
+      <addaction name="actionShowFullBackground"/>
+     </widget>
+     <addaction name="menuFile"/>
+     <addaction name="menuEdit"/>
+     <addaction name="menuView"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolBar" name="toolBar">
+     <property name="windowTitle">
+      <string>Toolbar</string>
+     </property>
+     <property name="bottomMargin" stdset="0">
+      <number>0</number>
+     </property>
+     <property name="topMargin" stdset="0">
+      <number>0</number>
+     </property>
+     <addaction name="actionNew"/>
+     <addaction name="actionOpen"/>
+     <addaction name="actionSave"/>
+     <addaction name="separator"/>
+     <addaction name="actionCampaignProperties"/>
+     <addaction name="actionScenarioProperties"/>
+     <addaction name="separator"/>
+     <addaction name="actionShowFullBackground"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="CampaignView" name="campaignView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStatusBar" name="statusbar"/>
+   </item>
+  </layout>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionCampaignProperties">
+   <property name="text">
+    <string>Campaign Properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Campaign Properties</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Return</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionScenarioProperties">
+   <property name="text">
+    <string>Scenario Properties</string>
+   </property>
+   <property name="toolTip">
+    <string>Scenario Properties</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Return</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionShowFullBackground">
+   <property name="text">
+    <string>Show full background</string>
+   </property>
+   <property name="toolTip">
+    <string>Show full background</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CampaignView</class>
+   <extends>QGraphicsView</extends>
+   <header>campaigneditor/campaignview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -21,4 +21,3 @@
 #include "CGPandoraBox.h"
 #include "CRewardableObject.h"
 #include "MiscObjects.h"
-#include "CQuest.h"

@@ -302,6 +302,9 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.hideBackground.hover"
+				},
+				{
+					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
 				}
 			]
 		},
@@ -334,6 +337,11 @@
 					"name": "hideBackgroundCheckbox",
 					"help": "vcmi.adventureOptions.hideBackground",
 					"callback": "hideBackgroundChanged"
+				},
+				{
+					"name": "minimapShowHeroesCheckbox",
+					"help": "vcmi.adventureOptions.minimapShowHeroes",
+					"callback": "minimapShowHeroesChanged"
 				}
 			]
 		},

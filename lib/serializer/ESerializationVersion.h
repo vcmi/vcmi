@@ -23,7 +23,7 @@
 /// - change 'CURRENT' to 'CURRENT = NEW_TEST_KEY'.
 ///
 /// To check for version in serialize() call use form
-/// if (h.version >= Handler::Version::NEW_TEST_KEY)
+/// if (h.hasFeature(Handler::Version::NEW_TEST_KEY))
 ///     h & newKey; // loading/saving save of a new version
 /// else
 ///     newKey = saneDefaultValue; // loading of old save
@@ -35,6 +35,20 @@ enum class ESerializationVersion : int32_t
 	MINIMAL = RELEASE_160,
 
 	MAP_HEADER_DISPOSED_HEROES, // map header contains disposed heroes list
-	
-	CURRENT = MAP_HEADER_DISPOSED_HEROES
+	NO_RAW_POINTERS_IN_SERIALIZER, // large rework that removed all non-owning pointers from serializer
+	STACK_INSTANCE_EXPERIENCE_FIX, // stack experience is stored as total, not as average
+	STACK_INSTANCE_ARMY_FIX, // remove serialization of army that owns stack instance
+	STORE_UID_COUNTER_IN_CMAP,  // fix crash caused by conflicting instanceName after loading game
+	REWARDABLE_EXTENSIONS, // new functionality for rewardable objects
+	FLAGGABLE_BONUS_SYSTEM_NODE, // flaggable objects now contain bonus system node
+	RANDOMIZATION_REWORK, // random rolls logic has been moved to server
+	CUSTOM_BONUS_ICONS, // support for custom icons in bonuses
+	SERVER_STATISTICS, // statistics now only saved on server
+	OPPOSITE_SIDE_LIMITER_OWNER, // opposite side limiter no longer stores owner in itself
+	UNIVERSITY_CONFIG, // town university is configurable
+	CAMPAIGN_BONUSES, // new format for scenario bonuses in campaigns
+
+	CURRENT = CAMPAIGN_BONUSES,
 };
+
+static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

@@ -153,8 +153,8 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
 
-	/// Controls hardcoded check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
-	bool isRestorationOfErathiaCampaign() const;
+	/// Controls check for handling of garrisons by AI in Restoration of Erathia campaigns to match H3 behavior
+	bool restrictedGarrisonsForAI() const;
 
 	template <typename Handler>
 	void serialize(Handler &h)

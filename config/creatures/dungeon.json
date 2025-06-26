@@ -9,14 +9,12 @@
 			"blindImmunity" : 
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.blind",
-				"addInfo" : 1
+				"subtype" : "spell.blind"
 			},
 			"petrifyImmunity" : 
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.stoneGaze",
-				"addInfo" : 1
+				"subtype" : "spell.stoneGaze"
 			}
 		},
 		"upgrades": ["infernalTroglodyte"],
@@ -44,14 +42,12 @@
 			"blindImmunity" : 
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.blind",
-				"addInfo" : 1
+				"subtype" : "spell.blind"
 			},
 			"petrifyImmunity" : 
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "spell.stoneGaze",
-				"addInfo" : 1
+				"subtype" : "spell.stoneGaze"
 			}
 		},
 		"graphics" :
@@ -433,6 +429,11 @@
 			{
 				"type" : "DRAGON_NATURE"
 			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
+			},
 			"canFly" :
 			{
 				"type" : "FLYING"
@@ -477,6 +478,11 @@
 			"dragon" : 
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"dragonSkeleton" : 
+			{
+				"type" : "SKELETON_TRANSFORMER_TARGET",
+				"subtype" : "boneDragon"
 			},
 			"canFly" :
 			{

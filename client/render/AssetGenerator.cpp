@@ -43,7 +43,11 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("combatUnitNumberWindowPositive.png")] = [this](){ return createCombatUnitNumberWindow(0.2f, 1.0f, 0.2f);};
 	imageFiles[ImagePath::builtin("combatUnitNumberWindowNegative.png")] = [this](){ return createCombatUnitNumberWindow(1.0f, 0.2f, 0.2f);};
 
-	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this](){ return createCampaignBackground();};
+	imageFiles[ImagePath::builtin("CampaignBackground4.png")] = [this]() { return createCampaignBackground(4); };
+	imageFiles[ImagePath::builtin("CampaignBackground5.png")] = [this]() { return createCampaignBackground(5); };
+	imageFiles[ImagePath::builtin("CampaignBackground6.png")] = [this]() { return createCampaignBackground(6); };
+	imageFiles[ImagePath::builtin("CampaignBackground7.png")] = [this]() { return createCampaignBackground(7); };
+	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this]() { return createCampaignBackground(8); };
 
 	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 		imageFiles[ImagePath::builtin("DialogBoxBackground_" + color.toString())] = [this, color](){ return createPlayerColoredBackground(color);};
@@ -202,41 +206,102 @@ AssetGenerator::CanvasPtr AssetGenerator::createCombatUnitNumberWindow(float mul
 	return image;
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground() const
+AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground(int selection) const
 {
-	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 
+	auto locator = ImageLocator(ImagePath::builtin("CAMPBACK"), EImageBlitMode::OPAQUE);
 	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+
 	auto image = ENGINE->renderHandler().createImage(Point(800, 600), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
-
 	canvas.draw(img, Point(0, 0), Rect(0, 0, 800, 600));
 
-	// left image
-	canvas.draw(img, Point(220, 73), Rect(290, 73, 141, 115));
-	canvas.draw(img, Point(37, 70), Rect(87, 70, 207, 120));
+	// BigBlock section
+	auto bigBlock = ENGINE->renderHandler().createImage(Point(248, 114), CanvasScalingPolicy::IGNORE);
+	Rect bigBlockRegion(292, 74, 248, 114);
+	Canvas croppedBigBlock = bigBlock->getCanvas();
+	croppedBigBlock.draw(img, Point(0, 0), bigBlockRegion);
+	bigBlock->scaleTo(Point(200, 114), EScalingAlgorithm::NEAREST);
 
-	// right image
-	canvas.draw(img, Point(513, 67), Rect(463, 67, 71, 126));
-	canvas.draw(img, Point(586, 71), Rect(536, 71, 207, 117));
+	// SmallBlock section
+	auto smallBlock = ENGINE->renderHandler().createImage(Point(248, 114), CanvasScalingPolicy::IGNORE);
+	Canvas croppedSmallBlock = smallBlock->getCanvas();
+	croppedSmallBlock.draw(img, Point(0, 0), bigBlockRegion);
+	smallBlock->scaleTo(Point(134, 114), EScalingAlgorithm::NEAREST);
 
-	// middle image
-	canvas.draw(img, Point(306, 68), Rect(86, 68, 209, 122));
+	// Tripple block section
+	auto trippleBlock = ENGINE->renderHandler().createImage(Point(72, 116), CanvasScalingPolicy::IGNORE);
+	Rect trippleBlockSection(512, 246, 72, 116);
+	Canvas croppedTrippleBlock = trippleBlock->getCanvas();
+	croppedTrippleBlock.draw(img, Point(0, 0), trippleBlockSection);
+	trippleBlock->scaleTo(Point(70, 114), EScalingAlgorithm::NEAREST);
 
-	// disabled fields
-	canvas.draw(img, Point(40, 72), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(310, 72), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(590, 72), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(43, 245), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(313, 244), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(586, 246), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(34, 417), Rect(313, 74, 197, 114));
-	canvas.draw(img, Point(404, 414), Rect(313, 74, 197, 114));
 
-	// skull
+	// First campaigns line
+	if (selection > 7)
+	{
+		// Rebuild 1. campaigns line from 2 to 3 fields
+		canvas.draw(bigBlock, Point(40, 72));
+		canvas.draw(trippleBlock, Point(240, 73));
+		canvas.draw(bigBlock, Point(310, 72));
+		canvas.draw(trippleBlock, Point(510, 72));
+		canvas.draw(bigBlock, Point(580, 72));
+		canvas.draw(trippleBlock, Point(780, 72));
+	} 
+	else
+	{
+		// Empty 1 + 2. field
+		canvas.draw(bigBlock, Point(90, 72));
+		canvas.draw(bigBlock, Point(540, 72));
+	}
+
+	// Second campaigns line
+	// 3. Field
+	canvas.draw(bigBlock, Point(43, 245));
+
+	if (selection == 4)
+	{
+		// Disabled 4. field
+		canvas.draw(trippleBlock, Point(310, 245));
+		canvas.draw(smallBlock, Point(380, 245));
+	}
+	else
+	{
+		// Empty 4. field
+		canvas.draw(bigBlock, Point(314, 244));
+	}
+	
+	// 5. Field
+	canvas.draw(bigBlock, Point(586, 246));
+
+	// Third campaigns line
+	// 6. Field
+	if (selection >= 6)
+	{
+		canvas.draw(bigBlock, Point(32, 417));
+	}
+	else
+	{
+		canvas.draw(trippleBlock, Point(30, 417));
+		canvas.draw(smallBlock, Point(100, 417));
+	}
+
 	auto locatorSkull = ImageLocator(ImagePath::builtin("CAMPNOSC"), EImageBlitMode::OPAQUE);
 	std::shared_ptr<IImage> imgSkull = ENGINE->renderHandler().loadImage(locatorSkull);
-	canvas.draw(imgSkull, Point(562, 509), Rect(178, 108, 43, 19));
+
+	if (selection >= 7)
+	{
+		// Only skull part
+		canvas.draw(bigBlock, Point(404, 417));
+		canvas.draw(imgSkull, Point(563, 512), Rect(178, 108, 43, 19));
+	}
+	else
+	{
+		// Original disabled field with skull and stone for 8. field
+		imgSkull->scaleTo(Point(238, 150), EScalingAlgorithm::NEAREST);
+		canvas.draw(imgSkull, Point(385, 400));
+	}
+
 
 	return image;
 }

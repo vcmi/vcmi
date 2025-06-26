@@ -116,7 +116,7 @@ CCasts::CCasts(const battle::Unit * Owner):
 CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
-	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::HYPNOTIZED)).Or(Selector::type()(BonusType::NO_RETALIATION))),
+	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::NO_RETALIATION))),
 	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
 {
 }
@@ -698,12 +698,12 @@ BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
 
 bool CUnitState::isHypnotized() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::HYPNOTIZED);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::HYPNOTIZED);
 }
 
 bool CUnitState::isInvincible() const
 {
-	return bonusCache.getBonusValue(UnitBonusValuesProxy::INVINCIBLE);
+	return bonusCache.hasBonus(UnitBonusValuesProxy::INVINCIBLE);
 }
 
 int CUnitState::getTotalAttacks(bool ranged) const
@@ -920,11 +920,13 @@ void CUnitState::afterNewRound()
 		makeGhost();
 }
 
-void CUnitState::afterGetsTurn()
+void CUnitState::afterGetsTurn(BattleUnitTurnReason reason)
 {
-	//if moving second time this round it must be high morale bonus
-	if(movedThisRound)
+	if(reason == BattleUnitTurnReason::MORALE)
+	{
 		hadMorale = true;
+		castSpellThisTurn = false;
+	}
 }
 
 void CUnitState::makeGhost()

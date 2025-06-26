@@ -11,14 +11,14 @@
 #include "StdInc.h"
 #include "Limiter.h"
 
-#include "../IGameCallback.h"
 #include "../CPlayerState.h"
+#include "../CSkillHandler.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../constants/StringConstants.h"
+#include "../entities/artifact/ArtifactUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../networkPacks/Component.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../constants/StringConstants.h"
-#include "../CSkillHandler.h"
-#include "../ArtifactUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -30,6 +30,8 @@ Rewardable::Limiter::Limiter()
 	, manaPercentage(0)
 	, manaPoints(0)
 	, canLearnSkills(false)
+	, commanderAlive(false)
+	, hasExtraCreatures(false)
 	, primary(GameConstants::PRIMARY_SKILLS, 0)
 {
 }
@@ -40,20 +42,25 @@ bool operator==(const Rewardable::Limiter & l, const Rewardable::Limiter & r)
 {
 	return l.dayOfWeek == r.dayOfWeek
 	&& l.daysPassed == r.daysPassed
-	&& l.heroLevel == r.heroLevel
 	&& l.heroExperience == r.heroExperience
+	&& l.heroLevel == r.heroLevel
 	&& l.manaPoints == r.manaPoints
 	&& l.manaPercentage == r.manaPercentage
-	&& l.secondary == r.secondary
 	&& l.canLearnSkills == r.canLearnSkills
-	&& l.creatures == r.creatures
-	&& l.spells == r.spells
-	&& l.artifacts == r.artifacts
-	&& l.players == r.players
-	&& l.heroes == r.heroes
-	&& l.heroClasses == r.heroClasses
+	&& l.commanderAlive == r.commanderAlive
+	&& l.hasExtraCreatures == r.hasExtraCreatures
 	&& l.resources == r.resources
 	&& l.primary == r.primary
+	&& l.secondary == r.secondary
+	&& l.artifacts == r.artifacts
+	&& l.availableSlots == r.availableSlots
+	&& l.scrolls == r.scrolls
+	&& l.spells == r.spells
+	&& l.canLearnSpells == r.canLearnSpells
+	&& l.creatures == r.creatures
+	&& l.heroes == r.heroes
+	&& l.heroClasses == r.heroClasses
+	&& l.players == r.players
 	&& l.noneOf == r.noneOf
 	&& l.allOf == r.allOf
 	&& l.anyOf == r.anyOf;
@@ -78,16 +85,25 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
-	for(const auto & reqStack : creatures)
+	if (commanderAlive)
 	{
-		size_t count = 0;
-		for(const auto & slot : hero->Slots())
-		{
-			const CStackInstance * heroStack = slot.second;
-			if (heroStack->getType() == reqStack.getType())
-				count += heroStack->count;
-		}
-		if (count < reqStack.count) //not enough creatures of this kind
+		if (!hero->getCommander() || !hero->getCommander()->alive)
+			return false;
+	}
+
+	if (!creatures.empty())
+	{
+		if (!hero->hasUnits(creatures, hasExtraCreatures))
+			return false;
+	}
+
+	if (!canReceiveCreatures.empty())
+	{
+		CCreatureSet setToTest;
+		for (const auto & unitToGive : canReceiveCreatures)
+			setToTest.addToSlot(setToTest.getSlotFor(unitToGive.getCreature()), unitToGive.getId(), unitToGive.getCount());
+
+		if (!hero->canBeMergedWith(setToTest))
 			return false;
 	}
 
@@ -133,6 +149,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			return false;
 	}
 
+	for(const auto & scroll : scrolls)
+	{
+		if (!hero->hasScroll(scroll, false))
+			return false;
+	}
+
+	for(const auto & slot : availableSlots)
+	{
+		if (hero->getSlot(slot)->artifactID.hasValue())
+			return false;
+	}
+
 	{
 		std::unordered_map<ArtifactID, unsigned int, ArtifactID::hash> artifactsRequirements; // artifact ID -> required count
 		for(const auto & art : artifacts)
@@ -144,18 +172,18 @@ bool Rewardable::Limiter::heroAllowed(const CGHeroInstance * hero) const
 			// check required amount of artifacts
 			size_t artCnt = 0;
 			for(const auto & [slot, slotInfo] : hero->artifactsWorn)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 					artCnt++;
 
 			for(auto & slotInfo : hero->artifactsInBackpack)
-				if(slotInfo.artifact->getTypeId() == elem.first)
+				if(slotInfo.getArt()->getTypeId() == elem.first)
 				{
 					artCnt++;
 				}
-				else if(slotInfo.artifact->isCombined())
+				else if(slotInfo.getArt()->isCombined())
 				{
-					for(const auto & partInfo : slotInfo.artifact->getPartsInfo())
-						if(partInfo.art->getTypeId() == elem.first)
+					for(const auto & partInfo : slotInfo.getArt()->getPartsInfo())
+						if(partInfo.getArtifact()->getTypeId() == elem.first)
 							artCnt++;
 				}
 
@@ -233,7 +261,7 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 		comps.emplace_back(ComponentType::SPELL, entry);
 
 	for(const auto & entry : creatures)
-		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.count);
+		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.getCount());
 	
 	for(const auto & entry : players)
 		comps.emplace_back(ComponentType::FLAG, entry);

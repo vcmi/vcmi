@@ -17,7 +17,6 @@
 #include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
@@ -27,8 +26,6 @@
 #include "../render/CanvasImage.h"
 
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff

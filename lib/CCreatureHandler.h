@@ -56,6 +56,7 @@ class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
 public:
 	std::string getDescriptionTranslated() const;
 	std::string getDescriptionTextID() const;
+	std::string getBonusTextID(const std::string & bonusID) const;
 
 	ui32 ammMin; // initial size of stack of these creatures on adventure map (if not set in editor)
 	ui32 ammMax;
@@ -163,21 +164,19 @@ public:
 	static CCreature::CreatureQuantityId getQuantityID(const int & quantity);
 	static std::string getQuantityRangeStringForId(const CCreature::CreatureQuantityId & quantityId);
 	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
-	bool isMyUpgrade(const CCreature *anotherCre) const;
+
+	/// Returns true if this creature can be directly upgraded to target
+	bool isMyDirectUpgrade(const CCreature * target) const;
+
+	/// Returns true if this creature can be upgraded to target
+	/// Performs full search through potential upgrades of upgrades
+	bool isMyDirectOrIndirectUpgrade(const CCreature *target) const;
 
 	void addBonus(int val, BonusType type);
 	void addBonus(int val, BonusType type, BonusSubtypeID subtype);
 	std::string nodeName() const override;
 
-	template<typename RanGen>
-	int getRandomAmount(RanGen ranGen) const
-	{
-		if(ammMax == ammMin)
-			return ammMax;
-		else
-			return ammMin + (ranGen() % (ammMax - ammMin));
-	}
-
+	int getRandomAmount(vstd::RNG & ranGen) const;
 	void updateFrom(const JsonNode & data);
 	void serializeJson(JsonSerializeFormat & handler);
 
@@ -225,7 +224,6 @@ public:
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
-	CreatureID pickRandomMonster(vstd::RNG & rand, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 
 	CCreatureHandler();
 	~CCreatureHandler();
@@ -239,6 +237,8 @@ public:
 	void afterLoadFinalization() override;
 
 	std::vector<JsonNode> loadLegacyData() override;
+
+	std::set<CreatureID> getDefaultAllowed() const;
 
 };
 

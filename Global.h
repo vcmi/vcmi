@@ -85,6 +85,9 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #  ifndef NOMINMAX
 #    define NOMINMAX				 // Exclude min/max macros from <Windows.h>. Use std::[min/max] from <algorithm> instead.
 #  endif
+#  ifndef NOGDI
+#    define NOGDI
+#  endif
 #  ifndef _NO_W32_PSEUDO_MODIFIERS
 #    define _NO_W32_PSEUDO_MODIFIERS // Exclude more macros for compiling with MinGW on Linux.
 #  endif
@@ -246,8 +249,6 @@ using TLockGuardRec = std::lock_guard<std::recursive_mutex>;
 #else
 #  define DLL_LINKAGE DLL_IMPORT
 #endif
-
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
 // old iOS SDKs compatibility
 #ifdef VCMI_IOS
@@ -467,14 +468,6 @@ namespace vstd
 		}
 	};
 
-	//deleted pointer and sets it to nullptr
-	template <typename T>
-	void clear_pointer(T* &ptr)
-	{
-		delete ptr;
-		ptr = nullptr;
-	}
-
 	template <typename Container>
 	typename Container::const_reference circularAt(const Container &r, size_t index)
 	{
@@ -574,7 +567,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
-	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744
@@ -589,7 +582,7 @@ namespace vstd
 
 	//Returns iterator to the element for which the value of ValueFunction is maximal
 	template<class ForwardRange, class ValueFunction>
-	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(std::begin(rng))
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf)
 	{
 		/* Clang crashes when instantiating this function template and having PCH compilation enabled.
 		 * There is a bug report here: http://llvm.org/bugs/show_bug.cgi?id=18744

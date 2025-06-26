@@ -23,10 +23,10 @@ public:
 
 	MetaString message;
 
-	void initObj(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -34,7 +34,7 @@ public:
 		h & message;
 	}
 protected:
-	void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
 	
 	virtual void init();
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -59,14 +59,14 @@ public:
 		h & humanActivate;
 	}
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 protected:
-	void grantRewardWithMessage(const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
 	
 	void init() override;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 private:
-	void activated(const CGHeroInstance * h) const;
+	void activated(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 };
 
 VCMI_LIB_NAMESPACE_END

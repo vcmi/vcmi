@@ -45,8 +45,6 @@
 #include "../Client.h"
 #include "../CMT.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -422,22 +420,6 @@ void CMainMenu::openCampaignScreen(std::string name)
 	if(!vstd::contains(config.Struct(), name))
 	{
 		logGlobal->error("Unknown campaign set: %s", name);
-		return;
-	}
-
-	bool campaignsFound = true;
-	for (auto const & entry : config[name]["items"].Vector())
-	{
-		ResourcePath resourceID(entry["file"].String(), EResType::CAMPAIGN);
-		if(entry["optional"].Bool())
-			continue;
-		if(!CResourceHandler::get()->existsResource(resourceID))
-			campaignsFound = false;
-	}
-
-	if (!campaignsFound)
-	{
-		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 		return;
 	}
 

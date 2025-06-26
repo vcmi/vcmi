@@ -29,11 +29,11 @@ int GatherTroops::getCreaturesCount(const CArmedInstance * army)
 {
 	int count = 0;
 
-	for(auto stack : army->Slots())
+	for(const auto & stack : army->Slots())
 	{
 		if(objid == stack.second->getCreatureID().num)
 		{
-			count += stack.second->count;
+			count += stack.second->getCount();
 		}
 	}
 
@@ -44,7 +44,7 @@ TSubgoal GatherTroops::whatToDoToAchieve()
 {
 	logAi->trace("Entering GatherTroops::whatToDoToAchieve");
 
-	auto heroes = cb->getHeroesInfo(true);
+	auto heroes = cb->getHeroesInfo();
 
 	for(auto hero : heroes)
 	{
@@ -75,9 +75,9 @@ TGoalVec GatherTroops::getAllPossibleSubgoals()
 
 		if(count >= this->value)
 		{
-			if(t->visitingHero)
+			if(t->getVisitingHero())
 			{
-				solutions.push_back(sptr(VisitObj(t->id.getNum()).sethero(t->visitingHero.get())));
+				solutions.push_back(sptr(VisitObj(t->id.getNum()).sethero(t->getVisitingHero())));
 			}
 			else
 			{

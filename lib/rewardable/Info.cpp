@@ -15,9 +15,10 @@
 #include "Limiter.h"
 #include "Reward.h"
 
+#include "../callback/IGameRandomizer.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
+#include "../GameLibrary.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
 
@@ -108,14 +109,14 @@ void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & o
 	loadString(parameters["onGuardedMessage"], TextIdentifier(objectName, "onGuarded"));
 }
 
-Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
+Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, const JsonNode & source) const
 {
 	Rewardable::LimitersList result;
 	for (const auto & input : source.Vector())
 	{
 		auto newLimiter = std::make_shared<Rewardable::Limiter>();
 
-		configureLimiter(object, rng, cb, *newLimiter, input);
+		configureLimiter(object, gameRandomizer, cb, *newLimiter, input);
 
 		result.push_back(newLimiter);
 	}
@@ -123,69 +124,81 @@ Rewardable::LimitersList Rewardable::Info::configureSublimiters(Rewardable::Conf
 	return result;
 }
 
-void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
+void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
-	JsonRandom randomizer(cb);
+	JsonRandom randomizer(cb, gameRandomizer);
 
-	limiter.dayOfWeek = randomizer.loadValue(source["dayOfWeek"], rng, variables);
-	limiter.daysPassed = randomizer.loadValue(source["daysPassed"], rng, variables);
-	limiter.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
-	limiter.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
+	limiter.dayOfWeek = randomizer.loadValue(source["dayOfWeek"], variables);
+	limiter.daysPassed = randomizer.loadValue(source["daysPassed"], variables);
+	limiter.heroExperience = randomizer.loadValue(source["heroExperience"], variables);
+	limiter.heroLevel = randomizer.loadValue(source["heroLevel"], variables);
 	limiter.canLearnSkills = source["canLearnSkills"].Bool();
+	limiter.commanderAlive = source["commanderAlive"].Bool();
+	limiter.hasExtraCreatures = source["hasExtraCreatures"].Bool();
 
-	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables);
-	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], rng, variables);
+	limiter.manaPercentage = randomizer.loadValue(source["manaPercentage"], variables);
+	limiter.manaPoints = randomizer.loadValue(source["manaPoints"], variables);
 
-	limiter.resources = randomizer.loadResources(source["resources"], rng, variables);
+	limiter.resources = randomizer.loadResources(source["resources"], variables);
 
-	limiter.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
-	limiter.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
-	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
-	limiter.spells  = randomizer.loadSpells(source["spells"], rng, variables);
-	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], rng, variables);
-	limiter.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
+	limiter.primary = randomizer.loadPrimaries(source["primary"], variables);
+	limiter.secondary = randomizer.loadSecondaries(source["secondary"], variables);
+	limiter.artifacts = randomizer.loadArtifacts(source["artifacts"], variables);
+	limiter.availableSlots = randomizer.loadArtifactSlots(source["availableSlots"], variables);
+	limiter.spells  = randomizer.loadSpells(source["spells"], variables);
+	limiter.scrolls  = randomizer.loadSpells(source["scrolls"], variables);
+	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], variables);
+	limiter.creatures = randomizer.loadCreatures(source["creatures"], variables);
+	limiter.canReceiveCreatures = randomizer.loadCreatures(source["canReceiveCreatures"], variables);
 	
-	limiter.players = randomizer.loadColors(source["colors"], rng, variables);
-	limiter.heroes = randomizer.loadHeroes(source["heroes"], rng);
-	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"], rng);
+	limiter.players = randomizer.loadColors(source["colors"], variables);
+	limiter.heroes = randomizer.loadHeroes(source["heroes"]);
+	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"]);
 
-	limiter.allOf  = configureSublimiters(object, rng, cb, source["allOf"] );
-	limiter.anyOf  = configureSublimiters(object, rng, cb, source["anyOf"] );
-	limiter.noneOf = configureSublimiters(object, rng, cb, source["noneOf"] );
+	limiter.allOf  = configureSublimiters(object, gameRandomizer, cb, source["allOf"]);
+	limiter.anyOf  = configureSublimiters(object, gameRandomizer, cb, source["anyOf"]);
+	limiter.noneOf = configureSublimiters(object, gameRandomizer, cb, source["noneOf"]);
 }
 
-void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
+void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & reward, const JsonNode & source) const
 {
 	auto const & variables = object.variables.values;
-	JsonRandom randomizer(cb);
+	JsonRandom randomizer(cb, gameRandomizer);
 
-	reward.resources = randomizer.loadResources(source["resources"], rng, variables);
+	reward.resources = randomizer.loadResources(source["resources"], variables);
 
-	reward.heroExperience = randomizer.loadValue(source["heroExperience"], rng, variables);
-	reward.heroLevel = randomizer.loadValue(source["heroLevel"], rng, variables);
+	reward.heroExperience = randomizer.loadValue(source["heroExperience"], variables);
+	reward.heroLevel = randomizer.loadValue(source["heroLevel"], variables);
 
-	reward.manaDiff = randomizer.loadValue(source["manaPoints"], rng, variables);
-	reward.manaOverflowFactor = randomizer.loadValue(source["manaOverflowFactor"], rng, variables);
-	reward.manaPercentage = randomizer.loadValue(source["manaPercentage"], rng, variables, -1);
+	reward.manaDiff = randomizer.loadValue(source["manaPoints"], variables);
+	reward.manaOverflowFactor = randomizer.loadValue(source["manaOverflowFactor"], variables);
+	reward.manaPercentage = randomizer.loadValue(source["manaPercentage"], variables, -1);
 
-	reward.movePoints = randomizer.loadValue(source["movePoints"], rng, variables);
-	reward.movePercentage = randomizer.loadValue(source["movePercentage"], rng, variables, -1);
+	reward.movePoints = randomizer.loadValue(source["movePoints"], variables);
+	reward.movePercentage = randomizer.loadValue(source["movePercentage"], variables, -1);
 
 	reward.removeObject = source["removeObject"].Bool();
-	reward.bonuses = randomizer.loadBonuses(source["bonuses"]);
+	reward.heroBonuses = randomizer.loadBonuses(source["bonuses"]);
+	reward.commanderBonuses = randomizer.loadBonuses(source["commanderBonuses"]);
+	reward.playerBonuses = randomizer.loadBonuses(source["playerBonuses"]);
 
-	reward.guards = randomizer.loadCreatures(source["guards"], rng, variables);
+	reward.guards = randomizer.loadCreatures(source["guards"], variables);
 
-	reward.primary = randomizer.loadPrimaries(source["primary"], rng, variables);
-	reward.secondary = randomizer.loadSecondaries(source["secondary"], rng, variables);
+	reward.primary = randomizer.loadPrimaries(source["primary"], variables);
+	reward.secondary = randomizer.loadSecondaries(source["secondary"], variables);
 
-	reward.artifacts = randomizer.loadArtifacts(source["artifacts"], rng, variables);
-	reward.spells = randomizer.loadSpells(source["spells"], rng, variables);
-	reward.creatures = randomizer.loadCreatures(source["creatures"], rng, variables);
+	reward.grantedArtifacts = randomizer.loadArtifacts(source["artifacts"], variables);
+	reward.takenArtifacts = randomizer.loadArtifacts(source["takenArtifacts"], variables);
+	reward.takenArtifactSlots = randomizer.loadArtifactSlots(source["takenArtifactSlots"], variables);
+	reward.grantedScrolls = randomizer.loadSpells(source["scrolls"], variables);
+	reward.takenScrolls = randomizer.loadSpells(source["takenScrolls"], variables);
+	reward.spells = randomizer.loadSpells(source["spells"], variables);
+	reward.creatures = randomizer.loadCreatures(source["creatures"], variables);
+	reward.takenCreatures = randomizer.loadCreatures(source["takenCreatures"], variables);
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
-		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], rng, variables);
+		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], variables);
 		reward.spellCast.second = source["spellCast"]["schoolLevel"].Integer();
 	}
 
@@ -194,13 +207,13 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 		auto const & entry = source["revealTiles"];
 
 		reward.revealTiles = RewardRevealTiles();
-		reward.revealTiles->radius = randomizer.loadValue(entry["radius"], rng, variables);
+		reward.revealTiles->radius = randomizer.loadValue(entry["radius"], variables);
 		reward.revealTiles->hide = entry["hide"].Bool();
 
-		reward.revealTiles->scoreSurface = randomizer.loadValue(entry["surface"], rng, variables);
-		reward.revealTiles->scoreSubterra = randomizer.loadValue(entry["subterra"], rng, variables);
-		reward.revealTiles->scoreWater = randomizer.loadValue(entry["water"], rng, variables);
-		reward.revealTiles->scoreRock = randomizer.loadValue(entry["rock"], rng, variables);
+		reward.revealTiles->scoreSurface = randomizer.loadValue(entry["surface"], variables);
+		reward.revealTiles->scoreSubterra = randomizer.loadValue(entry["subterra"], variables);
+		reward.revealTiles->scoreWater = randomizer.loadValue(entry["water"], variables);
+		reward.revealTiles->scoreRock = randomizer.loadValue(entry["rock"], variables);
 	}
 
 	for ( auto node : source["changeCreatures"].Struct() )
@@ -214,16 +227,16 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, vstd:
 	}
 }
 
-void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, vstd::RNG & rng, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
+void Rewardable::Info::configureResetInfo(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, Rewardable::ResetInfo & resetParameters, const JsonNode & source) const
 {
 	resetParameters.period   = static_cast<ui32>(source["period"].Float());
 	resetParameters.visitors = source["visitors"].Bool();
 	resetParameters.rewards  = source["rewards"].Bool();
 }
 
-void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb, const JsonNode & source) const
+void Rewardable::Info::configureVariables(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, const JsonNode & source) const
 {
-	JsonRandom randomizer(cb);
+	JsonRandom randomizer(cb, gameRandomizer);
 
 	for(const auto & category : source.Struct())
 	{
@@ -234,19 +247,19 @@ void Rewardable::Info::configureVariables(Rewardable::Configuration & object, vs
 			int32_t value = -1;
 
 			if (category.first == "number")
-				value = randomizer.loadValue(input, rng, object.variables.values);
+				value = randomizer.loadValue(input, object.variables.values);
 
 			if (category.first == "artifact")
-				value = randomizer.loadArtifact(input, rng, object.variables.values).getNum();
+				value = randomizer.loadArtifact(input, object.variables.values).getNum();
 
 			if (category.first == "spell")
-				value = randomizer.loadSpell(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSpell(input, object.variables.values).getNum();
 
 			if (category.first == "primarySkill")
-				value = randomizer.loadPrimary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadPrimary(input, object.variables.values).getNum();
 
 			if (category.first == "secondarySkill")
-				value = randomizer.loadSecondary(input, rng, object.variables.values).getNum();
+				value = randomizer.loadSecondary(input, object.variables.values).getNum();
 
 			object.initVariable(category.first, entry.first, value);
 		}
@@ -292,10 +305,16 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 			}
 		}
 
-		for (const auto & artifact : info.reward.artifacts )
+		for (const auto & artifact : info.reward.grantedArtifacts )
 		{
 			loot.appendRawString("%s");
 			loot.replaceName(artifact);
+		}
+
+		for (const auto & scroll : info.reward.grantedScrolls )
+		{
+			loot.appendRawString("%s");
+			loot.replaceName(scroll);
 		}
 
 		for (const auto & spell : info.reward.spells )
@@ -314,8 +333,11 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 	}
 	else
 	{
-		for (const auto & artifact : info.reward.artifacts )
+		for (const auto & artifact : info.reward.grantedArtifacts )
 			target.replaceName(artifact);
+
+		for (const auto & scroll : info.reward.grantedScrolls )
+			target.replaceName(scroll);
 
 		for (const auto & spell : info.reward.spells )
 			target.replaceName(spell);
@@ -329,8 +351,8 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 void Rewardable::Info::configureRewards(
 		Rewardable::Configuration & object,
-		vstd::RNG & rng,
-		IGameCallback * cb,
+		IGameRandomizer & gameRandomizer,
+		IGameInfoCallback * cb,
 		const JsonNode & source,
 		Rewardable::EEventType event,
 		const std::string & modeName) const
@@ -350,7 +372,7 @@ void Rewardable::Info::configureRewards(
 			{
 				const JsonNode & preset = object.getPresetVariable("dice", diceID);
 				if (preset.isNull())
-					object.initVariable("dice", diceID, rng.nextInt(0, 99));
+					object.initVariable("dice", diceID, gameRandomizer.getDefault().nextInt(0, 99));
 				else
 					object.initVariable("dice", diceID, preset.Integer());
 
@@ -373,8 +395,8 @@ void Rewardable::Info::configureRewards(
 		}
 
 		Rewardable::VisitInfo info;
-		configureLimiter(object, rng, cb, info.limiter, reward["limiter"]);
-		configureReward(object, rng, cb, info.reward, reward);
+		configureLimiter(object, gameRandomizer, cb, info.limiter, reward["limiter"]);
+		configureReward(object, gameRandomizer, cb, info.reward, reward);
 
 		info.visitType = event;
 		info.message = loadMessage(reward["message"], TextIdentifier(objectTextID, modeName, i));
@@ -387,16 +409,16 @@ void Rewardable::Info::configureRewards(
 	}
 }
 
-void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd::RNG & rng, IGameCallback * cb) const
+void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb) const
 {
 	object.info.clear();
 	object.variables.values.clear();
 
-	configureVariables(object, rng, cb, parameters["variables"]);
+	configureVariables(object, gameRandomizer, cb, parameters["variables"]);
 
-	configureRewards(object, rng, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
-	configureRewards(object, rng, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
-	configureRewards(object, rng, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
+	configureRewards(object, gameRandomizer, cb, parameters["rewards"], Rewardable::EEventType::EVENT_FIRST_VISIT, "rewards");
+	configureRewards(object, gameRandomizer, cb, parameters["onVisited"], Rewardable::EEventType::EVENT_ALREADY_VISITED, "onVisited");
+	configureRewards(object, gameRandomizer, cb, parameters["onEmpty"], Rewardable::EEventType::EVENT_NOT_AVAILABLE, "onEmpty");
 
 	object.onSelect = loadMessage(parameters["onSelectMessage"], TextIdentifier(objectTextID, "onSelect"));
 	object.description = loadMessage(parameters["description"], TextIdentifier(objectTextID, "description"));
@@ -439,10 +461,11 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 		object.info.push_back(onGuarded);
 	}
 
-	configureResetInfo(object, rng, object.resetParameters, parameters["resetParameters"]);
+	configureResetInfo(object, gameRandomizer, object.resetParameters, parameters["resetParameters"]);
 
 	object.canRefuse = parameters["canRefuse"].Bool();
 	object.showScoutedPreview = parameters["showScoutedPreview"].Bool();
+	object.forceCombat = parameters["forceCombat"].Bool();
 	object.guardsLayout = parameters["guardsLayout"].String();
 	object.coastVisitable = parameters["coastVisitable"].Bool();
 
@@ -456,7 +479,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 	{
 		if(Rewardable::VisitModeString[i] == visitMode)
 		{
-			object.visitMode = i;
+			object.visitMode = static_cast<EVisitMode>(i);
 			break;
 		}
 	}
@@ -466,13 +489,13 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, vstd:
 	{
 		if(Rewardable::SelectModeString[i] == selectMode)
 		{
-			object.selectMode = i;
+			object.selectMode = static_cast<ESelectMode>(i);
 			break;
 		}
 	}
 
 	if (object.visitMode == Rewardable::VISIT_LIMITER)
-		configureLimiter(object, rng, cb, object.visitLimiter, parameters["visitLimiter"]);
+		configureLimiter(object, gameRandomizer, cb, object.visitLimiter, parameters["visitLimiter"]);
 
 }
 

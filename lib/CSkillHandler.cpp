@@ -9,22 +9,19 @@
  */
 
 #include "StdInc.h"
+#include "CSkillHandler.h"
 
 #include <cctype>
 
-#include "CSkillHandler.h"
-
+#include "GameLibrary.h"
+#include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
 #include "filesystem/Filesystem.h"
-#include "json/JsonBonus.h"
-#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
-#include "modding/ModUtility.h"
-#include "modding/ModScope.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "texts/TextOperations.h"
-#include "GameLibrary.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -109,8 +106,11 @@ void CSkill::addNewBonus(const std::shared_ptr<Bonus> & b, int level)
 	b->source = BonusSource::SECONDARY_SKILL;
 	b->sid = BonusSourceID(id);
 	b->duration = BonusDuration::PERMANENT;
-	b->description.appendTextID(getNameTextID());
-	b->description.appendRawString(" %+d");
+	if (b->description.empty() && (b->type == BonusType::LUCK || b->type == BonusType::MORALE))
+	{
+		b->description.appendTextID(getNameTextID());
+		b->description.appendRawString(" %+d");
+	}
 	levels[level-1].effects.push_back(b);
 }
 
@@ -249,6 +249,27 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
+		if (!levelNode["images"]["scenarioBonus"].isNull())
+			skillAtLevel.scenarioBonus = levelNode["images"]["scenarioBonus"].String();
+		else
+			skillAtLevel.scenarioBonus = skillAtLevel.iconMedium; // MOD COMPATIBILITY fallback for pre-1.7 mods
+	}
+
+	for(const auto & b : json["specialty"].Vector())
+	{
+		const auto & bonusNode = json["basic"]["effects"][b.String()];
+
+		if (bonusNode.isStruct())
+		{
+			auto bonus = JsonUtils::parseBonus(bonusNode);
+			bonus->val = 0; // set by HeroHandler on specialty load
+			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
+			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
+			skill->specialtyTargetBonuses.push_back(bonus);
+		}
+		else
+			logMod->warn("Failed to load speciality bonus '%s' for skill '%s'", b.String(), identifier);
 	}
 	logMod->debug("loaded secondary skill %s(%d)", identifier, skill->id.getNum());
 

@@ -10,13 +10,14 @@
 #pragma once
 
 #include "CGPathNode.h"
-#include "../IGameCallback.h"
-#include "../bonuses/BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class IGameInfoCallback;
+class PathfinderConfig;
 class CGWhirlpool;
 class TurnInfo;
+class CGTeleport;
 struct PathfinderOptions;
 
 // Optimized storage - tile can have 0-8 neighbour tiles
@@ -33,13 +34,13 @@ public:
 	friend class CPathfinderHelper;
 
 	CPathfinder(
-		CGameState * _gs,
+		const IGameInfoCallback & gameInfo,
 		std::shared_ptr<PathfinderConfig> config);
 
 	void calculatePaths(); //calculates possible paths for hero, uses current hero position and movement left; returns pointer to newly allocated CPath or nullptr if path does not exists
 
 private:
-	CGameState * gamestate;
+	const IGameInfoCallback & gameInfo;
 
 	using ELayer = EPathfindingLayer;
 
@@ -64,11 +65,12 @@ private:
 	CGPathNode * topAndPop();
 };
 
-class DLL_LINKAGE CPathfinderHelper : private CGameInfoCallback
+class DLL_LINKAGE CPathfinderHelper : boost::noncopyable
 {
 	/// returns base movement cost for movement between specific tiles. Does not accounts for diagonal movement or last tile exception
 	ui32 getTileMovementCost(const TerrainTile & dest, const TerrainTile & from, const TurnInfo * ti) const;
 
+	const IGameInfoCallback & gameInfo;
 public:
 	enum EPatrolState
 	{
@@ -87,7 +89,7 @@ public:
 	bool canCastWaterWalk;
 	bool whirlpoolProtection;
 
-	CPathfinderHelper(CGameState * gs, const CGHeroInstance * Hero, const PathfinderOptions & Options);
+	CPathfinderHelper(const IGameInfoCallback & gameInfo, const CGHeroInstance * Hero, const PathfinderOptions & Options);
 	virtual ~CPathfinderHelper();
 	void initializePatrol();
 	bool isHeroPatrolLocked() const;

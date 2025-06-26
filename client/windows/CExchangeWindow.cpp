@@ -27,9 +27,9 @@
 
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
-
 #include "../lib/CSkillHandler.h"
+#include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -62,8 +62,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		return boost::str(fmt);
 	};
 
-	titles[0] = std::make_shared<CLabel>(147, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
-	titles[1] = std::make_shared<CLabel>(653, 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[1]));
+	titles[0] = std::make_shared<CLabel>(147, qeLayout ? 21 : 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[0]));
+	titles[1] = std::make_shared<CLabel>(653, qeLayout ? 21 : 25, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
 	for(int g = 0; g < 4; ++g)
 	{
@@ -81,8 +81,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 			primSkillValues[leftRight].push_back(std::make_shared<CLabel>(352 + (qeLayout ? 96 : 93) * leftRight, (qeLayout ? 22 : 35) + (qeLayout ? 26 : 36) * m, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE));
 
 
-		for(int m=0; m < hero->secSkills.size(); ++m)
-			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), CSecSkillPlace::ImageSize::SMALL,
+		for(int m=0; m < std::min(static_cast<int>(hero->secSkills.size()), 8); ++m)
+			secSkills[leftRight].push_back(std::make_shared<CSecSkillPlace>(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 80 : 88), CSecSkillPlace::ImageSize::SMALL,
 				hero->secSkills[m].first, hero->secSkills[m].second));
 
 		specImages[leftRight] = std::make_shared<CAnimImage>(AnimationPath::builtin("UN32"), hero->getHeroType()->imageIndex, 0, 67 + 490 * leftRight, qeLayout ? 41 : 45);
@@ -127,7 +127,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	{
 		const CGHeroInstance * hero = heroInst.at(b);
 
-		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228 * b, 13, hero);
+		heroAreas[b] = std::make_shared<CHeroArea>(257 + 228 * b + (qeLayout ? 1 : 0), qeLayout ? 10 : 13, hero);
 		heroAreas[b]->addClickCallback([this, hero]() -> void
 									   {
 										   if(getPickedArtifact() == nullptr)
@@ -163,7 +163,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(queryID.getNum() > 0)
 		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, queryID); });
 
-	questlogButton[0] = std::make_shared<CButton>(Point( 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->heroscrn[0]), std::bind(&CExchangeWindow::questLogShortcut, this));
 
 	Rect barRect(5, 578, 725, 18);
@@ -171,7 +171,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 	//garrison interface
 
-	garr = std::make_shared<CGarrisonInt>(Point(69, qeLayout ? 122 : 131), 4, Point(418,0), heroInst[0], heroInst[1], true, true);
+	garr = std::make_shared<CGarrisonInt>(Point(69, qeLayout ? 120 : 131), 4, Point(418,0), heroInst[0], heroInst[1], true, true);
 	auto splitButtonCallback = [&](){ garr->splitClick(); };
 	garr->addSplitBtn(std::make_shared<CButton>( Point( 10, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3]), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
 	garr->addSplitBtn(std::make_shared<CButton>( Point(744, qeLayout ? 122 : 132), AnimationPath::builtin("TSBTNS.DEF"), CButton::tooltip(LIBRARY->generaltexth->tcommands[3]), splitButtonCallback, EShortcut::HERO_ARMY_SPLIT));
@@ -245,7 +245,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		{
 			moveUnitFromRightToLeftButtons.push_back(
 				std::make_shared<CButton>(
-					Point(484 + 35 * i, 154),
+					Point(483 + 36 * i, 155),
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(false, SlotID(i)); }));
@@ -253,7 +253,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 
 			moveUnitFromLeftToRightButtons.push_back(
 				std::make_shared<CButton>(
-					Point(66 + 35 * i, 154),
+					Point(65 + 36 * i, 155),
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(true, SlotID(i)); }));
@@ -377,6 +377,10 @@ void CExchangeWindow::questLogShortcut()
 
 void CExchangeWindow::update()
 {
+	const bool qeLayout = isQuickExchangeLayoutAvailable();
+
+	OBJECT_CONSTRUCTION;
+
 	CWindowWithArtifacts::update();
 
 	for(size_t leftRight : {0, 1})
@@ -389,8 +393,27 @@ void CExchangeWindow::update()
 			primSkillValues[leftRight][m]->setText(std::to_string(value));
 		}
 
-		for(int m=0; m < hero->secSkills.size(); ++m)
+		int slots = 8;
+		bool isMoreSkillsThanSlots = hero->secSkills.size() > slots;
+		for(int m=0; m < std::min(static_cast<int>(hero->secSkills.size()), 8); ++m)
 		{
+			if(m == slots - 1)
+			{
+				if(isMoreSkillsThanSlots)
+				{
+					Rect r(Point(32 + 36 * m + 454 * leftRight, qeLayout ? 83 : 88), Point(34, 28));
+					secSkillsFull[leftRight] = std::make_shared<CMultiLineLabel>(r, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+					secSkillsFullArea[leftRight] = std::make_shared<LRClickableAreaWText>(r, LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.hover"), LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.help"));
+					secSkills[leftRight][m]->setSkill(SecondarySkill::NONE);
+					continue;
+				}
+				else
+				{
+					secSkillsFull[leftRight].reset();
+					secSkillsFullArea[leftRight].reset();
+				}
+			}
+
 			int id = hero->secSkills[m].first;
 			int level = hero->secSkills[m].second;
 

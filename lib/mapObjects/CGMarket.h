@@ -11,7 +11,6 @@
 
 #include "CGObjectInstance.h"
 #include "IMarket.h"
-#include "../CArtHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,10 +22,10 @@ protected:
 	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
 
 public:
-	CGMarket(IGameCallback *cb);
+	CGMarket(IGameInfoCallback *cb);
 	///IObjectInterface
-	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
-	void initObj(vstd::RNG & rand) override;//set skills for trade
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open trading window
+	void initObj(IGameRandomizer & gameRandomizer) override;//set skills for trade
 
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
@@ -45,7 +44,7 @@ public:
 
 	std::vector<ArtifactID> artifacts; //available artifacts
 
-	void newTurn(vstd::RNG & rand) const override; //reset artifacts for black market every month
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override; //reset artifacts for black market every month
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -65,7 +64,7 @@ public:
 	std::vector<TradeItemBuy> skills; //available skills
 
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
-	void onHeroVisit(const CGHeroInstance * h) const override; //open window
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open window
 
 	template <typename Handler> void serialize(Handler &h)
 	{

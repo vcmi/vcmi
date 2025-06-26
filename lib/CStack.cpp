@@ -17,6 +17,7 @@
 
 #include "texts/CGeneralTextHandler.h"
 #include "battle/BattleInfo.h"
+#include "GameLibrary.h"
 #include "spells/CSpellHandler.h"
 #include "networkPacks/PacksForClientBattle.h"
 
@@ -29,7 +30,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, Battle
 	base(Base),
 	ID(I),
 	typeID(Base->getId()),
-	baseAmount(Base->count),
+	baseAmount(Base->getCount()),
 	owner(O),
 	slot(S),
 	side(Side)
@@ -50,7 +51,7 @@ CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I
 	CBonusSystemNode(STACK_BATTLE),
 	ID(I),
 	typeID(stack->getId()),
-	baseAmount(stack->count),
+	baseAmount(stack->getCount()),
 	owner(O),
 	slot(S),
 	side(Side)
@@ -76,7 +77,6 @@ void CStack::localInit(BattleInfo * battleInfo)
 		attachTo(*army);
 		attachToSource(*typeID.toCreature());
 	}
-	nativeTerrain = getNativeTerrain(); //save nativeTerrain in the variable on the battle start to avoid dead lock
 	CUnitState::localInit(this); //it causes execution of the CStack::isOnNativeTerrain where nativeTerrain will be considered
 	position = initialPosition;
 }
@@ -152,7 +152,7 @@ CStack::~CStack()
 const CGHeroInstance * CStack::getMyHero() const
 {
 	if(base)
-		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
+		return dynamic_cast<const CGHeroInstance *>(base->getArmy());
 	else //we are attached directly?
 		for(const CBonusSystemNode * n : getParentNodes())
 			if(n->getNodeType() == HERO)
@@ -172,8 +172,8 @@ std::string CStack::nodeName() const
 		oss << "[UNDEFINED TYPE]";
 
 	oss << " from slot " << slot;
-	if(base && base->armyObj)
-		oss << " of armyobj=" << base->armyObj->id.getNum();
+	if(base && base->getArmy())
+		oss << " of armyobj=" << base->getArmy()->id.getNum();
 	return oss.str();
 }
 
@@ -316,14 +316,13 @@ bool CStack::canBeHealed() const
 
 bool CStack::isOnNativeTerrain() const
 {
-	//this code is called from CreatureTerrainLimiter::limit on battle start
-	auto res = nativeTerrain == ETerrainId::ANY_TERRAIN || nativeTerrain == battle->getTerrainType();
-	return res;
+	auto nativeTerrain = getNativeTerrain();
+	return nativeTerrain == ETerrainId::ANY_TERRAIN || getCurrentTerrain() == nativeTerrain;
 }
 
-bool CStack::isOnTerrain(TerrainId terrain) const
+TerrainId CStack::getCurrentTerrain() const
 {
-	return battle->getTerrainType() == terrain;
+	return battle->getTerrainType();
 }
 
 const CCreature * CStack::unitType() const
@@ -343,9 +342,9 @@ const IBonusBearer* CStack::getBonusBearer() const
 
 bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 {
-	for(const CStack * st : battle->stacks)
+	for(const auto & st : battle->stacks)
 	{
-		if(battle->battleMatchOwner(st, unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
+		if(battle->battleMatchOwner(st.get(), unit, true) && st->unitType()->getId() == CreatureID::AMMO_CART)
 		{
 			return st->alive();
 		}
@@ -354,7 +353,7 @@ bool CStack::unitHasAmmoCart(const battle::Unit * unit) const
 	const auto * ownerHero = battle->battleGetOwnerHero(unit);
 	if(ownerHero && ownerHero->artifactsWorn.find(ArtifactPosition::MACH2) != ownerHero->artifactsWorn.end())
 	{
-		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).artifact->getTypeId() == ArtifactID::AMMO_CART)
+		if(battle->battleGetOwnerHero(unit)->artifactsWorn.at(ArtifactPosition::MACH2).getArt()->getTypeId() == ArtifactID::AMMO_CART)
 		{
 			return true;
 		}
@@ -406,27 +405,26 @@ void CStack::spendMana(ServerCallback * server, const int spellCost) const
 	server->apply(ssp);
 }
 
-void CStack::postDeserialize(const CArmedInstance * army, const SlotID & extSlot)
+void CStack::postDeserialize(const CArmedInstance * army)
 {
-	if(extSlot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
+	if(slot == SlotID::COMMANDER_SLOT_PLACEHOLDER)
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(army);
 		assert(hero);
-		base = hero->commander;
+		base = hero->getCommander();
 	}
 	else if(slot == SlotID::SUMMONED_SLOT_PLACEHOLDER || slot == SlotID::ARROW_TOWERS_SLOT || slot == SlotID::WAR_MACHINES_SLOT)
 	{
 		//no external slot possible, so no base stack
 		base = nullptr;
 	}
-	else if(!army || extSlot == SlotID() || !army->hasStackAtSlot(extSlot))
+	else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 	{
-		base = nullptr;
-		logGlobal->warn("%s doesn't have a base stack!", typeID.toEntity(LIBRARY)->getNameSingularTranslated());
+		throw std::runtime_error(typeID.toEntity(LIBRARY)->getNameSingularTranslated() + " doesn't have a base stack!");
 	}
 	else
 	{
-		base = &army->getStack(extSlot);
+		base = &army->getStack(slot);
 	}
 
 	doubleWideCached = battle::CUnitState::doubleWide();

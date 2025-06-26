@@ -85,6 +85,7 @@ struct StackAttackInfo
 	bool unlucky;
 	bool deathBlow;
 	bool lifeDrain;
+	bool playCustomAnimation;
 };
 
 /// Main class for battles, responsible for relaying information from server to various battle entities

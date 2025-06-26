@@ -246,7 +246,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	else
 		algorithm = EScalingAlgorithm::XBRZ_ALPHA;
 
-	auto result = std::make_shared<SDLImageShared>(this, factor, algorithm);
+	auto result = SDLImageShared::createScaled(this, factor, algorithm);
 
 	if (surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
@@ -254,26 +254,28 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	return result;
 }
 
-SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
+std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
 {
-	upscalingInProgress = true;
+	auto self = std::make_shared<SDLImageShared>(nullptr);
+	self->upscalingInProgress = true;
 
 	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
 
-	const auto & scalingTask = [this, algorithm, scaler]()
+	const auto & scalingTask = [self, algorithm, scaler]()
 	{
 		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
-		surf = scaler->acquireResultSurface();
-		fullSize = scaler->getResultDimensions().dimensions();
-		margins = scaler->getResultDimensions().topLeft();
-
-		upscalingInProgress = false;
+		self->surf = scaler->acquireResultSurface();
+		self->fullSize = scaler->getResultDimensions().dimensions();
+		self->margins = scaler->getResultDimensions().topLeft();
+		self->upscalingInProgress = false;
 	};
 
 	if(settings["video"]["asyncUpscaling"].Bool())
 		ENGINE->async().run(scalingTask);
 	else
 		scalingTask();
+
+	return self;
 }
 
 bool SDLImageShared::isLoading() const
@@ -361,9 +363,10 @@ Rect SDLImageShared::contentRect() const
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
-	auto tmpMargins = margins;
-	auto tmpSize = Point(surf->w, surf->h);
-	return Rect(tmpMargins, tmpSize);
+	if (!surf)
+		return Rect();
+
+	return Rect(margins, Point(surf->w, surf->h));
 }
 
 const SDL_Palette * SDLImageShared::getPalette() const
@@ -445,5 +448,6 @@ void SDLImageShared::savePalette()
 SDLImageShared::~SDLImageShared()
 {
 	SDL_FreeSurface(surf);
-	SDL_FreePalette(originalPalette);
+	if (originalPalette)
+		SDL_FreePalette(originalPalette);
 }

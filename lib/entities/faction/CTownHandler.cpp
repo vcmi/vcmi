@@ -38,19 +38,15 @@ const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Js
 
 CTownHandler::CTownHandler()
 	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
-	, randomTown(new CTown())
-	, randomFaction(new CFaction())
+	, randomFaction(std::make_unique<CFaction>())
 {
-	randomFaction->town = randomTown;
-	randomTown->faction = randomFaction;
+	randomFaction->town = std::make_unique<CTown>();
+	randomFaction->town->faction = randomFaction.get();
 	randomFaction->identifier = "random";
 	randomFaction->modScope = "core";
 }
 
-CTownHandler::~CTownHandler()
-{
-	delete randomFaction; // will also delete randomTown
-}
+CTownHandler::~CTownHandler() = default;
 
 JsonNode readBuilding(CLegacyConfigParser & parser)
 {
@@ -251,7 +247,8 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 		if(!JsonUtils::parseBonus(b, bonus.get()))
 			continue;
 
-		bonus->description.appendTextID(building->getNameTextID());
+		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))
+			bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
 		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
@@ -285,8 +282,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->mode = ret->bid == BuildingID::GRAIL
 		? CBuilding::BUILD_GRAIL
 		: vstd::find_or(CBuilding::MODES, source["mode"].String(), CBuilding::BUILD_NORMAL);
-
-	ret->height = vstd::find_or(CBuilding::TOWER_TYPES, source["height"].String(), CBuilding::HEIGHT_NO_TOWER);
 
 	ret->identifier = stringID;
 	ret->modScope = source.getModScope();
@@ -389,7 +384,23 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	for(const auto & element : source["marketModes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
-			ret->marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
+		{
+			auto mode = MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String());
+			ret->marketModes.insert(mode);
+
+			if (mode == EMarketMode::RESOURCE_SKILL)
+			{
+				const auto & items = source["marketOffer"].Vector();
+				ret->marketOffer.resize(items.size());
+				for (int i = 0; i < items.size(); ++i)
+				{
+					LIBRARY->identifiers()->requestIdentifier("secondarySkill", items[i], [ret, i](si32 identifier)
+					{
+						ret->marketOffer[i] = SecondarySkill(identifier);
+					});
+				}
+			}
+		}
 	}
 
 	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
@@ -439,6 +450,7 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->hiddenUpgrade = source["hidden"].Bool();
 	ret->defName = AnimationPath::fromJson(source["animation"]);
 	ret->borderName = ImagePath::fromJson(source["border"]);
+	ret->campaignBonus = ImagePath::fromJson(source["campaignBonus"]);
 	ret->areaName = ImagePath::fromJson(source["area"]);
 
 	town.clientInfo.structures.emplace_back(ret);
@@ -767,9 +779,9 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 
 	if (!source["town"].isNull())
 	{
-		faction->town = new CTown();
+		faction->town = std::make_unique<CTown>();
 		faction->town->faction = faction.get();
-		loadTown(faction->town, source["town"]);
+		loadTown(faction->town.get(), source["town"]);
 	}
 	else
 		faction->town = nullptr;
@@ -854,7 +866,7 @@ void CTownHandler::loadRandomFaction()
 {
 	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
 	randomFactionJson.setModScope(ModScope::scopeBuiltin(), true);
-	loadBuildings(randomTown, randomFactionJson["random"]["town"]["buildings"]);
+	loadBuildings(randomFaction->town.get(), randomFactionJson["random"]["town"]["buildings"]);
 }
 
 void CTownHandler::loadCustom()

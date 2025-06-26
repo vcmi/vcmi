@@ -17,6 +17,9 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -34,8 +37,7 @@
 
 CBattleAI::CBattleAI()
 	: side(BattleSide::NONE),
-	wasWaitingForRealize(false),
-	wasUnlockingGs(false)
+	wasWaitingForRealize(false)
 {
 }
 
@@ -45,7 +47,6 @@ CBattleAI::~CBattleAI()
 	{
 		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
 		cb->waitTillRealize = wasWaitingForRealize;
-		cb->unlockGsWhenWaiting = wasUnlockingGs;
 	}
 }
 
@@ -66,9 +67,7 @@ void CBattleAI::initBattleInterface(std::shared_ptr<Environment> ENV, std::share
 	cb = CB;
 	playerID = *CB->getPlayerID();
 	wasWaitingForRealize = CB->waitTillRealize;
-	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = false;
-	CB->unlockGsWhenWaiting = false;
 	movesSkippedByDefense = 0;
 
 	logHexNumbers();

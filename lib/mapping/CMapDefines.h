@@ -14,6 +14,7 @@
 #include "../texts/MetaString.h"
 #include "../GameLibrary.h"
 #include "../TerrainHandler.h"
+#include "../mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -96,8 +97,7 @@ struct DLL_LINKAGE TerrainTile
 	/// Checks for blocking objects and terraint type (water / land).
 	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
-	Obj topVisitableId(bool excludeTop = false) const;
-	CGObjectInstance * topVisitableObj(bool excludeTop = false) const;
+	ObjectInstanceID topVisitableObj(bool excludeTop = false) const;
 	inline bool isWater() const;
 	inline bool isLand() const;
 	EDiggingStatus getDiggingStatus(bool excludeTop = true) const;
@@ -127,8 +127,8 @@ struct DLL_LINKAGE TerrainTile
 	///	7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favorable Winds effect
 	ui8 extTileFlags;
 
-	std::vector<CGObjectInstance *> visitableObjects;
-	std::vector<CGObjectInstance *> blockingObjects;
+	std::vector<ObjectInstanceID> visitableObjects;
+	std::vector<ObjectInstanceID> blockingObjects;
 
 	template <typename Handler>
 	void serialize(Handler & h)
@@ -140,8 +140,24 @@ struct DLL_LINKAGE TerrainTile
 		h & roadType;
 		h & roadDir;
 		h & extTileFlags;
-		h & visitableObjects;
-		h & blockingObjects;
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & visitableObjects;
+			h & blockingObjects;
+		}
+		else
+		{
+			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				visitableObjects.push_back(ptr->id);
+			h & objectPtrs;
+			for (const auto & ptr : objectPtrs)
+				blockingObjects.push_back(ptr->id);
+		}
+
+
 	}
 };
 

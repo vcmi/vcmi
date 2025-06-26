@@ -52,7 +52,7 @@ public:
 		si32 mana, manaLimit, luck, morale;
 	};
 
-	Details * details = nullptr;
+	std::optional<Details> details;
 
 	const CHeroClass *hclass;
 	HeroTypeID portraitSource;
@@ -67,7 +67,6 @@ public:
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
 	InfoAboutHero(const CGHeroInstance *h, EInfoLevel infoLevel);
-	~InfoAboutHero();
 
 	InfoAboutHero & operator=(const InfoAboutHero & iah);
 
@@ -84,7 +83,9 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 		bool customRes;
 		bool garrisonedHero;
 
-	} *details;
+	};
+
+	std::optional<Details> details;
 
 	const CTown *tType;
 
@@ -93,7 +94,6 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 
 	InfoAboutTown();
 	InfoAboutTown(const CGTownInstance *t, bool detailed);
-	~InfoAboutTown();
 	void initFromTown(const CGTownInstance *t, bool detailed);
 };
 

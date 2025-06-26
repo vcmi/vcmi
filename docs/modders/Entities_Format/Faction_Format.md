@@ -66,6 +66,9 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 	// Faction alignment. Can be good, neutral (default) or evil.
 	"alignment" : "",
+	
+	// If set to true, RMG will prefer placing towns of this faction on subterranean level of the map
+	"preferUndergroundPlacement" : true,
 
 	// Backgrounds for creature screen, two versions: 120px-height and 130-px height
 	"creatureBackground"

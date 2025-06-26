@@ -108,21 +108,36 @@ void startEditor(const QStringList & args)
 #ifndef VCMI_MOBILE
 void startExecutable(QString name, const QStringList & args)
 {
+	QProcess process;
+	auto showError = [&] {
+		QMessageBox::critical(qApp->activeWindow(),
+			QObject::tr("Error starting executable"),
+			QObject::tr("Failed to start %1\nReason: %2").arg(name, process.errorString()));
+	};
+
+#if defined(VCMI_MAC) || defined(VCMI_WINDOWS)
+	if(process.startDetached(name, args))
+	{
+		qApp->quit();
+	}
+	else
+	{
+		showError();
+	}
+#else // Linux
 	// Start vcmiclient and vcmieditor with QProcess::start() instead of QProcess::startDetached()
 	// since startDetached() results in a missing terminal prompt after quitting vcmiclient.
 	// QProcess::start() causes the launcher window to freeze while the child process is running, so we hide it in
 	// MainWindow::on_startGameButton_clicked() and MainWindow::on_startEditorButton_clicked()
-	QProcess process;
 	process.setProcessChannelMode(QProcess::ForwardedChannels);
 	process.start(name, args);
 	process.waitForFinished(-1);
 
 	if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0) {
-		QMessageBox::critical(qApp->activeWindow(),
-								QObject::tr("Error starting executable"),
-								QObject::tr("Failed to start %1\nReason: %2").arg(name, process.errorString()));
+		showError();
 	}
 
 	qApp->quit();
+#endif
 }
 #endif

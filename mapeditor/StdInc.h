@@ -11,9 +11,12 @@
 
 #include "../Global.h"
 
-#define VCMI_EDITOR_NAME "VCMI Map Editor"
-
 #include <QtWidgets>
+#ifdef ENABLE_TEMPLATE_EDITOR
+#include <QtSvg>
+#include <QSvgRenderer>
+#include <QDomDocument>
+#endif
 #include <QStringList>
 #include <QSet>
 #include <QVector>

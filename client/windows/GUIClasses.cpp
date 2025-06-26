@@ -41,8 +41,8 @@
 #include "../render/IImage.h"
 #include "../render/IFont.h"
 
-#include "../../CCallback.h"
-
+#include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"
@@ -438,9 +438,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 
 	levelTitle = std::make_shared<CLabel>(192, 162, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, levelTitleText);
 
-	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), static_cast<int>(pskill), 0, 174, 190);
+	skillIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("PSKIL42"), pskill.getNum(), 0, 174, 190);
 
-	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[static_cast<int>(pskill)] + " +1");
+	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
 }
 
 void CLevelWindow::close()
@@ -517,7 +517,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance * TavernObj, const std::func
 		recruit->addHoverText(EButtonState::NORMAL, message.toString());
 		recruit->block(true);
 	}
-	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->visitingHero)
+	else if(dynamic_cast<const CGTownInstance *>(TavernObj) && dynamic_cast<const CGTownInstance *>(TavernObj)->getVisitingHero())
 	{
 		recruit->addHoverText(EButtonState::NORMAL, LIBRARY->generaltexth->tavernInfo[2]); //Cannot recruit. You already have a Hero in this town.
 		recruit->block(true);
@@ -544,7 +544,7 @@ void CTavernWindow::addInvite()
 	if(!GAME->interface()->cb->getSettings().getBoolean(EGameSettings::HEROES_TAVERN_INVITE))
 		return;
 
-	const auto & heroesPool = GAME->server().client->gameState()->heroesPool;
+	const auto & heroesPool = GAME->server().client->gameState().heroesPool;
 	for(auto & elem : heroesPool->unusedHeroesFromPool())
 	{
 		bool heroAvailable = heroesPool->isHeroAvailableFor(elem.first, tavernObj->getOwner());
@@ -764,8 +764,8 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	goldCost = std::make_shared<CLabel>(118, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, goldValue);
 	woodCost = std::make_shared<CLabel>(212, 294, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, woodValue);
 
-	goldPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD), 0, 100, 244);
-	woodPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::WOOD), 0, 196, 244);
+	goldPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD).getNum(), 0, 100, 244);
+	woodPic = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::WOOD).getNum(), 0, 196, 244);
 
 	quit = std::make_shared<CButton>(Point(224, 312), AnimationPath::builtin("ICANCEL"), CButton::tooltip(LIBRARY->generaltexth->allTexts[599]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_CANCEL);
 	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(LIBRARY->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
@@ -952,7 +952,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
 		auto faction = town->getTown()->faction->getId();
-		titlePic = std::make_shared<CAnimImage>((*LIBRARY->townh)[faction]->town->clientInfo.buildingsIcons, building);
+		titlePic = std::make_shared<CAnimImage>(faction.toFaction()->town->clientInfo.buildingsIcons, building.getNum());
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
 	{
@@ -973,7 +973,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 	std::vector<TradeItemBuy> goods = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 
 	for(int i=0; i<goods.size(); i++)//prepare clickable items
-		items.push_back(std::make_shared<CItem>(this, goods[i].as<SecondarySkill>(), 54+i*104, 234));
+		items.push_back(std::make_shared<CItem>(this, goods[i].as<SecondarySkill>().getNum(), 54+i*104, 234));
 
 	cancel = std::make_shared<CButton>(Point(200, 313), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[632], [&](){ close(); }, EShortcut::GLOBAL_ACCEPT);
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(background->getSurface(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -1006,24 +1006,25 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * owner_, SecondarySkil
 
 	std::string text = LIBRARY->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
+	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
+
 	boost::replace_first(text, "%d", "2000");
 
 	clerkSpeech = std::make_shared<CTextBox>(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE);
 
-	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
-	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), SKILL*3+3, 0, 211, 51);
+	name = std::make_shared<CLabel>(230, 37,  FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, SKILL.toEntity(LIBRARY)->getNameTranslated());
+	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("SECSKILL"), SKILL.getNum()*3+3, 0, 211, 51);
 	level = std::make_shared<CLabel>(230, 107, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->levels[1]);
 
 	costIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), GameResID(EGameResID::GOLD), 0, 210, 210);
 	cost = std::make_shared<CLabel>(230, 267, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "2000");
 
 	std::string hoverText = LIBRARY->generaltexth->allTexts[609];
-	boost::replace_first(hoverText, "%s", LIBRARY->generaltexth->levels[0]+ " " + LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
+	boost::replace_first(hoverText, "%s", LIBRARY->generaltexth->levels[0]+ " " + SKILL.toEntity(LIBRARY)->getNameTranslated());
 
 	text = LIBRARY->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", LIBRARY->generaltexth->levels[0]);
-	boost::replace_first(text, "%s", LIBRARY->skillh->getByIndex(SKILL)->getNameTranslated());
+	boost::replace_first(text, "%s", SKILL.toEntity(LIBRARY)->getNameTranslated());
 	boost::replace_first(text, "%d", "2000");
 
 	confirm = std::make_shared<CButton>(Point(148, 299), AnimationPath::builtin("IBY6432.DEF"), CButton::tooltip(hoverText, text), [this, SKILL](){makeDeal(SKILL);}, EShortcut::GLOBAL_ACCEPT);
@@ -1229,7 +1230,7 @@ void CHillFortWindow::updateGarrisons()
 			else//free upgrade - print gold image and "Free" text
 			{
 				slotIcons[i][0]->visible = true;
-				slotIcons[i][0]->setFrame(GameResID(EGameResID::GOLD));
+				slotIcons[i][0]->setFrame(GameResID(EGameResID::GOLD).getNum());
 				slotLabels[i][0]->setText(LIBRARY->generaltexth->allTexts[344]);
 			}
 		}
@@ -1356,7 +1357,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
 		if(settings["general"]["enableUiEnhancements"].Bool() && g >= 2 && g <= 4) // add icons instead of text (text is OH3 behavior)
 		{
-			auto addicon = [this, y](GameResID res, int x){ columnHeaderIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), res, 0, x, y - 10)); };
+			auto addicon = [this, y](GameResID res, int x){ columnHeaderIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), res.getNum(), 0, x, y - 10)); };
 			if(g == 2) // gold
 				addicon(GameResID::GOLD, 125);
 			else if(g == 3) // wood, ore

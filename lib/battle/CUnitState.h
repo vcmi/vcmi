@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "BattleUnitTurnReason.h"
 #include "Unit.h"
 #include "../bonuses/BonusCache.h"
 
@@ -254,7 +255,7 @@ public:
 
 	void afterNewRound();
 
-	void afterGetsTurn();
+	void afterGetsTurn(BattleUnitTurnReason reason);
 
 	void makeGhost();
 

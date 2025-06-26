@@ -16,8 +16,6 @@
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
-#include "../CArtHandler.h" // For CArtifactSet
-#include "../ConstTransitivePtr.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -61,17 +59,22 @@ class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator,
 	friend class CMapLoaderH3M;
 	friend class CMapFormatJson;
 
-private:
 	PrimarySkillsCache primarySkills;
 	MagicSchoolMasteryCache magicSchoolMastery;
 	BonusValueCache manaPerKnowledgeCached;
 	std::unique_ptr<TurnInfoCache> turnInfoCache;
+	std::unique_ptr<CCommanderInstance> commander;
 
 	std::set<SpellID> spells; //known spells (spell IDs)
+	ObjectInstanceID visitedTown; //set if hero is visiting town or in the town garrison
+	ObjectInstanceID boardedBoat; //set to CGBoat when sailing
+
 	ui32 movement; //remaining movement points
+	bool inTownGarrison; // if hero is in town garrison
+
+	IGameInfoCallback * getCallback() const final { return cb; }
 
 public:
-
 	//////////////////////////////////////////////////////////////////////////
 	//format:   123
 	//          8 4
@@ -93,18 +96,11 @@ public:
 	std::string nameCustomTextId;
 	std::string biographyCustomTextId;
 
-	bool inTownGarrison; // if hero is in town garrison
-	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
-	ConstTransitivePtr<CCommanderInstance> commander;
-	const CGBoat * boat = nullptr; //set to CGBoat when sailing
-
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
 	static constexpr auto UNINITIALIZED_EXPERIENCE = std::numeric_limits<TExpType>::max();
 	static const ui32 NO_PATROLLING;
 
-	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
-	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ObjectInstanceID> visitedObjects;
 
 	struct DLL_LINKAGE Patrol
@@ -119,23 +115,6 @@ public:
 			h & patrolRadius;
 		}
 	} patrol;
-
-	struct DLL_LINKAGE SecondarySkillsInfo
-	{
-		ui8 magicSchoolCounter;
-		ui8 wisdomCounter;
-
-		SecondarySkillsInfo();
-
-		void resetMagicSchoolCounter();
-		void resetWisdomCounter();
-
-		template <typename Handler> void serialize(Handler &h)
-		{
-			h & magicSchoolCounter;
-			h & wisdomCounter;
-		}
-	} skillsInfo;
 
 	inline bool isInitialized() const
 	{ // has this hero been on the map at least once?
@@ -163,6 +142,11 @@ public:
 
 	std::string getClassNameTranslated() const;
 	std::string getClassNameTextID() const;
+
+	bool inBoat() const;
+	CGBoat * getBoat();
+	const CGBoat * getBoat() const;
+	void setBoat(CGBoat * getBoat);
 
 	bool hasSpellbook() const;
 	int maxSpellLevel() const;
@@ -199,14 +183,8 @@ public:
 	/// Returns true if hero has lower level than should upon his experience.
 	bool gainsLevel() const;
 
-	/// Returns the next primary skill on level up. Can only be called if hero can gain a level up.
-	PrimarySkill nextPrimarySkill(vstd::RNG & rand) const;
-
-	/// Returns the next secondary skill randomly on level up. Can only be called if hero can gain a level up.
-	std::optional<SecondarySkill> nextSecondarySkill(vstd::RNG & rand) const;
-
-	/// Gets 0, 1 or 2 secondary skills which are proposed on hero level up.
-	std::vector<SecondarySkill> getLevelUpProposedSecondarySkills(vstd::RNG & rand) const;
+	/// Selects 0-2 skills for player to select on levelup
+	std::vector<SecondarySkill> getLevelupSkillCandidates(IGameRandomizer & gameRandomizer) const;
 
 	ui8 getSecSkillLevel(const SecondarySkill & skill) const; //0 - no skill
 	int getPrimSkillLevel(PrimarySkill id) const;
@@ -215,9 +193,10 @@ public:
 	bool canLearnSkill() const;
 	bool canLearnSkill(const SecondarySkill & which) const;
 
-	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ui8 abs);
-	void setSecSkillLevel(const SecondarySkill & which, int val, bool abs); // abs == 0 - changes by value; 1 - sets to value
-	void levelUp(const std::vector<SecondarySkill> & skills);
+	void setExperience(si64 value, ChangeValueMode mode);
+	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode);
+	void setSecSkillLevel(const SecondarySkill & which, int val, ChangeValueMode mode); // abs == 0 - changes by value; 1 - sets to value
+	void levelUp();
 
 	void setMovementPoints(int points);
 	int movementPointsRemaining() const;
@@ -233,7 +212,8 @@ public:
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
 	double getHeroStrength() const; // includes fighting and magic strength
 
-	uint32_t getValueForCampaign() const;
+	/// Returns true if 'left' hero is stronger than 'right' when considering campaign transfer priority
+	static bool compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right);
 	uint64_t getValueForDiplomacy() const;
 	
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
@@ -241,7 +221,6 @@ public:
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
 
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
-	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack, vstd::RNG & rand) const;
 	EDiggingStatus diggingStatus() const;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -253,11 +232,19 @@ public:
 	HeroTypeID getHeroTypeID() const;
 	void setHeroType(HeroTypeID type);
 
-	void initObj(vstd::RNG & rand) override;
-	void initHero(vstd::RNG & rand);
-	void initHero(vstd::RNG & rand, const HeroTypeID & SUBID);
+	bool isGarrisoned() const;
+	const CGTownInstance * getVisitedTown() const;
+	CGTownInstance * getVisitedTown();
+	void setVisitedTown(const CGTownInstance * town, bool garrisoned);
 
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, CArtifactInstance * art) override;
+	const CCommanderInstance * getCommander() const;
+	CCommanderInstance * getCommander();
+
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void initHero(IGameRandomizer & gameRandomizer);
+	void initHero(IGameRandomizer & gameRandomizer, const HeroTypeID & SUBID);
+
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;
 	void removeArtifact(const ArtifactPosition & pos) override;
 	void initExp(vstd::RNG & rand);
 	void initArmy(vstd::RNG & rand, IArmyDescriptor *dst = nullptr);
@@ -273,24 +260,21 @@ public:
 	/// If this hero perishes, the scenario is failed
 	bool isMissionCritical() const;
 
-	CGHeroInstance(IGameCallback *cb);
+	CGHeroInstance(IGameInfoCallback *cb);
 	virtual ~CGHeroInstance();
 
 	PlayerColor getOwner() const override;
 
 	///ArtBearer
-	ArtBearer::ArtBearer bearerType() const override;
+	ArtBearer bearerType() const override;
 
 	///IBonusBearer
-	CBonusSystemNode & whereShouldBeAttached(CGameState * gs) override;
+	CBonusSystemNode & whereShouldBeAttached(CGameState & gs) override;
 	std::string nodeName() const override;
 	si32 manaLimit() const override;
 
 	///IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
-
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState * gs);
 
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
@@ -310,13 +294,10 @@ public:
 	void getCastDescription(const spells::Spell * spell, const battle::Units & attacked, MetaString & text) const override;
 	void spendMana(ServerCallback * server, const int spellCost) const override;
 
-	void attachToBoat(CGBoat* newBoat);
-	void boatDeserializationFix();
-	void deserializationFix();
 	void updateAppearance();
 
-	void pickRandomObject(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	std::string getObjectName() const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getMovementPointsTextIfOwner(PlayerColor player) const;
@@ -325,6 +306,9 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
+	void attachToBonusSystem(CGameState & gs) override;
+	void detachFromBonusSystem(CGameState & gs) override;
+	void restoreBonusSystem(CGameState & gs) override;
 
 	void updateFrom(const JsonNode & data) override;
 
@@ -343,7 +327,8 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void levelUpAutomatically(vstd::RNG & rand);
+	void levelUpAutomatically(IGameRandomizer & gameRandomizer);
+	void attachCommanderToArmy();
 
 public:
 	std::string getHeroTypeName() const;
@@ -368,12 +353,36 @@ public:
 		h & spells;
 		h & patrol;
 		h & moveDir;
-		h & skillsInfo;
-		h & visitedTown;
-		h & boat;
+		if (!h.hasFeature(Handler::Version::RANDOMIZATION_REWORK))
+		{
+			ui8 magicSchoolCounter = 0;
+			ui8 wisdomCounter = 0;
+
+			h & magicSchoolCounter;
+			h & wisdomCounter;
+		}
+
+		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		{
+			h & visitedTown;
+			h & boardedBoat;
+		}
+		else
+		{
+			std::shared_ptr<CGObjectInstance> ptrTown;
+			std::shared_ptr<CGObjectInstance> ptrBoat;
+			h & ptrTown;
+			h & ptrBoat;
+
+			visitedTown = ptrTown ? ptrTown->id : ObjectInstanceID();
+			boardedBoat = ptrBoat ? ptrBoat->id : ObjectInstanceID();
+		}
+
 		h & commander;
 		h & visitedObjects;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving && h.loadingGamestate)
+			attachCommanderToArmy();
 	}
 };
 

@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "TurnInfo.h"
 
-#include "../IGameCallback.h"
 #include "../IGameSettings.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -184,7 +184,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 	switch(layer.toEnum())
 	{
 	case EPathfindingLayer::AIR:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::AIR)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::AIR)
 			break;
 
 		if(!hasFlyingMovement())
@@ -193,7 +193,7 @@ bool TurnInfo::isLayerAvailable(const EPathfindingLayer & layer) const
 		break;
 
 	case EPathfindingLayer::WATER:
-		if(target && target->boat && target->boat->layer == EPathfindingLayer::WATER)
+		if(target && target->inBoat() && target->getBoat()->layer == EPathfindingLayer::WATER)
 			break;
 
 		if(!hasWaterWalking())

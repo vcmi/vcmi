@@ -26,6 +26,11 @@
 		"advanced": {Skill level format},
 		"expert":   {Skill level format},
 		
+		// Names of bonuses of the skill that are affected by default secondary skill specialty of a hero
+		"specialty" : [
+			"main"
+		],
+		
 		// Chance for the skill to be offered on level-up (heroClass may override)
 		"gainChance" : {
 			// Chance for hero classes with might affinity
@@ -78,6 +83,8 @@ level fields become optional if they equal "base" configuration.
 		"medium" : "",
 		// 82x93 skill icon
 		"large" : "",
+		// 58x64 skill icon for campaign scenario bonus
+		"scenarioBonus" : ""
 	}
 }
 ```

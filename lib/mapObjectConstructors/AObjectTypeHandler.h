@@ -23,7 +23,8 @@ class RNG;
 class ObjectTemplate;
 class CGObjectInstance;
 class IObjectInfo;
-class IGameCallback;
+class IGameInfoCallback;
+class IGameRandomizer;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -57,6 +58,8 @@ protected:
 
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(const JsonNode & input);
+
+	virtual void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) {}
 public:
 
 	AObjectTypeHandler();
@@ -116,11 +119,11 @@ public:
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)
-	virtual CGObjectInstance * create(IGameCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
+	virtual std::shared_ptr<CGObjectInstance> create(IGameInfoCallback * cb, std::shared_ptr<const ObjectTemplate> tmpl) const = 0;
 
 	/// Configures object properties. Should be re-entrable, resetting state of the object if necessarily
 	/// This should set remaining properties, including randomized or depending on map
-	virtual void configureObject(CGObjectInstance * object, vstd::RNG & rng) const = 0;
+	virtual void configureObject(CGObjectInstance * object, IGameRandomizer & gameRandomizer) const = 0;
 
 	/// Returns object configuration, if available. Otherwise returns NULL
 	virtual std::unique_ptr<IObjectInfo> getObjectInfo(std::shared_ptr<const ObjectTemplate> tmpl) const;

@@ -364,13 +364,14 @@
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"descreaseLuck" :
+			"decreaseLuck" :
 			{
 				"type" : "LUCK",
 				"val" : -1,
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "PLACEHOLDER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better
@@ -424,13 +425,14 @@
 			{
 				"type" : "BLOCKS_RETALIATION"
 			},
-			"descreaseLuck" :
+			"decreaseLuck" :
 			{
 				"type" : "LUCK",
 				"val" : -1,
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
+				"description" : "@creatures.core.devil.bonus.decreaseLuck",
 				"limiters" : [ "OPPOSITE_SIDE" ]
 			},
 			"KING_2" : // Will be affected by Advanced Slayer or better

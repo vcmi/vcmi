@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
+#include "CBonusTypeHandler.h"
 #include "ResourceSet.h"
 #include "entities/faction/CFaction.h"
 #include "entities/faction/CTownHandler.h"
@@ -228,6 +229,11 @@ std::string CCreature::getDescriptionTextID() const
 	return TextIdentifier("creatures", modScope, identifier, "description").get();
 }
 
+std::string CCreature::getBonusTextID(const std::string & bonusID) const
+{
+	return TextIdentifier("creatures", modScope, identifier, "bonus", bonusID).get();
+}
+
 CCreature::CreatureQuantityId CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
@@ -337,15 +343,51 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	}
 }
 
-bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
+bool CCreature::isMyDirectUpgrade(const CCreature *anotherCre) const
 {
-	//TODO upgrade of upgrade?
 	return vstd::contains(upgrades, anotherCre->getId());
+}
+
+bool CCreature::isMyDirectOrIndirectUpgrade(const CCreature *anotherCre) const
+{
+	std::set<CreatureID> foundUpgrades;
+	std::vector<CreatureID> upgradesToTest;
+
+	upgradesToTest.push_back(getId());
+
+	while (!upgradesToTest.empty())
+	{
+		CreatureID testedID = upgradesToTest.back();
+		const CCreature * testedPtr = testedID.toCreature();
+
+		upgradesToTest.pop_back();
+
+		for (const auto & upgrade : testedPtr->upgrades)
+		{
+			if (upgrade == anotherCre->getId())
+				return true;
+
+			if (foundUpgrades.count(upgrade))
+				continue;
+
+			upgradesToTest.push_back(upgrade);
+			foundUpgrades.insert(upgrade);
+		}
+	}
+	return false;
 }
 
 std::string CCreature::nodeName() const
 {
 	return "\"" + getNamePluralTextID() + "\"";
+}
+
+int CCreature::getRandomAmount(vstd::RNG & ranGen) const
+{
+	if(ammMax > ammMin)
+		return ammMin + (ranGen.nextInt(ammMin, ammMax));
+	else
+		return ammMax;
 }
 
 void CCreature::updateFrom(const JsonNode & data)
@@ -861,37 +903,15 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 
-	//FIXME: MOD COMPATIBILITY
-	if (config["abilities"].getType() == JsonNode::JsonType::DATA_STRUCT)
+	for(const auto & ability : config["abilities"].Struct())
 	{
-		for(const auto & ability : config["abilities"].Struct())
+		if (!ability.second.isNull())
 		{
-			if (!ability.second.isNull())
-			{
-				auto b = JsonUtils::parseBonus(ability.second);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
-		}
-	}
-	else
-	{
-		for(const JsonNode &ability : config["abilities"].Vector())
-		{
-			if(ability.getType() == JsonNode::JsonType::DATA_VECTOR)
-			{
-				logMod->error("Ignored outdated creature ability format in %s", creature->getJsonKey());
-			}
-			else
-			{
-				auto b = JsonUtils::parseBonus(ability);
-				b->source = BonusSource::CREATURE_ABILITY;
-				b->sid = BonusSourceID(creature->getId());
-				b->duration = BonusDuration::PERMANENT;
-				creature->addNewBonus(b);
-			}
+			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			b->source = BonusSource::CREATURE_ABILITY;
+			b->sid = BonusSourceID(creature->getId());
+			b->duration = BonusDuration::PERMANENT;
+			creature->addNewBonus(b);
 		}
 	}
 
@@ -959,7 +979,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter = std::make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 					break; //TODO: allow bonuses to turn off?
 				}
@@ -979,7 +999,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					auto bonus = JsonUtils::parseBonus (bonusInput);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
 					creature->addNewBonus (bonus);
 				}
 				lastVal = static_cast<int>(val.Float());
@@ -1035,7 +1055,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.subtype = BonusCustomSubtype::deathStareGorgon;
 		break;
 	case 'F':
-		b.type = BonusType::FEAR; break;
+		b.type = BonusType::FEARFUL; break;
 	case 'g':
 		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
 		b.subtype = BonusSubtypeID(SpellSchool::ANY);
@@ -1064,7 +1084,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'D':
 				b.type = BonusType::ADDITIONAL_ATTACK; break;
 			case 'f':
-				b.type = BonusType::FEARLESS; break;
+				b.type = BonusType::FEARFUL; break;
 			case 'F':
 				b.type = BonusType::FLYING; break;
 			case 'm':
@@ -1321,34 +1341,31 @@ CCreatureHandler::~CCreatureHandler()
 		p.first.clear();
 }
 
-CreatureID CCreatureHandler::pickRandomMonster(vstd::RNG & rand, int tier) const
-{
-	std::vector<CreatureID> allowed;
-	for(const auto & creature : objects)
-	{
-		if(creature->special)
-			continue;
-
-		if(creature->excludeFromRandomization)
-			continue;
-
-		if (creature->level == tier || tier == -1)
-			allowed.push_back(creature->getId());
-	}
-
-	if(allowed.empty())
-	{
-		logGlobal->warn("Cannot pick a random creature of tier %d!", tier);
-		return CreatureID::NONE;
-	}
-
-	return *RandomGeneratorUtil::nextItem(allowed, rand);
-}
-
-
 void CCreatureHandler::afterLoadFinalization()
 {
+	for(auto & creature : objects)
+	{
+		if (!creature)
+			continue;
 
+		auto natureBonuses = creature->getBonuses([](const Bonus * b){
+				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		});
+
+		if (natureBonuses->empty())
+			creature->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LIVING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(creature->getId())));
+	}
+}
+
+std::set<CreatureID> CCreatureHandler::getDefaultAllowed() const
+{
+	std::set<CreatureID> result;
+
+	for(auto & creature : objects)
+		if (creature && !creature->special)
+			result.insert(creature->getId());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END

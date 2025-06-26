@@ -44,7 +44,6 @@
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/CArtHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -69,13 +68,14 @@ void OptionsTab::recreate()
 	entries.clear();
 	humanPlayers = 0;
 
+	for (auto tooltipWindow : ENGINE->windows().findWindows<CPlayerOptionTooltipBox>())
+		tooltipWindow->close();
+
 	for (auto heroOverview : ENGINE->windows().findWindows<CHeroOverview>())
 		heroOverview->close();
 
 	for (auto selectionWindow : ENGINE->windows().findWindows<SelectionWindow>())
-	{
 		selectionWindow->reopen();
-	}
 
 	OBJECT_CONSTRUCTION;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
@@ -378,7 +378,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[79]);
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = (*LIBRARY->townh)[factionIndex]->town;
+	const CTown * town = (*LIBRARY->townh)[factionIndex]->town.get();
 
 	for(auto & elem : town->creatures)
 	{
@@ -821,7 +821,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		INCOME = 1000,
 		GROWTH = 2000,
 	};
-	auto columns = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
+	auto columns = std::vector<int>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
 
 	int i = 0;
 	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
@@ -846,7 +846,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 				else if(isGrowth)
 					labels.push_back(std::make_shared<CLabel>(xPos, 38, FONT_TINY, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.194")));
 				else
-					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
+					anim.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource).getNum(), 0, 15 + xPos + (j == 0 ? 10 : 0), 35));
 			}
 
 			auto area = Rect(xPos, 60 + i * 30, j == 0 ? 60 : 50, 16);

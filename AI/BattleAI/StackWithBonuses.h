@@ -137,7 +137,7 @@ public:
 	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	void nextRound() override;
-	void nextTurn(uint32_t unitId) override;
+	void nextTurn(uint32_t unitId, BattleUnitTurnReason reason) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;

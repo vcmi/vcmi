@@ -18,7 +18,7 @@
 					"rarity" : 20
 				},
 				"compatibilityIdentifiers" : [ "water" ],
-				"visitMode" : "unlimited",
+				"visitMode" : "playerGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{
@@ -44,7 +44,7 @@
 					"rarity" : 2
 				},
 				"compatibilityIdentifiers" : [ "land" ],
-				"visitMode" : "unlimited",
+				"visitMode" : "playerGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{
@@ -72,7 +72,7 @@
 					"rarity" : 20
 				},
 				"compatibilityIdentifiers" : [ "subterra" ],
-				"visitMode" : "unlimited",
+				"visitMode" : "playerGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{

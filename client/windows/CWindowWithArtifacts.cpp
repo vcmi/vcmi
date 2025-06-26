@@ -12,7 +12,6 @@
 
 #include "CHeroWindow.h"
 #include "CSpellWindow.h"
-#include "CExchangeWindow.h"
 #include "CHeroBackpackWindow.h"
 
 #include "../GameEngine.h"
@@ -28,13 +27,14 @@
 
 #include "../CPlayerInterface.h"
 
-#include "../../lib/ArtifactUtils.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
-#include "../../lib/CConfigHandler.h"
-
-#include "../../CCallback.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CWindowWithArtifacts::CWindowWithArtifacts(const std::vector<CArtifactsOfHeroPtr> * artSets)
 {

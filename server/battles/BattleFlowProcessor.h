@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../lib/battle/BattleSide.h"
+#include "../lib/battle/BattleUnitTurnReason.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CStack;
@@ -48,10 +49,10 @@ class BattleFlowProcessor : boost::noncopyable
 	void stackEnchantedTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle);
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
-	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack);
+	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
 
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
-	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
+	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 
 public:
 	explicit BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);

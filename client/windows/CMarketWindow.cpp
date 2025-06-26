@@ -27,13 +27,13 @@
 
 #include "../CPlayerInterface.h"
 
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/building/CBuilding.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapObjects/CGMarket.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-
-#include "../../CCallback.h"
+#include "../../lib/mapObjects/CGMarket.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 CMarketWindow::CMarketWindow(const IMarket * market, const CGHeroInstance * hero, const std::function<void()> & onWindowClosed, EMarketMode mode)
 	: CWindowObject(PLAYER_COLORED)

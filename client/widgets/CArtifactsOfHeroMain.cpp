@@ -14,9 +14,8 @@
 #include "../GameInstance.h"
 
 #include "../CPlayerInterface.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-
-#include "../../CCallback.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
 CArtifactsOfHeroMain::CArtifactsOfHeroMain(const Point & position)

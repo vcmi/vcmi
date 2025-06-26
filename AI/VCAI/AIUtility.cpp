@@ -15,6 +15,7 @@
 
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/CMapDefines.h"
@@ -192,7 +193,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT)
+		if(t->visitableObjects.size() == 1 && cb->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
 			return true;
 	}
 	return false;
@@ -200,9 +201,14 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 
 bool isBlockedBorderGate(int3 tileToHit) //TODO: is that function needed? should be handled by pathfinder
 {
-	if(cb->getTile(tileToHit)->topVisitableId() != Obj::BORDER_GATE)
+	const auto * object = cb->getTopObj(tileToHit);
+	if(!object)
 		return false;
-	auto gate = dynamic_cast<const CGKeys *>(cb->getTile(tileToHit)->topVisitableObj());
+
+	if(object->ID != Obj::BORDER_GATE)
+		return false;
+
+	auto gate = dynamic_cast<const CGKeys *>(object);
 	return !gate->passableFor(ai->playerID);
 }
 

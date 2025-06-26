@@ -14,12 +14,12 @@
 #include "MapRendererContextState.h"
 #include "mapHandler.h"
 
-#include "../../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 #include "../GameInstance.h"
 
 #include "../../lib/Point.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -45,8 +45,8 @@ uint32_t MapRendererBaseContext::getObjectRotation(ObjectInstanceID objectID) co
 	{
 		const auto * boat = dynamic_cast<const CGBoat *>(obj);
 
-		if(boat->hero)
-			return boat->hero->moveDir;
+		if(boat->getBoardedHero())
+			return boat->getBoardedHero()->moveDir;
 		return boat->direction;
 	}
 	return 0;
@@ -103,7 +103,7 @@ const MapRendererBaseContext::MapObjectsList & MapRendererBaseContext::getObject
 
 const CGObjectInstance * MapRendererBaseContext::getObject(ObjectInstanceID objectID) const
 {
-	return GAME->map().getMap()->objects.at(objectID.getNum());
+	return GAME->map().getMap()->getObject(objectID);
 }
 
 const CGPath * MapRendererBaseContext::currentPath() const
@@ -132,10 +132,10 @@ double MapRendererBaseContext::objectTransparency(ObjectInstanceID objectID, con
 	{
 		const auto * hero = dynamic_cast<const CGHeroInstance *>(object);
 
-		if(hero->inTownGarrison)
+		if(hero->isGarrisoned())
 			return 0;
 
-		if(hero->boat)
+		if(hero->inBoat())
 			return 0;
 	}
 	return 1;
@@ -278,10 +278,12 @@ std::string MapRendererAdventureContext::overlayText(const int3 & coordinates) c
 	if (!tile.visitable())
 		return {};
 
-	if ( tile.visitableObjects.back()->ID == Obj::EVENT)
+	const auto * object = getObject(tile.visitableObjects.back());
+
+	if ( object->ID == Obj::EVENT)
 		return {};
 
-	return tile.visitableObjects.back()->getObjectName();
+	return object->getObjectName();
 }
 
 ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates) const
@@ -294,7 +296,7 @@ ColorRGBA MapRendererAdventureContext::overlayTextColor(const int3 & coordinates
 	if (!tile.visitable())
 		return {};
 
-	const auto * object = tile.visitableObjects.back();
+	const auto * object = getObject(tile.visitableObjects.back());
 
 	if (object->getOwner() == GAME->interface()->playerID)
 		return { 0, 192, 0};

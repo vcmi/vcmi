@@ -101,7 +101,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		
 		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 
-		CGTownInstance * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
 		town->addBuilding(BuildingID::FORT);
 		town->addBuilding(BuildingID::DEFAULT);
@@ -110,7 +110,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		for(auto spellID : LIBRARY->spellh->getDefaultAllowed()) //add all regular spells to town
 			town->possibleSpells.push_back(spellID);
 		
-		auto position = placeMainTown(manager, *town);
+		auto position = placeMainTown(manager, town);
 		
 		totalTowns++;
 		//register MAIN town of zone only
@@ -166,7 +166,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 	}
 }
 
-int3 TownPlacer::placeMainTown(ObjectManager & manager, CGTownInstance & town)
+int3 TownPlacer::placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownInstance> town)
 {
 	//towns are big objects and should be centered around visitable position
 	rmg::Object rmgObject(town);
@@ -267,7 +267,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		}
 		
 		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto * town = dynamic_cast<CGTownInstance *>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;
@@ -284,7 +284,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			//register MAIN town of zone
 			map.registerZone(town->getFactionID());
 			//first town in zone goes in the middle
-			placeMainTown(manager, *town);
+			placeMainTown(manager, town);
 		}
 		else
 		{

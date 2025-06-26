@@ -500,6 +500,23 @@ void ObjectTemplate::calculateVisitableOffset()
 	visitableOffset = int3(0, 0, 0);
 }
 
+int3 ObjectTemplate::getCornerOffset() const
+{
+	assert(isVisitable());
+
+	int3 ret = visitableOffset;
+	for (const auto & tile : blockedOffsets)
+	{
+		ret = {
+			std::min(-tile.x, ret.x),
+			std::min(-tile.y, ret.y),
+			ret.z
+		};
+	}
+
+	return ret;
+}
+
 bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const
 {
 	if (anyLandTerrain)

@@ -47,6 +47,7 @@ class PlayerMessageProcessor
 	void cheatGiveMachines(PlayerColor player, const CGHeroInstance * hero);
 	void cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero);
+	void cheatColorSchemeChange(PlayerColor player, ColorScheme scheme);
 	void cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatMovement(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
@@ -58,6 +59,7 @@ class PlayerMessageProcessor
 	void cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero);
 	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
+	void cheatSkill(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 
 	void commandExit(PlayerColor player, const std::vector<std::string> & words);
 	void commandKick(PlayerColor player, const std::vector<std::string> & words);

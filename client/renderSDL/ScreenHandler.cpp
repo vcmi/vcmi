@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "ScreenHandler.h"
 
+#include "SDL_Extensions.h"
+
 #include "../CMT.h"
 #include "../eventsSDL/NotificationHandler.h"
 #include "../GameEngine.h"
@@ -34,7 +36,6 @@
 // TODO: should be made into a private members of ScreenHandler
 SDL_Renderer * mainRenderer = nullptr;
 
-static const std::string NAME = GameConstants::VCMI_VERSION; //application name
 static constexpr Point heroes3Resolution = Point(800, 600);
 
 std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
@@ -373,7 +374,7 @@ EUpscalingFilter ScreenHandler::loadUpscalingFilter() const
 	if (scaling <= 1.001f)
 		return EUpscalingFilter::NONE; // running at original resolution or even lower than that - no need for xbrz
 
-	if (systemMemoryMb < 2048)
+	if (systemMemoryMb <= 4096)
 		return EUpscalingFilter::NONE; // xbrz2 may use ~1.0 - 1.5 Gb of RAM and has notable CPU cost - avoid on low-spec hardware
 
 	// Only using xbrz2 for autoselection.
@@ -436,7 +437,7 @@ SDL_Window * ScreenHandler::createWindowImpl(Point dimensions, int flags, bool c
 	int displayIndex = getPreferredDisplayIndex();
 	int positionFlags = center ? SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex) : SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayIndex);
 
-	return SDL_CreateWindow(NAME.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
+	return SDL_CreateWindow(GameConstants::VCMI_VERSION.c_str(), positionFlags, positionFlags, dimensions.x, dimensions.y, flags);
 }
 
 SDL_Window * ScreenHandler::createWindow()
@@ -624,7 +625,19 @@ Canvas ScreenHandler::getScreenCanvas() const
 
 void ScreenHandler::updateScreenTexture()
 {
-	SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+	if(colorScheme == ColorScheme::NONE)
+	{
+		SDL_UpdateTexture(screenTexture, nullptr, screen->pixels, screen->pitch);
+		return;
+	}
+
+	SDL_Surface * screenScheme = SDL_ConvertSurface(screen, screen->format, screen->flags);
+	if(colorScheme == ColorScheme::GRAYSCALE)
+		CSDL_Ext::convertToGrayscale(screenScheme, Rect(0, 0, screen->w, screen->h));
+	else if(colorScheme == ColorScheme::H2_SCHEME)
+		CSDL_Ext::convertToH2Scheme(screenScheme, Rect(0, 0, screen->w, screen->h));
+	SDL_UpdateTexture(screenTexture, nullptr, screenScheme->pixels, screenScheme->pitch);
+	SDL_FreeSurface(screenScheme);
 }
 
 void ScreenHandler::presentScreenTexture()
@@ -674,4 +687,9 @@ bool ScreenHandler::hasFocus()
 {
 	ui32 flags = SDL_GetWindowFlags(mainWindow);
 	return flags & SDL_WINDOW_INPUT_FOCUS;
+}
+
+void ScreenHandler::setColorScheme(ColorScheme scheme)
+{
+	colorScheme = scheme;
 }

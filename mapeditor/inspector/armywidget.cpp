@@ -13,6 +13,7 @@
 #include "ui_armywidget.h"
 #include "CCreatureHandler.h"
 
+#include "../../lib/GameLibrary.h"
 
 ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	QDialog(parent),
@@ -99,7 +100,7 @@ bool ArmyWidget::commitChanges()
 			{
 				if(army.hasStackAtSlot(SlotID(i)))
 					army.eraseStack(SlotID(i));
-				army.putStack(SlotID(i), new CStackInstance(creId, amount, false));
+				army.putStack(SlotID(i), std::make_unique<CStackInstance>(army.cb, creId, amount, false));
 			}
 		}
 	}
@@ -154,8 +155,8 @@ void ArmyDelegate::updateModelData(QAbstractItemModel * model, const QModelIndex
 	QStringList textList;
 	for(const auto & [_, stack] : army.stacks)
 	{
-		if(stack->count != 0 && stack->getCreature() != nullptr)
-			textList += QString("%1 %2").arg(stack->count).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
+		if(stack->getCount() != 0 && stack->getCreature() != nullptr)
+			textList += QString("%1 %2").arg(stack->getCount()).arg(QString::fromStdString(stack->getCreature()->getNamePluralTranslated()));
 	}
 
 	setModelTextData(model, index, textList);

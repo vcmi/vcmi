@@ -85,6 +85,10 @@
 	"ENEMY_DEFENCE_REDUCTION":
 	{
 	},
+	
+	"FEARFUL":
+	{
+	},
 
 	"FIRE_SHIELD":
 	{
@@ -92,14 +96,10 @@
 
 	"FIRST_STRIKE":
 	{
-	},
-
-	"FEAR":
-	{
-	},
-
-	"FEARLESS":
-	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.damageTypeRanged" : null,
+			"bonusSubtype.damageTypeMelee" : null,
+		}
 	},
 
 	"FEROCITY":
@@ -108,18 +108,34 @@
 
 	"FLYING":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.movementTeleporting" : null,
+		}
 	},
 
 	"FREE_SHOOTING":
 	{
 	},
+	
+	"FULL_MAP_DARKNESS":
+	{
+	},
+	
+	"FULL_MAP_SCOUTING":
+	{
+	},
 
 	"GARGOYLE":
 	{
+		"creatureNature" : true,
 	},
 
 	"GENERAL_DAMAGE_REDUCTION":
 	{
+		"subtypeDescriptions" : {
+			"bonusSubtype.damageTypeRanged" : null,
+			"bonusSubtype.damageTypeMelee" : null,
+		}
 	},
 
 	"HATE":
@@ -140,6 +156,10 @@
 
 	"KING":
 	{
+		"valueDescriptions" : {
+			"2" : null,
+			"3" : null
+		}
 	},
 
 	"LEARN_BATTLE_SPELL_CHANCE":
@@ -163,6 +183,11 @@
 	"LIMITED_SHOOTING_RANGE":
 	{
 	},
+	
+	"LIVING":
+	{
+		"creatureNature" : true
+	},
 
 	"MANA_CHANNELING":
 	{
@@ -178,6 +203,11 @@
 
 	"MAGIC_RESISTANCE":
 	{
+	},
+	
+	"MECHANICAL":
+	{
+		"creatureNature" : true
 	},
 
 	"MIND_IMMUNITY":
@@ -216,10 +246,7 @@
 
 	"NON_LIVING":
 	{
-	},
-
-	"MECHANICAL":
-	{
+		"creatureNature" : true
 	},
 
 	"OPENING_BATTLE_SPELL":
@@ -254,6 +281,15 @@
 	"REVENGE":
 	{
 	},
+	
+	"SIEGE_WEAPON":
+	{
+		"creatureNature" : true
+	},
+	
+	"SKELETON_TRANSFORMER_TARGET":
+	{
+	},
 
 	"SHOOTER":
 	{
@@ -281,6 +317,12 @@
 
 	"SPELL_DAMAGE_REDUCTION":
 	{
+		"subtypeDescriptions" : {
+			"spellSchool.air" : null,
+			"spellSchool.earth" : null,
+			"spellSchool.fire" : null,
+			"spellSchool.water" : null,
+		}
 	},
 
 	"SPELL_IMMUNITY":
@@ -293,6 +335,12 @@
 
 	"SPELL_SCHOOL_IMMUNITY":
 	{
+		"subtypeDescriptions" : {
+			"spellSchool.air" : null,
+			"spellSchool.earth" : null,
+			"spellSchool.fire" : null,
+			"spellSchool.water" : null,
+		}
 	},
 
 	"SPELL_RESISTANCE_AURA":
@@ -319,8 +367,13 @@
 	{
 	},
 
+	"TRANSMUTATION_IMMUNITY":
+	{
+	},
+
 	"UNDEAD":
 	{
+		"creatureNature" : true,
 	},
 	
 	"UNLIMITED_RETALIATIONS":
@@ -330,6 +383,10 @@
 	"VISIONS":
 	{
 		"hidden": true
+	},
+	
+	"VULNERABLE_FROM_BACK":
+	{
 	},
 	
 	"WIDE_BREATH":

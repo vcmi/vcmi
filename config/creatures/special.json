@@ -77,7 +77,7 @@
 	{
 		"special" : true,
 		"index": 146,
-		"level": 0,
+		"level": 5,
 		"faction": "neutral",
 		"doubleWide" : true,
 		"shots" : 24,
@@ -178,7 +178,8 @@
 			"noWallPenalty" : { "type" : "NO_WALL_PENALTY" },
 			"noDistancePenalty" : { "type" : "NO_DISTANCE_PENALTY" },
 			"noRetalitation" : { "type" : "BLOCKS_RANGED_RETALIATION" },
-			"noLuck" : { "type" : "NO_LUCK" }
+			"noLuck" : { "type" : "NO_LUCK" },
+			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "INDEPENDENT_MIN" }
 		},
 		"graphics" :
 		{
