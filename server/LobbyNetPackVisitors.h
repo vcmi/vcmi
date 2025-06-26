@@ -11,15 +11,19 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class GameConnection;
+VCMI_LIB_NAMESPACE_END
+
 class ClientPermissionsCheckerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	std::shared_ptr<CConnection> connection;
+	std::shared_ptr<GameConnection> connection;
 	CVCMIServer & srv;
 	bool result;
 
 public:
-	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<CConnection> & connection)
+	ClientPermissionsCheckerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<GameConnection> & connection)
 		: connection(connection)
 		, srv(srv)
 		, result(false)
@@ -67,12 +71,12 @@ public:
 class ApplyOnServerNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	std::shared_ptr<CConnection> connection;
+	std::shared_ptr<GameConnection> connection;
 	CVCMIServer & srv;
 	bool result;
 
 public:
-	ApplyOnServerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<CConnection> & connection)
+	ApplyOnServerNetPackVisitor(CVCMIServer & srv, const std::shared_ptr<GameConnection> & connection)
 		: connection(connection)
 		, srv(srv)
 		, result(true)

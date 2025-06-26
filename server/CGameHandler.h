@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 struct SideInBattle;
 class IMarket;
 class SpellCastEnvironment;
-class CConnection;
+class IGameConnection;
 class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
@@ -110,6 +110,7 @@ public:
 	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
 
 	explicit CGameHandler(IGameServer & server);
+	CGameHandler(IGameServer & server, const std::shared_ptr<CGameState> & gamestate);
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -203,9 +204,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
-	void handleClientDisconnection(const std::shared_ptr<CConnection> & c);
-	void handleReceivedPack(std::shared_ptr<CConnection> c, CPackForServer & pack);
-	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const;
+	void handleClientDisconnection(const std::shared_ptr<IGameConnection> & c);
+	void handleReceivedPack(std::shared_ptr<IGameConnection> c, CPackForServer & pack);
+	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
 	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
@@ -281,19 +282,19 @@ public:
 	void sendAndApply(SetResources & pack);
 	void sendAndApply(NewStructures & pack);
 
-	void wrongPlayerMessage(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer);
+	void wrongPlayerMessage(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
-	[[noreturn]] void throwNotAllowedAction(const std::shared_ptr<CConnection> & connection);
+	[[noreturn]] void throwNotAllowedAction(const std::shared_ptr<IGameConnection> & connection);
 	/// Throws if player stated in pack is not making turn right now
-	void throwIfPlayerNotActive(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
+	void throwIfPlayerNotActive(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack);
 	/// Throws if object is not owned by pack sender
-	void throwIfWrongOwner(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
+	void throwIfWrongOwner(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack
-	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor player);
-	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
-	[[noreturn]] void throwAndComplain(const std::shared_ptr<CConnection> & connection, const std::string & txt);
+	void throwIfWrongPlayer(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack, PlayerColor player);
+	void throwIfWrongPlayer(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack);
+	[[noreturn]] void throwAndComplain(const std::shared_ptr<IGameConnection> & connection, const std::string & txt);
 
-	bool isPlayerOwns(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
+	bool isPlayerOwns(const std::shared_ptr<IGameConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
 
 	void start(bool resume);
 	void tick(int millisecondsPassed);

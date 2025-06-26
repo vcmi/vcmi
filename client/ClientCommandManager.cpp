@@ -38,9 +38,9 @@
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
 #include "../lib/ScriptHandler.h"

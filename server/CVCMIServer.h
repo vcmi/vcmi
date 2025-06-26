@@ -20,7 +20,7 @@ class CMapInfo;
 
 struct CPackForLobby;
 
-class CConnection;
+class GameConnection;
 struct StartInfo;
 struct LobbyInfo;
 struct PlayerSettings;
@@ -47,7 +47,7 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	EServerState state = EServerState::LOBBY;
 
-	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
+	std::shared_ptr<GameConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
 	int currentClientId;
 	ui8 currentPlayerId;
@@ -62,12 +62,12 @@ public:
 	void setState(EServerState value) override;
 	EServerState getState() const override;
 	bool isPlayerHost(const PlayerColor & color) const override;
-	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const override;
+	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const override;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
 	void broadcastPack(const CPackForClient & pack) override;
 
 	/// List of all active connections
-	std::vector<std::shared_ptr<CConnection>> activeConnections;
+	std::vector<std::shared_ptr<GameConnection>> activeConnections;
 
 	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 
@@ -90,7 +90,7 @@ public:
 	void startGameImmediately();
 	uint16_t startAcceptingIncomingConnections(bool listenForConnections);
 
-	void threadHandleClient(std::shared_ptr<CConnection> c);
+	void threadHandleClient(std::shared_ptr<GameConnection> c);
 
 	void announcePack(CPackForLobby & pack);
 	bool passHost(int toConnectionId);
@@ -101,14 +101,14 @@ public:
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
-	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
-	void clientDisconnected(std::shared_ptr<CConnection> c);
+	void clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
+	void clientDisconnected(std::shared_ptr<GameConnection> c);
 	void reconnectPlayer(int connId);
 
 	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
 
-	void handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForLobby & pack);
+	void handleReceivedPack(std::shared_ptr<GameConnection> connection, CPackForLobby & pack);
 
 	void updateAndPropagateLobbyState();
 

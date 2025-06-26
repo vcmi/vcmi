@@ -246,7 +246,7 @@ set(lib_MAIN_SRCS
 
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
-	serializer/Connection.cpp
+	serializer/GameConnection.cpp
 	serializer/CSaveFile.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
@@ -705,10 +705,11 @@ set(lib_MAIN_HEADERS
 	serializer/BinarySerializer.h
 	serializer/CLoadFile.h
 	serializer/CMemorySerializer.h
-	serializer/Connection.h
+	serializer/GameConnection.h
 	serializer/CSaveFile.h
 	serializer/CSerializer.h
 	serializer/CTypeList.h
+	serializer/IGameConnection.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h

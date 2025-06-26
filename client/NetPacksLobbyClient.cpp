@@ -36,9 +36,9 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/GameConnection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {

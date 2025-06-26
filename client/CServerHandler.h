@@ -17,7 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CConnection;
+class GameConnection;
 class PlayerColor;
 struct StartInfo;
 struct TurnTimerInfo;
@@ -125,7 +125,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
-	std::shared_ptr<CConnection> logicConnection;
+	std::shared_ptr<GameConnection> logicConnection;
 
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together

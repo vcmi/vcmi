@@ -26,7 +26,7 @@
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
-#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
 // UUID generation
@@ -40,10 +40,10 @@ class CVCMIServerPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 private:
 	CVCMIServer & handler;
 	std::shared_ptr<CGameHandler> gh;
-	std::shared_ptr<CConnection> connection;
+	std::shared_ptr<GameConnection> connection;
 
 public:
-	CVCMIServerPackVisitor(CVCMIServer & handler, const std::shared_ptr<CGameHandler> & gh, const std::shared_ptr<CConnection> & connection)
+	CVCMIServerPackVisitor(CVCMIServer & handler, const std::shared_ptr<CGameHandler> & gh, const std::shared_ptr<GameConnection> & connection)
 		: handler(handler)
 		, gh(gh)
 		, connection(connection)
@@ -117,7 +117,7 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & co
 {
 	if(getState() == EServerState::LOBBY)
 	{
-		activeConnections.push_back(std::make_shared<CConnection>(connection));
+		activeConnections.push_back(std::make_shared<GameConnection>(connection));
 		activeConnections.back()->enterLobbyConnectionMode();
 	}
 	else
@@ -129,7 +129,7 @@ void CVCMIServer::onNewConnection(const std::shared_ptr<INetworkConnection> & co
 
 void CVCMIServer::onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message)
 {
-	std::shared_ptr<CConnection> c = findConnection(connection);
+	std::shared_ptr<GameConnection> c = findConnection(connection);
 	if (c == nullptr)
 		throw std::out_of_range("Unknown connection received in CVCMIServer::findConnection");
 
@@ -156,7 +156,7 @@ EServerState CVCMIServer::getState() const
 	return state;
 }
 
-std::shared_ptr<CConnection> CVCMIServer::findConnection(const std::shared_ptr<INetworkConnection> & netConnection)
+std::shared_ptr<GameConnection> CVCMIServer::findConnection(const std::shared_ptr<INetworkConnection> & netConnection)
 {
 	for(const auto & gameConnection : activeConnections)
 	{
@@ -319,7 +319,7 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 {
 	logNetwork->error("Network error receiving a pack. Connection has been closed");
 
-	std::shared_ptr<CConnection> c = findConnection(connection);
+	std::shared_ptr<GameConnection> c = findConnection(connection);
 
 	// player may have already disconnected via clientDisconnected call
 	if (c)
@@ -330,7 +330,7 @@ void CVCMIServer::onDisconnected(const std::shared_ptr<INetworkConnection> & con
 	}
 }
 
-void CVCMIServer::handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForLobby & pack)
+void CVCMIServer::handleReceivedPack(std::shared_ptr<GameConnection> connection, CPackForLobby & pack)
 {
 	ClientPermissionsCheckerNetPackVisitor checker(*this, connection);
 	pack.visit(checker);
@@ -406,7 +406,7 @@ bool CVCMIServer::passHost(int toConnectionId)
 	return false;
 }
 
-void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
+void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
 	assert(getState() == EServerState::LOBBY);
 
@@ -444,7 +444,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 	}
 }
 
-void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> connection)
+void CVCMIServer::clientDisconnected(std::shared_ptr<GameConnection> connection)
 {
 	assert(vstd::contains(activeConnections, connection));
 	logGlobal->trace("Received disconnection request");
@@ -1142,9 +1142,9 @@ bool CVCMIServer::isPlayerHost(const PlayerColor & color) const
 	return LobbyInfo::isPlayerHost(color);
 }
 
-bool CVCMIServer::hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const
+bool CVCMIServer::hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const
 {
-	return vstd::contains(getAllClientPlayers(c->connectionID), player);
+	return vstd::contains(getAllClientPlayers(c->getConnectionID()), player);
 }
 
 bool CVCMIServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const

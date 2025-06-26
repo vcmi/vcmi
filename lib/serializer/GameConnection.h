@@ -1,5 +1,5 @@
 /*
- * Connection.h, part of VCMI engine
+ * GameConnection.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,6 +8,8 @@
  *
  */
 #pragma once
+
+#include "IGameConnection.h"
 
 enum class ESerializationVersion : int32_t;
 
@@ -24,7 +26,7 @@ class IGameInfoCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
-class DLL_LINKAGE CConnection : boost::noncopyable
+class DLL_LINKAGE GameConnection final : public IGameConnection
 {
 	/// Non-owning pointer to underlying connection
 	std::weak_ptr<INetworkConnection> networkConnection;
@@ -43,10 +45,11 @@ public:
 	std::string uuid;
 	int connectionID;
 
-	explicit CConnection(std::weak_ptr<INetworkConnection> networkConnection);
-	~CConnection();
+	explicit GameConnection(std::weak_ptr<INetworkConnection> networkConnection);
+	~GameConnection();
 
-	void sendPack(const CPack & pack);
+	void sendPack(const CPack & pack) override;
+	int getConnectionID() const override;
 	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();

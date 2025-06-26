@@ -11,7 +11,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
-class CConnection;
+class IGameConnection;
 struct CPackForClient;
 VCMI_LIB_NAMESPACE_END
 
@@ -31,7 +31,7 @@ public:
 	virtual void setState(EServerState value) = 0;
 	virtual EServerState getState() const = 0;
 	virtual bool isPlayerHost(const PlayerColor & color) const = 0;
-	virtual bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const = 0;
+	virtual bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const = 0;
 	virtual bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const = 0;
 	virtual void broadcastPack(const CPackForClient & pack) = 0;
 };

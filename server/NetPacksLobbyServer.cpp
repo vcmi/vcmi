@@ -22,7 +22,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/GameConnection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
