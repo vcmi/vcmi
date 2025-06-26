@@ -112,8 +112,9 @@ Example of long form with custom parameters:
 Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in hero army that fulful filter
 
 Parameters:
+
 - `minimum`: minimum possible value of the bonus value. Unlimited by default
-- `minimum`: maximum possible value of the bonus value. Unlimited by default
+- `maximum`: maximum possible value of the bonus value. Unlimited by default
 - `stepSize`: number of units needed to increase updater multiplier by 1
 - `filteredCreature`: identifier of specific unit to filter
 - `filteredLevel`: level of units that need to be counted. Redundant if `filteredCreature` is used

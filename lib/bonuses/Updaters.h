@@ -134,6 +134,9 @@ public:
 		h & minimum;
 		h & maximum;
 		h & stepSize;
+		h & filteredLevel;
+		h & filteredCreature;
+		h & filteredFaction;
 	}
 };
 

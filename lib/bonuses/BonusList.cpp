@@ -70,7 +70,10 @@ int BonusList::totalValue(int baseValue) const
 	};
 
 	auto applyPercentageRoundUp = [](int base, int percent) -> int {
-		return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+		if (base >= 0)
+			return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+		else
+			return (static_cast<int64_t>(base) * (100 + percent) - 99) / 100;
 	};
 
 	auto applyPercentageRoundDown = [](int base, int percent) -> int {
