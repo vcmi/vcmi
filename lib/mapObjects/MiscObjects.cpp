@@ -142,6 +142,10 @@ std::vector<CreatureID> CGMine::providedCreatures() const
 ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
+
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
 	result[producedResource] += defaultResProduction();
 
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());
@@ -867,7 +871,11 @@ const IOwnableObject * CGGarrison::asOwnable() const
 
 ResourceSet CGGarrison::dailyIncome() const
 {
-	return {};
+	ResourceSet result;
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
+	return result;
 }
 
 std::vector<CreatureID> CGGarrison::providedCreatures() const

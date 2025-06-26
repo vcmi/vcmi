@@ -206,7 +206,11 @@ int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds,
 
 TResources CGTownInstance::dailyIncome() const
 {
-	TResources ret;
+	ResourceSet ret;
+
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		ret[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
 	for(const auto & p : getTown()->buildings)
 	{
 		BuildingID buildingUpgrade;
