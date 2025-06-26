@@ -298,6 +298,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<DivideStackLevelUpdater>(246);
 	s.template registerType<SetHeroExperience>(247);
 	s.template registerType<GiveStackExperience>(248);
+	s.template registerType<TimesStackSizeUpdater>(249);
+	s.template registerType<TimesArmySizeUpdater>(250);
 }
 
 VCMI_LIB_NAMESPACE_END

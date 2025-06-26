@@ -107,6 +107,54 @@ Example of long form with custom parameters:
 }
 ```
 
+## TIMES_ARMY_SIZE
+
+Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in hero army that fulful filter
+
+Parameters:
+- `minimum`: minimum possible value of the bonus value. Unlimited by default
+- `minimum`: maximum possible value of the bonus value. Unlimited by default
+- `stepSize`: number of units needed to increase updater multiplier by 1
+- `filteredCreature`: identifier of specific unit to filter
+- `filteredLevel`: level of units that need to be counted. Redundant if `filteredCreature` is used
+- `filteredFaction`: faction of units that need to be counted. Redundant if `filteredCreature` is used
+
+Filtering for specific unit:
+
+```json
+"updater" : {
+    "type" : "TIMES_ARMY_SIZE",
+    "filteredCreature" : "pikeman",
+    
+    // Optional, by default - unlimited
+    "minimum" : 0,
+    
+    // Optional, by default - unlimited
+    "maximum" : 100,
+    
+    // Optional, by default - 1
+    "stepSize" : 2
+}
+```
+
+Filtering for specific faction:
+
+```json
+"updater" : {
+    "type" : "TIMES_STACK_SIZE",
+    "filteredFaction" : "castle"
+}
+```
+
+Filtering for specific unit level:
+
+```json
+"updater" : {
+    "type" : "TIMES_STACK_SIZE",
+    "filteredLevel" : 2
+}
+```
+
 ## BONUS_OWNER_UPDATER
 
 Helper updater for proper functionality of `OPPOSITE_SIDE` limiter

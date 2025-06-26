@@ -113,6 +113,30 @@ public:
 	}
 };
 
+class DLL_LINKAGE TimesArmySizeUpdater : public IUpdater
+{
+public:
+	int minimum = std::numeric_limits<int>::min();
+	int maximum = std::numeric_limits<int>::max();
+	int stepSize = 1;
+	int filteredLevel = -1;
+	CreatureID filteredCreature;
+	FactionID filteredFaction;
+	TimesArmySizeUpdater() = default;
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
+	}
+};
+
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 {
 	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
