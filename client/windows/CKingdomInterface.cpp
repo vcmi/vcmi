@@ -27,6 +27,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
+#include "../windows/CHeroWindow.h"
 #include "../windows/CMarketWindow.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -101,6 +102,7 @@ void InfoBox::showPopupWindow(const Point & cursorPosition)
 	std::shared_ptr<CComponent> comp;
 	std::string text;
 	data->prepareMessage(text, comp);
+
 	if (comp)
 		CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 	else if (!text.empty())
@@ -115,6 +117,8 @@ void InfoBox::clickPressed(const Point & cursorPosition)
 
 	if(comp)
 		GAME->interface()->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
+	else if (!text.empty())
+		GAME->interface()->showInfoDialog(text);
 }
 
 IInfoBoxData::IInfoBoxData(InfoType Type)
@@ -974,6 +978,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
+	heroArea->addRClickCallback([this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
 	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[2]);
