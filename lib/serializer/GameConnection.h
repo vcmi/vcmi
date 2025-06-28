@@ -50,7 +50,7 @@ public:
 
 	void sendPack(const CPack & pack) override;
 	int getConnectionID() const override;
-	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
+	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data) override;
 
 	void enterLobbyConnectionMode();
 	void setCallback(IGameInfoCallback & cb);

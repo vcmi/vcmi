@@ -64,7 +64,7 @@ public:
 	bool isPlayerHost(const PlayerColor & color) const override;
 	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const override;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
-	void broadcastPack(const CPackForClient & pack) override;
+	void broadcastPack(CPackForClient & pack) override;
 
 	/// List of all active connections
 	std::vector<std::shared_ptr<GameConnection>> activeConnections;

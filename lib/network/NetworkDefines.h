@@ -20,6 +20,7 @@ using NetworkContext = boost::asio::io_context;
 #else
 using NetworkContext = boost::asio::io_service;
 #endif
+using NetworkStrand = NetworkContext::strand;
 using NetworkSocket = boost::asio::ip::tcp::socket;
 using NetworkAcceptor = boost::asio::ip::tcp::acceptor;
 using NetworkBuffer = boost::asio::streambuf;

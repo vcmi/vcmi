@@ -33,5 +33,5 @@ public:
 	virtual bool isPlayerHost(const PlayerColor & color) const = 0;
 	virtual bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const = 0;
 	virtual bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const = 0;
-	virtual void broadcastPack(const CPackForClient & pack) = 0;
+	virtual void broadcastPack(CPackForClient & pack) = 0;
 };

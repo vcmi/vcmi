@@ -208,15 +208,15 @@ void NetworkConnection::close()
 	//NOTE: ignoring error code, intended
 }
 
-InternalConnection::InternalConnection(INetworkConnectionListener & listener, NetworkContext & context)
-	: io(context)
+InternalConnection::InternalConnection(INetworkConnectionListener & listener, NetworkStrand & strand)
+	: strand(strand)
 	, listener(listener)
 {
 }
 
 void InternalConnection::receivePacket(const std::vector<std::byte> & message)
 {
-	boost::asio::post(io, [self = std::static_pointer_cast<InternalConnection>(shared_from_this()), message](){
+	strand.post([self = std::static_pointer_cast<InternalConnection>(shared_from_this()), message](){
 		if (self->connectionActive)
 			self->listener.onPacketReceived(self, message);
 	});
@@ -224,7 +224,7 @@ void InternalConnection::receivePacket(const std::vector<std::byte> & message)
 
 void InternalConnection::disconnect()
 {
-	boost::asio::post(io, [self = std::static_pointer_cast<InternalConnection>(shared_from_this())](){
+	strand.post([self = std::static_pointer_cast<InternalConnection>(shared_from_this())](){
 		self->listener.onDisconnected(self, "Internal connection has been terminated");
 		self->otherSideWeak.reset();
 		self->connectionActive = false;

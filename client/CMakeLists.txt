@@ -184,6 +184,7 @@ set(vcmiclientcommon_SRCS
 
 	xBRZ/xbrz.cpp
 
+	AntilagServer.cpp
 	ArtifactsUIController.cpp
 	GameEngine.cpp
 	GameInstance.cpp
@@ -407,6 +408,7 @@ set(vcmiclientcommon_HEADERS
 	xBRZ/xbrz.h
 	xBRZ/xbrz_tools.h
 
+	AntilagServer.h
 	ArtifactsUIController.h
 	CMT.h
 	CPlayerInterface.h

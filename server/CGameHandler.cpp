@@ -488,6 +488,7 @@ void CGameHandler::handleReceivedPack(std::shared_ptr<IGameConnection> connectio
 		connection->sendPack(applied);
 	};
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	PackageReceived received(
 		pack.player,
 		pack.requestID,
@@ -1505,7 +1506,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	}
 }
 
-void CGameHandler::sendToAllClients(const CPackForClient & pack)
+void CGameHandler::sendToAllClients(CPackForClient & pack)
 {
 	logNetwork->trace("\tSending to all clients: %s", typeid(pack).name());
 	gameServer().broadcastPack(pack);

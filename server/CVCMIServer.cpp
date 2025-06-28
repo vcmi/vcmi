@@ -1158,7 +1158,7 @@ bool CVCMIServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor r
 	return false;
 }
 
-void CVCMIServer::broadcastPack(const CPackForClient & pack)
+void CVCMIServer::broadcastPack(CPackForClient & pack)
 {
 	for (const auto & c : activeConnections)
 		c->sendPack(pack);

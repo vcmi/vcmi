@@ -13,8 +13,9 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-NetworkServer::NetworkServer(INetworkServerListener & listener, NetworkContext & context)
+NetworkServer::NetworkServer(INetworkServerListener & listener, NetworkContext & context, NetworkStrand & strand)
 	: io(context)
+	, strand(strand)
 	, listener(listener)
 {
 }
@@ -59,7 +60,7 @@ void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & c
 
 void NetworkServer::receiveInternalConnection(std::shared_ptr<IInternalConnection> remoteConnection)
 {
-	auto localConnection = std::make_shared<InternalConnection>(*this, io);
+	auto localConnection = std::make_shared<InternalConnection>(*this, strand);
 
 	connections.insert(localConnection);
 

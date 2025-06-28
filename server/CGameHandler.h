@@ -276,7 +276,7 @@ public:
 #endif
 	}
 
-	void sendToAllClients(const CPackForClient & pack);
+	void sendToAllClients(CPackForClient & pack);
 	void sendAndApply(CPackForClient & pack) override;
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);

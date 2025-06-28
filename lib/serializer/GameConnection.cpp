@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE ConnectionPackWriter final : public IBinaryWriter
+class ConnectionPackWriter final : public IBinaryWriter
 {
 public:
 	std::vector<std::byte> buffer;
@@ -27,7 +27,7 @@ public:
 	int write(const std::byte * data, unsigned size) final;
 };
 
-class DLL_LINKAGE ConnectionPackReader final : public IBinaryReader
+class ConnectionPackReader final : public IBinaryReader
 {
 public:
 	const std::vector<std::byte> * buffer;

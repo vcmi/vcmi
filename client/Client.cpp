@@ -366,7 +366,7 @@ int CClient::sendRequest(const CPackForServer & request, PlayerColor player, boo
 	waitingRequest.pushBack(requestID);
 	request.requestID = requestID;
 	request.player = player;
-	GAME->server().logicConnection->sendPack(request);
+	GAME->server().sendGamePack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(&request, requestID);
 

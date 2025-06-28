@@ -8,8 +8,9 @@
  *
  */
 #include "StdInc.h"
-
 #include "CServerHandler.h"
+
+#include "AntilagServer.h"
 #include "Client.h"
 #include "ServerRunner.h"
 #include "GameChatHandler.h"
@@ -616,6 +617,9 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
+//	if (isGuest())
+	antilagServer = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
+
 	switch(si->mode)
 	{
 	case EStartMode::NEW_GAME:
@@ -940,9 +944,11 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	if (antilagServer && antilagServer->verifyReply(clientPack))
+		return;
+
 	client->handlePack(clientPack);
 }
-
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
@@ -958,4 +964,12 @@ bool CServerHandler::inLobbyRoom() const
 bool CServerHandler::inGame() const
 {
 	return logicConnection != nullptr;
+}
+
+void CServerHandler::sendGamePack(const CPackForServer & pack) const
+{
+	if (antilagServer)
+		antilagServer->tryPredictReply(pack);
+
+	logicConnection->sendPack(pack);
 }

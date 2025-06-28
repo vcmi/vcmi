@@ -17,6 +17,7 @@ class DLL_LINKAGE IGameConnection : boost::noncopyable
 {
 public:
 	virtual void sendPack(const CPack & pack) = 0;
+	virtual std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data) = 0;
 	virtual int getConnectionID() const = 0;
 };
 
