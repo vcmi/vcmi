@@ -891,11 +891,6 @@ void ApplyClientNetPackVisitor::visitPackageApplied(PackageApplied & pack)
 		logNetwork->warn("Surprising server message! PackageApplied for unknown requestID!");
 }
 
-void ApplyClientNetPackVisitor::visitPackageReceived(PackageReceived & pack)
-{
-	// No-op for now
-}
-
 void ApplyClientNetPackVisitor::visitSystemMessage(SystemMessage & pack)
 {
 	// usually used to receive error messages from server

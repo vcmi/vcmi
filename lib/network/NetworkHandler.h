@@ -15,8 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class NetworkHandler final : public INetworkHandler
 {
-	std::unique_ptr<NetworkContext> io;
-	std::unique_ptr<NetworkStrand> strand;
+	std::unique_ptr<NetworkContext> context;
 
 public:
 	NetworkHandler();

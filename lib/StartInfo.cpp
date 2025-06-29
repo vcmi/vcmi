@@ -225,7 +225,7 @@ PlayerConnectionID LobbyInfo::clientFirstId(GameConnectionID clientId) const
 			return pair.first;
 	}
 
-	return PlayerConnectionID::PLAYER_AI;
+	throw std::runtime_error("LobbyInfo::clientFirstId: invalid GameConnectionID!");
 }
 
 PlayerInfo & LobbyInfo::getPlayerInfo(PlayerColor color)

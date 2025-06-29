@@ -49,11 +49,11 @@ public:
 class InternalConnection final : public IInternalConnection, public std::enable_shared_from_this<InternalConnection>
 {
 	std::weak_ptr<IInternalConnection> otherSideWeak;
-	NetworkStrand & strand;
+	NetworkContext & context;
 	INetworkConnectionListener & listener;
 	bool connectionActive = false;
 public:
-	InternalConnection(INetworkConnectionListener & listener, NetworkStrand & strand);
+	InternalConnection(INetworkConnectionListener & listener, NetworkContext & context);
 
 	void receivePacket(const std::vector<std::byte> & message) override;
 	void disconnect() override;

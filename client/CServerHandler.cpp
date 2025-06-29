@@ -617,8 +617,8 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
-//	if (isGuest())
-	antilagServer = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
+	if (isGuest())
+		antilagServer = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{
