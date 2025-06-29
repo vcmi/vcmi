@@ -12,13 +12,12 @@
 #include "../lib/networkPacks/NetPackVisitor.h"
 #include "../server/IGameServer.h"
 #include "../lib/network/NetworkInterface.h"
-#include "../lib/serializer/IGameConnection.h"
 #include "../lib/serializer/CSerializer.h"
 #include "../lib/serializer/BinarySerializer.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 struct CPackForServer;
-class IGameConnection;
+class GameConnection;
 VCMI_LIB_NAMESPACE_END
 
 class CGameHandler;
@@ -31,13 +30,9 @@ public:
 	int write(const std::byte * data, unsigned size) final;
 };
 
-class AntilagFakeConnection final : public IGameConnection
+class AntilagReplyPrediction
 {
 public:
-	void sendPack(const CPack & pack) override;
-	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data) override;
-	int getConnectionID() const override;
-
 	PlayerColor senderID;
 	uint32_t requestID;
 	std::vector<ConnectionPackWriter> writtenPacks;
@@ -126,7 +121,6 @@ private:
 	//void visitChangeObjPos(ChangeObjPos & pack) override;
 	//void visitPlayerEndsTurn(PlayerEndsTurn & pack) override;
 	//void visitPlayerEndsGame(PlayerEndsGame & pack) override;
-	//void visitPlayerReinitInterface(PlayerReinitInterface & pack) override;
 	//void visitRemoveBonus(RemoveBonus & pack) override;
 	//void visitRemoveObject(RemoveObject & pack) override;
 	void visitTryMoveHero(TryMoveHero & pack) override;
@@ -186,9 +180,9 @@ public:
 // Fake server that is used by client to make a quick prediction on what real server would reply without waiting for network latency
 class AntilagServer final : public IGameServer, public INetworkConnectionListener, boost::noncopyable
 {
-	std::vector<std::shared_ptr<AntilagFakeConnection>> predictedReplies;
+	std::vector<AntilagReplyPrediction> predictedReplies;
 	std::shared_ptr<INetworkConnection> antilagNetConnection;
-	std::shared_ptr<IGameConnection> antilagGameConnection;
+	std::shared_ptr<GameConnection> antilagGameConnection;
 	std::unique_ptr<CGameHandler> gameHandler;
 
 	static constexpr uint32_t invalidPackageID = std::numeric_limits<uint32_t>::max();
@@ -198,9 +192,11 @@ class AntilagServer final : public IGameServer, public INetworkConnectionListene
 	void setState(EServerState value) override;
 	EServerState getState() const override;
 	bool isPlayerHost(const PlayerColor & color) const override;
-	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const override;
+	bool hasPlayerAt(PlayerColor player, GameConnectionID connection) const override;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
-	void broadcastPack(CPackForClient & pack) override;
+	void applyPack(CPackForClient & pack) override;
+	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
+
 	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
 	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
 

@@ -11,17 +11,15 @@
 
 #include "../lib/networkPacks/NetPackVisitor.h"
 
-class IGameConnection;
-
 class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	std::shared_ptr<IGameConnection> connection;
+	GameConnectionID connection;
 	CGameHandler & gh;
 	bool result;
 
 public:
-	ApplyGhNetPackVisitor(CGameHandler & gh, const std::shared_ptr<IGameConnection> & connection)
+	ApplyGhNetPackVisitor(CGameHandler & gh, GameConnectionID connection)
 		: connection(connection)
 		, gh(gh)
 		, result(false)

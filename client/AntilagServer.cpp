@@ -23,26 +23,6 @@ int ConnectionPackWriter::write(const std::byte * data, unsigned size)
 	return size;
 }
 
-void AntilagFakeConnection::sendPack(const CPack & pack)
-{
-	logGlobal->info("Prediction: pack '%s'", typeid(pack).name());
-
-	ConnectionPackWriter packWriter;
-	BinarySerializer serializer(&packWriter);
-	serializer & &pack;
-	writtenPacks.push_back(std::move(packWriter));
-}
-
-std::unique_ptr<CPack> AntilagFakeConnection::retrievePack(const std::vector<std::byte> & data)
-{
-	throw std::runtime_error("AntilagFakeConnection::retrievePack not implemented");
-}
-
-int AntilagFakeConnection::getConnectionID() const
-{
-	return 0;
-}
-
 void AntilagRollbackGeneratorVisitor::visitTryMoveHero(TryMoveHero & pack)
 {
 	auto rollbackMove = std::make_unique<TryMoveHero>();
@@ -119,12 +99,12 @@ void AntilagServer::onPacketReceived(const std::shared_ptr<INetworkConnection> &
 
 	logGlobal->info("Predicting effects of pack '%s'", typeid(*serverPack).name());
 
-	auto newConnection = std::make_shared<AntilagFakeConnection>();
-	newConnection->requestID = serverPack->requestID;
-	newConnection->senderID = serverPack->player;
-	predictedReplies.push_back(std::move(newConnection));
+	AntilagReplyPrediction newPrediction;
+	newPrediction.requestID = serverPack->requestID;
+	newPrediction.senderID = serverPack->player;
+	predictedReplies.push_back(std::move(newPrediction));
 
-	gameHandler->handleReceivedPack(predictedReplies.back(), *serverPack);
+	gameHandler->handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverPack);
 }
 
 void AntilagServer::tryPredictReply(const CPackForServer & request)
@@ -145,8 +125,8 @@ bool AntilagServer::verifyReply(const CPackForClient & pack)
 		assert(currentPackageID == invalidPackageID);
 		assert(!predictedReplies.empty());
 		const auto & nextPrediction = predictedReplies.front();
-		assert(nextPrediction->senderID == packageReceived->player);
-		assert(nextPrediction->requestID == packageReceived->requestID);
+		assert(nextPrediction.senderID == packageReceived->player);
+		assert(nextPrediction.requestID == packageReceived->requestID);
 		currentPackageID = packageReceived->requestID;
 	}
 
@@ -161,8 +141,8 @@ bool AntilagServer::verifyReply(const CPackForClient & pack)
 	BinarySerializer serializer(&packWriter);
 	serializer & &pack;
 
-	if (packWriter.buffer == predictedReplies.front()->writtenPacks.front().buffer)
-		predictedReplies.front()->writtenPacks.erase(predictedReplies.front()->writtenPacks.begin());
+	if (packWriter.buffer == predictedReplies.front().writtenPacks.front().buffer)
+		predictedReplies.front().writtenPacks.erase(predictedReplies.front().writtenPacks.begin());
 	else
 		throw std::runtime_error("TODO: IMPLEMENT PACK ROLLBACK");
 
@@ -170,8 +150,8 @@ bool AntilagServer::verifyReply(const CPackForClient & pack)
 	{
 		assert(currentPackageID == packageApplied->requestID);
 		assert(!predictedReplies.empty());
-		assert(currentPackageID == predictedReplies.front()->requestID);
-		assert(predictedReplies.front()->writtenPacks.empty());
+		assert(currentPackageID == predictedReplies.front().requestID);
+		assert(predictedReplies.front().writtenPacks.empty());
 		predictedReplies.erase(predictedReplies.begin());
 		currentPackageID = invalidPackageID;
 	}
@@ -194,7 +174,7 @@ bool AntilagServer::isPlayerHost(const PlayerColor & color) const
 	return false; // TODO?
 }
 
-bool AntilagServer::hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const
+bool AntilagServer::hasPlayerAt(PlayerColor player, GameConnectionID c) const
 {
 	return true; // TODO?
 }
@@ -204,10 +184,22 @@ bool AntilagServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor
 	return false; // TODO?
 }
 
-void AntilagServer::broadcastPack(CPackForClient & pack)
+void AntilagServer::applyPack(CPackForClient & pack)
 {
-	AntilagReplyPredictionVisitor visitor;
-	pack.visit(visitor);
-	predictedReplies.back()->sendPack(pack);
+//	AntilagReplyPredictionVisitor visitor;
+//	pack.visit(visitor);
+//	if (!visitor.canBeApplied())
+//		throw std::runtime_error("TODO: IMPLEMENT INTERRUPTION");
+
+	logGlobal->info("Prediction: pack '%s'", typeid(pack).name());
+
+	ConnectionPackWriter packWriter;
+	BinarySerializer serializer(&packWriter);
+	serializer & &pack;
+	predictedReplies.back().writtenPacks.push_back(std::move(packWriter));
 }
 
+void AntilagServer::sendPack(CPackForClient & pack, GameConnectionID connectionID)
+{
+	// TODO
+}

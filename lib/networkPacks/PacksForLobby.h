@@ -41,8 +41,8 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	std::vector<std::string> names;
 	EStartMode mode = EStartMode::INVALID;
 	// Changed by server before announcing pack
-	int clientId = -1;
-	int hostClientId = -1;
+	GameConnectionID clientId = GameConnectionID::INVALID;
+	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	ESerializationVersion version = ESerializationVersion::CURRENT;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -61,9 +61,8 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 
 struct DLL_LINKAGE LobbyClientDisconnected : public CLobbyPackToPropagate
 {
-	int clientId;
+	GameConnectionID clientId = GameConnectionID::INVALID;
 	bool shutdownServer = false;
-
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -138,7 +137,6 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	// Set by server
 	std::shared_ptr<StartInfo> initializedStartInfo;
 	std::shared_ptr<CGameState> initializedGameState;
-	int clientId = -1; //-1 means to all clients
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -146,7 +144,6 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	{
 		if (!h.saving)
 			h.loadingGamestate = true;
-		h & clientId;
 		h & initializedStartInfo;
 		h & initializedGameState;
 		if (!h.saving)
@@ -156,7 +153,7 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 
 struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 {
-	int newHostConnectionId = -1;
+	GameConnectionID newHostConnectionId = GameConnectionID::INVALID;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -340,7 +337,7 @@ struct DLL_LINKAGE LobbySetDifficulty : public CLobbyPackToServer
 
 struct DLL_LINKAGE LobbyForceSetPlayer : public CLobbyPackToServer
 {
-	ui8 targetConnectedPlayer = -1;
+	PlayerConnectionID targetConnectedPlayer = PlayerConnectionID::INVALID;
 	PlayerColor targetPlayerColor = PlayerColor::CANNOT_DETERMINE;
 
 	void visitTyped(ICPackVisitor & visitor) override;

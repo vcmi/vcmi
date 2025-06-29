@@ -9,10 +9,12 @@
  */
 #pragma once
 
+#include "../lib/serializer/GameConnectionID.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class PlayerColor;
-class IGameConnection;
 struct CPackForClient;
+
 VCMI_LIB_NAMESPACE_END
 
 enum class EServerState : ui8
@@ -31,7 +33,8 @@ public:
 	virtual void setState(EServerState value) = 0;
 	virtual EServerState getState() const = 0;
 	virtual bool isPlayerHost(const PlayerColor & color) const = 0;
-	virtual bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const = 0;
+	virtual bool hasPlayerAt(PlayerColor player, GameConnectionID connectionID) const = 0;
 	virtual bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const = 0;
-	virtual void broadcastPack(CPackForClient & pack) = 0;
+	virtual void applyPack(CPackForClient & pack) = 0;
+	virtual void sendPack(CPackForClient & pack, GameConnectionID connectionID) = 0;
 };

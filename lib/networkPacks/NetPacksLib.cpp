@@ -193,11 +193,6 @@ void PlayerEndsGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPlayerEndsGame(*this);
 }
 
-void PlayerReinitInterface::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitPlayerReinitInterface(*this);
-}
-
 void RemoveBonus::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRemoveBonus(*this);

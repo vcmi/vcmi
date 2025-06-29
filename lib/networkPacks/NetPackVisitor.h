@@ -54,7 +54,6 @@ public:
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
-	virtual void visitPlayerReinitInterface(PlayerReinitInterface & pack) {}
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}

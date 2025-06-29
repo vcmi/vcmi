@@ -58,7 +58,6 @@ public:
 	void visitChangeObjPos(ChangeObjPos & pack) override;
 	void visitPlayerEndsTurn(PlayerEndsTurn & pack) override;
 	void visitPlayerEndsGame(PlayerEndsGame & pack) override;
-	void visitPlayerReinitInterface(PlayerReinitInterface & pack) override;
 	void visitRemoveBonus(RemoveBonus & pack) override;
 	void visitRemoveObject(RemoveObject & pack) override;
 	void visitTryMoveHero(TryMoveHero & pack) override;

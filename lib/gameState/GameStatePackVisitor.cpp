@@ -321,19 +321,6 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	gs.actingPlayers.erase(pack.player);
 }
 
-void GameStatePackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)
-{
-	if(!gs.getStartInfo())
-		return;
-
-	//TODO: what does mean if more that one player connected?
-	if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
-	{
-		for(const auto & player : pack.players)
-			gs.getStartInfo()->getIthPlayersSettings(player).connectedPlayerIDs.clear();
-	}
-}
-
 void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 {
 	CBonusSystemNode *node = nullptr;

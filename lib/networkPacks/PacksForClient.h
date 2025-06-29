@@ -533,20 +533,6 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
-{
-	std::vector<PlayerColor> players;
-	ui8 playerConnectionId; //PLAYER_AI for AI player
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & players;
-		h & playerConnectionId;
-	}
-};
-
 struct DLL_LINKAGE RemoveBonus : public CPackForClient
 {
 	explicit RemoveBonus(GiveBonus::ETarget Who = GiveBonus::ETarget::OBJECT)

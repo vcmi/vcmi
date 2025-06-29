@@ -49,8 +49,8 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::shared_ptr<GameConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
-	int currentClientId;
-	ui8 currentPlayerId;
+	GameConnectionID currentClientId;
+	PlayerConnectionID currentPlayerId;
 	uint16_t port;
 	bool runByClient;
 
@@ -62,9 +62,10 @@ public:
 	void setState(EServerState value) override;
 	EServerState getState() const override;
 	bool isPlayerHost(const PlayerColor & color) const override;
-	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<IGameConnection> & c) const override;
+	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionID) const override;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
-	void broadcastPack(CPackForClient & pack) override;
+	void applyPack(CPackForClient & pack) override;
+	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
 
 	/// List of all active connections
 	std::vector<std::shared_ptr<GameConnection>> activeConnections;
@@ -93,17 +94,16 @@ public:
 	void threadHandleClient(std::shared_ptr<GameConnection> c);
 
 	void announcePack(CPackForLobby & pack);
-	bool passHost(int toConnectionId);
+	bool passHost(GameConnectionID toConnectionId);
 
 	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 
-	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
+	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
 	void clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<GameConnection> c);
-	void reconnectPlayer(int connId);
 
 	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
@@ -133,7 +133,7 @@ public:
 	void setCampaignMap(CampaignScenarioID mapId);
 	void setCampaignBonus(int bonusId);
 
-	ui8 getIdOfFirstUnallocatedPlayer() const;
+	PlayerConnectionID getIdOfFirstUnallocatedPlayer() const;
 
 	void multiplayerWelcomeMessage();
 };

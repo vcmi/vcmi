@@ -159,7 +159,7 @@ public:
 	std::set<PlayerColor> getHumanColors();
 	PlayerColor myFirstColor() const;
 	bool isMyColor(PlayerColor color) const;
-	ui8 myFirstId() const; // Used by chat only!
+	PlayerConnectionID myFirstId() const; // Used by chat only!
 
 	EClientState getState() const;
 	void setState(EClientState newState);

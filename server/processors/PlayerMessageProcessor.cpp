@@ -32,7 +32,6 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
-#include "../../lib/serializer/IGameConnection.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../lib/VCMIDirs.h"
 
@@ -964,25 +963,25 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		callbacks.at(cheatName)();
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<IGameConnection> connection, const MetaString & message)
+void PlayerMessageProcessor::sendSystemMessage(GameConnectionID connectionID, const MetaString & message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	connection->sendPack(sm);
+	gameHandler->gameServer().sendPack(sm, connectionID);
 }
 
-void PlayerMessageProcessor::sendSystemMessage(std::shared_ptr<IGameConnection> connection, const std::string & message)
+void PlayerMessageProcessor::sendSystemMessage(GameConnectionID connectionID, const std::string & message)
 {
 	MetaString str;
 	str.appendRawString(message);
-	sendSystemMessage(connection, str);
+	sendSystemMessage(connectionID, str);
 }
 
 void PlayerMessageProcessor::broadcastSystemMessage(MetaString message)
 {
 	SystemMessage sm;
 	sm.text = message;
-	gameHandler->sendToAllClients(sm);
+	gameHandler->gameServer().applyPack(sm);
 }
 
 void PlayerMessageProcessor::broadcastSystemMessage(const std::string & message)

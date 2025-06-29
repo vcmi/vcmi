@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "IGameConnection.h"
+#include "GameConnectionID.h"
 
 enum class ESerializationVersion : int32_t;
 
@@ -26,7 +26,7 @@ class IGameInfoCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
-class DLL_LINKAGE GameConnection final : public IGameConnection
+class DLL_LINKAGE GameConnection final
 {
 	/// Non-owning pointer to underlying connection
 	std::weak_ptr<INetworkConnection> networkConnection;
@@ -43,14 +43,13 @@ public:
 	std::shared_ptr<INetworkConnection> getConnection();
 
 	std::string uuid;
-	int connectionID;
+	GameConnectionID connectionID = GameConnectionID::INVALID;
 
 	explicit GameConnection(std::weak_ptr<INetworkConnection> networkConnection);
 	~GameConnection();
 
-	void sendPack(const CPack & pack) override;
-	int getConnectionID() const override;
-	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data) override;
+	void sendPack(const CPack & pack);
+	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);
 
 	void enterLobbyConnectionMode();
 	void setCallback(IGameInfoCallback & cb);

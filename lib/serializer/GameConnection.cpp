@@ -58,7 +58,6 @@ GameConnection::GameConnection(std::weak_ptr<INetworkConnection> networkConnecti
 	, packWriter(std::make_unique<ConnectionPackWriter>())
 	, deserializer(std::make_unique<BinaryDeserializer>(packReader.get()))
 	, serializer(std::make_unique<BinarySerializer>(packWriter.get()))
-	, connectionID(-1)
 {
 	assert(networkConnection.lock() != nullptr);
 
@@ -67,11 +66,6 @@ GameConnection::GameConnection(std::weak_ptr<INetworkConnection> networkConnecti
 }
 
 GameConnection::~GameConnection() = default;
-
-int GameConnection::getConnectionID() const
-{
-	return connectionID;
-}
 
 void GameConnection::sendPack(const CPack & pack)
 {

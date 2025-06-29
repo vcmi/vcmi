@@ -128,7 +128,7 @@ void CServerHandler::threadRunNetwork()
 
 void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & playerNames)
 {
-	hostClientId = -1;
+	hostClientId = GameConnectionID::INVALID;
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	mapToStart = nullptr;
@@ -297,7 +297,7 @@ bool CServerHandler::isMyColor(PlayerColor color) const
 	return isClientColor(logicConnection->connectionID, color);
 }
 
-ui8 CServerHandler::myFirstId() const
+PlayerConnectionID CServerHandler::myFirstId() const
 {
 	return clientFirstId(logicConnection->connectionID);
 }
@@ -508,7 +508,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		if(id.length())
 		{
 			LobbyChangeHost lch;
-			lch.newHostConnectionId = boost::lexical_cast<int>(id);
+			lch.newHostConnectionId = static_cast<GameConnectionID>(boost::lexical_cast<int>(id));
 			sendLobbyPack(lch);
 		}
 	}
@@ -520,7 +520,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
 		{
-			ui8 connected = boost::lexical_cast<int>(connectedId);
+			auto connected = static_cast<PlayerConnectionID>(boost::lexical_cast<int>(connectedId));
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
 			if(color.isValidPlayer() && playerNames.find(connected) != playerNames.end())
 			{

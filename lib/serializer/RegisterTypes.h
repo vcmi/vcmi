@@ -148,7 +148,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<ChangeObjPos>(101);
 	s.template registerType<PlayerEndsTurn>(102);
 	s.template registerType<PlayerEndsGame>(103);
-	s.template registerType<PlayerReinitInterface>(104);
 	s.template registerType<RemoveBonus>(105);
 	s.template registerType<ChangeFormation>(107);
 	s.template registerType<RemoveObject>(108);

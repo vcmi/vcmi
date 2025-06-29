@@ -220,19 +220,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId == -1) //do not restart game for single client only
-		srv.startGameImmediately();
-	else
-	{
-		for(const auto & connection : srv.activeConnections)
-		{
-			if(connection->connectionID == pack.clientId)
-			{
-				connection->setCallback(srv.gh->gameInfo());
-				srv.reconnectPlayer(pack.clientId);
-			}
-		}
-	}
+	srv.startGameImmediately();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)

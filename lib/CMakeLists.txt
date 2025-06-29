@@ -709,12 +709,13 @@ set(lib_MAIN_HEADERS
 	serializer/CSaveFile.h
 	serializer/CSerializer.h
 	serializer/CTypeList.h
-	serializer/IGameConnection.h
+	serializer/GameConnectionID.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
 	serializer/JsonUpdater.h
 	serializer/ESerializationVersion.h
+	serializer/PlayerConnectionID.h
 	serializer/RegisterTypes.h
 	serializer/Serializeable.h
 	serializer/SerializerReflection.h
