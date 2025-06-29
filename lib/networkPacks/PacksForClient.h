@@ -48,6 +48,8 @@ class BattleInfo;
 // For now it's will be there till teleports code refactored and moved into own file
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
+using FowTilesType = std::set<int3>;
+
 /***********************************************************************************************************/
 struct DLL_LINKAGE PackageApplied : public CPackForClient
 {
@@ -405,7 +407,7 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 
 struct DLL_LINKAGE FoWChange : public CPackForClient
 {
-	std::unordered_set<int3> tiles;
+	FowTilesType tiles;
 	PlayerColor player;
 	ETileVisibility mode;
 	bool waitForDialogs = false;
@@ -659,7 +661,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	/// Hero anchor position to which hero moves
 	int3 end;
 	/// Tiles that were revealed by this move
-	std::unordered_set<int3> fowRevealed;
+	FowTilesType fowRevealed;
 	/// If hero moves on guarded tile, this field will be set to visitable pos of attacked wandering monster
 	int3 attackedFrom;
 
@@ -679,6 +681,12 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		h & movePoints;
 		h & fowRevealed;
 		h & attackedFrom;
+
+		std::string fow;
+		for (const auto & tile : fowRevealed)
+			fow += tile.toString() + ", ";
+
+		logGlobal->info("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
 	}
 };
 

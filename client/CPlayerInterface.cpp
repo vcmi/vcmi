@@ -1184,14 +1184,14 @@ void CPlayerInterface::showMapObjectSelectDialog(QueryID askID, const Component 
 	ENGINE->windows().pushWindow(wnd);
 }
 
-void CPlayerInterface::tileRevealed(const std::unordered_set<int3> &pos)
+void CPlayerInterface::tileRevealed(const FowTilesType &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//FIXME: wait for dialog? Magi hut/eye would benefit from this but may break other areas
 	adventureInt->onMapTilesChanged(pos);
 }
 
-void CPlayerInterface::tileHidden(const std::unordered_set<int3> &pos)
+void CPlayerInterface::tileHidden(const FowTilesType &pos)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	adventureInt->onMapTilesChanged(pos);
@@ -1341,7 +1341,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 		//redraw minimap if owner changed
 		std::set<int3> pos = obj->getBlockedPos();
-		std::unordered_set<int3> upos(pos.begin(), pos.end());
+		FowTilesType upos(pos.begin(), pos.end());
 		adventureInt->onMapTilesChanged(upos);
 
 		assert(cb->getTownsInfo().size() == localState->getOwnedTowns().size());

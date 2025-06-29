@@ -32,6 +32,7 @@ class EVictoryLossCheckResult;
 class IShipyard;
 class IMarket;
 
+using FowTilesType = std::set<int3>;
 enum class EInfoWindowMode : uint8_t;
 
 class DLL_LINKAGE IGameEventsReceiver
@@ -76,8 +77,8 @@ public:
 	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
-	virtual void tileHidden(const std::unordered_set<int3> &pos){};
-	virtual void tileRevealed(const std::unordered_set<int3> &pos){};
+	virtual void tileHidden(const FowTilesType &pos){};
+	virtual void tileRevealed(const FowTilesType &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr){}; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void centerView (int3 pos, int focusTime){};

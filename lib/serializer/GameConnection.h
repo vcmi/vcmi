@@ -19,20 +19,20 @@ class BinaryDeserializer;
 class BinarySerializer;
 struct CPack;
 class INetworkConnection;
-class ConnectionPackReader;
-class ConnectionPackWriter;
+class GameConnectionPackReader;
+class GameConnectionPackWriter;
 class CGameState;
 class IGameInfoCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
-class DLL_LINKAGE GameConnection final
+class DLL_LINKAGE GameConnection final : boost::noncopyable
 {
 	/// Non-owning pointer to underlying connection
 	std::weak_ptr<INetworkConnection> networkConnection;
 
-	std::unique_ptr<ConnectionPackReader> packReader;
-	std::unique_ptr<ConnectionPackWriter> packWriter;
+	std::unique_ptr<GameConnectionPackReader> packReader;
+	std::unique_ptr<GameConnectionPackWriter> packWriter;
 	std::unique_ptr<BinaryDeserializer> deserializer;
 	std::unique_ptr<BinarySerializer> serializer;
 

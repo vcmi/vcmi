@@ -286,7 +286,7 @@ void VCAI::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * to
 	//moveCreaturesToHero(town);
 }
 
-void VCAI::tileHidden(const std::unordered_set<int3> & pos)
+void VCAI::tileHidden(const FowTilesType & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
@@ -295,7 +295,7 @@ void VCAI::tileHidden(const std::unordered_set<int3> & pos)
 	clearPathsInfo();
 }
 
-void VCAI::tileRevealed(const std::unordered_set<int3> & pos)
+void VCAI::tileRevealed(const FowTilesType & pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;

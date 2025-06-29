@@ -167,7 +167,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 		GAME->interface()->localState->hasPath(hero) &&
 		GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
 
-	std::unordered_set<int3> changedTiles {
+	FowTilesType changedTiles {
 		hero->convertToVisitablePos(details.start),
 		hero->convertToVisitablePos(details.end)
 	};

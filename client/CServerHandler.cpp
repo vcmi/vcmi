@@ -617,8 +617,8 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
-	if (isGuest())
-		antilagServer = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
+	//if (isGuest())
+	networkLagCompensator = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{
@@ -944,7 +944,7 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
-	if (antilagServer && antilagServer->verifyReply(clientPack))
+	if (networkLagCompensator && networkLagCompensator->verifyReply(clientPack))
 		return;
 
 	client->handlePack(clientPack);
@@ -968,8 +968,8 @@ bool CServerHandler::inGame() const
 
 void CServerHandler::sendGamePack(const CPackForServer & pack) const
 {
-	if (antilagServer)
-		antilagServer->tryPredictReply(pack);
+	if (networkLagCompensator)
+		networkLagCompensator->tryPredictReply(pack);
 
 	logicConnection->sendPack(pack);
 }

@@ -75,7 +75,7 @@ public:
 	bool isTileGuardedUnchecked(int3 tile) const override;
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
-	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
+	void getVisibleTilesInRange(FowTilesType &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const override;
@@ -103,8 +103,8 @@ public:
 
 	//used for random spawns
 	void getFreeTiles(std::vector<int3> &tiles) const;
-	void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
-	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const override;
+	void getTilesInRange(FowTilesType & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
+	void getAllTiles(FowTilesType &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const override;
 
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt) const;
 

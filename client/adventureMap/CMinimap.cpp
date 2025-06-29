@@ -276,7 +276,7 @@ void CMinimap::updateVisibleHeroes()
 	}
 }
 
-void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
+void CMinimap::updateTiles(const FowTilesType & positions)
 {
 	if(minimap)
 	{

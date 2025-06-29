@@ -163,7 +163,7 @@ void MapAudioPlayer::updateAmbientSounds()
 	};
 
 	int3 pos = currentSelection->getSightCenter();
-	std::unordered_set<int3> tiles;
+	FowTilesType tiles;
 	GAME->interface()->cb->getVisibleTilesInRange(tiles, pos, ENGINE->sound().ambientGetRange(), int3::DIST_CHEBYSHEV);
 	for(int3 tile : tiles)
 	{

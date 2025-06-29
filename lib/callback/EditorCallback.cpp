@@ -97,12 +97,12 @@ std::vector<const CGObjectInstance*> EditorCallback::getGuardingCreatures(int3) 
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::getTilesInRange(std::unordered_set<int3> &, const int3 &, int, ETileVisibility, std::optional<PlayerColor>, int3::EDistanceFormula) const
+void EditorCallback::getTilesInRange(FowTilesType &, const int3 &, int, ETileVisibility, std::optional<PlayerColor>, int3::EDistanceFormula) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::getAllTiles(std::unordered_set<int3> &, std::optional<PlayerColor>, int, const std::function<bool(const TerrainTile *)> &) const
+void EditorCallback::getAllTiles(FowTilesType &, std::optional<PlayerColor>, int, const std::function<bool(const TerrainTile *)> &) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }

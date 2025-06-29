@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class ConnectionPackWriter final : public IBinaryWriter
+class GameConnectionPackWriter final : public IBinaryWriter
 {
 public:
 	std::vector<std::byte> buffer;
@@ -27,7 +27,7 @@ public:
 	int write(const std::byte * data, unsigned size) final;
 };
 
-class ConnectionPackReader final : public IBinaryReader
+class GameConnectionPackReader final : public IBinaryReader
 {
 public:
 	const std::vector<std::byte> * buffer;
@@ -36,13 +36,13 @@ public:
 	int read(std::byte * data, unsigned size) final;
 };
 
-int ConnectionPackWriter::write(const std::byte * data, unsigned size)
+int GameConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
 	buffer.insert(buffer.end(), data, data + size);
 	return size;
 }
 
-int ConnectionPackReader::read(std::byte * data, unsigned size)
+int GameConnectionPackReader::read(std::byte * data, unsigned size)
 {
 	if (position + size > buffer->size())
 		throw std::runtime_error("End of file reached when reading received network pack!");
@@ -54,8 +54,8 @@ int ConnectionPackReader::read(std::byte * data, unsigned size)
 
 GameConnection::GameConnection(std::weak_ptr<INetworkConnection> networkConnection)
 	: networkConnection(networkConnection)
-	, packReader(std::make_unique<ConnectionPackReader>())
-	, packWriter(std::make_unique<ConnectionPackWriter>())
+	, packReader(std::make_unique<GameConnectionPackReader>())
+	, packWriter(std::make_unique<GameConnectionPackWriter>())
 	, deserializer(std::make_unique<BinaryDeserializer>(packReader.get()))
 	, serializer(std::make_unique<BinarySerializer>(packWriter.get()))
 {

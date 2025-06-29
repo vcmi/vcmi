@@ -106,7 +106,7 @@ public:
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
-	void tileHidden(const std::unordered_set<int3> & pos) override;
+	void tileHidden(const FowTilesType & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
 	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
@@ -121,7 +121,7 @@ public:
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
 	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
-	void tileRevealed(const std::unordered_set<int3> & pos) override;
+	void tileRevealed(const FowTilesType & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
 	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;

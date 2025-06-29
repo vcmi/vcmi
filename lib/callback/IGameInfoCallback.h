@@ -40,6 +40,8 @@ class CGTeleport;
 class CGTownInstance;
 class IMarket;
 
+using FowTilesType = std::set<int3>;
+
 #if SCRIPTING_ENABLED
 namespace scripting
 {
@@ -151,10 +153,10 @@ public:
 	virtual bool isTileGuardedUnchecked(int3 tile) const = 0;
 
 	/// Returns all tiles within specified range with specific tile visibility mode
-	virtual void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;
+	virtual void getTilesInRange(FowTilesType & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;
 
 	/// returns all tiles on given level (-1 - both levels, otherwise number of level)
-	virtual void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const = 0;
+	virtual void getAllTiles(FowTilesType &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const = 0;
 
 	virtual std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const  = 0;
 	virtual std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const  = 0;

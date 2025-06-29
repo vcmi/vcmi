@@ -1560,7 +1560,7 @@ void CGameHandler::throwIfWrongOwner(GameConnectionID connectionID, const CPackF
 
 void CGameHandler::throwIfPlayerNotActive(GameConnectionID connectionID, const CPackForServer * pack)
 {
-	if (!turnOrder->isPlayerMakingTurn(pack->player))
+	if (!vstd::contains(gs->actingPlayers, pack->player))
 		throwNotAllowedAction(connectionID);
 }
 
@@ -4069,7 +4069,7 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)
 {
-	std::unordered_set<int3> tiles;
+	FowTilesType tiles;
 
 	if (mode == ETileVisibility::HIDDEN)
 	{
@@ -4082,7 +4082,7 @@ void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, 
 	changeFogOfWar(tiles, player, mode);
 }
 
-void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode)
+void CGameHandler::changeFogOfWar(const FowTilesType &tiles, PlayerColor player, ETileVisibility mode)
 {
 	if (tiles.empty())
 		return;
@@ -4095,7 +4095,7 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 	if (mode == ETileVisibility::HIDDEN)
 	{
 		// do not hide tiles observed by owned objects. May lead to disastrous AI problems
-		std::unordered_set<int3> observedTiles;
+		FowTilesType observedTiles;
 		const auto * p = gameInfo().getPlayerState(player);
 		for (const auto * obj : p->getOwnedObjects())
 			gameInfo().getTilesInRange(observedTiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::REVEALED, obj->getOwner());

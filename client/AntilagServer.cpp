@@ -10,12 +10,15 @@
 #include "StdInc.h"
 #include "AntilagServer.h"
 
+#include "CServerHandler.h"
+#include "Client.h"
 #include "GameEngine.h"
 
 #include "../server/CGameHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/serializer/GameConnection.h"
+#include "GameInstance.h"
 
 int ConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
@@ -123,11 +126,14 @@ bool AntilagServer::verifyReply(const CPackForClient & pack)
 	if (packageReceived)
 	{
 		assert(currentPackageID == invalidPackageID);
-		assert(!predictedReplies.empty());
-		const auto & nextPrediction = predictedReplies.front();
-		assert(nextPrediction.senderID == packageReceived->player);
-		assert(nextPrediction.requestID == packageReceived->requestID);
-		currentPackageID = packageReceived->requestID;
+
+		if (!predictedReplies.empty() && predictedReplies.front().requestID == packageReceived->requestID)
+		{
+			[[maybe_unused]] const auto & nextPrediction = predictedReplies.front();
+			assert(nextPrediction.senderID == packageReceived->player);
+			assert(nextPrediction.requestID == packageReceived->requestID);
+			currentPackageID = packageReceived->requestID;
+		}
 	}
 
 	if (currentPackageID == invalidPackageID)
@@ -197,9 +203,11 @@ void AntilagServer::applyPack(CPackForClient & pack)
 	BinarySerializer serializer(&packWriter);
 	serializer & &pack;
 	predictedReplies.back().writtenPacks.push_back(std::move(packWriter));
+
+	GAME->server().client->handlePack(pack);
 }
 
 void AntilagServer::sendPack(CPackForClient & pack, GameConnectionID connectionID)
 {
-	// TODO
+	applyPack(pack);
 }

@@ -189,7 +189,7 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 
 	if (pack.mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
-		std::unordered_set<int3> tilesRevealed;
+		FowTilesType tilesRevealed;
 		for (auto & o : gs.getMap().getObjects())
 		{
 			if (o->asOwnable())

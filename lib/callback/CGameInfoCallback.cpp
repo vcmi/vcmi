@@ -716,7 +716,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 	}
 }
 
-void CGameInfoCallback::getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
+void CGameInfoCallback::getVisibleTilesInRange(FowTilesType &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
 	gameState().getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, *getPlayerID(),  distanceFormula);
 }
@@ -814,7 +814,7 @@ void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 	}
 }
 
-void CGameInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
+void CGameInfoCallback::getTilesInRange(FowTilesType & tiles,
 											  const int3 & pos,
 											  int radious,
 											  ETileVisibility mode,
@@ -851,7 +851,7 @@ void CGameInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 	}
 }
 
-void CGameInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, const std::function<bool(const TerrainTile *)> & filter) const
+void CGameInfoCallback::getAllTiles(FowTilesType & tiles, std::optional<PlayerColor> Player, int level, const std::function<bool(const TerrainTile *)> & filter) const
 {
 	if(Player.has_value() && !Player->isValidPlayer())
 	{
