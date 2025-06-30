@@ -122,9 +122,9 @@
 			"musicTheme" : [ "music/CstleTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
 			"townBackground": "TBCSBACK.bmp",
-			"guildWindow": "TPMAGECS.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLCSTL.DEF",
 			"hallBackground": "TPTHBKCS.BMP",
 			"hallSlots":
@@ -147,6 +147,13 @@
 			],
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
+			"guildSpellPositions" : [
+				[ { "x": 222, "y": 445 }, { "x": 312, "y": 445 }, { "x": 402, "y": 445 }, { "x": 520, "y": 445 }, { "x": 610, "y": 445 }, { "x": 700, "y": 445 } ],
+				[ { "x":  48, "y":  53 }, { "x":  48, "y": 147 }, { "x":  48, "y": 241 }, { "x":  48, "y": 335 }, { "x":  48, "y": 429 } ],
+				[ { "x": 570, "y":  82 }, { "x": 672, "y":  82 }, { "x": 570, "y": 157 }, { "x": 672, "y": 157 } ],
+				[ { "x": 183, "y":  42 }, { "x": 183, "y": 148 }, { "x": 183, "y": 253 } ]
+			],
+			"guildWindowPosition": { "x": 332, "y": 76 },
 			"moatAbility" : "castleMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 

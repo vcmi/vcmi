@@ -89,8 +89,10 @@ public:
 		VideoPath tavernVideo;
 		std::vector<AudioPath> musicTheme;
 		ImagePath townBackground;
-		ImagePath guildBackground;
-		ImagePath guildWindow;
+		std::vector<ImagePath> guildBackground;
+		std::vector<ImagePath> guildWindow;
+		Point guildWindowPosition;
+		std::vector<std::vector<Point>> guildSpellPositions;
 		AnimationPath buildingsIcons;
 		ImagePath hallBackground;
 		/// vector[row][column] = list of buildings in this slot
