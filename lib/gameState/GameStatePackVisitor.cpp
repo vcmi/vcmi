@@ -176,13 +176,8 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.hid);
-
 	assert(hero);
-
-	if(pack.mode == ChangeValueMode::ABSOLUTE)
-		hero->setMovementPoints(pack.val);
-	else
-		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
+	hero->setMovementPoints(pack.val);
 }
 
 void GameStatePackVisitor::visitFoWChange(FoWChange & pack)

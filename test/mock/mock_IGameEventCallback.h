@@ -74,7 +74,7 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
-	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override {};
+	void setMovePoints(ObjectInstanceID hid, int val) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}
