@@ -67,6 +67,8 @@ public:
 	std::set<CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 
 	AnimationPath animDefName; // creature animation used during battles
+	ImagePath mapAttackFromLeft; // adventure map creature image when attacked from left
+	ImagePath mapAttackFromRight; // adventure map creature image when attacked from right
 
 	si32 iconIndex = -1; // index of icon in files like twcrport, used in tests now.
 	/// names of files with appropriate icons. Used only during loading

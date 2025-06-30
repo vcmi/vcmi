@@ -21,6 +21,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:140",
+			"mapAttackFromLeft": "AvWattak.def:0:141",
 			"animation": "CTROGL.DEF"
 		},
 		"sound" :
@@ -52,6 +54,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:142",
+			"mapAttackFromLeft": "AvWattak.def:0:143",
 			"animation": "CITROG.DEF"
 		},
 		"sound" :
@@ -83,6 +87,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:144",
+			"mapAttackFromLeft": "AvWattak.def:0:145",
 			"animation": "CHARPY.DEF"
 		},
 		"sound" :
@@ -116,6 +122,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:146",
+			"mapAttackFromLeft": "AvWattak.def:0:147",
 			"animation": "CHARPH.DEF"
 		},
 		"sound" :
@@ -148,6 +156,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:148",
+			"mapAttackFromLeft": "AvWattak.def:0:149",
 			"animation": "CBEHOL.DEF",
 			"missile" :
 			{
@@ -190,6 +200,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:150",
+			"mapAttackFromLeft": "AvWattak.def:0:151",
 			"animation": "CEVEYE.DEF",
 			"missile" :
 			{
@@ -241,6 +253,8 @@
 		"upgrades": ["medusaQueen"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:152",
+			"mapAttackFromLeft": "AvWattak.def:0:153",
 			"animation": "CMEDUS.DEF",
 			"missile" :
 			{
@@ -284,6 +298,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:154",
+			"mapAttackFromLeft": "AvWattak.def:0:155",
 			"animation": "CMEDUQ.DEF",
 			"missile" :
 			{
@@ -317,6 +333,8 @@
 		"upgrades": ["minotaurKing"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:156",
+			"mapAttackFromLeft": "AvWattak.def:0:157",
 			"animation": "CMINOT.DEF"
 		},
 		"sound" :
@@ -344,6 +362,8 @@
 		 },
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:158",
+			"mapAttackFromLeft": "AvWattak.def:0:159",
 			"animation": "CMINOK.DEF"
 		},
 		"sound" :
@@ -372,6 +392,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:160",
+			"mapAttackFromLeft": "AvWattak.def:0:161",
 			"animation": "CMCORE.DEF"
 		},
 		"sound" :
@@ -405,6 +427,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:162",
+			"mapAttackFromLeft": "AvWattak.def:0:163",
 			"animation": "CCMCOR.DEF"
 		},
 		"sound" :
@@ -456,6 +480,8 @@
 		"upgrades": ["blackDragon"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:164",
+			"mapAttackFromLeft": "AvWattak.def:0:165",
 			"animation": "CRDRGN.DEF"
 		},
 		"sound" :
@@ -511,6 +537,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:166",
+			"mapAttackFromLeft": "AvWattak.def:0:167",
 			"animation": "CBDRGN.DEF"
 		},
 		"sound" :

@@ -354,6 +354,16 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
+	auto name = path.getOriginalName();
+	
+	std::vector<std::string> splitted;
+	boost::split(splitted, name, boost::is_any_of(":"));
+	if(splitted.size() == 3)
+	{
+		ImageLocator locator = getLocatorForAnimationFrame(AnimationPath::builtin(splitted[0]), std::stoi(splitted[2]), std::stoi(splitted[1]), 1, mode);
+		return loadImage(locator);
+	}
+
 	ImageLocator locator(path, mode);
 	return loadImage(locator);
 }
