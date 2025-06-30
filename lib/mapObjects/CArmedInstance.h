@@ -51,7 +51,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance(IGameInfoCallback *cb);
-	CArmedInstance(IGameInfoCallback *cb, bool isHypothetic);
+	CArmedInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{

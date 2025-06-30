@@ -440,14 +440,14 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		return ss.str();
 	};
 		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
 		GAME->interface()->localState->getCurrentArmy()->getParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
-		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all)) + "\n");
 	}
 }
 

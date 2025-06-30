@@ -523,7 +523,7 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 						: Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT);
 
 	//any regular bonuses or just ones for melee/ranged
-	return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
+	return bearer->getBonuses(selector)->valOfBonuses(noLimit.Or(limitMatches));
 };
 
 DamageEstimation DamageCalculator::calculateDmgRange() const

@@ -383,7 +383,7 @@
 			{
 				"type" : "MORALE",
 				"val" : 1,
-				"propagator" : "HERO",
+				"propagator" : "ARMY",
 				"description" : "PLACEHOLDER",
 				"stacking" : "Angels"
 			},
@@ -453,7 +453,7 @@
 			"raisesMorale" : {
 				"type" : "MORALE",
 				"val" : 1,
-				"propagator" : "HERO",
+				"propagator" : "ARMY",
 				"description" : "@creatures.core.angel.bonus.raisesMorale",
 				"stacking" : "Angels"
 			},

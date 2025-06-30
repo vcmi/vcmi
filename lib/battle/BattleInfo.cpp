@@ -467,7 +467,8 @@ BattleInfo::BattleInfo(IGameInfoCallback *cb, const BattleLayout & layout):
 }
 
 BattleInfo::BattleInfo(IGameInfoCallback *cb)
-	:GameCallbackHolder(cb),
+	:CBonusSystemNode(BonusNodeType::BATTLE_WIDE),
+	GameCallbackHolder(cb),
 	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),
 	round(-1),
@@ -477,7 +478,6 @@ BattleInfo::BattleInfo(IGameInfoCallback *cb)
 	tacticsSide(BattleSide::NONE),
 	tacticDistance(0)
 {
-	setNodeType(BATTLE);
 }
 
 BattleLayout BattleInfo::getLayout() const

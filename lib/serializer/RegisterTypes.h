@@ -86,7 +86,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGUniversity>(23);
 	s.template registerType<CGHeroPlaceholder>(24);
 	s.template registerType<CArmedInstance>(25);
-	s.template registerType<CBonusSystemNode>(26);
+//	s.template registerType<CBonusSystemNode>(26);
 	s.template registerType<CCreatureSet>(27);
 	s.template registerType<CGHeroInstance>(28);
 	s.template registerType<CGDwelling>(30);
@@ -298,6 +298,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<DivideStackLevelUpdater>(246);
 	s.template registerType<SetHeroExperience>(247);
 	s.template registerType<GiveStackExperience>(248);
+	s.template registerType<TimesStackSizeUpdater>(249);
+	s.template registerType<TimesArmySizeUpdater>(250);
 }
 
 VCMI_LIB_NAMESPACE_END

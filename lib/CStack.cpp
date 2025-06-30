@@ -26,7 +26,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ///CStack
 CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	base(Base),
 	ID(I),
 	typeID(Base->getId()),
@@ -40,7 +40,7 @@ CStack::CStack(const CStackInstance * Base, const PlayerColor & O, int I, Battle
 }
 
 CStack::CStack():
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	owner(PlayerColor::NEUTRAL),
 	slot(SlotID(255)),
 	initialPosition(BattleHex())
@@ -48,7 +48,7 @@ CStack::CStack():
 }
 
 CStack::CStack(const CStackBasicDescriptor * stack, const PlayerColor & O, int I, BattleSide Side, const SlotID & S):
-	CBonusSystemNode(STACK_BATTLE),
+	CBonusSystemNode(BonusNodeType::STACK_BATTLE),
 	ID(I),
 	typeID(stack->getId()),
 	baseAmount(stack->getCount()),
@@ -134,7 +134,7 @@ std::vector<SpellID> CStack::activeSpells() const
 		return b->type != BonusType::NONE && b->sid.as<SpellID>().toSpell() && !b->sid.as<SpellID>().toSpell()->isAdventure();
 	}));
 
-	TConstBonusListPtr spellEffects = getBonuses(selector, Selector::all, cachingStr.str());
+	TConstBonusListPtr spellEffects = getBonuses(selector, cachingStr.str());
 	for(const auto & it : *spellEffects)
 	{
 		if(!vstd::contains(ret, it->sid.as<SpellID>()))  //do not duplicate spells with multiple effects
@@ -155,7 +155,7 @@ const CGHeroInstance * CStack::getMyHero() const
 		return dynamic_cast<const CGHeroInstance *>(base->getArmy());
 	else //we are attached directly?
 		for(const CBonusSystemNode * n : getParentNodes())
-			if(n->getNodeType() == HERO)
+			if(n->getNodeType() == BonusNodeType::HERO)
 				return dynamic_cast<const CGHeroInstance *>(n);
 
 	return nullptr;

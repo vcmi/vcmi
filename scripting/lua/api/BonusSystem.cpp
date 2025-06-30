@@ -246,21 +246,22 @@ int BonusBearerProxy::getBonuses(lua_State * L)
 
 		if(hasRangeSelector)
 		{
-			auto rangeSelector = [](const Bonus * b)
-			{
-				return false;//TODO: BonusBearerProxy::getBonuses rangeSelector
-			};
+			//TODO: BonusBearerProxy::getBonuses rangeSelector
+			//auto rangeSelector = [](const Bonus * b)
+			//{
+			//	return false;
+			//};
 
-			ret = object->getBonuses(selector, rangeSelector);
+			ret = object->getBonuses(selector);
 		}
 		else
 		{
-			ret = object->getBonuses(selector, Selector::all);
+			ret = object->getBonuses(selector);
 		}
 	}
 	else
 	{
-		ret = object->getBonuses(Selector::all, Selector::all);
+		ret = object->getBonuses(Selector::all);
 	}
 
 	S.clear();

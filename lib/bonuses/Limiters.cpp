@@ -45,7 +45,7 @@ static const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return dynamic_cast<const CStack *>(node);
 	default:
 		return nullptr;
@@ -56,9 +56,9 @@ static const CStackInstance * retrieveStackInstance(const CBonusSystemNode * nod
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::STACK_INSTANCE:
+	case BonusNodeType::STACK_INSTANCE:
 		return (dynamic_cast<const CStackInstance *>(node));
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return (dynamic_cast<const CStack *>(node))->base;
 	default:
 		return nullptr;
@@ -69,9 +69,9 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::CREATURE:
+	case BonusNodeType::CREATURE:
 		return (dynamic_cast<const CCreature *>(node));
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return (dynamic_cast<const CStack *>(node))->unitType();
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
@@ -262,7 +262,7 @@ CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
 
 ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	if (context.node.getNodeType() != CBonusSystemNode::STACK_BATTLE && context.node.getNodeType() != CBonusSystemNode::STACK_INSTANCE)
+	if (context.node.getNodeType() != BonusNodeType::STACK_BATTLE && context.node.getNodeType() != BonusNodeType::STACK_INSTANCE)
 		return ILimiter::EDecision::NOT_APPLICABLE;
 
 	if (terrainType == ETerrainId::NATIVE_TERRAIN)
@@ -277,7 +277,7 @@ ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &
 
 		// TODO: CStack and CStackInstance need some common base type that represents any stack
 		// Closest existing class is ACreature, however it is also used as base for CCreature, which is not a stack
-		if (context.node.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
 		{
 			const auto * unit = dynamic_cast<const CStack *>(&context.node);
 			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
@@ -294,7 +294,7 @@ ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &
 	}
 	else
 	{
-		if (context.node.getNodeType() == CBonusSystemNode::STACK_BATTLE)
+		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
 		{
 			const auto * unit = dynamic_cast<const CStack *>(&context.node);
 			if (unit->getCurrentTerrain() == terrainType)
@@ -462,7 +462,7 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	const CStackInstance * csi = retrieveStackInstance(&context.node);
 	if(csi)
 	{
-		if (csi->getNodeType() == CBonusSystemNode::COMMANDER) //no stack exp bonuses for commander creatures
+		if (csi->getNodeType() == BonusNodeType::COMMANDER) //no stack exp bonuses for commander creatures
 			return ILimiter::EDecision::DISCARD;
 		if (csi->getExpRank() > minRank && csi->getExpRank() < maxRank)
 			return ILimiter::EDecision::ACCEPT;

@@ -84,16 +84,75 @@ Usage:
 
 Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in current unit stack
 
-Parameters `minimum` and `maximum` are optional and can be dropped if not needed
+Example of short form with default parameters:
 
-Example:
+```json
+"updater" : "TIMES_STACK_SIZE"
+```
+
+Example of long form with custom parameters:
 
 ```json
 "updater" : {
     "type" : "TIMES_STACK_SIZE",
+    
+    // Optional, by default - unlimited
     "minimum" : 0,
+    
+    // Optional, by default - unlimited
     "maximum" : 100,
+    
+    // Optional, by default - 1
     "stepSize" : 2
+}
+```
+
+## TIMES_ARMY_SIZE
+
+Effect: Updates val to `val = clamp(val * floor(stackSize / stepSize), minimum, maximum)`, where stackSize is total number of creatures in hero army that fulful filter
+
+Parameters:
+
+- `minimum`: minimum possible value of the bonus value. Unlimited by default
+- `maximum`: maximum possible value of the bonus value. Unlimited by default
+- `stepSize`: number of units needed to increase updater multiplier by 1
+- `filteredCreature`: identifier of specific unit to filter
+- `filteredLevel`: level of units that need to be counted. Redundant if `filteredCreature` is used
+- `filteredFaction`: faction of units that need to be counted. Redundant if `filteredCreature` is used
+
+Filtering for specific unit:
+
+```json
+"updater" : {
+    "type" : "TIMES_ARMY_SIZE",
+    "filteredCreature" : "pikeman",
+    
+    // Optional, by default - unlimited
+    "minimum" : 0,
+    
+    // Optional, by default - unlimited
+    "maximum" : 100,
+    
+    // Optional, by default - 1
+    "stepSize" : 2
+}
+```
+
+Filtering for specific faction:
+
+```json
+"updater" : {
+    "type" : "TIMES_STACK_SIZE",
+    "filteredFaction" : "castle"
+}
+```
+
+Filtering for specific unit level:
+
+```json
+"updater" : {
+    "type" : "TIMES_STACK_SIZE",
+    "filteredLevel" : 2
 }
 ```
 

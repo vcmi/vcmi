@@ -127,8 +127,8 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 
 void ArtifactsUIController::artifactRemoved()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 	GAME->interface()->waitWhileDialog();
 }
 
@@ -139,10 +139,10 @@ void ArtifactsUIController::artifactMoved()
 		numOfMovedArts--;
 
 	if(numOfMovedArts == 0)
-		for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		{
-			artWin->update();
-		}
+	{
+		for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+			artWin->updateArtifacts();
+	}
 	GAME->interface()->waitWhileDialog();
 }
 
@@ -160,12 +160,12 @@ void ArtifactsUIController::bulkArtMovementStart(size_t totalNumOfArts, size_t p
 
 void ArtifactsUIController::artifactAssembled()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 }
 
 void ArtifactsUIController::artifactDisassembled()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 }

@@ -1476,6 +1476,13 @@ CCastleInterface::~CCastleInterface()
 		GAME->interface()->castleInt = nullptr;
 }
 
+void CCastleInterface::updateArtifacts()
+{
+	// handle equipping / unequipping Legion pieces
+	for(auto creatureInfoBox : creainfo)
+		creatureInfoBox->update();
+}
+
 void CCastleInterface::updateGarrisons()
 {
 	garr->setArmy(town->getUpperArmy(), EGarrisonType::UPPER);

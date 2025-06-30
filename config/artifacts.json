@@ -1733,7 +1733,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel2",
 				"val" : 5,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1746,7 +1746,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel3",
 				"val" : 4,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1759,7 +1759,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel4",
 				"val" : 3,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1772,7 +1772,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel5",
 				"val" : 2,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1785,7 +1785,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel6",
 				"val" : 1,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -2094,7 +2094,7 @@
 			"growth" : {
 				"type" : "CREATURE_GROWTH_PERCENT",
 				"val" : 50,
-				"propagator": "PLAYER_PROPAGATOR"
+				"propagator": "PLAYER"
 			}
 		}
 	},

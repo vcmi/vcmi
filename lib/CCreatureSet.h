@@ -146,7 +146,8 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	CStackInstance(IGameInfoCallback *cb, bool isHypothetic	= false);
+	CStackInstance(IGameInfoCallback *cb);
+	CStackInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic = false);
 	CStackInstance(IGameInfoCallback *cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 

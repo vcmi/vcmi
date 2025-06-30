@@ -133,11 +133,10 @@ SlotID StackWithBonuses::unitSlot() const
 	return slot;
 }
 
-TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const CSelector & limit,
-	const std::string & cachingStr) const
+TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
 	auto ret = std::make_shared<BonusList>();
-	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, limit, cachingStr);
+	TConstBonusListPtr originalList = origBearer->getAllBonuses(selector, cachingStr);
 
 	vstd::copy_if(*originalList, std::back_inserter(*ret), [this](const std::shared_ptr<Bonus> & b)
 	{
@@ -147,7 +146,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 
 	for(const Bonus & bonus : bonusesToUpdate)
 	{
-		if(selector(&bonus) && (!limit || limit(&bonus)))
+		if(selector(&bonus))
 		{
 			if(ret->getFirst(Selector::source(BonusSource::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
 			{
@@ -164,7 +163,7 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 	for(auto & bonus : bonusesToAdd)
 	{
 		auto b = std::make_shared<Bonus>(bonus);
-		if(selector(b.get()) && (!limit || !limit(b.get())))
+		if(selector(b.get()))
 			ret->push_back(b);
 	}
 	//TODO limiters?

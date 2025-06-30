@@ -16,37 +16,51 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 const std::map<std::string, TPropagatorPtr> bonusPropagatorMap =
 {
-	{"BATTLE_WIDE", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE)},
-	{"VISITED_TOWN_AND_VISITOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR)},
-	{"PLAYER_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER)},
-	{"HERO", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO)},
-	{"TEAM_PROPAGATOR", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::TEAM)}, //untested
-	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(CBonusSystemNode::GLOBAL_EFFECTS)}
-}; //untested
+	{"BATTLE_WIDE", std::make_shared<CPropagatorNodeType>(BonusNodeType::BATTLE_WIDE)},
+	{"TOWN_AND_VISITOR", std::make_shared<CPropagatorNodeType>(BonusNodeType::TOWN_AND_VISITOR)},
+	{"PLAYER", std::make_shared<CPropagatorNodeType>(BonusNodeType::PLAYER)},
+	{"HERO", std::make_shared<CPropagatorNodeType>(BonusNodeType::HERO)},
+	{"TOWN", std::make_shared<CPropagatorNodeType>(BonusNodeType::TOWN)},
+	{"ARMY", std::make_shared<CPropagatorNodeType>(BonusNodeType::ARMY)},
+	{"TEAM", std::make_shared<CPropagatorNodeType>(BonusNodeType::TEAM)},
+	{"GLOBAL_EFFECT", std::make_shared<CPropagatorNodeType>(BonusNodeType::GLOBAL_EFFECTS)},
+
+	// deprecated, for compatibility
+	{"VISITED_TOWN_AND_VISITOR", std::make_shared<CPropagatorNodeType>(BonusNodeType::TOWN_AND_VISITOR)},
+	{"PLAYER_PROPAGATOR", std::make_shared<CPropagatorNodeType>(BonusNodeType::PLAYER)},
+	{"TEAM_PROPAGATOR", std::make_shared<CPropagatorNodeType>(BonusNodeType::TEAM)},
+
+};
 
 bool IPropagator::shouldBeAttached(CBonusSystemNode *dest) const
 {
 	return false;
 }
 
-CBonusSystemNode::ENodeTypes IPropagator::getPropagatorType() const
+BonusNodeType IPropagator::getPropagatorType() const
 {
-	return CBonusSystemNode::ENodeTypes::NONE;
+	return BonusNodeType::NONE;
 }
 
-CPropagatorNodeType::CPropagatorNodeType(CBonusSystemNode::ENodeTypes NodeType)
+CPropagatorNodeType::CPropagatorNodeType(BonusNodeType NodeType)
 	: nodeType(NodeType)
 {
 }
 
-CBonusSystemNode::ENodeTypes CPropagatorNodeType::getPropagatorType() const
+BonusNodeType CPropagatorNodeType::getPropagatorType() const
 {
 	return nodeType;
 }
 
 bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest) const
 {
-	return nodeType == dest->getNodeType();
+	if (nodeType == dest->getNodeType())
+		return true;
+
+	if (nodeType == BonusNodeType::ARMY)
+		return dest->getNodeType() == BonusNodeType::HERO || dest->getNodeType() == BonusNodeType::TOWN;
+
+	return false;
 }
 
 VCMI_LIB_NAMESPACE_END

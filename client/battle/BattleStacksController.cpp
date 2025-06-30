@@ -805,7 +805,7 @@ void BattleStacksController::removeExpiredColorFilters()
 	{
 		if (!filter.persistent)
 		{
-			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id)), Selector::all))
+			if (filter.source && !filter.target->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(filter.source->id))))
 				return true;
 			if (filter.effectColor == Colors::TRANSPARENCY && filter.transparency == 255)
 				return true;

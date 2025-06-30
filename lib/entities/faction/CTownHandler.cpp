@@ -251,10 +251,10 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 			bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
-		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
+		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != BonusNodeType::UNKNOWN);
 
 		if(bonus->propagator != nullptr
-			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
+			&& bonus->propagator->getPropagatorType() == BonusNodeType::UNKNOWN)
 				bonus->addPropagator(emptyPropagator());
 		building->addNewBonus(bonus, bonusList);
 	}

@@ -70,7 +70,10 @@ int BonusList::totalValue(int baseValue) const
 	};
 
 	auto applyPercentageRoundUp = [](int base, int percent) -> int {
-		return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+		if (base >= 0)
+			return (static_cast<int64_t>(base) * (100 + percent) + 99) / 100;
+		else
+			return (static_cast<int64_t>(base) * (100 + percent) - 99) / 100;
 	};
 
 	auto applyPercentageRoundDown = [](int base, int percent) -> int {
@@ -172,11 +175,11 @@ std::shared_ptr<const Bonus> BonusList::getFirst(const CSelector &selector) cons
 	return nullptr;
 }
 
-void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
+void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 {
 	for(const auto & b : bonuses)
 	{
-		if(selector(b.get()) && (!limit || ((bool)limit && limit(b.get()))))
+		if(selector(b.get()))
 			out.push_back(b);
 	}
 }
@@ -190,8 +193,7 @@ void BonusList::getAllBonuses(BonusList &out) const
 int BonusList::valOfBonuses(const CSelector &select, int baseValue) const
 {
 	BonusList ret;
-	CSelector limit = nullptr;
-	getBonuses(ret, select, limit);
+	getBonuses(ret, select);
 	return ret.totalValue(baseValue);
 }
 
