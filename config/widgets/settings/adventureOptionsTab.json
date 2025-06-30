@@ -289,7 +289,7 @@
 			"items":
 			[
 				{
-					"text": "core.genrltxt.572" // TODO: show move path
+					"text": "core.genrltxt.572" // show move path
 				},
 				{
 					"text": "core.genrltxt.573" // show hero reminder
@@ -315,8 +315,9 @@
 			"items":
 			[
 				{
-					"name": "showMovePathPlaceholder",
-					"type": "checkboxFake"
+					"name": "showMovePathCheckbox",
+					"help": "core.help.360",
+					"callback": "showMovePathChanged"
 				},
 				{
 					"name": "heroReminderCheckbox",

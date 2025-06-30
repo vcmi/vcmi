@@ -562,6 +562,12 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			if(topBlocking && topBlocking->isVisitable() && !topBlocking->visitableAt(destinationTile) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
 				destinationTile = topBlocking->visitablePos();
 
+			if(!settings["adventure"]["showMovePath"].Bool())
+			{
+				GAME->interface()->localState->setPath(currentHero, destinationTile);
+				onHeroChanged(currentHero);				
+			}
+
 			if(GAME->interface()->localState->hasPath(currentHero) &&
 			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving

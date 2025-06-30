@@ -387,7 +387,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -456,10 +456,13 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				
 				"tileZoom" : {
 					"type" : "number",
 					"default" : 32
+				},
+				"showMovePath" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
