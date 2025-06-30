@@ -498,7 +498,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 	if (makingTurn && hero->tempOwner == playerID)
 		adventureInt->onHeroChanged(hero);
 	invalidatePaths();
-	GAME->interface()->localState->verifyPath(hero);
+	localState->verifyPath(hero);
 }
 void CPlayerInterface::receivedResource()
 {
