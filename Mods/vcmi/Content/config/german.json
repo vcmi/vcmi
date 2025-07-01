@@ -352,7 +352,7 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help" : "Geschwindigkeit des Kartenbildlaufs auf sofort einstellen",
 	"vcmi.adventureOptions.hideBackground.hover" : "Hintergrund ausblenden",
 	"vcmi.adventureOptions.hideBackground.help" : "{Hintergrund ausblenden}\n\nDie Abenteuerkarte im Hintergrund ausblenden und stattdessen eine Textur anzeigen.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Helden auf der Minimap anzeigen",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Helden auf Minimap anz.",
 	"vcmi.adventureOptions.minimapShowHeroes.help" : "{Helden auf der Minimap anzeigen}\n\nZusätzliches Symbol für alle Helden auf der Minimap anzeigen, damit sie auf großen Karten besser zu sehen sind",
 
 	"vcmi.battleOptions.queueSizeLabel.hover" : "Reihenfolge der Kreaturen anzeigen",
