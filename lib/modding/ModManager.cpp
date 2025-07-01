@@ -285,6 +285,13 @@ void ModsPresetState::removeOldMods(const TModList & modsToKeep)
 	vstd::erase_if(currentPreset["settings"].Struct(), [&](const auto & entry){
 		return !vstd::contains(modsToKeep, entry.first);
 	});
+
+	for (auto & modSettings : currentPreset["settings"].Struct())
+	{
+		vstd::erase_if(modSettings.second.Struct(), [&](const auto & entry){
+			return !vstd::contains(modsToKeep, modSettings.first + "." + entry.first);
+		});
+	}
 }
 
 void ModsPresetState::eraseRootMod(const TModID & modName)
