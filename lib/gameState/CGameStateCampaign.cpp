@@ -389,6 +389,7 @@ void CGameStateCampaign::replaceHeroesPlaceholders()
 		heroToPlace->setAnchorPos(heroPlaceholder->anchorPos());
 		heroToPlace->setHeroType(heroToPlace->getHeroTypeID());
 		heroToPlace->appearance = heroToPlace->getObjectHandler()->getTemplates().front();
+		heroToPlace->instanceName = heroPlaceholder->instanceName;
 
 		gameState->map->replaceObject(campaignHeroReplacement.heroPlaceholderId, heroToPlace);
 	}
