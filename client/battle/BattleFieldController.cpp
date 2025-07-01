@@ -392,8 +392,8 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 	if (stack->doubleWide())
 	{
-		const bool canMoveHeadHere = availableHexes.contains(hoveredHex);
-		const bool canMoveTailHere = availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir()));
+		const bool canMoveHeadHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex);
+		const bool canMoveTailHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir()));
 		const bool backwardsMove = stack->unitSide() == BattleSide::ATTACKER ?
 									   hoveredHex.getX() < stack->getPosition().getX():
 									   hoveredHex.getX() > stack->getPosition().getX();
@@ -822,7 +822,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 	for (auto & elem : occupiableHexes)
 	{
-		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)
+		if (BattleHex::mutualPosition(elem, number) != BattleHex::EDir::NONE || elem == number)
 			return true;
 	}
 	return false;
