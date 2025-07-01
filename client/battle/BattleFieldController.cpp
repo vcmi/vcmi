@@ -392,14 +392,16 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 
 	if (stack->doubleWide())
 	{
+		const bool canMoveHeadHere = availableHexes.contains(hoveredHex);
+		const bool canMoveTailHere = availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir()));
 		const bool backwardsMove = stack->unitSide() == BattleSide::ATTACKER ?
-			hoveredHex.getX() < stack->getPosition().getX():
-			hoveredHex.getX() > stack->getPosition().getX();
+									   hoveredHex.getX() < stack->getPosition().getX():
+									   hoveredHex.getX() > stack->getPosition().getX();
 
-		if (backwardsMove && availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir())))
+		if(canMoveTailHere && (backwardsMove || !canMoveHeadHere))
 			return {hoveredHex, hoveredHex.cloneInDirection(stack->destShiftDir())};
 
-		if (availableHexes.contains(hoveredHex))
+		if (canMoveHeadHere)
 			return {hoveredHex, stack->occupiedHex(hoveredHex)};
 
 		return {};
