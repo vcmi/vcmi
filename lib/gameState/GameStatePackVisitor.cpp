@@ -420,8 +420,8 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 		if (town->getGarrisonHero())
 		{
-			town->setGarrisonedHero(nullptr);
 			gs.getMap().showObject(gs.getHero(town->getGarrisonHero()->id));
+			town->setGarrisonedHero(nullptr);
 		}
 	}
 
