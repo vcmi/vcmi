@@ -332,14 +332,11 @@ ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 	for(const auto & elem : stacks)
 	{
 		ui64 powerToAdd = elem.second->getPower();
-		if(fortLevel > 0)
+		if(fortLevel > 0 && !elem.second->hasBonusOfType(BonusType::FLYING))
 		{
-			if(!elem.second->hasBonusOfType(BonusType::FLYING))
-			{
+			powerToAdd /= fortLevel;
+			if(!elem.second->hasBonusOfType(BonusType::SHOOTER))
 				powerToAdd /= fortLevel;
-				if(!elem.second->hasBonusOfType(BonusType::SHOOTER))
-					powerToAdd /= fortLevel;
-			}
 		}
 		ret += powerToAdd;
 	}
@@ -365,12 +362,12 @@ std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 	/// "Pack" - 0, "A pack of" - 1, "a pack of" - 2
 	CCreature::CreatureQuantityId quantity = CCreature::getQuantityID(getStackCount(slot));
 
-	if((int)quantity)
+	if(static_cast<int>(quantity) != 0)
 	{
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3 * (int)quantity];
+		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3 * static_cast<int>(quantity)];
 	}
 	return "";
 }
@@ -546,7 +543,6 @@ std::unique_ptr<CStackInstance> CCreatureSet::detachStack(const SlotID & slot)
 	assert(hasStackAtSlot(slot));
 	std::unique_ptr<CStackInstance> ret = std::move(stacks[slot]);
 
-	//if(CArmedInstance *armedObj = castToArmyObj())
 	if(ret)
 	{
 		ret->setArmy(nullptr); //detaches from current armyobj

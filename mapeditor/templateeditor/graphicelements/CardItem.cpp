@@ -41,12 +41,12 @@ QDomElement CardItem::getElementById(const QDomDocument& doc, const QString& id)
 
 bool isBlackTextNeeded(const QColor& bg)
 {
-    int r = bg.red();
-    int g = bg.green();
-    int b = bg.blue();
+	int r = bg.red();
+	int g = bg.green();
+	int b = bg.blue();
 
-    double luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance > 0.5;
+	double luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+	return luminance > 0.5;
 }
 
 CardItem::CardItem():

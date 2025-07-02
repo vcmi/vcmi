@@ -92,7 +92,7 @@ int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wa
 	if(wanderingMonster->ID != Obj::MONSTER)
 		return -1;
 		
-	for(auto & battle : GAME->interface()->cb->getActiveBattles())
+	for(const auto & battle : GAME->interface()->cb->getActiveBattles())
 		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
 			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
 

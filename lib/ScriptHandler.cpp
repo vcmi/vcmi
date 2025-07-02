@@ -166,7 +166,7 @@ void PoolImpl::serializeState(const bool saving, JsonNode & data)
 {
 	if(saving)
 	{
-        for(auto & scriptAndContext : cache)
+		for(auto & scriptAndContext : cache)
 		{
 			const auto * script = scriptAndContext.first;
 			auto context = scriptAndContext.second;

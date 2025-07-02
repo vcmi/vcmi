@@ -55,15 +55,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<typename Serializer>
 void registerTypes(Serializer &s)
 {
-	static_assert(std::is_abstract_v<IObjectInterface>, "If this type is no longer abstract consider registering it for serialization with ID 1");
-	static_assert(std::is_abstract_v<CGTeleport>, "If this type is no longer abstract consider registering it for serialization with ID 3");
-	static_assert(std::is_abstract_v<IQuestObject>, "If this type is no longer abstract consider registering it for serialization with ID 11");
-	static_assert(std::is_abstract_v<CArtifactSet>, "If this type is no longer abstract consider registering it for serialization with ID 29");
-//	static_assert(std::is_abstract_v<CPackForClient>, "If this type is no longer abstract consider registering it for serialization with ID 83");
-//	static_assert(std::is_abstract_v<Query>, "If this type is no longer abstract consider registering it for serialization with ID 153");
-//	static_assert(std::is_abstract_v<CGarrisonOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 161");
-//	static_assert(std::is_abstract_v<CArtifactOperationPack>, "If this type is no longer abstract consider registering it for serialization with ID 168");
-
 	s.template registerType<CGObjectInstance>(2);
 	s.template registerType<CGMonolith>(4);
 	s.template registerType<CGSubterraneanGate>(5);
@@ -86,7 +77,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<CGUniversity>(23);
 	s.template registerType<CGHeroPlaceholder>(24);
 	s.template registerType<CArmedInstance>(25);
-//	s.template registerType<CBonusSystemNode>(26);
 	s.template registerType<CCreatureSet>(27);
 	s.template registerType<CGHeroInstance>(28);
 	s.template registerType<CGDwelling>(30);

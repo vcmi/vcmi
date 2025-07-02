@@ -366,10 +366,10 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 void InputSourceTouch::hapticFeedback() {
 	if(params.hapticFeedbackEnabled) {
 #if defined(VCMI_ANDROID)
-        CAndroidVMHelper vmHelper;
-        vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
 #elif defined(VCMI_IOS)
-    	iOS_utils::hapticFeedback();
+		iOS_utils::hapticFeedback();
 #endif
 	}
 }

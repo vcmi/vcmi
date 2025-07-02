@@ -145,9 +145,9 @@ void Helper::saveTemplate(std::map<std::string, std::shared_ptr<CRmgTemplate>> t
 	}
 	
 	auto byteData = JsonNode(data).toBytes();
-	QByteArray byteDataArray = QByteArray(reinterpret_cast<const char*>(byteData.data()), static_cast<int>(byteData.size()));
+	QByteArray byteDataArray(reinterpret_cast<const char*>(byteData.data()), static_cast<int>(byteData.size()));
 	QFile file(filename);
 
 	if(file.open(QIODevice::WriteOnly))
-    	file.write(byteDataArray);
+		file.write(byteDataArray);
 }

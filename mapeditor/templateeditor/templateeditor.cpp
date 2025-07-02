@@ -339,8 +339,8 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->comboBoxZoneType->addItem(tr("Water"), QVariant(static_cast<int>(ETemplateZoneType::WATER)));
 	ui->comboBoxZoneType->addItem(tr("Sealed"), QVariant(static_cast<int>(ETemplateZoneType::SEALED)));
 	for (int i = 0; i < ui->comboBoxZoneType->count(); ++i)
-    	if (ui->comboBoxZoneType->itemData(i).toInt() == static_cast<int>(zone->getType()))
-        	ui->comboBoxZoneType->setCurrentIndex(i);
+		if (ui->comboBoxZoneType->itemData(i).toInt() == static_cast<int>(zone->getType()))
+			ui->comboBoxZoneType->setCurrentIndex(i);
 
 	ui->comboBoxZoneOwner->clear();
 	auto type = static_cast<ETemplateZoneType>(ui->comboBoxZoneType->currentData().toInt());
@@ -370,8 +370,8 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->comboBoxMonsterStrength->addItem(tr("Normal"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_NORMAL)));
 	ui->comboBoxMonsterStrength->addItem(tr("Strong"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_STRONG)));
 	for (int i = 0; i < ui->comboBoxMonsterStrength->count(); ++i)
-    	if (ui->comboBoxMonsterStrength->itemData(i).toInt() == static_cast<int>(zone->monsterStrength))
-        	ui->comboBoxMonsterStrength->setCurrentIndex(i);
+		if (ui->comboBoxMonsterStrength->itemData(i).toInt() == static_cast<int>(zone->monsterStrength))
+			ui->comboBoxMonsterStrength->setCurrentIndex(i);
 }
 
 void TemplateEditor::loadZoneConnectionMenuContent()

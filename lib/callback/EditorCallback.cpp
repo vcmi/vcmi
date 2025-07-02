@@ -27,9 +27,9 @@ EditorCallback::EditorCallback(const CMap * map)
 	: map(map)
 {}
 
-void EditorCallback::setMap(const CMap * map)
+void EditorCallback::setMap(const CMap * newMap)
 {
-	this->map = map;
+	map = newMap;
 }
 
 CGameState & EditorCallback::gameState()
@@ -97,7 +97,7 @@ void EditorCallback::getTilesInRange(std::unordered_set<int3> &, const int3 &, i
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::getAllTiles(std::unordered_set<int3> &, std::optional<PlayerColor>, int, std::function<bool(const TerrainTile *)>) const
+void EditorCallback::getAllTiles(std::unordered_set<int3> &, std::optional<PlayerColor>, int, const std::function<bool(const TerrainTile *)> &) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }

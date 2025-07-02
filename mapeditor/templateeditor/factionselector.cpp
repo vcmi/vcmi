@@ -55,10 +55,10 @@ void FactionSelector::on_buttonBoxResult_accepted()
 			factionsSelected.insert(FactionID(item->data(Qt::UserRole).toInt()));
 	}
 
-    close();
+	close();
 }
 
 void FactionSelector::on_buttonBoxResult_rejected()
 {
-    close();
+	close();
 }

@@ -66,8 +66,8 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 
-		InteractiveArea(const Rect &myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner);
-		InteractiveArea(const Rect &myRect, std::function<void()> funcL, std::string textId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, const std::function<void()> & funcL, int helpTextId, CSpellWindow * _owner);
+		InteractiveArea(const Rect &myRect, const std::function<void()> & funcL, std::string textId, CSpellWindow * _owner);
 	};
 
 	std::shared_ptr<CPicture> leftCorner;

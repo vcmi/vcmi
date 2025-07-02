@@ -243,8 +243,8 @@ void UnitInfo::save(JsonNode & data)
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("newUnitInfo", *this);
+	JsonDeserializer deser(nullptr, data);
+	deser.serializeStruct("newUnitInfo", *this);
 }
 
 }

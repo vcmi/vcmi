@@ -222,12 +222,12 @@ void CConsoleHandler::setColor(EConsoleTextColor color)
 		break;
 	}
 #ifdef VCMI_WINDOWS
-    SetConsoleTextAttribute(handleOut, colorCode);
+	SetConsoleTextAttribute(handleOut, colorCode);
 	if (color == EConsoleTextColor::DEFAULT)
 		colorCode = defErrColor;
 	SetConsoleTextAttribute(handleErr, colorCode);
 #else
-    std::cout << colorCode;
+	std::cout << colorCode;
 #endif
 }
 
