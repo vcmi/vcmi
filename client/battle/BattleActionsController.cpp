@@ -731,15 +731,18 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::MOVE_STACK:
 		{
 			const auto * activeStack = owner.stacksController->getActiveStack();
-			const bool backwardsMove = activeStack->unitSide() == BattleSide::ATTACKER ?
-				targetHex.getX() < activeStack->getPosition().getX():
-				targetHex.getX() > activeStack->getPosition().getX();
 
-			if(activeStack->doubleWide() && backwardsMove)
+			if(activeStack->doubleWide())
 			{
-				BattleHexArray acc = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
+				BattleHexArray availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
 				BattleHex shiftedDest = targetHex.cloneInDirection(activeStack->destShiftDir(), false);
-				if(acc.contains(shiftedDest))
+				const bool canMoveHeadHere = availableHexes.contains(targetHex);
+				const bool canMoveTailHere = availableHexes.contains(shiftedDest);
+				const bool backwardsMove = activeStack->unitSide() == BattleSide::ATTACKER ?
+											   targetHex.getX() < activeStack->getPosition().getX():
+											   targetHex.getX() > activeStack->getPosition().getX();
+
+				if(canMoveTailHere && (backwardsMove || !canMoveHeadHere))
 					owner.giveCommand(EActionType::WALK, shiftedDest);
 				else
 					owner.giveCommand(EActionType::WALK, targetHex);
