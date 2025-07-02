@@ -83,6 +83,7 @@ public:
 	uint16_t getDefaultStartCharges() const;
 	DischargeArtifactCondition getDischargeCondition() const;
 	bool getRemoveOnDepletion() const;
+	std::optional<uint16_t> getChargeCost(const SpellID & id) const;
 };
 
 // Container for artifacts. Not for instances.

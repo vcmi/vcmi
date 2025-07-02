@@ -14,6 +14,7 @@
 #include "ArtifactUtils.h"
 #include "CArtifactFittingSet.h"
 
+#include "../../bonuses/Limiters.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
@@ -290,6 +291,21 @@ DischargeArtifactCondition CChargedArtifact::getDischargeCondition() const
 bool CChargedArtifact::getRemoveOnDepletion() const
 {
 	return removeOnDepletion;
+}
+
+std::optional<uint16_t> CChargedArtifact::getChargeCost(const SpellID & id) const
+{
+	auto art = static_cast<const CArtifact*>(this);
+
+	for(const auto & bonus : art->instanceBonuses)
+	{
+		if(bonus->type == BonusType::SPELL && bonus->subtype.as<SpellID>() == id)
+		{
+			if(const auto chargesLimiter = std::static_pointer_cast<const HasChargesLimiter>(bonus->limiter))
+				return chargesLimiter->chargeCost;
+		}
+	}
+	return std::nullopt;
 }
 
 CArtifact::CArtifact()

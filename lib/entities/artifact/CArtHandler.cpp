@@ -181,6 +181,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		for(const auto & b : node["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus(b);
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -191,6 +192,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			if (b.second.isNull())
 				continue;
 			auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -200,6 +202,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		if (b.second.isNull())
 			continue;
 		auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->description.appendTextID(art->getNameTextID());
@@ -254,8 +257,20 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			else
 				art->setDefaultStartCharges(charges);
 		}
-		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST && art->getBonusesOfType(BonusType::SPELL)->size() == 0)
-			logMod->warn("Warning! %s condition of discharge is \"SPELLCAST\", but there is not a single spell.", art->getNameTranslated());
+	}
+
+	// Some bonuses must be located in the instance.
+	for(const auto & b : art->getExportedBonusList())
+	{
+		if(std::dynamic_pointer_cast<const HasChargesLimiter>(b->limiter))
+		{
+			b->source = BonusSource::ARTIFACT;
+			b->duration = BonusDuration::PERMANENT;
+			b->description.appendTextID(art->getNameTextID());
+			b->description.appendRawString(" %+d");
+			art->instanceBonuses.push_back(b);
+			art->removeBonus(b);
+		}
 	}
 
 	return art;

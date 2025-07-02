@@ -902,22 +902,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = cb->isAllowed(spell->getId());
-
-	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
-	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
-
-	bool schoolBonus = false;
-
-	spell->forEachSchool([this, &schoolBonus](const SpellSchool & cnf, bool & stop)
-	{
-		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, BonusSubtypeID(cnf)))
-		{
-			schoolBonus = stop = true;
-		}
-	});
-
-	const bool levelBonus = hasBonusOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel()));
+	const bool inSpellBook = spellbookContainsSpell(spell->getId()) && hasSpellbook();
 
 	if(spell->isSpecial())
 	{
@@ -925,9 +910,9 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return specificBonus;
+		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
-	else if(!isAllowed)
+	else if(!cb->isAllowed(spell->getId()))
 	{
 		if(inSpellBook)
 		{
@@ -935,12 +920,8 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
 			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
-	else
-	{
-		return inSpellBook || schoolBonus || specificBonus || levelBonus;
-	}
+	return !getSourcesForSpell(spell->getId()).empty();
 }
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const
@@ -1252,6 +1233,29 @@ void CGHeroInstance::removeSpellFromSpellbook(const SpellID & spell)
 bool CGHeroInstance::spellbookContainsSpell(const SpellID & spell) const
 {
 	return vstd::contains(spells, spell);
+}
+
+std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & spellId) const
+{
+	std::vector<BonusSourceID> sources;
+
+	if(hasSpellbook() && spellbookContainsSpell(spellId))
+		sources.emplace_back(getArt(ArtifactPosition::SPELLBOOK)->getId());
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
+		sources.emplace_back(bonus->sid);
+
+	const auto spell = spellId.toSpell();
+	spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
+	{
+		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
+			sources.emplace_back(bonus->sid);
+	});
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
+		sources.emplace_back(bonus->sid);
+
+	return sources;
 }
 
 void CGHeroInstance::removeSpellbook()

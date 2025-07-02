@@ -128,6 +128,21 @@ Parameters:
 
 For reference on tiles indexes see image below:
 
+### HAS_CHARGES_LIMITER
+
+Currently works only with spells. Sets the cost of use in charges
+
+Parameters:
+
+- use cost (charges)
+
+```json
+"limiters" : [ {
+  "type" : "HAS_CHARGES_LIMITER",
+  "parameters" : [2]
+} ]
+```
+
 ![Battlefield Hexes Layout](../../images/Battle_Field_Hexes.svg)
 
 ## Aggregate Limiters

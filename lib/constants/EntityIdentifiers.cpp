@@ -134,6 +134,11 @@ BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID build
 	assert(buildingID.getNum() < 0x10000);
 }
 
+std::string ArtifactInstanceID::encode(const si32 index)
+{
+	return "";
+}
+
 BuildingID BuildingTypeUniqueID::getBuilding() const
 {
 	return BuildingID(getNum() % 0x10000);

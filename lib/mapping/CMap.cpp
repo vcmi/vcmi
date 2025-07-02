@@ -21,6 +21,7 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 
+#include "../bonuses/Limiters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
@@ -863,13 +864,14 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	{
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::ARTIFACT_CHARGE;
+		bonus->sid = artInst->getId();
 		bonus->val = 0;
 		artInst->addNewBonus(bonus);
 		artInst->addCharges(art->getDefaultStartCharges());
 	}
 
 	for (const auto & bonus : art->instanceBonuses)
-		artInst->addNewBonus(std::make_shared<Bonus>(*bonus));
+		artInst->addNewBonus(std::make_shared<Bonus>(*bonus, artInst->getId()));
 
 	return artInst;
 }

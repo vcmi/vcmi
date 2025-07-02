@@ -3938,7 +3938,7 @@ void CGameHandler::castSpell(const spells::Caster * caster, SpellID spellID, con
 	s->adventureCast(spellEnv.get(), p);
 
 	if(const auto * hero = caster->getHeroCaster())
-		useChargedArtifactUsed(hero->id, spellID);
+		useChargeBasedSpell(hero->id, spellID);
 }
 
 bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)
@@ -4331,33 +4331,38 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 	battles->startBattle(army1, army2);
 }
 
-void CGameHandler::useChargedArtifactUsed(const ObjectInstanceID & heroObjectID, const SpellID & spellID)
+void CGameHandler::useChargeBasedSpell(const ObjectInstanceID & heroObjectID, const SpellID & spellID)
 {
 	const auto * hero = gameInfo().getHero(heroObjectID);
 	assert(hero);
 	assert(hero->canCastThisSpell(spellID.toSpell()));
 
-	if(vstd::contains(hero->getSpellsInSpellbook(), spellID))
-		return;
-
-	std::vector<std::pair<ArtifactPosition, ArtifactInstanceID>> chargedArts;
-	for(const auto & [slot, slotInfo] : hero->artifactsWorn)
+	// Check if hero used charge based spell
+	// Try to find other sources of the spell besides the charged artifacts. If there are any, we use them.
+	std::optional<std::tuple<ArtifactPosition, ArtifactInstanceID, uint16_t>> chargedArt;
+	for(const auto & source : hero->getSourcesForSpell(spellID))
 	{
-		const auto * artInst = slotInfo.getArt();
-		const auto * artType = artInst->getType();
-		if(artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+		if(const auto * artInst = hero->getArtByInstanceId(source.as<ArtifactInstanceID>()))
 		{
-			chargedArts.emplace_back(slot, artInst->getId());
+			const auto * artType = artInst->getType();
+			const auto spellCost = artType->getChargeCost(spellID);
+			if(spellCost.has_value() && spellCost.value() <= artInst->getCharges() && artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+			{
+				chargedArt.emplace(hero->getArtPos(artInst), artInst->getId(), spellCost.value());
+			}
+			else
+			{
+				return;
+			}
 		}
 		else
 		{
-			if(const auto bonuses = artInst->getBonusesOfType(BonusType::SPELL, spellID); !bonuses->empty())
-				return;
+			return;
 		}
 	}
 
-	assert(!chargedArts.empty());
-	DischargeArtifact msg(chargedArts.front().second, 1);
-	msg.artLoc.emplace(hero->id, chargedArts.front().first);
+	assert(chargedArt.has_value());
+	DischargeArtifact msg(std::get<1>(chargedArt.value()), std::get<2>(chargedArt.value()));
+	msg.artLoc.emplace(hero->id, std::get<0>(chargedArt.value()));
 	sendAndApply(msg);
 }
