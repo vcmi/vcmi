@@ -277,6 +277,29 @@ enum class BonusValueType : uint8_t
 #undef BONUS_VALUE
 };
 
+enum class BonusNodeType
+{
+	NONE = -1,
+	UNKNOWN,
+	STACK_INSTANCE,
+	STACK_BATTLE,
+	ARMY,
+	ARTIFACT,
+	CREATURE,
+	ARTIFACT_INSTANCE,
+	HERO,
+	PLAYER,
+	TEAM,
+	TOWN_AND_VISITOR,
+	BATTLE_WIDE,
+	COMMANDER,
+	GLOBAL_EFFECTS,
+	BOAT,
+	TOWN
+};
+
+
+
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;

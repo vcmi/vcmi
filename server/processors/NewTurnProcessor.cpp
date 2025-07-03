@@ -590,7 +590,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
-				result.emplace_back(h->id, newMovementPoints, ChangeValueMode::ABSOLUTE);
+				result.emplace_back(h->id, newMovementPoints);
 		}
 	}
 	return result;

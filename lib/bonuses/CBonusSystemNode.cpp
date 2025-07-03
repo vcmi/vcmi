@@ -18,6 +18,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 constexpr bool cachingEnabled = true;
+static std::atomic<int32_t> globalCounter = 1;
 
 std::shared_ptr<Bonus> CBonusSystemNode::getLocalBonus(const CSelector & selector)
 {
@@ -64,27 +65,23 @@ void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of pa
 	}
 }
 
-void CBonusSystemNode::getAllBonusesRec(BonusList &out, const CSelector & selector) const
+void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 {
 	BonusList beforeUpdate;
 
 	for(const auto * parent : parentsToInherit)
-		parent->getAllBonusesRec(beforeUpdate, selector);
+		parent->getAllBonusesRec(beforeUpdate);
 
 	bonuses.getAllBonuses(beforeUpdate);
 
 	for(const auto & b : beforeUpdate)
 	{
-		//We should not run updaters on non-selected bonuses
-		auto updated = selector(b.get()) && b->updater
-			? getUpdatedBonus(b, b->updater)
-			: b;
-
+		auto updated = b->updater ? getUpdatedBonus(b, b->updater) : b;
 		out.push_back(updated);
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr) const
+TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const std::string &cachingStr) const
 {
 	if (cachingEnabled)
 	{
@@ -107,7 +104,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 		{
 			// Cached bonuses are up-to-date - use shared/read access and compute results
 			std::shared_lock lock(sync);
-			cachedBonuses.getBonuses(*ret, selector, limit);
+			cachedBonuses.getBonuses(*ret, selector);
 		}
 		else
 		{
@@ -117,7 +114,7 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 			if (cachedLast == nodeChanged)
 			{
 				// While our thread was waiting, another one have updated bonus tree. Use cached bonuses.
-				cachedBonuses.getBonuses(*ret, selector, limit);
+				cachedBonuses.getBonuses(*ret, selector);
 			}
 			else
 			{
@@ -126,11 +123,11 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 
 				cachedBonuses.clear();
 
-				getAllBonusesRec(allBonuses, Selector::all);
+				getAllBonusesRec(allBonuses);
 				limitBonuses(allBonuses, cachedBonuses);
 				cachedBonuses.stackBonuses();
 				cachedLast = nodeChanged;
-				cachedBonuses.getBonuses(*ret, selector, limit);
+				cachedBonuses.getBonuses(*ret, selector);
 			}
 		}
 
@@ -151,20 +148,20 @@ TConstBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, co
 	}
 	else
 	{
-		return getAllBonusesWithoutCaching(selector, limit);
+		return getAllBonusesWithoutCaching(selector);
 	}
 }
 
-TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const
+TConstBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector) const
 {
 	auto ret = std::make_shared<BonusList>();
 
 	// Get bonus results without caching enabled.
 	BonusList beforeLimiting;
 	BonusList afterLimiting;
-	getAllBonusesRec(beforeLimiting, selector);
+	getAllBonusesRec(beforeLimiting);
 	limitBonuses(beforeLimiting, afterLimiting);
-	afterLimiting.getBonuses(*ret, selector, limit);
+	afterLimiting.getBonuses(*ret, selector);
 	ret->stackBonuses();
 	return ret;
 }
@@ -175,21 +172,17 @@ std::shared_ptr<Bonus> CBonusSystemNode::getUpdatedBonus(const std::shared_ptr<B
 	return updater->createUpdatedBonus(b, * this);
 }
 
-CBonusSystemNode::CBonusSystemNode(bool isHypotetic):
-	nodeType(UNKNOWN),
+CBonusSystemNode::CBonusSystemNode(BonusNodeType NodeType, bool isHypotetic):
+	nodeType(NodeType),
 	cachedLast(0),
 	nodeChanged(0),
 	isHypotheticNode(isHypotetic)
 {
 }
 
-CBonusSystemNode::CBonusSystemNode(ENodeTypes NodeType):
-	nodeType(NodeType),
-	cachedLast(0),
-	nodeChanged(0),
-	isHypotheticNode(false)
-{
-}
+CBonusSystemNode::CBonusSystemNode(BonusNodeType NodeType):
+	CBonusSystemNode(NodeType, false)
+{}
 
 CBonusSystemNode::~CBonusSystemNode()
 {
@@ -218,7 +211,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 		parent.children.push_back(this);
 	}
 
-	nodeHasChanged();
+	parent.nodeHasChanged();
 }
 
 void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
@@ -253,8 +246,8 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 	}
 	else
 	{
-		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
-			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)",
+			nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 	}
 
 	if(!isHypothetic())
@@ -263,11 +256,11 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
 			parent.children -= this;
 		else
 		{
-			logBonus->error("Error on Detach. Node %s (nodeType=%d) is not a child of %s (nodeType=%d)"
-							, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+			logBonus->error("Error on Detach. Node %s (nodeType=%d) is not a child of %s (nodeType=%d)",
+				nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 		}
 	}
-	nodeHasChanged();
+	parent.nodeHasChanged();
 }
 
 
@@ -287,8 +280,8 @@ void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
 	}
 	else
 	{
-		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)"
-			, nodeShortInfo(), nodeType, parent.nodeShortInfo(), parent.nodeType);
+		logBonus->error("Error on Detach. Node %s (nodeType=%d) has not parent %s (nodeType=%d)",
+			nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 	}
 
 	nodeHasChanged();
@@ -304,7 +297,7 @@ void CBonusSystemNode::removeBonusesRecursive(const CSelector & s)
 void CBonusSystemNode::reduceBonusDurations(const CSelector &s)
 {
 	BonusList bl;
-	exportedBonuses.getBonuses(bl, s, Selector::all);
+	exportedBonuses.getBonuses(bl, s);
 	for(const auto & b : bl)
 	{
 		b->turnsRemain--;
@@ -355,7 +348,7 @@ void CBonusSystemNode::removeBonus(const std::shared_ptr<Bonus>& b)
 void CBonusSystemNode::removeBonuses(const CSelector & selector)
 {
 	BonusList toRemove;
-	exportedBonuses.getBonuses(toRemove, selector, Selector::all);
+	exportedBonuses.getBonuses(toRemove, selector);
 	for(const auto & bonus : toRemove)
 		removeBonus(bonus);
 }
@@ -364,9 +357,10 @@ bool CBonusSystemNode::actsAsBonusSourceOnly() const
 {
 	switch(nodeType)
 	{
-	case CREATURE:
-	case ARTIFACT:
-	case ARTIFACT_INSTANCE:
+	case BonusNodeType::CREATURE:
+	case BonusNodeType::ARTIFACT:
+	case BonusNodeType::ARTIFACT_INSTANCE:
+	case BonusNodeType::BOAT:
 		return true;
 	default:
 		return false;
@@ -382,7 +376,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 			: b;
 		bonuses.push_back(propagated);
 		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(nullptr), nodeName());
-		nodeHasChanged();
+		invalidateChildrenNodes(globalCounter);
 	}
 
 	TNodes lchildren;
@@ -400,15 +394,17 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 		else
 			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(nullptr), nodeName());
 
-		bonuses.remove_if([this, b](const auto & bonus)
+		bonuses.remove_if([b](const auto & bonus)
 		{
 			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
 			{
-				nodeHasChanged();
+
 				return true;
 			}
 			return false;
 		});
+
+		invalidateChildrenNodes(globalCounter);
 	}
 
 	TNodes lchildren;
@@ -550,7 +546,7 @@ void CBonusSystemNode::exportBonuses()
 		exportBonus(b);
 }
 
-CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
+BonusNodeType CBonusSystemNode::getNodeType() const
 {
 	return nodeType;
 }
@@ -558,11 +554,6 @@ CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 const TCNodesVector& CBonusSystemNode::getParentNodes() const
 {
 	return parentsToInherit;
-}
-
-void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
-{
-	nodeType = type;
 }
 
 BonusList & CBonusSystemNode::getExportedBonusList()
@@ -612,9 +603,24 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 
 void CBonusSystemNode::nodeHasChanged()
 {
-	static std::atomic<int32_t> globalCounter = 1;
-
 	invalidateChildrenNodes(++globalCounter);
+}
+
+void CBonusSystemNode::recomputePropagationUpdaters(const CBonusSystemNode & source)
+{
+	for(const auto & b : exportedBonuses)
+	{
+		if (b->propagator && b->propagationUpdater)
+		{
+			unpropagateBonus(b);
+			propagateBonus(b,  source);
+		}
+	}
+
+	for(const CBonusSystemNode * parent : source.parentsToInherit)
+		if (parent->actsAsBonusSourceOnly())
+			recomputePropagationUpdaters(*parent);
+
 }
 
 void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
@@ -623,6 +629,8 @@ void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
 		return;
 
 	nodeChanged = changeCounter;
+
+	recomputePropagationUpdaters(*this);
 
 	for(CBonusSystemNode * child : children)
 		child->invalidateChildrenNodes(changeCounter);

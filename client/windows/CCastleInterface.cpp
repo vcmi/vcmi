@@ -1194,7 +1194,10 @@ void CCastleBuildings::enterTownHall()
 void CCastleBuildings::openMagesGuild()
 {
 	auto mageGuildBackground = GAME->interface()->castleInt->town->getTown()->clientInfo.guildBackground;
-	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(GAME->interface()->castleInt, mageGuildBackground);
+	assert(mageGuildBackground.size() == 1 || mageGuildBackground.size() == GAME->interface()->castleInt->town->getTown()->mageLevel);
+	auto selectedMageGuildBackground = mageGuildBackground.size() == 1 ? mageGuildBackground[0] : mageGuildBackground[town->mageGuildLevel() - 1];
+
+	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(GAME->interface()->castleInt, selectedMageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
@@ -1471,6 +1474,13 @@ CCastleInterface::~CCastleInterface()
 		adventureInt->onAudioResumed();
 	if(GAME->interface()->castleInt == this)
 		GAME->interface()->castleInt = nullptr;
+}
+
+void CCastleInterface::updateArtifacts()
+{
+	// handle equipping / unequipping Legion pieces
+	for(auto creatureInfoBox : creainfo)
+		creatureInfoBox->update();
 }
 
 void CCastleInterface::updateGarrisons()
@@ -2114,7 +2124,14 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 {
 	OBJECT_CONSTRUCTION;
 
-	window = std::make_shared<CPicture>(owner->town->getTown()->clientInfo.guildWindow, 332, 76);
+	auto guildWindow = owner->town->getTown()->clientInfo.guildWindow;
+	assert(guildWindow.size() == 1 || guildWindow.size() == GAME->interface()->castleInt->town->getTown()->mageLevel);
+	auto selectedGuildWindow = guildWindow.size() == 1 ? guildWindow[0] : guildWindow[owner->town->mageGuildLevel() - 1];
+
+	auto windowPosition = owner->town->getTown()->clientInfo.guildWindowPosition;
+	if(windowPosition == Point(0, 0)) // TODO: remove legacy for compatibility
+		windowPosition = Point(332, 76);
+	window = std::make_shared<CPicture>(selectedGuildWindow, windowPosition.x, windowPosition.y);
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
 	resdatabar->moveBy(pos.topLeft(), true);
@@ -2135,19 +2152,22 @@ void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 		return;
 
 	OBJECT_CONSTRUCTION;
-	static const std::vector<std::vector<Point> > positions =
-	{
-		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
-		{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
-		{Point(570,82),  Point(672,82),  Point(570,157), Point(672,157)},
-		{Point(183,42),  Point(183,148), Point(183,253)},
-		{Point(491,325), Point(591,325)}
-	};
 
 	spells.clear();
 	emptyScrolls.clear();
 
 	const CGTownInstance * town = GAME->interface()->cb->getTown(townId);
+
+	auto positions = town->getTown()->clientInfo.guildSpellPositions;
+	if(!positions.size()) // TODO: remove legacy for compatibility
+		positions =
+		{
+			{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
+			{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
+			{Point(570,82),  Point(672,82),  Point(570,157), Point(672,157)},
+			{Point(183,42),  Point(183,148), Point(183,253)},
+			{Point(491,325), Point(591,325)}
+		};
 
 	for(uint32_t i=0; i<town->getTown()->mageLevel; i++)
 	{

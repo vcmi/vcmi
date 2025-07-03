@@ -712,13 +712,16 @@ namespace vstd
 		return a + (b - a) * f;
 	}
 
-	/// Divides dividend by divisor and rounds result up
+	/// Divides dividend by divisor and rounds result away from zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndCeil(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor - 1) / divisor;
+		else
+			return (dividend - divisor + 1) / divisor;
 	}
 
 	/// Divides dividend by divisor and rounds result to nearest
@@ -727,10 +730,13 @@ namespace vstd
 	Integer1 divideAndRound(const Integer1 & dividend, const Integer2 & divisor)
 	{
 		static_assert(std::is_integral_v<Integer1> && std::is_integral_v<Integer2>, "This function should only be used with integral types");
-		return (dividend + divisor / 2 - 1) / divisor;
+		if (dividend >= 0)
+			return (dividend + divisor / 2 - 1) / divisor;
+		else
+			return (dividend - divisor / 2 + 1) / divisor;
 	}
 
-	/// Divides dividend by divisor and rounds result down
+	/// Divides dividend by divisor and rounds result towards zero
 	/// For use with integer-only arithmetic
 	template<typename Integer1, typename Integer2>
 	Integer1 divideAndFloor(const Integer1 & dividend, const Integer2 & divisor)

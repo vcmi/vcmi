@@ -351,15 +351,13 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 struct DLL_LINKAGE SetMovePoints : public CPackForClient
 {
 	SetMovePoints() = default;
-	SetMovePoints(ObjectInstanceID hid, si32 val, ChangeValueMode mode)
+	SetMovePoints(ObjectInstanceID hid, si32 val)
 		: hid(hid)
 		, val(val)
-		, mode(mode)
 	{}
 
 	ObjectInstanceID hid;
 	si32 val = 0;
-	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -367,7 +365,6 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 	{
 		h & val;
 		h & hid;
-		h & mode;
 	}
 };
 

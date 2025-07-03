@@ -24,7 +24,7 @@ public:
 
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(AtLeast(1));
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, getSpellIndex()).WillRepeatedly(Return(castSpell));
 	}

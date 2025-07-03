@@ -313,8 +313,8 @@ si32 CCreature::maxAmount(const TResources &res) const //how many creatures can 
 }
 
 CCreature::CCreature()
+	:CBonusSystemNode(BonusNodeType::CREATURE)
 {
-	setNodeType(CBonusSystemNode::CREATURE);
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
@@ -329,7 +329,7 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
-	exported.getBonuses(existing, selector, Selector::all);
+	exported.getBonuses(existing, selector);
 
 	if(existing.empty())
 	{
@@ -902,6 +902,8 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
+	creature->mapAttackFromLeft = ImagePath::fromJson(config["graphics"]["mapAttackFromLeft"]);
+	creature->mapAttackFromRight = ImagePath::fromJson(config["graphics"]["mapAttackFromRight"]);
 
 	for(const auto & ability : config["abilities"].Struct())
 	{

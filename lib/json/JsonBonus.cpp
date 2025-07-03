@@ -387,6 +387,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			{"TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL", std::make_shared<TimesHeroLevelDivideStackLevelUpdater>()},
 			{"DIVIDE_STACK_LEVEL", std::make_shared<DivideStackLevelUpdater>()},
 			{"TIMES_STACK_LEVEL", std::make_shared<TimesStackLevelUpdater>()},
+			{"TIMES_STACK_SIZE", std::make_shared<TimesStackSizeUpdater>()},
 			{"BONUS_OWNER_UPDATER", std::make_shared<OwnerUpdater>()}
 	};
 
@@ -427,6 +428,35 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 				return std::make_shared<TimesStackSizeUpdater>(maximum, minimum, std::max(1, stepSize));
 			}
 			return std::make_shared<TimesStackSizeUpdater>(minimum, maximum, std::max(1, stepSize));
+		}
+		if(updaterJson["type"].String() == "TIMES_ARMY_SIZE")
+		{
+			auto result = std::make_shared<TimesArmySizeUpdater>();
+
+			result->minimum = updaterJson["minimum"].isNull() ? std::numeric_limits<int>::min() : updaterJson["minimum"].Integer();
+			result->maximum = updaterJson["maximum"].isNull() ? std::numeric_limits<int>::max() : updaterJson["maximum"].Integer();
+			result->stepSize = updaterJson["stepSize"].isNull() ? 1 : updaterJson["stepSize"].Integer();
+			result->filteredLevel = updaterJson["filteredLevel"].isNull() ? -1 : updaterJson["filteredLevel"].Integer();
+			if (result->minimum > result->maximum)
+			{
+				logMod->warn("TIMES_ARMY_SIZE updater: minimum value (%d) is above maximum value(%d)!", result->minimum, result->maximum);
+				std::swap(result->minimum, result->maximum);
+			}
+			if (!updaterJson["filteredFaction"].isNull())
+			{
+				LIBRARY->identifiers()->requestIdentifier( "faction", updaterJson["filteredFaction"], [result](int32_t identifier)
+				{
+					result->filteredFaction = FactionID(identifier);
+				});
+			}
+			if (!updaterJson["filteredCreature"].isNull())
+			{
+				LIBRARY->identifiers()->requestIdentifier( "creature", updaterJson["filteredCreature"], [result](int32_t identifier)
+				{
+					result->filteredCreature = CreatureID(identifier);
+				});
+			}
+			return result;
 		}
 		else
 			logMod->warn("Unknown updater type \"%s\"", updaterJson["type"].String());
@@ -611,6 +641,16 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 					}
 				}
 				return hexLimiter;
+			}
+			else if(limiterType == "HAS_CHARGES_LIMITER")
+			{
+				auto hasChargesLimiter = std::make_shared<HasChargesLimiter>();
+				if(!parameters.Vector().empty())
+				{
+					if(parameters.Vector().size() == 1 && parameters.Vector().front().isNumber())
+						hasChargesLimiter->chargeCost = parameters.Vector().front().Integer();
+				}
+				return hasChargesLimiter;
 			}
 			else
 			{

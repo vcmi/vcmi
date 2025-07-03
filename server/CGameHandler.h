@@ -166,7 +166,7 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
-	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override;
+	void setMovePoints(ObjectInstanceID hid, int val) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override;
@@ -176,7 +176,7 @@ public:
 	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
-	void useChargedArtifactUsed(const ObjectInstanceID & heroObjectID, const SpellID & spellID);
+	void useChargeBasedSpell(const ObjectInstanceID & heroObjectID, const SpellID & spellID);
 
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);

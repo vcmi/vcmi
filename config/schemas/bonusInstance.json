@@ -43,7 +43,7 @@
 			"anyOf" : [
 				{
 					"type" : "string",
-					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
+					"enum" : [ "TIMES_HERO_LEVEL", "TIMES_STACK_LEVEL", "DIVIDE_STACK_LEVEL", "BONUS_OWNER_UPDATER", "TIMES_STACK_SIZE", "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL" ]
 				},
 				{
 					"description" : "GROWS_WITH_LEVEL updater",
@@ -107,6 +107,43 @@
 							"description" : "Maximal bonus value"
 						}
 					}
+				},
+				{
+					"description" : "TIMES_ARMY_SIZE updater",
+					"type" : "object",
+					"required" : ["type"],
+					"additionalProperties" : false,
+					"properties" : {
+						"type" : {
+							"type" : "string",
+							"const" : "TIMES_ARMY_SIZE",
+						},
+						"stepSize" : {
+							"type" : "integer",
+							"minimum" : 1,
+							"description" : "Size of each step, in levels"
+						},
+						"minimum" : {
+							"type" : "integer",
+							"description" : "Minimal bonus value"
+						},
+						"maximum" : {
+							"type" : "integer",
+							"description" : "Maximal bonus value"
+						},
+						"filteredLevel" : {
+							"type" : "integer",
+							"description" : "Level of units to count"
+						},
+						"filteredFaction" : {
+							"type" : "string",
+							"description" : "Faction of units to count"
+						},
+						"filteredCreature" : {
+							"type" : "string",
+							"description" : "Specific unit to count"
+						}
+					}
 				}
 			]
 		}
@@ -138,7 +175,7 @@
 		"propagator" : {
 			"description" : "propagator",
 			"type" : "string",
-			"enum" : [ "BATTLE_WIDE", "VISITED_TOWN_AND_VISITOR", "PLAYER_PROPAGATOR", "HERO", "TEAM_PROPAGATOR", "GLOBAL_EFFECT" ]
+			"enum" : [ "BATTLE_WIDE", "TOWN_AND_VISITOR", "PLAYER", "HERO", "TOWN", "ARMY", "TEAM", "GLOBAL_EFFECT" ]
 		},
 		"updater" : {
 			"$ref" : "#/definitions/updater"

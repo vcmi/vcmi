@@ -436,13 +436,13 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 				pack.artsPack0.emplace_back(MoveArtifactInfo(srcSlot, dstSlot));
 				if(ArtifactUtils::isSlotEquipment(dstSlot))
 					pack.artsPack0.back().askAssemble = true;
-				artFittingSet.putArtifact(dstSlot, const_cast<CArtifactInstance*>(art));
+				artFittingSet.putArtifact(dstSlot, art);
 			}
 		};
 
 		if(loserHero)
 		{
-			auto & packHero = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+			BulkMoveArtifacts packHero(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 			packHero.srcArtHolder = finishingBattle->loserId;
 			for(const auto & slot : ArtifactUtils::commonWornSlots())
 			{
@@ -456,22 +456,31 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 				if(const auto art = artSlot.getArt(); art->getTypeId() != ArtifactID::GRAIL)
 					addArtifactToTransfer(packHero, loserHero->getArtPos(art), art);
 			}
+			if(!packHero.artsPack0.empty())
+				resultsApplied.movingArtifacts.emplace_back(std::move(packHero));
 
 			if(loserHero->getCommander())
 			{
-				auto & packCommander = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				BulkMoveArtifacts packCommander(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 				packCommander.srcCreature = loserHero->findStack(loserHero->getCommander());
 				for(const auto & artSlot : loserHero->getCommander()->artifactsWorn)
 					addArtifactToTransfer(packCommander, artSlot.first, artSlot.second.getArt());
+
+				if(!packCommander.artsPack0.empty())
+					resultsApplied.movingArtifacts.emplace_back(std::move(packCommander));
 			}
+
 			auto armyObj = dynamic_cast<const CArmedInstance*>(gameHandler->gameInfo().getObj(finishingBattle->loserId));
 			for(const auto & armySlot : armyObj->stacks)
 			{
-				auto & packsArmy = resultsApplied.movingArtifacts.emplace_back(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
-				packsArmy.srcArtHolder = armyObj->id;
-				packsArmy.srcCreature = armySlot.first;
+				BulkMoveArtifacts packArmy(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
+				packArmy.srcArtHolder = armyObj->id;
+				packArmy.srcCreature = armySlot.first;
 				for(const auto & artSlot : armySlot.second->artifactsWorn)
-					addArtifactToTransfer(packsArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
+					addArtifactToTransfer(packArmy, artSlot.first, armySlot.second->getArt(artSlot.first));
+
+				if(!packArmy.artsPack0.empty())
+					resultsApplied.movingArtifacts.emplace_back(std::move(packArmy));
 			}
 		}
 	}

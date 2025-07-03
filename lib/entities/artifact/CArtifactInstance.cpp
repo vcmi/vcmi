@@ -120,44 +120,6 @@ void CGrowingArtifactInstance::growingUp()
 				artInst->addNewBonus(std::make_shared<Bonus>(*bonus.second));
 			}
 		}
-
-		if(artType->isCharged())
-			artInst->onChargesChanged();
-	}
-}
-
-void CChargedArtifactInstance::onChargesChanged()
-{
-	auto artInst = static_cast<CArtifactInstance*>(this);
-	const auto artType = artInst->getType();
-
-	if(!artType->isCharged())
-		return;
-
-	const auto bonusSelector = artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST ?
-		Selector::type()(BonusType::SPELL) : Selector::all;
-
-	auto instBonuses = artInst->getAllBonuses(bonusSelector, nullptr);
-
-	if(artInst->getCharges() == 0)
-	{
-		for(const auto & bonus : *instBonuses)
-			if(bonus->type != BonusType::ARTIFACT_GROWING && bonus->type != BonusType::ARTIFACT_CHARGE)
-				artInst->removeBonus(bonus);
-	}
-	else
-	{
-		for(const auto & refBonus : *artType->getAllBonuses(bonusSelector, nullptr))
-		{
-			if(const auto bonusFound = std::find_if(instBonuses->begin(), instBonuses->end(),
-				[refBonus](const auto & instBonus)
-				{
-					return refBonus->type == instBonus->type;
-				}); bonusFound == instBonuses->end())
-			{
-				artInst->accumulateBonus(refBonus);
-			}
-		}
 	}
 }
 
@@ -171,7 +133,6 @@ void CChargedArtifactInstance::discharge(const uint16_t charges)
 			chargedBonus->front()->val -= charges;
 		else
 			chargedBonus->front()->val = 0;
-		onChargesChanged();
 	}
 }
 
@@ -184,7 +145,6 @@ void CChargedArtifactInstance::addCharges(const uint16_t charges)
 		const auto chargedBonus = artInst->getBonusesOfType(BonusType::ARTIFACT_CHARGE);
 		assert(!chargedBonus->empty());
 		chargedBonus->front()->val += charges;
-		onChargesChanged();
 	}
 }
 
@@ -199,21 +159,7 @@ void CArtifactInstance::init()
 {
 	const auto art = artTypeID.toArtifact();
 	assert(art);
-
-	if(art->isCharged())
-	{
-		// Charged artifacts contain all bonuses inside instance bonus node
-		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
-		{
-			for(const auto & bonus : *art->getAllBonuses(Selector::all, nullptr))
-				if(bonus->type != BonusType::SPELL)
-					accumulateBonus(bonus);
-		}
-	}
-	else
-	{
-		attachToSource(*art);
-	}
+	attachToSource(*art);
 }
 
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb, const CArtifact * art)
@@ -224,7 +170,7 @@ CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb, const CArtifact * ar
 }
 
 CArtifactInstance::CArtifactInstance(IGameInfoCallback *cb)
-	: CBonusSystemNode(ARTIFACT_INSTANCE)
+	: CBonusSystemNode(BonusNodeType::ARTIFACT_INSTANCE)
 	, CCombinedArtifactInstance(cb)
 {
 }

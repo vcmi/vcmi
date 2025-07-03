@@ -46,25 +46,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static std::string convertMapName(std::string input)
-{
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-	boost::algorithm::erase_all(input, ".");
-
-	size_t slashPos = input.find_last_of('/');
-
-	if(slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
-
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new MapReaderH3M(stream))
 	, inputStream(stream)
-	, mapName(convertMapName(mapName))
+	, mapName(TextOperations::convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {
@@ -2141,7 +2127,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
 		{
-			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
+			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), "");
 			if(ps->size())
 			{
 				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );

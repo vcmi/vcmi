@@ -176,13 +176,8 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.hid);
-
 	assert(hero);
-
-	if(pack.mode == ChangeValueMode::ABSOLUTE)
-		hero->setMovementPoints(pack.val);
-	else
-		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
+	hero->setMovementPoints(pack.val);
 }
 
 void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
@@ -425,8 +420,8 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 		if (town->getGarrisonHero())
 		{
-			town->setGarrisonedHero(nullptr);
 			gs.getMap().showObject(gs.getHero(town->getGarrisonHero()->id));
+			town->setGarrisonedHero(nullptr);
 		}
 	}
 
@@ -951,6 +946,9 @@ void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
 		ePack.posPack.push_back(pack.artLoc.value().slot);
 		ePack.visit(*this);
 	}
+	// Workaround to inform hero bonus node about changes. Obviously this has to be done somehow differently.
+	if(pack.artLoc.has_value())
+		gs.getHero(pack.artLoc.value().artHolder)->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)

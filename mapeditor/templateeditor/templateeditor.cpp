@@ -15,6 +15,7 @@
 #include "terrainselector.h"
 #include "factionselector.h"
 #include "mineselector.h"
+#include "treasureselector.h"
 #include "GeometryAlgorithm.h"
 
 #include "../helper.h"
@@ -747,7 +748,7 @@ void TemplateEditor::on_pushButtonAddSubTemplate_clicked()
 
 	if(templates.count(text.toStdString()))
 	{
-		QMessageBox::critical(this, tr("Already existing!"), tr("At template with this name is already existing."));
+		QMessageBox::critical(this, tr("Already existing!"), tr("A template with this name is already existing."));
 		return;
 	}
 
@@ -1047,8 +1048,7 @@ void TemplateEditor::on_pushButtonBannedMonsters_clicked()
 
 void TemplateEditor::on_pushButtonTreasure_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	TreasureSelector::showTreasureSelector(templates[selectedTemplate]->getZones().at(selectedZone)->treasureInfo);
 }
 
 void TemplateEditor::on_pushButtonMines_clicked()

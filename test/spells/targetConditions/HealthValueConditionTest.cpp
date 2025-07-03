@@ -23,7 +23,7 @@ public:
 	const int64_t EFFECT_VALUE = 101;
 	void setDefaultExpectations()
 	{
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(0);
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(0);
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(0);
 		EXPECT_CALL(unitMock, getAvailableHealth()).WillOnce(Return(UNIT_HP));
 		EXPECT_CALL(mechanicsMock, getEffectValue()).WillOnce(Return(EFFECT_VALUE));

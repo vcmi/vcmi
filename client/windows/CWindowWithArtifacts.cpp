@@ -164,7 +164,7 @@ void CWindowWithArtifacts::enableKeyboardShortcuts() const
 		artSet->enableKeyboardShortcuts();
 }
 
-void CWindowWithArtifacts::update()
+void CWindowWithArtifacts::updateArtifacts()
 {
 	for(const auto & artSet : artSets)
 	{

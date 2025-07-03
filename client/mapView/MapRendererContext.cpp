@@ -25,6 +25,8 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/IBattleState.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -83,6 +85,18 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	}
 
 	return false;
+}
+
+int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const
+{
+	if(wanderingMonster->ID != Obj::MONSTER)
+		return -1;
+		
+	for(auto & battle : GAME->interface()->cb->getActiveBattles())
+		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
+			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
+
+	return -1;
 }
 
 bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const

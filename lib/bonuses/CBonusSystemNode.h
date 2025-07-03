@@ -26,13 +26,6 @@ using TCNodesVector = std::vector<const CBonusSystemNode *>;
 class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public virtual Serializeable, public boost::noncopyable
 {
 public:
-	enum ENodeTypes
-	{
-		NONE = -1, 
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
-	};
-
 	struct HashStringCompare {
 		static size_t hash(const std::string& data)
 		{
@@ -53,7 +46,7 @@ private:
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
 	TNodesVector children;
 
-	ENodeTypes nodeType;
+	BonusNodeType nodeType;
 	bool isHypotheticNode;
 
 	mutable BonusList cachedBonuses;
@@ -69,8 +62,8 @@ private:
 	mutable RequestsMap cachedRequests;
 	mutable std::shared_mutex sync;
 
-	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
-	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
+	void getAllBonusesRec(BonusList &out) const;
+	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 
@@ -82,6 +75,7 @@ private:
 
 	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
+	void recomputePropagationUpdaters(const CBonusSystemNode & source);
 	bool actsAsBonusSourceOnly() const;
 
 	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
@@ -96,11 +90,11 @@ protected:
 	void exportBonuses();
 
 public:
-	explicit CBonusSystemNode(bool isHypotetic = false);
-	explicit CBonusSystemNode(ENodeTypes NodeType);
+	explicit CBonusSystemNode(BonusNodeType nodeType, bool isHypotetic);
+	explicit CBonusSystemNode(BonusNodeType nodeType);
 	virtual ~CBonusSystemNode();
 
-	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector &selector, const std::string &cachingStr = "") const override;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	/// Returns first bonus matching selector
@@ -129,8 +123,7 @@ public:
 
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;
-	CBonusSystemNode::ENodeTypes getNodeType() const;
-	void setNodeType(CBonusSystemNode::ENodeTypes type);
+	BonusNodeType getNodeType() const;
 	const TCNodesVector & getParentNodes() const;
 
 	void nodeHasChanged();

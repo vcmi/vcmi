@@ -362,6 +362,7 @@ void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
 	backgroundDimLevel = 255;
 
+	widget->getMinimap()->setAIRadar(true);
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
@@ -561,6 +562,12 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 
 			if(topBlocking && topBlocking->isVisitable() && !topBlocking->visitableAt(destinationTile) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
 				destinationTile = topBlocking->visitablePos();
+
+			if(!settings["adventure"]["showMovePath"].Bool())
+			{
+				GAME->interface()->localState->setPath(currentHero, destinationTile);
+				onHeroChanged(currentHero);				
+			}
 
 			if(GAME->interface()->localState->hasPath(currentHero) &&
 			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&

@@ -12,7 +12,7 @@
 				"val": 1
 			},
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "THIEVES_GUILD_ACCESS",
 				"val": 1
 			}
@@ -130,7 +130,7 @@
 	"lighthouse" : {
 		"bonuses": [
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "MOVEMENT",
 				"subtype": "heroMovementSea",
 				"val": 500
@@ -257,7 +257,7 @@
 	"thievesGuild" : {
 		"bonuses": [
 			{
-				"propagator": "PLAYER_PROPAGATOR",
+				"propagator": "PLAYER",
 				"type": "THIEVES_GUILD_ACCESS",
 				"val": 2
 			}

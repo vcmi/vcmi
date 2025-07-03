@@ -46,7 +46,7 @@ void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 	//TODO: do not recreate window
 	if (false)
 	{
-		owner->update();
+		owner->updateArtifacts();
 	}
 	else
 	{
@@ -153,7 +153,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	{
 		auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
 		int lines = divisionRoundUp(hero->secSkills.size(), 2);
-		secSkillSlider = std::make_shared<CSlider>(Point(284, 276), 189, [this](int val){ CHeroWindow::update(); }, 4, lines, 0, Orientation::VERTICAL, CSlider::BROWN);
+		secSkillSlider = std::make_shared<CSlider>(Point(284, 276), 189, [this](int val){ CHeroWindow::updateArtifacts(); }, 4, lines, 0, Orientation::VERTICAL, CSlider::BROWN);
 		secSkillSlider->setPanningStep(48);
 		secSkillSlider->setScrollBounds(Rect(-266, 0, secSkillSlider->pos.x - pos.x + secSkillSlider->pos.w, secSkillSlider->pos.h));
 	}
@@ -182,14 +182,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[6]));
 	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[7]));
 
-	CHeroWindow::update();
+	CHeroWindow::updateArtifacts();
 }
 
-void CHeroWindow::update()
+void CHeroWindow::updateArtifacts()
 {
 	OBJECT_CONSTRUCTION;
 
-	CWindowWithArtifacts::update();
+	CWindowWithArtifacts::updateArtifacts();
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
 
