@@ -16,6 +16,7 @@
 
 #include "../battle/IBattleState.h"
 #include "../battle/CBattleInfoCallback.h"
+#include "../battle/Unit.h"
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
@@ -208,6 +209,45 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	return effects->applicable(problem, this);
 }
 
+bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
+{
+	if(mode == Mode::HERO)
+		return true;
+
+	if(!target)
+		return true;
+
+	auto spell = getSpell();
+	int range = caster->getEffectRange(spell);
+
+	if(range <= 0)
+		return true;
+
+	std::vector<BattleHex> casterPos = { caster->getCasterPosition() };
+	BattleHex casterWidePos = battle()->battleGetStackByID(caster->getCasterUnitId(), false)->occupiedHex();
+	if(casterWidePos != BattleHex::INVALID)
+		casterPos.push_back(casterWidePos);
+
+	std::vector<BattleHex> destPos = { target->getPosition() };
+	BattleHex destWidePos = target->occupiedHex();
+	if(destWidePos != BattleHex::INVALID)
+		destPos.push_back(destWidePos);
+	
+	int minDistance = std::numeric_limits<int>::max();
+	for(auto & caster : casterPos)
+		for(auto & dest : destPos)
+		{
+			int distance = BattleHex::getDistance(caster, dest);
+			if(distance < minDistance)
+				minDistance = distance;
+		}
+
+	if(minDistance > range)
+		return false;
+	
+	return true;
+}
+
 bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem) const
 {
 	if(!canBeCast(problem))
@@ -226,13 +266,8 @@ bool BattleSpellMechanics::canBeCastAt(const Target & target, Problem & problem)
 		mainTarget = battle()->battleGetUnitByPos(target.front().hexValue, true);
 	}
 
-	int range = caster->getEffectRange(getSpell());
-	if(mode != Mode::HERO && range > 0 )
-	{
-		int distance = BattleHex::getDistance(spellTarget.front().hexValue, caster->getCasterPosition());
-		if(distance > range)
-			return false;
-	}
+	if(!canCastAtTarget(mainTarget))
+		return false;
 
 	if (!getSpell()->canCastOnSelf() && !getSpell()->canCastOnlyOnSelf())
 	{
