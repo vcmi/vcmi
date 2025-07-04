@@ -218,8 +218,8 @@ void BattleWindow::hideStickyQuickSpellWindow()
 	quickSpellWindow->disable();
 	unitActionWindow->disable();
 
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -236,8 +236,8 @@ void BattleWindow::showStickyQuickSpellWindow()
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
 	unitActionWindow->setEnabled(unitActionWindowVisible);
 
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -256,7 +256,7 @@ void BattleWindow::createTimerInfoWindows()
 		if (attacker.isValidPlayer())
 		{
 			if (ENGINE->screenDimensions().x >= 1000)
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-92 + xOffsetAttacker, 1), attacker);
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-80 + xOffsetAttacker, 0), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
 		}
@@ -264,7 +264,7 @@ void BattleWindow::createTimerInfoWindows()
 		if (defender.isValidPlayer())
 		{
 			if (ENGINE->screenDimensions().x >= 1000)
-				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 16 + xOffsetDefender, 1), defender);
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 4 + xOffsetDefender, 0), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
@@ -386,31 +386,34 @@ void BattleWindow::setPositionInfoWindow()
 	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
 	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 53;
 
+	int yOffsetAttacker = attackerTimerWidget ? attackerTimerWidget->pos.h + 9 : 0;
+	int yOffsetDefender = defenderTimerWidget ? defenderTimerWidget->pos.h + 9 : 0;
+
 	if(defenderHeroWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 3 + xOffsetDefender, pos.y + 60)
+				? Point(pos.x + pos.w + 3 + xOffsetDefender, pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 81 + xOffsetAttacker, pos.y + 60)
+				? Point(pos.x - 81 + xOffsetAttacker, pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 3 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
+				? Point(pos.x + pos.w + 3 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 81 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
+				? Point(pos.x - 81 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
 	}
@@ -444,8 +447,8 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	else
 		attackerStackWindow = nullptr;
 	
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
