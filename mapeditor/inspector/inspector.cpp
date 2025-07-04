@@ -207,7 +207,7 @@ void Initializer::initialize(CGArtifact * o)
 		auto a = controller.map()->createScroll(*RandomGeneratorUtil::nextItem(out, CRandomGenerator::getDefault()));
 		o->setArtifactInstance(a);
 	}
-	else if(o->ID == Obj::ARTIFACT)
+	else if(o->ID == Obj::ARTIFACT || (o->ID >= Obj::RANDOM_ART && o->ID <= Obj::RANDOM_RELIC_ART))
 	{
 		auto instance = controller.map()->createArtifact(o->getArtifactType());
 		o->setArtifactInstance(instance);
