@@ -191,10 +191,10 @@ void BattleWindow::createQuickSpellWindow()
 	OBJECT_CONSTRUCTION;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
-	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y));
+	quickSpellWindow->moveTo(Point(pos.x - 55, pos.y));
 
 	unitActionWindow = std::make_shared<UnitActionPanel>(owner);
-	unitActionWindow->moveTo(Point(pos.x + pos.w + 15, pos.y));
+	unitActionWindow->moveTo(Point(pos.x + pos.w + 3, pos.y));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
 		showStickyQuickSpellWindow();
@@ -389,28 +389,28 @@ void BattleWindow::setPositionInfoWindow()
 	if(defenderHeroWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15 + xOffsetDefender, pos.y + 60)
+				? Point(pos.x + pos.w + 3 + xOffsetDefender, pos.y + 60)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, pos.y + 60)
+				? Point(pos.x - 81 + xOffsetAttacker, pos.y + 60)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
+				? Point(pos.x + pos.w + 3 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
 		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
+				? Point(pos.x - 81 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
 	}
@@ -847,7 +847,7 @@ void BattleWindow::showAll(Canvas & to)
 	CIntObject::showAll(to);
 
 	if (ENGINE->screenDimensions().x != 800 || ENGINE->screenDimensions().y !=600)
-		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		to.drawBorder(Rect(pos.x-1, pos.y, pos.w+2, pos.h+1), Colors::BRIGHT_YELLOW);
 }
 
 void BattleWindow::show(Canvas & to)
