@@ -62,8 +62,11 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		}
 	};
 
-	buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
-	buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+	if(screenType != ESelectionScreen::campaignList)
+	{
+		buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
+		buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+	}
 
 	switch(screenType)
 	{
