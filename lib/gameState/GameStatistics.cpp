@@ -88,9 +88,9 @@ void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("day", day);
 	handler.serializeId("player", player, PlayerColor::CANNOT_DETERMINE);
 	handler.serializeString("playerName", playerName);
-	handler.serializeId("team", team, TeamID::NO_TEAM);
+	handler.serializeInt("team", team);
 	handler.serializeBool("isHuman", isHuman);
-	handler.serializeEnum("status", status, {"wrong", "ingame", "loser", "winner"});
+	handler.serializeEnum("status", status, {"ingame", "loser", "winner"});
 	resources.serializeJson(handler, "resources");
 	handler.serializeInt("numberHeroes", numberHeroes);
 	handler.serializeInt("numberTowns", numberTowns);

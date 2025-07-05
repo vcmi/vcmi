@@ -462,16 +462,6 @@ std::string PlayerColor::entityType()
 	return "playerColor";
 }
 
-std::string TeamID::encode(int32_t index)
-{
-	return std::to_string(index);
-}
-
-si32 TeamID::decode(const std::string & identifier)
-{
-	return std::stoi(identifier);
-}
-
 si32 PrimarySkill::decode(const std::string& identifier)
 {
 	return resolveIdentifier(entityType(), identifier);

@@ -101,17 +101,16 @@ struct DLL_LINKAGE StatisticDataSetEntry
 
 class DLL_LINKAGE StatisticDataSet
 {
-	void serializeJson(JsonSerializeFormat & handler);
-
 public:
 	void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData);
 	std::string toCsv(std::string sep) const;
 	std::string writeCsv() const;
 
-	class PlayerAccumulatedValueStorage // holds some actual values needed for stats
+	void serializeJson(JsonSerializeFormat & handler);
+
+	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{
-	public:
 		int numBattlesNeutral;
 		int numBattlesPlayer;
 		int numWinBattlesNeutral;

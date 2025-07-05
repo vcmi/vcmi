@@ -176,9 +176,6 @@ class TeamID : public StaticIdentifier<TeamID>
 public:
 	using StaticIdentifier<TeamID>::StaticIdentifier;
 
-	static si32 decode(const std::string& identifier);
-	static std::string encode(const si32 index);
-
 	DLL_LINKAGE static const TeamID NO_TEAM;
 };
 

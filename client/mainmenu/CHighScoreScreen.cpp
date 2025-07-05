@@ -37,10 +37,13 @@
 #include "../../lib/gameState/HighScore.h"
 #include "../../lib/gameState/GameStatistics.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/serializer/JsonSerializer.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	: CWindowObject(BORDERED), highscorepage(highscorepage), highlighted(highlighted)
 {
+	addUsedEvents(LCLICK);
 	addUsedEvents(SHOW_POPUP);
 
 	OBJECT_CONSTRUCTION;
@@ -50,7 +53,7 @@ CHighScoreScreen::CHighScoreScreen(HighScorePage highscorepage, int highlighted)
 	addButtons();
 }
 
-void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
+void CHighScoreScreen::rowEvent(std::function<void(int row, bool currentGameNotInListEntry)> func, const Point & cursorPosition)
 {
 	for (int i = 0; i < screenRows; i++)
 	{
@@ -58,12 +61,31 @@ void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
 
 		Rect r = Rect(80, 40 + i * 50, 635, 50);
 		if(r.isInside(cursorPosition - pos))
-		{
-			std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : i]["datetime"].String();
-			if(!tmp.empty())
-				CRClickPopup::createAndPush(tmp);
-		}
+			func(i, currentGameNotInListEntry);
 	}
+}
+
+void CHighScoreScreen::clickPressed(const Point & cursorPosition)
+{
+	rowEvent([this](int row, bool currentGameNotInListEntry){
+		auto node = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : row];
+		if(node["statistic"].isNull())
+			return;
+		
+		JsonDeserializer ser(nullptr, node);
+		StatisticDataSet stat;
+		ser.serializeStruct("statistic", stat);
+		ENGINE->windows().createAndPushWindow<CStatisticScreen>(stat);
+	}, cursorPosition);
+}
+
+void CHighScoreScreen::showPopupWindow(const Point & cursorPosition)
+{
+	rowEvent([this](int row, bool currentGameNotInListEntry){
+		std::string tmp = persistentStorage["highscore"][highscorepage == HighScorePage::SCENARIO ? "scenario" : "campaign"][currentGameNotInListEntry ? highlighted : row]["datetime"].String();
+		if(!tmp.empty())
+			CRClickPopup::createAndPush("{" + LIBRARY->generaltexth->translate("core.help.316.hover") + "}\n\n" + tmp);
+	}, cursorPosition);
 }
 
 void CHighScoreScreen::addButtons()
@@ -251,6 +273,8 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
 	newNode["datetime"].String() = TextOperations::getFormattedDateTimeLocal(std::time(nullptr));
 	newNode["posFlag"].Bool() = true;
+	JsonSerializer ser(nullptr, newNode);
+	ser.serializeStruct("statistic", stat);
 
 	baseNode.push_back(newNode);
 	boost::range::sort(baseNode, sortFunctor);
