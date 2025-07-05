@@ -470,6 +470,16 @@ CCreatureHandler::CCreatureHandler()
 
 void CCreatureHandler::loadCommanders()
 {
+	const auto & parseBonusWithCompatibility = [](const JsonNode & node)
+	{
+		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
+		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
+		if (node.isVector())
+			return JsonUtils::parseBonus(node.Vector());
+		else
+			return JsonUtils::parseBonus(node);
+	};
+
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
@@ -480,7 +490,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
+		commanderLevelPremy.push_back(parseBonusWithCompatibility(bonus));
 	}
 
 	int level = 0;
@@ -497,15 +507,20 @@ void CCreatureHandler::loadCommanders()
 	for (auto ability : config["abilityRequirements"].Vector())
 	{
 		std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > a;
-		JsonVector & abilities = ability["ability"].Vector();
-		a.first = std::vector<std::shared_ptr<Bonus> >();
-		if (abilities[0].isVector()) 
-			for (int i = 0; i < abilities.size(); i++) 
-				a.first.push_back(JsonUtils::parseBonus(abilities[i].Vector()));
-		else 
-			a.first.push_back(JsonUtils::parseBonus(ability["ability"].Vector()));
-		a.second.first =  static_cast<ui8>(ability["skills"].Vector()[0].Float());
-		a.second.second = static_cast<ui8>(ability["skills"].Vector()[1].Float());
+		JsonNode & abilities = ability["ability"];
+
+		if (abilities[0].isString()) // old format with single bonus
+		{
+			a.first.push_back(parseBonusWithCompatibility(abilities));
+		}
+		else
+		{
+			for (const auto & ability : abilities.Vector())
+				a.first.push_back(parseBonusWithCompatibility(ability));
+		}
+
+		a.second.first =  static_cast<ui8>(ability["skills"][0].Float());
+		a.second.second = static_cast<ui8>(ability["skills"][1].Float());
 		skillRequirements.push_back (a);
 	}
 }
