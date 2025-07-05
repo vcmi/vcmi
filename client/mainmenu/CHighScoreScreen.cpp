@@ -280,7 +280,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	}
 
 	if (baseNode.size() > HIGHSCORE_ROW_SAVE - 1)
-        baseNode.resize(HIGHSCORE_ROW_SAVE - 1);
+		baseNode.resize(HIGHSCORE_ROW_SAVE - 1);
 	baseNode.push_back(newNode);
 	boost::range::sort(baseNode, sortFunctor);
 
