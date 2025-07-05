@@ -273,8 +273,11 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	newNode["points"].Integer() = calc.calculate().cheater ? 0 : calc.calculate().total;
 	newNode["datetime"].String() = TextOperations::getFormattedDateTimeLocal(std::time(nullptr));
 	newNode["posFlag"].Bool() = true;
-	JsonSerializer ser(nullptr, newNode);
-	ser.serializeStruct("statistic", stat);
+	if(!calc.isCampaign)
+	{
+		JsonSerializer ser(nullptr, newNode);
+		ser.serializeStruct("statistic", stat);
+	}
 
 	if (baseNode.size() > HIGHSCORE_ROW_SAVE - 1)
         baseNode.resize(HIGHSCORE_ROW_SAVE - 1);
@@ -284,7 +287,7 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	int pos = -1;
 	for (int i = 0; i < baseNode.size(); i++)
 	{
-		if(i >= Statistic::STAT_ROW_SAVE && baseNode[i]["posFlag"].isNull())
+		if(!baseNode[i]["statistic"].isNull() && i >= Statistic::STAT_ROW_SAVE && baseNode[i]["posFlag"].isNull())
 			baseNode[i]["statistic"].clear();
 
 		if(!baseNode[i]["posFlag"].isNull())
