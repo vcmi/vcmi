@@ -276,12 +276,17 @@ int CHighScoreInputScreen::addEntry(std::string text) {
 	JsonSerializer ser(nullptr, newNode);
 	ser.serializeStruct("statistic", stat);
 
+	if (baseNode.size() > HIGHSCORE_ROW_SAVE - 1)
+        baseNode.resize(HIGHSCORE_ROW_SAVE - 1);
 	baseNode.push_back(newNode);
 	boost::range::sort(baseNode, sortFunctor);
 
 	int pos = -1;
 	for (int i = 0; i < baseNode.size(); i++)
 	{
+		if(i >= Statistic::STAT_ROW_SAVE && baseNode[i]["posFlag"].isNull())
+			baseNode[i]["statistic"].clear();
+
 		if(!baseNode[i]["posFlag"].isNull())
 		{
 			baseNode[i]["posFlag"].clear();

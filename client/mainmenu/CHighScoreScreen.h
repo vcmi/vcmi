@@ -76,6 +76,8 @@ public:
 
 class CHighScoreInputScreen : public CWindowObject, public IVideoHolder
 {
+	const int HIGHSCORE_ROW_SAVE = 100;
+
 	std::vector<std::shared_ptr<CLabel>> texts;
 	std::shared_ptr<CHighScoreInput> input;
 	std::shared_ptr<TransparentFilledRectangle> background;
