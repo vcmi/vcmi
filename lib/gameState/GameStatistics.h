@@ -155,8 +155,6 @@ public:
 class DLL_LINKAGE Statistic
 {
 public:
-	static const int STAT_ROW_SAVE = 15;
-
 	static int getNumberOfArts(const PlayerState * ps);
 	static int getNumberOfDwellings(const PlayerState * ps);
 	static si64 getArmyStrength(const PlayerState * ps, bool withTownGarrison = false);
