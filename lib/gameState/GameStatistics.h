@@ -57,6 +57,8 @@ struct DLL_LINKAGE StatisticDataSetEntry
 	bool eventDefeatedStrongestHero;
 	si64 movementPointsUsed;
 
+	void serializeJson(JsonSerializeFormat & handler);
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & map;
@@ -99,14 +101,17 @@ struct DLL_LINKAGE StatisticDataSetEntry
 
 class DLL_LINKAGE StatisticDataSet
 {
+	void serializeJson(JsonSerializeFormat & handler);
+
 public:
 	void add(StatisticDataSetEntry entry);
 	static StatisticDataSetEntry createEntry(const PlayerState * ps, const CGameState * gs, const StatisticDataSet & accumulatedData);
 	std::string toCsv(std::string sep) const;
 	std::string writeCsv() const;
 
-	struct PlayerAccumulatedValueStorage // holds some actual values needed for stats
+	class PlayerAccumulatedValueStorage // holds some actual values needed for stats
 	{
+	public:
 		int numBattlesNeutral;
 		int numBattlesPlayer;
 		int numWinBattlesNeutral;
@@ -119,6 +124,8 @@ public:
 		si64 movementPointsUsed;
 		int lastCapturedTownDay;
 		int lastDefeatedStrongestHeroDay;
+
+		void serializeJson(JsonSerializeFormat & handler);
 
 		template <typename Handler> void serialize(Handler &h)
 		{
