@@ -245,8 +245,8 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJECT_CONSTRUCTION;
 
-	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
-	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 53;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;
+	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 51;
 
 	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || GAME->interface()->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
@@ -255,16 +255,16 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (attacker.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-80 + xOffsetAttacker, 0), attacker);
+			if (ENGINE->screenDimensions().x >= 960)
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-76 + xOffsetAttacker, 0), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
 		}
 
 		if (defender.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 4 + xOffsetDefender, 0), defender);
+			if (ENGINE->screenDimensions().x >= 960)
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + xOffsetDefender, 0), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
