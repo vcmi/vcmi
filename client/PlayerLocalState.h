@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
@@ -28,8 +30,8 @@ struct PlayerSpellbookSetting
 	//on which page we left spellbook
 	int spellbookLastPageBattle = 0;
 	int spellbookLastPageAdvmap = 0;
-	int spellbookLastTabBattle = 4;
-	int spellbookLastTabAdvmap = 4;
+	SpellSchool spellbookLastTabBattle = SpellSchool::ANY;
+	SpellSchool spellbookLastTabAdvmap = SpellSchool::ANY;
 };
 
 /// Class that contains potentially serializeable state of a local player

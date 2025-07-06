@@ -98,6 +98,8 @@
 	"vcmi.randomMap.description.monster.strong" : "Stark",
 
 	"vcmi.spellBook.search" : "suchen...",
+	"vcmi.spellBook.tab.hover" : "%szauber",
+	"vcmi.spellBook.tab.help" : "Zu %szaubersprüchen blättern",
 
 	"vcmi.spellResearch.canNotAfford" : "Ihr könnt es Euch nicht leisten, {%SPELL1} durch {%SPELL2} zu ersetzen. Aber Ihr könnt diesen Zauberspruch trotzdem verwerfen und die Zauberspruchforschung fortsetzen.",
 	"vcmi.spellResearch.comeAgain" : "Die Forschung wurde heute bereits abgeschlossen. Kommt morgen wieder.",
