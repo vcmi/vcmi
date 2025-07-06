@@ -1181,7 +1181,7 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 		CGTownInstance * town = gs.getTown(pack.info->townID);
 		CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(town->townAndVis);
 			hero->attachTo(*town);
@@ -1366,7 +1366,7 @@ void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 		CGTownInstance * town = gs.getTown(currentBattle.townID);
 		CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(*town);
 			hero->attachTo(town->townAndVis);

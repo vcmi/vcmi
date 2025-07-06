@@ -68,13 +68,6 @@ digraph mygraph {
 					<tr><td>Hero that is currently<br/>visiting owned or allied town</td></tr>
 				</table>>
 		]
-		"Garrisoned Hero" [
-			fillcolor="#80808080"
-			label =<<table>
-					<tr><td><b>Garrisoned Hero</b></td></tr>
-					<tr><td>Hero that is currently<br/>placed in a garrison of owned town</td></tr>
-				</table>>
-		]
 		"Wandering Hero" [
 			fillcolor="#80808080"
 			label =<<table>
@@ -253,13 +246,11 @@ digraph mygraph {
 	"Creature Type" -> "Summon in Combat"
 	"Creature Type" -> "Unit in Army"
 
-	"Town" -> "Garrisoned Hero"
 	"Town" -> "Army"
 	"Neutral Army" -> "Army"
 	"Owned Army" -> "Army"
 
 	"Visiting Hero" -> "Hero"
-	"Garrisoned Hero" -> "Hero"
 	"Wandering Hero" -> "Hero"
 	"Hero" -> "Army"
 }
