@@ -22,7 +22,6 @@ class CBattleQuery : public CQuery
 {
 public:
 	BattleSideArray<const CArmedInstance *> belligerents;
-	BattleSideArray<int> initialHeroMana;
 
 	BattleID battleID;
 	std::optional<BattleResult> result;

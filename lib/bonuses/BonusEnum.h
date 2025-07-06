@@ -192,6 +192,7 @@ class JsonNode;
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
 	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
+	BONUS_NAME(COMBAT_MANA_BONUS) /* Additional mana per combat */ \
 	/* end of list */
 
 

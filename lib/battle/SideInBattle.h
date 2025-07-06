@@ -28,6 +28,8 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 	uint32_t castSpellsCount = 0; //how many spells each side has been cast this turn
 	std::vector<SpellID> usedSpellsHistory; //every time hero casts spell, it's inserted here -> eagle eye skill
 	int32_t enchanterCounter = 0; //tends to pass through 0, so sign is needed
+	int32_t initialMana = 0;
+	int32_t additionalMana = 0;
 
 	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
 	const CArmedInstance * getArmy() const;
@@ -41,6 +43,8 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 		h & castSpellsCount;
 		h & usedSpellsHistory;
 		h & enchanterCounter;
+		h & initialMana;
+		h & additionalMana;
 	}
 };
 
