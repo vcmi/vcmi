@@ -230,8 +230,8 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	auto hero = owner.getBattle()->battleGetMyHero();
 
-	bool quickSpellWindowVisible = ENGINE->screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook();
-	bool unitActionWindowVisible = ENGINE->screenDimensions().x >= 1050;
+	bool quickSpellWindowVisible = hasSpaceForQuickActions() && hero != nullptr && hero->hasSpellbook();
+	bool unitActionWindowVisible = hasSpaceForQuickActions();
 
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
 	unitActionWindow->setEnabled(unitActionWindowVisible);
@@ -255,7 +255,7 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (attacker.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 960)
+			if (placeInfoWindowsOutside())
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-76 + xOffsetAttacker, 0), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
@@ -263,7 +263,7 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (defender.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 960)
+			if (placeInfoWindowsOutside())
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + xOffsetDefender, 0), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
@@ -391,28 +391,28 @@ void BattleWindow::setPositionInfoWindow()
 
 	if(defenderHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 960)
+		Point position = placeInfoWindowsOutside()
 				? Point(pos.x + pos.w - 1 + xOffsetDefender, pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 960)
+		Point position = placeInfoWindowsOutside()
 				? Point(pos.x - 77 + xOffsetAttacker, pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 960)
+		Point position = placeInfoWindowsOutside()
 				? Point(pos.x + pos.w - 1 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 960)
+		Point position = placeInfoWindowsOutside()
 				? Point(pos.x - 77 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
@@ -864,4 +864,27 @@ void BattleWindow::close()
 	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	ENGINE->windows().popWindows(1);
+}
+
+bool BattleWindow::hasSpaceForQuickActions() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2;
+
+	return ENGINE->screenDimensions().x >= widthWithQuickActions;
+}
+
+bool BattleWindow::placeInfoWindowsOutside() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2 + 75*2;
+	constexpr int widthBaseWindow = 800 + 75*2;
+
+	if (quickActionsPanelActive())
+		return ENGINE->screenDimensions().x >= widthWithQuickActions;
+	else
+		return ENGINE->screenDimensions().x >= widthBaseWindow;
+}
+
+bool BattleWindow::quickActionsPanelActive() const
+{
+	return unitActionWindow->isActive();
 }
