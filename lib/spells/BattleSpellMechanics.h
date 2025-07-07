@@ -77,8 +77,8 @@ private:
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
 	bool isReflected(const battle::Unit * unit, vstd::RNG & rng);
-	void reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit* unit);
-	const battle::Unit* getRandomUnit(vstd::RNG & rng, BattleSide & side);
+	void reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit);
+	const battle::Unit * getRandomUnit(vstd::RNG & rng, BattleSide & side);
 
 	std::set<const battle::Unit *> collectTargets() const;
 

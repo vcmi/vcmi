@@ -413,9 +413,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 	std::set<const battle::Unit *> unitTargets = collectTargets();
 
 	if (unitTargets.size()==1 && isReflected(*(unitTargets.begin()), rng))
-	{
 		return reflect(sc, rng, *(unitTargets.begin()));
-	}
 
 	//process them
 	for(const auto * unit : unitTargets)
@@ -449,7 +447,7 @@ bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rn
 	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
 }
 
-void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit* unit)
+void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit)
 {
 	auto otherSide = battle()->otherSide(unit->unitSide());
 	auto newTarget = getRandomUnit(rng, otherSide);
@@ -460,15 +458,13 @@ void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const 
 	sc.tile = reflectedTo;
 
 	if (!isReceptive(newTarget))
-	{
 		sc.resistedCres.insert(newTarget->unitId());    //A spell can be reflected to then resisted by an immune unit. Consistent with the original game.
-	}
 
 	beforeCast(sc, rng,
 		boost::assign::list_of(reflectedTo));
 }
 
-const battle::Unit* BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, BattleSide & side)
+const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, BattleSide & side)
 {
 	auto targets = battle()->getBattle()->getUnitsIf([this, & side](const battle::Unit * unit)
 	{
