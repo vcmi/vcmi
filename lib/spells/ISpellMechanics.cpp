@@ -145,20 +145,6 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 {
 }
 
-BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
-	: spell(orig.spell),
-	cb(orig.cb),
-	caster(caster_),
-	mode(Mode::MAGIC_MIRROR),
-	magicSkillLevel(orig.magicSkillLevel),
-	effectPower(orig.effectPower),
-	effectDuration(orig.effectDuration),
-	effectValue(orig.effectValue),
-	smart(true),
-	massive(false)
-{
-}
-
 BattleCast::~BattleCast() = default;
 
 const CSpell * BattleCast::getSpell() const
@@ -245,51 +231,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 	auto m = spell->battleMechanics(this);
 
-	const battle::Unit * mainTarget = nullptr;
-
-	if(target.front().unitValue)
-	{
-		mainTarget = target.front().unitValue;
-	}
-	else if(target.front().hexValue.isValid())
-	{
-		mainTarget = cb->battleGetUnitByPos(target.front().hexValue, true);
-	}
-
-	bool tryMagicMirror = (mainTarget != nullptr) && (mode == Mode::HERO || mode == Mode::CREATURE_ACTIVE);//TODO: recheck
-	tryMagicMirror = tryMagicMirror && (mainTarget->unitOwner() != caster->getCasterOwner()) && !spell->isPositive();//TODO: recheck
-
 	m->cast(server, target);
-
-	//Magic Mirror effect
-	if(tryMagicMirror)
-	{
-		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
-
-		const int mirrorChance = mainTarget->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
-
-		if(server->getRNG()->nextInt(0, 99) < mirrorChance)
-		{
-			auto mirrorTargets = cb->battleGetUnitsIf([this](const battle::Unit * unit)
-			{
-				//Get all caster stacks. Magic mirror can reflect to immune creature (with no effect)
-				return unit->unitOwner() == caster->getCasterOwner() && unit->isValidTarget(true);
-			});
-
-
-			if(!mirrorTargets.empty())
-			{
-				const auto * mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
-
-				Target mirrorTarget;
-				mirrorTarget.emplace_back(mirrorDestination);
-
-				BattleCast mirror(*this, mainTarget);
-				mirror.cast(server, mirrorTarget);
-			}
-		}
-	}
 }
 
 void BattleCast::castEval(ServerCallback * server, Target target)

@@ -102,9 +102,6 @@ public:
 	//normal constructor
 	BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_);
 
-	//magic mirror constructor
-	BattleCast(const BattleCast & orig, const Caster * caster_);
-
 	virtual ~BattleCast();
 
 	///IBattleCast
