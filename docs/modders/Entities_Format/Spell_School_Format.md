@@ -11,7 +11,7 @@ WARNING: currently custom spell schools are only partially supported:
 	// Internal field for H3 schools. Do not use for mods
 	"index" : "",
 
-	// name of the school
+	// displayed name of the school
 	"name" : "",
 	
 	// animation file with spell borders for spell mastery levels
