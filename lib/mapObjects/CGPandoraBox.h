@@ -43,12 +43,17 @@ protected:
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
-	using CGPandoraBox::CGPandoraBox;
+	CGEvent(IGameInfoCallback *cb);
 
-	bool removeAfterVisit = false; //true if event is removed after occurring
-	std::set<PlayerColor> availableFor; //players whom this event is available for
-	bool computerActivate = false; //true if computer player can activate this event
-	bool humanActivate = false; //true if human player can activate this event
+	//players whom this event is available for
+	std::set<PlayerColor> availableFor;
+
+	//true if event is removed after occurring
+	bool removeAfterVisit = false;
+	//true if computer player can activate this event
+	bool computerActivate = false;
+	//true if human player can activate this event
+	bool humanActivate = false;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
