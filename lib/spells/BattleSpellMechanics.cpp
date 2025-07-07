@@ -466,7 +466,7 @@ void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const 
 
 const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, BattleSide & side)
 {
-	auto targets = battle()->getBattle()->getUnitsIf([this, & side](const battle::Unit * unit)
+	auto targets = battle()->getBattle()->getUnitsIf([&side](const battle::Unit * unit)
 	{
 		return unit->unitSide() == side && unit->isValidTarget(false) &&
 			!unit->hasBonusOfType(BonusType::SIEGE_WEAPON);
