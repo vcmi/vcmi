@@ -11,8 +11,10 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+
+#include "army/CArmedInstance.h"
+#include "army/CCommanderInstance.h"
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"

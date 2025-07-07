@@ -25,7 +25,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
-#include "../lib/CCreatureSet.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"

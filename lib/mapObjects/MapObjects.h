@@ -13,7 +13,6 @@
 // Possible TODO - remove this header after CObjectHandler.cpp will be fully split into smaller files
 #include "CObjectHandler.h"
 
-#include "CArmedInstance.h"
 #include "CGDwelling.h"
 #include "CGHeroInstance.h"
 #include "CGMarket.h"

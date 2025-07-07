@@ -17,15 +17,16 @@
 #include "NetPacksBase.h"
 #include "ObjProperty.h"
 
-#include "../CCreatureSet.h"
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
+#include "../bonuses/Bonus.h"
 #include "../gameState/EVictoryLossCheckResult.h"
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
+#include "../mapObjects/army/CSimpleArmy.h"
 #include "../spells/ViewSpellInt.h"
 
 class CClient;

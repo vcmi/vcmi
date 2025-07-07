@@ -9,8 +9,9 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+#include "army/CArmedInstance.h"
+#include "../entities/artifact/CArtifactInstance.h"
 #include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

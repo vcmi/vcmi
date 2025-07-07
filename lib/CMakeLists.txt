@@ -142,7 +142,6 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
-	mapObjects/CArmedInstance.cpp
 	mapObjects/CGCreature.cpp
 	mapObjects/CGDwelling.cpp
 	mapObjects/CGHeroInstance.cpp
@@ -161,6 +160,12 @@ set(lib_MAIN_SRCS
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
+
+	mapObjects/army/CArmedInstance.cpp
+	mapObjects/army/CCommanderInstance.cpp
+	mapObjects/army/CCreatureSet.cpp
+	mapObjects/army/CStackBasicDescriptor.cpp
+	mapObjects/army/CStackInstance.cpp
 
 	mapping/CDrawRoadsOperation.cpp
 	mapping/CMap.cpp
@@ -299,7 +304,6 @@ set(lib_MAIN_SRCS
 	CAndroidVMHelper.cpp
 	CBonusTypeHandler.cpp
 	CCreatureHandler.cpp
-	CCreatureSet.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
@@ -564,7 +568,6 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/ShipyardInstanceConstructor.h
 	mapObjectConstructors/SObjectSounds.h
 
-	mapObjects/CArmedInstance.h
 	mapObjects/CGCreature.h
 	mapObjects/CGDwelling.h
 	mapObjects/CGHeroInstance.h
@@ -586,6 +589,13 @@ set(lib_MAIN_HEADERS
 	mapObjects/CompoundMapObjectID.h
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
+
+	mapObjects/army/CArmedInstance.h
+	mapObjects/army/CCommanderInstance.h
+	mapObjects/army/CCreatureSet.h
+	mapObjects/army/CSimpleArmy.h
+	mapObjects/army/CStackBasicDescriptor.h
+	mapObjects/army/CStackInstance.h
 
 	mapping/CDrawRoadsOperation.h
 	mapping/CCastleEvent.h
@@ -758,7 +768,6 @@ set(lib_MAIN_HEADERS
 	CAndroidVMHelper.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
-	CCreatureSet.h
 	ConditionalWait.h
 	Color.h
 	CPlayerState.h

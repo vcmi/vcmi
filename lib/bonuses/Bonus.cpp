@@ -16,7 +16,6 @@
 
 #include "../CBonusTypeHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../CSkillHandler.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"

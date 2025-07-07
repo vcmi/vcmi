@@ -15,12 +15,13 @@
 #include "Limiter.h"
 #include "Reward.h"
 
-#include "../callback/IGameRandomizer.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../json/JsonRandom.h"
+#include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
+#include "../callback/IGameRandomizer.h"
+#include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../texts/CGeneralTextHandler.h"
 
 #include <vstd/RNG.h>
 

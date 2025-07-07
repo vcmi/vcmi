@@ -21,7 +21,7 @@
 
 #include "../lib/callback/CCallback.h"
 #include "../lib/networkPacks/PacksForLobby.h"
-#include "../lib/mapObjects/CArmedInstance.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"

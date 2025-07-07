@@ -11,7 +11,6 @@
 #include "MetaString.h"
 
 #include "CCreatureHandler.h"
-#include "CCreatureSet.h"
 #include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
@@ -19,6 +18,7 @@
 #include "CSkillHandler.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
 #include "serializer/JsonSerializeFormat.h"

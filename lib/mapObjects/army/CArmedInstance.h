@@ -9,10 +9,14 @@
  */
 #pragma once
 
-#include "CGObjectInstance.h"
-#include "../CCreatureSet.h"
-#include "../bonuses/CBonusSystemNode.h"
-#include "../bonuses/BonusCache.h"
+#include "CCreatureSet.h"
+
+#include "../CGObjectInstance.h"
+
+#include "../../bonuses/CBonusSystemNode.h"
+#include "../../bonuses/BonusCache.h"
+
+#include <vcmi/Entity.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 

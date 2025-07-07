@@ -12,7 +12,7 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapObjects/CArmedInstance.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 
 const int TOTAL_SLOTS = 7;
 
