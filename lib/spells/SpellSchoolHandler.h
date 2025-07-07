@@ -36,11 +36,6 @@ class DLL_LINKAGE SpellSchoolType : public EntityT<SpellSchool>
 	std::string modScope;
 
 public:
-	std::string getJsonKey() const
-	{
-		return identifier;
-	}
-
 	AnimationPath getSpellBordersPath() const
 	{
 		return spellBordersPath;
@@ -56,6 +51,7 @@ public:
 		return schoolHeaderPath;
 	}
 
+	std::string getJsonKey() const override { return identifier; }
 	int32_t getIndex() const override { return id.getNum(); }
 	SpellSchool getId() const override { return id;}
 	int32_t getIconIndex() const override { return 0; }
