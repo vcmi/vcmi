@@ -16,6 +16,7 @@
 #include "factionselector.h"
 #include "mineselector.h"
 #include "treasureselector.h"
+#include "objectselector.h"
 #include "GeometryAlgorithm.h"
 
 #include "../helper.h"
@@ -1059,6 +1060,5 @@ void TemplateEditor::on_pushButtonMines_clicked()
 
 void TemplateEditor::on_pushButtonCustomObjects_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	ObjectSelector::showObjectSelector(templates[selectedTemplate]->getZones().at(selectedZone)->objectConfig);
 }
