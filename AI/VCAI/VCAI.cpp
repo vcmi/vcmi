@@ -33,6 +33,7 @@
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"

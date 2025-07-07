@@ -12,7 +12,7 @@
 #include "ArmyManager.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
-#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/TerrainHandler.h"

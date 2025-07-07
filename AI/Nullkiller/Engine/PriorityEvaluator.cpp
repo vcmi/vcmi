@@ -15,7 +15,7 @@
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
-#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"

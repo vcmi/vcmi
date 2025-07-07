@@ -23,6 +23,7 @@
 #include "mapView/mapHandler.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/CPlayerBattleCallback.h"
 #include "../lib/callback/CCallback.h"

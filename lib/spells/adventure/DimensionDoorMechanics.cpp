@@ -16,7 +16,7 @@
 #include "../../IGameSettings.h"
 #include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/CGHeroInstance.h"
-#include "../../mapping/CMapDefines.h"
+#include "../../mapping/TerrainTile.h"
 #include "../../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

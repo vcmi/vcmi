@@ -26,7 +26,6 @@
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
-#include "../mapping/CMapDefines.h"
 #include "../spells/ViewSpellInt.h"
 
 class CClient;

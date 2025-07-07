@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../mapObjects/CGObjectInstance.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 #include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 

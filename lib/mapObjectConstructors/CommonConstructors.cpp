@@ -26,8 +26,8 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapping/TerrainTile.h"
 #include "../modding/IdentifierStorage.h"
-#include "../mapping/CMapDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

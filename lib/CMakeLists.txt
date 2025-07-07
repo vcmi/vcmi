@@ -588,8 +588,9 @@ set(lib_MAIN_HEADERS
 	mapObjects/ObstacleSetHandler.h
 
 	mapping/CDrawRoadsOperation.h
-	mapping/CMapDefines.h
+	mapping/CCastleEvent.h
 	mapping/CMapEditManager.h
+	mapping/CMapEvent.h
 	mapping/CMapHeader.h
 	mapping/CMap.h
 	mapping/CMapInfo.h
@@ -604,6 +605,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
+	mapping/TerrainTile.h
 
 	modding/ActiveModsInSaveList.h
 	modding/CModHandler.h

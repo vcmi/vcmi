@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"

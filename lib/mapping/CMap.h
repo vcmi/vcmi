@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "CMapDefines.h"
+#include "CMapEvent.h"
 #include "CMapHeader.h"
+#include "TerrainTile.h"
 
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
