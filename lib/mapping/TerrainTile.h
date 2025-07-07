@@ -67,7 +67,7 @@ struct DLL_LINKAGE TerrainTile
 	std::vector<ObjectInstanceID> visitableObjects;
 	std::vector<ObjectInstanceID> blockingObjects;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & terrainType;
@@ -78,7 +78,7 @@ struct DLL_LINKAGE TerrainTile
 		h & roadDir;
 		h & extTileFlags;
 
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		if(h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 		{
 			h & visitableObjects;
 			h & blockingObjects;
@@ -87,14 +87,12 @@ struct DLL_LINKAGE TerrainTile
 		{
 			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
 			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
+			for(const auto & ptr : objectPtrs)
 				visitableObjects.push_back(ptr->id);
 			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
+			for(const auto & ptr : objectPtrs)
 				blockingObjects.push_back(ptr->id);
 		}
-
-
 	}
 };
 

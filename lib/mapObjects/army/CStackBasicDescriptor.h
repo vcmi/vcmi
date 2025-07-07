@@ -28,7 +28,7 @@ class DLL_LINKAGE CStackBasicDescriptor
 public:
 	CStackBasicDescriptor();
 	CStackBasicDescriptor(const CreatureID & id, TQuantity Count);
-	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
+	CStackBasicDescriptor(const CCreature * c, TQuantity Count);
 	virtual ~CStackBasicDescriptor() = default;
 
 	const Creature * getType() const;
@@ -39,9 +39,10 @@ public:
 	virtual void setType(const CCreature * c);
 	virtual void setCount(TQuantity amount);
 
-	friend bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
+	friend bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r);
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
 		if(h.saving)
 		{

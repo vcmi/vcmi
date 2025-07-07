@@ -15,8 +15,8 @@
 #include "bonuses/BonusCache.h"
 #include "bonuses/CBonusSystemNode.h"
 #include "callback/GameCallbackHolder.h"
-#include "mapObjects/CGObjectInstance.h"
 #include "entities/artifact/CArtifactSet.h"
+#include "mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -34,9 +34,12 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 
 	CArmedInstance * armyInstance = nullptr; //stack must be part of some army, army must be part of some object
 
-	IGameInfoCallback * getCallback() const final { return cb; }
+	IGameInfoCallback * getCallback() const final
+	{
+		return cb;
+	}
 
-	TExpType totalExperience;//commander needs same amount of exp as hero
+	TExpType totalExperience; //commander needs same amount of exp as hero
 public:
 	struct RandomStackInfo
 	{
@@ -48,23 +51,24 @@ public:
 
 	CArmedInstance * getArmy();
 	const CArmedInstance * getArmy() const; //stack must be part of some army, army must be part of some object
-	void setArmy(CArmedInstance *ArmyObj);
+	void setArmy(CArmedInstance * ArmyObj);
 
 	TExpType getTotalExperience() const;
 	TExpType getAverageExperience() const;
 	virtual bool canGainExperience() const;
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & static_cast<CArtifactSet&>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
+		h & static_cast<CStackBasicDescriptor &>(*this);
+		h & static_cast<CArtifactSet &>(*this);
 
-		if (h.hasFeature(Handler::Version::STACK_INSTANCE_ARMY_FIX))
+		if(h.hasFeature(Handler::Version::STACK_INSTANCE_ARMY_FIX))
 		{
 			// no-op
 		}
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		if(h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 		{
 			ObjectInstanceID dummyID;
 			h & dummyID;
@@ -76,7 +80,7 @@ public:
 		}
 
 		h & totalExperience;
-		if (!h.hasFeature(Handler::Version::STACK_INSTANCE_EXPERIENCE_FIX))
+		if(!h.hasFeature(Handler::Version::STACK_INSTANCE_EXPERIENCE_FIX))
 		{
 			totalExperience *= getCount();
 		}
@@ -85,11 +89,11 @@ public:
 	void serializeJson(JsonSerializeFormat & handler);
 
 	//overrides CBonusSystemNode
-	std::string bonusToString(const std::shared_ptr<Bonus>& bonus) const override; // how would bonus description look for this particular type of node
+	std::string bonusToString(const std::shared_ptr<Bonus> & bonus) const override; // how would bonus description look for this particular type of node
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	//IConstBonusProvider
-	const IBonusBearer* getBonusBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 	//INativeTerrainProvider
 	FactionID getFactionID() const override;
 
@@ -102,9 +106,9 @@ public:
 	virtual int getLevel() const; //different for regular stack and commander
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	CStackInstance(IGameInfoCallback *cb);
-	CStackInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic = false);
-	CStackInstance(IGameInfoCallback *cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
+	CStackInstance(IGameInfoCallback * cb);
+	CStackInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic = false);
+	CStackInstance(IGameInfoCallback * cb, const CreatureID & id, TQuantity count, bool isHypothetic = false);
 	virtual ~CStackInstance() = default;
 
 	void setType(const CreatureID & creID);
@@ -116,7 +120,7 @@ public:
 	void giveTotalStackExperience(TExpType exp);
 
 	bool valid(bool allowUnrandomized) const;
-	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override;//from CArtifactSet
+	ArtPlacementMap putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art) override; //from CArtifactSet
 	void removeArtifact(const ArtifactPosition & pos) override;
 	ArtBearer bearerType() const override; //from CArtifactSet
 	std::string nodeName() const override; //from CBonusSystemnode

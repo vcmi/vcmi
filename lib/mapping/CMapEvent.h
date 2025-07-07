@@ -39,7 +39,7 @@ public:
 
 	std::vector<ObjectInstanceID> deletedObjectsInstances;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & name;

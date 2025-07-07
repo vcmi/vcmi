@@ -44,8 +44,8 @@ public:
 		return !army.empty();
 	}
 
-
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
 		h & army;
 	}

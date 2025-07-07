@@ -15,11 +15,12 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb)
-	:CStackInstance(cb)
-{}
+CCommanderInstance::CCommanderInstance(IGameInfoCallback * cb)
+	: CStackInstance(cb)
+{
+}
 
-CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb, const CreatureID & id)
+CCommanderInstance::CCommanderInstance(IGameInfoCallback * cb, const CreatureID & id)
 	: CStackInstance(cb, BonusNodeType::COMMANDER, false)
 	, name("Commando")
 {
@@ -27,16 +28,16 @@ CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb, const CreatureID &
 	level = 1;
 	setCount(1);
 	setType(nullptr);
-	secondarySkills.resize (ECommander::SPELL_POWER + 1);
+	secondarySkills.resize(ECommander::SPELL_POWER + 1);
 	setType(id);
 	//TODO - parse them
 }
 
-void CCommanderInstance::setAlive (bool Alive)
+void CCommanderInstance::setAlive(bool Alive)
 {
 	//TODO: helm of immortality
 	alive = Alive;
-	if (!alive)
+	if(!alive)
 	{
 		removeBonusesRecursive(Bonus::UntilCommanderKilled);
 	}
@@ -49,15 +50,15 @@ bool CCommanderInstance::canGainExperience() const
 
 int CCommanderInstance::getExpRank() const
 {
-	return LIBRARY->heroh->level (getTotalExperience());
+	return LIBRARY->heroh->level(getTotalExperience());
 }
 
 int CCommanderInstance::getLevel() const
 {
-	return std::max (1, getExpRank());
+	return std::max(1, getExpRank());
 }
 
-void CCommanderInstance::levelUp ()
+void CCommanderInstance::levelUp()
 {
 	level++;
 	for(const auto & bonus : LIBRARY->creh->commanderLevelPremy)

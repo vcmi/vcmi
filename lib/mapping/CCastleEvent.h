@@ -15,7 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// The castle event builds/adds buildings/creatures for a specific town.
-class DLL_LINKAGE CCastleEvent: public CMapEvent
+class DLL_LINKAGE CCastleEvent : public CMapEvent
 {
 public:
 	CCastleEvent() = default;
@@ -23,7 +23,7 @@ public:
 	std::set<BuildingID> buildings;
 	std::vector<si32> creatures;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & static_cast<CMapEvent &>(*this);

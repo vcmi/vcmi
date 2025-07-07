@@ -19,14 +19,15 @@ VCMI_LIB_NAMESPACE_BEGIN
 //This constructor should be placed here to avoid side effects
 CStackBasicDescriptor::CStackBasicDescriptor() = default;
 
-CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
-	typeID(id),
-	count(Count)
+CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count)
+	: typeID(id)
+	, count(Count)
 {
 }
 
-CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count)
-	: typeID(c ? c->getId() : CreatureID()), count(Count)
+CStackBasicDescriptor::CStackBasicDescriptor(const CCreature * c, TQuantity Count)
+	: typeID(c ? c->getId() : CreatureID())
+	, count(Count)
 {
 }
 
@@ -61,7 +62,7 @@ void CStackBasicDescriptor::setCount(TQuantity newCount)
 	count = newCount;
 }
 
-bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
+bool operator==(const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
 {
 	return l.typeID == r.typeID && l.count == r.count;
 }

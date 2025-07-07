@@ -22,24 +22,28 @@ public:
 	ui8 alive; //maybe change to bool when breaking save compatibility?
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
-	std::vector <ui8> secondarySkills; //ID -> level
-	std::set <ui8> specialSkills;
+	std::vector<ui8> secondarySkills; //ID -> level
+	std::set<ui8> specialSkills;
 	//std::vector <CArtifactInstance *> arts;
-	CCommanderInstance(IGameInfoCallback *cb);
-	CCommanderInstance(IGameInfoCallback *cb, const CreatureID & id);
-	void setAlive (bool alive);
-	void levelUp ();
+	CCommanderInstance(IGameInfoCallback * cb);
+	CCommanderInstance(IGameInfoCallback * cb, const CreatureID & id);
+	void setAlive(bool alive);
+	void levelUp();
 
 	bool canGainExperience() const override;
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
-	ui64 getPower() const override {return 0;};
+	ui64 getPower() const override
+	{
+		return 0;
+	};
 	int getExpRank() const override;
 	int getLevel() const override;
 	ArtBearer bearerType() const override; //from CArtifactSet
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
-		h & static_cast<CStackInstance&>(*this);
+		h & static_cast<CStackInstance &>(*this);
 		h & alive;
 		h & level;
 		h & name;
