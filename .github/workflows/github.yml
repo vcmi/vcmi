@@ -212,6 +212,11 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    # Can't be set in Gradle project
+    - name: Configure enableUncompressedNativeLibs
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
+
     # Workaround for gradle not discovering SDK that was installed via conan
     - name: Find Android NDK
       if: ${{ startsWith(matrix.platform, 'android') }}
