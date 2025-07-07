@@ -637,12 +637,6 @@ bool CCreatureSet::hasStackAtSlot(const SlotID & slot) const
 	return vstd::contains(stacks, slot);
 }
 
-CCreatureSet & CCreatureSet::operator=(const CCreatureSet & cs)
-{
-	assert(0);
-	return *this;
-}
-
 void CCreatureSet::armyChanged() {}
 
 void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize)

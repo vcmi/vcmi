@@ -10,6 +10,7 @@
 #pragma once
 
 #include "CSimpleArmy.h"
+#include "CStackInstance.h"
 
 #include "serializer/Serializeable.h"
 
@@ -37,10 +38,10 @@ namespace NArmyFormation
 static const std::vector<std::string> names{"wide", "tight"};
 }
 
-class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializeable //seven combined creatures
+class DLL_LINKAGE CCreatureSet : public IArmyDescriptor, public virtual Serializeable, boost::noncopyable //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet &) = delete;
-	CCreatureSet & operator=(const CCreatureSet &);
+	CCreatureSet & operator=(const CCreatureSet &) = delete;
 
 public:
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
