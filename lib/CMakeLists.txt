@@ -251,7 +251,6 @@ set(lib_MAIN_SRCS
 	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
-	spells/AdventureSpellMechanics.cpp
 	spells/BattleSpellMechanics.cpp
 	spells/BonusCaster.cpp
 	spells/CSpellHandler.cpp
@@ -263,6 +262,13 @@ set(lib_MAIN_SRCS
 	spells/SpellSchoolHandler.cpp
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
+
+	spells/adventure/AdventureSpellMechanics.cpp
+	spells/adventure/DimensionDoorMechanics.cpp
+	spells/adventure/ScuttleBoatMechanics.cpp
+	spells/adventure/SummonBoatMechanics.cpp
+	spells/adventure/TownPortalMechanics.cpp
+	spells/adventure/ViewWorldMechanics.cpp
 
 	spells/effects/Catapult.cpp
 	spells/effects/Clone.cpp
@@ -700,7 +706,6 @@ set(lib_MAIN_HEADERS
 	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
-	spells/AdventureSpellMechanics.h
 	spells/BattleSpellMechanics.h
 	spells/BonusCaster.h
 	spells/CSpellHandler.h
@@ -712,6 +717,13 @@ set(lib_MAIN_HEADERS
 	spells/SpellSchoolHandler.h
 	spells/TargetCondition.h
 	spells/ViewSpellInt.h
+
+	spells/adventure/AdventureSpellMechanics.h
+	spells/adventure/DimensionDoorMechanics.h
+	spells/adventure/ScuttleBoatMechanics.h
+	spells/adventure/SummonBoatMechanics.h
+	spells/adventure/TownPortalMechanics.h
+	spells/adventure/ViewWorldMechanics.h
 
 	spells/effects/Catapult.h
 	spells/effects/Clone.h
