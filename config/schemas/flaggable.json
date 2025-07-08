@@ -25,10 +25,10 @@
 			"description" : "Message that will be shown to player on capturing this object",
 			"anyOf" : [
 				{
-					"type" : "string",
+					"type" : "string"
 				},
 				{
-					"type" : "number",
+					"type" : "number"
 				}
 			]
 		},

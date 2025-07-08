@@ -147,7 +147,7 @@
 				{
 					"type" : "array",
 					"items" : { "type" : "string", "format" : "textFile" }
-				},
+				}
 			]
 		},
 		"filesystem" : {

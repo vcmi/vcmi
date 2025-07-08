@@ -466,8 +466,8 @@
 				},
 				"properties": {
 					"type": {
-						"enum" : ["adventure", "combat"],
-					},
+						"enum" : ["adventure", "combat"]
+					}
 					
 				}
 			},
@@ -479,7 +479,7 @@
 					},
 					"graphics" : {
 						"required" : ["iconBook", "iconScroll", "iconEffect", "iconImmune", "iconScenarioBonus"]
-					},
+					}
 				}
 			}
 		},
@@ -506,7 +506,7 @@
 					},
 					"graphics" : {
 						"required" : ["iconEffect", "iconImmune"]
-					},
+					}
 				}
 			}
 		}

@@ -695,19 +695,19 @@
 			"properties" : {
 				"defaultRepositoryEnabled" : {
 					"type" : "boolean",
-					"default" : true,
+					"default" : true
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.7.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.7.json"
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
-					"default" : false,
+					"default" : false
 				},
 				"extraRepositoryURL" : {
 					"type" : "string",
-					"default" : "",
+					"default" : ""
 				},
 				"setupCompleted" : {
 					"type" : "boolean",
@@ -736,7 +736,7 @@
 					"defaultAndroid": false,
 					"defaultDesktop" : true
 
-				},
+				}
 			}
 		},
 		"lobby" : {
