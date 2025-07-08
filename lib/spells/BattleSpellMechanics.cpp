@@ -444,7 +444,7 @@ bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rn
 	bool spellIsDirect = !isMassive() && owner -> getLevelInfo(getRangeLevel()).range == directSpellRange;
 	bool spellIsReflectable = spellIsDirect && (mode == Mode::HERO || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
 	bool targetCanReflectSpell = spellIsReflectable && unit->getAllBonuses(Selector::type()(BonusType::MAGIC_MIRROR))->size()>0;
-	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
+	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(BonusType::MAGIC_MIRROR);
 }
 
 void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit)
