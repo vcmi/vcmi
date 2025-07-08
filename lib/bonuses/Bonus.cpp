@@ -203,7 +203,8 @@ JsonNode Bonus::toJsonNode() const
 		root["updater"] = updater->toJsonNode();
 	if(propagator)
 		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
-	root["hidden"].Bool() = hidden;
+	if(hidden)
+		root["hidden"].Bool() = hidden;
 	return root;
 }
 
