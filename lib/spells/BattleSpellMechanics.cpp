@@ -460,8 +460,7 @@ void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const 
 	if (!isReceptive(newTarget))
 		sc.resistedCres.insert(newTarget->unitId());    //A spell can be reflected to then resisted by an immune unit. Consistent with the original game.
 
-	beforeCast(sc, rng,
-		boost::assign::list_of(reflectedTo));
+	beforeCast(sc, rng, { reflectedTo });
 }
 
 const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, BattleSide & side)
