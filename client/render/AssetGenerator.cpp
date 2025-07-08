@@ -221,69 +221,69 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground(int selection
 	Rect bigBlockRegion(292, 74, 248, 114);
 	Canvas croppedBigBlock = bigBlock->getCanvas();
 	croppedBigBlock.draw(img, Point(0, 0), bigBlockRegion);
-	bigBlock->scaleTo(Point(200, 114), EScalingAlgorithm::NEAREST);
+	Point bigBlockSize(200, 114);
 
 	// SmallBlock section
 	auto smallBlock = ENGINE->renderHandler().createImage(Point(248, 114), CanvasScalingPolicy::IGNORE);
 	Canvas croppedSmallBlock = smallBlock->getCanvas();
 	croppedSmallBlock.draw(img, Point(0, 0), bigBlockRegion);
-	smallBlock->scaleTo(Point(134, 114), EScalingAlgorithm::NEAREST);
+	Point smallBlockSize(134, 114);
 
 	// Tripple block section
 	auto trippleBlock = ENGINE->renderHandler().createImage(Point(72, 116), CanvasScalingPolicy::IGNORE);
 	Rect trippleBlockSection(512, 246, 72, 116);
 	Canvas croppedTrippleBlock = trippleBlock->getCanvas();
 	croppedTrippleBlock.draw(img, Point(0, 0), trippleBlockSection);
-	trippleBlock->scaleTo(Point(70, 114), EScalingAlgorithm::NEAREST);
+	Point trippleBlockSize(70, 114);
 
 
 	// First campaigns line
 	if (selection > 7)
 	{
 		// Rebuild 1. campaigns line from 2 to 3 fields
-		canvas.draw(bigBlock, Point(40, 72));
-		canvas.draw(trippleBlock, Point(240, 73));
-		canvas.draw(bigBlock, Point(310, 72));
-		canvas.draw(trippleBlock, Point(510, 72));
-		canvas.draw(bigBlock, Point(580, 72));
-		canvas.draw(trippleBlock, Point(780, 72));
+		canvas.drawScaled(bigBlock->getCanvas(), Point(40, 72), bigBlockSize);
+		canvas.drawScaled(trippleBlock->getCanvas(), Point(240, 73), trippleBlockSize);
+		canvas.drawScaled(bigBlock->getCanvas(), Point(310, 72), bigBlockSize);
+		canvas.drawScaled(trippleBlock->getCanvas(), Point(510, 72), trippleBlockSize);
+		canvas.drawScaled(bigBlock->getCanvas(), Point(580, 72), bigBlockSize);
+		canvas.drawScaled(trippleBlock->getCanvas(), Point(780, 72), trippleBlockSize);
 	} 
 	else
 	{
 		// Empty 1 + 2. field
-		canvas.draw(bigBlock, Point(90, 72));
-		canvas.draw(bigBlock, Point(540, 72));
+		canvas.drawScaled(bigBlock->getCanvas(), Point(90, 72), bigBlockSize);
+		canvas.drawScaled(bigBlock->getCanvas(), Point(540, 72), bigBlockSize);
 	}
 
 	// Second campaigns line
 	// 3. Field
-	canvas.draw(bigBlock, Point(43, 245));
+	canvas.drawScaled(bigBlock->getCanvas(), Point(43, 245), bigBlockSize);
 
 	if (selection == 4)
 	{
 		// Disabled 4. field
-		canvas.draw(trippleBlock, Point(310, 245));
-		canvas.draw(smallBlock, Point(380, 245));
+		canvas.drawScaled(trippleBlock->getCanvas(), Point(310, 245), trippleBlockSize);
+		canvas.drawScaled(smallBlock->getCanvas(), Point(380, 245), smallBlockSize);
 	}
 	else
 	{
 		// Empty 4. field
-		canvas.draw(bigBlock, Point(314, 244));
+		canvas.drawScaled(bigBlock->getCanvas(), Point(314, 244), bigBlockSize);
 	}
 	
 	// 5. Field
-	canvas.draw(bigBlock, Point(586, 246));
+	canvas.drawScaled(bigBlock->getCanvas(), Point(586, 246), bigBlockSize);
 
 	// Third campaigns line
 	// 6. Field
 	if (selection >= 6)
 	{
-		canvas.draw(bigBlock, Point(32, 417));
+		canvas.drawScaled(bigBlock->getCanvas(), Point(32, 417), bigBlockSize);
 	}
 	else
 	{
-		canvas.draw(trippleBlock, Point(30, 417));
-		canvas.draw(smallBlock, Point(100, 417));
+		canvas.drawScaled(trippleBlock->getCanvas(), Point(30, 417), trippleBlockSize);
+		canvas.drawScaled(smallBlock->getCanvas(), Point(100, 417), smallBlockSize);
 	}
 
 	auto locatorSkull = ImageLocator(ImagePath::builtin("CAMPNOSC"), EImageBlitMode::OPAQUE);
@@ -292,14 +292,15 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground(int selection
 	if (selection >= 7)
 	{
 		// Only skull part
-		canvas.draw(bigBlock, Point(404, 417));
+		canvas.drawScaled(bigBlock->getCanvas(), Point(404, 417), bigBlockSize);
 		canvas.draw(imgSkull, Point(563, 512), Rect(178, 108, 43, 19));
 	}
 	else
 	{
 		// Original disabled field with skull and stone for 8. field
-		imgSkull->scaleTo(Point(238, 150), EScalingAlgorithm::NEAREST);
-		canvas.draw(imgSkull, Point(385, 400));
+		Canvas canvasSkull = Canvas(Point(imgSkull->width(), imgSkull->height()), CanvasScalingPolicy::IGNORE);
+		canvasSkull.draw(imgSkull, Point(0, 0), Rect(0, 0, imgSkull->width(), imgSkull->height()));
+		canvas.drawScaled(canvasSkull, Point(385, 400), Point(238, 150));
 	}
 
 

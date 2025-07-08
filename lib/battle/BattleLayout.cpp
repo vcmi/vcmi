@@ -13,8 +13,8 @@
 #include "../GameSettings.h"
 #include "../GameLibrary.h"
 #include "../callback/IGameInfoCallback.h"
+#include "../mapObjects/army/CArmedInstance.h"
 #include "../json/JsonNode.h"
-#include "../mapObjects/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

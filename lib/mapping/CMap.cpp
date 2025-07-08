@@ -12,6 +12,7 @@
 
 #include "CMapEditManager.h"
 #include "CMapOperation.h"
+#include "CCastleEvent.h"
 
 #include "../CCreatureHandler.h"
 #include "../CSkillHandler.h"

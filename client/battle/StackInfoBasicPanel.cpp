@@ -27,10 +27,10 @@ StackInfoBasicPanel::StackInfoBasicPanel(const CStack * stack, bool initializeBa
 
 	if(initializeBackground)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"));
+		background = std::make_shared<CPicture>(ImagePath::builtin("CCRPOP"), Rect(1, 1, 76, 286), 1, 1);
 		background->pos.y += 37;
 		background->setPlayerColor(stack->getOwner());
-		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background2 = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 1, 76, 200), 1, 1);
 		background2->setPlayerColor(stack->getOwner());
 	}
 

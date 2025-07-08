@@ -32,6 +32,7 @@
 #include "mainmenu/CHighScoreScreen.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"

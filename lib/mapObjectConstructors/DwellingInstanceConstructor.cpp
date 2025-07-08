@@ -14,6 +14,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../json/JsonRandom.h"
 #include "../GameLibrary.h"
+#include "../mapObjects/army/CStackInstance.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/IdentifierStorage.h"

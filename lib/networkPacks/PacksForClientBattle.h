@@ -16,6 +16,7 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleUnitTurnReason.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
 
 class CClient;

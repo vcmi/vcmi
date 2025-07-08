@@ -165,8 +165,16 @@ void HeroSkillsDelegate::updateModelData(QAbstractItemModel * model, const QMode
 	auto heroSecondarySkills = hero.secSkills;
 	if(heroSecondarySkills.size() == 1 && heroSecondarySkills[0].first == SecondarySkill::NONE) 
 	{
-		textList += QObject::tr("Default secondary skills:");
-		heroSecondarySkills = hero.getHeroType()->secSkillsInit;
+		if(hero.getHeroTypeID().isValid())
+		{
+			textList += QObject::tr("Default secondary skills:");
+			heroSecondarySkills = hero.getHeroType()->secSkillsInit;
+		}
+		else
+		{
+			textList += QObject::tr("Random hero secondary skills");
+			heroSecondarySkills.clear();
+		}
 	}
 	else
 	{

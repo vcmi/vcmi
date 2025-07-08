@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "MapFormatH3M.h"
 
+#include "CCastleEvent.h"
 #include "CMap.h"
 #include "MapReaderH3M.h"
 #include "MapFormatSettings.h"

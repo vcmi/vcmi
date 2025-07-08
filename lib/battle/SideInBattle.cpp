@@ -19,7 +19,11 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 {
 	armyObjectID = Army->id;
 	if (Hero)
+	{
 		heroID = Hero->id;
+		initialMana = Hero->mana;
+		additionalMana = Hero->valOfBonuses(BonusType::COMBAT_MANA_BONUS);
+	}
 
 	switch(Army->ID.toEnum())
 	{

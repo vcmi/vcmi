@@ -16,7 +16,6 @@
 #include "../GameLibrary.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../CStack.h"
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"

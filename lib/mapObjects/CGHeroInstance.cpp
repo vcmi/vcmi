@@ -1360,10 +1360,7 @@ CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 	if(visitedTown.hasValue())
 	{
 		auto town = gs.getTown(visitedTown);
-		if(isGarrisoned())
-			return *town;
-		else
-			return town->townAndVis;
+		return town->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);

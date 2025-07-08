@@ -21,6 +21,7 @@
 #include "../../lib/entities/hero/CHero.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"

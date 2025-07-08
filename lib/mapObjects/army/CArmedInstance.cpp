@@ -11,22 +11,20 @@
 #include "StdInc.h"
 #include "CArmedInstance.h"
 
-#include "../CCreatureHandler.h"
-#include "../CPlayerState.h"
-#include "../callback/IGameInfoCallback.h"
-#include "../entities/faction/CFaction.h"
-#include "../entities/faction/CTown.h"
-#include "../entities/faction/CTownHandler.h"
-#include "../GameLibrary.h"
-#include "../gameState/CGameState.h"
-#include "../mapping/CMapDefines.h"
-#include "../texts/CGeneralTextHandler.h"
+#include "CStackInstance.h"
+
+#include "../../CPlayerState.h"
+#include "../../entities/faction/CTown.h"
+#include "../../entities/faction/CTownHandler.h"
+#include "../../mapping/TerrainTile.h"
+#include "../../GameLibrary.h"
+#include "../../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void CArmedInstance::randomizeArmy(FactionID type)
 {
-	for (auto & elem : stacks)
+	for(auto & elem : stacks)
 	{
 		if(elem.second->randomStack)
 		{
@@ -41,16 +39,16 @@ void CArmedInstance::randomizeArmy(FactionID type)
 	}
 }
 
-CArmedInstance::CArmedInstance(IGameInfoCallback *cb)
-	:CArmedInstance(cb, BonusNodeType::ARMY, false)
+CArmedInstance::CArmedInstance(IGameInfoCallback * cb)
+	: CArmedInstance(cb, BonusNodeType::ARMY, false)
 {
 }
 
-CArmedInstance::CArmedInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic):
-	CGObjectInstance(cb),
-	CBonusSystemNode(nodeType, isHypothetic),
-	nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)), // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
-	battle(nullptr)
+CArmedInstance::CArmedInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic)
+	: CGObjectInstance(cb)
+	, CBonusSystemNode(nodeType, isHypothetic)
+	, nonEvilAlignmentMix(this, Selector::type()(BonusType::NONEVIL_ALIGNMENT_MIX)) // Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+	, battle(nullptr)
 {
 }
 
@@ -60,7 +58,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		return;
 
 	auto b = getExportedBonusList().getFirst(Selector::sourceType()(BonusSource::ARMY).And(Selector::type()(BonusType::MORALE)));
- 	if(!b)
+	if(!b)
 	{
 		b = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::ARMY, 0, BonusSourceID());
 		addNewBonus(b);
@@ -72,11 +70,11 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	for(const auto & slot : Slots())
 	{
-		const auto * creature  = slot.second->getCreatureID().toEntity(LIBRARY);
+		const auto * creature = slot.second->getCreatureID().toEntity(LIBRARY);
 
 		factions.insert(creature->getFactionID());
 		// Check for undead flag instead of faction (undead mummies are neutral)
-		if (!hasUndead)
+		if(!hasUndead)
 		{
 			//this is costly check, let's skip it at first undead
 			hasUndead |= slot.second->hasBonusOfType(BonusType::UNDEAD);
@@ -85,16 +83,16 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
-	if (nonEvilAlignmentMix.hasBonus())
+	if(nonEvilAlignmentMix.hasBonus())
 	{
 		size_t mixableFactions = 0;
 
 		for(auto f : factions)
 		{
-			if (LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
+			if(LIBRARY->factions()->getById(f)->getAlignment() != EAlignment::EVIL)
 				mixableFactions++;
 		}
-		if (mixableFactions > 0)
+		if(mixableFactions > 0)
 			factionsInArmy -= mixableFactions - 1;
 	}
 
@@ -105,20 +103,20 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->val = +1;
 		bonusDescription.appendTextID("core.arraytxt.115"); //All troops of one alignment +1
 	}
-	else if (!factions.empty()) // no bonus from empty garrison
+	else if(!factions.empty()) // no bonus from empty garrison
 	{
 		b->val = 2 - static_cast<si32>(factionsInArmy);
 		bonusDescription.appendTextID("core.arraytxt.114"); //Troops of %d alignments %d
 		bonusDescription.replaceNumber(factionsInArmy);
 	}
-	
+
 	b->description = bonusDescription;
 
 	nodeHasChanged();
 
 	//-1 modifier for any Undead unit in army
 	auto undeadModifier = getExportedBonusList().getFirst(Selector::source(BonusSource::ARMY, BonusCustomSource::undeadMoraleDebuff));
- 	if(hasUndead)
+	if(hasUndead)
 	{
 		if(!undeadModifier)
 		{
@@ -129,7 +127,6 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 	else if(undeadModifier)
 		removeBonus(undeadModifier);
-
 }
 
 void CArmedInstance::armyChanged()
@@ -176,7 +173,7 @@ void CArmedInstance::attachUnitsToArmy()
 		elem.second->setArmy(getArmy());
 }
 
-const IBonusBearer* CArmedInstance::getBonusBearer() const
+const IBonusBearer * CArmedInstance::getBonusBearer() const
 {
 	return this;
 }
@@ -189,7 +186,7 @@ void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 TerrainId CArmedInstance::getCurrentTerrain() const
 {
-	if (anchorPos().isValid())
+	if(anchorPos().isValid())
 		return cb->getTile(visitablePos())->getTerrainID();
 	else
 		return TerrainId::NONE;

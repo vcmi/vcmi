@@ -18,7 +18,7 @@
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CQuest.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 
 extern FuzzyHelper * fh;
 

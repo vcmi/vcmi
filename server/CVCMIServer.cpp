@@ -16,6 +16,7 @@
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CThreadHelper.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"

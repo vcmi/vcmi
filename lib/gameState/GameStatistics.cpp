@@ -22,6 +22,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../entities/building/CBuilding.h"
+#include "../serializer/JsonDeserializer.h"
+#include "../serializer/JsonUpdater.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -77,6 +79,79 @@ StatisticDataSetEntry StatisticDataSet::createEntry(const PlayerState * ps, cons
 	data.movementPointsUsed = accumulatedData.accumulatedValues.count(ps->color) ? accumulatedData.accumulatedValues.at(ps->color).movementPointsUsed : 0;
 
 	return data;
+}
+
+void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeString("map", map);
+	handler.serializeInt("timestamp", timestamp);
+	handler.serializeInt("day", day);
+	handler.serializeId("player", player, PlayerColor::CANNOT_DETERMINE);
+	handler.serializeString("playerName", playerName);
+	handler.serializeInt("team", team);
+	handler.serializeBool("isHuman", isHuman);
+	handler.serializeEnum("status", status, {"ingame", "loser", "winner"});
+	resources.serializeJson(handler, "resources");
+	handler.serializeInt("numberHeroes", numberHeroes);
+	handler.serializeInt("numberTowns", numberTowns);
+	handler.serializeInt("numberArtifacts", numberArtifacts);
+	handler.serializeInt("numberDwellings", numberDwellings);
+	handler.serializeInt("armyStrength", armyStrength);
+	handler.serializeInt("totalExperience", totalExperience);
+	handler.serializeInt("income", income);
+	handler.serializeFloat("mapExploredRatio", mapExploredRatio);
+	handler.serializeFloat("obeliskVisitedRatio", obeliskVisitedRatio);
+	handler.serializeFloat("townBuiltRatio", townBuiltRatio);
+	handler.serializeBool("hasGrail", hasGrail);
+	{
+		auto zonesData = handler.enterStruct("numMines");
+		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
+			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], numMines[idx], 0);
+	}
+	handler.serializeInt("score", score);
+	handler.serializeInt("maxHeroLevel", maxHeroLevel);
+	handler.serializeInt("numBattlesNeutral", numBattlesNeutral);
+	handler.serializeInt("numBattlesPlayer", numBattlesPlayer);
+	handler.serializeInt("numWinBattlesNeutral", numWinBattlesNeutral);
+	handler.serializeInt("numWinBattlesPlayer", numWinBattlesPlayer);
+	handler.serializeInt("numHeroSurrendered", numHeroSurrendered);
+	handler.serializeInt("numHeroEscaped", numHeroEscaped);
+	spentResourcesForArmy.serializeJson(handler, "spentResourcesForArmy");
+	spentResourcesForBuildings.serializeJson(handler, "spentResourcesForBuildings");
+	tradeVolume.serializeJson(handler, "tradeVolume");
+	handler.serializeBool("eventCapturedTown", eventCapturedTown);
+	handler.serializeBool("eventDefeatedStrongestHero", eventDefeatedStrongestHero);
+	handler.serializeInt("movementPointsUsed", movementPointsUsed);
+}
+
+void StatisticDataSet::PlayerAccumulatedValueStorage::serializeJson(JsonSerializeFormat & handler)
+{
+	handler.serializeInt("numBattlesNeutral", numBattlesNeutral);
+	handler.serializeInt("numBattlesPlayer", numBattlesPlayer);
+	handler.serializeInt("numWinBattlesNeutral", numWinBattlesNeutral);
+	handler.serializeInt("numWinBattlesPlayer", numWinBattlesPlayer);
+	handler.serializeInt("numHeroSurrendered", numHeroSurrendered);
+	handler.serializeInt("numHeroEscaped", numHeroEscaped);
+	spentResourcesForArmy.serializeJson(handler, "spentResourcesForArmy");
+	spentResourcesForBuildings.serializeJson(handler, "spentResourcesForBuildings");
+	tradeVolume.serializeJson(handler, "tradeVolume");
+	handler.serializeInt("movementPointsUsed", movementPointsUsed);
+	handler.serializeInt("lastCapturedTownDay", lastCapturedTownDay);
+	handler.serializeInt("lastDefeatedStrongestHeroDay", lastDefeatedStrongestHeroDay);
+}
+
+void StatisticDataSet::serializeJson(JsonSerializeFormat & handler)
+{
+	{
+		auto eventsHandler = handler.enterArray("data");
+		eventsHandler.syncSize(data, JsonNode::JsonType::DATA_VECTOR);
+		eventsHandler.serializeStruct(data);
+	}
+	{
+		auto eventsHandler = handler.enterStruct("accumulatedValues");
+		for(auto & val : accumulatedValues)
+			eventsHandler->serializeStruct(GameConstants::PLAYER_COLOR_NAMES[val.first], val.second);
+	}
 }
 
 std::string StatisticDataSet::toCsv(std::string sep) const

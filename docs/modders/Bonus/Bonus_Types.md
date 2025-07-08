@@ -264,6 +264,12 @@ Defines maximum level of spells than hero can learn from any source (Wisdom)
 
 - val: maximal level to learn
 
+### COMBAT_MANA_BONUS
+
+Grants affected hero additional mana for the duration of combat. Bonus may give total mana above mana limit. Any additional mana not spent during combat will be lost.
+
+- val: amount of additional mana
+
 ## Hero specialties
 
 ### SPECIAL_SPELL_LEV

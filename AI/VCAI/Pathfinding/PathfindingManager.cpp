@@ -14,7 +14,6 @@
 #include "../Goals/Goals.h"
 #include "../Goals/CompleteQuest.h"
 #include "../../../lib/gameState/QuestInfo.h"
-#include "../../../lib/mapping/CMapDefines.h"
 #include "../../../lib/mapObjects/CQuest.h"
 
 PathfindingManager::PathfindingManager(CPlayerSpecificInfoCallback * CB, VCAI * AI)
