@@ -158,7 +158,7 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	for(const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects())
 		if(
 			!isLegacySpellSchool(schoolId) &&
-			customSpellSchools.size() < MAX_CUSTOM_SPELL_SCHOOLS &&
+			customSpellSchools.size() < (isBigSpellbook ? MAX_CUSTOM_SPELL_SCHOOLS_BIG : MAX_CUSTOM_SPELL_SCHOOLS) &&
 			!LIBRARY->spellSchoolHandler->getById(schoolId)->getSchoolBookmarkPath().empty() &&
 			!LIBRARY->spellSchoolHandler->getById(schoolId)->getSchoolHeaderPath().empty()
 		)

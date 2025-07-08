@@ -106,6 +106,7 @@ class CSpellWindow : public CWindowObject, public IVideoHolder
 	std::map<SpellSchool, int> sitesPerTabBattle;
 
 	const int MAX_CUSTOM_SPELL_SCHOOLS = 5;
+	const int MAX_CUSTOM_SPELL_SCHOOLS_BIG = 6;
 	std::vector<SpellSchool> customSpellSchools;
 
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed

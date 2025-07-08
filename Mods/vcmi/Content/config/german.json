@@ -799,4 +799,9 @@
 	"spell.core.thunderbolt.description.none" : "{Donnerblitz}\n\nWenn der Stapel angreift, besteht eine 20-prozentige Chance, dass ein Blitzschlag erfolgt, bevor der Feind die Chance hat, zurückzuschlagen. Tritt dieser Fall ein, verursacht der Blitzschlag Schaden in Höhe der zehnfachen Anzahl der angreifenden Donnervögel",
 	"spell.core.dispelHelpful.description.none" : "{Hilfreiche Zaubersprüche bannen}\n\nEntfernt alle Zaubereffekte von der anvisierten Einheit",
 	"spell.core.acidBreath.description.none" : "{Saurer Atem}\n\nDer Atem reduziert die Verteidigung des Zielstapels um 3 und hat eine 20%ige Chance, zusätzlichen Schaden in Höhe von 25 Punkten pro angreifender Einheit zu verursachen",
+
+	"spellSchool.core.air.name" : "Luft",
+	"spellSchool.core.earth.name" : "Erde",
+	"spellSchool.core.fire.name" : "Feuer",
+	"spellSchool.core.water.name" : "Wasser"
 }
