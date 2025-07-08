@@ -19,7 +19,6 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/SetStackEffect.h"
 #include "../CStack.h"
-#include <boost/assign.hpp>
 
 #include <vstd/RNG.h>
 
