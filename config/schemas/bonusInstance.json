@@ -252,6 +252,10 @@
 				{ "type" : "number" }
 			],
 			"description" : "description"
+		},
+		"hidden" : {
+			"type" : "boolean",
+			"description" : "Optional, hide bonus in creature window"
 		}
 	}
 }

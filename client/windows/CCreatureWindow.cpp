@@ -936,7 +936,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.bonusSource = b->source;
 
 		//if it's possible to give any description or image for this kind of bonus
-		if(!bonusInfo.description.empty())
+		if(!bonusInfo.description.empty() && !b->hidden)
 			activeBonuses.push_back(bonusInfo);
 	}
 }

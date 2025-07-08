@@ -75,6 +75,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	MetaString description;
 	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
 
+	bool hidden;
+
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
@@ -92,6 +94,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & description;
 		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
 			h & customIconPath;
+		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
+			h & hidden;
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;
