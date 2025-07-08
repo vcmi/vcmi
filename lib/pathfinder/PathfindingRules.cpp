@@ -17,7 +17,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

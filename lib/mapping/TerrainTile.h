@@ -1,5 +1,5 @@
 /*
- * CMapDefines.h, part of VCMI engine
+ * TerrainTile.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include "../ResourceSet.h"
-#include "../texts/MetaString.h"
 #include "../GameLibrary.h"
 #include "../TerrainHandler.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -22,67 +20,6 @@ class TerrainType;
 class RiverType;
 class RoadType;
 class CGObjectInstance;
-class CGTownInstance;
-class JsonSerializeFormat;
-
-/// The map event is an event which e.g. gives or takes resources of a specific
-/// amount to/from players and can appear regularly or once a time.
-class DLL_LINKAGE CMapEvent
-{
-public:
-	CMapEvent();
-	virtual ~CMapEvent() = default;
-
-	bool occursToday(int currentDay) const;
-	bool affectsPlayer(PlayerColor player, bool isHuman) const;
-
-	std::string name;
-	MetaString message;
-	TResources resources;
-	std::set<PlayerColor> players;
-	bool humanAffected;
-	bool computerAffected;
-	ui32 firstOccurrence;
-	ui32 nextOccurrence; /// specifies after how many days the event will occur the next time; 0 if event occurs only one time
-
-	std::vector<ObjectInstanceID> deletedObjectsInstances;
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & name;
-		h & message;
-		h & resources;
-		h & players;
-		h & humanAffected;
-		h & computerAffected;
-		h & firstOccurrence;
-		h & nextOccurrence;
-		h & deletedObjectsInstances;
-	}
-	
-	virtual void serializeJson(JsonSerializeFormat & handler);
-};
-
-/// The castle event builds/adds buildings/creatures for a specific town.
-class DLL_LINKAGE CCastleEvent: public CMapEvent
-{
-public:
-	CCastleEvent() = default;
-
-	std::set<BuildingID> buildings;
-	std::vector<si32> creatures;
-
-	template <typename Handler>
-	void serialize(Handler & h)
-	{
-		h & static_cast<CMapEvent &>(*this);
-		h & buildings;
-		h & creatures;
-	}
-	
-	void serializeJson(JsonSerializeFormat & handler) override;
-};
 
 /// The terrain tile describes the terrain type and the visual representation of the terrain.
 /// Furthermore the struct defines whether the tile is visitable or/and blocked and which objects reside in it.
@@ -130,7 +67,7 @@ struct DLL_LINKAGE TerrainTile
 	std::vector<ObjectInstanceID> visitableObjects;
 	std::vector<ObjectInstanceID> blockingObjects;
 
-	template <typename Handler>
+	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & terrainType;
@@ -141,7 +78,7 @@ struct DLL_LINKAGE TerrainTile
 		h & roadDir;
 		h & extTileFlags;
 
-		if (h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
+		if(h.hasFeature(Handler::Version::NO_RAW_POINTERS_IN_SERIALIZER))
 		{
 			h & visitableObjects;
 			h & blockingObjects;
@@ -150,14 +87,12 @@ struct DLL_LINKAGE TerrainTile
 		{
 			std::vector<std::shared_ptr<CGObjectInstance>> objectPtrs;
 			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
+			for(const auto & ptr : objectPtrs)
 				visitableObjects.push_back(ptr->id);
 			h & objectPtrs;
-			for (const auto & ptr : objectPtrs)
+			for(const auto & ptr : objectPtrs)
 				blockingObjects.push_back(ptr->id);
 		}
-
-
 	}
 };
 

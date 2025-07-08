@@ -50,6 +50,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/MiscObjects.h"
+#include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"

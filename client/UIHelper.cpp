@@ -16,7 +16,6 @@
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/ArtifactLocation.h"
 #include "../lib/CRandomGenerator.h"
-#include "../lib/CCreatureSet.h"
 
 std::vector<Component> UIHelper::getArtifactsComponents(const CArtifactSet & artSet, const std::vector<MoveArtifactInfo> & movedPack)
 {

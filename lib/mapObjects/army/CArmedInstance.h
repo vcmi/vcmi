@@ -9,10 +9,14 @@
  */
 #pragma once
 
-#include "CGObjectInstance.h"
-#include "../CCreatureSet.h"
-#include "../bonuses/CBonusSystemNode.h"
-#include "../bonuses/BonusCache.h"
+#include "CCreatureSet.h"
+
+#include "../CGObjectInstance.h"
+
+#include "../../bonuses/BonusCache.h"
+#include "../../bonuses/CBonusSystemNode.h"
+
+#include <vcmi/Entity.h>
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -32,26 +36,32 @@ protected:
 	virtual CBonusSystemNode & whatShouldBeAttached();
 
 public:
-	BattleInfo *battle; //set to the current battle, if engaged
+	BattleInfo * battle; //set to the current battle, if engaged
 
 	void randomizeArmy(FactionID type);
 	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;
-	CArmedInstance * getArmy() final { return this; }
-	const CArmedInstance * getArmy() const final { return this; }
+	CArmedInstance * getArmy() final
+	{
+		return this;
+	}
+	const CArmedInstance * getArmy() const final
+	{
+		return this;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	//IConstBonusProvider
-	const IBonusBearer* getBonusBearer() const override;
+	const IBonusBearer * getBonusBearer() const override;
 
 	void attachToBonusSystem(CGameState & gs) override;
 	void detachFromBonusSystem(CGameState & gs) override;
 	void restoreBonusSystem(CGameState & gs) override;
 	//////////////////////////////////////////////////////////////////////////
 
-	CArmedInstance(IGameInfoCallback *cb);
-	CArmedInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic);
+	CArmedInstance(IGameInfoCallback * cb);
+	CArmedInstance(IGameInfoCallback * cb, BonusNodeType nodeType, bool isHypothetic);
 
 	PlayerColor getOwner() const override
 	{
@@ -59,14 +69,15 @@ public:
 	}
 
 	TerrainId getCurrentTerrain() const;
-	
+
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
-	template <typename Handler> void serialize(Handler &h)
+	template<typename Handler>
+	void serialize(Handler & h)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & static_cast<CBonusSystemNode&>(*this);
-		h & static_cast<CCreatureSet&>(*this);
+		h & static_cast<CGObjectInstance &>(*this);
+		h & static_cast<CBonusSystemNode &>(*this);
+		h & static_cast<CCreatureSet &>(*this);
 
 		if(!h.saving && h.loadingGamestate)
 			attachUnitsToArmy();

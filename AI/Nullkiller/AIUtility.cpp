@@ -17,7 +17,7 @@
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CQuest.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/bonuses/Limiters.h"

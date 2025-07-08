@@ -22,6 +22,7 @@
 #include "../entities/hero/CHero.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/CMapInfo.h"
+#include "../mapping/CCastleEvent.h"
 #include "../rmg/CMapGenOptions.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

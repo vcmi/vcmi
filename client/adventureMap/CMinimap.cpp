@@ -30,7 +30,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const

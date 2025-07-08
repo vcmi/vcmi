@@ -27,6 +27,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CCastleEvent.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"

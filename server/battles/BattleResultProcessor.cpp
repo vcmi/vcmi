@@ -17,6 +17,7 @@
 #include "../queries/QueriesProcessor.h"
 #include "../queries/BattleQueries.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"

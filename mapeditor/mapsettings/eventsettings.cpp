@@ -12,7 +12,6 @@
 #include "timedevent.h"
 #include "ui_eventsettings.h"
 #include "../mapcontroller.h"
-#include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
 

@@ -167,7 +167,7 @@ public:
 	void removeAllBuildings();
 	std::set<BuildingID> getBuildings() const;
 
-	TResources getBuildingCost(const BuildingID & buildingID) const;
+	ResourceSet getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
 

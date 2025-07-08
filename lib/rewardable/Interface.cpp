@@ -22,7 +22,7 @@
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 

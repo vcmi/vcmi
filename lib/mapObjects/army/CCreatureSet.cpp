@@ -10,27 +10,15 @@
 #include "StdInc.h"
 #include "CCreatureSet.h"
 
-#include "CConfigHandler.h"
-#include "CCreatureHandler.h"
-#include "GameLibrary.h"
-#include "IGameSettings.h"
-#include "callback/IGameInfoCallback.h"
-#include "entities/hero/CHeroHandler.h"
-#include "mapObjects/CGHeroInstance.h"
-#include "modding/ModScope.h"
-#include "texts/CGeneralTextHandler.h"
-#include "spells/CSpellHandler.h"
-#include "IBonusTypeHandler.h"
-#include "serializer/JsonSerializeFormat.h"
-#include "gameState/CGameState.h"
+#include "../CGHeroInstance.h"
 
-#include <vcmi/FactionService.h>
-#include <vcmi/Faction.h>
+#include "../../CConfigHandler.h"
+#include "../../texts/CGeneralTextHandler.h"
+#include "../../serializer/JsonSerializeFormat.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-
-bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
+	bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPairCreatureSlot & rhs)
 {
 	return lhs.first->getAIValue() < rhs.first->getAIValue(); // Descendant order sorting
 }
@@ -38,7 +26,7 @@ bool CreatureSlotComparer::operator()(const TPairCreatureSlot & lhs, const TPair
 const CStackInstance & CCreatureSet::operator[](const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
-	if (i != stacks.end())
+	if(i != stacks.end())
 		return *i->second;
 	else
 		throw std::runtime_error("That slot is empty!");
@@ -47,7 +35,7 @@ const CStackInstance & CCreatureSet::operator[](const SlotID & slot) const
 const CCreature * CCreatureSet::getCreature(const SlotID & slot) const
 {
 	auto i = stacks.find(slot);
-	if (i != stacks.end())
+	if(i != stacks.end())
 		return i->second->getCreature();
 	else
 		return nullptr;
@@ -82,7 +70,7 @@ SlotID CCreatureSet::getSlotFor(const CreatureID & creature, ui32 slotsAmount) c
 	return getSlotFor(creature.toCreature(), slotsAmount);
 }
 
-SlotID CCreatureSet::getSlotFor(const CCreature *c, ui32 slotsAmount) const
+SlotID CCreatureSet::getSlotFor(const CCreature * c, ui32 slotsAmount) const
 {
 	assert(c);
 	for(const auto & elem : stacks)
@@ -149,7 +137,6 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 		if(count == ignoreAmount || count < 1)
 			continue;
 
-
 		if(count > max)
 			max = count;
 		if(count < min)
@@ -162,7 +149,7 @@ bool CCreatureSet::isCreatureBalanced(const CCreature * c, TQuantity ignoreAmoun
 
 SlotID CCreatureSet::getFreeSlot(ui32 slotsAmount) const
 {
-	for(ui32 i=0; i<slotsAmount; i++)
+	for(ui32 i = 0; i < slotsAmount; i++)
 	{
 		if(!vstd::contains(stacks, SlotID(i)))
 		{
@@ -190,7 +177,7 @@ std::queue<SlotID> CCreatureSet::getFreeSlotsQueue(ui32 slotsAmount) const
 {
 	std::queue<SlotID> freeSlots;
 
-	for (ui32 i = 0; i < slotsAmount; i++)
+	for(ui32 i = 0; i < slotsAmount; i++)
 	{
 		auto slot = SlotID(i);
 
@@ -236,7 +223,7 @@ TCreatureQueue CCreatureSet::getCreatureQueue(const SlotID & exclude) const
 
 TQuantity CCreatureSet::getStackCount(const SlotID & slot) const
 {
-	if (!hasStackAtSlot(slot))
+	if(!hasStackAtSlot(slot))
 		return 0;
 	return stacks.at(slot)->getCount();
 }
@@ -254,9 +241,9 @@ TExpType CCreatureSet::getStackAverageExperience(const SlotID & slot) const
 bool CCreatureSet::mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID & preferable) const /*looks for two same stacks, returns slot positions */
 {
 	//try to match creature to our preferred stack
-	if(preferable.validSlot() &&  vstd::contains(stacks, preferable))
+	if(preferable.validSlot() && vstd::contains(stacks, preferable))
 	{
-		const CCreature *cr = stacks.find(preferable)->second->getCreature();
+		const CCreature * cr = stacks.find(preferable)->second->getCreature();
 		for(const auto & elem : stacks)
 		{
 			if(cr == elem.second->getType() && elem.first != preferable)
@@ -285,7 +272,7 @@ bool CCreatureSet::mergeableStacks(std::pair<SlotID, SlotID> & out, const SlotID
 
 void CCreatureSet::addToSlot(const SlotID & slot, const CreatureID & cre, TQuantity count, bool allowMerging)
 {
-	const CCreature *c = cre.toCreature();
+	const CCreature * c = cre.toCreature();
 
 	if(!hasStackAtSlot(slot))
 	{
@@ -342,18 +329,18 @@ bool CCreatureSet::needsLastStack() const
 ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 {
 	ui64 ret = 0;
-	for (const auto& elem : stacks)
+	for(const auto & elem : stacks)
 	{
 		ui64 powerToAdd = elem.second->getPower();
-		if (fortLevel > 0)
+		if(fortLevel > 0)
 		{
-			if (!elem.second->hasBonusOfType(BonusType::FLYING))
+			if(!elem.second->hasBonusOfType(BonusType::FLYING))
 			{
 				powerToAdd /= fortLevel;
-				if (!elem.second->hasBonusOfType(BonusType::SHOOTER))
+				if(!elem.second->hasBonusOfType(BonusType::SHOOTER))
 					powerToAdd /= fortLevel;
 			}
-		} 
+		}
 		ret += powerToAdd;
 	}
 	return ret;
@@ -362,7 +349,7 @@ ui64 CCreatureSet::getArmyStrength(int fortLevel) const
 ui64 CCreatureSet::getArmyCost() const
 {
 	ui64 ret = 0;
-	for (const auto& elem : stacks)
+	for(const auto & elem : stacks)
 		ret += elem.second->getMarketValue();
 	return ret;
 }
@@ -383,7 +370,7 @@ std::string CCreatureSet::getRoughAmount(const SlotID & slot, int mode) const
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3*(int)quantity];
+		return LIBRARY->generaltexth->arraytxt[(174 + mode) + 3 * (int)quantity];
 	}
 	return "";
 }
@@ -461,7 +448,8 @@ CStackInstance * CCreatureSet::getStackPtr(const SlotID & slot) const
 {
 	if(hasStackAtSlot(slot))
 		return stacks.find(slot)->second.get();
-	else return nullptr;
+	else
+		return nullptr;
 }
 
 void CCreatureSet::eraseStack(const SlotID & slot)
@@ -470,7 +458,7 @@ void CCreatureSet::eraseStack(const SlotID & slot)
 	detachStack(slot);
 }
 
-bool CCreatureSet::contains(const CStackInstance *stack) const
+bool CCreatureSet::contains(const CStackInstance * stack) const
 {
 	if(!stack)
 		return false;
@@ -482,10 +470,10 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 	return false;
 }
 
-SlotID CCreatureSet::findStack(const CStackInstance *stack) const
+SlotID CCreatureSet::findStack(const CStackInstance * stack) const
 {
 	const auto * h = dynamic_cast<const CGHeroInstance *>(this);
-	if (h && h->getCommander() == stack)
+	if(h && h->getCommander() == stack)
 		return SlotID::COMMANDER_SLOT_PLACEHOLDER;
 
 	if(!stack)
@@ -510,7 +498,7 @@ void CCreatureSet::putStack(const SlotID & slot, std::unique_ptr<CStackInstance>
 
 void CCreatureSet::joinStack(const SlotID & slot, std::unique_ptr<CStackInstance> stack)
 {
-	[[maybe_unused]] const CCreature *c = getCreature(slot);
+	[[maybe_unused]] const CCreature * c = getCreature(slot);
 	assert(c == stack->getType());
 	assert(c);
 
@@ -541,7 +529,7 @@ void CCreatureSet::changeStackCount(const SlotID & slot, TQuantity toAdd)
 
 CCreatureSet::~CCreatureSet() = default;
 
-void CCreatureSet::setToArmy(CSimpleArmy &src)
+void CCreatureSet::setToArmy(CSimpleArmy & src)
 {
 	clearSlots();
 	while(src)
@@ -577,12 +565,12 @@ void CCreatureSet::setStackType(const SlotID & slot, const CreatureID & type)
 	armyChanged();
 }
 
-bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks) const
+bool CCreatureSet::canBeMergedWith(const CCreatureSet & cs, bool allowMergingStacks) const
 {
 	if(!allowMergingStacks)
 	{
 		int freeSlots = stacksCount() - GameConstants::ARMY_SIZE;
-		std::set<const CCreature*> cresToAdd;
+		std::set<const CCreature *> cresToAdd;
 		for(const auto & elem : cs.stacks)
 		{
 			SlotID dest = getSlotFor(elem.second->getCreature());
@@ -598,13 +586,13 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet &cs, bool allowMergingStac
 
 		//get types of creatures that need their own slot
 		for(const auto & elem : cs.stacks)
-			if ((j = cres.getSlotFor(elem.second->getCreature())).validSlot())
-				cres.addToSlot(j, elem.second->getId(), 1, true);  //merge if possible
-			//cres.addToSlot(elem.first, elem.second->type->getId(), 1, true);
+			if((j = cres.getSlotFor(elem.second->getCreature())).validSlot())
+				cres.addToSlot(j, elem.second->getId(), 1, true); //merge if possible
+		//cres.addToSlot(elem.first, elem.second->type->getId(), 1, true);
 		for(const auto & elem : stacks)
 		{
-			if ((j = cres.getSlotFor(elem.second->getCreature())).validSlot())
-				cres.addToSlot(j, elem.second->getId(), 1, true);  //merge if possible
+			if((j = cres.getSlotFor(elem.second->getCreature())).validSlot())
+				cres.addToSlot(j, elem.second->getId(), 1, true); //merge if possible
 			else
 				return false; //no place found
 		}
@@ -622,22 +610,22 @@ bool CCreatureSet::hasUnits(const std::vector<CStackBasicDescriptor> & units, bo
 		for(const auto & slot : Slots())
 		{
 			const auto & heroStack = slot.second;
-			if (heroStack->getType() == reqStack.getType())
+			if(heroStack->getType() == reqStack.getType())
 			{
 				count += heroStack->getCount();
 				testedSlots += 1;
 			}
 		}
-		if (count > reqStack.getCount())
+		if(count > reqStack.getCount())
 			foundExtraCreatures = true;
 
-		if (count < reqStack.getCount()) //not enough creatures of this kind
+		if(count < reqStack.getCount()) //not enough creatures of this kind
 			return false;
 	}
 
-	if (requireLastStack)
+	if(requireLastStack)
 	{
-		if (!foundExtraCreatures && testedSlots >= Slots().size())
+		if(!foundExtraCreatures && testedSlots >= Slots().size())
 			return false;
 	}
 
@@ -649,16 +637,7 @@ bool CCreatureSet::hasStackAtSlot(const SlotID & slot) const
 	return vstd::contains(stacks, slot);
 }
 
-CCreatureSet & CCreatureSet::operator=(const CCreatureSet&cs)
-{
-	assert(0);
-	return *this;
-}
-
-void CCreatureSet::armyChanged()
-{
-
-}
+void CCreatureSet::armyChanged() {}
 
 void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::string & armyFieldName, const std::optional<int> fixedSize)
 {
@@ -668,13 +647,12 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 	handler.serializeEnum("formation", formation, NArmyFormation::names);
 	auto a = handler.enterArray(armyFieldName);
 
-
 	if(handler.saving)
 	{
 		size_t sz = 0;
 
 		for(const auto & p : stacks)
-			vstd::amax(sz, p.first.getNum()+1);
+			vstd::amax(sz, p.first.getNum() + 1);
 
 		if(fixedSize)
 			vstd::amax(sz, fixedSize.value());
@@ -705,485 +683,6 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 			}
 		}
 	}
-}
-
-CStackInstance::CStackInstance(IGameInfoCallback *cb)
-	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
-{}
-
-CStackInstance::CStackInstance(IGameInfoCallback *cb, BonusNodeType nodeType, bool isHypothetic)
-	: CBonusSystemNode(nodeType, isHypothetic)
-	, CStackBasicDescriptor(nullptr, 0)
-	, CArtifactSet(cb)
-	, GameCallbackHolder(cb)
-	, nativeTerrain(this, Selector::type()(BonusType::TERRAIN_NATIVE))
-	, initiative(this, Selector::type()(BonusType::STACKS_SPEED))
-	, totalExperience(0)
-{}
-
-CStackInstance::CStackInstance(IGameInfoCallback *cb, const CreatureID & id, TQuantity Count, bool isHypothetic)
-	: CStackInstance(cb, BonusNodeType::STACK_INSTANCE, false)
-{
-	setType(id);
-	setCount(Count);
-}
-
-CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
-{
-	return CCreature::getQuantityID(getCount());
-}
-
-int CStackInstance::getExpRank() const
-{
-	if (!LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		return 0;
-	int tier = getType()->getLevel();
-	if (vstd::iswithin(tier, 1, 7))
-	{
-		for(int i = static_cast<int>(LIBRARY->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
-		{ //exp values vary from 1st level to max exp at 11th level
-			if (getAverageExperience() >= LIBRARY->creh->expRanks[tier][i])
-				return ++i; //faster, but confusing - 0 index mean 1st level of experience
-		}
-		return 0;
-	}
-	else //higher tier
-	{
-		for(int i = static_cast<int>(LIBRARY->creh->expRanks[0].size()) - 2; i > -1; --i)
-		{
-			if (getAverageExperience() >= LIBRARY->creh->expRanks[0][i])
-				return ++i;
-		}
-		return 0;
-	}
-}
-
-int CStackInstance::getLevel() const
-{
-	return std::max(1, getType()->getLevel());
-}
-
-void CStackInstance::giveAverageStackExperience(TExpType desiredAmountPerUnit)
-{
-	if (!canGainExperience())
-		return;
-
-	int level = std::clamp(getLevel(), 1, 7);
-	TExpType maxAmountPerUnit = LIBRARY->creh->expRanks[level].back();
-	TExpType actualAmountPerUnit = std::min(desiredAmountPerUnit, maxAmountPerUnit * LIBRARY->creh->maxExpPerBattle[level]/100);
-	TExpType maxExperience = maxAmountPerUnit * getCount();
-	TExpType maxExperienceToGain = maxExperience - totalExperience;
-	TExpType actualGainedExperience = std::min(maxExperienceToGain, actualAmountPerUnit * getCount());
-
-	totalExperience	+= actualGainedExperience;
-}
-
-void CStackInstance::giveTotalStackExperience(TExpType experienceToGive)
-{
-	if (!canGainExperience())
-		return;
-
-	totalExperience	+= experienceToGive;
-}
-
-TExpType CStackInstance::getTotalExperience() const
-{
-	return totalExperience;
-}
-
-TExpType CStackInstance::getAverageExperience() const
-{
-	return totalExperience / getCount();
-}
-
-bool CStackInstance::canGainExperience() const
-{
-	return cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
-}
-
-void CStackInstance::setType(const CreatureID & creID)
-{
-	if (creID == CreatureID::NONE)
-		setType(nullptr);//FIXME: unused branch?
-	else
-		setType(creID.toCreature());
-}
-
-void CStackInstance::setType(const CCreature *c)
-{
-	if(getCreature())
-	{
-		detachFromSource(*getCreature());
-		if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-			totalExperience = totalExperience * LIBRARY->creh->expAfterUpgrade / 100;
-	}
-
-	CStackBasicDescriptor::setType(c);
-
-	if(getCreature())
-		attachToSource(*getCreature());
-}
-
-void CStackInstance::setCount(TQuantity newCount)
-{
-	assert(newCount >= 0);
-
-	if (newCount < getCount())
-	{
-		TExpType averageExperience = totalExperience / getCount();
-		totalExperience = averageExperience * newCount;
-	}
-
-	CStackBasicDescriptor::setCount(newCount);
-	nodeHasChanged();
-}
-
-std::string CStackInstance::bonusToString(const std::shared_ptr<Bonus>& bonus) const
-{
-	if (!bonus->description.empty())
-		return bonus->description.toString();
-	else
-		return LIBRARY->getBth()->bonusToString(bonus, this);
-}
-
-ImagePath CStackInstance::bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const
-{
-	if (!bonus->customIconPath.empty())
-		return bonus->customIconPath;
-	return LIBRARY->getBth()->bonusToGraphics(bonus);
-}
-
-CArmedInstance * CStackInstance::getArmy()
-{
-	return armyInstance;
-}
-
-const CArmedInstance * CStackInstance::getArmy() const
-{
-	return armyInstance;
-}
-
-void CStackInstance::setArmy(CArmedInstance * ArmyObj)
-{
-	auto oldArmy = getArmy();
-
-	if(oldArmy)
-	{
-		detachFrom(*oldArmy);
-		armyInstance = nullptr;
-	}
-
-	if(ArmyObj)
-	{
-		attachTo(const_cast<CArmedInstance&>(*ArmyObj));
-		armyInstance = ArmyObj;
-	}
-}
-
-std::string CStackInstance::getQuantityTXT(bool capitalized) const
-{
-	CCreature::CreatureQuantityId quantity = getQuantityID();
-
-	if ((int)quantity)
-	{
-		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-			return CCreature::getQuantityRangeStringForId(quantity);
-
-		return LIBRARY->generaltexth->arraytxt[174 + (int)quantity*3 - 1 - capitalized];
-	}
-	else
-		return "";
-}
-
-bool CStackInstance::valid(bool allowUnrandomized) const
-{
-	if(!randomStack)
-	{
-		return (getType() && getType() == getId().toEntity(LIBRARY));
-	}
-	else
-		return allowUnrandomized;
-}
-
-std::string CStackInstance::nodeName() const
-{
-	std::ostringstream oss;
-	oss << "Stack of " << getCount() << " of ";
-	if(getType())
-		oss << getType()->getNamePluralTextID();
-	else
-		oss << "[UNDEFINED TYPE]";
-
-	return oss.str();
-}
-
-PlayerColor CStackInstance::getOwner() const
-{
-	auto army = getArmy();
-	return army ? army->getOwner() : PlayerColor::NEUTRAL;
-}
-
-int32_t CStackInstance::getInitiative(int turn) const
-{
-	if (turn == 0)
-		return initiative.getValue();
-
-	return ACreature::getInitiative(turn);
-}
-
-TerrainId CStackInstance::getNativeTerrain() const
-{
-	if (nativeTerrain.hasBonus())
-		return TerrainId::ANY_TERRAIN;
-
-	return getFactionID().toEntity(LIBRARY)->getNativeTerrain();
-}
-
-TerrainId CStackInstance::getCurrentTerrain() const
-{
-	assert(getArmy() != nullptr);
-	return getArmy()->getCurrentTerrain();
-}
-
-CreatureID CStackInstance::getCreatureID() const
-{
-	if(getType())
-		return getType()->getId();
-	else
-		return CreatureID::NONE;
-}
-
-std::string CStackInstance::getName() const
-{
-	return (getCount() > 1) ? getType()->getNamePluralTranslated() : getType()->getNameSingularTranslated();
-}
-
-ui64 CStackInstance::getPower() const
-{
-	assert(getType());
-	return static_cast<ui64>(getType()->getAIValue()) * getCount();
-}
-
-ui64 CStackInstance::getMarketValue() const
-{
-	assert(getType());
-	return getType()->getFullRecruitCost().marketValue() * getCount();
-}
-
-ArtBearer CStackInstance::bearerType() const
-{
-	return ArtBearer::CREATURE;
-}
-
-CStackInstance::ArtPlacementMap CStackInstance::putArtifact(const ArtifactPosition & pos, const CArtifactInstance * art)
-{
-	assert(!getArt(pos));
-	assert(art->canBePutAt(this, pos));
-
-	attachToSource(*art);
-	return CArtifactSet::putArtifact(pos, art);
-}
-
-void CStackInstance::removeArtifact(const ArtifactPosition & pos)
-{
-	assert(getArt(pos));
-
-	detachFromSource(*getArt(pos));
-	CArtifactSet::removeArtifact(pos);
-}
-
-void CStackInstance::serializeJson(JsonSerializeFormat & handler)
-{
-	//todo: artifacts
-	CStackBasicDescriptor::serializeJson(handler);//must be first
-
-	if(handler.saving)
-	{
-		if(randomStack)
-		{
-			int level = randomStack->level;
-			int upgrade = randomStack->upgrade;
-
-			handler.serializeInt("level", level, 0);
-			handler.serializeInt("upgraded", upgrade, 0);
-		}
-	}
-	else
-	{
-		//type set by CStackBasicDescriptor::serializeJson
-		if(getType() == nullptr)
-		{
-			uint8_t level = 0;
-			uint8_t upgrade = 0;
-
-			handler.serializeInt("level", level, 0);
-			handler.serializeInt("upgrade", upgrade, 0);
-
-			randomStack = RandomStackInfo{ level, upgrade };
-		}
-	}
-}
-
-FactionID CStackInstance::getFactionID() const
-{
-	if(getType())
-		return getType()->getFactionID();
-		
-	return FactionID::NEUTRAL;
-}
-
-const IBonusBearer* CStackInstance::getBonusBearer() const
-{
-	return this;
-}
-
-CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb)
-	:CStackInstance(cb)
-{}
-
-CCommanderInstance::CCommanderInstance(IGameInfoCallback *cb, const CreatureID & id)
-	: CStackInstance(cb, BonusNodeType::COMMANDER, false)
-	, name("Commando")
-{
-	alive = true;
-	level = 1;
-	setCount(1);
-	setType(nullptr);
-	secondarySkills.resize (ECommander::SPELL_POWER + 1);
-	setType(id);
-	//TODO - parse them
-}
-
-void CCommanderInstance::setAlive (bool Alive)
-{
-	//TODO: helm of immortality
-	alive = Alive;
-	if (!alive)
-	{
-		removeBonusesRecursive(Bonus::UntilCommanderKilled);
-	}
-}
-
-bool CCommanderInstance::canGainExperience() const
-{
-	return alive;
-}
-
-int CCommanderInstance::getExpRank() const
-{
-	return LIBRARY->heroh->level (getTotalExperience());
-}
-
-int CCommanderInstance::getLevel() const
-{
-	return std::max (1, getExpRank());
-}
-
-void CCommanderInstance::levelUp ()
-{
-	level++;
-	for(const auto & bonus : LIBRARY->creh->commanderLevelPremy)
-	{ //grant all regular level-up bonuses
-		accumulateBonus(bonus);
-	}
-}
-
-ArtBearer CCommanderInstance::bearerType() const
-{
-	return ArtBearer::COMMANDER;
-}
-
-bool CCommanderInstance::gainsLevel() const
-{
-	return getTotalExperience() >= LIBRARY->heroh->reqExp(level + 1);
-}
-
-//This constructor should be placed here to avoid side effects
-CStackBasicDescriptor::CStackBasicDescriptor() = default;
-
-CStackBasicDescriptor::CStackBasicDescriptor(const CreatureID & id, TQuantity Count):
-	typeID(id),
-	count(Count)
-{
-}
-
-CStackBasicDescriptor::CStackBasicDescriptor(const CCreature *c, TQuantity Count)
-	: typeID(c ? c->getId() : CreatureID()), count(Count)
-{
-}
-
-const CCreature * CStackBasicDescriptor::getCreature() const
-{
-	return typeID.hasValue() ? typeID.toCreature() : nullptr;
-}
-
-const Creature * CStackBasicDescriptor::getType() const
-{
-	return typeID.hasValue() ? typeID.toEntity(LIBRARY) : nullptr;
-}
-
-CreatureID CStackBasicDescriptor::getId() const
-{
-	return typeID;
-}
-
-TQuantity CStackBasicDescriptor::getCount() const
-{
-	return count;
-}
-
-void CStackBasicDescriptor::setType(const CCreature * c)
-{
-	typeID = c ? c->getId() : CreatureID();
-}
-
-void CStackBasicDescriptor::setCount(TQuantity newCount)
-{
-	assert(newCount >= 0);
-	count = newCount;
-}
-
-bool operator== (const CStackBasicDescriptor & l, const CStackBasicDescriptor & r)
-{
-	return l.typeID == r.typeID && l.count == r.count;
-}
-
-void CStackBasicDescriptor::serializeJson(JsonSerializeFormat & handler)
-{
-	handler.serializeInt("amount", count);
-
-	if(handler.saving)
-	{
-		if(typeID.hasValue())
-		{
-			std::string typeName = typeID.toEntity(LIBRARY)->getJsonKey();
-			handler.serializeString("type", typeName);
-		}
-	}
-	else
-	{
-		std::string typeName;
-		handler.serializeString("type", typeName);
-		if(!typeName.empty())
-			setType(CreatureID(CreatureID::decode(typeName)).toCreature());
-	}
-}
-
-void CSimpleArmy::clearSlots()
-{
-	army.clear();
-}
-
-CSimpleArmy::operator bool() const
-{
-	return !army.empty();
-}
-
-bool CSimpleArmy::setCreature(SlotID slot, CreatureID cre, TQuantity count)
-{
-	assert(!vstd::contains(army, slot));
-	army[slot] = std::make_pair(cre, count);
-	return true;
 }
 
 VCMI_LIB_NAMESPACE_END

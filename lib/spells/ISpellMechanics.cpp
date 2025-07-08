@@ -26,7 +26,13 @@
 #include "TargetCondition.h"
 #include "Problem.h"
 
-#include "AdventureSpellMechanics.h"
+#include "adventure/AdventureSpellMechanics.h"
+#include "adventure/DimensionDoorMechanics.h"
+#include "adventure/ScuttleBoatMechanics.h"
+#include "adventure/SummonBoatMechanics.h"
+#include "adventure/TownPortalMechanics.h"
+#include "adventure/ViewWorldMechanics.h"
+
 #include "BattleSpellMechanics.h"
 
 #include "effects/Effects.h"

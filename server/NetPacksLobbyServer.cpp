@@ -14,6 +14,7 @@
 #include "CGameHandler.h"
 
 #include "../lib/StartInfo.h"
+#include "../lib/GameLibrary.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"

@@ -29,7 +29,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
 struct NeighborTilesInfo

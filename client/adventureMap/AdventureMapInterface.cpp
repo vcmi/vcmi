@@ -37,6 +37,7 @@
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
@@ -44,7 +45,6 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/spells/ISpellMechanics.h"

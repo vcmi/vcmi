@@ -26,6 +26,7 @@
 #include "../lib/callback/CCallback.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapping/TerrainTile.h"
 #include "../lib/networkPacks/PacksForClient.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
