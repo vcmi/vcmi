@@ -433,7 +433,7 @@
 					"name" : "backgroundRightInfobar",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 },
-					"sourceArea" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
+					"sourceArea" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 210 }
 				},
 				{
 					"type": "adventureInfobar",
