@@ -1176,15 +1176,24 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 	pack.info->battleID = gs.nextBattleID;
 	pack.info->localInit();
 
-	if (pack.info->getDefendedTown() && pack.info->getSideHero(BattleSide::DEFENDER))
+	if (pack.info->getDefendedTown() && pack.info->getSide(BattleSide::DEFENDER).heroID.hasValue())
 	{
 		CGTownInstance * town = gs.getTown(pack.info->townID);
 		CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(town->townAndVis);
 			hero->attachTo(*town);
+		}
+	}
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (pack.info->getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(i)->id);
+			hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
 		}
 	}
 
@@ -1366,7 +1375,7 @@ void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 		CGTownInstance * town = gs.getTown(currentBattle.townID);
 		CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(*town);
 			hero->attachTo(town->townAndVis);
@@ -1382,6 +1391,17 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 	{
 		return battle->battleID == pack.battleID;
 	});
+
+	const auto & currentBattle = **battleIter;
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = currentBattle.getSide(i).initialMana;
+		}
+	}
 
 	assert(battleIter != gs.currentBattles.end());
 	gs.currentBattles.erase(battleIter);
@@ -1401,14 +1421,23 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	for(auto & movingPack : pack.movingArtifacts)
 		movingPack.visit(*this);
 
-	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
-											[&](const auto & battle)
-											{
-												return battle->battleID == pack.battleID;
-											});
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
+	const auto & currentBattle = **battleIter;
 
-	assert(currentBattle != gs.currentBattles.end());
-	gs.currentBattles.erase(currentBattle);
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
+		}
+	}
+
+	assert(battleIter != gs.currentBattles.end());
+	gs.currentBattles.erase(battleIter);
 }
 
 void GameStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)

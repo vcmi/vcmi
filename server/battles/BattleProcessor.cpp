@@ -76,7 +76,7 @@ void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInsta
 			if(heroes[i])
 			{
 				SetMana restoreInitialMana;
-				restoreInitialMana.val = lastBattleQuery->initialHeroMana[i];
+				restoreInitialMana.val = battle->getSide(i).initialMana;
 				restoreInitialMana.hid = heroes[i]->id;
 				restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
 				gameHandler->sendAndApply(restoreInitialMana);
@@ -134,12 +134,6 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 	else
 	{
 		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
-
-		// store initial mana to reset if battle has been restarted
-		for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
-			if(heroes[i])
-				newBattleQuery->initialHeroMana[i] = heroes[i]->mana;
-
 		gameHandler->queries->addQuery(newBattleQuery);
 	}
 

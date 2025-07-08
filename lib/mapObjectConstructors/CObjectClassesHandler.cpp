@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CConfigHandler.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
@@ -205,8 +206,19 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
 {
-	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
+
+	if (settings["mods"]["validation"].String() != "off")
+	{
+		size_t separator = identifier.find(':');
+
+		if (separator != std::string::npos)
+		{
+			std::string modName = identifier.substr(0, separator);
+			std::string objectName = identifier.substr(separator + 1);
+			logMod->warn("Mod %s: Map object type with format '%s' will add new map object, not modify it! Please use '%s' form and add dependency on mod '%s' instead!", scope, identifier, modName, identifier );
+		}
+	}
 
 	std::string handler = baseObject->handlerName;
 	if(!handlerConstructors.count(handler))
