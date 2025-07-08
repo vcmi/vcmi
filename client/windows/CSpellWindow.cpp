@@ -60,11 +60,11 @@ static const std::array schoolTabOrder =
 
 int getAnimFrameFromSchool(SpellSchool school)
 {
-    auto it = std::find(schoolTabOrder.begin(), schoolTabOrder.end(), school);
-    if (it != schoolTabOrder.end())
-        return std::distance(schoolTabOrder.begin(), it);
+	auto it = std::find(schoolTabOrder.begin(), schoolTabOrder.end(), school);
+	if (it != schoolTabOrder.end())
+		return std::distance(schoolTabOrder.begin(), it);
 	else
-        return -1;
+		return -1;
 }
 
 bool isLegacySpellSchool(SpellSchool school)
