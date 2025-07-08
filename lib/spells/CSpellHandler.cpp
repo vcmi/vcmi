@@ -997,6 +997,8 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			levelObject.cumulativeEffects.push_back(b);
 		}
 
+		levelObject.adventureEffect = levelNode["adventureEffect"];
+
 		if(!levelNode["battleEffects"].Struct().empty())
 		{
 			levelObject.battleEffects = levelNode["battleEffects"];

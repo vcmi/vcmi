@@ -1,5 +1,5 @@
 /*
- * DimensionDoorMechanics.h, part of VCMI engine
+ * RemoveObjectEffect.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,21 +10,21 @@
 
 #pragma once
 
-#include "AdventureSpellMechanics.h"
+#include "AdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DimensionDoorMechanics final : public AdventureSpellMechanics
+class RemoveObjectEffect final : public AdventureSpellRangedEffect
 {
+	const CSpell * owner;
+	std::vector<MapObjectID> removedObjects;
+	MetaString failMessage;
+
 public:
-	DimensionDoorMechanics(const CSpell * s);
+	RemoveObjectEffect(const CSpell * s, const JsonNode & config);
 
-protected:
-	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
-
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
-	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
 VCMI_LIB_NAMESPACE_END

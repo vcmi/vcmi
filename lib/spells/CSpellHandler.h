@@ -101,6 +101,7 @@ public:
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
+		JsonNode adventureEffect;
 	};
 
 	/** \brief Low level accessor. Don`t use it if absolutely necessary

@@ -1,5 +1,5 @@
 /*
- * SummonBoatMechanics.h, part of VCMI engine
+ * SummonBoatEffect.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,14 +10,18 @@
 
 #pragma once
 
-#include "AdventureSpellMechanics.h"
+#include "AdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class SummonBoatMechanics final : public AdventureSpellMechanics
+class SummonBoatEffect final : public IAdventureSpellEffect
 {
+	const CSpell * owner;
+	bool useExistingBoat;
+	bool createNewBoat;
+
 public:
-	SummonBoatMechanics(const CSpell * s);
+	SummonBoatEffect(const CSpell * s, const JsonNode & config);
 
 protected:
 	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;

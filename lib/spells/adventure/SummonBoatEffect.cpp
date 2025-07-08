@@ -1,5 +1,5 @@
 /*
- * SummonBoatMechanics.cpp, part of VCMI engine
+ * SummonBoatEffect.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 
-#include "SummonBoatMechanics.h"
+#include "SummonBoatEffect.h"
 
 #include "../CSpellHandler.h"
 
@@ -21,12 +21,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-SummonBoatMechanics::SummonBoatMechanics(const CSpell * s)
-	: AdventureSpellMechanics(s)
+SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
+	: owner(s)
+	, useExistingBoat(config["useExistingBoat"].Bool())
+	, createNewBoat(config["createNewBoat"].Bool())
 {
 }
 
-bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
+bool SummonBoatEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!caster->getHeroCaster())
 		return false;
@@ -52,7 +54,7 @@ bool SummonBoatMechanics::canBeCastImpl(spells::Problem & problem, const IGameIn
 	return true;
 }
 
-ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
 
@@ -69,17 +71,21 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 
 	//try to find unoccupied boat to summon
 	const CGBoat * nearest = nullptr;
-	double dist = 0;
-	for(const auto & b : env->getMap()->getObjects<CGBoat>())
-	{
-		if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
-			continue; //we're looking for unoccupied boat
 
-		double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
-		if(!nearest || nDist < dist) //it's first boat or closer than previous
+	if (useExistingBoat)
+	{
+		double dist = 0;
+		for(const auto & b : env->getMap()->getObjects<CGBoat>())
 		{
-			nearest = b;
-			dist = nDist;
+			if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
+				continue; //we're looking for unoccupied boat
+
+			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
+			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			{
+				nearest = b;
+				dist = nDist;
+			}
 		}
 	}
 
@@ -93,7 +99,7 @@ ESpellCastResult SummonBoatMechanics::applyAdventureEffects(SpellCastEnvironment
 		cop.initiator = parameters.caster->getCasterOwner();
 		env->apply(cop);
 	}
-	else if(schoolLevel < 2) //none or basic level -> cannot create boat :(
+	else if(!createNewBoat) //none or basic level -> cannot create boat :(
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();

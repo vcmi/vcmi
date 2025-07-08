@@ -1,5 +1,5 @@
 /*
- * ScuttleBoatMechanics.h, part of VCMI engine
+ * DimensionDoorEffect.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,19 +10,26 @@
 
 #pragma once
 
-#include "AdventureSpellMechanics.h"
+#include "AdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class ScuttleBoatMechanics final : public AdventureSpellMechanics
+class DimensionDoorEffect final : public AdventureSpellRangedEffect
 {
+	int movementPointsRequired;
+	int movementPointsTaken;
+	bool waterLandFailureTakesPoints;
+	bool exposeFow;
+
 public:
-	ScuttleBoatMechanics(const CSpell * s);
+	DimensionDoorEffect(const CSpell * s, const JsonNode & config);
 
 protected:
+	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };
 
 VCMI_LIB_NAMESPACE_END
