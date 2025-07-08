@@ -407,11 +407,6 @@ int32_t CUnitState::getCasterUnitId() const
 	return static_cast<int32_t>(unitId());
 }
 
-BattleHex CUnitState::getCasterPosition() const
-{
-	return getPosition();
-}
-
 const CGHeroInstance * CUnitState::getHeroCaster() const
 {
 	return nullptr;

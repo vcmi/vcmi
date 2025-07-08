@@ -38,7 +38,6 @@ public:
 	virtual ~Caster() = default;
 
 	virtual int32_t getCasterUnitId() const = 0;
-	virtual BattleHex getCasterPosition() const = 0;
 
 	/// returns level on which given spell would be cast by this(0 - none, 1 - basic etc);
 	/// caster may not know this spell at all

@@ -223,8 +223,9 @@ bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
 	if(range <= 0)
 		return true;
 
-	std::vector<BattleHex> casterPos = { caster->getCasterPosition() };
-	BattleHex casterWidePos = battle()->battleGetStackByID(caster->getCasterUnitId(), false)->occupiedHex();
+	auto casterStack = battle()->battleGetStackByID(caster->getCasterUnitId(), false);
+	std::vector<BattleHex> casterPos = { casterStack->getPosition() };
+	BattleHex casterWidePos = casterStack->occupiedHex();
 	if(casterWidePos != BattleHex::INVALID)
 		casterPos.push_back(casterWidePos);
 

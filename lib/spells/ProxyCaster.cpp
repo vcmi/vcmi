@@ -36,14 +36,6 @@ int32_t ProxyCaster::getCasterUnitId() const
 	return -1;
 }
 
-BattleHex ProxyCaster::getCasterPosition() const
-{
-	if(actualCaster)
-		return actualCaster->getCasterPosition();
-
-	return BattleHex::INVALID;
-}
-
 int32_t ProxyCaster::getSpellSchoolLevel(const Spell * spell, SpellSchool * outSelectedSchool) const
 {
 	if(actualCaster)

@@ -19,7 +19,6 @@ public:
 	MOCK_CONST_METHOD0(getTreeVersion, int32_t());
 
 	MOCK_CONST_METHOD0(getCasterUnitId, int32_t());
-	MOCK_CONST_METHOD0(getCasterPosition, BattleHex());
 	MOCK_CONST_METHOD2(getSpellSchoolLevel, int32_t(const spells::Spell *, SpellSchool *));
 	MOCK_CONST_METHOD1(getEffectLevel, int32_t(const spells::Spell *));
 	MOCK_CONST_METHOD3(getSpellBonus, int64_t(const spells::Spell *, int64_t, const battle::Unit *));
