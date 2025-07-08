@@ -463,7 +463,7 @@ void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const 
 	beforeCast(sc, rng, { reflectedTo });
 }
 
-const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, BattleSide & side)
+const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, const BattleSide & side)
 {
 	auto targets = battle()->getBattle()->getUnitsIf([&side](const battle::Unit * unit)
 	{
