@@ -437,7 +437,7 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rng)
 {
 	auto range = owner -> getLevelInfo(getRangeLevel()).range;
-	const auto directSpellRange = boost::assign::list_of(0);
+	const std::vector<int> directSpellRange = { 0 };
 	const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
 	static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
 
