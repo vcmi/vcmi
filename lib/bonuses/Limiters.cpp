@@ -30,8 +30,6 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(BonusType::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
-	{"CREATURE_FACTION", std::make_shared<AllOfLimiter>(std::initializer_list<TLimiterPtr>{std::make_shared<CreatureLevelLimiter>(), std::make_shared<FactionLimiter>()})},
-	{"SAME_FACTION", std::make_shared<FactionLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 };

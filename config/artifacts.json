@@ -913,14 +913,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -939,14 +935,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -965,14 +957,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -1993,19 +1981,19 @@
 					"IS_UNDEAD",
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "NON_LIVING" ]
+						"bonusType" : "NON_LIVING"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "MECHANICAL" ]
+						"bonusType" : "MECHANICAL"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "GARGOYLE" ]
+						"bonusType" : "GARGOYLE"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "SIEGE_WEAPON" ]
+						"bonusType" : "SIEGE_WEAPON"
 					}
 				]
 			},
@@ -2018,15 +2006,15 @@
 					"IS_UNDEAD",
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "NON_LIVING" ]
+						"bonusType" : "NON_LIVING"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "MECHANICAL" ]
+						"bonusType" : "MECHANICAL"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "GARGOYLE" ]
+						"bonusType" : "GARGOYLE"
 					}
 				]
 			}

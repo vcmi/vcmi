@@ -485,180 +485,215 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	return b;
 }
 
+static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & limiter)
+{
+	const JsonVector & subLimiters = limiter.Vector();
+	if(subLimiters.empty())
+	{
+		logMod->warn("Warning: empty limiter list");
+		return std::make_shared<AllOfLimiter>();
+	}
+	std::shared_ptr<AggregateLimiter> result;
+	int offset = 1;
+	// determine limiter type and offset for sub-limiters
+	if(subLimiters[0].getType() == JsonNode::JsonType::DATA_STRING)
+	{
+		const std::string & aggregator = subLimiters[0].String();
+		if(aggregator == AllOfLimiter::aggregator)
+			result = std::make_shared<AllOfLimiter>();
+		else if(aggregator == AnyOfLimiter::aggregator)
+			result = std::make_shared<AnyOfLimiter>();
+		else if(aggregator == NoneOfLimiter::aggregator)
+			result = std::make_shared<NoneOfLimiter>();
+	}
+	if(!result)
+	{
+		// collapse for single limiter without explicit aggregate operator
+		if(subLimiters.size() == 1)
+			return JsonUtils::parseLimiter(subLimiters[0]);
+		// implicit aggregator must be allOf
+		result = std::make_shared<AllOfLimiter>();
+		offset = 0;
+	}
+	if(subLimiters.size() == offset)
+		logMod->warn("Warning: empty sub-limiter list");
+	for(int sl = offset; sl < subLimiters.size(); ++sl)
+		result->add(JsonUtils::parseLimiter(subLimiters[sl]));
+	return result;
+}
+
+static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode & limiter)
+{
+	auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
+
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & creatureNode = limiter.Struct().count("creature") ? limiter["creature"] : parameters[0];
+	const JsonNode & upgradesNode = limiter.Struct().count("includeUpgrades") ? limiter["includeUpgrades"] : parameters[1];
+
+	LIBRARY->identifiers()->requestIdentifier( "creature", creatureNode, [creatureLimiter](si32 creature)
+	{
+		creatureLimiter->setCreature(CreatureID(creature));
+	});
+
+	creatureLimiter->includeUpgrades = upgradesNode.Bool();
+	return creatureLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNode & limiter)
+{
+	auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
+
+	static const JsonNode nullNode;
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & jsonType    = limiter.Struct().count("bonusType") ? limiter["bonusType"] : parameters[0];
+	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : (parameters.Vector().size() > 2 ? parameters[1] : nullNode);
+	const JsonNode & jsonSourceType  = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : (parameters.Vector().size() > 2 ? parameters[2]["type"] : parameters[1]["type"]);
+	const JsonNode & jsonSourceID  = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : (parameters.Vector().size() > 2 ? parameters[2]["id"] : parameters[1]["id"]);
+
+	if (!jsonType.isNull())
+	{
+		LIBRARY->identifiers()->requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
+		{
+			bonusLimiter->type = static_cast<BonusType>(bonusID);
+			if (!jsonSubtype.isNull())
+				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
+		});
+	}
+
+	if(!jsonSourceType.isNull())
+	{
+		auto sourceIt = bonusSourceMap.find(jsonSourceType.String());
+		if(sourceIt != bonusSourceMap.end())
+		{
+			bonusLimiter->source = sourceIt->second;
+			bonusLimiter->isSourceRelevant = true;
+			if(!jsonSourceID.isNull()) {
+				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID);
+				bonusLimiter->isSourceIDRelevant = true;
+			}
+		}
+		else
+			logMod->warn("HAS_ANOTHER_BONUS_LIMITER: unknown bonus source type '%s'!", jsonSourceType.String());
+	}
+
+	return bonusLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseCreatureAlignmentLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & alignmentNode = limiter.Struct().count("alignment") ? limiter["alignment"] : parameters[0];
+
+	int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, alignmentNode.String());
+	if(alignment == -1)
+	{
+		logMod->error("Error: invalid alignment %s.", alignmentNode.String());
+		return nullptr;
+	}
+	else
+		return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
+}
+
+static std::shared_ptr<const ILimiter> parseFactionLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & factionNode = limiter.Struct().count("faction") ? limiter["faction"] : parameters[0];
+
+	auto factionLimiter = std::make_shared<FactionLimiter>();
+	LIBRARY->identifiers()->requestIdentifier("faction", factionNode, [=](si32 faction)
+	{
+		factionLimiter->faction = FactionID(faction);
+	});
+	return factionLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & minLevelNode = limiter.Struct().count("minLevel") ? limiter["minLevel"] : parameters[0];
+	const JsonNode & maxLevelNode = limiter.Struct().count("maxlevel") ? limiter["maxlevel"] : parameters[1];
+
+	//If parameters is empty, level limiter works as CREATURES_ONLY limiter
+	auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
+
+	if (!minLevelNode.isNull())
+		levelLimiter->minLevel = minLevelNode.Integer();
+
+	if (!maxLevelNode.isNull())
+		levelLimiter->maxLevel = maxLevelNode.Integer();
+
+	return levelLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseCreatureTerrainLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & terrainNode = limiter.Struct().count("terrain") ? limiter["terrain"] : parameters[0];
+
+	auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
+	if(!terrainNode.isNull())
+	{
+		LIBRARY->identifiers()->requestIdentifier("terrain", terrainNode, [terrainLimiter](si32 terrain)
+		{
+			terrainLimiter->terrainType = terrain;
+		});
+	}
+	return terrainLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & hexesNode = limiter.Struct().count("hexes") ? limiter["hexes"] : parameters[0];
+
+	auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
+
+	for (const auto & parameter : hexesNode.Vector())
+		hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
+
+	return hexLimiter;
+}
+
+static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter)
+{
+	const JsonNode & parameters = limiter["parameters"];
+	const JsonNode & costNode = limiter.Struct().count("cost") ? limiter["cost"] : parameters[0];
+	auto hasChargesLimiter = std::make_shared<HasChargesLimiter>();
+
+	if (!costNode.isNull())
+		hasChargesLimiter->chargeCost = costNode.Integer();
+
+	return hasChargesLimiter;
+}
+
 std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
 {
+	static const std::map<std::string, std::function<std::shared_ptr<const ILimiter>(const JsonNode & limiter)>> limiterParsers = {
+		{"CREATURE_TYPE_LIMITER",      parseCreatureTypeLimiter     },
+		{"HAS_ANOTHER_BONUS_LIMITER",  parseHasAnotherBonusLimiter  },
+		{"CREATURE_ALIGNMENT_LIMITER", parseCreatureAlignmentLimiter},
+		{"FACTION_LIMITER",            parseFactionLimiter          },
+		{"CREATURE_FACTION_LIMITER",   parseFactionLimiter          },
+		{"CREATURE_LEVEL_LIMITER",     parseCreatureLevelLimiter    },
+		{"CREATURE_TERRAIN_LIMITER",   parseCreatureTerrainLimiter  },
+		{"UNIT_ON_HEXES",              parseUnitOnHexLimiter        },
+		{"HAS_CHARGES_LIMITER",        parseHasChargesLimiter       },
+	};
+
 	switch(limiter.getType())
 	{
-	case JsonNode::JsonType::DATA_VECTOR:
-		{
-			const JsonVector & subLimiters = limiter.Vector();
-			if(subLimiters.empty())
-			{
-				logMod->warn("Warning: empty limiter list");
-				return std::make_shared<AllOfLimiter>();
-			}
-			std::shared_ptr<AggregateLimiter> result;
-			int offset = 1;
-			// determine limiter type and offset for sub-limiters
-			if(subLimiters[0].getType() == JsonNode::JsonType::DATA_STRING)
-			{
-				const std::string & aggregator = subLimiters[0].String();
-				if(aggregator == AllOfLimiter::aggregator)
-					result = std::make_shared<AllOfLimiter>();
-				else if(aggregator == AnyOfLimiter::aggregator)
-					result = std::make_shared<AnyOfLimiter>();
-				else if(aggregator == NoneOfLimiter::aggregator)
-					result = std::make_shared<NoneOfLimiter>();
-			}
-			if(!result)
-			{
-				// collapse for single limiter without explicit aggregate operator
-				if(subLimiters.size() == 1)
-					return parseLimiter(subLimiters[0]);
-				// implicit aggregator must be allOf
-				result = std::make_shared<AllOfLimiter>();
-				offset = 0;
-			}
-			if(subLimiters.size() == offset)
-				logMod->warn("Warning: empty sub-limiter list");
-			for(int sl = offset; sl < subLimiters.size(); ++sl)
-				result->add(parseLimiter(subLimiters[sl]));
-			return result;
-		}
-		break;
-	case JsonNode::JsonType::DATA_STRING: //pre-defined limiters
-		return parseByMap(bonusLimiterMap, &limiter, "limiter type ");
-		break;
-	case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
+		case JsonNode::JsonType::DATA_VECTOR:
+			return parseAggregateLimiter(limiter);
+		case JsonNode::JsonType::DATA_STRING: //pre-defined limiters
+			return parseByMap(bonusLimiterMap, &limiter, "limiter type ");
+		case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
 		{
 			std::string limiterType = limiter["type"].String();
-			const JsonNode & parameters = limiter["parameters"];
-			if(limiterType == "CREATURE_TYPE_LIMITER")
-			{
-				auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
-				LIBRARY->identifiers()->requestIdentifier("creature", parameters[0], [=](si32 creature)
-				{
-					creatureLimiter->setCreature(CreatureID(creature));
-				});
-				auto includeUpgrades = false;
-
-				if(parameters.Vector().size() > 1)
-				{
-					bool success = true;
-					includeUpgrades = parameters[1].TryBoolFromString(success);
-
-					if(!success)
-						logMod->error("Second parameter of '%s' limiter should be Bool", limiterType);
-				}
-				creatureLimiter->includeUpgrades = includeUpgrades;
-				return creatureLimiter;
-			}
-			else if(limiterType == "HAS_ANOTHER_BONUS_LIMITER")
-			{
-				auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
-
-				static const JsonNode nullNode;
-				const JsonNode & jsonType = parameters[0];
-				const JsonNode & jsonSubtype = parameters.Vector().size() > 2 ? parameters[1] : nullNode;
-				const JsonNode & jsonSource = parameters.Vector().size() > 2 ? parameters[2] : parameters[1];
-
-				if (!jsonType.isNull())
-				{
-					LIBRARY->identifiers()->requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
-					{
-						bonusLimiter->type = static_cast<BonusType>(bonusID);
-						if (jsonSubtype.isNull())
-							loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
-					});
-				}
-
-				if(!jsonSource.isNull())
-				{
-					auto sourceIt = bonusSourceMap.find(jsonSource["type"].String());
-					if(sourceIt != bonusSourceMap.end())
-					{
-						bonusLimiter->source = sourceIt->second;
-						bonusLimiter->isSourceRelevant = true;
-						if(!jsonSource["id"].isNull()) {
-							loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSource["id"]);
-							bonusLimiter->isSourceIDRelevant = true;
-						}
-					}
-					else
-						logMod->warn("HAS_ANOTHER_BONUS_LIMITER: unknown bonus source type '%s'!", jsonSource["type"].String());
-				}
-
-				return bonusLimiter;
-			}
-			else if(limiterType == "CREATURE_ALIGNMENT_LIMITER")
-			{
-				int alignment = vstd::find_pos(GameConstants::ALIGNMENT_NAMES, parameters[0].String());
-				if(alignment == -1)
-					logMod->error("Error: invalid alignment %s.", parameters[0].String());
-				else
-					return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
-			}
-			else if(limiterType == "FACTION_LIMITER" || limiterType == "CREATURE_FACTION_LIMITER") //Second name is deprecated, 1.2 compat
-			{
-				auto factionLimiter = std::make_shared<FactionLimiter>();
-				LIBRARY->identifiers()->requestIdentifier("faction", parameters[0], [=](si32 faction)
-				{
-					factionLimiter->faction = FactionID(faction);
-				});
-				return factionLimiter;
-			}
-			else if(limiterType == "CREATURE_LEVEL_LIMITER")
-			{
-				auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
-				if(!parameters.Vector().empty()) //If parameters is empty, level limiter works as CREATURES_ONLY limiter
-				{
-					levelLimiter->minLevel = parameters[0].Integer();
-					if(parameters[1].isNumber())
-						levelLimiter->maxLevel = parameters[1].Integer();
-				}
-				return levelLimiter;
-			}
-			else if(limiterType == "CREATURE_TERRAIN_LIMITER")
-			{
-				auto terrainLimiter = std::make_shared<CreatureTerrainLimiter>();
-				if(!parameters.Vector().empty())
-				{
-					LIBRARY->identifiers()->requestIdentifier("terrain", parameters[0], [terrainLimiter](si32 terrain)
-					{
-						terrainLimiter->terrainType = terrain;
-					});
-				}
-				return terrainLimiter;
-			}
-			else if(limiterType == "UNIT_ON_HEXES") {
-				auto hexLimiter = std::make_shared<UnitOnHexLimiter>();
-				if(!parameters.Vector().empty())
-				{
-					for (const auto & parameter : parameters.Vector()){
-						if(parameter.isNumber())
-							hexLimiter->applicableHexes.insert(BattleHex(parameter.Integer()));
-					}
-				}
-				return hexLimiter;
-			}
-			else if(limiterType == "HAS_CHARGES_LIMITER")
-			{
-				auto hasChargesLimiter = std::make_shared<HasChargesLimiter>();
-				if(!parameters.Vector().empty())
-				{
-					if(parameters.Vector().size() == 1 && parameters.Vector().front().isNumber())
-						hasChargesLimiter->chargeCost = parameters.Vector().front().Integer();
-				}
-				return hasChargesLimiter;
-			}
+			if (limiterParsers.count(limiterType))
+				return limiterParsers.at(limiterType)(limiter);
 			else
-			{
 				logMod->error("Error: invalid customizable limiter type %s.", limiterType);
-			}
 		}
-		break;
-	default:
-		break;
 	}
 	return nullptr;
 }
