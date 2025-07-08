@@ -46,7 +46,9 @@
 				"enableOverlay",
 				"lastKindomInterface",
 				"enableSubtitle",
-				"ignoreMuteSwitch"
+				"ignoreMuteSwitch",
+				"highscoreEntriesCap",
+				"highscoreStatisticEntriesCap"
 			],
 			"properties" : {
 				"playerName" : {
@@ -166,6 +168,14 @@
 				"ignoreMuteSwitch" : {
 					"type": "boolean",
 					"default": true
+				},
+				"highscoreEntriesCap" : {
+					"type" : "number",
+					"default" : 100
+				},
+				"highscoreStatisticEntriesCap" : {
+					"type" : "number",
+					"default" : 15
 				}
 			}
 		},
