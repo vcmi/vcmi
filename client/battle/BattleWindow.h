@@ -83,6 +83,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	bool onlyOnePlayerHuman;
 
+	bool hasSpaceForQuickActions() const;
+	bool quickActionsPanelActive() const;
+	bool placeInfoWindowsOutside() const;
+
 public:
 	BattleWindow(BattleInterface & owner );
 
