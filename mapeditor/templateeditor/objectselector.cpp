@@ -120,7 +120,7 @@ void ObjectSelector::fillBannedObjectCategories()
 
 		ui->tableWidgetBannedObjectCategories->setCellWidget(row, 0, combo);
 
-		auto deleteButton = new QPushButton("Delete");
+		auto deleteButton = new QPushButton(tr("Delete"));
 		ui->tableWidgetBannedObjectCategories->setCellWidget(row, 1, deleteButton);
 		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
 			for (int r = 0; r < ui->tableWidgetBannedObjectCategories->rowCount(); ++r) {
@@ -181,7 +181,7 @@ void ObjectSelector::fillBannedObjects()
 
 		ui->tableWidgetBannedObjects->setCellWidget(row, 0, combo);
 
-		auto deleteButton = new QPushButton("Delete");
+		auto deleteButton = new QPushButton(tr("Delete"));
 		ui->tableWidgetBannedObjects->setCellWidget(row, 1, deleteButton);
 		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
 			for (int r = 0; r < ui->tableWidgetBannedObjects->rowCount(); ++r) {
@@ -256,7 +256,7 @@ void ObjectSelector::fillCustomObjects()
         spinMaxPerZone->setValue(maxPerZone);
 		ui->tableWidgetObjects->setCellWidget(row, 3, spinMaxPerZone);
 
-		auto deleteButton = new QPushButton("Delete");
+		auto deleteButton = new QPushButton(tr("Delete"));
 		ui->tableWidgetObjects->setCellWidget(row, 4, deleteButton);
 		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
 			for (int r = 0; r < ui->tableWidgetObjects->rowCount(); ++r) {

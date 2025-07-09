@@ -212,7 +212,7 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation>Regionan-Voreinstellung</translation>
+        <translation>Regionen-Voreinstellung</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
@@ -3383,7 +3383,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1110"/>
         <source>Banned towns</source>
-        <translation>Verbotene STädte</translation>
+        <translation>Verbotene Städte</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
