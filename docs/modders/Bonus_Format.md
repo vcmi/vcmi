@@ -72,6 +72,9 @@ All parameters but type are optional.
 	// Optional, path to custom icon that will be visible in creature window
 	"icon" : "",
 	
+	// Optional, hide bonus in creature window
+	"hidden" : true,
+	
 	// Stacking string allows to block stacking of bonuses from different entities
 	// For example, devils and archdevils (different entities) both have battle-wide debuff to luck
 	// Normally, having both such units in combat would result in bonus stacking, providing -2 debuff to luck in total

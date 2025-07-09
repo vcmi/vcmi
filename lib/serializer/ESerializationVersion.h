@@ -47,8 +47,9 @@ enum class ESerializationVersion : int32_t
 	OPPOSITE_SIDE_LIMITER_OWNER, // opposite side limiter no longer stores owner in itself
 	UNIVERSITY_CONFIG, // town university is configurable
 	CAMPAIGN_BONUSES, // new format for scenario bonuses in campaigns
+	BONUS_HIDDEN, // hidden bonus
 
-	CURRENT = CAMPAIGN_BONUSES,
+	CURRENT = BONUS_HIDDEN,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

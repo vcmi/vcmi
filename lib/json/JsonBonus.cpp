@@ -723,6 +723,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	if(!ability["icon"].isNull())
 		b->customIconPath = ImagePath::fromJson(ability["icon"]);
 
+	b->hidden = !ability["hidden"].isNull() && ability["hidden"].Bool();
+
 	value = &ability["effectRange"];
 	if (!value->isNull())
 		b->effectRange = static_cast<BonusLimitEffect>(parseByMapN(bonusLimitEffect, value, "effect range "));
