@@ -400,8 +400,8 @@ void PlayerLocalState::deserialize(const JsonNode & source)
 	{
 		spellbookSettings.spellbookLastPageBattle = source["spellbook"]["pageBattle"].Integer();
 		spellbookSettings.spellbookLastPageAdvmap = source["spellbook"]["pageAdvmap"].Integer();
-		spellbookSettings.spellbookLastTabBattle = source["spellbook"]["tabBattle"].Integer();
-		spellbookSettings.spellbookLastTabAdvmap = source["spellbook"]["tabAdvmap"].Integer();
+		spellbookSettings.spellbookLastTabBattle = SpellSchool(source["spellbook"]["tabBattle"].Integer());
+		spellbookSettings.spellbookLastTabAdvmap = SpellSchool(source["spellbook"]["tabAdvmap"].Integer());
 	}
 
 	// append any owned heroes / towns that were not present in loaded state

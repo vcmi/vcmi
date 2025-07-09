@@ -98,6 +98,8 @@
 	"vcmi.randomMap.description.monster.strong" : "strong",
 
 	"vcmi.spellBook.search" : "search...",
+	"vcmi.spellBook.tab.hover" : "%s Spells",
+	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
 
 	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
@@ -798,4 +800,9 @@
 	"spell.core.thunderbolt.description.none" : "{Thunderbolt}\n\nWhen the stack attacks, the there is a 20% chance that a lightning strike occurs before the enemy has a chance to retaliate. If if occurs, the lightning strike deals damage equal to ten times the number of attacking Thunderbirds",
 	"spell.core.dispelHelpful.description.none" : "{Dispel Helpful Spells}\n\nRemoves all spell effects from the targeted unit.",
 	"spell.core.acidBreath.description.none" : "{Acid breath}\n\nThe breath reduces the target stack's defense by 3, and has 20% chance to cause additional damage amount of 25 points per attacking unit.",
+
+	"spellSchool.core.air.name" : "Air",
+	"spellSchool.core.earth.name" : "Earth",
+	"spellSchool.core.fire.name" : "Fire",
+	"spellSchool.core.water.name" : "Water"
 }

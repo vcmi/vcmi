@@ -49,6 +49,8 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("CampaignBackground7.png")] = [this]() { return createCampaignBackground(7); };
 	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this]() { return createCampaignBackground(8); };
 
+	imageFiles[ImagePath::builtin("SpelTabNone.png")] = [this](){ return createSpellTabNone();};
+
 	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 		imageFiles[ImagePath::builtin("DialogBoxBackground_" + color.toString())] = [this, color](){ return createPlayerColoredBackground(color);};
 
@@ -303,6 +305,19 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground(int selection
 		canvas.drawScaled(canvasSkull, Point(385, 400), Point(238, 150));
 	}
 
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createSpellTabNone() const
+{
+	auto img1 = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("SPELTAB"), EImageBlitMode::COLORKEY)->getImage(0);
+	auto img2 = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("SPELTAB"), EImageBlitMode::COLORKEY)->getImage(4);
+	
+	auto image = ENGINE->renderHandler().createImage(img1->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img1, Point(0, img1->height() / 2), Rect(0, img1->height() / 2, img1->width(), img1->height() / 2));
+	canvas.draw(img2, Point(0, 0), Rect(0, 0, img2->width(), img2->height() / 2));
 
 	return image;
 }
