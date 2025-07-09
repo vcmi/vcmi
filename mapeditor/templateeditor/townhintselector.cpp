@@ -65,7 +65,7 @@ TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & t
 	
 	std::map<modes, QString> values = {
 		{ LIKE_ZONE, tr("Like Zone") },
-		{ NOT_LIKE_ZONE, tr("Not like zone (comma seperated)") },
+		{ NOT_LIKE_ZONE, tr("Not like zone (comma separated)") },
 		{ RELATED_TO_ZONE_TERRAIN, tr("Related to zone terrain") }
 	};
 
@@ -135,7 +135,7 @@ TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & t
 
 	ui->tableWidgetTownHints->resizeColumnsToContents();
 	ui->tableWidgetTownHints->setColumnWidth(0, 300);
-	ui->tableWidgetTownHints->setColumnWidth(1, 100);
+	ui->tableWidgetTownHints->setColumnWidth(1, 150);
 
 	show();
 }
@@ -169,6 +169,7 @@ void TownHintSelector::on_buttonBoxResult_accepted()
 			hint.relatedToZoneTerrain = values.at(0);
 			break;
 		}
+		townHints.push_back(hint);
 	}
 
     close();
