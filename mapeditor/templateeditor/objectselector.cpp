@@ -13,13 +13,20 @@
 #include "objectselector.h"
 #include "ui_objectselector.h"
 
+#include "../mainwindow.h"
+#include "../mapcontroller.h"
+
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/rmg/ObjectConfig.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
 ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	ui(new Ui::ObjectSelector),
-	obj(obj)
+	obj(obj),
+	advObjects(getAdventureMapItems())
 {
 	ui->setupUi(this);
 
@@ -32,6 +39,53 @@ ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	fillCustomObjects();
 
 	show();
+}
+
+QMainWindow* getMainWindow()
+{
+	foreach (QWidget *w, qApp->topLevelWidgets())
+		if (QMainWindow* mainWin = qobject_cast<QMainWindow*>(w))
+			return mainWin;
+	return nullptr;
+}
+
+std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
+{
+	std::map<CompoundMapObjectID, QString> objects;
+	auto& controller = qobject_cast<MainWindow *>(getMainWindow())->controller;
+
+	auto knownObjects = LIBRARY->objtypeh->knownObjects();
+	for(auto & id : knownObjects)
+	{
+		auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(id);
+		for(auto & subId : knownSubObjects)
+		{
+			auto objId = CompoundMapObjectID(id, subId);
+			auto factory = LIBRARY->objtypeh->getHandlerFor(id, subId);
+			auto templates = factory->getTemplates();
+			
+			QString name{};
+			try
+			{
+				auto templ = templates.at(0);
+				auto temporaryObj(factory->create(controller.getCallback(), templ));
+				QString translated = QString::fromStdString(temporaryObj->getObjectName().c_str());
+				name = translated;
+			}
+			catch(...) {}
+
+			if(name.isEmpty())
+			{
+				auto subGroupName = QString::fromStdString(LIBRARY->objtypeh->getObjectName(id, subId));
+				name = subGroupName;
+			}
+
+			if(!name.isEmpty())
+				objects[objId] = name;
+		}
+	}
+
+	return objects;
 }
 
 void ObjectSelector::fillBannedObjectCategories()
@@ -105,10 +159,62 @@ void ObjectSelector::getBannedObjectCategories()
 
 void ObjectSelector::fillBannedObjects()
 {
+	ui->tableWidgetBannedObjects->setColumnCount(2);
+	ui->tableWidgetBannedObjects->setRowCount(obj.bannedObjects.size() + 1);
+	ui->tableWidgetBannedObjects->setHorizontalHeaderLabels({tr("Object"), tr("Action")});
+
+	auto addRow = [this](CompoundMapObjectID obj, int row){
+		QComboBox *combo = new QComboBox();
+		for(auto & item : advObjects)
+    		combo->addItem(item.second, QVariant::fromValue(item.first));
+
+		int index = combo->findData(QVariant::fromValue(obj));
+		if (index != -1)
+			combo->setCurrentIndex(index);
+		
+		combo->setEditable(true);
+		QCompleter* completer = new QCompleter(combo);
+		completer->setModel(combo->model());
+		completer->setCompletionMode(QCompleter::PopupCompletion);
+		completer->setFilterMode(Qt::MatchContains);
+		combo->setCompleter(completer);
+
+		ui->tableWidgetBannedObjects->setCellWidget(row, 0, combo);
+
+		auto deleteButton = new QPushButton("Delete");
+		ui->tableWidgetBannedObjects->setCellWidget(row, 1, deleteButton);
+		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
+			for (int r = 0; r < ui->tableWidgetBannedObjects->rowCount(); ++r) {
+				if (ui->tableWidgetBannedObjects->cellWidget(r, 1) == deleteButton) {
+					ui->tableWidgetBannedObjects->removeRow(r);
+					break;
+				}
+			}
+		});
+	};
+
+	for (int row = 0; row < obj.bannedObjects.size(); ++row)
+		addRow(obj.bannedObjects[row], row);
+
+	auto addButton = new QPushButton("Add");
+	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 1, addButton);
+	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
+		ui->tableWidgetBannedObjects->insertRow(ui->tableWidgetBannedObjects->rowCount() - 1);
+		addRow((*advObjects.begin()).first, ui->tableWidgetBannedObjects->rowCount() - 2);
+	});
+
+	ui->tableWidgetBannedObjects->resizeColumnsToContents();
+	ui->tableWidgetBannedObjects->setColumnWidth(0, 300);
 }
 
 void ObjectSelector::getBannedObjects()
 {
+	obj.bannedObjects.clear();
+	for (int row = 0; row < ui->tableWidgetBannedObjects->rowCount() - 1; ++row)
+	{
+		auto val = static_cast<QComboBox *>(ui->tableWidgetBannedObjects->cellWidget(row, 0))->currentData().value<CompoundMapObjectID>();
+		obj.bannedObjects.push_back(val);
+	}
 }
 
 void ObjectSelector::fillCustomObjects()

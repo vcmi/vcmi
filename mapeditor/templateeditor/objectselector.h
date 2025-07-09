@@ -13,6 +13,8 @@
 #include "../StdInc.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 
+Q_DECLARE_METATYPE(CompoundMapObjectID);
+
 namespace Ui {
 class ObjectSelector;
 }
@@ -34,6 +36,9 @@ private:
 	Ui::ObjectSelector *ui;
 
 	ObjectConfig & obj;
+	
+	std::map<CompoundMapObjectID, QString> advObjects;
+	std::map<CompoundMapObjectID, QString> getAdventureMapItems();
 
 	void fillBannedObjectCategories();
 	void getBannedObjectCategories();
