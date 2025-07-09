@@ -27,7 +27,22 @@
 			"skills": [0, 1]
 		},
 		{
-			"ability": [{ "type" : "FEAR", "val": 0 }],
+			"ability": [ 
+				{
+					"type" :"FEARFUL",
+					"val" : 10,
+					"propagator": "BATTLE_WIDE",
+					"propagationUpdater" : "BONUS_OWNER_UPDATER",
+					"description" : "PLACEHOLDER",
+					"limiters" : [ 
+						"OPPOSITE_SIDE", 
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusType" : "LIVING"
+						}
+					] 
+				}
+			], 
 			"skills": [0, 2]
 		},
 		{
@@ -71,7 +86,7 @@
 			"skills": [2, 4]
 		},
 		{
-			"ability": [{ "type" : "SPELL_AFTER_ATTACK", "val": 30, "subtype" : "spell.paralyze" }],
+			"ability": [{ "type" : "SPELL_AFTER_ATTACK", "val": 30, "subtype" : "paralyze" }],
 			"skills": [2, 5]
 		},
 		{
