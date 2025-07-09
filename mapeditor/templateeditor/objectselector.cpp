@@ -219,10 +219,84 @@ void ObjectSelector::getBannedObjects()
 
 void ObjectSelector::fillCustomObjects()
 {
+	ui->tableWidgetObjects->setColumnCount(5);
+	ui->tableWidgetObjects->setRowCount(obj.customObjects.size() + 1);
+	ui->tableWidgetObjects->setHorizontalHeaderLabels({tr("Object"), tr("Value"), tr("Probability"), tr("Max per zone"), tr("Action")});
+
+	auto addRow = [this](CompoundMapObjectID obj, ui32 value, ui16 probability, ui32 maxPerZone, int row){
+		QComboBox *combo = new QComboBox();
+		for(auto & item : advObjects)
+    		combo->addItem(item.second, QVariant::fromValue(item.first));
+
+		int index = combo->findData(QVariant::fromValue(obj));
+		if (index != -1)
+			combo->setCurrentIndex(index);
+		
+		combo->setEditable(true);
+		QCompleter* completer = new QCompleter(combo);
+		completer->setModel(combo->model());
+		completer->setCompletionMode(QCompleter::PopupCompletion);
+		completer->setFilterMode(Qt::MatchContains);
+		combo->setCompleter(completer);
+
+		ui->tableWidgetObjects->setCellWidget(row, 0, combo);
+
+		QSpinBox *spinValue = new QSpinBox();
+        spinValue->setRange(0, 10000);
+        spinValue->setValue(value);
+		ui->tableWidgetObjects->setCellWidget(row, 1, spinValue);
+
+		QSpinBox *spinProbability = new QSpinBox();
+        spinProbability->setRange(0, 1000);
+        spinProbability->setValue(probability);
+		ui->tableWidgetObjects->setCellWidget(row, 2, spinProbability);
+
+		QSpinBox *spinMaxPerZone = new QSpinBox();
+        spinMaxPerZone->setRange(0, 100);
+        spinMaxPerZone->setValue(maxPerZone);
+		ui->tableWidgetObjects->setCellWidget(row, 3, spinMaxPerZone);
+
+		auto deleteButton = new QPushButton("Delete");
+		ui->tableWidgetObjects->setCellWidget(row, 4, deleteButton);
+		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
+			for (int r = 0; r < ui->tableWidgetObjects->rowCount(); ++r) {
+				if (ui->tableWidgetObjects->cellWidget(r, 4) == deleteButton) {
+					ui->tableWidgetObjects->removeRow(r);
+					break;
+				}
+			}
+		});
+	};
+
+	for (int row = 0; row < obj.customObjects.size(); ++row)
+		addRow(obj.customObjects[row].getCompoundID(), obj.customObjects[row].value, obj.customObjects[row].probability, obj.customObjects[row].maxPerZone, row);
+
+	auto addButton = new QPushButton("Add");
+	ui->tableWidgetObjects->setCellWidget(ui->tableWidgetObjects->rowCount() - 1, 4, addButton);
+	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
+		ui->tableWidgetObjects->insertRow(ui->tableWidgetObjects->rowCount() - 1);
+		addRow((*advObjects.begin()).first, 0, 0, 1, ui->tableWidgetObjects->rowCount() - 2);
+	});
+
+	ui->tableWidgetObjects->resizeColumnsToContents();
+	ui->tableWidgetObjects->setColumnWidth(0, 300);
 }
 
 void ObjectSelector::getCustomObjects()
 {
+	obj.customObjects.clear();
+	for (int row = 0; row < ui->tableWidgetObjects->rowCount() - 1; ++row)
+	{
+		auto id = static_cast<QComboBox *>(ui->tableWidgetObjects->cellWidget(row, 0))->currentData().value<CompoundMapObjectID>();
+		auto value = static_cast<QSpinBox *>(ui->tableWidgetObjects->cellWidget(row, 1))->value();
+		auto probability = static_cast<QSpinBox *>(ui->tableWidgetObjects->cellWidget(row, 2))->value();
+		auto maxPerZone = static_cast<QSpinBox *>(ui->tableWidgetObjects->cellWidget(row, 3))->value();
+		auto info = ObjectInfo(id);
+		info.value = value;
+		info.probability = probability;
+		info.maxPerZone = maxPerZone;
+		obj.customObjects.push_back(info);
+	}
 }
 
 void ObjectSelector::showObjectSelector(ObjectConfig & obj)
