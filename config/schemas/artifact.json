@@ -43,7 +43,7 @@
 				{
 					"type" : "array",
 					"minItems" : 1,
-					"additionalItems" : { "type" : "string" }
+					"items" : { "type" : "string" }
 				}
 			]
 		},

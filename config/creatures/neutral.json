@@ -103,7 +103,7 @@
 					"OPPOSITE_SIDE", 
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "LIVING" ]
+						"bonusType" : "LIVING"
 					}
 				]
 			},

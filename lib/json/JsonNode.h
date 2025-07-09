@@ -109,9 +109,6 @@ public:
 	/// removes all data from node and sets type to null
 	void clear();
 
-	/// returns bool or bool equivalent of string value if 'success' is true, or false otherwise
-	bool TryBoolFromString(bool & success) const;
-
 	/// non-const accessors, node will change type on type mismatch
 	bool & Bool();
 	double & Float();

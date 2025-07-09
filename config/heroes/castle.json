@@ -145,14 +145,8 @@
 					"limiters" : [
 						{
 							"type" : "HAS_ANOTHER_BONUS_LIMITER",
-							"parameters" : [
-								null,
-								null,
-								{
-									"type" : "SPELL_EFFECT",
-									"id" : "spell.bless"
-								}
-							]
+							"bonusSourceType" : "SPELL_EFFECT",
+							"bonusSourceID" : "spell.bless"
 						}
 					],
 					"updater" : "TIMES_HERO_LEVEL_DIVIDE_STACK_LEVEL",

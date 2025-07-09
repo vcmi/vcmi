@@ -7,33 +7,166 @@
 	"definitions" :
 	{
 		"nestedLimiter" : {
-			"anyOf" : [
+			"allOf" : [
 				{ 
-					"type" : "string",
-					"enum" : [ "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURE_FACTION", "SAME_FACTION", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
-					"description" : "parameterless limiter or boolean operator at start of array"
+					"if" : {
+						"type" : "string"
+					},
+					"then" : {
+						"enum" : [ "allOf", "anyOf", "noneOf", "SHOOTER_ONLY", "DRAGON_NATURE", "IS_UNDEAD", "CREATURE_NATIVE_TERRAIN", "CREATURES_ONLY", "OPPOSITE_SIDE" ],
+						"description" : "parameterless limiter or boolean operator at start of array"
+					}
 				},
 				{
-					"type" : "object",
-					"additionalProperties" : false,
-					"properties" : {
-						"type" : {
-							"type" : "string",
-							"enum" : [ "CREATURE_TYPE_LIMITER", "HAS_ANOTHER_BONUS_LIMITER", "CREATURE_ALIGNMENT_LIMITER", "FACTION_LIMITER", "CREATURE_LEVEL_LIMITER", "CREATURE_TERRAIN_LIMITER", "UNIT_ON_HEXES" ],
-							"description" : "type"
-						},
-						"parameters" : {
-							"type" : "array",
-							"description" : "parameters",
-							"additionalItems" : true
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TYPE_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"required" : [ "type", "creature" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TYPE_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"creature" : { "type" : "string" },
+							"includeUpgrades" : { "type" : "boolean" }
 						}
 					}
 				},
 				{
-					"type" : "array",
-					"additionalItems" : {
-						"$ref" : "#/definitions/nestedLimiter",
-						"description" : "nested limiters optionally prefixed with boolean operator"
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_ANOTHER_BONUS_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_ANOTHER_BONUS_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"bonusType" : { "type" : "string" },
+							"bonusSubtype" : { "type" : "string" },
+							"bonusSourceType" : { "type" : "string" },
+							"bonusSourceID" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_ALIGNMENT_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_ALIGNMENT_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"alignment" : { "type" : "string", "enum" : [ "good", "evil", "neutral" ] }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_FACTION_LIMITER", "FACTION_LIMITER" ] }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "enum" : [ "CREATURE_FACTION_LIMITER", "FACTION_LIMITER" ] },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"faction" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_LEVEL_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_LEVEL_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"minLevel" : { "type" : "number" },
+							"maxlevel" : { "type" : "number" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TERRAIN_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "CREATURE_TERRAIN_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"terrain" : { "type" : "string" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ON_HEXES" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "UNIT_ON_HEXES" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"hexes" : { "type" : "array", "items" : { "type" : "number" } }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "object",
+						"required" : [ "type" ],
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_CHARGES_LIMITER" }
+						}
+					},
+					"then" : {
+						"additionalProperties" : false,
+						"properties" : {
+							"type" : { "type" : "string", "const" : "HAS_CHARGES_LIMITER" },
+							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
+							"cost" : { "type" : "number" }
+						}
+					}
+				},
+				{
+					"if" : {
+						"type" : "array"
+					},
+					"then" : {
+						"items" : {
+							"$ref" : "#/definitions/nestedLimiter",
+							"description" : "nested limiters optionally prefixed with boolean operator"
+						}
 					}
 				}
 			]
