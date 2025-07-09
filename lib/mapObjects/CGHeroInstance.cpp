@@ -859,6 +859,11 @@ int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
 	return 0;
 }
 
+int64_t CGHeroInstance::getEffectRange(const spells::Spell * spell) const
+{
+	return 0;
+}
+
 PlayerColor CGHeroInstance::getCasterOwner() const
 {
 	return tempOwner;

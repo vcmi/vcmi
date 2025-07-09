@@ -83,6 +83,8 @@ private:
 	BattleHexArray spellRangeInHexes(const BattleHex & centralHex) const;
 
 	Target transformSpellTarget(const Target & aimPoint) const;
+
+	bool canCastAtTarget(const battle::Unit * target) const;
 };
 
 }

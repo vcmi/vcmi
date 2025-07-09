@@ -453,6 +453,11 @@ int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, BonusSubtypeID(spell->getId()));
 }
 
+int64_t CUnitState::getEffectRange(const spells::Spell * spell) const
+{
+	return valOfBonuses(BonusType::SPECIFIC_SPELL_RANGE, BonusSubtypeID(spell->getId()));
+}
+
 PlayerColor CUnitState::getCasterOwner() const
 {
 	return env->unitEffectiveOwner(this);

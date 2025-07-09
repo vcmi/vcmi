@@ -289,6 +289,7 @@ public:
 	int32_t getEffectPower(const spells::Spell * spell) const override;
 	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
+	int64_t getEffectRange(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;
