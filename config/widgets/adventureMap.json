@@ -360,8 +360,8 @@
 					"type": "adventureMapImage",
 					"name" : "backgroundBelowHeroTownList",
 					"image" : "AdvMap.pcx",
-					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 4 },
-					"sourceArea": { "bottom" : 208, "height" : 4, "right" : 0, "width" : 193 }
+					"area" : { "right": 0, "left" : 0, "bottom" : 0, "height" : 3 },
+					"sourceArea": { "bottom" : 209, "height" : 3, "right" : 0, "width" : 193 }
 				},
 				// Hero List
 				{
@@ -433,7 +433,7 @@
 					"name" : "backgroundRightInfobar",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "left" : 0, "right" : 0 },
-					"sourceArea" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 }
+					"sourceArea" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 210 }
 				},
 				{
 					"type": "adventureInfobar",
