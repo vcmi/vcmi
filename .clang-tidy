@@ -1,0 +1,83 @@
+# Enabled, but situational - a lot of triggers in old code:
+#  -bugprone-narrowing-conversions,                      # might be too noisy
+#  -cppcoreguidelines-narrowing-conversions,             # might be too noisy
+#  -cppcoreguidelines-pro-bounds-pointer-arithmetic,     # pointer arithmetic should be avoided, with possible exception for low-level reader classes
+#  -misc-private-member-variables-in-classes,            # good for classes, should be disabled/ignored for structs
+#  -readability-function-cognitive-complexity,           # can show candidates for refactoring
+#
+# Currently disabled options:
+#  -misc-unused-parameters,                              # a lot of intended cases, e.g. interfaces & their implementations
+#  -misc-include-cleaner,                                # a lot of false-positives, mostly due to StdInc.h
+#  -cppcoreguidelines-init-variables,                    # better to rely on "maybe initialized" compiler warnings
+#  -cppcoreguidelines-owning-memory,                     # requires 'gsl' library presence
+#  -cppcoreguidelines-avoid-magic-numbers,               # too much noise
+#  -readability-identifier-length,                       # too much noise
+#  -readability-magic-numbers,                           # too much noise
+#  -bugprone-easily-swappable-parameters,                # improvement doubtful
+#  -cppcoreguidelines-avoid-const-or-ref-data-members    # improvement doubtful
+#  -cppcoreguidelines-special-member-functions,          # improvement doubtful
+#  -cppcoreguidelines-pro-bounds-constant-array-index,   # improvement doubtful
+#  -readability-static-accessed-through-instance,        # improvement doubtful
+#  -readability-else-after-return,                       # improvement doubtful
+#  -modernize-pass-by-value,                             # improvement doubtful
+#  -google-readability-braces-around-statements,         # not in our code style
+#  -google-readability-namespace-comments,               # not in our code style
+#  -google-readability-todo,                             # not in our code style
+#  -modernize-use-trailing-return-type,                  # not in our code style
+#  -modernize-return-braced-init-list,                   # not in our code style
+#  -modernize-use-nodiscard,                             # not in our code style
+#  -readability-braces-around-statements,                # not in our code style
+#  -readability-implicit-bool-conversion,                # not in our code style for pointers, and int-only detection seems to be broken?
+#  -readability-uppercase-literal-suffix                 # not in our code style
+#  -readability-convert-member-functions-to-static,      # candidate for re-enabling, to show poorly designed class methods
+
+Checks: >
+  -*,
+  boost-*,
+  bugprone-*,
+  clang-*,
+  cppcoreguidelines-*,
+  google-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-init-variables,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -google-readability-braces-around-statements,
+  -google-readability-namespace-comments,
+  -google-readability-todo,
+  -misc-include-cleaner,
+  -misc-unused-parameters,
+  -modernize-use-trailing-return-type,
+  -modernize-return-braced-init-list,
+  -modernize-pass-by-value,
+  -modernize-use-nodiscard,
+  -readability-braces-around-statements,
+  -readability-convert-member-functions-to-static,
+  -readability-else-after-return,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-static-accessed-through-instance,
+  -readability-uppercase-literal-suffix,
+  -readability-use-anyofallof
+
+CheckOptions:
+  - key:             misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:           'true'
+  - key:             llvm-else-after-return.WarnOnConditionVariables
+    value:           'false'
+  - key:             misc-const-correctness.AnalyzeValues 
+    value:           'false'
+  - key:             misc-include-cleaner.IgnoreHeaders
+    value:           'StdInc.h'
+  - key:             readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             misc-include-cleaner.IgnoreHeaders
+    value:           'StdInc.h'
