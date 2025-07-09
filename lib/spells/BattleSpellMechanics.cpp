@@ -378,6 +378,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	case Mode::ENCHANTER:
 	case Mode::HERO:
 	case Mode::PASSIVE:
+	case Mode::MAGIC_MIRROR:
 		{
 			MetaString line;
 			caster->getCastDescription(owner, affectedUnits, line);
@@ -449,6 +450,15 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 			affectedUnits.push_back(unit);
 	};
 
+	if (!target.empty())
+	{
+		const battle::Unit * targetedUnit = battle()->battleGetUnitByPos(target.front().hexValue, true);
+		if (isReflected(targetedUnit, rng)) {
+			reflect(sc, rng, targetedUnit);
+			return;
+			}
+	}
+
 	//prepare targets
 	effectsToApply = effects->prepare(this, target, spellTarget);
 
@@ -469,16 +479,46 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 		});
 	}
 
-	if(mode == Mode::MAGIC_MIRROR)
-	{
-		if(caster->getHeroCaster() == nullptr)
-		{
-			sc.reflectedCres.insert(caster->getCasterUnitId());
-		}
-	}
-
 	for(const auto * unit : resisted)
 		sc.resistedCres.insert(unit->unitId());
+}
+
+bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rng)
+{
+	if (unit == nullptr)
+		return false;
+	bool isDirectSpell = owner->getTargetType() == AimType::CREATURE && !isMassive();
+	bool spellIsReflectable = isDirectSpell && (mode == Mode::HERO || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
+	bool targetCanReflectSpell = spellIsReflectable && unit->getAllBonuses(Selector::type()(BonusType::MAGIC_MIRROR))->size()>0;
+	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(BonusType::MAGIC_MIRROR);
+}
+
+void BattleSpellMechanics::reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit)
+{
+	auto otherSide = battle()->otherSide(unit->unitSide());
+	auto newTarget = getRandomUnit(rng, otherSide);
+	if (newTarget == nullptr)
+		throw std::runtime_error("Failed to find random unit to reflect spell!");
+	auto reflectedTo = newTarget->getPosition();
+
+	mode = Mode::MAGIC_MIRROR;
+	sc.reflectedCres.insert(unit->unitId());
+	sc.tile = reflectedTo;
+
+	if (!isReceptive(newTarget))
+		sc.resistedCres.insert(newTarget->unitId());    //A spell can be reflected to then resisted by an immune unit. Consistent with the original game.
+
+	beforeCast(sc, rng, { Destination(reflectedTo) });
+}
+
+const battle::Unit * BattleSpellMechanics::getRandomUnit(vstd::RNG & rng, const BattleSide & side)
+{
+	auto targets = battle()->getBattle()->getUnitsIf([&side](const battle::Unit * unit)
+	{
+		return unit->unitSide() == side && unit->isValidTarget(false) &&
+			!unit->hasBonusOfType(BonusType::SIEGE_WEAPON);
+	});
+	return !targets.empty() ? (*RandomGeneratorUtil::nextItem(targets, rng)) : nullptr;
 }
 
 void BattleSpellMechanics::castEval(ServerCallback * server, const Target & target)
@@ -700,6 +740,11 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 {
 	return targetCondition->isReceptive(this, target);
+}
+
+bool BattleSpellMechanics::isSmart() const
+{
+	return mode != Mode::MAGIC_MIRROR && BaseMechanics::isSmart();
 }
 
 BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const

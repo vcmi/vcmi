@@ -1311,7 +1311,8 @@
 				"bonus.MIND_IMMUNITY":"normal",
 				"bonus.UNDEAD":"normal",
 				"bonus.NON_LIVING":"normal",
-				"bonus.MECHANICAL":"normal"
+				"bonus.MECHANICAL":"normal",
+				"spell.magicMirror":"normal"
 			}
 		},
 		"flags" : {
