@@ -24,23 +24,17 @@ AdventureSpellRangedEffect::AdventureSpellRangedEffect(const JsonNode & config)
 {
 }
 
-bool AdventureSpellRangedEffect::isTargetInRange(const int3 & pos, const int3 & center) const
-{
-	int3 diff = pos - center;
-	return diff.x >= -rangeX && diff.x <= rangeX && diff.y >= -rangeY && diff.y <= rangeY;
-}
-
-bool AdventureSpellRangedEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool AdventureSpellRangedEffect::isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->isInTheMap(pos))
 		return false;
 
 	if(caster->getHeroCaster())
 	{
-		int3 casterPosition = caster->getHeroCaster()->getSightCenter();
+		int3 center = caster->getHeroCaster()->getSightCenter();
 
-		if(!isTargetInRange(casterPosition, pos))
-			return false;
+		int3 diff = pos - center;
+		return diff.x >= -rangeX && diff.x <= rangeX && diff.y >= -rangeY && diff.y <= rangeY;
 	}
 
 	if(!ignoreFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))

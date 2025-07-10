@@ -515,7 +515,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
-		assert(spellBeingCasted->id == SpellID::SCUTTLE_BOAT || spellBeingCasted->id == SpellID::DIMENSION_DOOR);
 
 		if(isValidAdventureSpellTarget(targetPosition))
 			performSpellcasting(targetPosition);
@@ -839,11 +838,8 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 
 void AdventureMapInterface::enterCastingMode(const CSpell * sp)
 {
-	assert(sp->id == SpellID::SCUTTLE_BOAT || sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
-	Settings config = settings.write["session"]["showSpellRange"];
-	config->Bool() = true;
-
+	GAME->interface()->localState->setCurrentSpell(sp->id);
 	setState(EAdventureState::CASTING_SPELL);
 }
 
@@ -852,9 +848,7 @@ void AdventureMapInterface::exitCastingMode()
 	assert(spellBeingCasted);
 	spellBeingCasted = nullptr;
 	setState(EAdventureState::MAKING_TURN);
-
-	Settings config = settings.write["session"]["showSpellRange"];
-	config->Bool() = false;
+	GAME->interface()->localState->setCurrentSpell(SpellID::NONE);
 }
 
 void AdventureMapInterface::hotkeyAbortCastingMode()

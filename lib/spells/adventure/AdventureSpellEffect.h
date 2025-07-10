@@ -34,6 +34,7 @@ public:
 	virtual void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const {};
 	virtual bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const {return true;};
 	virtual bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const {return true;};
+	virtual bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const {return true;};
 };
 
 class AdventureSpellEffect final : public IAdventureSpellEffect
@@ -48,11 +49,10 @@ class AdventureSpellRangedEffect : public IAdventureSpellEffect
 	int rangeY;
 	bool ignoreFow;
 
-	bool isTargetInRange(const int3 & pos, const int3 & center) const;
 public:
 	AdventureSpellRangedEffect(const JsonNode & config);
 
-	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+	bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
 };
 
 VCMI_LIB_NAMESPACE_END

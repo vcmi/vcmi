@@ -72,7 +72,6 @@ public:
 	bool settingShowGrid = false;
 	bool settingShowVisitable = false;
 	bool settingShowBlocked = false;
-	bool settingSpellRange= false;
 	bool settingTextOverlay = false;
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;

@@ -536,12 +536,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	clearAffected = levelInfo.clearAffected;
 }
 
-bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
-{
-	int3 diff = pos - center;
-	return diff.x >= -9 && diff.x <= 9 && diff.y >= -8 && diff.y <= 8;
-}
-
 ///CSpellHandler
 std::vector<JsonNode> CSpellHandler::loadLegacyData()
 {

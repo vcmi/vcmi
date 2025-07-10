@@ -40,7 +40,7 @@ RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config
 
 bool RemoveObjectEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
-	if (!AdventureSpellRangedEffect::canBeCastAtImpl(problem, cb, caster, pos))
+	if (!isTargetInRange(problem, cb, caster, pos))
 		return false;
 
 	const TerrainTile * t = cb->getTile(pos);

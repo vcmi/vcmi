@@ -125,6 +125,11 @@ bool AdventureSpellMechanics::canBeCastAt(spells::Problem & problem, const IGame
 	return canBeCast(problem, cb, caster) && getLevel(caster).effect->canBeCastAtImpl(problem, cb, caster, pos);
 }
 
+bool AdventureSpellMechanics::isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	return getLevel(caster).effect->isTargetInRange(problem, cb, caster, pos);
+}
+
 bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	spells::detail::ProblemImpl problem;

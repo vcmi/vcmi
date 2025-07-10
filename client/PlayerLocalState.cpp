@@ -91,6 +91,16 @@ void PlayerLocalState::verifyPath(const CGHeroInstance * h)
 	setPath(h, getPath(h).endPos());
 }
 
+SpellID PlayerLocalState::getCurrentSpell() const
+{
+	return currentSpell;
+}
+
+void PlayerLocalState::setCurrentSpell(SpellID castedSpell)
+{
+	currentSpell = castedSpell;
+}
+
 const CGHeroInstance * PlayerLocalState::getCurrentHero() const
 {
 	if(currentSelection && currentSelection->ID == Obj::HERO)

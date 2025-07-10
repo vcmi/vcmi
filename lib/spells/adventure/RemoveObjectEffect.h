@@ -19,6 +19,7 @@ class RemoveObjectEffect final : public AdventureSpellRangedEffect
 	const CSpell * owner;
 	std::vector<MapObjectID> removedObjects;
 	MetaString failMessage;
+	ImagePath cursorPath;
 
 public:
 	RemoveObjectEffect(const CSpell * s, const JsonNode & config);
