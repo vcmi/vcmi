@@ -47,10 +47,10 @@ static Sint64 impl_seek(SDL_RWops* context, Sint64 offset, int whence)
 
 static std::size_t impl_read(SDL_RWops* context, void *ptr, size_t size, size_t maxnum)
 {
-    auto stream = get_stream(context);
-    auto oldpos = stream->tell();
+	auto stream = get_stream(context);
+	auto oldpos = stream->tell();
 
-    auto count = stream->read(static_cast<ui8*>(ptr), size*maxnum);
+	auto count = stream->read(static_cast<ui8*>(ptr), size*maxnum);
 
 	if (count != 0 && count != size*maxnum)
 	{
@@ -58,7 +58,7 @@ static std::size_t impl_read(SDL_RWops* context, void *ptr, size_t size, size_t 
 		stream->seek(oldpos + size * (count / size));
 	}
 
-    return count / size;
+	return count / size;
 }
 
 static std::size_t impl_write(SDL_RWops* context, const void *ptr, size_t size, size_t num)
@@ -72,9 +72,9 @@ static int impl_close(SDL_RWops* context)
 	if (context == nullptr)
 		return 0;
 
-    delete get_stream(context);
-    SDL_FreeRW(context);
-    return 0;
+	delete get_stream(context);
+	SDL_FreeRW(context);
+	return 0;
 }
 
 

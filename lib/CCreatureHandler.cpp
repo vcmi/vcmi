@@ -504,10 +504,10 @@ void CCreatureHandler::loadCommanders()
 		++level;
 	}
 
-	for (auto ability : config["abilityRequirements"].Vector())
+	for (const auto & abilityRequirements : config["abilityRequirements"].Vector())
 	{
 		std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > a;
-		JsonNode & abilities = ability["ability"];
+		const JsonNode & abilities = abilityRequirements["ability"];
 
 		if (abilities[0].isString()) // old format with single bonus
 		{
@@ -519,8 +519,8 @@ void CCreatureHandler::loadCommanders()
 				a.first.push_back(parseBonusWithCompatibility(ability));
 		}
 
-		a.second.first =  static_cast<ui8>(ability["skills"][0].Float());
-		a.second.second = static_cast<ui8>(ability["skills"][1].Float());
+		a.second.first =  static_cast<ui8>(abilityRequirements["skills"][0].Float());
+		a.second.second = static_cast<ui8>(abilityRequirements["skills"][1].Float());
 		skillRequirements.push_back (a);
 	}
 }

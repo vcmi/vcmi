@@ -851,7 +851,7 @@ void CGameInfoCallback::getTilesInRange(std::unordered_set<int3> & tiles,
 	}
 }
 
-void CGameInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, std::function<bool(const TerrainTile *)> filter) const
+void CGameInfoCallback::getAllTiles(std::unordered_set<int3> & tiles, std::optional<PlayerColor> Player, int level, const std::function<bool(const TerrainTile *)> & filter) const
 {
 	if(Player.has_value() && !Player->isValidPlayer())
 	{

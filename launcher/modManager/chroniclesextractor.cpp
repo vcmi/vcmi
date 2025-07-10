@@ -121,8 +121,8 @@ void ChroniclesExtractor::createBaseMod() const
 	};
 
 	QFile jsonFile(dir.filePath("mod.json"));
-    jsonFile.open(QFile::WriteOnly);
-    jsonFile.write(QJsonDocument(mod).toJson());
+	jsonFile.open(QFile::WriteOnly);
+	jsonFile.write(QJsonDocument(mod).toJson());
 
 	for(auto & dataPath : VCMIDirs::get().dataPaths())
 	{
@@ -157,8 +157,8 @@ void ChroniclesExtractor::createChronicleMod(int no)
 	};
 	
 	QFile jsonFile(dir.filePath("mod.json"));
-    jsonFile.open(QFile::WriteOnly);
-    jsonFile.write(QJsonDocument(mod).toJson());
+	jsonFile.open(QFile::WriteOnly);
+	jsonFile.write(QJsonDocument(mod).toJson());
 
 	dir.cd("content");
 	

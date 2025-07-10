@@ -35,12 +35,12 @@ MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	{
 		auto name = LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", resources[row].getNum()).get());
 		auto label = new QLabel(QString::fromStdString(name));
-        label->setAlignment(Qt::AlignCenter);
+		label->setAlignment(Qt::AlignCenter);
 		ui->tableWidgetMines->setCellWidget(row, 0, label);
 
 		auto spinBox = new QSpinBox();
-        spinBox->setRange(0, 100);
-        spinBox->setValue(mines[resources[row]]);
+		spinBox->setRange(0, 100);
+		spinBox->setValue(mines[resources[row]]);
 		ui->tableWidgetMines->setCellWidget(row, 1, spinBox);
 	}
 	ui->tableWidgetMines->resizeColumnsToContents();
@@ -60,10 +60,10 @@ void MineSelector::on_buttonBoxResult_accepted()
 	for (int row = 0; row < resources.size(); ++row)
 		minesSelected[resources[row]] = static_cast<QSpinBox *>(ui->tableWidgetMines->cellWidget(row, 1))->value();
 
-    close();
+	close();
 }
 
 void MineSelector::on_buttonBoxResult_rejected()
 {
-    close();
+	close();
 }

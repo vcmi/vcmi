@@ -48,8 +48,8 @@ CreditsScreen::CreditsScreen(Rect rect)
 	size_t firstQuote = text.find('\"') + 1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote);
 
-	auto translateCredits = [&text](std::map<std::string, std::string> replacements){
-		for(auto & item : replacements)
+	const auto & translateCredits = [&text](const std::map<std::string, std::string> & replacements){
+		for(const auto & item : replacements)
 			boost::replace_first(text, "{" + item.second + ":}", "{" + LIBRARY->generaltexth->translate(item.first) + ":}");
 	};
 	translateCredits({

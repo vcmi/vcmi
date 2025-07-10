@@ -202,12 +202,12 @@ std::string CStackInstance::getQuantityTXT(bool capitalized) const
 {
 	CCreature::CreatureQuantityId quantity = getQuantityID();
 
-	if((int)quantity)
+	if(static_cast<int>(quantity))
 	{
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			return CCreature::getQuantityRangeStringForId(quantity);
 
-		return LIBRARY->generaltexth->arraytxt[174 + (int)quantity * 3 - 1 - capitalized];
+		return LIBRARY->generaltexth->arraytxt[174 + static_cast<int>(quantity) * 3 - 1 - capitalized];
 	}
 	else
 		return "";

@@ -557,12 +557,12 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
-    return ownerMatches(unit, owner->getPositiveness());
+	return ownerMatches(unit, owner->getPositiveness());
 }
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
 {
-    return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
+	return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const

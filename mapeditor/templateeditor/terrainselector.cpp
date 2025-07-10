@@ -55,10 +55,10 @@ void TerrainSelector::on_buttonBoxResult_accepted()
 			terrainsSelected.insert(item->data(Qt::UserRole).toInt());
 	}
 
-    close();
+	close();
 }
 
 void TerrainSelector::on_buttonBoxResult_rejected()
 {
-    close();
+	close();
 }

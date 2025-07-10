@@ -33,18 +33,18 @@ TreasureSelector::TreasureSelector(std::vector<CTreasureInfo> & treasures) :
 
 	auto addRow = [this](int min, int max, int density, int row){
 		auto spinBoxMin = new QSpinBox();
-        spinBoxMin->setRange(0, 1000000);
-        spinBoxMin->setValue(min);
+		spinBoxMin->setRange(0, 1000000);
+		spinBoxMin->setValue(min);
 		ui->tableWidgetTreasures->setCellWidget(row, 0, spinBoxMin);
 
 		auto spinBoxMax = new QSpinBox();
-        spinBoxMax->setRange(0, 1000000);
-        spinBoxMax->setValue(max);
+		spinBoxMax->setRange(0, 1000000);
+		spinBoxMax->setValue(max);
 		ui->tableWidgetTreasures->setCellWidget(row, 1, spinBoxMax);
 
 		auto spinBoxDensity = new QSpinBox();
-        spinBoxDensity->setRange(0, 1000);
-        spinBoxDensity->setValue(density);
+		spinBoxDensity->setRange(0, 1000);
+		spinBoxDensity->setValue(density);
 		ui->tableWidgetTreasures->setCellWidget(row, 2, spinBoxDensity);
 
 		auto deleteButton = new QPushButton("Delete");
@@ -93,10 +93,10 @@ void TreasureSelector::on_buttonBoxResult_accepted()
 		treasures.push_back(info);
 	}
 
-    close();
+	close();
 }
 
 void TreasureSelector::on_buttonBoxResult_rejected()
 {
-    close();
+	close();
 }

@@ -313,7 +313,7 @@ BattleSide CBattleInfoEssentials::playerToSide(const PlayerColor & player) const
 PlayerColor CBattleInfoEssentials::sideToPlayer(BattleSide side) const
 {
 	RETURN_IF_NOT_BATTLE(PlayerColor::CANNOT_DETERMINE);
-    return getBattle()->getSidePlayer(side);
+	return getBattle()->getSidePlayer(side);
 }
 
 BattleSide CBattleInfoEssentials::otherSide(BattleSide side)

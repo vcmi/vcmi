@@ -72,7 +72,7 @@ bool isLegacySpellSchool(SpellSchool school)
 	return getAnimFrameFromSchool(school) != -1;
 }
 
-CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, int helpTextId, CSpellWindow * _owner)
+CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, const std::function<void()> & funcL, int helpTextId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
@@ -82,7 +82,7 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::functio
 	owner = _owner;
 }
 
-CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, std::function<void()> funcL, std::string textId, CSpellWindow * _owner)
+CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, const std::function<void()> & funcL, std::string textId, CSpellWindow * _owner)
 {
 	addUsedEvents(LCLICK | SHOW_POPUP | HOVER);
 	pos = myRect;
@@ -632,7 +632,7 @@ void CSpellWindow::keyPressed(EShortcut key)
 		case EShortcut::MOVE_DOWN:
 		{
 			bool down = key == EShortcut::MOVE_DOWN;
-			static const SpellSchool schoolsOrder[] = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
+			static const std::array schoolsOrder = { SpellSchool::AIR, SpellSchool::EARTH, SpellSchool::FIRE, SpellSchool::WATER, SpellSchool::ANY };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
