@@ -487,7 +487,8 @@ bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rn
 {
 	if (unit == nullptr)
 		return false;
-	bool isDirectSpell = owner->getTargetType() == AimType::CREATURE && !isMassive();
+	const std::vector<int> directSpellRange = { 0 };
+	bool isDirectSpell = !isMassive() && owner -> getLevelInfo(getRangeLevel()).range == directSpellRange;
 	bool spellIsReflectable = isDirectSpell && (mode == Mode::HERO || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
 	bool targetCanReflectSpell = spellIsReflectable && unit->getAllBonuses(Selector::type()(BonusType::MAGIC_MIRROR))->size()>0;
 	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(BonusType::MAGIC_MIRROR);
