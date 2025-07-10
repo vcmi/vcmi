@@ -616,10 +616,16 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	{
 		if (activeStack && activeStack->alive())
 		{
-			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+			bool activeStackAffectedBySpell = !activeStack->canMove() ||
+					tryActivateBerserkPenalty(battle, battle.battleGetStackByID(battle.getBattle()->getActiveStackID()));
+
+			// this is action made by hero AND unit is neither killed nor affected by reflected spell like blind or berserk
 			// keep current active stack for next action
-			setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
-			return;
+			if (!activeStackAffectedBySpell)
+			{
+				setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
+				return;
+			}
 		}
 	}
 
