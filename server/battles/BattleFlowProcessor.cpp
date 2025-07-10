@@ -342,6 +342,21 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * next)
 {
+	bool actionPerformed = tryActivateMoralePenalty(battle, next) || tryActivateBerserkPenalty(battle, next) || tryAutomaticActionOfWarMachines(battle, next);
+
+	if (!actionPerformed) {
+		stackTurnTrigger(battle, next); //various effects
+
+		if(next->fear)
+			{
+				makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
+				return true;
+			}
+		}
+	return actionPerformed;
+}
+
+bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * next) {
 	// check for bad morale => freeze
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
@@ -359,36 +374,46 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * next) {
 	if (next->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)) //while in berserk
-	{
-		logGlobal->trace("Handle Berserk effect");
-		std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
-		if (attackInfo.first != nullptr)
 		{
-			BattleAction attack;
-			attack.actionType = EActionType::WALK_AND_ATTACK;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-			attack.aimToHex(attackInfo.second);
-			attack.aimToUnit(attackInfo.first);
+			logGlobal->trace("Handle Berserk effect");
+			std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
+			if (attackInfo.first != nullptr)
+				{
+					BattleAction attack;
+					attack.actionType = EActionType::WALK_AND_ATTACK;
+					attack.side = next->unitSide();
+					attack.stackNumber = next->unitId();
+					attack.aimToHex(attackInfo.second);
+					attack.aimToUnit(attackInfo.first);
 
-			makeAutomaticAction(battle, next, attack);
-			logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
+					makeAutomaticAction(battle, next, attack);
+					logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
+				}
+			else
+				{
+					makeStackDoNothing(battle, next);
+					logGlobal->trace("No target found");
+				}
+			return true;
 		}
-		else
-		{
-			makeStackDoNothing(battle, next);
-			logGlobal->trace("No target found");
-		}
-		return true;
-	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * next) {
+	return tryMakeAutomaticActionOfBallistaOrTowers(battle, next) || tryMakeAutomaticActionOfCatapult(battle, next) || tryMakeAutomaticActionOfFirstAidTent(battle, next);
+}
+
+bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * next) {
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-	   && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
+		 && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
@@ -449,29 +474,37 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 		}
 		return true;
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next) {
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::CATAPULT)
-	{
-		const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
-
-		if (attackableBattleHexes.empty())
 		{
-			makeStackDoNothing(battle, next);
-			return true;
+			const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
+
+			if (attackableBattleHexes.empty())
+				{
+					makeStackDoNothing(battle, next);
+					return true;
+				}
+
+			if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
+				{
+					BattleAction attack;
+					attack.actionType = EActionType::CATAPULT;
+					attack.side = next->unitSide();
+					attack.stackNumber = next->unitId();
+
+					makeAutomaticAction(battle, next, attack);
+					return true;
+				}
 		}
+	return false;
+}
 
-		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
-		{
-			BattleAction attack;
-			attack.actionType = EActionType::CATAPULT;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-
-			makeAutomaticAction(battle, next, attack);
-			return true;
-		}
-	}
-
+bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next) {
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::FIRST_AID_TENT)
 	{
 		TStacks possibleStacks = battle.battleGetStacksIf([&next](const CStack * s)
@@ -500,16 +533,9 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
-
-	stackTurnTrigger(battle, next); //various effects
-
-	if(next->fear)
-	{
-		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
-		return true;
-	}
 	return false;
 }
+
 
 bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, const CStack * next)
 {
@@ -539,7 +565,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 	return false;
 }
 
-void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba)
+void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba)	//here
 {
 	const auto * actedStack = battle.battleGetStackByID(ba.stackNumber, false);
 	const auto * activeStack = battle.battleActiveUnit();
