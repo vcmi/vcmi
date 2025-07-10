@@ -565,7 +565,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 	return false;
 }
 
-void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba)	//here
+void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba)
 {
 	const auto * actedStack = battle.battleGetStackByID(ba.stackNumber, false);
 	const auto * activeStack = battle.battleActiveUnit();

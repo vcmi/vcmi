@@ -60,7 +60,6 @@ class BattleFlowProcessor : boost::noncopyable
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
 	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
 
-
 public:
 	explicit BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
 
