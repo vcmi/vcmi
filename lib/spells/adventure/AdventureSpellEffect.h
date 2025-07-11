@@ -43,7 +43,7 @@ public:
 	AdventureSpellEffect() = default;
 };
 
-class AdventureSpellRangedEffect : public IAdventureSpellEffect
+class DLL_LINKAGE AdventureSpellRangedEffect : public IAdventureSpellEffect
 {
 	int rangeX;
 	int rangeY;
@@ -52,7 +52,7 @@ class AdventureSpellRangedEffect : public IAdventureSpellEffect
 public:
 	AdventureSpellRangedEffect(const JsonNode & config);
 
-	DLL_LINKAGE bool isTargetInRange(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
+	bool isTargetInRange(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived classes
 };

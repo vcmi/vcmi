@@ -34,9 +34,11 @@ namespace AIPathfinding
 	
 	class SummonBoatAction : public VirtualBoatAction
 	{
+		SpellID usedSpell;
 	public:
-		SummonBoatAction()
+		SummonBoatAction(SpellID usedSpell)
 			:VirtualBoatAction(AINodeStorage::CAST_CHAIN)
+			,usedSpell(usedSpell)
 		{
 		}
 

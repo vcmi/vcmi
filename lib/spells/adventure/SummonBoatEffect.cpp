@@ -28,6 +28,17 @@ SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
 {
 }
 
+bool SummonBoatEffect::canCreateNewBoat() const
+{
+	return createNewBoat;
+}
+
+int SummonBoatEffect::getSuccessChance(const spells::Caster * caster) const
+{
+	const auto schoolLevel = caster->getSpellSchoolLevel(owner);
+	return owner->getLevelPower(schoolLevel);
+}
+
 bool SummonBoatEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!caster->getHeroCaster())
@@ -56,10 +67,8 @@ bool SummonBoatEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoC
 
 ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-	const auto schoolLevel = parameters.caster->getSpellSchoolLevel(owner);
-
 	//check if spell works at all
-	if(env->getRNG()->nextInt(0, 99) >= owner->getLevelPower(schoolLevel)) //power is % chance of success
+	if(env->getRNG()->nextInt(0, 99) >= getSuccessChance(parameters.caster)) //power is % chance of success
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
