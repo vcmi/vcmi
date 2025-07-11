@@ -35,6 +35,7 @@ public:
 	virtual bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const {return true;};
 	virtual bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const {return true;};
 	virtual bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const {return true;};
+	virtual std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const {return {};};
 };
 
 class AdventureSpellEffect final : public IAdventureSpellEffect
@@ -52,7 +53,8 @@ class AdventureSpellRangedEffect : public IAdventureSpellEffect
 public:
 	AdventureSpellRangedEffect(const JsonNode & config);
 
-	bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+	bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
+	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override = 0; //must be implemented in derived
 };
 
 VCMI_LIB_NAMESPACE_END

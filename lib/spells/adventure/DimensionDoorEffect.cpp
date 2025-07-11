@@ -23,11 +23,27 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 DimensionDoorEffect::DimensionDoorEffect(const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
+	, cursor(config["cursor"].String())
+	, cursorGuarded(config["cursorGuarded"].String())
 	, movementPointsRequired(config["movementPointsRequired"].Integer())
 	, movementPointsTaken(config["movementPointsTaken"].Integer())
 	, waterLandFailureTakesPoints(config["waterLandFailureTakesPoints"].Bool())
 	, exposeFow(config["exposeFow"].Bool())
 {
+}
+
+std::string DimensionDoorEffect::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	if(!cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS))
+		return cursor;
+
+	if (!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))
+		return cursor;
+
+	if (!cb->isTileGuardedUnchecked(pos))
+		return cursor;
+
+	return cursorGuarded;
 }
 
 bool DimensionDoorEffect::canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const

@@ -37,6 +37,7 @@ public:
 	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
 	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
+	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 
 	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;

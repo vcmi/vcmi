@@ -19,13 +19,14 @@ class RemoveObjectEffect final : public AdventureSpellRangedEffect
 	const CSpell * owner;
 	std::vector<MapObjectID> removedObjects;
 	MetaString failMessage;
-	ImagePath cursorPath;
+	std::string cursor;
 
 public:
 	RemoveObjectEffect(const CSpell * s, const JsonNode & config);
 
-	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
-	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
+	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
+	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -45,6 +45,7 @@
 				"adventureEffect" : {
 					"type" : "removeObject",
 					"castsPerDay" : 0,
+					"cursor" : "mapScuttleBoat", // defined in config/cursors.json
 					"rangeX" : 9,
 					"rangeY" : 8,
 					"ignoreFow" : false,
@@ -375,6 +376,8 @@
 					"movementPointsRequired" : 0,
 					"movementPointsTaken" : 300,
 					"waterLandFailureTakesPoints" : true,
+					"cursor" : "mapDimensionDoor", // defined in config/cursors.json
+					"cursorGuarded" : "mapTurn1Attack", // defined in config/cursors.json
 					"castsPerDay" : 2,
 					"rangeX" : 9,
 					"rangeY" : 8,

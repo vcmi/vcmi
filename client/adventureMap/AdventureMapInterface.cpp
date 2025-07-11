@@ -612,31 +612,14 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-		switch(spellBeingCasted->id.toEnum())
-		{
-		case SpellID::SCUTTLE_BOAT:
-			if(isValidAdventureSpellTarget(targetPosition))
-				ENGINE->cursor().set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
 
-		case SpellID::DIMENSION_DOOR:
-			if(isValidAdventureSpellTarget(targetPosition))
-			{
-				if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && GAME->interface()->cb->isTileGuardedUnchecked(targetPosition))
-					ENGINE->cursor().set(Cursor::Map::T1_ATTACK);
-				else
-					ENGINE->cursor().set(Cursor::Map::TELEPORT);
-				return;
-			}
-			else
-				ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
-		default:
+		spells::detail::ProblemImpl problem;
+
+		if(isValidAdventureSpellTarget(targetPosition))
+			ENGINE->cursor().set(spellBeingCasted->getAdventureMechanics().getCursorForTarget(GAME->interface()->cb.get(), GAME->interface()->localState->getCurrentHero(), targetPosition));
+		else
 			ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
-		}
+		return;
 	}
 
 	if(!isTargetPositionVisible)

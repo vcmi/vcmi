@@ -147,6 +147,8 @@ public:
 	virtual bool checkForVisitableDir(const int3 & src, const int3 & dst) const = 0;
 	/// Returns all wandering monsters that guard specified tile
 	virtual std::vector<const CGObjectInstance *> getGuardingCreatures (int3 pos) const = 0;
+	/// Returns if tile is guarded by wandering monsters without checking whether player has access to the tile. AVOID USAGE.
+	virtual bool isTileGuardedUnchecked(int3 tile) const = 0;
 
 	/// Returns all tiles within specified range with specific tile visibility mode
 	virtual void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;

@@ -16,6 +16,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DimensionDoorEffect final : public AdventureSpellRangedEffect
 {
+	std::string cursor;
+	std::string cursorGuarded;
 	int movementPointsRequired;
 	int movementPointsTaken;
 	bool waterLandFailureTakesPoints;
@@ -25,11 +27,12 @@ public:
 	DimensionDoorEffect(const CSpell * s, const JsonNode & config);
 
 protected:
-	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
-	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const override;
+	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
+	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 
-	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
-	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
+	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
+	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
+	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -25,6 +25,7 @@ RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config
 	: AdventureSpellRangedEffect(config)
 	, owner(s)
 	, failMessage(MetaString::createFromTextID("core.genrltxt.337")) //%s tried to scuttle the boat, but failed
+	, cursor(config["cursor"].String())
 {
 	for(const auto & objectNode : config["objects"].Struct())
 	{
@@ -36,6 +37,11 @@ RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config
 			});
 		}
 	}
+}
+
+std::string RemoveObjectEffect::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	return cursor;
 }
 
 bool RemoveObjectEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const

@@ -62,6 +62,11 @@ const TerrainTile * EditorCallback::getTileUnchecked(int3) const
 	THROW_EDITOR_UNSUPPORTED;
 }
 
+bool EditorCallback::isTileGuardedUnchecked(int3 tile) const
+{
+	THROW_EDITOR_UNSUPPORTED;
+}
+
 const CGObjectInstance * EditorCallback::getTopObj(int3) const
 {
 	THROW_EDITOR_UNSUPPORTED;

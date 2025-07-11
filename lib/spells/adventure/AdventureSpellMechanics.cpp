@@ -130,6 +130,11 @@ bool AdventureSpellMechanics::isTargetInRange(spells::Problem & problem, const I
 	return getLevel(caster).effect->isTargetInRange(problem, cb, caster, pos);
 }
 
+std::string AdventureSpellMechanics::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+{
+	return getLevel(caster).effect->getCursorForTarget(cb, caster, pos);
+}
+
 bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	spells::detail::ProblemImpl problem;
