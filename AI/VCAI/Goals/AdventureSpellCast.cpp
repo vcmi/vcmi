@@ -13,6 +13,8 @@
 #include "../FuzzyHelper.h"
 #include "../AIhelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 
 using namespace Goals;
 
@@ -39,7 +41,9 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getNameTranslated());
 
-	if(spellID == SpellID::TOWN_PORTAL && town && town->getVisitingHero())
+	auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero.h);
+
+	if(townPortalEffect && town && town->getVisitingHero())
 		throw cannotFulfillGoalException("The town is already occupied by " + town->getVisitingHero()->getNameTranslated());
 
 	return iAmElementar();
@@ -47,7 +51,9 @@ TSubgoal AdventureSpellCast::whatToDoToAchieve()
 
 void AdventureSpellCast::accept(VCAI * ai)
 {
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	auto townPortalEffect = spellID.toSpell()->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero.h);
+
+	if(town && townPortalEffect)
 	{
 		ai->selectedObject = town->id;
 	}
@@ -57,7 +63,7 @@ void AdventureSpellCast::accept(VCAI * ai)
 	cb->waitTillRealize = true;
 	cb->castSpell(hero.h, spellID, tile);
 
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	if(town && townPortalEffect)
 	{
 		// visit town
 		ai->moveHeroToTile(town->visitablePos(), hero);

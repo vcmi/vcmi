@@ -27,6 +27,9 @@ class TownPortalEffect final : public IAdventureSpellEffect
 public:
 	TownPortalEffect(const CSpell * s, const JsonNode & config);
 
+	bool getMovementPointsRequired() const { return movementPointsRequired; }
+	bool townSelectionAllowed() const { return allowTownSelection; }
+
 protected:
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 	ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const override;
