@@ -974,7 +974,7 @@ SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * source, bool doSheer)
 	assert(destSurface->format->format == SDL_PIXELFORMAT_ARGB8888);
 
 	double shearX = doSheer ? 0.5 : 0.0;
-	double scaleY = 0.25;
+	double scaleY = doSheer ? 0.5 : 0.25;
 
 	int lowestSource = getLowestNonTransparentY(sourceSurface);
 	int lowestTransformed = lowestSource * scaleY;

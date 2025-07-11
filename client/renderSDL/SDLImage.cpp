@@ -70,7 +70,7 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -89,7 +89,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename)
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 
-		optimizeSurface();
+		if(optimizeImage)
+			optimizeSurface();
 	}
 }
 
@@ -442,6 +443,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = margins.y;
+	ret->optimizeSurface();
 
 	// erase our own reference
 	SDL_FreeSurface(shadow);
@@ -463,6 +465,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & co
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = margins.y;
+	ret->optimizeSurface();
 
 	// erase our own reference
 	SDL_FreeSurface(outline);

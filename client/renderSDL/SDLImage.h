@@ -46,7 +46,7 @@ public:
 	//Load image from def file
 	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImageShared(const ImagePath & filename);
+	SDLImageShared(const ImagePath & filename, bool optimizeImage=true);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImageShared(SDL_Surface * from);
 	~SDLImageShared();

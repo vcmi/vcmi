@@ -295,6 +295,7 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	bool generateOverlay = locator.generateOverlay && (*locator.generateOverlay) != SharedImageLocator::OverlayMode::OVERLAY_NONE;
 	bool isShadow = locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR;
 	bool isOverlay = locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION;
+	bool optimizeImage = !(isShadow && generateShadow) && !(isOverlay && generateOverlay); // images needs to expanded
 
 	if(isOverlay && !generateOverlay)
 		imagePathString += "-OVERLAY";
@@ -312,11 +313,11 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	std::shared_ptr<SDLImageShared> img = nullptr;
 
 	if(CResourceHandler::get()->existsResource(imagePathSprites))
-		img = std::make_shared<SDLImageShared>(imagePathSprites);
+		img = std::make_shared<SDLImageShared>(imagePathSprites, optimizeImage);
 	else if(CResourceHandler::get()->existsResource(imagePathData))
-		img = std::make_shared<SDLImageShared>(imagePathData);
+		img = std::make_shared<SDLImageShared>(imagePathData, optimizeImage);
 	else if(CResourceHandler::get()->existsResource(imagePath))
-		img = std::make_shared<SDLImageShared>(imagePath);
+		img = std::make_shared<SDLImageShared>(imagePath, optimizeImage);
 
 	if(img)
 	{
