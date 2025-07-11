@@ -291,9 +291,14 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::string imagePathString = pathToLoad.getName();
 
-	if(locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION)
+	bool generateShadow = locator.generateShadow && (*locator.generateShadow) != SharedImageLocator::ShadowMode::SHADOW_NONE;
+	bool generateOverlay = locator.generateOverlay && (*locator.generateOverlay) != SharedImageLocator::OverlayMode::OVERLAY_NONE;
+	bool isShadow = locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR;
+	bool isOverlay = locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION;
+
+	if(isOverlay && !generateOverlay)
 		imagePathString += "-OVERLAY";
-	if(locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR)
+	if(isShadow && !generateShadow)
 		imagePathString += "-SHADOW";
 	if(locator.playerColored.isValidPlayer())
 		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
@@ -304,16 +309,24 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
 	auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
 
+	std::shared_ptr<SDLImageShared> img = nullptr;
+
 	if(CResourceHandler::get()->existsResource(imagePathSprites))
-		return std::make_shared<SDLImageShared>(imagePathSprites);
+		img = std::make_shared<SDLImageShared>(imagePathSprites);
+	else if(CResourceHandler::get()->existsResource(imagePathData))
+		img = std::make_shared<SDLImageShared>(imagePathData);
+	else if(CResourceHandler::get()->existsResource(imagePath))
+		img = std::make_shared<SDLImageShared>(imagePath);
 
-	if(CResourceHandler::get()->existsResource(imagePathData))
-		return std::make_shared<SDLImageShared>(imagePathData);
+	if(img)
+	{
+		if(isShadow && generateShadow)
+			img = img->drawShadow((*locator.generateShadow) == SharedImageLocator::ShadowMode::SHADOW_SHEER);
+		if(isOverlay && generateOverlay && (*locator.generateOverlay) == SharedImageLocator::OverlayMode::OVERLAY_OUTLINE)
+			img = img->drawOutline(Colors::WHITE, getScalingFactor());
+	}
 
-	if(CResourceHandler::get()->existsResource(imagePath))
-		return std::make_shared<SDLImageShared>(imagePath);
-
-	return nullptr;
+	return img;
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator)

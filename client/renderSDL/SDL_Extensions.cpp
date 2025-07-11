@@ -685,3 +685,313 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 
 	other = CSDL_Ext::fromSDL(rect);
 }
+
+SDL_Surface * CSDL_Ext::drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness)
+{
+	// ensure format
+	SDL_Surface *sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface *destSurface = newSurface(Point(source->w, source->h));
+
+	int width = sourceSurface->w;
+	int height = sourceSurface->h;
+
+	// Iterate through the pixels of the image
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			Uint8 maxPixel = 0;
+			Uint8 minPixel = 255;
+			int halfThickness = (thickness + 1) / 2;
+
+			// Loop over the neighborhood around (x, y)
+			for(int offsetY = -halfThickness; offsetY <= halfThickness; offsetY++)
+			{
+				for(int offsetX = -halfThickness; offsetX <= halfThickness; offsetX++)
+				{
+					// Circle instead of rectangle
+					if(offsetX * offsetX + offsetY * offsetY > halfThickness * halfThickness)
+						continue;
+
+					int neighborX = x + offsetX;
+					int neighborY = y + offsetY;
+
+					// Check image bounds
+					if(neighborX >= 0 && neighborX < destSurface->w && neighborY >= 0 && neighborY < destSurface->h)
+					{
+						// Get the pixel at the neighbor position
+						Uint32 pixel = *((Uint32*)sourceSurface->pixels + neighborY * width + neighborX);
+						Uint8 r, g, b, a;
+						SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
+						
+						// Compare the pixel alpha value to find the maximum and maximum
+						if(a > maxPixel)
+							maxPixel = a;
+						if(a < minPixel)
+							minPixel = a;
+					}
+				}
+			}
+
+			Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, maxPixel - minPixel);
+			*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+		}
+	}
+
+	SDL_FreeSurface(sourceSurface);
+
+	return destSurface;
+}
+
+void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b, double c, double d, double tx, double ty)
+{
+	assert(src->format->format == SDL_PIXELFORMAT_ARGB8888);
+	assert(dst->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+	// Lock surfaces for direct pixel access
+	if (SDL_MUSTLOCK(src)) SDL_LockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_LockSurface(dst);
+
+	// Calculate inverse matrix M_inv for mapping dst -> src
+	double det = a * d - b * c;
+	if (det == 0)
+		throw std::runtime_error("Singular transform matrix!");
+	double invDet = 1.0 / det;
+	double ia =  d * invDet;
+	double ib = -b * invDet;
+	double ic = -c * invDet;
+	double id =  a * invDet;
+
+	// For each pixel in the destination image
+	for(int y = 0; y < dst->h; y++)
+	{
+		for(int x = 0; x < dst->w; x++)
+		{
+			// Map destination pixel (x,y) back to source coordinates (srcX, srcY)
+			double srcX = ia * (x - tx) + ib * (y - ty);
+			double srcY = ic * (x - tx) + id * (y - ty);
+
+			// Nearest neighbor sampling (can be improved to bilinear)
+			int srcXi = static_cast<int>(round(srcX));
+			int srcYi = static_cast<int>(round(srcY));
+
+			// Check bounds
+			if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
+			{
+				Uint32* srcPixels = (Uint32*)src->pixels;
+				Uint32* dstPixels = (Uint32*)dst->pixels;
+
+				Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
+				dstPixels[y * dst->w + x] = pixel;
+			}
+			else
+			{
+				// Outside source bounds: set transparent or black
+				Uint32* dstPixels = (Uint32*)dst->pixels;
+				dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
+			}
+		}
+	}
+
+	if (SDL_MUSTLOCK(src)) SDL_UnlockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_UnlockSurface(dst);
+}
+
+int getLowestNonTransparentY(SDL_Surface* surface)
+{
+	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+	if(SDL_MUSTLOCK(surface))
+		SDL_LockSurface(surface);
+
+	int w = surface->w;
+	int h = surface->h;
+	int bpp = surface->format->BytesPerPixel;
+	Uint8* pixels = (Uint8*)surface->pixels;
+
+	for(int y = h - 1; y >= 0; --y)
+	{
+		Uint8* row = pixels + y * surface->pitch;
+
+		for(int x = 0; x < w; ++x)
+		{
+			Uint32 pixel = *(Uint32*)(row + x * bpp);
+
+			Uint8 r, g, b, a;
+			SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+
+			if (a > 0)
+			{
+				if(SDL_MUSTLOCK(surface))
+					SDL_UnlockSurface(surface);
+				return y;
+			}
+		}
+	}
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+	return -1;  // fully transparent
+}
+
+void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	Uint32* pixels = (Uint32*)surface->pixels;
+	int pixelCount = surface->w * surface->h;
+
+	for (int i = 0; i < pixelCount; i++)
+	{
+		Uint32 pixel = pixels[i];
+
+		Uint8 pr, pg, pb, pa;
+		// Extract existing RGBA components using SDL_GetRGBA
+		SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
+
+		Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
+		if(pa == 0)
+			newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+
+		pixels[i] = newPixel;
+	}
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+void gaussianBlur(SDL_Surface* surface, int amount)
+{
+	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+	if (!surface || amount <= 0) return;
+
+	if (SDL_MUSTLOCK(surface))
+	{
+		if (SDL_LockSurface(surface) != 0)
+			throw std::runtime_error("Failed to lock surface!");
+	}
+
+	int width = surface->w;
+	int height = surface->h;
+	int pixelCount = width * height;
+
+	Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+
+	std::vector<Uint8> srcR(pixelCount);
+	std::vector<Uint8> srcG(pixelCount);
+	std::vector<Uint8> srcB(pixelCount);
+	std::vector<Uint8> srcA(pixelCount);
+
+	std::vector<Uint8> dstR(pixelCount);
+	std::vector<Uint8> dstG(pixelCount);
+	std::vector<Uint8> dstB(pixelCount);
+	std::vector<Uint8> dstA(pixelCount);
+
+	// Initialize src channels from surface pixels
+	for (int y = 0; y < height; ++y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			Uint32 pixel = pixels[y * width + x];
+			Uint8 r, g, b, a;
+			SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+
+			int idx = y * width + x;
+			srcR[idx] = r;
+			srcG[idx] = g;
+			srcB[idx] = b;
+			srcA[idx] = a;
+		}
+	}
+
+	// 3x3 Gaussian kernel
+	float kernel[3][3] = {
+		{1.f/16, 2.f/16, 1.f/16},
+		{2.f/16, 4.f/16, 2.f/16},
+		{1.f/16, 2.f/16, 1.f/16}
+	};
+
+	// Apply the blur 'amount' times for stronger blur
+	for (int iteration = 0; iteration < amount; ++iteration) {
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				float sumR = 0.f, sumG = 0.f, sumB = 0.f, sumA = 0.f;
+
+				for (int ky = -1; ky <= 1; ++ky) {
+					for (int kx = -1; kx <= 1; ++kx) {
+						int nx = x + kx;
+						int ny = y + ky;
+
+						// Clamp edges
+						if (nx < 0) nx = 0;
+						else if (nx >= width) nx = width - 1;
+						if (ny < 0) ny = 0;
+						else if (ny >= height) ny = height - 1;
+
+						int nIdx = ny * width + nx;
+						float kval = kernel[ky + 1][kx + 1];
+
+						sumR += srcR[nIdx] * kval;
+						sumG += srcG[nIdx] * kval;
+						sumB += srcB[nIdx] * kval;
+						sumA += srcA[nIdx] * kval;
+					}
+				}
+
+				int idx = y * width + x;
+				dstR[idx] = static_cast<Uint8>(sumR);
+				dstG[idx] = static_cast<Uint8>(sumG);
+				dstB[idx] = static_cast<Uint8>(sumB);
+				dstA[idx] = static_cast<Uint8>(sumA);
+			}
+		}
+		// Swap src and dst for next iteration (blur chaining)
+		srcR.swap(dstR);
+		srcG.swap(dstG);
+		srcB.swap(dstB);
+		srcA.swap(dstA);
+	}
+
+	// After final iteration, write back to surface pixels
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			int idx = y * width + x;
+			pixels[idx] = SDL_MapRGBA(surface->format, srcR[idx], srcG[idx], srcB[idx], srcA[idx]);
+		}
+	}
+
+	if (SDL_MUSTLOCK(surface)) {
+		SDL_UnlockSurface(surface);
+	}
+}
+
+SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * source, bool doSheer)
+{
+	SDL_Surface *sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface *destSurface = newSurface(Point(source->w, source->h));
+
+	assert(destSurface->format->format == SDL_PIXELFORMAT_ARGB8888);
+
+	double shearX = doSheer ? 0.5 : 0.0;
+	double scaleY = 0.25;
+
+	int lowestSource = getLowestNonTransparentY(sourceSurface);
+	int lowestTransformed = lowestSource * scaleY;
+
+	// Parameters for applyAffineTransform
+	double a = 1.0;
+	double b = shearX;
+	double c = 0.0;
+	double d = scaleY;
+	double tx = -shearX * lowestSource;
+	double ty = lowestSource - lowestTransformed;
+
+	applyAffineTransform(sourceSurface, destSurface, a, b, c, d, tx, ty);
+	fillAlphaPixelWithRGBA(destSurface, 0, 0, 0, 128);
+	gaussianBlur(destSurface, 1);
+
+	SDL_FreeSurface(sourceSurface);
+
+	return destSurface;
+}

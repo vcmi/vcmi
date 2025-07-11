@@ -71,5 +71,8 @@ public:
 	[[nodiscard]] std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const override;
 	[[nodiscard]] std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
 
+	std::shared_ptr<const ISharedImage> drawShadow(bool doSheer) const;
+	std::shared_ptr<const ISharedImage> drawOutline(const ColorRGBA & color, int thickness) const;
+
 	friend class SDLImageLoader;
 };
