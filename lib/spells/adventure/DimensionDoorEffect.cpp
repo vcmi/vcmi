@@ -62,7 +62,7 @@ bool DimensionDoorEffect::canBeCastImpl(spells::Problem & problem, const IGameIn
 
 bool DimensionDoorEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
-	if (!isTargetInRange(problem, cb, caster, pos))
+	if (!isTargetInRange(cb, caster, pos))
 		return false;
 
 	int3 casterPosition = caster->getHeroCaster()->getSightCenter();

@@ -46,7 +46,7 @@ std::string RemoveObjectEffect::getCursorForTarget(const IGameInfoCallback * cb,
 
 bool RemoveObjectEffect::canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
-	if (!isTargetInRange(problem, cb, caster, pos))
+	if (!isTargetInRange(cb, caster, pos))
 		return false;
 
 	const TerrainTile * t = cb->getTile(pos);

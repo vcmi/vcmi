@@ -28,7 +28,7 @@
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/Problem.h"
+#include "../../lib/spells/adventure/AdventureSpellEffect.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -375,8 +375,8 @@ bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 	if (!hero || !spell.hasValue())
 		return false;
 
-	spells::detail::ProblemImpl problem;;
-	return !spell.toSpell()->getAdventureMechanics().isTargetInRange(problem, GAME->interface()->cb.get(), hero, position);
+	const auto * spellEffect = spell.toSpell()->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(hero);
+	return !spellEffect->isTargetInRange(GAME->interface()->cb.get(), hero, position);
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

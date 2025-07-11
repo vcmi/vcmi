@@ -24,7 +24,7 @@ AdventureSpellRangedEffect::AdventureSpellRangedEffect(const JsonNode & config)
 {
 }
 
-bool AdventureSpellRangedEffect::isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
+bool AdventureSpellRangedEffect::isTargetInRange(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	if(!cb->isInTheMap(pos))
 		return false;

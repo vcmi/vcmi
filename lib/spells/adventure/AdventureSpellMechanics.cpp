@@ -79,6 +79,11 @@ const AdventureSpellMechanics::LevelOptions & AdventureSpellMechanics::getLevel(
 	return levelOptions.at(schoolLevel);
 }
 
+const IAdventureSpellEffect * AdventureSpellMechanics::getEffect(const spells::Caster * caster) const
+{
+	return getLevel(caster).effect.get();
+}
+
 bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!owner->isAdventure())
@@ -123,16 +128,6 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameIn
 bool AdventureSpellMechanics::canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
 	return canBeCast(problem, cb, caster) && getLevel(caster).effect->canBeCastAtImpl(problem, cb, caster, pos);
-}
-
-bool AdventureSpellMechanics::isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
-{
-	return getLevel(caster).effect->isTargetInRange(problem, cb, caster, pos);
-}
-
-std::string AdventureSpellMechanics::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
-{
-	return getLevel(caster).effect->getCursorForTarget(cb, caster, pos);
 }
 
 bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const

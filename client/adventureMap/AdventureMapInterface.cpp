@@ -47,6 +47,7 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/pathfinder/TurnInfo.h"
+#include "../../lib/spells/adventure/AdventureSpellEffect.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
@@ -612,13 +613,15 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-
+		const auto * hero = GAME->interface()->localState->getCurrentHero();
+		const auto * spellEffect = spellBeingCasted->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(hero);
 		spells::detail::ProblemImpl problem;
 
-		if(isValidAdventureSpellTarget(targetPosition))
-			ENGINE->cursor().set(spellBeingCasted->getAdventureMechanics().getCursorForTarget(GAME->interface()->cb.get(), GAME->interface()->localState->getCurrentHero(), targetPosition));
+		if(spellEffect && spellEffect->canBeCastAtImpl(problem, GAME->interface()->cb.get(), hero, targetPosition))
+			ENGINE->cursor().set(spellEffect->getCursorForTarget(GAME->interface()->cb.get(), hero, targetPosition));
 		else
 			ENGINE->cursor().set(Cursor::Map::POINTER);
+
 		return;
 	}
 

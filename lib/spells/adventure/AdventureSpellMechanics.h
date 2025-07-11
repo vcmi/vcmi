@@ -28,19 +28,17 @@ class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::no
 
 	std::array<LevelOptions, GameConstants::SPELL_SCHOOL_LEVELS> levelOptions;
 
+	const LevelOptions & getLevel(const spells::Caster * caster) const;
+	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+
 public:
 	AdventureSpellMechanics(const CSpell * s);
 	~AdventureSpellMechanics();
 
-	const LevelOptions & getLevel(const spells::Caster * caster) const;
-
 	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
 	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
-	bool isTargetInRange(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
-	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
-
-	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 
