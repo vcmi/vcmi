@@ -42,7 +42,8 @@ CursorHandler::CursorHandler()
 	, showing(false)
 	, pos(0,0)
 	, dndObject(nullptr)
-	, type(Cursor::Type::DEFAULT)
+	, type(Cursor::Type::ADVENTURE)
+	, frame(0)
 {
 	showType = dynamic_cast<CursorSoftware *>(cursor.get()) ? Cursor::ShowType::SOFTWARE : Cursor::ShowType::HARDWARE;
 }
@@ -73,11 +74,6 @@ void CursorHandler::changeGraphic(Cursor::Type type, size_t index)
 	this->frame = index;
 
 	cursor->setImage(getCurrentImage(), getPivotOffset());
-}
-
-void CursorHandler::set(Cursor::Default index)
-{
-	changeGraphic(Cursor::Type::DEFAULT, static_cast<size_t>(index));
 }
 
 void CursorHandler::set(Cursor::Map index)
@@ -114,11 +110,6 @@ void CursorHandler::cursorMove(const int & x, const int & y)
 	pos.y = y;
 
 	cursor->setCursorPosition(pos);
-}
-
-Point CursorHandler::getPivotOffsetDefault(size_t index)
-{
-	return {0, 0};
 }
 
 Point CursorHandler::getPivotOffsetMap(size_t index)
@@ -224,7 +215,6 @@ Point CursorHandler::getPivotOffset()
 	switch (type) {
 	case Cursor::Type::ADVENTURE: return getPivotOffsetMap(frame);
 	case Cursor::Type::COMBAT:    return getPivotOffsetCombat(frame);
-	case Cursor::Type::DEFAULT:   return getPivotOffsetDefault(frame);
 	case Cursor::Type::SPELLBOOK: return getPivotOffsetSpellcast();
 	};
 

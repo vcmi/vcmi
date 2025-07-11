@@ -21,19 +21,12 @@ namespace Cursor
 	enum class Type {
 		ADVENTURE, // set of various cursors for adventure map
 		COMBAT,    // set of various cursors for combat
-		DEFAULT,   // default arrow and hourglass cursors
 		SPELLBOOK  // animated cursor for spellcasting
 	};
 
 	enum class ShowType {
 		SOFTWARE,
 		HARDWARE
-	};
-
-	enum class Default {
-		POINTER      = 0,
-		//ARROW_COPY = 1, // probably unused
-		HOURGLASS  = 2,
 	};
 
 	enum class Combat {
@@ -154,7 +147,6 @@ public:
 	void dragAndDropCursor(const AnimationPath & path, size_t index);
 
 	/// Changes cursor to specified index
-	void set(Cursor::Default index);
 	void set(Cursor::Map index);
 	void set(Cursor::Combat index);
 	void set(Cursor::Spellcast index);
@@ -165,7 +157,6 @@ public:
 	{
 		bool typeValid = true;
 
-		typeValid &= (std::is_same<Index, Cursor::Default>::value   )|| type != Cursor::Type::DEFAULT;
 		typeValid &= (std::is_same<Index, Cursor::Map>::value       )|| type != Cursor::Type::ADVENTURE;
 		typeValid &= (std::is_same<Index, Cursor::Combat>::value    )|| type != Cursor::Type::COMBAT;
 		typeValid &= (std::is_same<Index, Cursor::Spellcast>::value )|| type != Cursor::Type::SPELLBOOK;
@@ -176,7 +167,6 @@ public:
 	}
 
 	Point getPivotOffsetSpellcast();
-	Point getPivotOffsetDefault(size_t index);
 	Point getPivotOffsetMap(size_t index);
 	Point getPivotOffsetCombat(size_t index);
 
