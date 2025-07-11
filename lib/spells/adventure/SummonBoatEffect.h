@@ -17,8 +17,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE SummonBoatEffect final : public IAdventureSpellEffect
 {
 	const CSpell * owner;
+	BoatId createdBoat = BoatId::NONE;
 	bool useExistingBoat;
-	bool createNewBoat;
 
 public:
 	SummonBoatEffect(const CSpell * s, const JsonNode & config);

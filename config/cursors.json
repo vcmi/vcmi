@@ -1,3 +1,11 @@
+/// This file can be modified via mods by creating file config/cursors.json
+/// File in mod only needs to contain new or modified entries
+/// Format:
+/// - "image" - path to image (e.g. png file) with image for this cursor. Overrides "animation" key.
+/// - "animation" - path to animation (.def or .json) with image for this cursor. Also requires "frame" or "animated" key
+/// - "frame" - index of frame inside animation file that should be used for this cursor
+/// - "animated" - if set to true, cursor will be animated using entire animation file
+/// - "pivotX" and "pivotY" - position inside image that should act as pointer tip. Mouse clicks would generate click event on pixel below this point
 {
 	"mapPointer"          : { "pivotX" :  0, "pivotY" :  0, "animation" : "CRADVNTR", "frame" :  0 },
 	"mapHourglass"        : { "pivotX" :  0, "pivotY" :  0, "animation" : "CRADVNTR", "frame" :  1 },
@@ -40,7 +48,6 @@
 	"mapScrollWest"       : { "pivotX" :  1, "pivotY" :  5, "animation" : "CRADVNTR", "frame" : 38 },
 	"mapScrollNorthWest"  : { "pivotX" :  2, "pivotY" :  1, "animation" : "CRADVNTR", "frame" : 39 },
 	"mapDimensionDoor"    : { "pivotX" : 14, "pivotY" : 16, "animation" : "CRADVNTR", "frame" : 41 },
-	"mapDimensionDoorGuarded" : { "pivotX" : 14, "pivotY" : 16, "image" : "CursrA51" },
 	"mapScuttleBoat"      : { "pivotX" : 20, "pivotY" : 20, "animation" : "CRADVNTR", "frame" : 42 },
 	"combatBlocked"       : { "pivotX" : 12, "pivotY" : 12, "animation" : "CRCOMBAT", "frame" :  0},
 	"combatMove"          : { "pivotX" : 10, "pivotY" : 14, "animation" : "CRCOMBAT", "frame" :  1},

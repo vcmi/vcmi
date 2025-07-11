@@ -12,18 +12,17 @@
 				"adventureEffect" : {
 					"type" : "summonBoat",
 					"castsPerDay" : 0,
-					"useExistingBoat" : true,
-					"createNewBoat" : false
+					"useExistingBoat" : true
 				}
 			},
 			"advanced":{
 				"adventureEffect" : {
-					"createNewBoat" : true
+					"createdBoat" : "boatNecropolis"
 				}
 			},
 			"expert":{
 				"adventureEffect" : {
-					"createNewBoat" : true
+					"createdBoat" : "boatNecropolis"
 				}
 			}
 		},
@@ -170,7 +169,7 @@
 						"mine" : true,
 						"abandonedMine" : true
 					},
-					"terrain" : true
+					"showTerrain" : true
 				}
 			}
 		},

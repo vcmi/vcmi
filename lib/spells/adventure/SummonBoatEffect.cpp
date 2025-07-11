@@ -17,6 +17,7 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMap.h"
+#include "../../modding/IdentifierStorage.h"
 #include "../../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -24,13 +25,20 @@ VCMI_LIB_NAMESPACE_BEGIN
 SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
 	: owner(s)
 	, useExistingBoat(config["useExistingBoat"].Bool())
-	, createNewBoat(config["createNewBoat"].Bool())
 {
+	if (!config["createdBoat"].isNull())
+	{
+		LIBRARY->identifiers()->requestIdentifier("core:boat", config["createdBoat"], [=](int32_t boatTypeID)
+		{
+			createdBoat = BoatId(boatTypeID);
+		});
+	}
+
 }
 
 bool SummonBoatEffect::canCreateNewBoat() const
 {
-	return createNewBoat;
+	return createdBoat != BoatId::NONE;
 }
 
 int SummonBoatEffect::getSuccessChance(const spells::Caster * caster) const
@@ -108,7 +116,7 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 		cop.initiator = parameters.caster->getCasterOwner();
 		env->apply(cop);
 	}
-	else if(!createNewBoat) //none or basic level -> cannot create boat :(
+	else if(!canCreateNewBoat()) //none or basic level -> cannot create boat :(
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -118,7 +126,7 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 	}
 	else //create boat
 	{
-		env->createBoat(summonPos, BoatId::NECROPOLIS, parameters.caster->getCasterOwner());
+		env->createBoat(summonPos, createdBoat, parameters.caster->getCasterOwner());
 	}
 	return ESpellCastResult::OK;
 }

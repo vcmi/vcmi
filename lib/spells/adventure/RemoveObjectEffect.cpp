@@ -49,7 +49,7 @@ bool RemoveObjectEffect::canBeCastAtImpl(spells::Problem & problem, const IGameI
 	if (!isTargetInRange(cb, caster, pos))
 		return false;
 
-	const TerrainTile * t = cb->getTile(pos);
+	const TerrainTile * t = cb->getTileUnchecked(pos);
 	if(!t || t->visitableObjects.empty())
 		return false;
 
