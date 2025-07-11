@@ -429,13 +429,13 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	return ret;
 }
 
-std::shared_ptr<const ISharedImage> SDLImageShared::drawShadow(bool doSheer) const
+std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
 {
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
 	if (!surf)
-		return shared_from_this();
+		return nullptr;
 
 	SDL_Surface * shadow = CSDL_Ext::drawShadow(surf, doSheer);
 	auto ret = std::make_shared<SDLImageShared>(shadow);
@@ -449,13 +449,13 @@ std::shared_ptr<const ISharedImage> SDLImageShared::drawShadow(bool doSheer) con
 	return ret;
 }
 
-std::shared_ptr<const ISharedImage> SDLImageShared::drawOutline(const ColorRGBA & color, int thickness) const
+std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & color, int thickness) const
 {
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
 	if (!surf)
-		return shared_from_this();
+		return nullptr;
 
 	SDL_Color sdlColor = { color.r, color.g, color.b, color.a };
 	SDL_Surface * outline = CSDL_Ext::drawOutline(surf, sdlColor, thickness);
