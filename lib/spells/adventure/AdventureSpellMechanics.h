@@ -39,6 +39,7 @@ public:
 	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
+	bool givesBonus(const spells::Caster * caster, BonusType which) const final;
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 

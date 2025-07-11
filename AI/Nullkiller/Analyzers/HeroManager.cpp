@@ -12,6 +12,8 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/IGameSettings.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 
 namespace NKAI
 {
@@ -210,31 +212,30 @@ float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
 
 float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
 {
-	auto hasFly = hero->spellbookContainsSpell(SpellID::FLY);
-	auto hasTownPortal = hero->spellbookContainsSpell(SpellID::TOWN_PORTAL);
 	auto manaLimit = hero->manaLimit();
 	auto spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	auto hasEarth = hero->getSpellSchoolLevel(SpellID(SpellID::TOWN_PORTAL).toSpell()) > 0;
 
 	auto score = 0.0f;
 
+	// FIXME: this will not cover spells give by scrolls / tomes. Intended?
 	for(auto spellId : hero->getSpellsInSpellbook())
 	{
 		auto spell = spellId.toSpell();
 		auto schoolLevel = hero->getSpellSchoolLevel(spell);
+		auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
 
 		score += (spell->getLevel() + 1) * (schoolLevel + 1) * 0.05f;
+
+		if (spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT))
+			score += 0.3;
+
+		if(townPortalEffect != nullptr && schoolLevel != 0)
+			score += 0.6f;
 	}
 
 	vstd::amin(score, 1);
 
 	score *= std::min(1.0f, spellPower / 10.0f);
-
-	if(hasFly)
-		score += 0.3f;
-
-	if(hasTownPortal && hasEarth)
-		score += 0.6f;
 
 	vstd::amin(score, 1);
 

@@ -111,19 +111,22 @@ namespace AIPathfinding
 
 	void AILayerTransitionRule::setup()
 	{
-		SpellID waterWalk = SpellID::WATER_WALK;
-		SpellID airWalk = SpellID::FLY;
-
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			if(hero->canCastThisSpell(waterWalk.toSpell()) && hero->mana >= hero->getSpellCost(waterWalk.toSpell()))
+			for (const auto & spell : LIBRARY->spellh->objects)
 			{
-				waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero);
-			}
+				if (!spell || !spell->isAdventure())
+					continue;
 
-			if(hero->canCastThisSpell(airWalk.toSpell()) && hero->mana >= hero->getSpellCost(airWalk.toSpell()))
-			{
-				airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero);
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				{
+					waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero, spell->id);
+				}
+
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				{
+					airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero, spell->id);
+				}
 			}
 		}
 

@@ -359,6 +359,8 @@ public:
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
 
+	virtual bool givesBonus(const spells::Caster * caster, BonusType which) const = 0;
+
 	template<typename EffectType>
 	const EffectType * getEffectAs(const spells::Caster * caster) const
 	{

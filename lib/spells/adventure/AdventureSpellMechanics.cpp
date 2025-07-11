@@ -84,6 +84,15 @@ const IAdventureSpellEffect * AdventureSpellMechanics::getEffect(const spells::C
 	return getLevel(caster).effect.get();
 }
 
+bool AdventureSpellMechanics::givesBonus(const spells::Caster * caster, BonusType which) const
+{
+	for (const auto & bonus : getLevel(caster).bonuses)
+		if (bonus->type == which)
+			return true;
+
+	return false;
+}
+
 bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const
 {
 	if(!owner->isAdventure())
