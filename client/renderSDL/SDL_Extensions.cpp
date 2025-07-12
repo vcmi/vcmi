@@ -686,70 +686,68 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	other = CSDL_Ext::fromSDL(rect);
 }
 
-SDL_Surface * CSDL_Ext::drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness)
+SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, int thickness)
 {
-	// ensure format
-	SDL_Surface *sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
-	SDL_Surface *destSurface = newSurface(Point(source->w, source->h));
+	if(thickness < 1)
+		return nullptr;
 
-	// Lock surfaces for direct pixel access
-	if (SDL_MUSTLOCK(sourceSurface)) SDL_LockSurface(sourceSurface);
-	if (SDL_MUSTLOCK(destSurface)) SDL_LockSurface(destSurface);
+	SDL_Surface* sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
+	SDL_Surface* destSurface = newSurface(Point(source->w, source->h));
+
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_LockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_LockSurface(destSurface);
 
 	int width = sourceSurface->w;
 	int height = sourceSurface->h;
 
-	// Iterate through the pixels of the image
-	for (int y = 0; y < height; y++)
-	{
-		for (int x = 0; x < width; x++)
-		{
-			Uint8 maxPixel = 0;
-			Uint8 minPixel = 255;
-			int halfThickness = (thickness + 1) / 2;
+	// Helper lambda to get alpha
+	auto getAlpha = [&](int x, int y) -> Uint8 {
+		if (x < 0 || x >= width || y < 0 || y >= height)
+			return 0;
+		Uint32 pixel = *((Uint32*)sourceSurface->pixels + y * width + x);
+		Uint8 r, g, b, a;
+		SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
+		return a;
+	};
 
-			// Loop over the neighborhood around (x, y)
-			for(int offsetY = -halfThickness; offsetY <= halfThickness; offsetY++)
+	// Go through all transparent pixels and check if they border an opaque region
+	for(int y = 0; y < height; y++)
+	{
+		for(int x = 0; x < width; x++)
+		{
+			if(getAlpha(x, y) != 0)
+				continue; // Skip opaque pixels
+
+			bool isOutline = false;
+
+			for(int dy = -thickness; dy <= thickness && !isOutline; ++dy)
 			{
-				for(int offsetX = -halfThickness; offsetX <= halfThickness; offsetX++)
+				for(int dx = -thickness; dx <= thickness; ++dx)
 				{
-					// Circle instead of rectangle
-					if(offsetX * offsetX + offsetY * offsetY > halfThickness * halfThickness)
+					// circular neighborhood
+					if(dx * dx + dy * dy > thickness * thickness)
 						continue;
 
-					int neighborX = x + offsetX;
-					int neighborY = y + offsetY;
-
-					// Check image bounds
-					if(neighborX >= 0 && neighborX < destSurface->w && neighborY >= 0 && neighborY < destSurface->h)
+					if(getAlpha(x + dx, y + dy) > 0)
 					{
-						// Get the pixel at the neighbor position
-						Uint32 pixel = *((Uint32*)sourceSurface->pixels + neighborY * width + neighborX);
-						Uint8 r;
-						Uint8 g;
-						Uint8 b;
-						Uint8 a;
-						SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
-						
-						// Compare the pixel alpha value to find the maximum and maximum
-						if(a > maxPixel)
-							maxPixel = a;
-						if(a < minPixel)
-							minPixel = a;
+						isOutline = true;
+						break; // break inner loop only
 					}
 				}
 			}
 
-			Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, maxPixel - minPixel);
-			*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+			if(isOutline)
+			{
+				Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, color.a);
+				*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+			}
 		}
 	}
 
-	if (SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
-	if (SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
 
 	SDL_FreeSurface(sourceSurface);
-
 	return destSurface;
 }
 
@@ -764,7 +762,7 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 
 	// Calculate inverse matrix M_inv for mapping dst -> src
 	double det = a * d - b * c;
-	if (static_cast<int>(det) == 0)
+	if (std::abs(det) < 1e-10)
 		throw std::runtime_error("Singular transform matrix!");
 	double invDet = 1.0 / det;
 	double ia =  d * invDet;
