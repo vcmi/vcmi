@@ -16,13 +16,13 @@
 
 struct SharedImageLocator
 {
-	enum ShadowMode
+	enum class ShadowMode
 	{
 		SHADOW_NONE,
 		SHADOW_NORMAL,
 		SHADOW_SHEAR
 	};
-	enum OverlayMode
+	enum class OverlayMode
 	{
 		OVERLAY_NONE,
 		OVERLAY_OUTLINE,
