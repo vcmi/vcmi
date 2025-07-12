@@ -705,7 +705,10 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, 
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return 0;
 		Uint32 pixel = *((Uint32*)sourceSurface->pixels + y * width + x);
-		Uint8 r, g, b, a;
+		Uint8 r;
+		Uint8 g;
+		Uint8 b;
+		Uint8 a;
 		SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
 		return a;
 	};
