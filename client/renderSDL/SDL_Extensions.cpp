@@ -23,6 +23,7 @@
 #include "../../lib/GameConstants.h"
 
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
 
 #include <SDL_render.h>
 #include <SDL_surface.h>
@@ -816,40 +817,44 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 
 int getLowestNonTransparentY(SDL_Surface* surface)
 {
-	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+	assert(surface && surface->format->format == SDL_PIXELFORMAT_ARGB8888);
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
-	if(SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+	const int w = surface->w;
+	const int h = surface->h;
+	const int bpp = surface->format->BytesPerPixel;
+	auto pixels = static_cast<Uint8*>(surface->pixels);
 
-	int w = surface->w;
-	int h = surface->h;
-	int bpp = surface->format->BytesPerPixel;
-	auto pixels = (Uint8*)surface->pixels;
-
-	for(int y = h - 1; y >= 0; --y)
-	{
-		Uint8* row = pixels + y * surface->pitch;
-
-		for(int x = 0; x < w; ++x)
+	// Use parallel_reduce to find the max y with non-transparent pixel
+	int lowestY = tbb::parallel_reduce(
+		tbb::blocked_range<int>(0, h),
+		-1,  // initial lowestY = -1 (fully transparent)
+		[&](const tbb::blocked_range<int>& r, int localMaxY) -> int
 		{
-			Uint32 pixel = *(Uint32*)(row + x * bpp);
-
-			Uint8 r;
-			Uint8 g;
-			Uint8 b;
-			Uint8 a;
-			SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
-
-			if (a > 0)
+			for (int y = r.begin(); y != r.end(); ++y)
 			{
-				if(SDL_MUSTLOCK(surface))
-					SDL_UnlockSurface(surface);
-				return y;
+				Uint8* row = pixels + y * surface->pitch;
+				for (int x = 0; x < w; ++x)
+				{
+					Uint32 pixel = *(Uint32*)(row + x * bpp);
+					Uint8 a = (pixel >> 24) & 0xFF; // Fast path for ARGB8888
+					if (a > 0)
+					{
+						localMaxY = std::max(localMaxY, y);
+						break; // no need to scan rest of row
+					}
+				}
 			}
+			return localMaxY;
+		},
+		[](int a, int b) -> int
+		{
+			return std::max(a, b);
 		}
-	}
+	);
 
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
-	return -1;  // fully transparent
+	return lowestY;
 }
 
 void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
@@ -884,124 +889,53 @@ void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uin
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 }
 
-void gaussianBlur(SDL_Surface* surface, int amount)
+void boxBlur(SDL_Surface* surface)
 {
-	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
-
-	if (!surface || amount <= 0) return;
-
+	assert(surface && surface->format->format == SDL_PIXELFORMAT_ARGB8888);
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
 	int width = surface->w;
 	int height = surface->h;
 	int pixelCount = width * height;
 
-	auto pixels = static_cast<Uint32*>(surface->pixels);
+	Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+	std::vector<Uint32> temp(pixelCount);
 
-	std::vector<Uint8> srcR(pixelCount);
-	std::vector<Uint8> srcG(pixelCount);
-	std::vector<Uint8> srcB(pixelCount);
-	std::vector<Uint8> srcA(pixelCount);
-
-	std::vector<Uint8> dstR(pixelCount);
-	std::vector<Uint8> dstG(pixelCount);
-	std::vector<Uint8> dstB(pixelCount);
-	std::vector<Uint8> dstA(pixelCount);
-
-	// Initialize src channels from surface pixels
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
+	tbb::parallel_for(0, height, [&](int y)
 	{
-		for(int y = r.begin(); y != r.end(); ++y)
+		for (int x = 0; x < width; ++x)
 		{
-			for (int x = 0; x < width; ++x)
+			int sumR = 0;
+			int sumG = 0;
+			int sumB = 0;
+			int sumA = 0;
+			int count = 0;
+
+			for (int ky = -1; ky <= 1; ++ky)
 			{
-				Uint32 pixel = pixels[y * width + x];
-				Uint8 r;
-				Uint8 g;
-				Uint8 b;
-				Uint8 a;
-				SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
-
-				int idx = y * width + x;
-				srcR[idx] = r;
-				srcG[idx] = g;
-				srcB[idx] = b;
-				srcA[idx] = a;
-			}
-		}
-	});
-
-	// 3x3 Gaussian kernel
-	std::array<std::array<float, 3>, 3> kernel = {{
-		{{1.f/16, 2.f/16, 1.f/16}},
-		{{2.f/16, 4.f/16, 2.f/16}},
-		{{1.f/16, 2.f/16, 1.f/16}}
-	}};
-
-	// Apply the blur 'amount' times for stronger blur
-	for (int iteration = 0; iteration < amount; ++iteration)
-	{
-		tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
-		{
-			for(int y = r.begin(); y != r.end(); ++y)
-			{
-				for (int x = 0; x < width; ++x)
+				int ny = std::clamp(y + ky, 0, height - 1);
+				for (int kx = -1; kx <= 1; ++kx)
 				{
-					float sumR = 0.f;
-					float sumG = 0.f;
-					float sumB = 0.f;
-					float sumA = 0.f;
+					int nx = std::clamp(x + kx, 0, width - 1);
+					Uint32 pixel = pixels[ny * width + nx];
 
-					for (int ky = -1; ky <= 1; ++ky)
-					{
-						for (int kx = -1; kx <= 1; ++kx)
-						{
-							int nx = x + kx;
-							int ny = y + ky;
-
-							// Clamp edges
-							if (nx < 0) nx = 0;
-							else if (nx >= width) nx = width - 1;
-							if (ny < 0) ny = 0;
-							else if (ny >= height) ny = height - 1;
-
-							int nIdx = ny * width + nx;
-							float kval = kernel[ky + 1][kx + 1];
-
-							sumR += srcR[nIdx] * kval;
-							sumG += srcG[nIdx] * kval;
-							sumB += srcB[nIdx] * kval;
-							sumA += srcA[nIdx] * kval;
-						}
-					}
-
-					int idx = y * width + x;
-					dstR[idx] = static_cast<Uint8>(sumR);
-					dstG[idx] = static_cast<Uint8>(sumG);
-					dstB[idx] = static_cast<Uint8>(sumB);
-					dstA[idx] = static_cast<Uint8>(sumA);
+					sumA += (pixel >> 24) & 0xFF;
+					sumR += (pixel >> 16) & 0xFF;
+					sumG += (pixel >> 8)  & 0xFF;
+					sumB += (pixel >> 0)  & 0xFF;
+					++count;
 				}
 			}
-		});
-		// Swap src and dst for next iteration (blur chaining)
-		srcR.swap(dstR);
-		srcG.swap(dstG);
-		srcB.swap(dstB);
-		srcA.swap(dstA);
-	}
 
-	// After final iteration, write back to surface pixels
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
-	{
-		for(int y = r.begin(); y != r.end(); ++y)
-		{
-			for (int x = 0; x < width; ++x)
-			{
-				int idx = y * width + x;
-				pixels[idx] = SDL_MapRGBA(surface->format, srcR[idx], srcG[idx], srcB[idx], srcA[idx]);
-			}
+			Uint8 a = sumA / count;
+			Uint8 r = sumR / count;
+			Uint8 g = sumG / count;
+			Uint8 b = sumB / count;
+			temp[y * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
 		}
 	});
+
+	std::copy(temp.begin(), temp.end(), pixels);
 
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 }
@@ -1029,7 +963,7 @@ SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * source, bool doSheer)
 
 	applyAffineTransform(sourceSurface, destSurface, a, b, c, d, tx, ty);
 	fillAlphaPixelWithRGBA(destSurface, 0, 0, 0, 128);
-	gaussianBlur(destSurface, 1);
+	boxBlur(destSurface);
 
 	SDL_FreeSurface(sourceSurface);
 
