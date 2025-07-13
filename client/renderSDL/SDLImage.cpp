@@ -70,7 +70,7 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename, int keepBorder)
+SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -89,7 +89,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename, int keepBorder)
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 
-		optimizeSurface(keepBorder);
+		if(optimizeImage)
+			optimizeSurface();
 	}
 }
 
@@ -209,7 +210,7 @@ void SDLImageShared::draw(SDL_Surface * where, SDL_Palette * palette, const Poin
 		SDL_SetSurfacePalette(surf, originalPalette);
 }
 
-void SDLImageShared::optimizeSurface(int keepBorder)
+void SDLImageShared::optimizeSurface()
 {
 	assert(upscalingInProgress == false);
 	if (!surf)
@@ -217,7 +218,7 @@ void SDLImageShared::optimizeSurface(int keepBorder)
 
 	SDLImageOptimizer optimizer(surf, Rect(margins, fullSize));
 
-	optimizer.optimizeSurface(surf, keepBorder);
+	optimizer.optimizeSurface(surf);
 	SDL_FreeSurface(surf);
 
 	surf = optimizer.acquireResultSurface();
