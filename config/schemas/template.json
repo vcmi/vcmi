@@ -206,6 +206,27 @@
 			"type" : "object",
 			"$ref" : "gameSettings.json"
 		},
+		
+		"bannedSpells": {
+			"description" : "List of spells that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedArtifacts": {
+			"description" : "List of artifacts that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedSkills": {
+			"description" : "List of skills that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedHeroes": {
+			"description" : "List of heroes that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",
 			"type": "string"

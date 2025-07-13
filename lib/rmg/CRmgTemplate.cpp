@@ -835,6 +835,11 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 	serializePlayers(handler, players, "players");
 	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
+	handler.serializeIdArray("bannedSpells", bannedSpells);
+	handler.serializeIdArray("bannedArtifacts", bannedArtifacts);
+	handler.serializeIdArray("bannedSkills", bannedSkills);
+	handler.serializeIdArray("bannedHeroes", bannedHeroes);
+
 	*mapSettings = handler.getCurrent()["settings"];
 
 	{

@@ -239,6 +239,8 @@ public:
 
 	ui8 levels() const;
 
+	void banWaterHeroes(bool isWaterMap);
+
 	EMapFormat version; /// The default value is EMapFormat::SOD.
 	ModCompatibilityInfo mods; /// set of mods required to play a map
 

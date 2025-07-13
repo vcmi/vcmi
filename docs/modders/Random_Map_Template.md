@@ -35,6 +35,38 @@
 			"perPlayerOnMapCap" : 1
 		}
 	},
+	
+	/// List of spells that are banned on this map. 
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+	"bannedSpells": [
+		"townPortal",
+		"modID:spellFromMod"
+	],
+
+	/// List of artifacts that are banned on this map. 
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+	"bannedArtifacts": [
+		"armageddonsBlade",
+		"modID:artifactFromMod"
+	],
+
+	/// List of secondary skills that are banned on this map. 
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+	"bannedSkills": [
+		"diplomacy",
+		"modID:secondarySkillFromMod"
+	],
+
+	/// List of heroes that are banned on this map. 
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+	"bannedHeroes": [
+		"lordHaart",
+		"modID:heroFromMod"
+	]
 
 	/// List of named zones, see below for format description
 	"zones" :

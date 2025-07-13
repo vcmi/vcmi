@@ -228,19 +228,26 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 	// Chance of specific hero class to appear in this town
 	// Mirrored version of field "tavern" from hero class format
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"tavern" :
 	{
 		"knight" : 5,
-		"druid"  : 6
+		"druid"  : 6,
+		"modID:classFromMod" : 4
 	},
 
 	// Chance of specific spell to appear in mages guild of this town
 	// If spell is missing or set to 0 it will not appear unless set as "always present" in editor
 	// Spells from unavailable levels are not required to be in this list
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"guildSpells" :
 	{
 		"magicArrow" : 30,
-		"bless"  : 10
+		"bless"  : 10,
+		"modID:spellFromMod" : 20
 	},
 
 	// Which tiers in this town have creature hordes. Set to -1 to disable horde(s)

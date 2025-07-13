@@ -338,6 +338,11 @@ public:
 	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
+	const std::set<SpellID> & getBannedSpells() const { return bannedSpells; }
+	const std::set<ArtifactID> & getBannedArtifacts() const { return bannedArtifacts; }
+	const std::set<SecondarySkill> & getBannedSkills() const { return bannedSkills; }
+	const std::set<HeroTypeID> & getBannedHeroes() const { return bannedHeroes; }
+
 	void validate() const; /// Tests template on validity and throws exception on failure
 
 	void serializeJson(JsonSerializeFormat & handler);
@@ -355,6 +360,11 @@ private:
 	std::vector<rmg::ZoneConnection> connections;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	std::unique_ptr<JsonNode> mapSettings;
+
+	std::set<SpellID> bannedSpells;
+	std::set<ArtifactID> bannedArtifacts;
+	std::set<SecondarySkill> bannedSkills;
+	std::set<HeroTypeID> bannedHeroes;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

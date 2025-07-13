@@ -32,13 +32,14 @@ class DLL_LINKAGE CIdentifierStorage
 		std::string name;        /// string ID
 		std::function<void(si32)> callback;
 		bool optional;
+		bool bypassDependenciesCheck;
 		bool dynamicType;
 
 		/// Builds callback from identifier in form "targetMod:type.name"
 		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
 
 		/// Builds callback from identifier in form "targetMod:name"
-		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional);
+		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool bypassDependenciesCheck);
 
 	private:
 		ObjectCallback() = default;
@@ -87,7 +88,9 @@ public:
 	void requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
 	void requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback) const;
 
-	void requestIdentifierOptional(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
+	void requestIdentifierIfNotNull(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
+	void requestIdentifierIfFound(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
+	void requestIdentifierIfFound(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const;
 
 	/// try to request ID. If ID with such name won't be loaded, callback function will not be called
 	void tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const;
