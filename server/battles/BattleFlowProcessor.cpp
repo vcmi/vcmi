@@ -501,7 +501,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCall
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::CATAPULT)
 	{
-		const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
+		const auto & attackableBattleHexes = battle.getAttackableWallParts();
 
 		if (attackableBattleHexes.empty())
 		{
