@@ -713,39 +713,42 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, 
 		return a;
 	};
 
-	// Go through all transparent pixels and check if they border an opaque region
-	for(int y = 0; y < height; y++)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
 	{
-		for(int x = 0; x < width; x++)
+		// Go through all transparent pixels and check if they border an opaque region
+		for(int y = r.begin(); y != r.end(); ++y)
 		{
-			if(getAlpha(x, y) != 0)
-				continue; // Skip opaque pixels
-
-			bool isOutline = false;
-
-			for(int dy = -thickness; dy <= thickness && !isOutline; ++dy)
+			for(int x = 0; x < width; x++)
 			{
-				for(int dx = -thickness; dx <= thickness; ++dx)
-				{
-					// circular neighborhood
-					if(dx * dx + dy * dy > thickness * thickness)
-						continue;
+				if(getAlpha(x, y) != 0)
+					continue; // Skip opaque pixels
 
-					if(getAlpha(x + dx, y + dy) > 0)
+				bool isOutline = false;
+
+				for(int dy = -thickness; dy <= thickness && !isOutline; ++dy)
+				{
+					for(int dx = -thickness; dx <= thickness; ++dx)
 					{
-						isOutline = true;
-						break; // break inner loop only
+						// circular neighborhood
+						if(dx * dx + dy * dy > thickness * thickness)
+							continue;
+
+						if(getAlpha(x + dx, y + dy) > 0)
+						{
+							isOutline = true;
+							break; // break inner loop only
+						}
 					}
 				}
-			}
 
-			if(isOutline)
-			{
-				Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, color.a);
-				*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+				if(isOutline)
+				{
+					Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, color.a);
+					*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+				}
 			}
 		}
-	}
+	});
 
 	if(SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
 	if(SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
@@ -773,36 +776,39 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 	double ic = -c * invDet;
 	double id =  a * invDet;
 
-	// For each pixel in the destination image
-	for(int y = 0; y < dst->h; y++)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, dst->h), [&](const tbb::blocked_range<size_t>& r)
 	{
-		for(int x = 0; x < dst->w; x++)
+		// For each pixel in the destination image
+		for(int y = r.begin(); y != r.end(); ++y)	
 		{
-			// Map destination pixel (x,y) back to source coordinates (srcX, srcY)
-			double srcX = ia * (x - tx) + ib * (y - ty);
-			double srcY = ic * (x - tx) + id * (y - ty);
-
-			// Nearest neighbor sampling (can be improved to bilinear)
-			auto srcXi = static_cast<int>(round(srcX));
-			auto srcYi = static_cast<int>(round(srcY));
-
-			// Check bounds
-			if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
+			for(int x = 0; x < dst->w; x++)
 			{
-				auto srcPixels = (Uint32*)src->pixels;
-				auto dstPixels = (Uint32*)dst->pixels;
+				// Map destination pixel (x,y) back to source coordinates (srcX, srcY)
+				double srcX = ia * (x - tx) + ib * (y - ty);
+				double srcY = ic * (x - tx) + id * (y - ty);
 
-				Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
-				dstPixels[y * dst->w + x] = pixel;
-			}
-			else
-			{
-				// Outside source bounds: set transparent or black
-				auto dstPixels = (Uint32*)dst->pixels;
-				dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
+				// Nearest neighbor sampling (can be improved to bilinear)
+				auto srcXi = static_cast<int>(round(srcX));
+				auto srcYi = static_cast<int>(round(srcY));
+
+				// Check bounds
+				if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
+				{
+					auto srcPixels = (Uint32*)src->pixels;
+					auto dstPixels = (Uint32*)dst->pixels;
+
+					Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
+					dstPixels[y * dst->w + x] = pixel;
+				}
+				else
+				{
+					// Outside source bounds: set transparent or black
+					auto dstPixels = (Uint32*)dst->pixels;
+					dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
+				}
 			}
 		}
-	}
+	});
 
 	if (SDL_MUSTLOCK(src)) SDL_UnlockSurface(src);
 	if (SDL_MUSTLOCK(dst)) SDL_UnlockSurface(dst);
@@ -855,22 +861,25 @@ void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uin
 	auto pixels = (Uint32*)surface->pixels;
 	int pixelCount = surface->w * surface->h;
 
-	for (int i = 0; i < pixelCount; i++)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, pixelCount), [&](const tbb::blocked_range<size_t>& range)
 	{
-		Uint32 pixel = pixels[i];
-		Uint8 pr;
-		Uint8 pg;
-		Uint8 pb;
-		Uint8 pa;
-		// Extract existing RGBA components using SDL_GetRGBA
-		SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
+		for(int i = range.begin(); i != range.end(); ++i)
+		{
+			Uint32 pixel = pixels[i];
+			Uint8 pr;
+			Uint8 pg;
+			Uint8 pb;
+			Uint8 pa;
+			// Extract existing RGBA components using SDL_GetRGBA
+			SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
 
-		Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
-		if(pa == 0)
-			newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+			Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
+			if(pa == 0)
+				newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
 
-		pixels[i] = newPixel;
-	}
+			pixels[i] = newPixel;
+		}
+	});
 
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 }
@@ -900,24 +909,27 @@ void gaussianBlur(SDL_Surface* surface, int amount)
 	std::vector<Uint8> dstA(pixelCount);
 
 	// Initialize src channels from surface pixels
-	for (int y = 0; y < height; ++y)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
 	{
-		for (int x = 0; x < width; ++x)
+		for(int y = r.begin(); y != r.end(); ++y)
 		{
-			Uint32 pixel = pixels[y * width + x];
-			Uint8 r;
-			Uint8 g;
-			Uint8 b;
-			Uint8 a;
-			SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+			for (int x = 0; x < width; ++x)
+			{
+				Uint32 pixel = pixels[y * width + x];
+				Uint8 r;
+				Uint8 g;
+				Uint8 b;
+				Uint8 a;
+				SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
 
-			int idx = y * width + x;
-			srcR[idx] = r;
-			srcG[idx] = g;
-			srcB[idx] = b;
-			srcA[idx] = a;
+				int idx = y * width + x;
+				srcR[idx] = r;
+				srcG[idx] = g;
+				srcB[idx] = b;
+				srcA[idx] = a;
+			}
 		}
-	}
+	});
 
 	// 3x3 Gaussian kernel
 	std::array<std::array<float, 3>, 3> kernel = {{
@@ -929,45 +941,48 @@ void gaussianBlur(SDL_Surface* surface, int amount)
 	// Apply the blur 'amount' times for stronger blur
 	for (int iteration = 0; iteration < amount; ++iteration)
 	{
-		for (int y = 0; y < height; ++y)
+		tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
 		{
-			for (int x = 0; x < width; ++x)
+			for(int y = r.begin(); y != r.end(); ++y)
 			{
-				float sumR = 0.f;
-				float sumG = 0.f;
-				float sumB = 0.f;
-				float sumA = 0.f;
-
-				for (int ky = -1; ky <= 1; ++ky)
+				for (int x = 0; x < width; ++x)
 				{
-					for (int kx = -1; kx <= 1; ++kx)
+					float sumR = 0.f;
+					float sumG = 0.f;
+					float sumB = 0.f;
+					float sumA = 0.f;
+
+					for (int ky = -1; ky <= 1; ++ky)
 					{
-						int nx = x + kx;
-						int ny = y + ky;
+						for (int kx = -1; kx <= 1; ++kx)
+						{
+							int nx = x + kx;
+							int ny = y + ky;
 
-						// Clamp edges
-						if (nx < 0) nx = 0;
-						else if (nx >= width) nx = width - 1;
-						if (ny < 0) ny = 0;
-						else if (ny >= height) ny = height - 1;
+							// Clamp edges
+							if (nx < 0) nx = 0;
+							else if (nx >= width) nx = width - 1;
+							if (ny < 0) ny = 0;
+							else if (ny >= height) ny = height - 1;
 
-						int nIdx = ny * width + nx;
-						float kval = kernel[ky + 1][kx + 1];
+							int nIdx = ny * width + nx;
+							float kval = kernel[ky + 1][kx + 1];
 
-						sumR += srcR[nIdx] * kval;
-						sumG += srcG[nIdx] * kval;
-						sumB += srcB[nIdx] * kval;
-						sumA += srcA[nIdx] * kval;
+							sumR += srcR[nIdx] * kval;
+							sumG += srcG[nIdx] * kval;
+							sumB += srcB[nIdx] * kval;
+							sumA += srcA[nIdx] * kval;
+						}
 					}
-				}
 
-				int idx = y * width + x;
-				dstR[idx] = static_cast<Uint8>(sumR);
-				dstG[idx] = static_cast<Uint8>(sumG);
-				dstB[idx] = static_cast<Uint8>(sumB);
-				dstA[idx] = static_cast<Uint8>(sumA);
+					int idx = y * width + x;
+					dstR[idx] = static_cast<Uint8>(sumR);
+					dstG[idx] = static_cast<Uint8>(sumG);
+					dstB[idx] = static_cast<Uint8>(sumB);
+					dstA[idx] = static_cast<Uint8>(sumA);
+				}
 			}
-		}
+		});
 		// Swap src and dst for next iteration (blur chaining)
 		srcR.swap(dstR);
 		srcG.swap(dstG);
@@ -976,14 +991,17 @@ void gaussianBlur(SDL_Surface* surface, int amount)
 	}
 
 	// After final iteration, write back to surface pixels
-	for (int y = 0; y < height; ++y)
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
 	{
-		for (int x = 0; x < width; ++x)
+		for(int y = r.begin(); y != r.end(); ++y)
 		{
-			int idx = y * width + x;
-			pixels[idx] = SDL_MapRGBA(surface->format, srcR[idx], srcG[idx], srcB[idx], srcA[idx]);
+			for (int x = 0; x < width; ++x)
+			{
+				int idx = y * width + x;
+				pixels[idx] = SDL_MapRGBA(surface->format, srcR[idx], srcG[idx], srcB[idx], srcA[idx]);
+			}
 		}
-	}
+	});
 
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 }
