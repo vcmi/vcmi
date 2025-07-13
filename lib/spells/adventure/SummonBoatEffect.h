@@ -26,9 +26,8 @@ public:
 	bool canCreateNewBoat() const;
 	int getSuccessChance(const spells::Caster * caster) const;
 
-protected:
+private:
 	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
-
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 };
 

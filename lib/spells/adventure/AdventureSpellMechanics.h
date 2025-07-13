@@ -30,17 +30,20 @@ class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::no
 
 	const LevelOptions & getLevel(const spells::Caster * caster) const;
 	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(const CSpell * s, const JsonNode & node);
 
 public:
 	AdventureSpellMechanics(const CSpell * s);
 	~AdventureSpellMechanics();
 
+	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+
+private:
 	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
 	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
 	bool givesBonus(const spells::Caster * caster, BonusType which) const final;
-	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 };
 
 VCMI_LIB_NAMESPACE_END

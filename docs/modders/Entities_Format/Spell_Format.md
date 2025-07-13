@@ -679,6 +679,7 @@ Value of all bonuses can be affected by following bonuses:
 ## Configurable adventure map effects
 
 Currently, VCMI does not allow completely new spell effects for adventure maps. However, it is possible to:
+
 - modify the parameters of all H3 spells.
 - create spells with similar effects to H3 spells
 - create a spell that gives bonuses to the hero who cast the spell.
@@ -686,9 +687,11 @@ Currently, VCMI does not allow completely new spell effects for adventure maps. 
 Unlike combat effects, adventure map spells can only have one special effect, such as the Dimension Door or Town Portal effect. The number of bonuses granted by an adventure map spell is unlimited.
 
 The AI has a limited understanding of adventure map spells and may use the following spells:
-- Spells that give WATER_WALKING or FLYING_MOVEMENT bonuses
+
+- Spells that give `WATER_WALKING` or `FLYING_MOVEMENT` bonuses
 - Spells with the Summon Boat effect, provided the spell can create new boats with a 100% success chance.
 - Any spells with the Town Portal effect.
+
 ### Common format
 
 All properties in this section can be used for all non-generic adventure map spell effects.
@@ -696,7 +699,7 @@ All properties in this section can be used for all non-generic adventure map spe
 Parameters:
 
 - `type` - the type of spell effect used for this spell, or `generic` if a custom mechanic is not used.
-- `castsPerDay` - Optional. Defines how many times a hero can cast this spell per day; set to zero or omitted for unlimited use.
+- `castsPerDay` - Optional. Defines how many times a hero can cast this spell per day; set to zero or omit for unlimited use.
 - `castsPerDayXL` - Optional. An alternative cast-per-day limit that is only active on maps that are at least XL+U in size. If this value is not set or is set to zero, the game will use the value of the `castsPerDay` variable.
 - `bonuses` - A list of bonuses that will be given to the hero when this spell is cast successfully. When used with effects that can fail (e.g. Summon Boat), the bonuses will only apply to a successful cast.
 
@@ -723,9 +726,6 @@ Example:
 The effect instantly teleports the hero to the selected location.
 
 Parameters:
-
-The effect instantly teleports the hero to the selected location.
-
 
 - `movementPointsRequired` - The amount of movement points the hero must have to cast this spell.
 - `movementPointsTaken` - The amount of movement points that will be taken if the spell is cast successfully. If the hero does not have enough movement points, they will be reduced to zero after casting.
@@ -757,7 +757,7 @@ Example:
 
 ### Remove Object
 
-The effect completely removes the targeted object from the map. The Scuttle Boat spell is an example of this effect.
+The effect completely removes the targeted object from the map. The Scuttle Boat spell is an example of this effect. The success chance is defined as [spell effect power](#spell-power).
 
 Parameters:
 
@@ -792,8 +792,8 @@ Parameters:
 - `useExistingBoat` - If this is set to true, the spell can move existing boats to the hero's location.
 - `createdBoat` - Optional identifier of the boat type that can be created by this spell. If this is not set, the spell cannot create new boats.
 
-
 Note that if the spell can both create new boats and use existing ones, it would prefer to move existing boats and only create new ones if there are no suitable ones to move.
+
 Example:
 
 ```json
@@ -842,6 +842,7 @@ Example:
 
 ```json
 "adventureEffect" : {
+	"type" : "viewWorld",
 	"objects" : {
 		"resource" : true,
 		"mine" : true,

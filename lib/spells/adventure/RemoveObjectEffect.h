@@ -24,6 +24,7 @@ class RemoveObjectEffect final : public AdventureSpellRangedEffect
 public:
 	RemoveObjectEffect(const CSpell * s, const JsonNode & config);
 
+private:
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;

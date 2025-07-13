@@ -28,7 +28,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-static std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(const CSpell * s, const JsonNode & node)
+std::unique_ptr<IAdventureSpellEffect> AdventureSpellMechanics::createAdventureEffect(const CSpell * s, const JsonNode & node)
 {
 	const std::string & typeID = node["type"].String();
 

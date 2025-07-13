@@ -856,16 +856,16 @@ public:
 		NONE = -1,
 
 		// Adventure map spells
-		SUMMON_BOAT [[deprecated]] = 0,
-		SCUTTLE_BOAT [[deprecated]] = 1,
-		VISIONS [[deprecated]] = 2,
-		VIEW_EARTH [[deprecated]] = 3,
-		DISGUISE [[deprecated]] = 4,
-		VIEW_AIR [[deprecated]] = 5,
-		FLY [[deprecated]] = 6,
-		WATER_WALK [[deprecated]] = 7,
-		DIMENSION_DOOR [[deprecated]] = 8,
-		TOWN_PORTAL [[deprecated]] = 9,
+		SUMMON_BOAT [[deprecated("check for spell mechanics instead of spell ID")]] = 0,
+		SCUTTLE_BOAT [[deprecated("check for spell mechanics instead of spell ID")]] = 1,
+		VISIONS [[deprecated("check for spell mechanics instead of spell ID")]] = 2,
+		VIEW_EARTH [[deprecated("check for spell mechanics instead of spell ID")]] = 3,
+		DISGUISE [[deprecated("check for spell mechanics instead of spell ID")]] = 4,
+		VIEW_AIR [[deprecated("check for spell mechanics instead of spell ID")]] = 5,
+		FLY [[deprecated("check for spell mechanics instead of spell ID")]] = 6,
+		WATER_WALK [[deprecated("check for spell mechanics instead of spell ID")]] = 7,
+		DIMENSION_DOOR [[deprecated("check for spell mechanics instead of spell ID")]] = 8,
+		TOWN_PORTAL [[deprecated("check for spell mechanics instead of spell ID")]] = 9,
 
 		// Combat spells
 		QUICKSAND = 10,

@@ -1236,7 +1236,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 	adventureInt->onHeroChanged(hero);
 
 	//recalculate paths because hero has lost or gained bonus influencing pathfinding
-	if ((bonus.type == BonusType::FLYING_MOVEMENT || bonus.type == BonusType::WATER_WALKING || bonus.type == BonusType::ROUGH_TERRAIN_DISCOUNT || bonus.type == BonusType::NO_TERRAIN_PENALTY))
+	if (bonus.type == BonusType::FLYING_MOVEMENT || bonus.type == BonusType::WATER_WALKING || bonus.type == BonusType::ROUGH_TERRAIN_DISCOUNT || bonus.type == BonusType::NO_TERRAIN_PENALTY)
 		localState->verifyPath(hero);
 }
 

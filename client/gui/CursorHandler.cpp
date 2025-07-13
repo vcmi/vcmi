@@ -68,8 +68,6 @@ void CursorHandler::init()
 		cursors.push_back(parameters);
 	}
 
-	// TODO: Preload?
-
 	set(Cursor::Map::POINTER);
 }
 

@@ -26,10 +26,9 @@ class DimensionDoorEffect final : public AdventureSpellRangedEffect
 public:
 	DimensionDoorEffect(const CSpell * s, const JsonNode & config);
 
-protected:
+private:
 	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
-
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
 	std::string getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;

@@ -1061,27 +1061,27 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 struct TownPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
-	MasteryLevel::Type townPortalSkillLevel;
-	uint64_t movementNeeded;
 	const ChainActor * actor;
 	const CGHeroInstance * hero;
 	std::vector<const CGTownInstance *> targetTowns;
 	AINodeStorage * nodeStorage;
-
-	SpellID spellID;
 	const CSpell * townPortal;
+	uint64_t movementNeeded;
+	SpellID spellID;
+	bool townSelectionAllowed;
 
-	TownPortalFinder(const ChainActor * actor, const std::vector<CGPathNode *> & initialNodes, std::vector<const CGTownInstance *> targetTowns, AINodeStorage * nodeStorage, SpellID spellID)
-		: actor(actor)
-		, initialNodes(initialNodes)
+	TownPortalFinder(const ChainActor * actor, const std::vector<CGPathNode *> & initialNodes, const std::vector<const CGTownInstance *> & targetTowns, AINodeStorage * nodeStorage, SpellID spellID)
+		: initialNodes(initialNodes)
+		, actor(actor)
 		, hero(actor->hero)
 		, targetTowns(targetTowns)
 		, nodeStorage(nodeStorage)
-		, spellID(spellID)
 		, townPortal(spellID.toSpell())
+		, spellID(spellID)
 	{
 		auto townPortalEffect = townPortal->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
 		movementNeeded = townPortalEffect->getMovementPointsRequired();
+		townSelectionAllowed = townPortalEffect->townSelectionAllowed();
 	}
 
 	bool actorCanCastTownPortal()
@@ -1102,7 +1102,7 @@ struct TownPortalFinder
 				continue;
 			}
 
-			if(townPortalSkillLevel < MasteryLevel::ADVANCED)
+			if(!townSelectionAllowed)
 			{
 				const CGTownInstance * nearestTown = *vstd::minElementByFun(targetTowns, [&](const CGTownInstance * t) -> int
 				{
