@@ -777,6 +777,9 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 	double ic = -c * invDet;
 	double id =  a * invDet;
 
+	auto srcPixels = (Uint32*)src->pixels;
+	auto dstPixels = (Uint32*)dst->pixels;
+
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, dst->h), [&](const tbb::blocked_range<size_t>& r)
 	{
 		// For each pixel in the destination image
@@ -795,18 +798,12 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 				// Check bounds
 				if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
 				{
-					auto srcPixels = (Uint32*)src->pixels;
-					auto dstPixels = (Uint32*)dst->pixels;
 
 					Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
 					dstPixels[y * dst->w + x] = pixel;
 				}
 				else
-				{
-					// Outside source bounds: set transparent or black
-					auto dstPixels = (Uint32*)dst->pixels;
 					dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
-				}
 			}
 		}
 	});

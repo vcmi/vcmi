@@ -24,7 +24,7 @@ SDLImageOptimizer::SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDim
 {
 }
 
-void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
+void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface, int keepBorder)
 {
 	if (!surf)
 		return;
@@ -78,6 +78,11 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 	// empty image
 	if (left == surf->w)
 		return;
+
+	left = std::max(0, left - keepBorder);
+	top = std::max(0, top - keepBorder);
+	right = std::min(surf->w - 1, right + keepBorder);
+	bottom = std::min(surf->h - 1, bottom + keepBorder);
 
 	if (left != 0 || top != 0 || right != surf->w - 1 || bottom != surf->h - 1)
 	{

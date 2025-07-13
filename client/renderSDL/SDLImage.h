@@ -40,13 +40,13 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
 
-	void optimizeSurface();
+	void optimizeSurface(int keepBorder = 0);
 
 public:
 	//Load image from def file
 	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImageShared(const ImagePath & filename, bool optimizeImage=true);
+	SDLImageShared(const ImagePath & filename, int keepBorder = 0);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImageShared(SDL_Surface * from);
 	~SDLImageShared();

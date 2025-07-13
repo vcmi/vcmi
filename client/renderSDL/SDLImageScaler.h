@@ -21,7 +21,7 @@ class SDLImageOptimizer : boost::noncopyable
 public:
 	SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDimensions);
 
-	void optimizeSurface(SDL_Surface * formatSourceSurface);
+	void optimizeSurface(SDL_Surface * formatSourceSurface, int keepBorder = 0);
 
 	/// Aquires resulting surface and transfers surface ownership to the caller
 	/// May return nullptr if input image was empty
