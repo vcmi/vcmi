@@ -292,8 +292,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Hosszú érintés időtartamának kiválasztása",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Hosszú érintés időtartamának módosítása.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliszekundum",
-	"vcmi.systemOptions.framerateButton.hover"  : "FPS megjelenítése",
-	"vcmi.systemOptions.framerateButton.help"   : "{FPS megjelenítése}\n\nA másodpercenkénti képkocka számláló láthatóságának váltása a játékablak sarkában.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Rezgő visszacsatolás",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Rezgő visszacsatolás}\n\nA rezgő visszacsatolás engedélyezése vagy tiltása érintőbemeneteknél.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Felület fejlesztések",

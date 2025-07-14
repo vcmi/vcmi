@@ -304,8 +304,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"             : "Välj tidsintervall för fördröjd pekskärmsberöringsmeny",
 	"vcmi.systemOptions.longTouchMenu.help"              : "Ändra varaktighetsintervallet för fördröjd beröring.",
 	"vcmi.systemOptions.longTouchMenu.entry"             : "%d millisekunder",
-	"vcmi.systemOptions.framerateButton.hover"           : "Visar FPS (skärmbilder per sekund)",
-	"vcmi.systemOptions.framerateButton.help"            : "{Visa FPS}\n\nVisar räknaren för bildrutor per sekund i hörnet av spelfönstret.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"      : "Haptisk återkoppling",
 	"vcmi.systemOptions.hapticFeedbackButton.help"       : "{Haptisk feedback}\n\nÄndrar den haptiska feedbacken för berörings-input.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover": "Förbättringar av användargränssnittet",

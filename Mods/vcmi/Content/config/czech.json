@@ -311,8 +311,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Vybrat dobu dlouhého podržení",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Změnit dobu dlouhého podržení.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisekund",
-	"vcmi.systemOptions.framerateButton.hover"  : "Zobrazit FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Zobrazit FPS}\n\nPřepne viditelnost počítadla snímků za sekundu v rohu obrazovky hry.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Vibrace",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Vibrace}\n\nPřepnout stav vibrací při dotykovém ovládání.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Vylepšení rozhraní",

@@ -35,6 +35,7 @@
 
 #include "../lib/AsyncRunner.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/texts/TextOperations.h"
 
 #include <SDL_render.h>
 
@@ -125,8 +126,8 @@ void GameEngine::updateFrame()
 	handleEvents();
 	windows().simpleRedraw();
 
-	if (settings["video"]["showfps"].Bool())
-		drawFPSCounter();
+	if (settings["video"]["infobox"]["show"].Bool())
+		drawInfoBox();
 
 	screenHandlerInstance->updateScreenTexture();
 
@@ -184,14 +185,47 @@ Point GameEngine::screenDimensions() const
 	return screenHandlerInstance->getLogicalResolution();
 }
 
-void GameEngine::drawFPSCounter()
+void GameEngine::drawInfoBox()
 {
-	Canvas target = screenHandler().getScreenCanvas();
-	Rect targetArea(0, screenDimensions().y - 20, 48, 11);
-	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+	auto font = EFonts::FONT_SMALL;
+	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
-	target.drawColor(targetArea, ColorRGBA(10, 10, 10));
-	target.drawText(targetArea.center(), EFonts::FONT_SMALL, Colors::WHITE, ETextAlignment::CENTER, fps);
+	Canvas target = screenHandler().getScreenCanvas();
+
+	auto powerState = ENGINE->input().getPowerState();
+	std::string powerSymbol = ""; // add symbol if emoji are supported (e.g. VCMI extras)
+	if(fontPtr->canRepresentCharacter("🔋") && powerState.powerState == PowerStateMode::ON_BATTERY)
+		powerSymbol = "🔋 ";
+	else if(fontPtr->canRepresentCharacter("🔌") && powerState.powerState == PowerStateMode::CHARGING)
+		powerSymbol = "🔌 ";
+
+	std::string fps = std::to_string(framerate().getFramerate())+" FPS";
+	std::string time = TextOperations::getFormattedTimeLocal(std::time(nullptr));
+	std::string power = powerState.powerState == PowerStateMode::UNKNOWN ? "" : powerSymbol + std::to_string(powerState.percent) + "%";
+
+	std::string textToDisplay = time + (power.empty() ? "" : " | " + power) + " | " + fps;
+
+	maxInfoBoxTextWidth = std::max(maxInfoBoxTextWidth, static_cast<int>(fontPtr->getStringWidth(textToDisplay))); // do not get smaller (can cause graphical glitches)
+
+	Rect targetArea;
+	std::string edge = settings["video"]["infobox"]["edge"].String();
+	int pos1 = settings["video"]["infobox"]["pos1"].Integer();
+	int pos2 = settings["video"]["infobox"]["pos2"].Integer();
+
+	Point boxSize(maxInfoBoxTextWidth + 4, fontPtr->getLineHeight() + 2);
+
+	if (edge == "topleft")
+		targetArea = Rect(pos2, pos1, boxSize.x, boxSize.y);
+	else if (edge == "topright")
+		targetArea = Rect(screenDimensions().x - pos2 - boxSize.x, pos1, boxSize.x, boxSize.y);
+	else if (edge == "bottomleft")
+		targetArea = Rect(pos2, screenDimensions().y - pos1 - boxSize.y, boxSize.x, boxSize.y);
+	else if (edge == "bottomright")
+		targetArea = Rect(screenDimensions().x - pos2 - boxSize.x, screenDimensions().y - pos1 - boxSize.y, boxSize.x, boxSize.y);
+
+	target.drawColor(targetArea.resize(1), Colors::BRIGHT_YELLOW);
+	target.drawColor(targetArea, ColorRGBA(0, 0, 0));
+	target.drawText(targetArea.center(), font, Colors::WHITE, ETextAlignment::CENTER, textToDisplay);
 }
 
 bool GameEngine::amIGuiThread()

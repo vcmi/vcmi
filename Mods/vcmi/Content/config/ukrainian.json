@@ -308,8 +308,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Виберіть інтервал довгого дотику",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Змінити тривалість інтервалу довгого дотику.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d мілісекунд",
-	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",
-	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\nВикористовувати вібрацію при використанні сенсорного екрану",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Розширення інтерфейсу",
