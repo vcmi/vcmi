@@ -266,15 +266,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	assert(!source.getModScope().empty());
 
 	auto * ret = new CBuilding();
-	ret->bid = vstd::find_or(MappedKeys::BUILDING_NAMES_TO_TYPES, stringID, BuildingID::NONE);
+	ret->bid = BuildingID(source["id"].Integer());
 	ret->subId = BuildingSubID::NONE;
-
-	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
-	{
-		// FIXME: A lot of false-positives with no clear way to handle them in mods
-		//logMod->warn("Building %s: id field is deprecated", stringID);
-		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
-	}
 
 	if (ret->bid == BuildingID::NONE)
 		logMod->error("Building '%s' isn't recognized and won't work properly. Correct the typo or update VCMI.", stringID);

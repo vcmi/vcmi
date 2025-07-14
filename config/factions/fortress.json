@@ -186,9 +186,9 @@
 						]
 					}
 				},
-				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
-				"ship":           { "id" : 20, "upgrades" : "shipyard" },
+				"horde1":         { "upgrades" : "dwellingLvl1" },
+				"horde1Upgr":     { "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ] },
+				"ship":           { },
 				"special2":       {
 					"bonuses": [
 						{
@@ -209,29 +209,29 @@
 					],
 					"requires" : [ "special2" ]
 				},
-				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }, 
+				"grail":          {
 					"bonuses": [
 						{ "type": "PRIMARY_SKILL", "subtype": "primarySkill.attack", "val": 10 },
 						{ "type": "PRIMARY_SKILL", "subtype": "primarySkill.defence", "val": 10 }
 					]
 				},
 
-				"extraCapitol":   { "id" : 29, "requires" : [ "capitol" ], "mode" : "auto" },
-				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
-				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl3":   { "id" : 32, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl4":   { "id" : 33, "requires" : [ "dwellingLvl3" ] },
-				"dwellingLvl5":   { "id" : 34, "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
-				"dwellingLvl6":   { "id" : 35, "requires" : [ "dwellingLvl2" ] },
-				"dwellingLvl7":   { "id" : 36, "requires" : [ "allOf", [ "dwellingLvl4" ], [ "dwellingLvl6" ] ] },
+				"extraCapitol":   { "requires" : [ "capitol" ] },
+				"dwellingLvl1":   { "requires" : [ "fort" ] },
+				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl3":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl4":   { "requires" : [ "dwellingLvl3" ] },
+				"dwellingLvl5":   { "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
+				"dwellingLvl6":   { "requires" : [ "dwellingLvl2" ] },
+				"dwellingLvl7":   { "requires" : [ "allOf", [ "dwellingLvl4" ], [ "dwellingLvl6" ] ] },
 
-				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1", "requires" : [ "tavern" ] },
-				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
-				"dwellingUpLvl3": { "id" : 39, "upgrades" : "dwellingLvl3" },
-				"dwellingUpLvl4": { "id" : 40, "upgrades" : "dwellingLvl4" },
-				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5", "requires" : [ "resourceSilo" ] },
-				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
-				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7" },
+				"dwellingUpLvl1": { "upgrades" : "dwellingLvl1", "requires" : [ "tavern" ] },
+				"dwellingUpLvl2": { "upgrades" : "dwellingLvl2" },
+				"dwellingUpLvl3": { "upgrades" : "dwellingLvl3" },
+				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4" },
+				"dwellingUpLvl5": { "upgrades" : "dwellingLvl5", "requires" : [ "resourceSilo" ] },
+				"dwellingUpLvl6": { "upgrades" : "dwellingLvl6" },
+				"dwellingUpLvl7": { "upgrades" : "dwellingLvl7" },
 
 				"horde2" : null,
 				"horde2Upgr" : null,
