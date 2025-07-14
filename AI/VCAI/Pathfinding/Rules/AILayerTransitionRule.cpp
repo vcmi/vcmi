@@ -10,6 +10,9 @@
 #include "StdInc.h"
 #include "AILayerTransitionRule.h"
 
+#include "../../../../lib/spells/ISpellMechanics.h"
+#include "../../../../lib/spells/adventure/SummonBoatEffect.h"
+
 namespace AIPathfinding
 {
 	AILayerTransitionRule::AILayerTransitionRule(CPlayerSpecificInfoCallback * cb, VCAI * ai, std::shared_ptr<AINodeStorage> nodeStorage)
@@ -74,13 +77,22 @@ namespace AIPathfinding
 		}
 
 		auto hero = nodeStorage->getHero();
-		auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
 
-		if(hero->canCastThisSpell(summonBoatSpell)
-			&& hero->getSpellSchoolLevel(summonBoatSpell) >= MasteryLevel::ADVANCED)
+		for (const auto & spell : LIBRARY->spellh->objects)
 		{
-			// TODO: For lower school level we might need to check the existence of some boat
-			summonableVirtualBoat.reset(new SummonBoatAction());
+			if (!spell || !spell->isAdventure())
+				continue;
+
+			auto effect = spell->getAdventureMechanics().getEffectAs<SummonBoatEffect>(hero);
+
+			if (!effect || !hero->canCastThisSpell(spell.get()))
+				continue;
+
+			if (effect->canCreateNewBoat() && effect->getSuccessChance(hero) == 100)
+			{
+				// TODO: For lower school level we might need to check the existence of some boat
+				summonableVirtualBoat.reset(new SummonBoatAction(spell->id));
+			}
 		}
 	}
 

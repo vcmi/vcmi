@@ -20,7 +20,7 @@ using namespace AIPathfinding;
 
 void TownPortalAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 {
-	auto goal = Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL);
+	auto goal = Goals::AdventureSpellCast(hero, usedSpell);
 	
 	goal.town = target;
 	goal.tile = target->visitablePos();

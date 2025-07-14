@@ -49,6 +49,8 @@ class PlayerLocalState
 
 	PlayerSpellbookSetting spellbookSettings;
 
+	SpellID currentSpell;
+
 	void syncronizeState();
 public:
 
@@ -88,6 +90,11 @@ public:
 	const CGHeroInstance * getCurrentHero() const;
 	const CGTownInstance * getCurrentTown() const;
 	const CArmedInstance * getCurrentArmy() const;
+
+	// returns currently cast spell, if any
+	SpellID getCurrentSpell() const;
+
+	void setCurrentSpell(SpellID castedSpell);
 
 	void serialize(JsonNode & dest) const;
 	void deserialize(const JsonNode & source);

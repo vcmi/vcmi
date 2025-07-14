@@ -1,5 +1,5 @@
 /*
- * SummonBoatMechanics.h, part of VCMI engine
+ * ViewWorldEffect.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,17 +10,17 @@
 
 #pragma once
 
-#include "AdventureSpellMechanics.h"
+#include "AdventureSpellEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class SummonBoatMechanics final : public AdventureSpellMechanics
+class ViewWorldEffect final : public IAdventureSpellEffect
 {
-public:
-	SummonBoatMechanics(const CSpell * s);
+	std::vector<MapObjectID> filteredObjects;
+	bool showTerrain = false;
 
-protected:
-	bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const override;
+public:
+	ViewWorldEffect(const CSpell * s, const JsonNode & config);
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };

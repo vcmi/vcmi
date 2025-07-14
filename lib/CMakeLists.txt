@@ -268,12 +268,13 @@ set(lib_MAIN_SRCS
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
 
+	spells/adventure/AdventureSpellEffect.cpp
 	spells/adventure/AdventureSpellMechanics.cpp
-	spells/adventure/DimensionDoorMechanics.cpp
-	spells/adventure/ScuttleBoatMechanics.cpp
-	spells/adventure/SummonBoatMechanics.cpp
-	spells/adventure/TownPortalMechanics.cpp
-	spells/adventure/ViewWorldMechanics.cpp
+	spells/adventure/DimensionDoorEffect.cpp
+	spells/adventure/RemoveObjectEffect.cpp
+	spells/adventure/SummonBoatEffect.cpp
+	spells/adventure/TownPortalEffect.cpp
+	spells/adventure/ViewWorldEffect.cpp
 
 	spells/effects/Catapult.cpp
 	spells/effects/Clone.cpp
@@ -731,11 +732,12 @@ set(lib_MAIN_HEADERS
 	spells/ViewSpellInt.h
 
 	spells/adventure/AdventureSpellMechanics.h
-	spells/adventure/DimensionDoorMechanics.h
-	spells/adventure/ScuttleBoatMechanics.h
-	spells/adventure/SummonBoatMechanics.h
-	spells/adventure/TownPortalMechanics.h
-	spells/adventure/ViewWorldMechanics.h
+	spells/adventure/AdventureSpellEffect.h
+	spells/adventure/DimensionDoorEffect.h
+	spells/adventure/RemoveObjectEffect.h
+	spells/adventure/SummonBoatEffect.h
+	spells/adventure/TownPortalEffect.h
+	spells/adventure/ViewWorldEffect.h
 
 	spells/effects/Catapult.h
 	spells/effects/Clone.h

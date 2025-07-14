@@ -42,6 +42,7 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/adventure/AdventureSpellEffect.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/spells/SpellSchoolHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -752,12 +753,12 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 			spells::detail::ProblemImpl problem;
 			if (mySpell->getAdventureMechanics().canBeCast(problem, GAME->interface()->cb.get(), owner->myHero))
 			{
-				if(mySpell->getTargetType() == spells::AimType::LOCATION)
+				const auto * rangeEffect = mySpell->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(owner->myHero);
+
+				if(rangeEffect != nullptr)
 					adventureInt->enterCastingMode(mySpell);
-				else if(mySpell->getTargetType() == spells::AimType::NO_TARGET)
-					owner->myInt->cb->castSpell(h, mySpell->id);
 				else
-					logGlobal->error("Invalid spell target type");
+					owner->myInt->cb->castSpell(h, mySpell->id);
 			}
 			else
 			{

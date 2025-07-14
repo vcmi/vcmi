@@ -32,6 +32,7 @@ public:
 
 	const TerrainTile * getTile(int3 tile, bool verbose) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
+	bool isTileGuardedUnchecked(int3 tile) const override;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	EDiggingStatus getTileDigStatus(int3 tile, bool verbose) const override;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;

@@ -14,33 +14,36 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-enum class ESpellCastResult
-{
-	OK, // cast successful
-	CANCEL, // cast failed but it is not an error, no mana has been spent
-	PENDING,
-	ERROR // error occurred, for example invalid request from player
-};
+class IAdventureSpellEffect;
 
-class AdventureSpellMechanics : public IAdventureSpellMechanics
+class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::noncopyable
 {
+	struct LevelOptions
+	{
+		std::unique_ptr<IAdventureSpellEffect> effect;
+		std::vector<std::shared_ptr<Bonus>> bonuses;
+		int castsPerDay;
+		int castsPerDayXL;
+	};
+
+	std::array<LevelOptions, GameConstants::SPELL_SCHOOL_LEVELS> levelOptions;
+
+	const LevelOptions & getLevel(const spells::Caster * caster) const;
+	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(const CSpell * s, const JsonNode & node);
+
 public:
 	AdventureSpellMechanics(const CSpell * s);
-
-	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
-	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
-
-	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override final;
-
-protected:
-	///actual adventure cast implementation
-	virtual ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	virtual ESpellCastResult beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	virtual void endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	virtual bool canBeCastImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const;
-	virtual bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const;
+	~AdventureSpellMechanics();
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+
+private:
+	bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const final;
+	bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;
+	bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
+	const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const final;
+	bool givesBonus(const spells::Caster * caster, BonusType which) const final;
 };
 
 VCMI_LIB_NAMESPACE_END
