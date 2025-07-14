@@ -1,5 +1,5 @@
 /*
- * TownPortalMechanics.cpp, part of VCMI engine
+ * TownPortalEffect.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,9 @@
  */
 
 #include "StdInc.h"
-#include "TownPortalMechanics.h"
+#include "TownPortalEffect.h"
+
+#include "AdventureSpellMechanics.h"
 
 #include "../CSpellHandler.h"
 
@@ -23,15 +25,18 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-TownPortalMechanics::TownPortalMechanics(const CSpell * s):
-	AdventureSpellMechanics(s)
+TownPortalEffect::TownPortalEffect(const CSpell * s, const JsonNode & config)
+	: owner(s)
+	, movementPointsRequired(config["movementPointsRequired"].Integer())
+	, movementPointsTaken(config["movementPointsTaken"].Integer())
+	, allowTownSelection(config["allowTownSelection"].Bool())
+	, skipOccupiedTowns(config["skipOccupiedTowns"].Bool())
 {
 }
 
-ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+ESpellCastResult TownPortalEffect::applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	const CGTownInstance * destination = nullptr;
-	const int moveCost = movementCost(env, parameters);
 
 	if(!parameters.caster->getHeroCaster())
 	{
@@ -39,7 +44,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		return ESpellCastResult::ERROR;
 	}
 
-	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
+	if(!allowTownSelection)
 	{
 		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
 		destination = findNearestTown(env, parameters, pool);
@@ -47,7 +52,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 		if(nullptr == destination)
 			return ESpellCastResult::ERROR;
 
-		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsRequired)
 			return ESpellCastResult::ERROR;
 
 		if(destination->getVisitingHero())
@@ -98,7 +103,7 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 			return ESpellCastResult::ERROR;
 		}
 
-		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
+		if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsRequired)
 		{
 			env->complain("This hero has not enough movement points!");
 			return ESpellCastResult::ERROR;
@@ -131,9 +136,8 @@ ESpellCastResult TownPortalMechanics::applyAdventureEffects(SpellCastEnvironment
 	return ESpellCastResult::OK;
 }
 
-void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
-	const int moveCost = movementCost(env, parameters);
 	const CGTownInstance * destination = nullptr;
 
 	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
@@ -154,12 +158,15 @@ void TownPortalMechanics::endCast(SpellCastEnvironment * env, const AdventureSpe
 	{
 		SetMovePoints smp;
 		smp.hid = ObjectInstanceID(parameters.caster->getCasterUnitId());
-		smp.val = std::max<ui32>(0, parameters.caster->getHeroCaster()->movementPointsRemaining() - moveCost);
+		if(movementPointsTaken < static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()))
+			smp.val = parameters.caster->getHeroCaster()->movementPointsRemaining() - movementPointsTaken;
+		else
+			smp.val = 0;
 		env->apply(smp);
 	}
 }
 
-ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const AdventureSpellMechanics & mechanics) const
 {
 	std::vector<const CGTownInstance *> towns = getPossibleTowns(env, parameters);
 
@@ -178,9 +185,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 		return ESpellCastResult::CANCEL;
 	}
 
-	const int moveCost = movementCost(env, parameters);
-
-	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < moveCost)
+	if(static_cast<int>(parameters.caster->getHeroCaster()->movementPointsRemaining()) < movementPointsTaken)
 	{
 		InfoWindow iw;
 		iw.player = parameters.caster->getCasterOwner();
@@ -191,7 +196,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 
 	if(!parameters.pos.isValid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
 	{
-		auto queryCallback = [this, env, parameters](std::optional<int32_t> reply) -> void
+		auto queryCallback = [&mechanics, env, parameters](std::optional<int32_t> reply) -> void
 		{
 			if(reply.has_value())
 			{
@@ -213,7 +218,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 				AdventureSpellCastParameters p;
 				p.caster = parameters.caster;
 				p.pos = o->visitablePos();
-				performCast(env, p);
+				mechanics.performCast(env, p);
 			}
 		};
 
@@ -247,7 +252,7 @@ ESpellCastResult TownPortalMechanics::beginCast(SpellCastEnvironment * env, cons
 	return ESpellCastResult::OK;
 }
 
-const CGTownInstance * TownPortalMechanics::findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance *> & pool) const
+const CGTownInstance * TownPortalEffect::findNearestTown(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters, const std::vector <const CGTownInstance *> & pool) const
 {
 	if(pool.empty())
 		return nullptr;
@@ -271,7 +276,7 @@ const CGTownInstance * TownPortalMechanics::findNearestTown(SpellCastEnvironment
 	return *nearest;
 }
 
-std::vector<const CGTownInstance *> TownPortalMechanics::getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
+std::vector<const CGTownInstance *> TownPortalEffect::getPossibleTowns(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
 {
 	std::vector<const CGTownInstance *> ret;
 
@@ -281,19 +286,11 @@ std::vector<const CGTownInstance *> TownPortalMechanics::getPossibleTowns(SpellC
 	{
 		for(auto currTown : env->getCb()->getPlayerState(color)->getTowns())
 		{
-			ret.push_back(currTown);
+			if (!skipOccupiedTowns || currTown->getVisitingHero() == nullptr)
+				ret.push_back(currTown);
 		}
 	}
 	return ret;
-}
-
-int32_t TownPortalMechanics::movementCost(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const
-{
-	if(parameters.caster != parameters.caster->getHeroCaster()) //if caster is not hero
-		return 0;
-
-	int baseMovementCost = env->getCb()->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
-	return baseMovementCost * ((parameters.caster->getSpellSchoolLevel(owner) >= 3) ? 2 : 3);
 }
 
 VCMI_LIB_NAMESPACE_END

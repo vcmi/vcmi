@@ -27,11 +27,6 @@
 #include "Problem.h"
 
 #include "adventure/AdventureSpellMechanics.h"
-#include "adventure/DimensionDoorMechanics.h"
-#include "adventure/ScuttleBoatMechanics.h"
-#include "adventure/SummonBoatMechanics.h"
-#include "adventure/TownPortalMechanics.h"
-#include "adventure/ViewWorldMechanics.h"
 
 #include "BattleSpellMechanics.h"
 
@@ -648,28 +643,10 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch(s->id.toEnum())
-	{
-	case SpellID::SUMMON_BOAT:
-		return std::make_unique<SummonBoatMechanics>(s);
-	case SpellID::SCUTTLE_BOAT:
-		return std::make_unique<ScuttleBoatMechanics>(s);
-	case SpellID::DIMENSION_DOOR:
-		return std::make_unique<DimensionDoorMechanics>(s);
-	case SpellID::FLY:
-	case SpellID::WATER_WALK:
-	case SpellID::VISIONS:
-	case SpellID::DISGUISE:
-		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
-	case SpellID::TOWN_PORTAL:
-		return std::make_unique<TownPortalMechanics>(s);
-	case SpellID::VIEW_EARTH:
-		return std::make_unique<ViewEarthMechanics>(s);
-	case SpellID::VIEW_AIR:
-		return std::make_unique<ViewAirMechanics>(s);
-	default:
-		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
-	}
+	if (s->isCombat())
+		return nullptr;
+
+	return std::make_unique<AdventureSpellMechanics>(s);
 }
 
 VCMI_LIB_NAMESPACE_END

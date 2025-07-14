@@ -6,9 +6,24 @@
 		"sounds": {
 			"cast": "SUMMBOAT"
 		},
-		"levels" :{
+		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "summonBoat",
+					"castsPerDay" : 0,
+					"useExistingBoat" : true
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+					"createdBoat" : "boatNecropolis"
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+					"createdBoat" : "boatNecropolis"
+				}
 			}
 		},
 		"flags" : {
@@ -25,7 +40,26 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "removeObject",
+					"castsPerDay" : 0,
+					"cursor" : "mapScuttleBoat", // defined in config/cursors.json
+					"rangeX" : 9,
+					"rangeY" : 8,
+					"ignoreFow" : false,
+					"objects" : {
+						"boat" : true
+					}
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+				}
 			}
 		},
 		"flags" : {
@@ -43,51 +77,58 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"effects" : {
-					"visionsMonsters" : {
-						"type" : "VISIONS",
-						"subtype" : "visionsMonsters",
-						"duration" : "ONE_DAY",
-						"val" : 1,
-						"valueType" : "INDEPENDENT_MAX"
+				"adventureEffect" : {
+					"type" : "generic",
+					"castsPerDay" : 0,
+					"bonuses" : {
+						"visionsMonsters" : {
+							"type" : "VISIONS",
+							"subtype" : "visionsMonsters",
+							"duration" : "ONE_DAY",
+							"val" : 1,
+							"valueType" : "INDEPENDENT_MAX"
+						}
 					}
-				}				
+				}
 			},
 			"advanced":{
-				"effects" : {
-					"visionsMonsters" : {
-						"val" : 2
-					},
-					"visionsHeroes" :{
-						"type" : "VISIONS",
-						"subtype" : "visionsHeroes",
-						"duration" : "ONE_DAY",
-						"val" : 2,
-						"valueType" : "INDEPENDENT_MAX"
+				"adventureEffect" : {
+					"bonuses" : {
+						"visionsMonsters" : {
+							"val" : 2
+						},
+						"visionsHeroes" :{
+							"type" : "VISIONS",
+							"subtype" : "visionsHeroes",
+							"duration" : "ONE_DAY",
+							"val" : 2,
+							"valueType" : "INDEPENDENT_MAX"
+						}
 					}
-					
-				}			
+				}
 			},
 			"expert":{
-				"effects" : {
-					"visionsMonsters" : {
-						"val" : 3
-					},
-					"visionsHeroes" :{
-						"type" : "VISIONS",
-						"subtype" : "visionsHeroes",
-						"duration" : "ONE_DAY",
-						"val" : 3,
-						"valueType" : "INDEPENDENT_MAX"
-					},
-					"visionsTowns" :{
-						"type" : "VISIONS",
-						"subtype" : "visionsTowns",
-						"duration" : "ONE_DAY",
-						"val" : 3,
-						"valueType" : "INDEPENDENT_MAX"
+				"adventureEffect" : {
+					"bonuses" : {
+						"visionsMonsters" : {
+							"val" : 3
+						},
+						"visionsHeroes" :{
+							"type" : "VISIONS",
+							"subtype" : "visionsHeroes",
+							"duration" : "ONE_DAY",
+							"val" : 3,
+							"valueType" : "INDEPENDENT_MAX"
+						},
+						"visionsTowns" :{
+							"type" : "VISIONS",
+							"subtype" : "visionsTowns",
+							"duration" : "ONE_DAY",
+							"val" : 3,
+							"valueType" : "INDEPENDENT_MAX"
+						}
 					}
-				}			
+				}
 			}
 		},
 		"flags" : {
@@ -103,7 +144,33 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "viewWorld",
+					"castsPerDay" : 0,
+					"objects" : {
+						"resource" : true
+					}
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+					"objects" : {
+						"resource" : true,
+						"mine" : true,
+						"abandonedMine" : true
+					}
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+					"objects" : {
+						"resource" : true,
+						"mine" : true,
+						"abandonedMine" : true
+					},
+					"showTerrain" : true
+				}
 			}
 		},
 		"flags" : {
@@ -120,28 +187,36 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"effects" : {
-					"stealth" : {
-						"type" : "DISGUISED",
-						"duration" : "ONE_DAY",
-						"val" : 1,
-						"valueType" : "INDEPENDENT_MAX"
+				"adventureEffect" : {
+					"type" : "generic",
+					"castsPerDay" : 0,
+					"bonuses" : {
+						"stealth" : {
+							"type" : "DISGUISED",
+							"duration" : "ONE_DAY",
+							"val" : 1,
+							"valueType" : "INDEPENDENT_MAX"
+						}
 					}
-				}				
+				}
 			},
 			"advanced":{
-				"effects" : {
-					"stealth" : {
-						"val" : 2
-					}					
-				}			
+				"adventureEffect" : {
+					"bonuses" : {
+						"stealth" : {
+							"val" : 2
+						}
+					}
+				}
 			},
 			"expert":{
-				"effects" : {
-					"stealth" : {
-						"val" : 3
+				"adventureEffect" : {
+					"bonuses" : {
+						"stealth" : {
+							"val" : 3
+						}
 					}
-				}			
+				}
 			}
 		},
 		"flags" : {
@@ -157,7 +232,31 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "viewWorld",
+					"castsPerDay" : 0,
+					"objects" : {
+						"artifact" : true
+					}
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+					"objects" : {
+						"artifact" : true,
+						"hero" : true
+					}
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+					"objects" : {
+						"artifact" : true,
+						"hero" : true,
+						"town" : true
+					}
+				}
 			}
 		},
 		"flags" : {
@@ -174,28 +273,38 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"effects" : {
-					"fly" : {
-						"type" : "FLYING_MOVEMENT",
-						"duration" : "ONE_DAY",
-						"val" : 40,
-						"valueType" : "INDEPENDENT_MIN"
+				"adventureEffect" : {
+					"type" : "generic",
+					"castsPerDay" : 0,
+					"bonuses" : {
+						"fly" : {
+							"type" : "FLYING_MOVEMENT",
+							"duration" : "ONE_DAY",
+							"val" : 40,
+							"valueType" : "INDEPENDENT_MIN"
+						}
 					}
-				}				
+				}
 			},
 			"advanced":{
-				"effects" : {
-					"fly" : {
-						"val" : 20
+				"adventureEffect" : {
+					"type" : "generic",
+					"bonuses" : {
+						"fly" : {
+							"val" : 20
+						}
 					}
-				}			
+				}
 			},
 			"expert":{
-				"effects" : {
-					"fly" : {
-						"val" : 0
+				"adventureEffect" : {
+					"type" : "generic",
+					"bonuses" : {
+						"fly" : {
+							"val" : 0
+						}
 					}
-				}			
+				}
 			}
 		},
 		"flags" : {
@@ -212,28 +321,38 @@
 		"levels" : {
 			"base":{
 				"range" : "0",
-				"effects" : {
-					"waterWalk" : {
-						"type" : "WATER_WALKING",
-						"duration" : "ONE_DAY",
-						"val" : 40,
-						"valueType" : "INDEPENDENT_MIN"
+				"adventureEffect" : {
+					"type" : "generic",
+					"castsPerDay" : 0,
+					"bonuses" : {
+						"waterWalk" : {
+							"type" : "WATER_WALKING",
+							"duration" : "ONE_DAY",
+							"val" : 40,
+							"valueType" : "INDEPENDENT_MIN"
+						}
 					}
-				}				
+				}
 			},
 			"advanced":{
-				"effects" : {
-					"waterWalk" : {
-						"val" : 20
+				"adventureEffect" : {
+					"type" : "generic",
+					"bonuses" : {
+						"waterWalk" : {
+							"val" : 20
+						}
 					}
-				}			
+				}
 			},
 			"expert":{
-				"effects" : {
-					"waterWalk" : {
-						"val" : 0
+				"adventureEffect" : {
+					"type" : "generic",
+					"bonuses" : {
+						"waterWalk" : {
+							"val" : 0
+						}
 					}
-				}			
+				}
 			}
 		},
 		"flags" : {
@@ -250,7 +369,31 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "dimensionDoor",
+					"movementPointsRequired" : 0,
+					"movementPointsTaken" : 300,
+					"waterLandFailureTakesPoints" : true,
+					"cursor" : "mapDimensionDoor", // defined in config/cursors.json
+					"cursorGuarded" : "mapTurn1Attack", // defined in config/cursors.json
+					"castsPerDay" : 2,
+					"rangeX" : 9,
+					"rangeY" : 8,
+					"ignoreFow" : true,
+					"exposeFow" : true
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+					"castsPerDay" : 3
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+					"castsPerDay" : 4,
+					"movementPointsTaken" : 200
+				}
 			}
 		},
 		"flags" : {
@@ -266,7 +409,29 @@
 		},
 		"levels" : {
 			"base":{
-				"range" : "X"
+				"range" : "X",
+				"adventureEffect" : {
+					"type" : "townPortal",
+					"castsPerDay" : 2,
+					"allowTownSelection" : false,
+					"skipOccupiedTowns" : false,
+					"movementPointsRequired" : 300,
+					"movementPointsTaken" : 300
+				}
+			},
+			"advanced":{
+				"adventureEffect" : {
+					"allowTownSelection" : true,
+					"movementPointsRequired" : 200,
+					"movementPointsTaken" : 200
+				}
+			},
+			"expert":{
+				"adventureEffect" : {
+					"allowTownSelection" : true,
+					"movementPointsRequired" : 200,
+					"movementPointsTaken" : 200
+				}
 			}
 		},
 		"flags" : {

@@ -101,6 +101,7 @@ public:
 		std::vector<std::shared_ptr<Bonus>> cumulativeEffects; //deprecated
 
 		JsonNode battleEffects;
+		JsonNode adventureEffect;
 	};
 
 	/** \brief Low level accessor. Don`t use it if absolutely necessary
@@ -288,8 +289,6 @@ private:
 	std::unique_ptr<spells::ISpellMechanicsFactory> mechanics;//(!) do not serialize
 	std::unique_ptr<IAdventureSpellMechanics> adventureMechanics;//(!) do not serialize
 };
-
-bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
 class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSpell, spells::Service>
 {

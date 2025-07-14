@@ -220,7 +220,8 @@
 				"fontUpscalingFilter",
 				"downscalingFilter",
 				"allowPortrait",
-				"asyncUpscaling"
+				"asyncUpscaling",
+				"useHdTextures"
 			],
 			"properties" : {
 				"resolution" : {
@@ -314,6 +315,10 @@
 					"default" : false
 				},
 				"asyncUpscaling" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"useHdTextures" : {
 					"type" : "boolean",
 					"default" : true
 				}

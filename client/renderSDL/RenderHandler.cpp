@@ -137,7 +137,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	auto it = animationLayouts.find(actualPath);
 
-	if (it != animationLayouts.end())
+	if (it != animationLayouts.end() && (settings["video"]["useHdTextures"].Bool() || scalingFactor == 1))
 		return it->second;
 
 	AnimationLayoutMap result;
@@ -312,9 +312,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::shared_ptr<SDLImageShared> img = nullptr;
 
-	if(CResourceHandler::get()->existsResource(imagePathSprites))
+	if(CResourceHandler::get()->existsResource(imagePathSprites) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		img = std::make_shared<SDLImageShared>(imagePathSprites, optimizeImage);
-	else if(CResourceHandler::get()->existsResource(imagePathData))
+	else if(CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		img = std::make_shared<SDLImageShared>(imagePathData, optimizeImage);
 	else if(CResourceHandler::get()->existsResource(imagePath))
 		img = std::make_shared<SDLImageShared>(imagePath, optimizeImage);

@@ -15,6 +15,8 @@
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/CPlayerState.h"
 
@@ -225,12 +227,21 @@ void AINodeStorage::calculateTownPortalTeleportations(
 	const PathNodeInfo & source,
 	std::vector<CGPathNode *> & neighbours)
 {
-	SpellID spellID = SpellID::TOWN_PORTAL;
-	const CSpell * townPortal = spellID.toSpell();
 	auto srcNode = getAINode(source.node);
 
-	if(hero->canCastThisSpell(townPortal) && hero->mana >= hero->getSpellCost(townPortal))
+	for (const auto & spell : LIBRARY->spellh->objects)
 	{
+		if (!spell || !spell->isAdventure())
+			continue;
+
+		auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
+
+		if (!townPortalEffect)
+			continue;
+
+		if(!hero->canCastThisSpell(spell.get()) || hero->mana < hero->getSpellCost(spell.get()))
+			continue;
+
 		auto towns = cb->getTownsInfo(false);
 
 		vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
@@ -238,22 +249,15 @@ void AINodeStorage::calculateTownPortalTeleportations(
 			return cb->getPlayerRelations(hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
 		});
 
-		if(!towns.size())
+		if(towns.empty())
+			return;
+
+		if(hero->movementPointsRemaining() < townPortalEffect->getMovementPointsRequired())
 		{
 			return;
 		}
 
-		// TODO: Copy/Paste from TownPortalMechanics
-		auto skillLevel = hero->getSpellSchoolLevel(townPortal);
-		int baseCost = hero->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
-		auto movementCost = baseCost * (skillLevel >= 3 ? 2 : 3);
-
-		if(hero->movementPointsRemaining() < movementCost)
-		{
-			return;
-		}
-
-		if(skillLevel < MasteryLevel::ADVANCED)
+		if(!townPortalEffect->townSelectionAllowed())
 		{
 			const CGTownInstance * nearestTown = *vstd::minElementByFun(towns, [&](const CGTownInstance * t) -> int
 			{
@@ -279,7 +283,7 @@ void AINodeStorage::calculateTownPortalTeleportations(
 				AIPathNode * node = nodeOptional.value();
 
 				node->theNodeBefore = source.node;
-				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown));
+				node->specialAction.reset(new AIPathfinding::TownPortalAction(targetTown, spell->id));
 				node->moveRemains = source.node->moveRemains;
 				
 				neighbours.push_back(node);

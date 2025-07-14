@@ -850,7 +850,7 @@ void BattleWindow::showAll(Canvas & to)
 	CIntObject::showAll(to);
 
 	if (ENGINE->screenDimensions().x != 800 || ENGINE->screenDimensions().y !=600)
-		to.drawBorder(Rect(pos.x-1, pos.y, pos.w+2, pos.h+1), Colors::BRIGHT_YELLOW);
+		to.drawBorder(Rect(pos.x-1, pos.y - (queue && queue->embedded ? 1 : 0), pos.w+2, pos.h+1 + (queue && queue->embedded ? 1 : 0)), Colors::BRIGHT_YELLOW);
 }
 
 void BattleWindow::show(Canvas & to)

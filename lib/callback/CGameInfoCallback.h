@@ -72,7 +72,7 @@ public:
 	//map
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const override;
-	bool isTileGuardedUnchecked(int3 tile) const;
+	bool isTileGuardedUnchecked(int3 tile) const override;
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
 	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;

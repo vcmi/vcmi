@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "AdventureSpellCast.h"
 #include "../AIGateway.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 
 namespace NKAI
 {
@@ -39,8 +41,9 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	if(hero->mana < hero->getSpellCost(spell))
 		throw cannotFulfillGoalException("Hero has not enough mana to cast " + spell->getNameTranslated());
 
+	auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
 
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	if(town && townPortalEffect)
 	{
 		ai->selectedObject = town->id;
 
@@ -61,7 +64,7 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	cb->waitTillRealize = true;
 	cb->castSpell(hero, spellID, tile);
 
-	if(town && spellID == SpellID::TOWN_PORTAL)
+	if(town && townPortalEffect)
 	{
 		// visit town
 		ai->moveHeroToTile(town->visitablePos(), hero);
