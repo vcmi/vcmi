@@ -132,11 +132,13 @@ void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
 	callback();
 	isSelected = true;
+	redraw();
 }
 
 void CCommanderSkillIcon::deselect()
 {
 	isSelected = false;
+	redraw();
 }
 
 bool CCommanderSkillIcon::getIsMasterAbility()
