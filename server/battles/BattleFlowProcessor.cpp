@@ -342,18 +342,24 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * next)
 {
-	bool actionPerformed = tryActivateMoralePenalty(battle, next) || tryActivateBerserkPenalty(battle, next) || tryAutomaticActionOfWarMachines(battle, next);
+	if(tryActivateMoralePenalty(battle, next))
+		return true;
 
-	if (!actionPerformed) {
-		stackTurnTrigger(battle, next); //various effects
+	if(tryActivateBerserkPenalty(battle, next))
+		return true;
 
-		if(next->fear)
-			{
-				makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
-				return true;
-			}
-		}
-	return actionPerformed;
+	if(tryAutomaticActionOfWarMachines(battle, next))
+		return true;
+
+	stackTurnTrigger(battle, next); //various effects
+
+	if(next->fear)
+	{
+		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
+		return true;
+	}
+
+	return false;
 }
 
 bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * next) {
@@ -377,43 +383,55 @@ bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & b
 	return false;
 }
 
-bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * next) {
+bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * next)
+{
 	if (next->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)) //while in berserk
+	{
+		logGlobal->trace("Handle Berserk effect");
+		std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
+		if (attackInfo.first != nullptr)
 		{
-			logGlobal->trace("Handle Berserk effect");
-			std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
-			if (attackInfo.first != nullptr)
-				{
-					BattleAction attack;
-					attack.actionType = EActionType::WALK_AND_ATTACK;
-					attack.side = next->unitSide();
-					attack.stackNumber = next->unitId();
-					attack.aimToHex(attackInfo.second);
-					attack.aimToUnit(attackInfo.first);
+			BattleAction attack;
+			attack.actionType = EActionType::WALK_AND_ATTACK;
+			attack.side = next->unitSide();
+			attack.stackNumber = next->unitId();
+			attack.aimToHex(attackInfo.second);
+			attack.aimToUnit(attackInfo.first);
 
-					makeAutomaticAction(battle, next, attack);
-					logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
-				}
-			else
-				{
-					makeStackDoNothing(battle, next);
-					logGlobal->trace("No target found");
-				}
-			return true;
+			makeAutomaticAction(battle, next, attack);
+			logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
 		}
+		else
+		{
+			makeStackDoNothing(battle, next);
+			logGlobal->trace("No target found");
+		}
+		return true;
+	}
 	return false;
 }
 
-bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * next) {
-	return tryMakeAutomaticActionOfBallistaOrTowers(battle, next) || tryMakeAutomaticActionOfCatapult(battle, next) || tryMakeAutomaticActionOfFirstAidTent(battle, next);
+bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * next)
+{
+	if (tryMakeAutomaticActionOfBallistaOrTowers(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfCatapult(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfFirstAidTent(battle, next))
+		return true;
+
+	return false;
 }
 
-bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * next) {
+bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * next)
+{
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-		 && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
+	                && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
@@ -477,33 +495,35 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 	return false;
 }
 
-bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next) {
+bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next)
+{
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::CATAPULT)
+	{
+		const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
+
+		if (attackableBattleHexes.empty())
 		{
-			const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
-
-			if (attackableBattleHexes.empty())
-				{
-					makeStackDoNothing(battle, next);
-					return true;
-				}
-
-			if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
-				{
-					BattleAction attack;
-					attack.actionType = EActionType::CATAPULT;
-					attack.side = next->unitSide();
-					attack.stackNumber = next->unitId();
-
-					makeAutomaticAction(battle, next, attack);
-					return true;
-				}
+			makeStackDoNothing(battle, next);
+			return true;
 		}
+
+		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::CATAPULT)))))
+		{
+			BattleAction attack;
+			attack.actionType = EActionType::CATAPULT;
+			attack.side = next->unitSide();
+			attack.stackNumber = next->unitId();
+
+			makeAutomaticAction(battle, next, attack);
+			return true;
+		}
+	}
 	return false;
 }
 
-bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next) {
+bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next)
+{
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::FIRST_AID_TENT)
 	{
@@ -617,7 +637,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		if (activeStack && activeStack->alive())
 		{
 			bool activeStackAffectedBySpell = !activeStack->canMove() ||
-					tryActivateBerserkPenalty(battle, battle.battleGetStackByID(battle.getBattle()->getActiveStackID()));
+				tryActivateBerserkPenalty(battle, battle.battleGetStackByID(battle.getBattle()->getActiveStackID()));
 
 			// this is action made by hero AND unit is neither killed nor affected by reflected spell like blind or berserk
 			// keep current active stack for next action
