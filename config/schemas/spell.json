@@ -50,6 +50,107 @@
 				}
 			}
 		},
+		"adventureEffect" : {
+			"type" : "object",
+			"required" : [ "type" ],
+			"properties" : {
+				"type" : {
+					"type" : "string",
+					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "viewWorld" ]
+				},
+				"castsPerDay" : { "type" : "number" },
+				"castsPerDayXL" : { "type" : "number" },
+				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }},
+			},
+			"allOf" : [
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "dimensionDoor" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"cursorGuarded" : { "type" : "string" },
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"waterLandFailureTakesPoints" : { "type" : "boolean" },
+							"exposeFow" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "removeObject" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "summonBoat" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"useExistingBoat" : { "type" : "boolean" },
+							"createdBoat" : { "type" : "string" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "townPortal" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"allowTownSelection" : { "type" : "boolean" },
+							"skipOccupiedTowns" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "viewWorld" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"showTerrain" : { "type" : "boolean" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				}
+			]
+		},
+		"battleEffect" : {
+			"type" : "object"
+			// TODO
+		},
 		"flags" : {
 			"type" : "object",
 			"additionalProperties" : {
@@ -94,8 +195,11 @@
 				"battleEffects" : {
 					"type" : "object",
 					"additionalProperties" : {
-						"type" : "object"
+						"$ref" : "#/definitions/battleEffect"
 					}
+				},
+				"adventureEffect" : {
+					"$ref" : "#/definitions/adventureEffect"
 				},
 				"targetModifier" : {
 					"type" : "object",
