@@ -364,6 +364,8 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
+	waitForAnimations();
+
 	// Do not deactivate anything in tactics mode
 	// This is battlefield setup spells
 	if(!tacticsMode)
