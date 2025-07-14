@@ -124,6 +124,8 @@
 	"monsters" : "normal", 
 
 	//possible terrain types. All terrains will be available if not specified
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"terrainTypes" : [ "sand" ], 
 
 	// List of type hints for every town, in the order of placement. First present hint if used for each town
@@ -143,6 +145,8 @@
 	],
 	
 	//optional, list of explicitly banned terrain types
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"bannedTerrains" : ["lava", "asphalt"] 
 
 	// if true, terrain for this zone will match native terrain of player faction. Used only in owned zones
@@ -161,15 +165,27 @@
 	"customObjectsLikeZone" : 1,
 
 	// factions of monsters allowed on this zone
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"allowedMonsters" : ["inferno", "necropolis"] 
 	
 	// These monsers will never appear in the zone
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"bannedMonsters" : ["fortress", "stronghold", "conflux"]
 	
 	// towns allowed on this terrain
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"allowedTowns" : ["castle", "tower", "rampart"] 
 	
 	// towns will never spawn on this terrain
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"bannedTowns" : ["necropolis"] 
 
 	// List of mines that will be added to this zone
