@@ -4,9 +4,9 @@ setlocal enabledelayedexpansion
 cls
 
 REM Define variables dynamically relative to the normalized base directory
-set "AppVersion=1.6.1"
+set "AppVersion=1.7.0"
 set "AppBuild=1122334455A"
-set "InstallerArch=x64"
+set "InstallerArch=x64compatible"
 set "VCMIFolder=VCMI"
 
 REM Override defaults with optional parameters
@@ -14,6 +14,14 @@ if not "%~1"=="" set "AppVersion=%~1"
 if not "%~2"=="" set "AppBuild=%~2"
 if not "%~3"=="" set "InstallerArch=%~3"
 if not "%~4"=="" set "VCMIFolder=%~4"
+if not "%~5"=="" set "SourceFilesPath=%~5"
+if not "%~6"=="" set "UCRTFilesPath=%~6"
+
+if not "%InstallerArch%" == "arm64" (
+    set "AllowedArch=%InstallerArch%compatible"
+) else (
+    set "AllowedArch=%InstallerArch%"
+)
 
 REM Define Inno Setup version
 set InnoSetupVer=6
@@ -31,7 +39,7 @@ REM Normalize the base directory
 for %%i in ("%BaseDir%") do set "BaseDir=%%~fi"
 
 REM Define specific subdirectories relative to the base directory
-set "SourceFilesPath=%BaseDir%bin\Release"
+if not defined SourceFilesPath set "SourceFilesPath=%BaseDir%bin\Release"
 set "LangPath=%BaseDir%CI\wininstaller\lang"
 set "LicenseFile=%BaseDir%license.txt"
 set "IconFile=%BaseDir%clientapp\icons\vcmi.ico"
@@ -60,7 +68,7 @@ if not defined UCRTFilesPath (
 REM Verify Inno Setup is installed
 if not exist "%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe" (
     echo.
-	echo ERROR: Inno Setup !InnoSetupVer! was not found in !ProgFiles!.
+    echo ERROR: Inno Setup !InnoSetupVer! was not found in !ProgFiles!.
     echo Please install it or specify the correct path.
     echo.
     pause
@@ -84,18 +92,31 @@ if not exist "%UCRTFilesPath%" (
     goto :eof
 )
 
+REM Print out installer settings
+echo.
+echo AppVersion:        %AppVersion%
+echo AppBuild:          %AppBuild%
+echo InstallerArch:     %InstallerArch%
+echo AllowedArch:       %AllowedArch%
+echo VCMIFolder:        %VCMIFolder%
+echo SourceFilesPath:   %SourceFilesPath%
+echo UCRTFilesPath:     %UCRTFilesPath%
+echo InstallerScript:   %InstallerScript%
+echo.
+
 REM Call Inno Setup Compiler
 "%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe" "%InstallerScript%" ^
     /DAppVersion="%AppVersion%" ^
     /DAppBuild="%AppBuild%" ^
     /DInstallerArch="%InstallerArch%" ^
+    /DAllowedArch="%AllowedArch%" ^
+    /DVCMIFolder="%VCMIFolder%" ^
     /DSourceFilesPath="%SourceFilesPath%" ^
     /DUCRTFilesPath="%UCRTFilesPath%" ^
-    /DVCMIFolder="%VCMIFolder%" ^
     /DLangPath="%LangPath%" ^
     /DLicenseFile="%LicenseFile%" ^
     /DIconFile="%IconFile%" ^
     /DSmallLogo="%SmallLogo%" ^
     /DWizardLogo="%WizardLogo%"
 
-pause
+goto :eof

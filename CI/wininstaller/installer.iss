@@ -18,10 +18,11 @@
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
 
-; #define AppVersion "1.6.2"
+; #define AppVersion "1.7.0"
 ; #define AppBuild "1122334455A"
 ; #define InstallerArch "x64"
-; 
+; #define AllowedArch "x64compatible"
+; #define VCMIFolder "VCMI"
 ; #define SourceFilesPath "C:\_VCMI_source\bin\Release"
 ; #define UCRTFilesPath "C:\Program Files (x86)\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
 ; #define LangPath "C:\_VCMI_Source\CI\wininstaller\lang"
@@ -30,10 +31,8 @@
 ; #define SmallLogo "C:\_VCMI_Source\CI\wininstaller\vcmismalllogo.bmp"
 ; #define WizardLogo "C:\_VCMI_Source\CI\wininstaller\vcmilogo.bmp"
 
-#define VCMIFolder "VCMI"
-
 #define VCMIFilesFolder "My Games\vcmi"
-#define InstallerName "VCMI_Installer"
+#define InstallerName "VCMI-Windows"
 
 #define AppComment "VCMI is an open-source engine for Heroes III, offering new and extended possibilities."
 #define VCMITeam "VCMI Team"
@@ -72,7 +71,7 @@ WindowResizable=no
 CloseApplicationsFilter=*.exe
 Compression=lzma2/ultra64
 SolidCompression=yes
-ArchitecturesAllowed={#InstallerArch}compatible
+ArchitecturesAllowed={#AllowedArch}
 LicenseFile={#LicenseFile}
 SetupIconFile={#IconFile}
 WizardSmallImageFile={#SmallLogo}
@@ -84,8 +83,8 @@ VersionInfoCompany={#VCMITeam}
 VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
 VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
-VersionInfoVersion={#AppVersion} 
-VersionInfoOriginalFileName={#InstallerName}.exe
+VersionInfoVersion={#AppVersion}
+VersionInfoOriginalFileName={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
 
 
 [Languages]
@@ -152,7 +151,7 @@ Root: HKCU; Subkey: "Software\Classes\VCMI.h3m\shell\open\command"; ValueType: s
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_server dir=in action=allow program=""{app}\vcmi_server.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_client dir=in action=allow program=""{app}\vcmi_client.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 
-Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall; Check: ShouldRunLauncher
 
 
 [UninstallRun]
@@ -186,6 +185,18 @@ begin
     Exit
   else
     Result := '';
+end;
+
+
+function ShouldRunLauncher(): Boolean;
+begin
+  Result := True;
+
+  if Pos('SILENT', UpperCase(GetCmdTail())) > 0 then
+    Result := False;
+
+  if Pos('LAUNCH', UpperCase(GetCmdTail())) > 0 then
+    Result := True;
 end;
 
 
