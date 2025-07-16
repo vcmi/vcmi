@@ -249,7 +249,7 @@
 					"properties" : {
 						"type" : {
 							"type" : "string",
-							"const" : "TIMES_ARMY_SIZE",
+							"const" : "TIMES_ARMY_SIZE"
 						},
 						"stepSize" : {
 							"type" : "integer",

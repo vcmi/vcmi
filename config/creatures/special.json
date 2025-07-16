@@ -5,28 +5,24 @@
 	{
 		"faction": "neutral",
 		"disabled" : true,
-		"graphics" : null,
 		"index" : 122
 	},
 	"unused124" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
-		"graphics" : null,
 		"index" : 124
 	},
 	"unused126" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
-		"graphics" : null,
 		"index" : 126
 	},
 	"unused128" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
-		"graphics" : null,
 		"index" : 128
 	},
 

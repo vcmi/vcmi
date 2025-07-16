@@ -481,7 +481,6 @@
 		},
 		"graphics" :
 		{
-			"missile" : null,
 			"mapAttackFromRight": "AvWattak.def:0:110",
 			"mapAttackFromLeft": "AvWattak.def:0:111",
 			"animation": "CADEVL.DEF"

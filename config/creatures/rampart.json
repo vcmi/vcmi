@@ -9,7 +9,6 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
-			"missile" : null,
 			"mapAttackFromRight": "AvWattak.def:0:28",
 			"mapAttackFromLeft": "AvWattak.def:0:29",
 			"animation": "CCENTR.DEF"
@@ -32,7 +31,6 @@
 		"doubleWide" : true,
 		"graphics" :
 		{
-			"missile" : null,
 			"mapAttackFromRight": "AvWattak.def:0:30",
 			"mapAttackFromLeft": "AvWattak.def:0:31",
 			"animation": "CECENT.DEF"
