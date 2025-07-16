@@ -54,7 +54,7 @@ AppComments={#AppComment}
 DefaultDirName={code:GetDefaultDir}
 DefaultGroupName={#VCMIFolder}
 UninstallDisplayIcon={app}\VCMI_launcher.exe
-OutputBaseFilename={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
+OutputBaseFilename={#InstallerName}-{#InstallerArch}-{#AppVersion}.{#AppBuild}
 PrivilegesRequiredOverridesAllowed=commandline dialog
 ShowLanguageDialog=yes
 DisableWelcomePage=no
@@ -69,6 +69,7 @@ DisableStartupPrompt=yes
 UsedUserAreasWarning=no
 WindowResizable=no
 CloseApplicationsFilter=*.exe
+CloseApplications=force
 Compression=lzma2/ultra64
 SolidCompression=yes
 ArchitecturesAllowed={#AllowedArch}
@@ -84,7 +85,7 @@ VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
 VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
 VersionInfoVersion={#AppVersion}
-VersionInfoOriginalFileName={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
+VersionInfoOriginalFileName={#InstallerName}-{#InstallerArch}-{#AppVersion}.{#AppBuild}.exe
 
 
 [Languages]
@@ -108,7 +109,7 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 
 [Files]
-Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.lib,*.exp,*.ilk,*.obj,*.tlog,*.log,*.pch,*.idb,*.res,*.tmp,*.bak,*.sdf,*.ipch,*.vc.db,*.iobj,*.ipdb"; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.lib,*.exp,*.ilk,*.obj,*.tlog,*.log,*.pch,*.idb,*.res,*.tmp,*.bak,*.sdf,*.ipch,*.vc.db,*.iobj,*.ipdb"; BeforeInstall: RunPreInstallTasks
 Source: "{#UCRTFilesPath}\{#InstallerArch}\*"; DestDir: "{app}"; Flags: ignoreversion; Check: IsUCRTNeeded
 
 
@@ -617,6 +618,25 @@ begin
 end;
 
 
+procedure RemoveLegacyInstaller();
+var
+  AppFolder: String;
+  ResultCode: Integer;
+begin
+  AppFolder := ExpandConstant('{app}');
+
+  // Silently remove old NSIS installation
+  if FileExists(AppFolder + '\Uninstall.exe') then
+  begin
+    Exec(AppFolder + '\Uninstall.exe', '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    // Attempt to remove leftovers from target folder to ensure clean install
+    if DirExists(AppFolder) then
+      DelTree(AppFolder, True, True, False);
+  end;
+end;
+
+
 procedure PerformHeroes3FileCopy();
 var
   i: Integer;
@@ -647,6 +667,15 @@ begin
       Exit; // Task found, exit the loop
     end;
   end;
+end;
+
+
+procedure RunPreInstallTasks();
+begin
+  // Remove Legacy installer when needed
+  RemoveLegacyInstaller();
+  // Copy H3 files when needed
+  PerformHeroes3FileCopy();
 end;
 
 
