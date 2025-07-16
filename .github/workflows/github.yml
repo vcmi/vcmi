@@ -338,7 +338,7 @@ jobs:
         "${{ matrix.arch }}"
         "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
         "${{ env.VCMI_PACKAGE_FILE_NAME }}"
-        "${{ steps.locate-bin.outputs.bin_path }}"
+        "${{ github.workspace }}\out\build\${{ matrix.preset }}\bin\RelWithDebInfo"
         "${{ github.workspace }}\ucrt"
       shell: cmd
 
