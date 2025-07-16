@@ -295,24 +295,6 @@ jobs:
         echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
         pgrep XProtect || true
 
-    - name: Locate compiled binaries dynamically
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      id: locate-bin
-      run: |
-        $searchRoot = "$env:GITHUB_WORKSPACE\out\build\${{ matrix.preset }}"
-        Write-Host "Searching under: $searchRoot"
-
-        $vcmiClient = Get-ChildItem -Path $searchRoot -Recurse -Filter vcmi_client.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-        if (-not $vcmiClient) {
-          Write-Host "ERROR: Could not locate vcmi_client.exe"
-          exit 1
-        }
-
-        $binPath = Split-Path $vcmiClient.FullName
-        Write-Host "Located bin directory: $binPath"
-        echo "bin_path=$binPath" >> $env:GITHUB_OUTPUT
-      shell: pwsh
-
     - name: Install Inno Setup 6+
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: |
