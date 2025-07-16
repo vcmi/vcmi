@@ -23,6 +23,7 @@
 ; #define InstallerArch "x64"
 ; #define AllowedArch "x64compatible"
 ; #define VCMIFolder "VCMI"
+; #define InstallerName "VCMI-Windows"
 ; #define SourceFilesPath "C:\_VCMI_source\bin\Release"
 ; #define UCRTFilesPath "C:\Program Files (x86)\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
 ; #define LangPath "C:\_VCMI_Source\CI\wininstaller\lang"
@@ -32,7 +33,6 @@
 ; #define WizardLogo "C:\_VCMI_Source\CI\wininstaller\vcmilogo.bmp"
 
 #define VCMIFilesFolder "My Games\vcmi"
-#define InstallerName "VCMI-Windows"
 
 #define AppComment "VCMI is an open-source engine for Heroes III, offering new and extended possibilities."
 #define VCMITeam "VCMI Team"
@@ -54,7 +54,7 @@ AppComments={#AppComment}
 DefaultDirName={code:GetDefaultDir}
 DefaultGroupName={#VCMIFolder}
 UninstallDisplayIcon={app}\VCMI_launcher.exe
-OutputBaseFilename={#InstallerName}-{#InstallerArch}-{#AppVersion}.{#AppBuild}
+OutputBaseFilename={#InstallerName}
 PrivilegesRequiredOverridesAllowed=commandline dialog
 ShowLanguageDialog=yes
 DisableWelcomePage=no
@@ -85,7 +85,7 @@ VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
 VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
 VersionInfoVersion={#AppVersion}
-VersionInfoOriginalFileName={#InstallerName}-{#InstallerArch}-{#AppVersion}.{#AppBuild}.exe
+VersionInfoOriginalFileName={#InstallerName}.exe
 
 
 [Languages]

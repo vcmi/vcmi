@@ -8,14 +8,16 @@ set "AppVersion=1.7.0"
 set "AppBuild=1122334455A"
 set "InstallerArch=x64compatible"
 set "VCMIFolder=VCMI"
+set "InstallerName=VCMI-Windows"
 
 REM Override defaults with optional parameters
 if not "%~1"=="" set "AppVersion=%~1"
 if not "%~2"=="" set "AppBuild=%~2"
 if not "%~3"=="" set "InstallerArch=%~3"
 if not "%~4"=="" set "VCMIFolder=%~4"
-if not "%~5"=="" set "SourceFilesPath=%~5"
-if not "%~6"=="" set "UCRTFilesPath=%~6"
+if not "%~5"=="" set "InstallerName=%~5"
+if not "%~6"=="" set "SourceFilesPath=%~6"
+if not "%~7"=="" set "UCRTFilesPath=%~7"
 
 if not "%InstallerArch%" == "arm64" (
     set "AllowedArch=%InstallerArch%compatible"
@@ -99,6 +101,7 @@ echo AppBuild:          %AppBuild%
 echo InstallerArch:     %InstallerArch%
 echo AllowedArch:       %AllowedArch%
 echo VCMIFolder:        %VCMIFolder%
+echo InstallerName:     %InstallerName%
 echo SourceFilesPath:   %SourceFilesPath%
 echo UCRTFilesPath:     %UCRTFilesPath%
 echo InstallerScript:   %InstallerScript%
@@ -111,6 +114,7 @@ REM Call Inno Setup Compiler
     /DInstallerArch="%InstallerArch%" ^
     /DAllowedArch="%AllowedArch%" ^
     /DVCMIFolder="%VCMIFolder%" ^
+    /DInstallerName="%InstallerName%" ^
     /DSourceFilesPath="%SourceFilesPath%" ^
     /DUCRTFilesPath="%UCRTFilesPath%" ^
     /DLangPath="%LangPath%" ^
