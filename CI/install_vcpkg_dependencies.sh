@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-REPO="GeorgeK1ng"
+REPO="vcmi"
 
 # Fetch latest release tag from GitHub API
 RELEASE_TAG=$(curl -s "https://api.github.com/repos/$REPO/vcmi-deps-windows/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
