@@ -35,8 +35,8 @@ namespace PathfinderUtil
 			{
 				if (tinfo.visitableObjects.size() > 1)
 				{
-					auto frontVisitable = gameInfo.getObjInstance(tinfo.visitableObjects[0]);
-					auto backVisitable = gameInfo.getObjInstance(tinfo.visitableObjects[1]);
+					auto frontVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.front());
+					auto backVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.back());
 					if(frontVisitable->ID == Obj::SANCTUARY && backVisitable->ID == Obj::HERO && backVisitable->getOwner() != player)
 					{
 						return EPathAccessibility::BLOCKED;
