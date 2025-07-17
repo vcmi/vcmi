@@ -13,40 +13,6 @@
 #include "townhintselector.h"
 #include "ui_townhintselector.h"
 
-std::string joinVector(const std::vector<int>& vec, char delimiter) {
-    std::string result;
-    for (std::size_t i = 0; i < vec.size(); ++i) {
-        result += std::to_string(vec[i]);
-        if (i != vec.size() - 1) {
-            result += delimiter;
-        }
-    }
-    return result;
-}
-
-std::vector<int> splitStringToVector(const std::string& input, char delimiter) {
-    std::vector<int> result;
-    std::string temp;
-
-    for (std::size_t i = 0; i < input.size(); ++i) {
-        if (input[i] == delimiter) {
-            if (!temp.empty()) {
-                result.push_back(std::atoi(temp.c_str()));
-                temp.clear();
-            }
-        } else {
-            temp += input[i];
-        }
-    }
-
-    // Don't forget the last value
-    if (!temp.empty()) {
-        result.push_back(std::atoi(temp.c_str()));
-    }
-
-    return result;
-}
-
 enum modes { UNKNOWN, LIKE_ZONE, NOT_LIKE_ZONE, RELATED_TO_ZONE_TERRAIN };
 
 TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & townHints) :
@@ -80,11 +46,15 @@ TownHintSelector::TownHintSelector(std::vector<rmg::ZoneOptions::CTownHints> & t
 
 		ui->tableWidgetTownHints->setCellWidget(row, 0, combo);
 
+		std::vector<std::string> values(zones.size());
+		std::transform(zones.begin(), zones.end(), values.begin(), [](const int val) { return std::to_string(val); });
+		std::string valuesText = boost::algorithm::join(values, ",");
+
 		QLineEdit *lineEdit = new QLineEdit;
-		QRegularExpression regex("[0-9,]*");
+		QRegularExpression regex("^\\d+(,\\d+)*$");
 		QRegularExpressionValidator *validator = new QRegularExpressionValidator(regex, lineEdit);
 		lineEdit->setValidator(validator);
-		lineEdit->setText(QString::fromStdString(joinVector(zones, ',')));
+		lineEdit->setText(QString::fromStdString(valuesText));
 		ui->tableWidgetTownHints->setCellWidget(row, 1, lineEdit);
 
 		auto deleteButton = new QPushButton(tr("Delete"));
@@ -150,23 +120,28 @@ void TownHintSelector::showTownHintSelector(std::vector<rmg::ZoneOptions::CTownH
 void TownHintSelector::on_buttonBoxResult_accepted()
 {
 	townHints.clear();
-	for (int row = 0; row < ui->tableWidgetTownHints->rowCount() - 1; ++row)
+	for (int row = 0; row < ui->tableWidgetTownHints->rowCount() - 1; ++row) // iterate over all rows except the add button row
 	{
 		auto mode = static_cast<modes>(static_cast<QComboBox *>(ui->tableWidgetTownHints->cellWidget(row, 0))->currentData().toInt());
 		auto text = static_cast<QLineEdit *>(ui->tableWidgetTownHints->cellWidget(row, 1))->text().toStdString();
-		auto values = splitStringToVector(text, ',');
+		std::vector<std::string> values;
+		boost::split(values, text, boost::is_any_of(","));
+		if (!values.empty() && values.back().empty()) // remove "no number" after last comma; other cases are covered by regex
+    		values.pop_back();
+		std::vector<int> numValues(values.size());
+		std::transform(values.begin(), values.end(), numValues.begin(), [](const std::string& str) { return std::stoi(str); });
 		
 		rmg::ZoneOptions::CTownHints hint;
 		switch (mode)
 		{
 		case LIKE_ZONE:
-			hint.likeZone = values.at(0);
+			hint.likeZone = numValues.at(0);
 			break;
 		case NOT_LIKE_ZONE:
-			hint.notLikeZone = values;
+			hint.notLikeZone = numValues;
 			break;
 		case RELATED_TO_ZONE_TERRAIN:
-			hint.relatedToZoneTerrain = values.at(0);
+			hint.relatedToZoneTerrain = numValues.at(0);
 			break;
 		}
 		townHints.push_back(hint);

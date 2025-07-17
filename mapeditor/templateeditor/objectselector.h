@@ -10,7 +10,6 @@
 #pragma once
 #include <QWidget>
 
-#include "../StdInc.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 
 Q_DECLARE_METATYPE(CompoundMapObjectID);

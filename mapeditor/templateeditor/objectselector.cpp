@@ -152,7 +152,7 @@ void ObjectSelector::getBannedObjectCategories()
 	for (int row = 0; row < ui->tableWidgetBannedObjectCategories->rowCount() - 1; ++row)
 	{
 		auto val = static_cast<ObjectConfig::EObjectCategory>(static_cast<QComboBox *>(ui->tableWidgetBannedObjectCategories->cellWidget(row, 0))->currentData().toInt());
-		if(std::find(obj.bannedObjectCategories.begin(), obj.bannedObjectCategories.end(), val) == obj.bannedObjectCategories.end())
+		if(vstd::contains(obj.bannedObjectCategories, val))
 			obj.bannedObjectCategories.push_back(val);
 	}
 }
