@@ -353,19 +353,21 @@ void CGameHandler::giveStackExperience(const CArmedInstance * army, TExpType val
 void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
 	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
-	TExpType currExp = hero->exp;
+	TExpType currHeroExp = hero->exp;
 
 	if (gameState().getMap().levelLimit != 0)
 		maxExp = LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
 
-	TExpType canGainExp = 0;
-	if (maxExp > currExp)
-		canGainExp = maxExp - currExp;
+	TExpType canGainHeroExp = 0;
+	if (maxExp > currHeroExp)
+		canGainHeroExp = maxExp - currHeroExp;
 
-	if (amountToGain > canGainExp)
+	TExpType actualHeroExperience = 0;
+
+	if (amountToGain > canGainHeroExp)
 	{
 		// set given experience to max possible, but don't decrease if hero already over top
-		amountToGain = canGainExp;
+		actualHeroExperience = canGainHeroExp;
 
 		InfoWindow iw;
 		iw.player = hero->tempOwner;
@@ -373,21 +375,29 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		iw.text.replaceTextID(hero->getNameTextID());
 		sendAndApply(iw);
 	}
+	else
+		actualHeroExperience = amountToGain;
 
 	SetHeroExperience she;
 	she.id = hero->id;
 	she.mode = ChangeValueMode::RELATIVE;
-	she.val = amountToGain;
+	she.val = actualHeroExperience;
 	sendAndApply(she);
 
 	//hero may level up
 	if (hero->getCommander() && hero->getCommander()->alive)
 	{
-		//FIXME: trim experience according to map limit?
+		TExpType canGainCommanderExp = 0;
+		TExpType currCommanderExp = hero->getCommander()->getTotalExperience();
+		if (maxExp > currHeroExp)
+			canGainCommanderExp = maxExp - currCommanderExp;
+
+		TExpType actualCommanderExperience = amountToGain > canGainCommanderExp ? canGainCommanderExp : amountToGain;
+
 		SetCommanderProperty scp;
 		scp.heroid = hero->id;
 		scp.which = SetCommanderProperty::EXPERIENCE;
-		scp.amount = amountToGain;
+		scp.amount = actualCommanderExperience;
 		sendAndApply(scp);
 	}
 

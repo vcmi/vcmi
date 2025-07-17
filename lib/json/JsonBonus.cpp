@@ -537,6 +537,14 @@ static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode &
 	});
 
 	creatureLimiter->includeUpgrades = upgradesNode.Bool();
+
+	if (upgradesNode.isString())
+	{
+		logGlobal->warn("CREATURE_TYPE_LIMITER: parameter 'includeUpgrades' is invalid! expected boolean, but string '%s' found!", upgradesNode.String());
+		if (upgradesNode.String() == "true") // MOD COMPATIBILITY - broken mod, compensating
+			creatureLimiter->includeUpgrades = true;
+	}
+
 	return creatureLimiter;
 }
 
@@ -544,12 +552,11 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 {
 	auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 
-	static const JsonNode nullNode;
 	const JsonNode & parameters = limiter["parameters"];
-	const JsonNode & jsonType    = limiter.Struct().count("bonusType") ? limiter["bonusType"] : parameters[0];
-	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : (parameters.Vector().size() > 2 ? parameters[1] : nullNode);
-	const JsonNode & jsonSourceType  = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : (parameters.Vector().size() > 2 ? parameters[2]["type"] : parameters[1]["type"]);
-	const JsonNode & jsonSourceID  = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : (parameters.Vector().size() > 2 ? parameters[2]["id"] : parameters[1]["id"]);
+	const JsonNode & jsonType = limiter.Struct().count("bonusType") ? limiter["bonusType"] : parameters[0];
+	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : parameters[1];
+	const JsonNode & jsonSourceType = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : parameters[2]["type"];
+	const JsonNode & jsonSourceID = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : parameters[2]["id"];
 
 	if (!jsonType.isNull())
 	{
@@ -557,7 +564,10 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 		{
 			bonusLimiter->type = static_cast<BonusType>(bonusID);
 			if (!jsonSubtype.isNull())
+			{
 				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
+				bonusLimiter->isSubtypeRelevant = true;
+			}
 		});
 	}
 
