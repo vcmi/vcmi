@@ -21,13 +21,13 @@
 #include "../../lib/entities/hero/CHeroHandler.h"
 
 template<typename T, typename Variant>
-size_t countInVariantSet(const Variant& var, const T& value) {
-    return std::visit([&](const auto& setRefWrapper) -> size_t {
+size_t countInVariantSet(const Variant& var, const T& val) {
+    return std::visit([&val](const auto& setRefWrapper) -> size_t {
         const auto& setRef = setRefWrapper.get();
         using SetType = std::decay_t<decltype(setRef)>;
         using ValueType = typename SetType::value_type;
         if constexpr (std::is_same_v<ValueType, T>) {
-            return setRef.count(value);
+            return setRef.count(val);
         } else {
             return 0;
         }
