@@ -152,9 +152,9 @@ GeneralOptionsTab::GeneralOptionsTab()
 	{
 		selectLongTouchDuration();
 	});
-	addCallback("infoboxChanged", [](bool value)
+	addCallback("performanceOverlayChanged", [](bool value)
 	{
-		Settings gameRes = settings.write["video"]["infobox"];
+		Settings gameRes = settings.write["video"]["performanceOverlay"];
 		gameRes["show"].Bool() = value;
 	});
 	addCallback("hapticFeedbackChanged", [](bool value)
@@ -226,8 +226,8 @@ GeneralOptionsTab::GeneralOptionsTab()
 	if (fullscreenExclusiveCheckbox)
 		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
 
-	std::shared_ptr<CToggleButton> infoboxCheckbox = widget<CToggleButton>("infoboxCheckbox");
-	infoboxCheckbox->setSelected(settings["video"]["infobox"]["show"].Bool());
+	std::shared_ptr<CToggleButton> infoboxCheckbox = widget<CToggleButton>("performanceOverlayCheckbox");
+	infoboxCheckbox->setSelected(settings["video"]["performanceOverlay"]["show"].Bool());
 
 	std::shared_ptr<CToggleButton> hapticFeedbackCheckbox = widget<CToggleButton>("hapticFeedbackCheckbox");
 	if (hapticFeedbackCheckbox)

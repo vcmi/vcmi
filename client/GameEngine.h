@@ -57,11 +57,11 @@ private:
 
 	IGameEngineUser *engineUser = nullptr;
 
-	int maxInfoBoxTextWidth = 0;
+	int maxPerformanceOverlayTextWidth = 0;
 
 	void updateFrame();
 	void handleEvents(); //takes events from queue and calls interested objects
-	void drawInfoBox(); // draws box with additional infos (e.g. fps)
+	void drawPerformanceOverlay(); // draws box with additional infos (e.g. fps)
 
 public:
 	std::mutex interfaceMutex;

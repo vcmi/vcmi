@@ -210,7 +210,7 @@
 				"spellbookAnimation",
 				"driver",
 				"displayIndex",
-				"infobox",
+				"performanceOverlay",
 				"targetfps",
 				"vsync",
 				"fontsType",
@@ -270,15 +270,15 @@
 					"type" : "number",
 					"default" : 0
 				},
-				"infobox" : {
+				"performanceOverlay" : {
 					"type" : "object",
 					"additionalProperties" : false,
-					"required" : [ "show", "edge", "pos1", "pos2" ],
+					"required" : [ "show", "edge", "marginTopBottom", "marginLeftRight" ],
 					"properties" : {
 						"show" : { "type" : "boolean", "default" : false },
 						"edge" : { "type" : "string",  "enum" : [ "topleft", "topright", "bottomleft", "bottomright" ], "default" : "bottomleft" },
-						"pos1" : { "type" : "number",  "default" : 5 },
-						"pos2" : { "type" : "number",  "default" : 7 }
+						"marginTopBottom" : { "type" : "number",  "default" : 5 },
+						"marginLeftRight" : { "type" : "number",  "default" : 7 }
 					}
 				},
 				"targetfps" : {

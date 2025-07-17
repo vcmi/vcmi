@@ -97,6 +97,9 @@
 	"vcmi.randomMap.description.monster.normal" : "normal",
 	"vcmi.randomMap.description.monster.strong" : "strong",
 
+	"vcmi.overlay.battery"  : "Battery",
+	"vcmi.overlay.charging"  : "Charging",
+
 	"vcmi.spellBook.search" : "search...",
 	"vcmi.spellBook.tab.hover" : "%s Spells",
 	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
@@ -313,8 +316,8 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Select Long Touch Interval",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Change duration of long touch interval.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliseconds",
-	"vcmi.systemOptions.infoboxButton.hover"  : "Show Infobox (with FPS)",
-	"vcmi.systemOptions.infoboxButton.help"   : "{Show Infobox}\n\nToggle the visibility of the infobox with additional information like frames per second, time and battery charge level (if available) in the corner of the game window.",
+	"vcmi.systemOptions.performanceOverlayButton.hover"  : "Show Performance Overlay",
+	"vcmi.systemOptions.performanceOverlayButton.help"   : "{Show Performance Overlay}\n\nToggle the visibility of the overlay with additional information like frames per second, time and battery charge level (if available) in the corner of the game window.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptic feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptic feedback}\n\nToggle the haptic feedback on touch inputs.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Enhancements",

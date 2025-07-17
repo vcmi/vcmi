@@ -50,7 +50,7 @@
 					"created" : "desktop"
 				},
 				{
-					"text": "vcmi.systemOptions.infoboxButton.hover"
+					"text": "vcmi.systemOptions.performanceOverlayButton.hover"
 				},
 				{
 					"text": "vcmi.systemOptions.enableLargeSpellbookButton.hover"
@@ -136,9 +136,9 @@
 					"created" : "desktop"
 				},
 				{
-					"name": "infoboxCheckbox",
-					"help": "vcmi.systemOptions.infoboxButton",
-					"callback": "infoboxChanged"
+					"name": "performanceOverlayCheckbox",
+					"help": "vcmi.systemOptions.performanceOverlayButton",
+					"callback": "performanceOverlayChanged"
 				},
 				{
 					"name": "enableLargeSpellbookCheckbox",

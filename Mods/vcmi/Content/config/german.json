@@ -97,6 +97,9 @@
 	"vcmi.randomMap.description.monster.normal" : "Normal",
 	"vcmi.randomMap.description.monster.strong" : "Stark",
 
+	"vcmi.overlay.battery"  : "Batterie",
+	"vcmi.overlay.charging"  : "Lädt",
+
 	"vcmi.spellBook.search" : "suchen...",
 	"vcmi.spellBook.tab.hover" : "%szauber",
 	"vcmi.spellBook.tab.help" : "Zu %szaubersprüchen blättern",
@@ -313,8 +316,8 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Wähle Dauer für Touch",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Ändere die Dauer für den langen Touch",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d Millisekunden",
-	"vcmi.systemOptions.infoboxButton.hover"  : "Infobox anzeigen (mit FPS)",
-	"vcmi.systemOptions.infoboxButton.help"   : "{Infobox anzeigen}\n\n Schaltet die Sichtbarkeit einer Infobox für zusätzliche Informationen, wie eines Zählers für die Bilder pro Sekunde, der Uhrzeit oder des Batterieladezustands (wenn verfügbar) in der Ecke des Spielfensters um.",
+	"vcmi.systemOptions.performanceOverlayButton.hover"  : "Leistungs-Overlay anzeigen",
+	"vcmi.systemOptions.performanceOverlayButton.help"   : "{Leistungs-Overlay anzeigen}\n\n Schaltet die Sichtbarkeit eines Overlays für zusätzliche Informationen, wie eines Zählers für die Bilder pro Sekunde, der Uhrzeit oder des Batterieladezustands (wenn verfügbar) in der Ecke des Spielfensters um.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptisches Feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptisches Feedback}\n\nHaptisches Feedback bei Touch-Eingaben.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Verbesserungen",
