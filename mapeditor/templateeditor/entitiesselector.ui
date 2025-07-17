@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TerrainSelector</class>
- <widget class="QDialog" name="TerrainSelector">
+ <class>EntitiesSelector</class>
+ <widget class="QDialog" name="EntitiesSelector">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,18 +11,18 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Select Terrains</string>
+   <string>Select Entities</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="labelTerrains">
+    <widget class="QLabel" name="labelEntities">
      <property name="text">
-      <string>Select Terrains</string>
+      <string>Select Entities</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="listWidgetTerrains"/>
+    <widget class="QListWidget" name="listWidgetEntities"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBoxResult">

@@ -57,7 +57,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/graphicelements/CardItem.cpp
 		templateeditor/graphicelements/LineItem.cpp
 		templateeditor/GeometryAlgorithm.cpp
-		templateeditor/terrainselector.cpp
+		templateeditor/entitiesselector.cpp
 		templateeditor/factionselector.cpp
 		templateeditor/mineselector.cpp
 		templateeditor/treasureselector.cpp
@@ -124,7 +124,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/graphicelements/CardItem.h
 		templateeditor/graphicelements/LineItem.h
 		templateeditor/GeometryAlgorithm.h
-		templateeditor/terrainselector.h
+		templateeditor/entitiesselector.h
 		templateeditor/factionselector.h
 		templateeditor/mineselector.h
 		templateeditor/treasureselector.h
@@ -169,7 +169,7 @@ if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_FORMS
 		${editor_FORMS}
 		templateeditor/templateeditor.ui
-		templateeditor/terrainselector.ui
+		templateeditor/entitiesselector.ui
 		templateeditor/factionselector.ui
 		templateeditor/mineselector.ui
 		templateeditor/treasureselector.ui

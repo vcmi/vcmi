@@ -12,7 +12,7 @@
 #include "ui_templateeditor.h"
 #include "graphicelements/CardItem.h"
 #include "graphicelements/LineItem.h"
-#include "terrainselector.h"
+#include "entitiesselector.h"
 #include "factionselector.h"
 #include "mineselector.h"
 #include "treasureselector.h"
@@ -1012,12 +1012,14 @@ void TemplateEditor::on_pushButtonConnectionAdd_clicked()
 
 void TemplateEditor::on_pushButtonOpenTerrainTypes_clicked()
 {
-	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->terrainTypes);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->getZones().at(selectedZone)->terrainTypes);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonOpenBannedTerrainTypes_clicked()
 {
-	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTerrains);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTerrains);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonAllowedTowns_clicked()
@@ -1061,4 +1063,28 @@ void TemplateEditor::on_pushButtonCustomObjects_clicked()
 {
 	//TODO: Implement dialog
 	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedSpells_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSpells);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedArtifacts_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedArtifacts);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedSkills_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSkills);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedHeroes_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedHeroes);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
