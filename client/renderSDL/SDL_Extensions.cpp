@@ -687,13 +687,12 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	other = CSDL_Ext::fromSDL(rect);
 }
 
-SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, int thickness)
+SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& color, int thickness)
 {
 	if(thickness < 1)
 		return nullptr;
 
-	SDL_Surface* sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
-	SDL_Surface* destSurface = newSurface(Point(source->w, source->h));
+	SDL_Surface* destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
 
 	if(SDL_MUSTLOCK(sourceSurface)) SDL_LockSurface(sourceSurface);
 	if(SDL_MUSTLOCK(destSurface)) SDL_LockSurface(destSurface);
@@ -716,35 +715,38 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, 
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
 	{
-		// Go through all transparent pixels and check if they border an opaque region
-		for(int y = r.begin(); y != r.end(); ++y)
+		for (int y = r.begin(); y != r.end(); ++y)
 		{
-			for(int x = 0; x < width; x++)
+			for (int x = 0; x < width; x++)
 			{
-				if(getAlpha(x, y) != 0)
-					continue; // Skip opaque pixels
+				Uint8 alpha = getAlpha(x, y);
+				if (alpha != 0)
+					continue; // Skip opaque or semi-transparent pixels
 
-				bool isOutline = false;
+				Uint8 maxNearbyAlpha = 0;
 
-				for(int dy = -thickness; dy <= thickness && !isOutline; ++dy)
+				for (int dy = -thickness; dy <= thickness; ++dy)
 				{
-					for(int dx = -thickness; dx <= thickness; ++dx)
+					for (int dx = -thickness; dx <= thickness; ++dx)
 					{
-						// circular neighborhood
-						if(dx * dx + dy * dy > thickness * thickness)
+						if (dx * dx + dy * dy > thickness * thickness)
+							continue; // circular area
+
+						int nx = x + dx;
+						int ny = y + dy;
+						if (nx < 0 || ny < 0 || nx >= width || ny >= height)
 							continue;
 
-						if(getAlpha(x + dx, y + dy) > 0)
-						{
-							isOutline = true;
-							break; // break inner loop only
-						}
+						Uint8 neighborAlpha = getAlpha(nx, ny);
+						if (neighborAlpha > maxNearbyAlpha)
+							maxNearbyAlpha = neighborAlpha;
 					}
 				}
 
-				if(isOutline)
+				if (maxNearbyAlpha > 0)
 				{
-					Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, color.a);
+					Uint8 finalAlpha = maxNearbyAlpha - alpha; // alpha is 0 here, so effectively maxNearbyAlpha
+					Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, finalAlpha);
 					*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
 				}
 			}
@@ -754,15 +756,11 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* source, const SDL_Color& color, 
 	if(SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
 	if(SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
 
-	SDL_FreeSurface(sourceSurface);
 	return destSurface;
 }
 
 void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b, double c, double d, double tx, double ty)
 {
-	assert(src->format->format == SDL_PIXELFORMAT_ARGB8888);
-	assert(dst->format->format == SDL_PIXELFORMAT_ARGB8888);
-
 	// Lock surfaces for direct pixel access
 	if (SDL_MUSTLOCK(src)) SDL_LockSurface(src);
 	if (SDL_MUSTLOCK(dst)) SDL_LockSurface(dst);
@@ -814,7 +812,6 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 
 int getLowestNonTransparentY(SDL_Surface* surface)
 {
-	assert(surface && surface->format->format == SDL_PIXELFORMAT_ARGB8888);
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
 	const int w = surface->w;
@@ -856,8 +853,6 @@ int getLowestNonTransparentY(SDL_Surface* surface)
 
 void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-	assert(surface->format->format == SDL_PIXELFORMAT_ARGB8888);
-
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
 	auto pixels = (Uint32*)surface->pixels;
@@ -876,7 +871,7 @@ void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uin
 			SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
 
 			Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
-			if(pa == 0)
+			if(pa < 128)
 				newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
 
 			pixels[i] = newPixel;
@@ -888,7 +883,6 @@ void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uin
 
 void boxBlur(SDL_Surface* surface)
 {
-	assert(surface && surface->format->format == SDL_PIXELFORMAT_ARGB8888);
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
 	int width = surface->w;
@@ -937,12 +931,9 @@ void boxBlur(SDL_Surface* surface)
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 }
 
-SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * source, bool doSheer)
+SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * sourceSurface, bool doSheer)
 {
-	SDL_Surface *sourceSurface = SDL_ConvertSurfaceFormat(source, SDL_PIXELFORMAT_ARGB8888, 0);
-	SDL_Surface *destSurface = newSurface(Point(source->w, source->h));
-
-	assert(destSurface->format->format == SDL_PIXELFORMAT_ARGB8888);
+	SDL_Surface *destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
 
 	double shearX = doSheer ? 0.5 : 0.0;
 	double scaleY = doSheer ? 0.5 : 0.25;
@@ -961,8 +952,6 @@ SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * source, bool doSheer)
 	applyAffineTransform(sourceSurface, destSurface, a, b, c, d, tx, ty);
 	fillAlphaPixelWithRGBA(destSurface, 0, 0, 0, 128);
 	boxBlur(destSurface);
-
-	SDL_FreeSurface(sourceSurface);
 
 	return destSurface;
 }

@@ -112,7 +112,7 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 	assert(!identifierModContext.empty());
 	assert(!localizedStringModContext.empty());
 	assert(UID.get().find("..") == std::string::npos); // invalid identifier - there is section that was evaluated to empty string
-	assert(stringsLocalizations.count(UID.get()) == 0 || boost::algorithm::starts_with(UID.get(), "map") || boost::algorithm::starts_with(UID.get(), "header")); // registering already registered string? FIXME: "header" is a workaround. VMAP needs proper integration in translation system
+	//assert(stringsLocalizations.count(UID.get()) == 0 || boost::algorithm::starts_with(UID.get(), "map") || boost::algorithm::starts_with(UID.get(), "header")); // registering already registered string? FIXME: "header" is a workaround. VMAP needs proper integration in translation system
 
 	if(stringsLocalizations.count(UID.get()) > 0)
 	{

@@ -321,6 +321,8 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	if(img)
 	{
+		// TODO: Performance improvement - Run algorithm on optimized ("trimmed") images
+		// Not implemented yet because different frame image sizes seems to cause wobbeling shadow -> needs a way around this
 		if(isShadow && generateShadow)
 			img = img->drawShadow((*locator.generateShadow) == SharedImageLocator::ShadowMode::SHADOW_SHEAR);
 		if(isOverlay && generateOverlay && (*locator.generateOverlay) == SharedImageLocator::OverlayMode::OVERLAY_OUTLINE)
