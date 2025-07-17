@@ -91,15 +91,15 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release-x86
-          - platform: msvc-arm64
-            arch: arm64
-            os: windows-11-arm
-            test: 0
-            pack: 0
-            pack_type: RelWithDebInfo
-            extension: exe
-            before_install: msvc.sh
-            preset: windows-msvc-release-arm64
+          #- platform: msvc-arm64
+          #  arch: arm64
+          #  os: windows-11-arm
+          #  test: 0
+          #  pack: 0
+          #  pack_type: RelWithDebInfo
+          #  extension: exe
+          #  before_install: msvc.sh
+          #  preset: windows-msvc-release-arm64
           - platform: mingw_x86_64
             os: ubuntu-24.04
             test: 0
