@@ -178,8 +178,8 @@
 				"blacksmith":     { "warMachine" : "ballista" },
 
 				"special1":       { "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
-				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
+				"horde1":         { "upgrades" : "dwellingLvl1" },
+				"horde1Upgr":     { "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ] },
 				"special2":       {
 					"requires" : [ "mageGuild1" ],
 					"configuration" : {
@@ -211,24 +211,23 @@
 						]
 					}
 				},
-				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 },
-					"bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.spellpower", "val": 12 } ] },
+				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.spellpower", "val": 12 } ] },
 
-				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
-				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl3":   { "id" : 32, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl4":   { "id" : 33, "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
-				"dwellingLvl5":   { "id" : 34, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl6":   { "id" : 35, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl7":   { "id" : 36, "requires" : [ "allOf", [ "mageGuild2" ], [ "dwellingLvl5" ], [ "dwellingLvl6" ] ] },
+				"dwellingLvl1":   { "requires" : [ "fort" ] },
+				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl3":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl4":   { "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
+				"dwellingLvl5":   { "requires" : [ "dwellingLvl4" ] },
+				"dwellingLvl6":   { "requires" : [ "dwellingLvl4" ] },
+				"dwellingLvl7":   { "requires" : [ "allOf", [ "mageGuild2" ], [ "dwellingLvl5" ], [ "dwellingLvl6" ] ] },
 
-				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1" },
-				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
-				"dwellingUpLvl3": { "id" : 39, "upgrades" : "dwellingLvl3" },
-				"dwellingUpLvl4": { "id" : 40, "upgrades" : "dwellingLvl4" },
-				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
-				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
-				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
+				"dwellingUpLvl1": { "upgrades" : "dwellingLvl1" },
+				"dwellingUpLvl2": { "upgrades" : "dwellingLvl2" },
+				"dwellingUpLvl3": { "upgrades" : "dwellingLvl3" },
+				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4" },
+				"dwellingUpLvl5": { "upgrades" : "dwellingLvl5" },
+				"dwellingUpLvl6": { "upgrades" : "dwellingLvl6" },
+				"dwellingUpLvl7": { "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
 
 				"horde2" : null,
 				"horde2Upgr" : null,
