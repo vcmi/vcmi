@@ -39,9 +39,12 @@
 	
 		// Chance for this spell to appear in Mage Guild of a specific faction
 		// Symmetric property of "guildSpells" property in towns
+		/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+		/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 		"gainChance":
 		{
-			"factionName" : 3
+			"factionName" : 3,
+			"modID:anotherFactionName" : 5
 		},
 
 		"animation":{<Animation format>},

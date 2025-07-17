@@ -687,7 +687,7 @@ bool CMap::calculateWaterContent()
 
 void CMap::banWaterContent()
 {
-	banWaterHeroes();
+	banWaterHeroes(isWaterMap());
 	banWaterArtifacts();
 	banWaterSpells();
 	banWaterSkills();
@@ -717,16 +717,16 @@ void CMap::banWaterSkills()
 	});
 }
 
-void CMap::banWaterHeroes()
+void CMapHeader::banWaterHeroes(bool isWaterMap)
 {
 	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap();
+		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap;
 	});
 
 	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap();
+		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap;
 	});
 }
 

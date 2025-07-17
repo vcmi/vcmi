@@ -32,6 +32,8 @@
 		],
 		
 		// Chance for the skill to be offered on level-up (heroClass may override)
+		/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+		/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 		"gainChance" : {
 			// Chance for hero classes with might affinity
 			"might" : 4,
@@ -41,6 +43,7 @@
 			"knight" : 2,
 			"cleric" : 8,
 			...
+			"modName:heroClassName" : 5
 		},
 		
 		// This skill is major obligatory (like H3 Wisdom) and is guaranteed to be offered once per specific number of levels

@@ -222,7 +222,6 @@ public:
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
-	void banWaterHeroes();
 	void banHero(const HeroTypeID& id);
 	void unbanHero(const HeroTypeID & id);
 	void banWaterSpells();
