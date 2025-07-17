@@ -146,10 +146,10 @@
 			"properties" : {
 				"usageType": {
 					"type" : "string",
-					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"],
+					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"]
 				},
 				"removeOnDepletion" : {
-					"type" : "boolean",
+					"type" : "boolean"
 				},
 				"startingCharges" : {
 					"type" : "number",
