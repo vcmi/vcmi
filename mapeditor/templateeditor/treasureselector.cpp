@@ -47,7 +47,7 @@ TreasureSelector::TreasureSelector(std::vector<CTreasureInfo> & treasures) :
 		spinBoxDensity->setValue(density);
 		ui->tableWidgetTreasures->setCellWidget(row, 2, spinBoxDensity);
 
-		auto deleteButton = new QPushButton("Delete");
+		auto deleteButton = new QPushButton(tr("Delete"));
 		ui->tableWidgetTreasures->setCellWidget(row, 3, deleteButton);
 		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
 			for (int r = 0; r < ui->tableWidgetTreasures->rowCount(); ++r) {

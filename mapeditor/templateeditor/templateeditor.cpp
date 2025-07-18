@@ -16,6 +16,8 @@
 #include "factionselector.h"
 #include "mineselector.h"
 #include "treasureselector.h"
+#include "objectselector.h"
+#include "townhintselector.h"
 #include "GeometryAlgorithm.h"
 
 #include "../helper.h"
@@ -1032,8 +1034,7 @@ void TemplateEditor::on_pushButtonBannedTowns_clicked()
 
 void TemplateEditor::on_pushButtonTownHints_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	TownHintSelector::showTownHintSelector(templates[selectedTemplate]->getZones().at(selectedZone)->townHints);
 }
 
 void TemplateEditor::on_pushButtonAllowedMonsters_clicked()
@@ -1059,6 +1060,5 @@ void TemplateEditor::on_pushButtonMines_clicked()
 
 void TemplateEditor::on_pushButtonCustomObjects_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	ObjectSelector::showObjectSelector(templates[selectedTemplate]->getZones().at(selectedZone)->objectConfig);
 }

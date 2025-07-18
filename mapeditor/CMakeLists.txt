@@ -61,6 +61,8 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/factionselector.cpp
 		templateeditor/mineselector.cpp
 		templateeditor/treasureselector.cpp
+		templateeditor/objectselector.cpp
+		templateeditor/townhintselector.cpp
 	)
 endif()
 
@@ -128,6 +130,8 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/factionselector.h
 		templateeditor/mineselector.h
 		templateeditor/treasureselector.h
+		templateeditor/objectselector.h
+		templateeditor/townhintselector.h
 	)
 endif()
 
@@ -173,6 +177,8 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/factionselector.ui
 		templateeditor/mineselector.ui
 		templateeditor/treasureselector.ui
+		templateeditor/objectselector.ui
+		templateeditor/townhintselector.ui
 	)
 endif()
 

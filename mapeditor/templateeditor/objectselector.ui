@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ObjectSelector</class>
+ <widget class="QDialog" name="ObjectSelector">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>750</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Select Objects</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="labelObjects">
+     <property name="text">
+      <string>Objects</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableWidgetObjects"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelBannedObjects">
+     <property name="text">
+      <string>Banned Objects</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableWidgetBannedObjects"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelBannedObjectCategories">
+     <property name="text">
+      <string>Banned Object Categories</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTableWidget" name="tableWidgetBannedObjectCategories"/>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBoxResult">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

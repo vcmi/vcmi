@@ -16,6 +16,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE ObjectConfig
 {
+#ifdef ENABLE_TEMPLATE_EDITOR
+	friend class ObjectSelector;
+#endif
+
 public:
 
 	enum class EObjectCategory

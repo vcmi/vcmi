@@ -988,7 +988,7 @@ void MainWindow::on_actionLevel_triggered()
 
 void MainWindow::on_actionUndo_triggered()
 {
-	QString str("Undo clicked");
+	QString str(tr("Undo clicked"));
 	statusBar()->showMessage(str, 1000);
 
 	if (controller.map())
@@ -999,7 +999,7 @@ void MainWindow::on_actionUndo_triggered()
 
 void MainWindow::on_actionRedo_triggered()
 {
-	QString str("Redo clicked");
+	QString str(tr("Redo clicked"));
 	displayStatus(str);
 
 	if (controller.map())
@@ -1010,7 +1010,7 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
-	QString str("Passability clicked");
+	QString str(tr("Passability clicked"));
 	displayStatus(str);
 
 	if(controller.map())
@@ -1023,7 +1023,7 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
-	QString str("Grid clicked");
+	QString str(tr("Grid clicked"));
 	displayStatus(str);
 
 	if(controller.map())
@@ -1104,7 +1104,7 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
-	QString str("Fill clicked");
+	QString str(tr("Fill clicked"));
 	displayStatus(str);
 
 	if(!controller.map())
