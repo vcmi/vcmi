@@ -295,22 +295,6 @@ jobs:
         echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
         pgrep XProtect || true
 
-    - name: Install Inno Setup 6+
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: |
-        $defaultPath = "$env:ProgramFiles`(x86`)\Inno Setup 6\ISCC.exe"
-        if (!(Test-Path $defaultPath)) {
-          Write-Host "Inno Setup 6 not found. Downloading and installing..."
-          $installArgs = @("/VERYSILENT", "/NORESTART")
-          Invoke-WebRequest -Uri "https://files.innosetup.nl/innosetup-6.4.3.exe" -OutFile "isetup.exe"
-          Start-Process -FilePath "isetup.exe" -ArgumentList $installArgs -Wait
-        } else {
-          Write-Host "Found Inno Setup 6 at: $defaultPath"
-        }
-        $innoBin = Split-Path $defaultPath
-        Add-Content -Path $env:GITHUB_PATH -Value $innoBin
-      shell: pwsh
-
     - name: Build VCMI Installer
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: >
@@ -438,43 +422,32 @@ jobs:
   
   extract-version:
     name: Extract Version
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     outputs:
       version_timestamp: ${{ steps.extract.outputs.version_timestamp }}
       short_version: ${{ steps.extract.outputs.short_version }}
     steps:
       - uses: actions/checkout@v4
-
+  
       - name: Extract version info
         id: extract
-        shell: pwsh
+        shell: bash
         run: |
-          $filePath = "$env:GITHUB_WORKSPACE/cmake_modules/VersionDefinition.cmake"
-          if (!(Test-Path $filePath)) {
-            Write-Host "File not found: $filePath"
-            exit 1
-          }
-
-          $content = Get-Content $filePath -Raw
-
-          $majorMatch = [regex]::Match($content, 'set\(VCMI_VERSION_MAJOR\s+(\d+)\)')
-          $minorMatch = [regex]::Match($content, 'set\(VCMI_VERSION_MINOR\s+(\d+)\)')
-          $patchMatch = [regex]::Match($content, 'set\(VCMI_VERSION_PATCH\s+(\d+)\)')
-
-          if (!($majorMatch.Success -and $minorMatch.Success -and $patchMatch.Success)) {
-            Write-Host "Failed to extract version numbers"
-            exit 1
-          }
-
-          $shortVersion = "$($majorMatch.Groups[1].Value).$($minorMatch.Groups[1].Value).$($patchMatch.Groups[1].Value)"
-          $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-
-          echo "version_timestamp=$timestamp" >> $env:GITHUB_OUTPUT
-          echo "short_version=$shortVersion" >> $env:GITHUB_OUTPUT
+          filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
+  
+          major=$(grep -oP 'set\(VCMI_VERSION_MAJOR\s+\K\d+' "$filePath")
+          minor=$(grep -oP 'set\(VCMI_VERSION_MINOR\s+\K\d+' "$filePath")
+          patch=$(grep -oP 'set\(VCMI_VERSION_PATCH\s+\K\d+' "$filePath")
+  
+          short_version="${major}.${minor}.${patch}"
+          version_timestamp=$(date +"%Y%m%d%H%M%S")
+  
+          echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
+          echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
 
   validate-code:
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
