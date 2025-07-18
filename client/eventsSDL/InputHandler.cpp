@@ -33,6 +33,7 @@
 #include <SDL_events.h>
 #include <SDL_timer.h>
 #include <SDL_clipboard.h>
+#include <SDL_power.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -146,6 +147,21 @@ InputMode InputHandler::getCurrentInputMode()
 void InputHandler::copyToClipBoard(const std::string & text)
 {
 	SDL_SetClipboardText(text.c_str());
+}
+
+PowerState InputHandler::getPowerState()
+{
+	int seconds;
+	int percent;
+	auto sdlPowerState = SDL_GetPowerInfo(&seconds, &percent);
+
+	PowerStateMode powerState = PowerStateMode::UNKNOWN;
+	if(sdlPowerState == SDL_POWERSTATE_ON_BATTERY)
+		powerState = PowerStateMode::ON_BATTERY;
+	else if(sdlPowerState == SDL_POWERSTATE_CHARGING || sdlPowerState == SDL_POWERSTATE_CHARGED)
+		powerState = PowerStateMode::CHARGING;
+
+	return PowerState{powerState, seconds, percent};
 }
 
 std::vector<SDL_Event> InputHandler::acquireEvents()

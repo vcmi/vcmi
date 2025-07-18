@@ -107,8 +107,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Seleccionar Intervalo de Toque Largo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Cambia la duración del intervalo de toque largo.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisegundos",
-	"vcmi.systemOptions.framerateButton.hover"  : "Mostrar FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Mostrar FPS}\n\nAlternar la visibilidad del contador de Frames Per Second en la esquina de la ventana del juego.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Retroalimentación háptica",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Retroalimentación háptica}\n\nAlternar la retroalimentación háptica en las entradas táctiles.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Mejoras de la interfaz",

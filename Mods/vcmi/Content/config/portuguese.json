@@ -311,8 +311,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Selecionar Intervalo de Toque Longo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Muda a duração do intervalo de toque longo.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milissegundos",
-	"vcmi.systemOptions.framerateButton.hover"  : "Mostrar QPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Mostra os Quadros Por Segundo}\n\nAtiva ou desativa a visibilidade do contador de Quadros Por Segundo no canto da janela do jogo.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Resposta Tátil",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Resposta Tátil}\n\nAtiva ou desativa a resposta tátil nos toques na tela.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Aprimoramentos da Interface",

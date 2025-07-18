@@ -304,8 +304,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "选择长触延迟",
 	"vcmi.systemOptions.longTouchMenu.help"      : "改变长触延迟。",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d 毫秒",
-	"vcmi.systemOptions.framerateButton.hover"  : "显示FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{显示FPS}\n\n切换在游戏窗口角落显FPS指示器。",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "触觉反馈",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{触觉反馈}\n\n切换触摸输入的触觉反馈。",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "界面增强",

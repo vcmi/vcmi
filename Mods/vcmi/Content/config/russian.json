@@ -290,8 +290,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Выбрать интервал длительного касания:",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Изменить интервал длительного касания.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d миллисекунд",
-	"vcmi.systemOptions.framerateButton.hover"  : "Показывать частоту кадров",
-	"vcmi.systemOptions.framerateButton.help"   : "{Показывать частоту кадров}\n\nЕсли выбрано, частота кадров в секунду будет показана в верхнем левом углу игрового экрана.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильный отклик",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильный отклик}\n\nиспользовать вибрацию при использовании сенсорного экрана.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Расширенные функции интерфейса",

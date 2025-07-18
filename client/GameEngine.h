@@ -57,9 +57,11 @@ private:
 
 	IGameEngineUser *engineUser = nullptr;
 
+	int maxPerformanceOverlayTextWidth = 0;
+
 	void updateFrame();
 	void handleEvents(); //takes events from queue and calls interested objects
-	void drawFPSCounter(); // draws the FPS to the upper left corner of the screen
+	void drawPerformanceOverlay(); // draws box with additional infos (e.g. fps)
 
 public:
 	std::mutex interfaceMutex;

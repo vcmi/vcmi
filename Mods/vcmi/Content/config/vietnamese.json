@@ -292,8 +292,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover": "Chọn khoảng thời gian chạm giữ",
 	"vcmi.systemOptions.longTouchMenu.help": "Đổi khoảng thời gian chạm giữ.",
 	"vcmi.systemOptions.longTouchMenu.entry": "%d mili giây",
-	"vcmi.systemOptions.framerateButton.hover": "Hiện FPS",
-	"vcmi.systemOptions.framerateButton.help": "{Hiện FPS}\n\nHiện khung hình mỗi giây ở góc cửa sổ trò chơi",
 	"vcmi.systemOptions.hapticFeedbackButton.hover": "Rung khi chạm",
 	"vcmi.systemOptions.hapticFeedbackButton.help": "{Rung khi chạm}\n\nBật/ tắt chế độ rung khi chạm.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Cải thiện giao diện",

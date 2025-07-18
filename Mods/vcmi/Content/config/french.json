@@ -68,8 +68,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Sélectionner l'intervalle de touche long",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Changer la durée de l'intervalle de touche long.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d millisecondes",
-	"vcmi.systemOptions.framerateButton.hover"  : "Afficher les FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\nAfficher/masquer le compteur de Frames Par Seconde dans le coin de la fenêtre du jeu",
 
 	"vcmi.adventureOptions.infoBarPick.hover" : "Afficher les messages dans le panneau d'information",
 	"vcmi.adventureOptions.infoBarPick.help" : "{Show Messages in Info Panel}\n\nAutant que possible, les messages de jeu de la visite des objets de la carte seront affichés dans le panneau d'informations, au lieu de faire apparaître dans une fenêtre séparée.",
