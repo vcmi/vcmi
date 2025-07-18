@@ -181,6 +181,7 @@ set(vcmiclientcommon_SRCS
 	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
+	windows/settings/ShortcutsWindow.cpp
 
 	xBRZ/xbrz.cpp
 
@@ -403,6 +404,7 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
+	windows/settings/ShortcutsWindow.h
 
 	xBRZ/xbrz.h
 	xBRZ/xbrz_tools.h

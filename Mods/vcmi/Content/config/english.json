@@ -259,6 +259,12 @@
 	"vcmi.settingsMainWindow.adventureTab.hover" : "Adventure Map",
 	"vcmi.settingsMainWindow.adventureTab.help"  : "Switches to Adventure Map Options tab (adventure map is the section of the game where players can control the movements of their heroes).",
 
+	"vcmi.shortcuts.button.hover" : "Shortcuts",
+	"vcmi.shortcuts.button.help"  : "{Shortcuts}\n\nShow menu for viewing and adjusting shortcuts and keybindings",
+	"vcmi.shortcuts.editButton.help" : "Edit key binding",
+	"vcmi.shortcuts.editButton.popup" : "You want to change keybinding for {%s}?\n\nSadly setting the key binding here is not supported yet. Bindings has to configured over {shortcutsConfig.json} in config folder.",
+	"vcmi.shortcuts.group.keyboard" : "Keyboard",
+
 	"vcmi.systemOptions.videoGroup" : "Video Settings",
 	"vcmi.systemOptions.audioGroup" : "Audio Settings",
 	"vcmi.systemOptions.otherGroup" : "Other Settings", // unused right now
