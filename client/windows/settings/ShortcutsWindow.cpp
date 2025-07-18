@@ -64,14 +64,14 @@ void ShortcutsWindow::fillList(int start)
 	listElements.clear();
 	int i = 0;
 	[&]{
-		for(auto & group : shortcuts.Struct())
+		for(auto group = shortcuts.Struct().rbegin(); group != shortcuts.Struct().rend(); ++group)
 		{
 			if(i >= start)
-				listElements.push_back(std::make_shared<ShortcutElement>(group.first, listElements.size()));
+				listElements.push_back(std::make_shared<ShortcutElement>(group->first, listElements.size()));
 			i++;
 			if(listElements.size() == MAX_LINES)
 				return;
-			for(auto & elem : group.second.Struct())
+			for(auto & elem : group->second.Struct())
 			{
 				if(i >= start)
 					listElements.push_back(std::make_shared<ShortcutElement>(elem.first, elem.second, listElements.size()));
@@ -102,10 +102,10 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
 	}
 
 	labelName = std::make_shared<CLabel>(
-		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, MetaString::createFromTextID("vcmi.shortcuts.shortcut." + id).toString(), 295
+		0, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, MetaString::createFromTextID("vcmi.shortcuts.shortcut." + id).toString(), 245
 	);
 	labelKeys = std::make_shared<CLabel>(
-		300, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, keyBinding, 120
+		250, LINE_HEIGHT / 2, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, keyBinding, 170
 	);
 	buttonEdit = std::make_shared<CButton>(Point(422, 3), AnimationPath::builtin("settingsWindow/button32"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.editButton.help").toString()));
 	buttonEdit->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("settingsWindow/gear")));
