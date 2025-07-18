@@ -328,6 +328,8 @@ public:
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 
+	void redraw() override;
+
 	CHeroItem(const CGHeroInstance * hero);
 };
 
