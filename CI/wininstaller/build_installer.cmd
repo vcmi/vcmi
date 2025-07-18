@@ -56,6 +56,13 @@ if exist "%WinDir%\SysWow64" (
     set "ProgFiles=%programfiles%"
 )
 
+set "ISCC=%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe"
+
+REM Github should have it installed in different location
+if not exist "%ISCC%" (
+    set "ISCC=%SystemDrive%\ProgramData\Chocolatey\bin\ISCC.exe"
+)
+
 REM Dynamically locate the UCRT path if not defined
 if not defined UCRTFilesPath (
 	set "UCRTBasePath=!ProgFiles!\Windows Kits\10\Redist"
@@ -68,7 +75,7 @@ if not defined UCRTFilesPath (
 )
 
 REM Verify Inno Setup is installed
-if not exist "%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe" (
+if not exist "%ISCC%" (
     echo.
     echo ERROR: Inno Setup !InnoSetupVer! was not found in !ProgFiles!.
     echo Please install it or specify the correct path.
@@ -108,7 +115,7 @@ echo InstallerScript:   %InstallerScript%
 echo.
 
 REM Call Inno Setup Compiler
-"%ProgFiles%\Inno Setup %InnoSetupVer%\ISCC.exe" "%InstallerScript%" ^
+"%ISCC%" "%InstallerScript%" ^
     /DAppVersion="%AppVersion%" ^
     /DAppBuild="%AppBuild%" ^
     /DInstallerArch="%InstallerArch%" ^
