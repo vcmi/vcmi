@@ -262,7 +262,7 @@
 	"vcmi.shortcuts.button.hover" : "Tastenkürzel",
 	"vcmi.shortcuts.button.help"  : "{Tastenkürzel}\n\nMenü zum Anzeigen und Anpassen von Tastenkürzeln und Tastenbelegungen anzeigen",
 	"vcmi.shortcuts.editButton.help" : "Tastenbelegung bearbeiten",
-	"vcmi.shortcuts.editButton.popup" : "Möchten Sie die Tastenbelegung für {%s} ändern?\n\nLeider wird das Festlegen der Tastenbelegung hier noch nicht unterstützt. Die Belegung muss über die {shortcutsConfig.json} im Konfigurationsordner eingestellt werden.",
+	"vcmi.shortcuts.editButton.popup" : "Möchten Sie die Tastenbelegung für {%s} ändern?\n\nLeider wird das Festlegen der Tastenbelegung hier noch nicht unterstützt. Die Belegung muss über die {shortcutsConfig.json} im Konfigurationsordner eingestellt werden. Sie müssen den Schlüssel {%s} hinzufügen.",
 	"vcmi.shortcuts.group.keyboard" : "Tastatur",
 	"vcmi.shortcuts.group.joystickAxes" : "Joystick-Achsen",
 	"vcmi.shortcuts.group.joystickButtons" : "Joystick-Tasten",

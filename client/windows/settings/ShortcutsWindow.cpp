@@ -112,6 +112,7 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
 	buttonEdit->addCallback([id](){
 		auto str = MetaString::createFromTextID("vcmi.shortcuts.editButton.popup");
 		str.replaceTextID("vcmi.shortcuts.shortcut." + id);
+		str.replaceRawString(id);
 		CInfoWindow::showInfoDialog(str.toString(), {});
 	});
 	if(elem < MAX_LINES - 1)

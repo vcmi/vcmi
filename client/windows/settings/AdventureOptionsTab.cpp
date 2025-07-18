@@ -164,7 +164,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 			GAME->interface()->localState->erasePath(GAME->interface()->localState->getCurrentHero());
 		ENGINE->windows().totalRedraw();
 	});
-	addCallback("openShortcutMenu", [this](int dummyValue)
+	addCallback("openShortcutMenu", [](int dummyValue)
 	{
 		ENGINE->windows().createAndPushWindow<ShortcutsWindow>();
 	});
