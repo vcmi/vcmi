@@ -91,15 +91,15 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release-x86
-          - platform: msvc-arm64
-            arch: arm64
-            os: windows-11-arm
-            test: 0
-            pack: 0
-            pack_type: RelWithDebInfo
-            extension: exe
-            before_install: msvc.sh
-            preset: windows-msvc-release-arm64
+          #- platform: msvc-arm64
+          #  arch: arm64
+          #  os: windows-11-arm
+          #  test: 0
+          #  pack: 0
+          #  pack_type: RelWithDebInfo
+          #  extension: exe
+          #  before_install: msvc.sh
+          #  preset: windows-msvc-release-arm64
           - platform: mingw_x86_64
             os: ubuntu-24.04
             test: 0
@@ -294,6 +294,14 @@ jobs:
         echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
         echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
         pgrep XProtect || true
+
+    - name: Ensure Inno Setup is installed
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      shell: bash
+      run: |
+        if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ] && [ ! -f "/c/ProgramData/Chocolatey/bin/ISCC.exe" ]; then
+          choco install innosetup --no-progress -y
+        fi
 
     - name: Build VCMI Installer
       if: ${{ startsWith(matrix.platform, 'msvc') }}
