@@ -226,7 +226,7 @@ ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id, std::function<v
 	updateShadow();
 	center();
 
-	addUsedEvents(KEY_NAME);
+	addUsedEvents(LCLICK | KEY_NAME);
 }
 
 void ShortcutsEditWindow::keyReleased(const std::string & keyName)
@@ -235,4 +235,9 @@ void ShortcutsEditWindow::keyReleased(const std::string & keyName)
 		return;
 	close();
 	func(id, keyName);
+}
+
+void ShortcutsEditWindow::notFocusedClick()
+{
+	close(); // possibility to close without setting key (e.g. on touch screens)
 }

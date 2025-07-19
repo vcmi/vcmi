@@ -262,7 +262,7 @@
 	"vcmi.shortcuts.button.hover" : "Shortcuts",
 	"vcmi.shortcuts.button.help"  : "{Shortcuts}\n\nShow menu for viewing and adjusting shortcuts and keybindings",
 	"vcmi.shortcuts.editButton.help" : "Edit key binding",
-	"vcmi.shortcuts.input" : "Change key binding for {%s}.\n\nPlease enter a key or key kombination.",
+	"vcmi.shortcuts.input" : "Change key binding for {%s}.\n\nPlease enter a key or key kombination. Click outside to abort.",
 	"vcmi.shortcuts.inputSet" : "Key binding for {%s} will be changed to {%s}.\n\nAppend to existing bindings? Otherwise it will be replaced.",
 	"vcmi.shortcuts.popup" : "For {%s} the following keys are configured:\n\n",
 	"vcmi.shortcuts.reset" : "Reset",

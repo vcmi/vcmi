@@ -71,6 +71,7 @@ private:
 	std::function<void(const std::string & id, const std::string & keyName)> func;
 
 	void keyReleased(const std::string & keyName) override;
+	void notFocusedClick() override;
 public:
 	ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func);
 };

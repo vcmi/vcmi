@@ -262,7 +262,7 @@
 	"vcmi.shortcuts.button.hover" : "Tastenkürzel",
 	"vcmi.shortcuts.button.help"  : "{Tastenkürzel}\n\nMenü zum Anzeigen und Anpassen von Tastenkürzeln und Tastenbelegungen anzeigen",
 	"vcmi.shortcuts.editButton.help" : "Tastenbelegung bearbeiten",
-	"vcmi.shortcuts.input" : "Tastenbelegung für {%s} ändern.\n\nBitte eine Taste oder Tastenkombination eingeben.",
+	"vcmi.shortcuts.input" : "Tastenbelegung für {%s} ändern.\n\nBitte eine Taste oder Tastenkombination eingeben. Außerhalb klicken zum Abbrechen.",
 	"vcmi.shortcuts.inputSet" : "Tastenbelegung für {%s} wird zu {%s}. geändert\n\nZu den existierenten hinzufügen? Ansonsten wird ersetzt.",
 	"vcmi.shortcuts.popup" : "Für {%s} sind die folgenden Tastenbelegung konfiguriert:\n\n",
 	"vcmi.shortcuts.reset" : "Zurücks.",
