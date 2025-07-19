@@ -354,7 +354,8 @@ if(MINGW OR MSVC)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 
 		# Required at least for compatibility with Boost 1.68 on Vcpkg
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} bcrypt)
+  		# psapi required for ARM64 builds
+		set(SYSTEM_LIBS ${SYSTEM_LIBS} bcrypt psapi)
 	endif(MSVC)
 
 	if(MINGW)
