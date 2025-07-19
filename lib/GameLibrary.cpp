@@ -160,6 +160,7 @@ void GameLibrary::initializeFilesystem(bool extractArchives)
 	loadFilesystem(extractArchives);
 	settings.init("config/settings.json", "vcmi:settings");
 	persistentStorage.init("config/persistentStorage.json", "");
+	shortcutsConfig.init("config/shortcutsConfig.json", "");
 	loadModFilesystem();
 }
 

@@ -49,10 +49,8 @@ private:
 	std::vector<std::shared_ptr<ShortcutElement>> listElements;
 	std::shared_ptr<CButton> buttonReset;
 
-	JsonNode shortcuts;
-
 	void fillList(int start);
-	void setKeyBinding(const std::string & id, const std::string & keyName, bool append);
+	void setKeyBinding(const std::string & id, const std::string & group, const std::string & keyName, bool append);
 	void resetKeyBinding();
 
 public:

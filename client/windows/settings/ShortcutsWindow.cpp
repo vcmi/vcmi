@@ -23,6 +23,7 @@
 #include "../../widgets/Slider.h"
 #include "../../windows/InfoWindows.h"
 
+#include "../../../lib/CConfigHandler.h"
 #include "../../../lib/texts/MetaString.h"
 #include "../../../lib/json/JsonNode.h"
 #include "../../../lib/json/JsonUtils.h"
@@ -44,10 +45,8 @@ ShortcutsWindow::ShortcutsWindow()
 	);
 	backgroundRect = std::make_shared<TransparentFilledRectangle>(Rect(8, 48, pos.w - 16, 348), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
 
-	shortcuts = JsonUtils::assembleFromFiles("config/shortcutsConfig");
-
 	int count = 0;
-	for(auto & group : shortcuts.Struct())
+	for(auto & group : shortcutsConfig.toJsonNode().Struct())
 	{
 		count++;
 		count += group.second.Struct().size();
@@ -75,7 +74,7 @@ void ShortcutsWindow::fillList(int start)
 	listElements.clear();
 	int i = 0;
 	[&]{
-		for(auto group = shortcuts.Struct().rbegin(); group != shortcuts.Struct().rend(); ++group)
+		for(auto group = shortcutsConfig.toJsonNode().Struct().rbegin(); group != shortcutsConfig.toJsonNode().Struct().rend(); ++group)
 		{
 			if(i >= start)
 				listElements.push_back(std::make_shared<ShortcutElement>(group->first, listElements.size()));
@@ -85,15 +84,15 @@ void ShortcutsWindow::fillList(int start)
 			for(auto & elem : group->second.Struct())
 			{
 				if(i >= start)
-					listElements.push_back(std::make_shared<ShortcutElement>(elem.first, elem.second, listElements.size(), [this](const std::string & id, const std::string & keyName){
+					listElements.push_back(std::make_shared<ShortcutElement>(elem.first, elem.second, listElements.size(), [this, group](const std::string & id, const std::string & keyName){
 						auto str = MetaString::createFromTextID("vcmi.shortcuts.inputSet");
 						str.replaceTextID("vcmi.shortcuts.shortcut." + id);
 						str.replaceRawString(keyName);
 
-						GAME->interface()->showYesNoDialog(str.toString(), [this, id, keyName](){
-							setKeyBinding(id, keyName, true);
-						}, [this, id, keyName](){
-							setKeyBinding(id, keyName, false);
+						GAME->interface()->showYesNoDialog(str.toString(), [this, group, id, keyName](){
+							setKeyBinding(id, group->first, keyName, true);
+						}, [this, group, id, keyName](){
+							setKeyBinding(id, group->first, keyName, false);
 						});
 					}));
 				i++;
@@ -104,17 +103,32 @@ void ShortcutsWindow::fillList(int start)
 	}();
 }
 
-void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & keyName, bool append)
+void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & group, const std::string & keyName, bool append)
 {
-	// TODO
-	std::cout << id << "   " << keyName << "   " << append << "\n";
+	auto existing = shortcutsConfig[group][id];
+	Settings existingWrite = shortcutsConfig.write[group][id];
+	if((existing.isVector() || (existing.isString() && !existing.String().empty())) && append)
+	{
+		JsonVector tmp;
+		if(existing.isVector())
+			tmp = existing.Vector();
+		if(existing.isString())
+			tmp.push_back(existing);
+		tmp.push_back(JsonNode(keyName));
+		existingWrite->Vector() = tmp;
+	}
+	else
+		existingWrite->String() = keyName;
 
 	fillList(slider->getValue());
 }
 
 void ShortcutsWindow::resetKeyBinding()
 {
-	// TODO
+	// FIXME: Not working yet
+	Settings write = shortcutsConfig.write;
+	write->clear();
+	write->Struct() = JsonUtils::assembleFromFiles("config/shortcutsConfig.json").Struct();
 
 	fillList(slider->getValue());
 }
