@@ -37,7 +37,7 @@ ConfigEditorDialog::ConfigEditorDialog(QWidget *parent):
 		"settings.json",
 		"persistentStorage.json",
 		"modSettings.json",
-		"shortcutsConfig.json",
+		"keyBindingsConfig.json",
 	};
 	ui->comboBox->addItems(files);
 

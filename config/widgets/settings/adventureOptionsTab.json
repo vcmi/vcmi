@@ -307,7 +307,7 @@
 					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
 				},
 				{
-					"text": "vcmi.shortcuts.button.hover"
+					"text": "vcmi.keyBindings.button.hover"
 				}
 			]
 		},
@@ -350,7 +350,7 @@
 				{
 					"name": "shortcutButton",
 					"type": "buttonGear",
-					"help": "vcmi.shortcuts.button",
+					"help": "vcmi.keyBindings.button",
 					"callback": "openShortcutMenu"
 				}
 			]

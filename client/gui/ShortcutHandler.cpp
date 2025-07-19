@@ -18,15 +18,15 @@
 
 ShortcutHandler::ShortcutHandler()
 {
-	mappedKeyboardShortcuts = loadShortcuts(shortcutsConfig["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(shortcutsConfig["joystickButtons"]);
-	mappedJoystickAxes = loadShortcuts(shortcutsConfig["joystickAxes"]);
+	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 
-	for (auto const & entry : shortcutsConfig["keyboard"].Struct())
+	for (auto const & entry : keyBindingsConfig["keyboard"].Struct())
 	{
 		EShortcut shortcutID = findShortcut(entry.first);
 		assert(!vstd::contains(assignedShortcuts, shortcutID));

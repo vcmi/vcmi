@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 SettingsStorage settings;
 SettingsStorage persistentStorage;
-SettingsStorage shortcutsConfig;
+SettingsStorage keyBindingsConfig;
 
 template<typename Accessor>
 SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):

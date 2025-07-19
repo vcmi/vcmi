@@ -10,7 +10,7 @@
 #include "StdInc.h"
 
 #include "AdventureOptionsTab.h"
-#include "ShortcutsWindow.h"
+#include "KeyBindingsWindow.h"
 
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
@@ -166,7 +166,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 	});
 	addCallback("openShortcutMenu", [](int dummyValue)
 	{
-		ENGINE->windows().createAndPushWindow<ShortcutsWindow>();
+		ENGINE->windows().createAndPushWindow<KeyBindingsWindow>();
 	});
 	build(config);
 

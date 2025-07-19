@@ -1,5 +1,5 @@
 /*
- * ShortcutsWindow.h, part of VCMI engine
+ * KeyBindingsWindow.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -24,7 +24,7 @@ class CTextBox;
 const int MAX_LINES = 11;
 const int LINE_HEIGHT = 30;
 
-class ShortcutElement : public CIntObject
+class KeyBindingElement : public CIntObject
 {
 private:
 	std::shared_ptr<CButton> buttonEdit;
@@ -38,11 +38,11 @@ private:
 
 	void showPopupWindow(const Point & cursorPosition) override;
 public:
-	ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func);
-	ShortcutElement(std::string group, int elem);
+	KeyBindingElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func);
+	KeyBindingElement(std::string group, int elem);
 };
 
-class ShortcutsWindow : public CWindowObject
+class KeyBindingsWindow : public CWindowObject
 {
 private:
 	std::shared_ptr<CFilledTexture> backgroundTexture;
@@ -50,7 +50,7 @@ private:
 	std::shared_ptr<CLabel> labelTitle;
 	std::shared_ptr<TransparentFilledRectangle> backgroundRect;
 	std::shared_ptr<CSlider> slider;
-	std::vector<std::shared_ptr<ShortcutElement>> listElements;
+	std::vector<std::shared_ptr<KeyBindingElement>> listElements;
 	std::shared_ptr<CButton> buttonReset;
 
 	void fillList(int start);
@@ -58,10 +58,10 @@ private:
 	void resetKeyBinding();
 
 public:
-	ShortcutsWindow();
+	KeyBindingsWindow();
 };
 
-class ShortcutsEditWindow : public CWindowObject
+class KeyBindingsEditWindow : public CWindowObject
 {
 private:
 	std::shared_ptr<CFilledTexture> backgroundTexture;
@@ -73,6 +73,6 @@ private:
 	void keyReleased(const std::string & keyName) override;
 	void notFocusedClick() override;
 public:
-	ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func);
+	KeyBindingsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func);
 };
 
