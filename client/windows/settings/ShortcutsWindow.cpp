@@ -57,6 +57,14 @@ ShortcutsWindow::ShortcutsWindow()
 	slider->setPanningStep(LINE_HEIGHT);
 	slider->setScrollBounds(Rect(-backgroundRect->pos.w + slider->pos.w, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
 
+	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.reset").toString()));
+	buttonReset->setOverlay(std::make_shared<CLabel>(0, 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.shortcuts.reset").toString()));
+	buttonReset->addCallback([this](){
+		GAME->interface()->showYesNoDialog(MetaString::createFromTextID("vcmi.shortcuts.resetConfirm").toString(), [this](){
+			resetKeyBinding();
+		}, nullptr);
+	});
+
 	fillList(0);
 }
 
@@ -98,7 +106,17 @@ void ShortcutsWindow::fillList(int start)
 
 void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & keyName, bool append)
 {
+	// TODO
 	std::cout << id << "   " << keyName << "   " << append << "\n";
+
+	fillList(slider->getValue());
+}
+
+void ShortcutsWindow::resetKeyBinding()
+{
+	// TODO
+
+	fillList(slider->getValue());
 }
 
 ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func)

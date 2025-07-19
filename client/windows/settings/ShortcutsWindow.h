@@ -47,11 +47,13 @@ private:
 	std::shared_ptr<TransparentFilledRectangle> backgroundRect;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<ShortcutElement>> listElements;
+	std::shared_ptr<CButton> buttonReset;
 
 	JsonNode shortcuts;
 
 	void fillList(int start);
 	void setKeyBinding(const std::string & id, const std::string & keyName, bool append);
+	void resetKeyBinding();
 
 public:
 	ShortcutsWindow();
