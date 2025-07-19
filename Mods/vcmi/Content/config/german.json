@@ -264,7 +264,7 @@
 	"vcmi.keyBindings.editButton.help" : "Tastenbelegung bearbeiten",
 	"vcmi.keyBindings.input" : "Tastenbelegung für {%s} ändern.\n\nBitte eine Taste oder Tastenkombination eingeben. Außerhalb klicken zum Abbrechen.",
 	"vcmi.keyBindings.inputSet" : "Tastenbelegung für {%s} wird zu {%s} geändert.\n\nZu den existierenten hinzufügen? Ansonsten wird ersetzt.",
-	"vcmi.keyBindings.popup" : "Für {%s} sind die folgenden Tastenbelegung konfiguriert:\n\n",
+	"vcmi.keyBindings.popup" : "Für {%s} ist die folgende Tastenbelegung konfiguriert:\n\n",
 	"vcmi.keyBindings.reset" : "Zurücks.",
 	"vcmi.keyBindings.reset.help" : "{Zurücksetzen}\n\nSetzt Tastenbelegungen auf Standardeinstellungen zurück",
 	"vcmi.keyBindings.resetConfirm" : "Alle Tastenbelegungen auf Standardeinstellungen zurücksetzen?",
