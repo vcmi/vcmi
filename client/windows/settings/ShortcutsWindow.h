@@ -53,3 +53,11 @@ public:
 	ShortcutsWindow();
 };
 
+class ShortcutsEditWindow : public CWindowObject
+{
+private:
+	void keyPressed(const std::string & keyName) override;
+public:
+	ShortcutsEditWindow(const std::string & id);
+};
+

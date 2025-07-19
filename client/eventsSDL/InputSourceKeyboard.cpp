@@ -88,6 +88,8 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
 
+	ENGINE->events().dispatchKeyPressed(keyName);
+
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
 		ENGINE->user().onGlobalLobbyInterfaceActivated();
 
@@ -142,6 +144,8 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	assert(key.state == SDL_RELEASED);
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
+	
+	ENGINE->events().dispatchKeyReleased(keyName);
 
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }

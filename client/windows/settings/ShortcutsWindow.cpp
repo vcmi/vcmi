@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "ShortcutsWindow.h"
 
+#include "../../GameEngine.h"
 #include "../../gui/Shortcut.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
@@ -110,10 +111,7 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
 	buttonEdit = std::make_shared<CButton>(Point(422, 3), AnimationPath::builtin("settingsWindow/button32"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.editButton.help").toString()));
 	buttonEdit->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("settingsWindow/gear")));
 	buttonEdit->addCallback([id](){
-		auto str = MetaString::createFromTextID("vcmi.shortcuts.editButton.popup");
-		str.replaceTextID("vcmi.shortcuts.shortcut." + id);
-		str.replaceRawString(id);
-		CInfoWindow::showInfoDialog(str.toString(), {});
+		ENGINE->windows().createAndPushWindow<ShortcutsEditWindow>(id);
 	});
 	if(elem < MAX_LINES - 1)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
@@ -132,4 +130,22 @@ ShortcutElement::ShortcutElement(std::string group, int elem)
 	);
 	if(elem < MAX_LINES - 1)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
+}
+
+ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id)
+	: CWindowObject(BORDERED)
+{
+	OBJECT_CONSTRUCTION;
+	pos.w = 200;
+	pos.h = 100;
+
+	updateShadow();
+	center();
+
+	addUsedEvents(KEY_NAME);
+}
+
+void ShortcutsEditWindow::keyPressed(const std::string & keyName)
+{
+	std::cout << keyName << "\n";
 }

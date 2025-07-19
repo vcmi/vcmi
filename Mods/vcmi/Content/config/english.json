@@ -262,7 +262,6 @@
 	"vcmi.shortcuts.button.hover" : "Shortcuts",
 	"vcmi.shortcuts.button.help"  : "{Shortcuts}\n\nShow menu for viewing and adjusting shortcuts and keybindings",
 	"vcmi.shortcuts.editButton.help" : "Edit key binding",
-	"vcmi.shortcuts.editButton.popup" : "You want to change keybinding for {%s}?\n\nSadly setting the key binding here is not supported yet. Bindings has to configured over {shortcutsConfig.json} in config folder. You need to add the key {%s}.",
 	"vcmi.shortcuts.group.keyboard" : "Keyboard",
 	"vcmi.shortcuts.group.joystickAxes" : "Joystick Axes",
 	"vcmi.shortcuts.group.joystickButtons" : "Joystick Buttons",

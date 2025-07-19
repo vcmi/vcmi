@@ -77,6 +77,9 @@ public:
 	virtual void keyPressed(EShortcut key) {}
 	virtual void keyReleased(EShortcut key) {}
 
+	virtual void keyPressed(const std::string & keyName) {}
+	virtual void keyReleased(const std::string & keyName) {}
+
 	virtual void tick(uint32_t msPassed) {}
 
 	virtual void inputModeChanged(InputMode modi) {}
@@ -101,7 +104,8 @@ public:
 		GESTURE = 1024,
 		DRAG = 2048,
 		INPUT_MODE_CHANGE = 4096,
-		DRAG_POPUP = 8192
+		DRAG_POPUP = 8192,
+		KEY_NAME = 16384
 	};
 
 	/// Returns true if element is currently hovered by mouse

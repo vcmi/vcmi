@@ -43,6 +43,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
 	processList(AEventsReceiver::GESTURE, panningInterested);
 	processList(AEventsReceiver::INPUT_MODE_CHANGE, inputModeChangeInterested);
+	processList(AEventsReceiver::KEY_NAME, keyNameInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -131,6 +132,22 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 					return;
 			}
 	}
+}
+
+void EventDispatcher::dispatchKeyPressed(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyPressed(keyName);
+}
+
+void EventDispatcher::dispatchKeyReleased(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyReleased(keyName);
 }
 
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
