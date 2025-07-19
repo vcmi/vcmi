@@ -18,6 +18,7 @@ class CButton;
 class CLabel;
 class TransparentFilledRectangle;
 class CSlider;
+class CTextBox;
 
 const int MAX_LINES = 11;
 const int LINE_HEIGHT = 30;
@@ -30,8 +31,10 @@ private:
 	std::shared_ptr<CLabel> labelKeys;
 	std::shared_ptr<TransparentFilledRectangle> seperationLine; // rectangle is cleaner than line...
 
+	std::function<void(const std::string & id, const std::string & keyName)> func;
+
 public:
-	ShortcutElement(std::string id, JsonNode keys, int elem);
+	ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func);
 	ShortcutElement(std::string group, int elem);
 };
 
@@ -48,6 +51,7 @@ private:
 	JsonNode shortcuts;
 
 	void fillList(int start);
+	void setKeyBinding(const std::string & id, const std::string & keyName, bool append);
 
 public:
 	ShortcutsWindow();
@@ -56,8 +60,14 @@ public:
 class ShortcutsEditWindow : public CWindowObject
 {
 private:
+	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::shared_ptr<CTextBox> text;
+
+	std::string id;
+	std::function<void(const std::string & id, const std::string & keyName)> func;
+
 	void keyPressed(const std::string & keyName) override;
 public:
-	ShortcutsEditWindow(const std::string & id);
+	ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func);
 };
 

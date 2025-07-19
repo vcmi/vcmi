@@ -11,7 +11,9 @@
 #include "StdInc.h"
 #include "ShortcutsWindow.h"
 
+#include "../../CPlayerInterface.h"
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
@@ -75,7 +77,17 @@ void ShortcutsWindow::fillList(int start)
 			for(auto & elem : group->second.Struct())
 			{
 				if(i >= start)
-					listElements.push_back(std::make_shared<ShortcutElement>(elem.first, elem.second, listElements.size()));
+					listElements.push_back(std::make_shared<ShortcutElement>(elem.first, elem.second, listElements.size(), [this](const std::string & id, const std::string & keyName){
+						auto str = MetaString::createFromTextID("vcmi.shortcuts.inputSet");
+						str.replaceTextID("vcmi.shortcuts.shortcut." + id);
+						str.replaceRawString(keyName);
+
+						GAME->interface()->showYesNoDialog(str.toString(), [this, id, keyName](){
+							setKeyBinding(id, keyName, true);
+						}, [this, id, keyName](){
+							setKeyBinding(id, keyName, false);
+						});
+					}));
 				i++;
 				if(listElements.size() == MAX_LINES)
 					return;
@@ -84,7 +96,13 @@ void ShortcutsWindow::fillList(int start)
 	}();
 }
 
-ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
+void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & keyName, bool append)
+{
+	std::cout << id << "   " << keyName << "   " << append << "\n";
+}
+
+ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func)
+	: func(func)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -99,7 +117,7 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
 	{
 		std::vector<std::string> strings;
 		std::transform(keys.Vector().begin(), keys.Vector().end(), std::back_inserter(strings), [](const auto& k) { return k.String(); });
-		keyBinding = boost::join(strings, " | ");
+		keyBinding = boost::join(strings, " {gray||} ");
 	}
 
 	labelName = std::make_shared<CLabel>(
@@ -110,14 +128,18 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem)
 	);
 	buttonEdit = std::make_shared<CButton>(Point(422, 3), AnimationPath::builtin("settingsWindow/button32"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.editButton.help").toString()));
 	buttonEdit->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("settingsWindow/gear")));
-	buttonEdit->addCallback([id](){
-		ENGINE->windows().createAndPushWindow<ShortcutsEditWindow>(id);
+	buttonEdit->addCallback([id, func](){
+		ENGINE->windows().createAndPushWindow<ShortcutsEditWindow>(id, [func](const std::string & id, const std::string & keyName){
+			if(func)
+				func(id, keyName);
+		});
 	});
 	if(elem < MAX_LINES - 1)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
 }
 
 ShortcutElement::ShortcutElement(std::string group, int elem)
+	: func(nullptr)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -132,12 +154,20 @@ ShortcutElement::ShortcutElement(std::string group, int elem)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
 }
 
-ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id)
+ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func)
 	: CWindowObject(BORDERED)
+	, id(id)
+	, func(func)
 {
 	OBJECT_CONSTRUCTION;
-	pos.w = 200;
-	pos.h = 100;
+	pos.w = 250;
+	pos.h = 150;
+
+	auto str = MetaString::createFromTextID("vcmi.shortcuts.input");
+	str.replaceTextID("vcmi.shortcuts.shortcut." + id);
+
+	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), Rect(0, 0, pos.w, pos.h));
+	text = std::make_shared<CTextBox>(str.toString(), Rect(0, 0, 250, 150), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
 	updateShadow();
 	center();
@@ -147,5 +177,8 @@ ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id)
 
 void ShortcutsEditWindow::keyPressed(const std::string & keyName)
 {
-	std::cout << keyName << "\n";
+	if(boost::algorithm::ends_with(keyName, "Ctrl") || boost::algorithm::ends_with(keyName, "Shift") || boost::algorithm::ends_with(keyName, "Alt")) // skip if only control key pressed
+		return;
+	close();
+	func(id, keyName);
 }
