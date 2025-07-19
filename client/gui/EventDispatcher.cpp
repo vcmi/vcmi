@@ -200,7 +200,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 
 void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 {
-	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::LCLICK, tolerance);
+	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::SHOW_POPUP, tolerance);
 
 	auto hlp = rclickable;
 

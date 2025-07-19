@@ -139,14 +139,18 @@ void ShortcutsWindow::resetKeyBinding()
 }
 
 ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func)
-	: CIntObject(SHOW_POPUP)
-	, func(func)
+	: func(func)
 {
 	OBJECT_CONSTRUCTION;
 
 	pos.x += 14;
 	pos.y += 56;
 	pos.y += elem * LINE_HEIGHT;
+
+	pos.w = 455;
+	pos.h = LINE_HEIGHT;
+
+	addUsedEvents(SHOW_POPUP);
 
 	popupText = MetaString::createFromTextID("vcmi.shortcuts.popup");
 	popupText.replaceTextID("vcmi.shortcuts.shortcut." + id);
