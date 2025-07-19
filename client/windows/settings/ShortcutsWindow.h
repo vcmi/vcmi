@@ -12,6 +12,7 @@
 
 #include "../CWindowObject.h"
 #include "../../../lib/json/JsonNode.h"
+#include "../../../lib/texts/MetaString.h"
 
 class CFilledTexture;
 class CButton;
@@ -31,8 +32,11 @@ private:
 	std::shared_ptr<CLabel> labelKeys;
 	std::shared_ptr<TransparentFilledRectangle> seperationLine; // rectangle is cleaner than line...
 
+	MetaString popupText;
+
 	std::function<void(const std::string & id, const std::string & keyName)> func;
 
+	void showPopupWindow(const Point & cursorPosition) override;
 public:
 	ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func);
 	ShortcutElement(std::string group, int elem);
@@ -66,7 +70,7 @@ private:
 	std::string id;
 	std::function<void(const std::string & id, const std::string & keyName)> func;
 
-	void keyPressed(const std::string & keyName) override;
+	void keyReleased(const std::string & keyName) override;
 public:
 	ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func);
 };

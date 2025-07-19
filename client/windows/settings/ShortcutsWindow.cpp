@@ -56,7 +56,7 @@ ShortcutsWindow::ShortcutsWindow()
 	slider->setPanningStep(LINE_HEIGHT);
 	slider->setScrollBounds(Rect(-backgroundRect->pos.w + slider->pos.w, 0, slider->pos.x - pos.x + slider->pos.w, slider->pos.h));
 
-	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.reset").toString()));
+	buttonReset = std::make_shared<CButton>(Point(411, 403), AnimationPath::builtin("settingsWindow/button80"), std::make_pair("", MetaString::createFromTextID("vcmi.shortcuts.reset.help").toString()));
 	buttonReset->setOverlay(std::make_shared<CLabel>(0, 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, MetaString::createFromTextID("vcmi.shortcuts.reset").toString()));
 	buttonReset->addCallback([this](){
 		GAME->interface()->showYesNoDialog(MetaString::createFromTextID("vcmi.shortcuts.resetConfirm").toString(), [this](){
@@ -114,7 +114,8 @@ void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & 
 			tmp = existing.Vector();
 		if(existing.isString())
 			tmp.push_back(existing);
-		tmp.push_back(JsonNode(keyName));
+		if(!vstd::contains(tmp, JsonNode(keyName)))
+			tmp.push_back(JsonNode(keyName));
 		existingWrite->Vector() = tmp;
 	}
 	else
@@ -125,16 +126,21 @@ void ShortcutsWindow::setKeyBinding(const std::string & id, const std::string & 
 
 void ShortcutsWindow::resetKeyBinding()
 {
-	// FIXME: Not working yet
-	Settings write = shortcutsConfig.write;
-	write->clear();
-	write->Struct() = JsonUtils::assembleFromFiles("config/shortcutsConfig.json").Struct();
+	{
+		Settings write = shortcutsConfig.write;
+		write->clear();
+	}
+	{
+		Settings write = shortcutsConfig.write;
+		write->Struct() = JsonUtils::assembleFromFiles("config/shortcutsConfig.json").Struct();
+	}
 
 	fillList(slider->getValue());
 }
 
 ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem, std::function<void(const std::string & id, const std::string & keyName)> func)
-	: func(func)
+	: CIntObject(SHOW_POPUP)
+	, func(func)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -142,14 +148,21 @@ ShortcutElement::ShortcutElement(std::string id, JsonNode keys, int elem, std::f
 	pos.y += 56;
 	pos.y += elem * LINE_HEIGHT;
 
+	popupText = MetaString::createFromTextID("vcmi.shortcuts.popup");
+	popupText.replaceTextID("vcmi.shortcuts.shortcut." + id);
+
 	std::string keyBinding = "";
 	if(keys.isString())
+	{
 		keyBinding = keys.String();
+		popupText.appendRawString(keyBinding);
+	}
 	else if(keys.isVector())
 	{
 		std::vector<std::string> strings;
 		std::transform(keys.Vector().begin(), keys.Vector().end(), std::back_inserter(strings), [](const auto& k) { return k.String(); });
-		keyBinding = boost::join(strings, " {gray||} ");
+		keyBinding = boost::join(strings, " | ");
+		popupText.appendRawString(boost::join(strings, "\n"));
 	}
 
 	labelName = std::make_shared<CLabel>(
@@ -186,6 +199,11 @@ ShortcutElement::ShortcutElement(std::string group, int elem)
 		seperationLine = std::make_shared<TransparentFilledRectangle>(Rect(0, LINE_HEIGHT, 456, 1), ColorRGBA(0, 0, 0, 64), ColorRGBA(128, 100, 75), 1);
 }
 
+void ShortcutElement::showPopupWindow(const Point & cursorPosition)
+{
+	CRClickPopup::createAndPush(popupText.toString());
+}
+
 ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id, std::function<void(const std::string & id, const std::string & keyName)> func)
 	: CWindowObject(BORDERED)
 	, id(id)
@@ -207,7 +225,7 @@ ShortcutsEditWindow::ShortcutsEditWindow(const std::string & id, std::function<v
 	addUsedEvents(KEY_NAME);
 }
 
-void ShortcutsEditWindow::keyPressed(const std::string & keyName)
+void ShortcutsEditWindow::keyReleased(const std::string & keyName)
 {
 	if(boost::algorithm::ends_with(keyName, "Ctrl") || boost::algorithm::ends_with(keyName, "Shift") || boost::algorithm::ends_with(keyName, "Alt")) // skip if only control key pressed
 		return;
