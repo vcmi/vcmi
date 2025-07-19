@@ -322,8 +322,16 @@ end;
 
 function GetCommonProgramFilesDir: String;
 begin
-  // Check if the installer is running on a 64-bit system
-  if IsWin64 then
+  if IsARM64 then
+  begin
+    if ExpandConstant('{#InstallerArch}') = 'x86' then
+      // For 32-bit installer on ARM64, return the 32-bit Program Files directory
+      Result := ExpandConstant('{commonpf32}')
+    else
+			// For AMR64 installer, return the Program Files directory
+      Result := ExpandConstant('{commonpf}')
+  end
+  else if IsWin64 then
   begin
     if ExpandConstant('{#InstallerArch}') = 'x64' then
       // For 64-bit installer, return the 64-bit Program Files directory
