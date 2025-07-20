@@ -26,6 +26,7 @@ class ConnectionPackWriter final : public IBinaryWriter
 {
 public:
 	std::vector<std::byte> buffer;
+	std::vector<std::unique_ptr<CPackForClient>> rollbackPacks;
 
 	int write(const std::byte * data, unsigned size) final;
 };
@@ -91,12 +92,15 @@ private:
 	std::vector<std::unique_ptr<CPackForClient>> rollbackPacks;
 	bool success = false;
 
+	void visitPackageReceived(PackageReceived & pack) override;
+	void visitPackageApplied(PackageApplied & pack) override;
+	void visitPlayerBlocked(PlayerBlocked & pack) override;
 	//void visitSetResources(SetResources & pack) override;
 	//void visitSetPrimarySkill(SetPrimarySkill & pack) override;
 	//void visitSetHeroExperience(SetHeroExperience & pack) override;
 	//void visitGiveStackExperience(GiveStackExperience & pack) override;
 	//void visitSetSecSkill(SetSecSkill & pack) override;
-	//void visitHeroVisitCastle(HeroVisitCastle & pack) override;
+	void visitHeroVisitCastle(HeroVisitCastle & pack) override;
 	//void visitSetMana(SetMana & pack) override;
 	//void visitSetMovePoints(SetMovePoints & pack) override;
 	//void visitSetResearchedSpells(SetResearchedSpells & pack) override;
@@ -183,6 +187,7 @@ class AntilagServer final : public IGameServer, public INetworkConnectionListene
 	std::vector<AntilagReplyPrediction> predictedReplies;
 	std::shared_ptr<INetworkConnection> antilagNetConnection;
 	std::shared_ptr<GameConnection> antilagGameConnection;
+//	std::shared_ptr<CGameState> & gameState;
 	std::unique_ptr<CGameHandler> gameHandler;
 
 	static constexpr uint32_t invalidPackageID = std::numeric_limits<uint32_t>::max();

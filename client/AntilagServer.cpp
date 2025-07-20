@@ -20,10 +20,47 @@
 #include "../lib/serializer/GameConnection.h"
 #include "GameInstance.h"
 
+class DLL_LINKAGE AntilagRollbackNotSupportedException : public std::runtime_error
+{
+public:
+	using std::runtime_error::runtime_error;
+};
+
+
 int ConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
 	buffer.insert(buffer.end(), data, data + size);
 	return size;
+}
+
+void AntilagRollbackGeneratorVisitor::visitPackageReceived(PackageReceived & pack)
+{
+	success = true;
+	// no-op rollback?
+}
+
+void AntilagRollbackGeneratorVisitor::visitPackageApplied(PackageApplied & pack)
+{
+	success = true;
+	// no-op rollback?
+}
+
+void AntilagRollbackGeneratorVisitor::visitPlayerBlocked(PlayerBlocked & pack)
+{
+	success = true;
+	// no-op rollback?
+}
+
+void AntilagRollbackGeneratorVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
+{
+	auto rollbackVisit = std::make_unique<HeroVisitCastle>();
+	rollbackVisit->startVisit = !pack.startVisit;
+	rollbackVisit->tid = pack.tid;
+	rollbackVisit->hid = pack.hid;
+
+	rollbackPacks.push_back(std::move(rollbackVisit));
+
+	success = true;
 }
 
 void AntilagRollbackGeneratorVisitor::visitTryMoveHero(TryMoveHero & pack)
@@ -107,7 +144,14 @@ void AntilagServer::onPacketReceived(const std::shared_ptr<INetworkConnection> &
 	newPrediction.senderID = serverPack->player;
 	predictedReplies.push_back(std::move(newPrediction));
 
-	gameHandler->handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverPack);
+	try
+	{
+		gameHandler->handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverPack);
+	}
+	catch (const AntilagRollbackNotSupportedException & )
+	{
+		return;
+	}
 }
 
 void AntilagServer::tryPredictReply(const CPackForServer & request)
@@ -148,9 +192,29 @@ bool AntilagServer::verifyReply(const CPackForClient & pack)
 	serializer & &pack;
 
 	if (packWriter.buffer == predictedReplies.front().writtenPacks.front().buffer)
+	{
+		// Our prediction was sucessful - drop rollback information for this pack
 		predictedReplies.front().writtenPacks.erase(predictedReplies.front().writtenPacks.begin());
+
+		if (predictedReplies.front().writtenPacks.empty())
+		{
+			predictedReplies.erase(predictedReplies.begin());
+			currentPackageID = invalidPackageID;
+			return true;
+		}
+	}
 	else
-		throw std::runtime_error("TODO: IMPLEMENT PACK ROLLBACK");
+	{
+		// Prediction was incorrect - rollback everything that is left in this prediction and use real server packs
+		for (auto & prediction : boost::adaptors::reverse(predictedReplies.front().writtenPacks))
+		{
+			for (auto & pack : prediction.rollbackPacks)
+				GAME->server().client->handlePack(*pack);
+		}
+		predictedReplies.erase(predictedReplies.begin());
+		currentPackageID = invalidPackageID;
+		return false;
+	}
 
 	if (packageApplied)
 	{
@@ -192,16 +256,20 @@ bool AntilagServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor
 
 void AntilagServer::applyPack(CPackForClient & pack)
 {
-//	AntilagReplyPredictionVisitor visitor;
-//	pack.visit(visitor);
-//	if (!visitor.canBeApplied())
-//		throw std::runtime_error("TODO: IMPLEMENT INTERRUPTION");
+	AntilagRollbackGeneratorVisitor visitor(gameHandler->gameState());
+	pack.visit(visitor);
+	if (!visitor.canBeRolledBack())
+	{
+		logGlobal->info("Prediction not possible: pack '%s'", typeid(pack).name());
+		throw AntilagRollbackNotSupportedException(std::string("Prediction not possible ") + typeid(pack).name());
+	}
 
 	logGlobal->info("Prediction: pack '%s'", typeid(pack).name());
 
 	ConnectionPackWriter packWriter;
 	BinarySerializer serializer(&packWriter);
 	serializer & &pack;
+	packWriter.rollbackPacks = visitor.getRollbackPacks();
 	predictedReplies.back().writtenPacks.push_back(std::move(packWriter));
 
 	GAME->server().client->handlePack(pack);
