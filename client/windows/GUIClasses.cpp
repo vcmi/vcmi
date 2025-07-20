@@ -1653,8 +1653,10 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 	}
 
 	// Sort: Lower score is better match
-	std::sort(rankedItems.begin(), rankedItems.end(), [](const auto & a, const auto & b)
+	std::sort(rankedItems.begin(), rankedItems.end(), [text](const auto & a, const auto & b)
 	{
+		if(a.first == b.first || text.empty())
+			return a.second < b.second;
 		return a.first < b.first;
 	});
 
