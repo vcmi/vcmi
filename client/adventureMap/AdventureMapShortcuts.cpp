@@ -463,42 +463,61 @@ void AdventureMapShortcuts::search(bool next)
 	// get all relevant objects
 	std::vector<ObjectInstanceID> visitableObjInstances;
 	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-		if(obj->ID != MapObjectID::MONSTER && obj->ID != MapObjectID::HERO && obj->ID != MapObjectID::TOWN)
-			visitableObjInstances.push_back(obj->id);
+		visitableObjInstances.push_back(obj->id);
+	
+	auto getColor = [](MapObjectID id ){
+		switch (id)
+		{
+		case MapObjectID::HERO:
+			return ColorRGBA{ 0, 192, 0};
+		case MapObjectID::MONSTER:
+			return ColorRGBA{ 255, 0, 0};
+		case MapObjectID::TOWN:
+			return ColorRGBA{ 100, 100, 255};
+		case MapObjectID::MINE:
+			return ColorRGBA{ 255, 153, 204};
+		case MapObjectID::RESOURCE:
+			return ColorRGBA{ 255, 51, 255};
+		case MapObjectID::ARTIFACT:
+			return ColorRGBA{ 192, 255, 0};
+		default:
+			return Colors::WHITE;
+		}
+	};
 
 	// count of elements for each group (map is already sorted)
-	std::map<std::string, int> mapObjCount;
-	for(auto & obj : visitableObjInstances)
-		mapObjCount[{ GAME->interface()->cb->getObjInstance(obj)->getObjectName() }]++;
+	std::map<std::pair<std::string, ColorRGBA>, int> mapObjCount;
+	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+		mapObjCount[{GAME->interface()->cb->getObjInstance(obj->id)->getObjectName(), getColor(obj->ID)}]++;
 
 	// convert to vector for indexed access
-	std::vector<std::pair<std::string, int>> textCountList;
+	std::vector<std::pair<std::pair<std::string, ColorRGBA>, int>> textCountList;
 	for (auto itr = mapObjCount.begin(); itr != mapObjCount.end(); ++itr)
-		textCountList.push_back(*itr);
+		textCountList.push_back({(*itr).first, (*itr).second});
 
 	// get pos of last selection
 	int lastSel = 0;
 	for(int i = 0; i < textCountList.size(); i++)
-		if(textCountList[i].first == searchLast)
+		if(textCountList[i].first.first == searchLast)
 			lastSel = i;
 
 	// create texts
 	std::vector<std::string> texts;
 	for(auto & obj : textCountList)
-		texts.push_back(obj.first + " (" + std::to_string(obj.second) + ")");
+		texts.push_back("{" + Colors::colorToHexString(obj.first.second) + "|" + obj.first.first + "}" + " (" + std::to_string(obj.second) + ")");
 
 	// function to center element from list on map
-	auto selectObjOnMap = [this, textCountList, visitableObjInstances](int index)
+	auto selectObjOnMap = [this, textCountList](int index)
 		{
 			auto selObj = textCountList[index].first;
 
 			// filter for matching objects
 			std::vector<ObjectInstanceID> selVisitableObjInstances;
-			for(auto & obj : visitableObjInstances)
-				if(selObj == GAME->interface()->cb->getObjInstance(obj)->getObjectName())
-					selVisitableObjInstances.push_back(obj);
+			for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
+				if(selObj.first == GAME->interface()->cb->getObjInstance(obj->id)->getObjectName())
+					selVisitableObjInstances.push_back(obj->id);
 			
-			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj)
+			if(searchPos + 1 < selVisitableObjInstances.size() && searchLast == selObj.first)
 				searchPos++;
 			else
 				searchPos = 0;
