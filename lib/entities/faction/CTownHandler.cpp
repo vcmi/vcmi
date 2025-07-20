@@ -889,6 +889,13 @@ void CTownHandler::beforeValidate(JsonNode & object)
 			return;
 
 		JsonNode baseCopy(buildingsLibrary[name]);
+
+		if (target.Struct().count("id") && baseCopy.Struct().count("id"))
+		{
+			logMod->warn("Mod '%s': Town building '%s' has specified 'id' field for a predefined building! Ignoring this field.", target["id"].getModScope(), name);
+			target.Struct().erase("id");
+		}
+
 		baseCopy.setModScope(target.getModScope());
 		JsonUtils::inherit(target, baseCopy);
 	};
