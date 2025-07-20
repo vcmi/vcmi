@@ -187,8 +187,7 @@ class AntilagServer final : public IGameServer, public INetworkConnectionListene
 	std::vector<AntilagReplyPrediction> predictedReplies;
 	std::shared_ptr<INetworkConnection> antilagNetConnection;
 	std::shared_ptr<GameConnection> antilagGameConnection;
-//	std::shared_ptr<CGameState> & gameState;
-	std::unique_ptr<CGameHandler> gameHandler;
+	std::shared_ptr<CGameState> gameState;
 
 	static constexpr uint32_t invalidPackageID = std::numeric_limits<uint32_t>::max();
 	uint32_t currentPackageID = invalidPackageID;

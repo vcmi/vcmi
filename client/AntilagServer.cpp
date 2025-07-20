@@ -111,7 +111,7 @@ bool AntilagReplyPredictionVisitor::canBeApplied() const
 }
 
 AntilagServer::AntilagServer(INetworkHandler & network, const std::shared_ptr<CGameState> & gs)
-	: gameHandler(std::make_unique<CGameHandler>(*this, gs))
+	: gameState(gs)
 {
 	antilagNetConnection = network.createAsyncConnection(*this);
 	antilagGameConnection = std::make_shared<GameConnection>(antilagNetConnection);
@@ -146,7 +146,8 @@ void AntilagServer::onPacketReceived(const std::shared_ptr<INetworkConnection> &
 
 	try
 	{
-		gameHandler->handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverPack);
+		CGameHandler gameHandler(*this, gameState);
+		gameHandler.handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverPack);
 	}
 	catch (const AntilagRollbackNotSupportedException & )
 	{
@@ -256,7 +257,7 @@ bool AntilagServer::hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor
 
 void AntilagServer::applyPack(CPackForClient & pack)
 {
-	AntilagRollbackGeneratorVisitor visitor(gameHandler->gameState());
+	AntilagRollbackGeneratorVisitor visitor(*gameState);
 	pack.visit(visitor);
 	if (!visitor.canBeRolledBack())
 	{
