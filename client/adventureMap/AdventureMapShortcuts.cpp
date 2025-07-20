@@ -459,12 +459,7 @@ void AdventureMapShortcuts::zoom( int distance)
 }
 
 void AdventureMapShortcuts::search(bool next)
-{
-	// get all relevant objects
-	std::vector<ObjectInstanceID> visitableObjInstances;
-	for(auto & obj : GAME->interface()->cb->getAllVisitableObjs())
-		visitableObjInstances.push_back(obj->id);
-	
+{	
 	auto getColor = [](MapObjectID id ){
 		switch (id)
 		{
