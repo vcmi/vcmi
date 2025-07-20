@@ -65,6 +65,8 @@ public:
 
 	std::vector<TradeItemBuy> availableItemsIds(EMarketMode mode) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override; //open window
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	bool wasVisited (PlayerColor player) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

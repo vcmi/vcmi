@@ -23,6 +23,7 @@
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../networkPacks/PacksForClient.h"
+#include "CPlayerState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -135,7 +136,31 @@ std::string CGUniversity::getSpeechTranslated() const
 
 void CGUniversity::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
+	ChangeObjectVisitors cow;
+	cow.object = id;
+	cow.mode = ChangeObjectVisitors::VISITOR_ADD_PLAYER;
+	cow.hero = h->id;
+	gameEvents.sendAndApply(cow);
+
 	gameEvents.showObjectWindow(this, EOpenWindowMode::UNIVERSITY_WINDOW, h, true);
+}
+
+bool CGUniversity::wasVisited (PlayerColor player) const
+{
+	return cb->getPlayerState(player)->visitedObjects.count(id) != 0;
+}
+
+std::vector<Component> CGUniversity::getPopupComponents(PlayerColor player) const
+{
+	std::vector<Component> result;
+
+	if (!wasVisited(player))
+		return result;
+
+	for (auto const & skill : skills)
+		result.emplace_back(ComponentType::SEC_SKILL, skill.as<SecondarySkill>());
+
+	return result;
 }
 
 VCMI_LIB_NAMESPACE_END
