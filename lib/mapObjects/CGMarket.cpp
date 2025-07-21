@@ -11,19 +11,21 @@
 #include "StdInc.h"
 #include "CGMarket.h"
 
-#include "../callback/IGameInfoCallback.h"
-#include "../callback/IGameEventCallback.h"
-#include "../callback/IGameRandomizer.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../CCreatureHandler.h"
+#include "CGHeroInstance.h"
 #include "CGTownInstance.h"
+
+//#include "../CCreatureHandler.h"
+#include "../CPlayerState.h"
+//#include "../CSkillHandler.h"
 #include "../IGameSettings.h"
-#include "../CSkillHandler.h"
+#include "../callback/IGameEventCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../mapObjectConstructors/CommonConstructors.h"
+#include "../mapObjectConstructors/MarketInstanceConstructor.h"
 #include "../networkPacks/PacksForClient.h"
-#include "CPlayerState.h"
+#include "../texts/TextIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
