@@ -20,7 +20,7 @@
 #include "../lib/serializer/GameConnection.h"
 #include "GameInstance.h"
 
-class DLL_LINKAGE AntilagRollbackNotSupportedException : public std::runtime_error
+class AntilagRollbackNotSupportedException : public std::runtime_error
 {
 public:
 	using std::runtime_error::runtime_error;
@@ -49,6 +49,53 @@ void AntilagRollbackGeneratorVisitor::visitPlayerBlocked(PlayerBlocked & pack)
 {
 	success = true;
 	// no-op rollback?
+}
+
+void AntilagRollbackGeneratorVisitor::visitSwapStacks(SwapStacks & pack)
+{
+	auto rollbackSwap = std::make_unique<SwapStacks>();
+
+	rollbackSwap->srcArmy = pack.dstArmy;
+	rollbackSwap->dstArmy = pack.srcArmy;
+	rollbackSwap->srcSlot = pack.dstSlot;
+	rollbackSwap->dstSlot = pack.srcSlot;
+
+	rollbackPacks.push_back(std::move(rollbackSwap));
+	success = true;
+}
+
+void AntilagRollbackGeneratorVisitor::visitRebalanceStacks(RebalanceStacks & pack)
+{
+	const auto * srcObject = gs.getObjInstance(pack.srcArmy);
+	const auto * dstObject = gs.getObjInstance(pack.dstArmy);
+
+	const auto * srcArmy = dynamic_cast<const CArmedInstance*>(srcObject);
+	const auto * dstArmy = dynamic_cast<const CArmedInstance*>(dstObject);
+
+	if (srcArmy->getStack(pack.srcSlot).getTotalExperience() != 0 ||
+	   dstArmy->getStack(pack.srcSlot).getTotalExperience() != 0 ||
+	   srcArmy->getStack(pack.srcSlot).getSlot(ArtifactPosition::CREATURE_SLOT)->artifactID.hasValue())
+	{
+		// TODO: rollback creature artifacts & stack experience
+		return;
+	}
+
+	auto rollbackRebalance = std::make_unique<RebalanceStacks>();
+	rollbackRebalance->srcArmy = pack.dstArmy;
+	rollbackRebalance->dstArmy = pack.srcArmy;
+	rollbackRebalance->srcSlot = pack.dstSlot;
+	rollbackRebalance->dstSlot = pack.srcSlot;
+	rollbackRebalance->count = pack.count;
+	rollbackPacks.push_back(std::move(rollbackRebalance));
+	success = true;
+}
+
+void AntilagRollbackGeneratorVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
+{
+	for (auto & subpack : pack.moves)
+		visitRebalanceStacks(subpack);
+
+	success = true;
 }
 
 void AntilagRollbackGeneratorVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
@@ -101,6 +148,11 @@ std::vector<std::unique_ptr<CPackForClient>> AntilagRollbackGeneratorVisitor::ge
 AntilagReplyPredictionVisitor::AntilagReplyPredictionVisitor() = default;
 
 void AntilagReplyPredictionVisitor::visitMoveHero(MoveHero & pack)
+{
+	canBeAppliedValue = true;
+}
+
+void AntilagReplyPredictionVisitor::visitArrangeStacks(ArrangeStacks & pack)
 {
 	canBeAppliedValue = true;
 }

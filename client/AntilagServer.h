@@ -49,7 +49,7 @@ class AntilagReplyPredictionVisitor final : public VCMI_LIB_WRAP_NAMESPACE(ICPac
 	//void visitDismissHero(DismissHero & pack) override;
 	void visitMoveHero(MoveHero & pack) override;
 	//void visitCastleTeleportHero(CastleTeleportHero & pack) override;
-	//void visitArrangeStacks(ArrangeStacks & pack) override;
+	void visitArrangeStacks(ArrangeStacks & pack) override;
 	//void visitBulkMoveArmy(BulkMoveArmy & pack) override;
 	//void visitBulkSplitStack(BulkSplitStack & pack) override;
 	//void visitBulkMergeStacks(BulkMergeStacks & pack) override;
@@ -108,10 +108,10 @@ private:
 	//void visitChangeStackCount(ChangeStackCount & pack) override;
 	//void visitSetStackType(SetStackType & pack) override;
 	//void visitEraseStack(EraseStack & pack) override;
-	//void visitSwapStacks(SwapStacks & pack) override;
 	//void visitInsertNewStack(InsertNewStack & pack) override;
-	//void visitRebalanceStacks(RebalanceStacks & pack) override;
-	//void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
+	void visitSwapStacks(SwapStacks & pack) override;
+	void visitRebalanceStacks(RebalanceStacks & pack) override;
+	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
 	//void visitGrowUpArtifact(GrowUpArtifact & pack) override;
 	//void visitPutArtifact(PutArtifact & pack) override;
 	//void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) override;
