@@ -18,6 +18,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+
 void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	if (settings["mods"]["validation"].String() != "off")
@@ -26,8 +28,15 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 	if (!input["description"].isNull())
 	{
 		std::string description = input["description"].String();
-		descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-		LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+		if (!description.empty() && description.at(0) == '@')
+		{
+			descriptionTextID = description.substr(1);
+		}
+		else
+		{
+			descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
+			LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+		}
 	}
 
 	if (!input["speech"].isNull())
@@ -57,6 +66,11 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 bool MarketInstanceConstructor::hasDescription() const
 {
 	return !descriptionTextID.empty();
+}
+
+std::string MarketInstanceConstructor::getDescriptionTextID() const
+{
+	return descriptionTextID;
 }
 
 std::shared_ptr<CGMarket> MarketInstanceConstructor::createObject(IGameInfoCallback * cb) const
@@ -103,3 +117,5 @@ int MarketInstanceConstructor::getMarketEfficiency() const
 {
 	return marketEfficiency;
 }
+
+VCMI_LIB_NAMESPACE_END

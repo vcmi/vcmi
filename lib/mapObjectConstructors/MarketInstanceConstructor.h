@@ -31,6 +31,7 @@ public:
 
 	const std::set<EMarketMode> & availableModes() const;
 	bool hasDescription() const;
+	std::string getDescriptionTextID() const;
 
 	std::string getSpeechTranslated() const;
 	int getMarketEfficiency() const;
