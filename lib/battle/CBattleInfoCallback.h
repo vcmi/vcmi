@@ -52,6 +52,12 @@ struct DLL_LINKAGE BattleClientInterfaceData
 	ui8 tacticsMode;
 };
 
+struct ForcedAction {
+	EActionType type;
+	BattleHex position;
+	const battle::Unit * target;
+};
+
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
@@ -162,7 +168,7 @@ public:
 	AccessibilityInfo getAccessibility() const;
 	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
 	AccessibilityInfo getAccessibility(const BattleHexArray & accessibleHexes) const; //given hexes will be marked as accessible
-	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
+	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 
 	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
 protected:

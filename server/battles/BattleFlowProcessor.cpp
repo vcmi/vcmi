@@ -388,24 +388,36 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 {
 	if (next->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)) //while in berserk
 	{
-		logGlobal->trace("Handle Berserk effect");
-		std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
-		if (attackInfo.first != nullptr)
+		ForcedAction forcedAction = battle.getBerserkForcedAction(next);
+		if (forcedAction.type == EActionType::SHOOT)
 		{
-			BattleAction attack;
-			attack.actionType = EActionType::WALK_AND_ATTACK;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-			attack.aimToHex(attackInfo.second);
-			attack.aimToUnit(attackInfo.first);
-
-			makeAutomaticAction(battle, next, attack);
-			logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
+			BattleAction rangeAttack;
+			rangeAttack.actionType = EActionType::SHOOT;
+			rangeAttack.side = next->unitSide();
+			rangeAttack.stackNumber = next->unitId();
+			rangeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, rangeAttack);
+		}
+		else if (forcedAction.type == EActionType::WALK_AND_ATTACK)
+		{
+			BattleAction meleeAttack;
+			meleeAttack.actionType = EActionType::WALK_AND_ATTACK;
+			meleeAttack.side = next->unitSide();
+			meleeAttack.stackNumber = next->unitId();
+			meleeAttack.aimToHex(forcedAction.position);
+			meleeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, meleeAttack);
+		} else if (forcedAction.type == EActionType::WALK)
+		{
+			BattleAction movement;
+			movement.actionType = EActionType::WALK;
+			movement.stackNumber = next->unitId();
+			movement.aimToHex(forcedAction.position);
+			makeAutomaticAction(battle, next, movement);
 		}
 		else
 		{
 			makeStackDoNothing(battle, next);
-			logGlobal->trace("No target found");
 		}
 		return true;
 	}
