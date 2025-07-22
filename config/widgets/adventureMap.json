@@ -74,13 +74,13 @@
 			"type": "adventureMapImage",
 			"name": "backgroundHeroListBorderLeft",
 			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 211, "right" : 191, "width" : 8 }
+			"area": { "top": 196, "bottom" : 210, "right" : 191, "width" : 8 }
 		},
 		{
 			"type": "adventureMapImage",
 			"name": "backgroundTownListBorderRight",
 			"image" : "AdvMap.pcx",
-			"area": { "top": 196, "bottom" : 211, "right" : 0, "width" : 5 }
+			"area": { "top": 196, "bottom" : 210, "right" : 0, "width" : 5 }
 		},
 		// Game area
 		{
@@ -254,14 +254,14 @@
 					"name": "backgroundHeroListBorderRight",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 },
-					"sourceArea": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
+					"sourceArea": { "top": 196, "bottom" : 210, "right" : 121, "width" : 6 }
 				},
 				{
 					"type": "adventureMapImage",
 					"name": "backgroundTownListBorderLeft",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 },
-					"sourceArea": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
+					"sourceArea": { "top": 196, "bottom" : 210, "right" : 53, "width" : 4 }
 				},
 				{
 					"type": "adventureMapImage",
@@ -322,7 +322,7 @@
 			"type": "adventureMapContainer",
 			"name" : "emptyAreaFillSmall",
 			"hideWhen" : "worldViewMode",
-			"area": { "top": 392, "right" : 3, "width" : 190, "bottom" : 211 },
+			"area": { "top": 392, "right" : 3, "width" : 190, "bottom" : 210 },
 			"exists" : { "heightMax" : 664 },
 			"items" : [
 				{
@@ -347,14 +347,14 @@
 					"name": "backgroundHeroListBorderRight",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "right" : 121, "width" : 6 },
-					"sourceArea": { "top": 196, "bottom" : 211, "right" : 121, "width" : 6 }
+					"sourceArea": { "top": 196, "bottom" : 210, "right" : 121, "width" : 6 }
 				},
 				{
 					"type": "adventureMapImage",
 					"name": "backgroundTownListBorderLeft",
 					"image" : "AdvMap.pcx",
 					"area": { "top": 0, "bottom" : 0, "right" : 53, "width" : 4 },
-					"sourceArea": { "top": 196, "bottom" : 211, "right" : 53, "width" : 4 }
+					"sourceArea": { "top": 196, "bottom" : 210, "right" : 53, "width" : 4 }
 				},
 				{
 					"type": "adventureMapImage",
@@ -409,7 +409,7 @@
 			"type": "adventureMapContainer",
 			"name" : "emptyAreaFillLarge",
 			"hideWhen" : "worldViewMode",
-			"area": { "top": 456, "right" : 3, "width" : 190, "bottom" : 211 },
+			"area": { "top": 456, "right" : 3, "width" : 190, "bottom" : 210 },
 			"exists" : { "heightMin" : 664 },
 			"items" : [
 				{
@@ -425,7 +425,7 @@
 			"type": "adventureMapContainer",
 			"name" : "adventureInfobarContainer",
 			"hideWhen" : "worldViewMode",
-			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 211 },
+			"area" : { "bottom": 0, "right" : 0, "width" : 199, "height" : 210 },
 			"items" : [
 				// Infobar
 				{
