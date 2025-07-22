@@ -95,6 +95,10 @@ private slots:
 	void on_pushButtonTreasure_clicked();
 	void on_pushButtonMines_clicked();
 	void on_pushButtonCustomObjects_clicked();
+	void on_pushButtonEntitiesBannedSpells_clicked();
+	void on_pushButtonEntitiesBannedArtifacts_clicked();
+	void on_pushButtonEntitiesBannedSkills_clicked();
+	void on_pushButtonEntitiesBannedHeroes_clicked();
 	
 private:
 	bool getAnswerAboutUnsavedChanges();
