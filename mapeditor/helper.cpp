@@ -84,6 +84,8 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 	auto data = CResourceHandler::get()->load(resId)->readAll();
 	JsonNode nodes(reinterpret_cast<std::byte *>(data.first.get()), data.second, resId.getName());
 
+	nodes.setModScope(ModScope::scopeGame());
+
 	std::map<std::string, std::shared_ptr<CRmgTemplate>> templates;
 	for(auto & node : nodes.Struct())
 	{

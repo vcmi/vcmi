@@ -78,6 +78,7 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 void JsonSerializer::serializeInternal(std::string & value)
 {
 	currentObject->String() = value;
+	currentObject->setModScope(ModScope::scopeGame());
 }
 
 void JsonSerializer::serializeInternal(int64_t & value)
@@ -105,7 +106,10 @@ void JsonSerializer::serializeLIC(const std::string & fieldName, LICSet & value)
 void JsonSerializer::serializeString(const std::string & fieldName, std::string & value)
 {
 	if(!value.empty())
+	{
 		currentObject->operator[](fieldName).String() = value;
+		currentObject->operator[](fieldName).setModScope(ModScope::scopeGame());
+	}
 }
 
 void JsonSerializer::serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue)
