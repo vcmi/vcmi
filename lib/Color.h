@@ -62,6 +62,14 @@ public:
 	{
 		return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
 	}
+	
+	bool operator<(const ColorRGBA& rhs) const
+	{
+		auto mean_lhs = (r + g + b + a) / 4.0;
+		auto mean_rhs = (rhs.r + rhs.g + rhs.b + rhs.a) / 4.0;
+		return mean_lhs < mean_rhs;
+	}
+
 };
 
 namespace vstd

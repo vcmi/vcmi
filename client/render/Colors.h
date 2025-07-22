@@ -55,4 +55,6 @@ public:
 
 	/// parse color
 	static std::optional<ColorRGBA> parseColor(std::string text);
+
+	static std::string colorToHexString(const ColorRGBA& color);
 };
