@@ -823,6 +823,12 @@
 				"teal" :   [ -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ],
 				"pink" :   [  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 ]
 			}
+		},
+
+		"campaign" :
+		{
+			// Unlock all campaigns
+			"unlockAll" : false
 		}
 	}
 }

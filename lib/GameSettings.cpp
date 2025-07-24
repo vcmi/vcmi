@@ -45,6 +45,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION,                    "banks",     "showGuardsComposition"                },
 		{EGameSettings::BONUSES_GLOBAL,                                   "bonuses",   "global"                               },
 		{EGameSettings::BONUSES_PER_HERO,                                 "bonuses",   "perHero"                              },
+		{EGameSettings::CAMPAIGN_UNLOCK_ALL,                              "campaign",  "unlockAll"                            },
 		{EGameSettings::COMBAT_ABILITY_BIAS,                              "combat",    "abilityBias"                          },
 		{EGameSettings::COMBAT_AREA_SHOT_CAN_TARGET_EMPTY_HEX,            "combat",    "areaShotCanTargetEmptyHex"            },
 		{EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR,                "combat",    "attackPointDamageFactor"              },
