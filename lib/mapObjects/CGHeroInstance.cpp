@@ -1412,29 +1412,28 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRando
 			basicAndAdv.insert(elem.first);
 		none.erase(elem.first);
 	}
-
-	if (!basicAndAdv.empty())
+	
+	for(;;)
 	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
+		if(skills.size() >= cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_SELECTION_AMOUNT_UPGR) || basicAndAdv.empty())
+			break;
+
+		if (!basicAndAdv.empty())
+		{
+			skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
+			basicAndAdv.erase(skills.back());
+		}
 	}
-
-	if (!none.empty())
+	for(;;)
 	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
-	}
+		if(skills.size() >= cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_SELECTION_AMOUNT) + cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_SELECTION_AMOUNT_UPGR) || none.empty())
+			break;
 
-	if (!basicAndAdv.empty() && skills.size() < 2)
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
-	}
-
-	if (!none.empty() && skills.size() < 2)
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
+		if (!none.empty())
+		{
+			skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
+			none.erase(skills.back());
+		}		
 	}
 
 	return skills;

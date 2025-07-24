@@ -517,7 +517,12 @@
 			/// Strength of generic secondary skill specialties ( "secondary" : "skillName" ) per level
 			"specialtySecondarySkillGrowth" : 5,
 			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
-			"specialtyCreatureGrowth" : 5
+			"specialtyCreatureGrowth" : 5,
+
+			/// Amount of advanced or expert skills selectable (if any)
+			"skillSelectionAmountUpgr" : 1,
+			/// Amount of basic skills selectable (if fewer advanced or expert skills than expected they will also filled up with basic skills)
+			"skillSelectionAmount" : 1
 		},
 
 		"towns":
