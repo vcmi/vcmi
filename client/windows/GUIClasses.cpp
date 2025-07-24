@@ -403,23 +403,32 @@ void CSplitWindow::sliderMoved(int to)
 
 CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
-	cb(callback)
+	cb(callback),
+	skills(skills),
+	hero(hero),
+	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
 	GAME->interface()->showingDialog->setBusy();
 
-	if(!skills.empty())
+	createSkillBox();
+	if(skills.size() > 3)
 	{
-		std::vector<std::shared_ptr<CSelectableComponent>> comps;
-		for(auto & skill : skills)
-		{
-			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
-			comp->onChoose = std::bind(&CLevelWindow::close, this);
-			comps.push_back(comp);
-		}
-
-		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
+		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this, skills](){
+			if(skillViewOffset > 0)
+				skillViewOffset--;
+			else
+				skillViewOffset = skills.size() - 1;
+			createSkillBox();
+		}, EShortcut::MOVE_LEFT);
+		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this, skills](){
+			if(skillViewOffset < skills.size() - 1)
+				skillViewOffset++;
+			else
+				skillViewOffset = 0;
+			createSkillBox();
+		}, EShortcut::MOVE_RIGHT);
 	}
 
 	portrait = std::make_shared<CHeroArea>(170, 66, hero);
@@ -443,11 +452,50 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
 }
 
+std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& skills, int offset, int count)
+{
+	std::vector<SecondarySkill> result;
+
+	int size = (int)skills.size();
+	if (size == 0 || count <= 0) return result;
+
+	offset = offset % size; // ensure offset is within bounds
+	for (int i = 0; i < std::min(count, size); ++i)
+	{
+		int index = (offset + i) % size; // ring buffer like
+		result.push_back(skills[index]);
+	}
+
+	return result;
+}
+
+void CLevelWindow::createSkillBox()
+{
+	OBJECT_CONSTRUCTION;
+
+	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(skills, skillViewOffset, 3) : skills;
+	if(!skillsToShow.empty())
+	{
+		std::vector<std::shared_ptr<CSelectableComponent>> comps;
+		for(auto & skill : skillsToShow)
+		{
+			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
+			comp->onChoose = std::bind(&CLevelWindow::close, this);
+			comps.push_back(comp);
+		}
+
+		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
+	}
+
+	setRedrawParent(true);
+	redraw();
+}
+
 void CLevelWindow::close()
 {
 	//FIXME: call callback if there was nothing to select?
 	if (box && box->selectedIndex() != -1)
-		cb(box->selectedIndex());
+		cb(box->selectedIndex() + skillViewOffset);
 
 	GAME->interface()->showingDialog->setFree();
 
