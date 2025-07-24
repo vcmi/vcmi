@@ -157,6 +157,7 @@ class CLevelWindow : public CWindowObject
 	std::shared_ptr<CButton> buttonRight;
 
 	std::vector<SecondarySkill> skills;
+	std::vector<SecondarySkill> sortedSkills;
 	const CGHeroInstance * hero;
 
 	void selectionChanged(unsigned to);

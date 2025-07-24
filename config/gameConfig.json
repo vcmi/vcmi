@@ -520,9 +520,9 @@
 			"specialtyCreatureGrowth" : 5,
 
 			/// Amount of advanced or expert skills selectable (if any)
-			"skillSelectionAmountUpgr" : 9991,
+			"skillSelectionAmountUpgr" : 1,
 			/// Amount of basic skills selectable (if fewer advanced or expert skills than expected they will also filled up with basic skills)
-			"skillSelectionAmount" : 9991
+			"skillSelectionAmount" : 1
 		},
 
 		"towns":

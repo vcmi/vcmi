@@ -412,6 +412,13 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 
 	GAME->interface()->showingDialog->setBusy();
 
+	sortedSkills = skills;
+	std::sort(sortedSkills.begin(), sortedSkills.end(), [hero](auto a, auto b) {
+		if(hero->getSecSkillLevel(a) == hero->getSecSkillLevel(b))
+			return LIBRARY->skillh->getById(a)->getNameTranslated() < LIBRARY->skillh->getById(b)->getNameTranslated();
+		return hero->getSecSkillLevel(a) > hero->getSecSkillLevel(b);
+	});
+
 	createSkillBox();
 	if(skills.size() > 3)
 	{
@@ -456,7 +463,7 @@ std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& s
 {
 	std::vector<SecondarySkill> result;
 
-	int size = (int)skills.size();
+	int size = skills.size();
 	if (size == 0 || count <= 0) return result;
 
 	offset = offset % size; // ensure offset is within bounds
@@ -473,7 +480,7 @@ void CLevelWindow::createSkillBox()
 {
 	OBJECT_CONSTRUCTION;
 
-	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(skills, skillViewOffset, 3) : skills;
+	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(sortedSkills, skillViewOffset, 3) : sortedSkills;
 	if(!skillsToShow.empty())
 	{
 		std::vector<std::shared_ptr<CSelectableComponent>> comps;
@@ -495,7 +502,10 @@ void CLevelWindow::close()
 {
 	//FIXME: call callback if there was nothing to select?
 	if (box && box->selectedIndex() != -1)
-		cb(box->selectedIndex() + skillViewOffset);
+	{
+		auto it = std::find(skills.begin(), skills.end(), sortedSkills[(box->selectedIndex() + skillViewOffset) % skills.size()]);
+		cb(std::distance(skills.begin(), it));
+	}
 
 	GAME->interface()->showingDialog->setFree();
 
