@@ -33,6 +33,13 @@
 
 	"vcmi.artifact.charges" : "充能",
 
+	"vcmi.battle.action.move" : "移动单位到指定位置",
+	"vcmi.battle.action.info" : "展示单位信息",
+	"vcmi.battle.action.shoot" : "使用远程攻击",
+	"vcmi.battle.action.attack" : "使用近战攻击",
+	"vcmi.battle.action.return" : "使用近战攻击并返回",
+	"vcmi.battle.action.genie" : "施放随机有益魔法l",
+
 	"vcmi.bonusSource.artifact" : "宝物",
 	"vcmi.bonusSource.creature" : "技能",
 	"vcmi.bonusSource.spell" : "法术",
@@ -90,7 +97,12 @@
 	"vcmi.randomMap.description.monster.normal" : "普通",
 	"vcmi.randomMap.description.monster.strong" : "强",
 
+	"vcmi.overlay.battery"  : "使用电池",
+	"vcmi.overlay.charging"  : "充电中",
+
 	"vcmi.spellBook.search" : "搜索中...",
+	"vcmi.spellBook.tab.hover" : "%s法术",
+	"vcmi.spellBook.tab.help" : "切换以查看%s法术",
 
 	"vcmi.spellResearch.canNotAfford" : "你没有足够的资源来将{%SPELL1}替换为{%SPELL2}。但你依然可以弃掉此法术，继续法术研究。",
 	"vcmi.spellResearch.comeAgain" : "今日已研究过法术，请明日再来。",
@@ -304,6 +316,8 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "选择长触延迟",
 	"vcmi.systemOptions.longTouchMenu.help"      : "改变长触延迟。",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d 毫秒",
+	"vcmi.systemOptions.performanceOverlayButton.hover"  : "显示性能信息",
+	"vcmi.systemOptions.performanceOverlayButton.help"   : "{显示性能信息}\n\n在游戏窗口角落显示附加信息，例如帧率、时间和电池电量（如果可用）。",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "触觉反馈",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{触觉反馈}\n\n切换触摸输入的触觉反馈。",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "界面增强",
@@ -408,6 +422,36 @@
 	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "剩余持续时间： %d回合",
 	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "剩余持续时间： %d回合",
 
+	"vcmi.credits.website" : "网站",
+	"vcmi.credits.vcmi" : "VCMI",
+	"vcmi.credits.heroes" : "英雄无敌3",
+	"vcmi.credits.idea" : "创意",
+	"vcmi.credits.developing" : "开发",
+	"vcmi.credits.testing" : "测试",
+	"core.credits.createdBy" : "创作者y",
+	"core.credits.executiveProducer" : "执行制作人",
+	"core.credits.producer" : "制作人",
+	"core.credits.director" : "导演",
+	"core.credits.designers" : "设计师",
+	"core.credits.leadProgrammers" : "首席程序员",
+	"core.credits.programmers" : "程序员",
+	"core.credits.installerProgrammer" : "安装程序开发者",
+	"core.credits.leadArtists" : "首席美术",
+	"core.credits.artists" : "美术",
+	"core.credits.assetCoordinator" : "资源协调员",
+	"core.credits.levelDesigners" : "关卡设计师",
+	"core.credits.musicProducer" : "音乐制作人",
+	"core.credits.townThemes" : "城镇主题",
+	"core.credits.music" : "音乐",
+	"core.credits.soundDesign" : "音效设计",
+	"core.credits.voiceProduction" : "配音制作",
+	"core.credits.voiceTalent" : "配音演员",
+	"core.credits.leadTester" : "首席测试员",
+	"core.credits.seniorTester" : "高级测试员",
+	"core.credits.testers" : "测试员",
+	"core.credits.specialThanks" : "特别鸣谢",
+	"core.credits.visitUsOnTheWeb" : "访问我们的网站",
+
 	"vcmi.tutorialWindow.title" : "触摸屏介绍",
 	"vcmi.tutorialWindow.decription.RightClick" : "长按要右键单击的元素。 触摸其他区域以关闭。",
 	"vcmi.tutorialWindow.decription.MapPanning" : "单指拖拽以移动地图。",
@@ -432,6 +476,9 @@
 
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "没有足够的资源升级全部生物，你想要升级下列生物吗？",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "没有足够的资源升级任一生物。",
+
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "更多技能",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{更多技能}\n\n这位英雄拥有更多技能。\n你可以在英雄解码查看全部信息。",
 
 	"vcmi.logicalExpressions.anyOf"  : "以下任一前提：",
 	"vcmi.logicalExpressions.allOf"  : "以下所有前提：",
@@ -627,6 +674,11 @@
 
 	"mapObject.core.hillFort.object.description" : "升级生物，1-4级生物升级比城镇中更便宜。",
 
+	"artifact.core.orbOfVulnerability.bonus.noResistance" : "{毁灭之球}\n消除战场上所有生物的魔法抗性",
+	"creatures.core.angel.bonus.raisesMorale" : "{增加友军士气}\n天使和大天使使友军的士气增加1点",
+	"creatures.core.devil.bonus.decreaseLuck" : "{减少敌人幸运}\n恶魔和大恶魔使敌人的运气减少1点",
+	"creatures.core.boneDragon.bonus.decreaseMorale" : "{减少敌人士气}\n骨龙和鬼龙使敌人的士气减少1点",
+	"creatures.core.marksman.bonus.extraAttack" : "{两次射击}\n这个单位可以射击两次",
 	"creatures.core.azureDragon.bonus.fearful": "{恐惧}\n使得敌方一只部队恐惧",
 	"creatures.core.azureDragon.bonus.fearless": "{无惧}\n免疫恐惧特质",
 
@@ -692,6 +744,7 @@
 	"core.bonus.REVENGE.description": "{复仇}\n根据攻击者在战斗中失去的生命值造成额外伤害",
 	"core.bonus.SHOOTER.description": "{远程攻击}\n生物可以射击",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description": "{范围远程攻击}\n该生物的远程攻击将同时命中小范围内所有目标",
+	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{骷髅转换场n}\n骷髅转换场可以将单位转化为${subtype.creature}",
 	"core.bonus.SOUL_STEAL.description": "{灵魂窃取}\n每杀死一个敌人将获得${val}数量的生物",
 	"core.bonus.SPELL_AFTER_ATTACK.description": "{攻击后施法}\n攻击后${val}%几率施放${subtype.spell}魔法",
 	"core.bonus.SPELL_BEFORE_ATTACK.description": "{攻击前施法}\n攻击前${val}%几率施放${subtype.spell}魔法",
@@ -712,6 +765,7 @@
 	"core.bonus.SUMMON_GUARDIANS.description": "{召唤守卫}\n战斗开始时召唤${subtype.creature}(${val}%)",
 	"core.bonus.THREE_HEADED_ATTACK.description": "{半环攻击}\n攻击三格邻接单位",
 	"core.bonus.TRANSMUTATION.description": "{变形术}\n${val}%机会将被攻击单位变成其他生物",
+	"core.bonus.TRANSMUTATION_IMMUNITY.description" : "{变形术免疫}\n此单位无法被敌人攻击转换为其他单位",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description": "{吐息}\n吐息攻击(2格范围)",
 	"core.bonus.UNDEAD.description": "{不死生物}\n该生物属于不死生物",
 	"core.bonus.UNLIMITED_RETALIATIONS.description": "{无限反击}\n每回合可以无限反击敌人",
@@ -748,5 +802,10 @@
 	"spell.core.deathCloud.description.none" : "{死亡之云}\n\n死亡之云除了对远程攻击的格子中的目标造成正常伤害之外，还会对相邻6个格子范围内的所有有生命的生物造成伤害。",
 	"spell.core.thunderbolt.description.none" : "{闪电攻击}\n\n此部队攻击时，有20%的几率在敌人反击前进行一次闪电打击。如触发，闪电打击将造成等同于10倍雷鸟攻击者数量的伤害。",
 	"spell.core.dispelHelpful.description.none" : "{驱散有益法术}\n\n移除目标单位上所有的有益法术效果",
-	"spell.core.acidBreath.description.none" : "{酸液攻击}\n\n龙息减少目标部队3点防御力，且有20%的几率造成额外伤害，每个攻击生物会造成25点额外伤害。"
+	"spell.core.acidBreath.description.none" : "{酸液攻击}\n\n龙息减少目标部队3点防御力，且有20%的几率造成额外伤害，每个攻击生物会造成25点额外伤害。",
+
+	"spellSchool.core.air.name" : "气系",
+	"spellSchool.core.earth.name" : "土系",
+	"spellSchool.core.fire.name" : "火系",
+	"spellSchool.core.water.name" : "水系"
 }
