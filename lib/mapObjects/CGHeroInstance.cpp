@@ -1273,6 +1273,11 @@ void CGHeroInstance::removeSpellbook()
 	}
 }
 
+void CGHeroInstance::removeAllSpells()
+{
+	spells.clear();
+}
+
 const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
 {
 	return spells;

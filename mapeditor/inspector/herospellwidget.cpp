@@ -96,8 +96,7 @@ void HeroSpellWidget::on_customizeSpells_toggled(bool checked)
 	}
 	else
 	{
-		hero.removeSpellFromSpellbook(SpellID::PRESET);
-		hero.removeSpellbook();
+		hero.removeAllSpells();
 	}
 	ui->tabWidget->setEnabled(checked);
 	initSpellLists();
