@@ -26,12 +26,6 @@ struct DamageRange;
 template<typename ContainedClass>
 class LogicalExpression;
 
-class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
-{
-public:
-	CTownAndVisitingHero();
-};
-
 struct DLL_LINKAGE GrowthInfo
 {
 	struct Entry
@@ -61,7 +55,7 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 public:
 	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
 
-	CTownAndVisitingHero townAndVis;
+	CBonusSystemNode townAndVis;
 	si32 built; //how many buildings has been built this turn
 	si32 destroyed; //how many buildings has been destroyed this turn
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
@@ -173,7 +167,7 @@ public:
 	void removeAllBuildings();
 	std::set<BuildingID> getBuildings() const;
 
-	TResources getBuildingCost(const BuildingID & buildingID) const;
+	ResourceSet getBuildingCost(const BuildingID & buildingID) const;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
 

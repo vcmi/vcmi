@@ -85,7 +85,7 @@ void CMarketWindow::updateExperience()
 
 void CMarketWindow::update()
 {
-	CWindowWithArtifacts::update();
+	CWindowWithArtifacts::updateArtifacts();
 	assert(marketWidget);
 	marketWidget->update();
 }

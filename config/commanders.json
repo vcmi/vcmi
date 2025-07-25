@@ -3,9 +3,9 @@
 	//Commander receives these bonuses on level-up
 	"bonusPerLevel":
 	[
-		["CREATURE_DAMAGE", 2, "creatureDamageMin", 0 ], //+2 minimum damage
-		["CREATURE_DAMAGE", 4, "creatureDamageMax", 0 ], //+4 maximum damage
-		["STACK_HEALTH", 20, null, 0 ] //+20 hp
+		{ "type" : "CREATURE_DAMAGE", "val" : 2, "subtype" : "creatureDamageMin" }, //+2 minimum damage
+		{ "type" : "CREATURE_DAMAGE", "val" : 4, "subtype" : "creatureDamageMax" }, //+4 maximum damage
+		{ "type" : "STACK_HEALTH", "val" : 20 } //+20 hp
 	],
 	//Value of bonuses given by each skill level
 	"skillLevels":
@@ -22,20 +22,86 @@
 	"abilityRequirements":
 	//Two secondary skills needed for each special ability
 	[
-		{"ability": ["ENEMY_DEFENCE_REDUCTION", 50, null, 0 ], "skills": [0, 1]},
-		{"ability": ["FEAR", 0, null, 0 ], "skills": [0, 2]},
-		{"ability": ["ALWAYS_MAXIMUM_DAMAGE", 0, null, 0 ], "skills": [0, 3]},
-		{"ability": [["SHOOTER", 0, null, 0 ], ["NO_MELEE_PENALTY", 0, null, 0 ]], "skills": [0, 4]},
-		{"ability": ["BLOCKS_RETALIATION", 0, null, 0 ], "skills": [0,5]},
-		{"ability": ["UNLIMITED_RETALIATIONS", 0, null, 0 ], "skills": [1, 2]},
-		{"ability": ["ATTACKS_ALL_ADJACENT", 0, null, 0 ], "skills": [1, 3]},
-		{"ability": ["NONE", 30, null, 0 ], "skills": [1, 4]}, // TODO: Implement bonus that gives chance to completely block one enemy attack per turn
-		{"ability": ["FIRE_SHIELD", 1, null, 0 ], "skills": [1, 5]},
-		{"ability": ["ADDITIONAL_ATTACK", 1, null, 0 ], "skills": [2, 3]},
-		{"ability": ["HP_REGENERATION", 50, null, 0 ], "skills": [2, 4]},
-		{"ability": ["SPELL_AFTER_ATTACK", 30, "spell.paralyze", 0 ], "skills": [2, 5]},
-		{"ability": ["JOUSTING", 5, null, 0 ], "skills": [3, 4]},
-		{"ability": ["DEATH_STARE", 1, "deathStareCommander", 0 ], "skills": [3,5]},
-		{"ability": ["FLYING", 0, "movementFlying", 0 ], "skills": [4,5]}
+		{
+			"ability": [{ "type" : "ENEMY_DEFENCE_REDUCTION", "val": 50 }],
+			"skills": [0, 1]
+		},
+		{
+			"ability": [ 
+				{
+					"type" :"FEARFUL",
+					"val" : 10,
+					"propagator": "BATTLE_WIDE",
+					"propagationUpdater" : "BONUS_OWNER_UPDATER",
+					"description" : "PLACEHOLDER",
+					"limiters" : [ 
+						"OPPOSITE_SIDE", 
+						{
+							"type" : "HAS_ANOTHER_BONUS_LIMITER",
+							"bonusType" : "LIVING"
+						}
+					] 
+				}
+			], 
+			"skills": [0, 2]
+		},
+		{
+			"ability": [{ "type" : "ALWAYS_MAXIMUM_DAMAGE", "val": 0 }],
+			"skills": [0, 3]
+		},
+		{
+			"ability": [
+				{ "type" : "SHOOTER", "val": 0 },
+				{ "type" : "NO_MELEE_PENALTY", "val": 0 }
+			],
+			"skills": [0, 4]
+		},
+		{
+			"ability": [{ "type" : "BLOCKS_RETALIATION", "val": 0 }],
+			"skills": [0,5]
+		},
+		{
+			"ability": [{ "type" : "UNLIMITED_RETALIATIONS", "val": 0 }],
+			"skills": [1, 2]
+		},
+		{
+			"ability": [{ "type" : "ATTACKS_ALL_ADJACENT", "val": 0 }],
+			"skills": [1, 3]
+		},
+		{
+			// TODO: Implement bonus that gives chance to completely block one enemy attack per turn
+			"ability": [{ "type" : "NONE", "val": 30 }],
+			"skills": [1, 4]
+		}, 
+		{
+			"ability": [{ "type" : "FIRE_SHIELD", "val": 1 }],
+			"skills": [1, 5]
+		},
+		{
+			"ability": [{ "type" : "ADDITIONAL_ATTACK", "val": 1 }],
+			"skills": [2, 3]
+		},
+		{
+			"ability": [{ "type" : "HP_REGENERATION", "val": 50 }],
+			"skills": [2, 4]
+		},
+		{
+			"ability": [{ "type" : "SPELL_AFTER_ATTACK", "val": 30, "subtype" : "paralyze" }],
+			"skills": [2, 5]
+		},
+		{
+			"ability": [{ "type" : "JOUSTING", "val": 5 }],
+			"skills": [3, 4]
+		},
+		{
+			"ability": [{ "type" : "DEATH_STARE", "val": 1, "subtype" : "deathStareCommander" }],
+			"skills": [3,5]
+		},
+		{
+			"ability": [{ "type" : "FLYING", "val": 0, "subtype" : "movementFlying" }],
+			"skills": [4,5]
+		}
 	]
+	
+	
 }

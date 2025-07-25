@@ -23,6 +23,7 @@
 #include "mapView/mapHandler.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/CPlayerBattleCallback.h"
 #include "../lib/callback/CCallback.h"
@@ -35,8 +36,8 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
 #include "../lib/serializer/Connection.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/mapping/CMapService.h"
-#include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/filesystem/Filesystem.h"
 

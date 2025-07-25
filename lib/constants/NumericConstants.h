@@ -25,7 +25,6 @@ namespace GameConstants
 	constexpr int CREATURES_PER_TOWN = 8; //without upgrades
 	constexpr int SPELL_LEVELS = 5;
 	constexpr int SPELL_SCHOOL_LEVELS = 4;
-	constexpr int DEFAULT_SCHOOLS = 4;
 	constexpr int CRE_LEVELS = 10; // number of creature experience levels
 
 	constexpr int HERO_GOLD_COST = 2500;
@@ -34,7 +33,6 @@ namespace GameConstants
 	constexpr int BATTLE_SHOOTING_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	constexpr int BATTLE_SHOOTING_RANGE_DISTANCE = std::numeric_limits<uint8_t>::max(); // used when shooting stack has no shooting range limit
 	constexpr int ARMY_SIZE = 7;
-	constexpr int SKILL_PER_HERO = 8;
 	constexpr ui32 HERO_HIGH_LEVEL = 10; // affects primary skill upgrade order
 
 	constexpr int SKILL_QUANTITY=28;
@@ -54,6 +52,8 @@ namespace GameConstants
 	constexpr int TOURNAMENT_RULES_DD_MAP_TILES_THRESHOLD = 144*144*2; //map tiles count threshold for 2 dimension door casts with tournament rules
 	constexpr int KINGDOM_WINDOW_HEROES_SLOTS = 4;
 	constexpr int INFO_WINDOW_ARTIFACTS_MAX_ITEMS = 14;
+
+	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }
 
 VCMI_LIB_NAMESPACE_END

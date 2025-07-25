@@ -137,7 +137,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	auto it = animationLayouts.find(actualPath);
 
-	if (it != animationLayouts.end())
+	if (it != animationLayouts.end() && (settings["video"]["useHdTextures"].Bool() || scalingFactor == 1))
 		return it->second;
 
 	AnimationLayoutMap result;
@@ -304,10 +304,10 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
 	auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
 
-	if(CResourceHandler::get()->existsResource(imagePathSprites))
+	if(CResourceHandler::get()->existsResource(imagePathSprites) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		return std::make_shared<SDLImageShared>(imagePathSprites);
 
-	if(CResourceHandler::get()->existsResource(imagePathData))
+	if(CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		return std::make_shared<SDLImageShared>(imagePathData);
 
 	if(CResourceHandler::get()->existsResource(imagePath))
@@ -354,6 +354,16 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const AnimationPath & path, int
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageBlitMode mode)
 {
+	auto name = path.getOriginalName();
+	
+	std::vector<std::string> splitted;
+	boost::split(splitted, name, boost::is_any_of(":"));
+	if(splitted.size() == 3)
+	{
+		ImageLocator locator = getLocatorForAnimationFrame(AnimationPath::builtin(splitted[0]), std::stoi(splitted[2]), std::stoi(splitted[1]), 1, mode);
+		return loadImage(locator);
+	}
+
 	ImageLocator locator(path, mode);
 	return loadImage(locator);
 }

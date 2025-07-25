@@ -51,6 +51,8 @@ class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>
 {
 public:
 	using StaticIdentifier<ArtifactInstanceID>::StaticIdentifier;
+
+	DLL_LINKAGE static std::string encode(const si32 index);
 };
 
 class QueryID : public StaticIdentifier<QueryID>
@@ -115,9 +117,6 @@ public:
 
 	static const HeroTypeID NONE;
 	static const HeroTypeID RANDOM;
-	static const HeroTypeID GEM; // aka Gem, Sorceress in campaign
-	static const HeroTypeID SOLMYR; // aka Young Yog in campaigns
-
 	static const HeroTypeID CAMP_STRONGEST;
 	static const HeroTypeID CAMP_GENERATED;
 	static const HeroTypeID CAMP_RANDOM;
@@ -745,7 +744,7 @@ public:
 		CREATURE_SLOT = 0,
 		
 		// Commander
-		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6,
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER7, COMMANDER8, COMMANDER9,
 
 		// Altar
 		ALTAR = BACKPACK_START
@@ -816,11 +815,8 @@ public:
 		IMP = 42, // for Deity of Fire
 		FAMILIAR = 43, // for Deity of Fire
 		SKELETON = 56, // for Skeleton Transformer
-		BONE_DRAGON = 68, // for Skeleton Transformer
 		TROGLODYTES = 70, // for Abandoned Mine
 		MEDUSA = 76, // for Siege UI workaround
-		HYDRA = 110, // for Skeleton Transformer
-		CHAOS_HYDRA = 111, // for Skeleton Transformer
 		AIR_ELEMENTAL = 112, // for tests
 		FIRE_ELEMENTAL = 114, // for tests
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
@@ -860,16 +856,16 @@ public:
 		NONE = -1,
 
 		// Adventure map spells
-		SUMMON_BOAT = 0,
-		SCUTTLE_BOAT = 1,
-		VISIONS = 2,
-		VIEW_EARTH = 3,
-		DISGUISE = 4,
-		VIEW_AIR = 5,
-		FLY = 6,
-		WATER_WALK = 7,
-		DIMENSION_DOOR = 8,
-		TOWN_PORTAL = 9,
+		SUMMON_BOAT [[deprecated("check for spell mechanics instead of spell ID")]] = 0,
+		SCUTTLE_BOAT [[deprecated("check for spell mechanics instead of spell ID")]] = 1,
+		VISIONS [[deprecated("check for spell mechanics instead of spell ID")]] = 2,
+		VIEW_EARTH [[deprecated("check for spell mechanics instead of spell ID")]] = 3,
+		DISGUISE [[deprecated("check for spell mechanics instead of spell ID")]] = 4,
+		VIEW_AIR [[deprecated("check for spell mechanics instead of spell ID")]] = 5,
+		FLY [[deprecated("check for spell mechanics instead of spell ID")]] = 6,
+		WATER_WALK [[deprecated("check for spell mechanics instead of spell ID")]] = 7,
+		DIMENSION_DOOR [[deprecated("check for spell mechanics instead of spell ID")]] = 8,
+		TOWN_PORTAL [[deprecated("check for spell mechanics instead of spell ID")]] = 9,
 
 		// Combat spells
 		QUICKSAND = 10,
@@ -1068,9 +1064,9 @@ public:
 		MITHRIL,
 		COUNT,
 
-		WOOD_AND_ORE = 127,  // special case for town bonus resource
-		COMMON = 0xFD, // campaign bonus
-		RARE = 0xFE, // campaign bonus
+		WOOD_AND_ORE = -4,  // special case for town bonus resource
+		COMMON = -3, // campaign bonus
+		RARE = -2, // campaign bonus
 		NONE = -1
 	};
 };
@@ -1124,6 +1120,13 @@ public:
 
 	static const CampaignScenarioID NONE;
 };
+
+class DLL_LINKAGE CampaignRegionID : public StaticIdentifier<CampaignRegionID>
+{
+public:
+	using StaticIdentifier<CampaignRegionID>::StaticIdentifier;
+};
+
 
 // Deprecated
 // TODO: remove

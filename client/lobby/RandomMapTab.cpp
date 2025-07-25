@@ -182,6 +182,9 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 
+	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
+		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
+
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
@@ -191,6 +194,9 @@ void RandomMapTab::updateMapInfoByHost()
 			auto description = std::string("\n\n") + randomTemplateDescription;
 			mapInfo->mapHeader->description.appendRawString(description);
 		}
+
+		for (const auto & hero : temp->getBannedHeroes())
+			mapInfo->mapHeader->allowedHeroes.erase(hero);
 	}
 
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
@@ -590,9 +596,11 @@ void RandomMapTab::saveOptions(const CMapGenOptions & options)
 
 void RandomMapTab::loadOptions()
 {
-	auto rmgSettings = persistentStorage["rmg"]["rmg"];
+	JsonNode rmgSettings = persistentStorage["rmg"]["rmg"];
+
 	if (!rmgSettings.Struct().empty())
 	{
+		rmgSettings.setModScope(ModScope::scopeGame());
 		mapGenOptions.reset(new CMapGenOptions());
 		JsonDeserializer handler(nullptr, rmgSettings);
 		handler.serializeStruct("lastSettings", *mapGenOptions);

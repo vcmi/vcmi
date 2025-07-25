@@ -10,30 +10,31 @@
 #include "StdInc.h"
 #include "BattleInterface.h"
 
-#include "BattleAnimationClasses.h"
 #include "BattleActionsController.h"
-#include "BattleInterfaceClasses.h"
-#include "CreatureAnimation.h"
-#include "BattleProjectileController.h"
+#include "BattleAnimationClasses.h"
+#include "BattleConsole.h"
 #include "BattleEffectsController.h"
-#include "BattleObstacleController.h"
-#include "BattleSiegeController.h"
 #include "BattleFieldController.h"
-#include "BattleWindow.h"
-#include "BattleStacksController.h"
+#include "BattleHero.h"
+#include "BattleObstacleController.h"
+#include "BattleProjectileController.h"
 #include "BattleRenderer.h"
+#include "BattleResultWindow.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
+#include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../adventureMap/AdventureMapInterface.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/WindowHandler.h"
 #include "../media/IMusicPlayer.h"
 #include "../media/ISoundPlayer.h"
-#include "../windows/CTutorialWindow.h"
 #include "../render/Canvas.h"
-#include "../adventureMap/AdventureMapInterface.h"
-
+#include "../windows/CTutorialWindow.h"
 
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
@@ -363,6 +364,8 @@ void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 
 void BattleInterface::spellCast(const BattleSpellCast * sc)
 {
+	waitForAnimations();
+
 	// Do not deactivate anything in tactics mode
 	// This is battlefield setup spells
 	if(!tacticsMode)

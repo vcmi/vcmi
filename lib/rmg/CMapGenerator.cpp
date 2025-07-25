@@ -466,6 +466,18 @@ void CMapGenerator::addHeaderInfo()
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();
 	m.overrideGameSettings(mapGenOptions.getMapTemplate()->getMapSettings());
+
+	for (const auto & spell : mapGenOptions.getMapTemplate()->getBannedSpells())
+		m.allowedSpells.erase(spell);
+
+	for (const auto & artifact : mapGenOptions.getMapTemplate()->getBannedArtifacts())
+		m.allowedArtifact.erase(artifact);
+
+	for (const auto & skill : mapGenOptions.getMapTemplate()->getBannedSkills())
+		m.allowedAbilities.erase(skill);
+
+	for (const auto & hero : mapGenOptions.getMapTemplate()->getBannedHeroes())
+		m.allowedHeroes.erase(hero);
 }
 
 int CMapGenerator::getNextMonlithIndex()

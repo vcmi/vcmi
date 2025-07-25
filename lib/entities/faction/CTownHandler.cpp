@@ -251,10 +251,10 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 			bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
-		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
+		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != BonusNodeType::UNKNOWN);
 
 		if(bonus->propagator != nullptr
-			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
+			&& bonus->propagator->getPropagatorType() == BonusNodeType::UNKNOWN)
 				bonus->addPropagator(emptyPropagator());
 		building->addNewBonus(bonus, bonusList);
 	}
@@ -266,15 +266,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	assert(!source.getModScope().empty());
 
 	auto * ret = new CBuilding();
-	ret->bid = vstd::find_or(MappedKeys::BUILDING_NAMES_TO_TYPES, stringID, BuildingID::NONE);
+	ret->bid = BuildingID(source["id"].Integer());
 	ret->subId = BuildingSubID::NONE;
-
-	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
-	{
-		// FIXME: A lot of false-positives with no clear way to handle them in mods
-		//logMod->warn("Building %s: id field is deprecated", stringID);
-		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
-	}
 
 	if (ret->bid == BuildingID::NONE)
 		logMod->error("Building '%s' isn't recognized and won't work properly. Correct the typo or update VCMI.", stringID);
@@ -282,8 +275,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	ret->mode = ret->bid == BuildingID::GRAIL
 		? CBuilding::BUILD_GRAIL
 		: vstd::find_or(CBuilding::MODES, source["mode"].String(), CBuilding::BUILD_NORMAL);
-
-	ret->height = vstd::find_or(CBuilding::TOWER_TYPES, source["height"].String(), CBuilding::HEIGHT_NO_TOWER);
 
 	ret->identifier = stringID;
 	ret->modScope = source.getModScope();
@@ -302,17 +293,17 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	const JsonNode & fortifications = source["fortifications"];
 	if (!fortifications.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["citadelShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["citadelShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.citadelShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.upperTowerShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.lowerTowerShooter = CreatureID(identifier);
 		});
@@ -328,7 +319,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if(!source["mapObjectLikeBonuses"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifierOptional("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
 		{
 			ret->mapObjectLikeBonuses = MapObjectID(identifier);
 		});
@@ -386,7 +377,23 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	for(const auto & element : source["marketModes"].Vector())
 	{
 		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
-			ret->marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
+		{
+			auto mode = MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String());
+			ret->marketModes.insert(mode);
+
+			if (mode == EMarketMode::RESOURCE_SKILL)
+			{
+				const auto & items = source["marketOffer"].Vector();
+				ret->marketOffer.resize(items.size());
+				for (int i = 0; i < items.size(); ++i)
+				{
+					LIBRARY->identifiers()->requestIdentifier("secondarySkill", items[i], [ret, i](si32 identifier)
+					{
+						ret->marketOffer[i] = SecondarySkill(identifier);
+					});
+				}
+			}
+		}
 	}
 
 	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, ret->bid.getNum());
@@ -436,6 +443,7 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	ret->hiddenUpgrade = source["hidden"].Bool();
 	ret->defName = AnimationPath::fromJson(source["animation"]);
 	ret->borderName = ImagePath::fromJson(source["border"]);
+	ret->campaignBonus = ImagePath::fromJson(source["campaignBonus"]);
 	ret->areaName = ImagePath::fromJson(source["area"]);
 
 	town.clientInfo.structures.emplace_back(ret);
@@ -561,23 +569,34 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	readIcon(source["icons"]["fort"]["normal"], info.iconSmall[1][0], info.iconLarge[1][0]);
 	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
-	if (source["musicTheme"].isVector())
-	{
-		for (auto const & entry : source["musicTheme"].Vector())
-			info.musicTheme.push_back(AudioPath::fromJson(entry));
-	}
-	else
-	{
-		info.musicTheme.push_back(AudioPath::fromJson(source["musicTheme"]));
-	}
-
 	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
-	info.guildWindow = ImagePath::fromJson(source["guildWindow"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
-
-	info.guildBackground = ImagePath::fromJson(source["guildBackground"]);
 	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
+	info.guildWindowPosition  = Point(source["guildWindowPosition"]["x"].Integer(), source["guildWindowPosition"]["y"].Integer());
+
+	info.guildSpellPositions.clear();
+	for(auto & level : source["guildSpellPositions"].Vector())
+	{
+		std::vector<Point> points;
+		for(auto & item : level.Vector())
+			points.push_back(Point(item["x"].Integer(), item["y"].Integer()));
+		info.guildSpellPositions.push_back(points);
+	}
+
+	auto loadStringOrVector = [](auto & target, auto & node, auto fromJsonFunc){
+		if(node.isVector())
+		{
+			target.clear();
+			for(auto & background : node.Vector())
+				target.push_back(fromJsonFunc(background));
+		}
+		else
+			target = {fromJsonFunc(node)};
+	};
+	loadStringOrVector(info.musicTheme, source["musicTheme"], AudioPath::fromJson);
+	loadStringOrVector(info.guildBackground, source["guildBackground"], ImagePath::fromJson);
+	loadStringOrVector(info.guildWindow, source["guildWindow"], ImagePath::fromJson);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -658,7 +677,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "heroClass",node.first, [=](si32 classID)
+		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=](si32 classID)
 		{
 			LIBRARY->heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
 		});
@@ -668,7 +687,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
+		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
 		{
 			LIBRARY->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
@@ -870,6 +889,13 @@ void CTownHandler::beforeValidate(JsonNode & object)
 			return;
 
 		JsonNode baseCopy(buildingsLibrary[name]);
+
+		if (target.Struct().count("id") && baseCopy.Struct().count("id"))
+		{
+			logMod->warn("Mod '%s': Town building '%s' has specified 'id' field for a predefined building! Ignoring this field.", target["id"].getModScope(), name);
+			target.Struct().erase("id");
+		}
+
 		baseCopy.setModScope(target.getModScope());
 		JsonUtils::inherit(target, baseCopy);
 	};

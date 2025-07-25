@@ -67,6 +67,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 		getName = reinterpret_cast<TGetNameFun>(dlsym(dll, "GetAiName"));
 		getAI = reinterpret_cast<TGetAIFun>(dlsym(dll, methodName.c_str()));
 	}
+	else
+	{
+		logGlobal->error("Cannot open dynamic library '%s'. Reason: %s", libpath.string(), dlerror());
+	}
 #endif // VCMI_WINDOWS
 
 	if (!dll)

@@ -50,6 +50,7 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/CQuest.h"
 #include "../mapObjects/MiscObjects.h"
+#include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
@@ -152,9 +153,9 @@ int CGameState::getDate(Date mode) const
 }
 
 CGameState::CGameState()
+	:globalEffects(BonusNodeType::GLOBAL_EFFECTS)
 {
 	heroesPool = std::make_unique<TavernHeroesPool>(this);
-	globalEffects.setNodeType(CBonusSystemNode::GLOBAL_EFFECTS);
 }
 
 CGameState::~CGameState()
@@ -554,6 +555,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->ID = Obj::HERO;
 		hero->setHeroType(heroTypeId);
+		assert(hero->appearance != nullptr);
 	}
 
 	hero->tempOwner = playerColor;
@@ -786,12 +788,6 @@ void CGameState::initTowns(vstd::RNG & randomGenerator)
 
 	if (campaign)
 		campaign->initTowns();
-
-	map->townUniversitySkills.clear();
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::FIRE_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::AIR_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::WATER_MAGIC));
-	map->townUniversitySkills.push_back(SecondarySkill(SecondarySkill::EARTH_MAGIC));
 
 	for (const auto & townID : map->getAllTowns())
 	{
@@ -1601,9 +1597,8 @@ CGHeroInstance * CGameState::getUsedHero(const HeroTypeID & hid) const
 }
 
 TeamState::TeamState()
-{
-	setNodeType(TEAM);
-}
+	:CBonusSystemNode(BonusNodeType::TEAM)
+{}
 
 CArtifactInstance * CGameState::createScroll(const SpellID & spellId)
 {

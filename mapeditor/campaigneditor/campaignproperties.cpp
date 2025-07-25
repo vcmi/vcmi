@@ -13,6 +13,7 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/campaign/CampaignRegionsHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/json/JsonNode.h"
@@ -89,7 +90,7 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 void CampaignProperties::on_comboBoxRegionPreset_currentIndexChanged(int index)
 {
 	if(ui->comboBoxRegionPreset->count() == 21 && ui->comboBoxRegionPreset->currentIndex() != 20)
-		regions = CampaignRegions::getLegacy(ui->comboBoxRegionPreset->currentIndex());
+		regions = *LIBRARY->campaignRegions->getByIndex(index);
 	
 	loadRegion();
 }

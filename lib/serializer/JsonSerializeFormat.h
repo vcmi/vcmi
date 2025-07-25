@@ -316,12 +316,11 @@ public:
 		}
 		else
 		{
-			std::string fieldValue;
-			serializeString(fieldName, fieldValue);
+			const JsonNode & fieldValue = getCurrent()[fieldName];
 
-			if (!fieldValue.empty())
+			if (!fieldValue.String().empty())
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
 					value = IdentifierType(index);
 				});
 			}
@@ -347,14 +346,12 @@ public:
 		}
 		else
 		{
-			std::vector<std::string> fieldValue;
-			serializeInternal(fieldName, fieldValue);
-
+			const JsonVector & fieldValue = getCurrent()[fieldName].Vector();
 			value.resize(fieldValue.size());
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
 					value[i] = T(index);
 				});
 			}
@@ -376,12 +373,9 @@ public:
 		}
 		else
 		{
-			std::vector<std::string> fieldValue;
-			serializeInternal(fieldName, fieldValue);
-
-			for(size_t i = 0; i < fieldValue.size(); ++i)
+			for (const auto & element : getCurrent()[fieldName].Vector())
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
 					value.insert(T(index));
 				});
 			}

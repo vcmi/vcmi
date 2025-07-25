@@ -12,6 +12,7 @@
 
 #include "CMapEditManager.h"
 #include "CMapOperation.h"
+#include "CCastleEvent.h"
 
 #include "../CCreatureHandler.h"
 #include "../CSkillHandler.h"
@@ -21,6 +22,7 @@
 #include "../RoadHandler.h"
 #include "../TerrainHandler.h"
 
+#include "../bonuses/Limiters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHeroHandler.h"
@@ -685,7 +687,7 @@ bool CMap::calculateWaterContent()
 
 void CMap::banWaterContent()
 {
-	banWaterHeroes();
+	banWaterHeroes(isWaterMap());
 	banWaterArtifacts();
 	banWaterSpells();
 	banWaterSkills();
@@ -715,16 +717,16 @@ void CMap::banWaterSkills()
 	});
 }
 
-void CMap::banWaterHeroes()
+void CMapHeader::banWaterHeroes(bool isWaterMap)
 {
 	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap();
+		return hero.toHeroType()->onlyOnWaterMap && !isWaterMap;
 	});
 
 	vstd::erase_if(allowedHeroes, [&](HeroTypeID hero)
 	{
-		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap();
+		return hero.toHeroType()->onlyOnMapWithoutWater && isWaterMap;
 	});
 }
 
@@ -863,13 +865,14 @@ CArtifactInstance * CMap::createArtifact(const ArtifactID & artID, const SpellID
 	{
 		auto bonus = std::make_shared<Bonus>();
 		bonus->type = BonusType::ARTIFACT_CHARGE;
+		bonus->sid = artInst->getId();
 		bonus->val = 0;
 		artInst->addNewBonus(bonus);
 		artInst->addCharges(art->getDefaultStartCharges());
 	}
 
 	for (const auto & bonus : art->instanceBonuses)
-		artInst->addNewBonus(std::make_shared<Bonus>(*bonus));
+		artInst->addNewBonus(std::make_shared<Bonus>(*bonus, artInst->getId()));
 
 	return artInst;
 }

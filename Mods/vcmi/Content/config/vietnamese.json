@@ -292,8 +292,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover": "Chọn khoảng thời gian chạm giữ",
 	"vcmi.systemOptions.longTouchMenu.help": "Đổi khoảng thời gian chạm giữ.",
 	"vcmi.systemOptions.longTouchMenu.entry": "%d mili giây",
-	"vcmi.systemOptions.framerateButton.hover": "Hiện FPS",
-	"vcmi.systemOptions.framerateButton.help": "{Hiện FPS}\n\nHiện khung hình mỗi giây ở góc cửa sổ trò chơi",
 	"vcmi.systemOptions.hapticFeedbackButton.hover": "Rung khi chạm",
 	"vcmi.systemOptions.hapticFeedbackButton.help": "{Rung khi chạm}\n\nBật/ tắt chế độ rung khi chạm.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Cải thiện giao diện",
@@ -605,6 +603,9 @@
 	
 	"mapObject.core.hillFort.object.description" : "Nâng cấp quân cấp 1 - 4 với chi phí thấp hơn ở trong thành.",
 
+	"creatures.core.azureDragon.bonus.fearful" : "{Sợ hãi}\nGây sợ hãi cho một đạo quân địch",
+	"creatures.core.azureDragon.bonus.fearless" : "{Không sợ}\nKháng lại kỹ năng gây sợ hãi",
+
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Đánh 2 lần}\nTấn công hai lần",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Phản đòn thêm}\nCó thể phàn đòn thêm ${val} lần",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Đánh xung quanh}\nTấn công tất cả kẻ địch xung quanh",
@@ -624,8 +625,6 @@
 	"core.bonus.ENCHANTER.description" : "{Niệm phép}\nCó thể dùng phép mass ${subtype.spell} mỗi lượt",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Giảm tấn công (${val}%)}\nKhi bị tấn công, giảm ${val}% tấn công của kẻ địch",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Giảm phòng thủ (${val}%)}\nKhi tấn công, giảm ${val}% phòng thủ của kẻ địch",
-	"core.bonus.FEARLESS.description" : "{Không sợ}\nKháng lại kỹ năng gây sợ hãi",
-	"core.bonus.FEAR.description" : "{Sợ hãi}\nGây sợ hãi cho một đạo quân địch",
 	"core.bonus.FEROCITY.description" : "{Hung ác}\nTấn công thêm ${val} lần nữa nếu giết chết kẻ địch",
 	"core.bonus.FIRE_SHIELD.description" : "{Khiên lửa (${val}%)}\nPhản lại một phần sát thương khi cận chiến",
 	"core.bonus.FIRST_STRIKE.description" : "{Đòn đánh phủ đầu}\nĐạo quân này phản đòn trước khi bị tấn công",
@@ -680,7 +679,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Kháng phép}\nĐơn vị này kháng tất cả phép thuật",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Kháng phép nước}\nĐơn vị này kháng tất cả phép nước",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Gọi bảo vệ}\nKhi bắt đầu trận sẽ triệu hồi ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Hợp lực}\nQuân này dễ bị ảnh hưởng bởi nhiều hiệu ứng",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Ba đầu}\nTấn công cả quân liền kề mục tiêu",
 	"core.bonus.TRANSMUTATION.description" : "{Biến đổi}\nCó ${val}% cơ hội biến đổi quân mục tiêu thành dạng khác",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Đánh hai ô}\nTấn công bằng hơi thở (xuyên 2 ô)",

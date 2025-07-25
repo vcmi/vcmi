@@ -14,7 +14,7 @@
 
 #include "../LuaWrapper.h"
 
-#include "../../../lib/CCreatureSet.h"
+#include "../../../lib/mapObjects/army/CStackInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

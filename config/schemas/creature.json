@@ -4,15 +4,47 @@
 	"title" : "VCMI creature format",
 	"description" : "Json format for defining new creatures in VCMI",
 	"required" : [ "faction" ],
-	"anyOf" : [
+	"allOf" : [
 		{
-			"disabled" : { "enum" : [ true ] }
+			"if" : {
+				"properties" : {
+					"disabled" : {
+						"const" : false
+					}
+				}
+			},
+			"then" : {
+				"required" : [
+					"name", "level", "cost", "speed", "hitPoints", "attack", "defense", "damage", "fightValue", "aiValue", "graphics", "sound"
+				]
+			}
 		},
 		{
-			"required" : [
-				"name", "level", "cost", "speed", "hitPoints", "attack", "defense", "damage",
-				"fightValue", "aiValue", "advMapAmount", "graphics", "sound"
-			]
+			"if" : {
+				"properties" : {
+					"special" : {
+						"const" : false
+					},
+					"disabled" : {
+						"const" : false 
+					}
+				}
+			},
+			"then" : {
+				"required" : [ "advMapAmount" ],
+				"properties" : {
+					"advMapAmount" : {
+						"type" : "object",
+						"additionalProperties" : false,
+						"description" : "Initial size of random stacks on adventure map",
+						"required" : [ "min", "max" ],
+						"properties" : {
+							"min" : { "type" : "number", "minimum" : 1 },
+							"max" : { "type" : "number", "minimum" : 1 }
+						}
+					}
+				}
+			}
 		}
 	],
 	"additionalProperties" : false,
@@ -80,6 +112,7 @@
 		"damage" : {
 			"type" : "object",
 			"additionalProperties" : false,
+			"required" : [ "min", "max" ],
 			"properties" : {
 				"max" : { "type" : "number" },
 				"min" : { "type" : "number" }
@@ -152,6 +185,16 @@
 					"type" : "array",
 					"items" : { "type" : "string" },
 					"description" : "Object mask that describes on which tiles object is visible/blocked/activatable"
+				},
+				"mapAttackFromLeft" : {
+					"type" : "string",
+					"description" : "Adventure map creature image when attacked from left",
+					"format" : "imageFile"
+				},
+				"mapAttackFromRight" : {
+					"type" : "string",
+					"description" : "Adventure map creature image when attacked from right",
+					"format" : "imageFile"
 				},
 				"iconLarge" : {
 					"type" : "string",

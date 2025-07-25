@@ -9,16 +9,18 @@
  */
 #pragma once
 
-#include "IGameInfoCallback.h"
+#include "MapInfoCallback.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct SThievesGuildInfo;
 class Player;
 
-class DLL_LINKAGE CGameInfoCallback : public IGameInfoCallback
+class DLL_LINKAGE CGameInfoCallback : public MapInfoCallback
 {
 protected:
+	const CMap * getMapConstPtr() const override;
+
 	bool hasAccess(std::optional<PlayerColor> playerId) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
@@ -28,10 +30,6 @@ public:
 	int getDate(Date mode=Date::DAY)const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	const StartInfo * getStartInfo() const override;
 	const StartInfo * getInitialStartInfo() const;
-	bool isAllowed(SpellID id) const override;
-	bool isAllowed(ArtifactID id) const override;
-	bool isAllowed(SecondarySkill id) const override;
-	const IGameSettings & getSettings() const override;
 
 	//player
 	virtual std::optional<PlayerColor> getPlayerID() const;
@@ -55,14 +53,11 @@ public:
 	void fillUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out) const;
 
 	//hero
-	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
 	int getHeroCount(PlayerColor player, bool includeGarrisoned) const override;
 	std::vector<const CGHeroInstance*> getHeroes(PlayerColor player) const;
 	bool getHeroInfo(const CGObjectInstance * hero, InfoAboutHero & dest, const CGObjectInstance * selectedObject = nullptr) const;
 	int32_t getSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const;
 	int64_t estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const;
-	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const override;
-	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const override;
 	const CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
 
 	//objects
@@ -72,25 +67,20 @@ public:
 	std::vector<const CGObjectInstance *> getAllVisitableObjs() const;
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
-	PlayerColor getOwner(ObjectInstanceID heroID) const;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
 
 	//map
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const override;
-	bool isTileGuardedUnchecked(int3 tile) const;
-	const CMapHeader * getMapHeader()const override;
-	int3 getMapSize() const override;
+	bool isTileGuardedUnchecked(int3 tile) const override;
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
-	bool isInTheMap(const int3 &pos) const override;
 	void getVisibleTilesInRange(std::unordered_set<int3> &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const override;
 
 	//town
-	const CGTownInstance* getTown(ObjectInstanceID objid) const override;
 	int howManyTowns(PlayerColor Player) const;
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
 	std::string getTavernRumor(const CGObjectInstance * townOrTavern) const;
@@ -114,7 +104,7 @@ public:
 	//used for random spawns
 	void getFreeTiles(std::vector<int3> &tiles) const;
 	void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
-	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const override;
+	void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const override;
 
 	void getAllowedSpells(std::vector<SpellID> &out, std::optional<ui16> level = std::nullopt) const;
 

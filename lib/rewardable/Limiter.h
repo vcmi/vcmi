@@ -12,6 +12,7 @@
 
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

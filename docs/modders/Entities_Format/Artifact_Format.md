@@ -46,8 +46,8 @@ In order to make functional artifact you also need:
 		// Base image for this artifact, used for example in hero screen
 		"image": "BigSword.png",
 
-		// Large image, used for drag-and-drop and popup messages
-		"large": "BigSword_large.png",
+		// Large 58x64 image, used for campaign scenario bonus selection
+		"scenarioBonus": "BigSword_large.png",
 
 		//def file for adventure map
 		"map": "BigSword.def"

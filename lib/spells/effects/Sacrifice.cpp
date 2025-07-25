@@ -109,9 +109,9 @@ void Sacrifice::apply(ServerCallback * server, const Mechanics * m, const Effect
 		return;
 	}
 
-    const battle::Unit * victim = target.back().unitValue;
+	const battle::Unit * victim = target.back().unitValue;
 
-    if(!victim)
+	if(!victim)
 	{
 		logGlobal->error("No unit to Sacrifice");
 		return;

@@ -26,7 +26,8 @@
 #include "TargetCondition.h"
 #include "Problem.h"
 
-#include "AdventureSpellMechanics.h"
+#include "adventure/AdventureSpellMechanics.h"
+
 #include "BattleSpellMechanics.h"
 
 #include "effects/Effects.h"
@@ -145,20 +146,6 @@ BattleCast::BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, 
 {
 }
 
-BattleCast::BattleCast(const BattleCast & orig, const Caster * caster_)
-	: spell(orig.spell),
-	cb(orig.cb),
-	caster(caster_),
-	mode(Mode::MAGIC_MIRROR),
-	magicSkillLevel(orig.magicSkillLevel),
-	effectPower(orig.effectPower),
-	effectDuration(orig.effectDuration),
-	effectValue(orig.effectValue),
-	smart(true),
-	massive(false)
-{
-}
-
 BattleCast::~BattleCast() = default;
 
 const CSpell * BattleCast::getSpell() const
@@ -245,51 +232,7 @@ void BattleCast::cast(ServerCallback * server, Target target)
 
 	auto m = spell->battleMechanics(this);
 
-	const battle::Unit * mainTarget = nullptr;
-
-	if(target.front().unitValue)
-	{
-		mainTarget = target.front().unitValue;
-	}
-	else if(target.front().hexValue.isValid())
-	{
-		mainTarget = cb->battleGetUnitByPos(target.front().hexValue, true);
-	}
-
-	bool tryMagicMirror = (mainTarget != nullptr) && (mode == Mode::HERO || mode == Mode::CREATURE_ACTIVE);//TODO: recheck
-	tryMagicMirror = tryMagicMirror && (mainTarget->unitOwner() != caster->getCasterOwner()) && !spell->isPositive();//TODO: recheck
-
 	m->cast(server, target);
-
-	//Magic Mirror effect
-	if(tryMagicMirror)
-	{
-		const std::string magicMirrorCacheStr = "type_MAGIC_MIRROR";
-		static const auto magicMirrorSelector = Selector::type()(BonusType::MAGIC_MIRROR);
-
-		const int mirrorChance = mainTarget->valOfBonuses(magicMirrorSelector, magicMirrorCacheStr);
-
-		if(server->getRNG()->nextInt(0, 99) < mirrorChance)
-		{
-			auto mirrorTargets = cb->battleGetUnitsIf([this](const battle::Unit * unit)
-			{
-				//Get all caster stacks. Magic mirror can reflect to immune creature (with no effect)
-				return unit->unitOwner() == caster->getCasterOwner() && unit->isValidTarget(true);
-			});
-
-
-			if(!mirrorTargets.empty())
-			{
-				const auto * mirrorDestination = (*RandomGeneratorUtil::nextItem(mirrorTargets, *server->getRNG()));
-
-				Target mirrorTarget;
-				mirrorTarget.emplace_back(mirrorDestination);
-
-				BattleCast mirror(*this, mainTarget);
-				mirror.cast(server, mirrorTarget);
-			}
-		}
-	}
 }
 
 void BattleCast::castEval(ServerCallback * server, Target target)
@@ -609,12 +552,12 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
-    return ownerMatches(unit, owner->getPositiveness());
+	return ownerMatches(unit, owner->getPositiveness());
 }
 
 bool BaseMechanics::ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const
 {
-    return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
+	return cb->battleMatchOwner(caster->getCasterOwner(), unit, positivness);
 }
 
 IBattleCast::Value BaseMechanics::getEffectLevel() const
@@ -700,28 +643,10 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 
 std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
 {
-	switch(s->id.toEnum())
-	{
-	case SpellID::SUMMON_BOAT:
-		return std::make_unique<SummonBoatMechanics>(s);
-	case SpellID::SCUTTLE_BOAT:
-		return std::make_unique<ScuttleBoatMechanics>(s);
-	case SpellID::DIMENSION_DOOR:
-		return std::make_unique<DimensionDoorMechanics>(s);
-	case SpellID::FLY:
-	case SpellID::WATER_WALK:
-	case SpellID::VISIONS:
-	case SpellID::DISGUISE:
-		return std::make_unique<AdventureSpellMechanics>(s); //implemented using bonus system
-	case SpellID::TOWN_PORTAL:
-		return std::make_unique<TownPortalMechanics>(s);
-	case SpellID::VIEW_EARTH:
-		return std::make_unique<ViewEarthMechanics>(s);
-	case SpellID::VIEW_AIR:
-		return std::make_unique<ViewAirMechanics>(s);
-	default:
-		return s->isCombat() ? std::unique_ptr<IAdventureSpellMechanics>() : std::make_unique<AdventureSpellMechanics>(s);
-	}
+	if (s->isCombat())
+		return nullptr;
+
+	return std::make_unique<AdventureSpellMechanics>(s);
 }
 
 VCMI_LIB_NAMESPACE_END

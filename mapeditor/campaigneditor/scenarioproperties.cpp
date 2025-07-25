@@ -218,11 +218,13 @@ void ScenarioProperties::reloadMapRelatedUi()
 			for(int i = 0; i < ui->comboBoxStartingBonusPlayerPosition->count(); ++i) // copy from player dropdown
 				comboBoxPlayer->addItem(ui->comboBoxStartingBonusPlayerPosition->itemText(i), ui->comboBoxStartingBonusPlayerPosition->itemData(i));
 
+			const auto & bonusValue = bonus.getValue<CampaignBonusHeroesFromScenario>();
+
 			// set selected
-			int index = comboBoxPlayer->findData(bonus.info1);
+			int index = comboBoxPlayer->findData(bonusValue.startingPlayer.getNum());
 			if(index != -1)
 				comboBoxPlayer->setCurrentIndex(index);
-			index = comboBoxOption->findData(bonus.info2);
+			index = comboBoxOption->findData(bonusValue.scenario.getNum());
 			if(index != -1)
 				comboBoxOption->setCurrentIndex(index);
 
@@ -337,12 +339,24 @@ void ScenarioProperties::on_buttonBox_clicked(QAbstractButton * button)
 		{
 			for (int i = 0; i < ui->tableWidgetStartingCrossover->rowCount(); ++i)
 			{
-				CampaignBonus bonus;
-				bonus.type = ui->radioButtonStartingOptionHeroCrossover->isChecked() ? CampaignBonusType::HEROES_FROM_PREVIOUS_SCENARIO : CampaignBonusType::HERO;
 				QComboBox* comboBoxOption = qobject_cast<QComboBox*>(ui->tableWidgetStartingCrossover->cellWidget(i, 0));
 				QComboBox* comboBoxPlayer = qobject_cast<QComboBox*>(ui->tableWidgetStartingCrossover->cellWidget(i, 1));
-				bonus.info1 = comboBoxPlayer->currentData().toInt();
-				bonus.info2 = comboBoxOption->currentData().toInt();
+				CampaignBonus bonus;
+
+				if (ui->radioButtonStartingOptionHeroCrossover->isChecked())
+				{
+					bonus = CampaignBonusHeroesFromScenario{
+						PlayerColor(comboBoxPlayer->currentData().toInt()),
+						CampaignScenarioID(comboBoxOption->currentData().toInt())
+					};
+				}
+				else
+				{
+					bonus = CampaignBonusStartingHero{
+						PlayerColor(comboBoxPlayer->currentData().toInt()),
+						HeroTypeID(comboBoxOption->currentData().toInt())
+					};
+				}
 				campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.push_back(bonus);
 			}
 		}
@@ -476,8 +490,8 @@ void ScenarioProperties::on_pushButtonStartingAdd_clicked()
 	}
 	else
 	{
-		CampaignBonus bonus;
-		bonus.type = CampaignBonusType::SPELL;
+		CampaignBonus bonus = CampaignBonusSpell{ HeroTypeID(), SpellID() };
+
 		if(StartingBonus::showStartingBonus(PlayerColor(ui->comboBoxStartingBonusPlayerPosition->currentData().toInt()), map, bonus))
 		{
 			QListWidgetItem * item = new QListWidgetItem(StartingBonus::getBonusListTitle(bonus, map));

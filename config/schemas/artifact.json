@@ -43,7 +43,7 @@
 				{
 					"type" : "array",
 					"minItems" : 1,
-					"additionalItems" : { "type" : "string" }
+					"items" : { "type" : "string" }
 				}
 			]
 		},
@@ -91,16 +91,16 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"description" : "Graphical files associated with the artifact",
-			"required" : [ "image", "map" ],
+			"required" : [ "image", "map", "scenarioBonus" ],
 			"properties" : {
 				"image" : {
 					"type" : "string",
 					"description" : "Base image for this artifact, used for example in hero screen",
 					"format" : "imageFile"
 				},
-				"large" : {
+				"scenarioBonus" : {
 					"type" : "string",
-					"description" : "Large image, used for drag-and-drop and popup messages",
+					"description" : "Image 58x64 in size, for use as campaign scenario starting bonus selection",
 					"format" : "imageFile"
 				},
 				"map" : {
@@ -146,10 +146,10 @@
 			"properties" : {
 				"usageType": {
 					"type" : "string",
-					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"],
+					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"]
 				},
 				"removeOnDepletion" : {
-					"type" : "boolean",
+					"type" : "boolean"
 				},
 				"startingCharges" : {
 					"type" : "number",

@@ -34,7 +34,7 @@
 		"compatibilityIdentifiers" : {
 			"type" : "array",
 			"items" : {
-				"type" : "string",
+				"type" : "string"
 			},
 			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
 		},
@@ -136,6 +136,14 @@
 				"secondary" : {
 					"type" : "string",
 					"description" : "Shortcut for defining secondary skill specialty, using standard H3 rules."
+				},
+				"creatureLevel" : {
+					"type" : "integer",
+					"description" : "Assumed creature level for creature specialty"
+				},
+				"stepSize" : {
+					"type" : "integer",
+					"description" : "How creature or secondary skill specialty should grow per each step. Default is 5"
 				}
 			}
 		},

@@ -9,20 +9,20 @@
  */
 
 #include "StdInc.h"
+#include "CSkillHandler.h"
 
 #include <cctype>
 
-#include "CSkillHandler.h"
-
+#include "GameLibrary.h"
 #include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
+#include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
-#include "json/JsonBonus.h"
-#include "json/JsonUtils.h"
 #include "modding/IdentifierStorage.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
-#include "GameLibrary.h"
+#include "json/JsonBonus.h"
+#include "json/JsonUtils.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -222,6 +222,29 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->special = json["special"].Bool();
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+
+	for(auto skillPair : json["gainChance"].Struct())
+	{
+		int probability = static_cast<int>(skillPair.second.Integer());
+
+		if (skillPair.first == "might")
+		{
+			skill->gainChance[0] = probability;
+			continue;
+		}
+
+		if (skillPair.first == "magic")
+		{
+			skill->gainChance[1] = probability;
+			continue;
+		}
+
+		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		{
+			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+		});
+	}
+
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -250,6 +273,10 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
+		if (!levelNode["images"]["scenarioBonus"].isNull())
+			skillAtLevel.scenarioBonus = levelNode["images"]["scenarioBonus"].String();
+		else
+			skillAtLevel.scenarioBonus = skillAtLevel.iconMedium; // MOD COMPATIBILITY fallback for pre-1.7 mods
 	}
 
 	for(const auto & b : json["specialty"].Vector())
@@ -259,7 +286,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		if (bonusNode.isStruct())
 		{
 			auto bonus = JsonUtils::parseBonus(bonusNode);
-			bonus->val = 5; // default H3 value, hardcoded for now
+			bonus->val = 0; // set by HeroHandler on specialty load
 			bonus->updater = std::make_shared<TimesHeroLevelUpdater>();
 			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
 			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;

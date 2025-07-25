@@ -132,11 +132,13 @@ void CCommanderSkillIcon::clickPressed(const Point & cursorPosition)
 {
 	callback();
 	isSelected = true;
+	redraw();
 }
 
 void CCommanderSkillIcon::deselect()
 {
 	isSelected = false;
+	redraw();
 }
 
 bool CCommanderSkillIcon::getIsMasterAbility()
@@ -485,7 +487,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 
 	auto getArtifactPos = [](int index)
 	{
-		return Point(269 + 47 * (index % 3), 22 + 47 * (index / 3));
+		return Point(269 + 52 * (index % 3), 22 + 52 * (index / 3));
 	};
 
 	for(auto equippedArtifact : parent->info->commander->artifactsWorn)
@@ -848,7 +850,7 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent), Selector::all);
+	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent));
 	BonusList abilities = info->creature->getExportedBonusList();
 
 	// remove all bonuses that are not propagated away
@@ -900,9 +902,12 @@ void CStackWindow::initBonusesList()
 		BonusList groupIndepMin = group;
 		BonusList groupIndepMax = group;
 		BonusList groupNoMinMax = group;
+		BonusList groupBaseOnly = group;
+
 		groupIndepMin.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MIN; });
 		groupIndepMax.remove_if([](const Bonus * b) { return b->valType != BonusValueType::INDEPENDENT_MAX; });
 		groupNoMinMax.remove_if([](const Bonus * b) { return b->valType == BonusValueType::INDEPENDENT_MAX || b->valType == BonusValueType::INDEPENDENT_MIN; });
+		groupBaseOnly.remove_if([](const Bonus * b) { return b->valType != BonusValueType::ADDITIVE_VALUE || b->valType == BonusValueType::BASE_NUMBER; });
 
 		int valIndepMin = groupIndepMin.totalValue();
 		int valIndepMax = groupIndepMax.totalValue();
@@ -914,8 +919,8 @@ void CStackWindow::initBonusesList()
 			usedGroup = groupIndepMin; // bonus value was limited due to INDEPENDENT_MIN bonus -> show this bonus
 		else if (!groupIndepMax.empty() && valNoMinMax != valIndepMax)
 			usedGroup = groupIndepMax; // bonus value was limited due to INDEPENDENT_MAX bonus -> show this bonus
-		else
-			usedGroup = groupNoMinMax; // bonus value is not limited - show first non-independent bonus
+		else if (!groupBaseOnly.empty())
+			usedGroup = groupNoMinMax; // bonus value is not limited and has bonuses other than percent to base / percent to all - show first non-independent bonus
 
 		// It is possible that empty group was selected. For example, there is only INDEPENDENT effect with value of 0, which does not actually has any effect on this unit
 		// For example, orb of vulnerability on unit without any resistances
@@ -933,7 +938,7 @@ void CStackWindow::initBonusesList()
 		bonusInfo.bonusSource = b->source;
 
 		//if it's possible to give any description or image for this kind of bonus
-		if(!bonusInfo.description.empty())
+		if(!bonusInfo.description.empty() && !b->hidden)
 			activeBonuses.push_back(bonusInfo);
 	}
 }

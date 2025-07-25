@@ -38,6 +38,12 @@ class BattleFlowProcessor : boost::noncopyable
 
 	bool rollGoodMorale(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
+	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
 	void summonGuardiansHelper(const CBattleInfoCallback & battle, BattleHexArray & output, const BattleHex & targetPosition, BattleSide side, bool targetIsTwoHex);
 	void trySummonGuardians(const CBattleInfoCallback & battle, const CStack * stack);

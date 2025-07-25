@@ -23,13 +23,13 @@
 #include "../constants/StringConstants.h"
 #include "../GameLibrary.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../spells/CSpellHandler.h"
 #include "../CSkillHandler.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../gameState/CGameState.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -580,13 +580,13 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 		return ret;
 	}
 
-	std::vector<Bonus> JsonRandom::loadBonuses(const JsonNode & value)
+	std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value)
 	{
-		std::vector<Bonus> ret;
+		std::vector<std::shared_ptr<Bonus>> ret;
 		for (const JsonNode & entry : value.Vector())
 		{
 			if(auto bonus = JsonUtils::parseBonus(entry))
-				ret.push_back(*bonus);
+				ret.push_back(bonus);
 		}
 		return ret;
 	}

@@ -233,7 +233,6 @@ void MapViewController::updateState()
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
-		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
 		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }

@@ -14,6 +14,7 @@
 #include "ArtifactUtils.h"
 #include "CArtifactFittingSet.h"
 
+#include "../../bonuses/Limiters.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
@@ -59,22 +60,22 @@ bool CGrowingArtifact::isGrowing() const
 	return !bonusesPerLevel.empty() || !thresholdBonuses.empty();
 }
 
-std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel()
+std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getBonusesPerLevel()
 {
 	return bonusesPerLevel;
 }
 
-const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getBonusesPerLevel() const
+const std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getBonusesPerLevel() const
 {
 	return bonusesPerLevel;
 }
 
-std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses()
+std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getThresholdBonuses()
 {
 	return thresholdBonuses;
 }
 
-const std::vector <std::pair<ui16, Bonus>> & CGrowingArtifact::getThresholdBonuses() const
+const std::vector <std::pair<ui16, std::shared_ptr<Bonus>>> & CGrowingArtifact::getThresholdBonuses() const
 {
 	return thresholdBonuses;
 }
@@ -102,7 +103,6 @@ std::string CArtifact::getModScope() const
 void CArtifact::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "ARTIFACT", image);
-	cb(getIconIndex(), 0, "ARTIFACTLARGE", large);
 }
 
 ArtifactID CArtifact::getId() const
@@ -293,11 +293,26 @@ bool CChargedArtifact::getRemoveOnDepletion() const
 	return removeOnDepletion;
 }
 
+std::optional<uint16_t> CChargedArtifact::getChargeCost(const SpellID & id) const
+{
+	auto art = static_cast<const CArtifact*>(this);
+
+	for(const auto & bonus : art->instanceBonuses)
+	{
+		if(bonus->type == BonusType::SPELL && bonus->subtype.as<SpellID>() == id)
+		{
+			if(const auto chargesLimiter = std::static_pointer_cast<const HasChargesLimiter>(bonus->limiter))
+				return chargesLimiter->chargeCost;
+		}
+	}
+	return std::nullopt;
+}
+
 CArtifact::CArtifact()
-	: iconIndex(ArtifactID::NONE),
+	: CBonusSystemNode(BonusNodeType::ARTIFACT),
+	iconIndex(ArtifactID::NONE),
 	price(0)
 {
-	setNodeType(ARTIFACT);
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
@@ -359,7 +374,7 @@ void CArtifact::setImage(int32_t newIconIndex, const std::string & newImage, con
 {
 	iconIndex = newIconIndex;
 	image = newImage;
-	large = newLargeImage;
+	scenarioBonus = newLargeImage;
 }
 
 

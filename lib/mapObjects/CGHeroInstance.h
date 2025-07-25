@@ -11,8 +11,10 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+
+#include "army/CArmedInstance.h"
+#include "army/CCommanderInstance.h"
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
@@ -153,6 +155,7 @@ public:
 	void addSpellToSpellbook(const SpellID & spell);
 	void removeSpellFromSpellbook(const SpellID & spell);
 	bool spellbookContainsSpell(const SpellID & spell) const;
+	std::vector<BonusSourceID> getSourcesForSpell(const SpellID & spell) const;
 	void removeSpellbook();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;
@@ -212,7 +215,8 @@ public:
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
 	double getHeroStrength() const; // includes fighting and magic strength
 
-	uint32_t getValueForCampaign() const;
+	/// Returns true if 'left' hero is stronger than 'right' when considering campaign transfer priority
+	static bool compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right);
 	uint64_t getValueForDiplomacy() const;
 	
 	ui64 getTotalStrength() const; // includes fighting strength and army strength
@@ -275,9 +279,6 @@ public:
 	///IConstBonusProvider
 	const IBonusBearer* getBonusBearer() const override;
 
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const;
-	CBonusSystemNode * whereShouldBeAttachedOnSiege(CGameState & gs);
-
 	///spells::Caster
 	int32_t getCasterUnitId() const override;
 	int32_t getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool = nullptr) const override;
@@ -288,6 +289,7 @@ public:
 	int32_t getEffectPower(const spells::Spell * spell) const override;
 	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
+	int64_t getEffectRange(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;

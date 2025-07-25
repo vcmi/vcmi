@@ -73,7 +73,7 @@ TownRewardableBuildingInstance::TownRewardableBuildingInstance(CGTownInstance * 
 	configuration = generateConfiguration(gameRandomizer);
 }
 
-void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses) const
+void TownRewardableBuildingInstance::assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses) const
 {
 	const auto & building = town->getTown()->buildings.at(getBuildingType());
 
@@ -81,13 +81,13 @@ void TownRewardableBuildingInstance::assignBonuses(std::vector<Bonus> & bonuses)
 	{
 		if (building->mapObjectLikeBonuses.hasValue())
 		{
-			bonus.source = BonusSource::OBJECT_TYPE;
-			bonus.sid = BonusSourceID(building->mapObjectLikeBonuses);
+			bonus->source = BonusSource::OBJECT_TYPE;
+			bonus->sid = BonusSourceID(building->mapObjectLikeBonuses);
 		}
 		else
 		{
-			bonus.source = BonusSource::TOWN_STRUCTURE;
-			bonus.sid = BonusSourceID(building->getUniqueTypeID());
+			bonus->source = BonusSource::TOWN_STRUCTURE;
+			bonus->sid = BonusSourceID(building->getUniqueTypeID());
 		}
 	}
 }

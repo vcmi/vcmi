@@ -290,8 +290,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Выбрать интервал длительного касания:",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Изменить интервал длительного касания.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d миллисекунд",
-	"vcmi.systemOptions.framerateButton.hover"  : "Показывать частоту кадров",
-	"vcmi.systemOptions.framerateButton.help"   : "{Показывать частоту кадров}\n\nЕсли выбрано, частота кадров в секунду будет показана в верхнем левом углу игрового экрана.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильный отклик",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильный отклик}\n\nиспользовать вибрацию при использовании сенсорного экрана.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Расширенные функции интерфейса",
@@ -623,7 +621,11 @@
 	"core.seerhut.quest.reachDate.visit.3" : "Закрыто до %s.",
 	"core.seerhut.quest.reachDate.visit.4" : "Закрыто до %s.",
 	"core.seerhut.quest.reachDate.visit.5" : "Закрыто до %s.",
+
 	"mapObject.core.hillFort.object.description" : "Улучшить существ. Уровни 1-4 стоят дешевле, чем в соответствующем городе.",
+
+	"creatures.core.azureDragon.bonus.fearful" : "{Страх}\nЗаставляет вражеских существ цепенеть от страха",
+	"creatures.core.azureDragon.bonus.fearless" : "{Бесстрашный}\nИммунитет к страху",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Двойной удар}\nБьет дважды",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Дополнительные ответные атаки}\nОтвечает на атаку дополнительно ${val} раз",
@@ -644,8 +646,6 @@
 	"core.bonus.ENCHANTER.description" : "{Заклинатель (массовое)}\nМожет применять массовое ${subtype.spell} каждый ход",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Игнорирует атаку (${val}%)}\nПри атаке ${val}%, атаки атакующего игнорируются",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Игнорирует броню (${val}%)}\nИгнорирует часть Защиты при атаке",
-	"core.bonus.FEARLESS.description" : "{Бесстрашный}\nИммунитет к страху",
-	"core.bonus.FEAR.description" : "{Страх}\nЗаставляет вражеских существ цепенеть от страха",
 	"core.bonus.FEROCITY.description" : "{Свирепость}\nАтакует дополнительно ${val} раз, если кого-то убивает",
 	"core.bonus.FIRE_SHIELD.description" : "{Огненный щит (${val}%)}\nНаносит огнем часть полученного урона",
 	"core.bonus.FIRST_STRIKE.description" : "{Первый удар}\nСущество бьет первым даже при ответной атаке",
@@ -700,7 +700,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.fire" : "{Иммунитет к Огню}\nОтряд невосприимчив ко всем заклинаниям школы Огня",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Иммунитет к Воде}\nОтряд невосприимчив ко всем заклинаниям школы Воды",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Призыв стражей}\nВ начале битвы призывает ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Синергия}\nСущество уязвимо к эффектам синергии",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Трехсторонняя атака}\nАтака трех отрядов с передней стороны",
 	"core.bonus.TRANSMUTATION.description" : "{Трансмутатор}\nШанс ${val}% превратить атакующий отряд в отряд другого типа",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Дыхание}\nАтака дыханием (радиус в 2 гекса)",

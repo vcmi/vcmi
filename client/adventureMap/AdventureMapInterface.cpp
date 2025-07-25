@@ -37,6 +37,7 @@
 #include "../PlayerLocalState.h"
 #include "../CPlayerInterface.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
@@ -44,9 +45,9 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapping/CMapDefines.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/pathfinder/TurnInfo.h"
+#include "../../lib/spells/adventure/AdventureSpellEffect.h"
 #include "../../lib/spells/ISpellMechanics.h"
 #include "../../lib/spells/Problem.h"
 
@@ -362,6 +363,7 @@ void AdventureMapInterface::onHotseatWaitStarted(PlayerColor playerID)
 {
 	backgroundDimLevel = 255;
 
+	widget->getMinimap()->setAIRadar(true);
 	onCurrentPlayerChanged(playerID);
 	setState(EAdventureState::HOTSEAT_WAIT);
 }
@@ -514,7 +516,6 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	if(spellBeingCasted)
 	{
 		assert(shortcuts->optionSpellcasting());
-		assert(spellBeingCasted->id == SpellID::SCUTTLE_BOAT || spellBeingCasted->id == SpellID::DIMENSION_DOOR);
 
 		if(isValidAdventureSpellTarget(targetPosition))
 			performSpellcasting(targetPosition);
@@ -562,6 +563,12 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 			if(topBlocking && topBlocking->isVisitable() && !topBlocking->visitableAt(destinationTile) && settings["gameTweaks"]["simpleObjectSelection"].Bool())
 				destinationTile = topBlocking->visitablePos();
 
+			if(!settings["adventure"]["showMovePath"].Bool())
+			{
+				GAME->interface()->localState->setPath(currentHero, destinationTile);
+				onHeroChanged(currentHero);				
+			}
+
 			if(GAME->interface()->localState->hasPath(currentHero) &&
 			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving
@@ -606,31 +613,16 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 
 	if(spellBeingCasted)
 	{
-		switch(spellBeingCasted->id.toEnum())
-		{
-		case SpellID::SCUTTLE_BOAT:
-			if(isValidAdventureSpellTarget(targetPosition))
-				ENGINE->cursor().set(Cursor::Map::SCUTTLE_BOAT);
-			else
-				ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
+		const auto * hero = GAME->interface()->localState->getCurrentHero();
+		const auto * spellEffect = spellBeingCasted->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(hero);
+		spells::detail::ProblemImpl problem;
 
-		case SpellID::DIMENSION_DOOR:
-			if(isValidAdventureSpellTarget(targetPosition))
-			{
-				if(GAME->interface()->cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && GAME->interface()->cb->isTileGuardedUnchecked(targetPosition))
-					ENGINE->cursor().set(Cursor::Map::T1_ATTACK);
-				else
-					ENGINE->cursor().set(Cursor::Map::TELEPORT);
-				return;
-			}
-			else
-				ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
-		default:
+		if(spellEffect && spellEffect->canBeCastAtImpl(problem, GAME->interface()->cb.get(), hero, targetPosition))
+			ENGINE->cursor().set(spellEffect->getCursorForTarget(GAME->interface()->cb.get(), hero, targetPosition));
+		else
 			ENGINE->cursor().set(Cursor::Map::POINTER);
-			return;
-		}
+
+		return;
 	}
 
 	if(!isTargetPositionVisible)
@@ -832,11 +824,8 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 
 void AdventureMapInterface::enterCastingMode(const CSpell * sp)
 {
-	assert(sp->id == SpellID::SCUTTLE_BOAT || sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
-	Settings config = settings.write["session"]["showSpellRange"];
-	config->Bool() = true;
-
+	GAME->interface()->localState->setCurrentSpell(sp->id);
 	setState(EAdventureState::CASTING_SPELL);
 }
 
@@ -845,9 +834,7 @@ void AdventureMapInterface::exitCastingMode()
 	assert(spellBeingCasted);
 	spellBeingCasted = nullptr;
 	setState(EAdventureState::MAKING_TURN);
-
-	Settings config = settings.write["session"]["showSpellRange"];
-	config->Bool() = false;
+	GAME->interface()->localState->setCurrentSpell(SpellID::NONE);
 }
 
 void AdventureMapInterface::hotkeyAbortCastingMode()

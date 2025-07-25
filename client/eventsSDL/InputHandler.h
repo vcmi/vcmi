@@ -32,6 +32,19 @@ enum class InputMode
 	CONTROLLER
 };
 
+enum class PowerStateMode
+{
+	UNKNOWN,
+	CHARGING,
+	ON_BATTERY
+};
+
+struct PowerState {
+	PowerStateMode powerState;
+	int seconds;
+	int percent;
+};
+
 class InputHandler
 {
 	std::vector<SDL_Event> eventsQueue;
@@ -111,4 +124,5 @@ public:
 	InputMode getCurrentInputMode();
 
 	void copyToClipBoard(const std::string & text);
+	PowerState getPowerState();
 };

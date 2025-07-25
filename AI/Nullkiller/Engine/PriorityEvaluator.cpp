@@ -15,11 +15,12 @@
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
-#include "../../../lib/mapping/CMapDefines.h"
+#include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/StartInfo.h"
+#include "../../../lib/GameSettings.h"
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
@@ -581,7 +582,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 		return role == HeroRole::SCOUT ? 2 : 0;
 
 	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
-		|| hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)
+		|| static_cast<int>(hero->secSkills.size()) >= cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
 		return 0;
 
 	auto score = ai->heroManager->evaluateSecSkill(skill, hero);

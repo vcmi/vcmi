@@ -101,8 +101,6 @@ public:
 	const CArmedInstance * getSideArmy(BattleSide side) const override;
 	const CGHeroInstance * getSideHero(BattleSide side) const override;
 
-	const CGTownInstance * getTown() const;
-
 	ui8 getTacticDist() const override;
 	BattleSide getTacticsSide() const override;
 

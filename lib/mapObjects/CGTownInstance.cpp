@@ -12,6 +12,8 @@
 #include "CGTownInstance.h"
 
 #include "TownBuildingInstance.h"
+
+#include "../IGameSettings.h"
 #include "../spells/CSpellHandler.h"
 #include "../bonuses/Bonus.h"
 #include "../battle/IBattleInfoCallback.h"
@@ -20,6 +22,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
+#include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../StartInfo.h"
@@ -42,17 +45,10 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-int CGTownInstance::getSightRadius() const //returns sight distance
+int CGTownInstance::getSightRadius() const
 {
-	auto ret = CBuilding::HEIGHT_NO_TOWER;
-
-	for(const auto & bid : builtBuildings)
-	{
-		auto height = getTown()->buildings.at(bid)->height;
-		if(ret < height)
-			ret = height;
-	}
-	return ret;
+	int baseValue = LIBRARY->engineSettings()->getInteger(EGameSettings::TOWNS_BASE_SCOUNTING_RANGE);
+	return applyBonuses(BonusType::SIGHT_RADIUS, baseValue);
 }
 
 void CGTownInstance::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
@@ -211,7 +207,11 @@ int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds,
 
 TResources CGTownInstance::dailyIncome() const
 {
-	TResources ret;
+	ResourceSet ret;
+
+	for (GameResID k : GameResID::ALL_RESOURCES())
+		ret[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
 	for(const auto & p : getTown()->buildings)
 	{
 		BuildingID buildingUpgrade;
@@ -266,8 +266,9 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 }
 
 CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
-	CGDwelling(cb),
+	CGDwelling(cb, BonusNodeType::TOWN),
 	IMarket(cb),
+	townAndVis(BonusNodeType::TOWN_AND_VISITOR),
 	built(0),
 	destroyed(0),
 	identifier(0),
@@ -276,7 +277,6 @@ CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	spellResearchAcceptedCounter(0),
 	spellResearchAllowed(true)
 {
-	setNodeType(CBonusSystemNode::TOWN);
 	attachTo(townAndVis);
 }
 
@@ -312,19 +312,12 @@ void CGTownInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroIn
 		if(armedGarrison() || getVisitingHero())
 		{
 			const CGHeroInstance * defendingHero = getVisitingHero() ? getVisitingHero() : getGarrisonHero();
-			const CArmedInstance * defendingArmy = defendingHero ? (CArmedInstance *)defendingHero : this;
+			const CArmedInstance * defendingArmy = defendingHero ? static_cast<const CArmedInstance*>(defendingHero) : this;
 			const bool isBattleOutside = isBattleOutsideTown(defendingHero);
 
-			if(!isBattleOutside && getVisitingHero() && defendingHero == getVisitingHero())
-			{
-				//we have two approaches to merge armies: mergeGarrisonOnSiege() and used in the CGameHandler::garrisonSwap(ObjectInstanceID tid)
-				auto * nodeSiege = defendingHero->whereShouldBeAttachedOnSiege(isBattleOutside);
+			if(!isBattleOutside && defendingHero && defendingHero == getVisitingHero())
+				mergeGarrisonOnSiege(gameEvents);
 
-				if(nodeSiege == (CBonusSystemNode *)this)
-					gameEvents.swapGarrisonOnSiege(this->id);
-
-				const_cast<CGHeroInstance *>(defendingHero)->setVisitedTown(this, false); //hack to return visitor from garrison after battle
-			}
 			gameEvents.startBattle(h, defendingArmy, getSightCenter(), h, defendingHero, BattleLayout::createDefaultLayout(*cb, h, defendingArmy), (isBattleOutside ? nullptr : this));
 		}
 		else
@@ -683,7 +676,15 @@ std::vector<TradeItemBuy> CGTownInstance::availableItemsIds(EMarketMode mode) co
 	}
 	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
-		return cb->gameState().getMap().townUniversitySkills;
+		for (const auto & buildingID : builtBuildings)
+		{
+			const auto * buildingPtr = getTown()->buildings.at(buildingID).get();
+			if (vstd::contains(buildingPtr->marketModes, mode))
+				return buildingPtr->marketOffer;
+		}
+
+		logMod->warn("Town has resource-skill trade but has no skills to offer!");
+		return {};
 	}
 	else
 		return IMarket::availableItemsIds(mode);
@@ -1211,11 +1212,6 @@ GrowthInfo::Entry::Entry(int _count, std::string fullDescription):
 	count(_count),
 	description(std::move(fullDescription))
 {
-}
-
-CTownAndVisitingHero::CTownAndVisitingHero()
-{
-	setNodeType(TOWN_AND_VISITOR);
 }
 
 int GrowthInfo::totalGrowth() const

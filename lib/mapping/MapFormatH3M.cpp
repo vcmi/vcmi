@@ -11,9 +11,10 @@
 #include "StdInc.h"
 #include "MapFormatH3M.h"
 
+#include "CCastleEvent.h"
 #include "CMap.h"
 #include "MapReaderH3M.h"
-#include "MapFormat.h"
+#include "MapFormatSettings.h"
 
 #include "../CCreatureHandler.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -42,28 +43,15 @@
 #include "../networkPacks/ArtifactLocation.h"
 #include "../spells/CSpellHandler.h"
 #include "../texts/TextOperations.h"
+#include "entities/hero/CHeroClass.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
-
-static std::string convertMapName(std::string input)
-{
-	boost::algorithm::to_lower(input);
-	boost::algorithm::trim(input);
-	boost::algorithm::erase_all(input, ".");
-
-	size_t slashPos = input.find_last_of('/');
-
-	if(slashPos != std::string::npos)
-		return input.substr(slashPos + 1);
-
-	return input;
-}
 
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
 	, reader(new MapReaderH3M(stream))
 	, inputStream(stream)
-	, mapName(convertMapName(mapName))
+	, mapName(TextOperations::convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {
@@ -111,52 +99,6 @@ void CMapLoaderH3M::init()
 	//map->banWaterContent(); //Not sure if force this for custom scenarios
 }
 
-static MapIdentifiersH3M generateMapping(EMapFormat format)
-{
-	auto features = MapFormatFeaturesH3M::find(format, 0);
-	MapIdentifiersH3M identifierMapper;
-
-	if(features.levelROE)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
-	if(features.levelAB)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
-	if(features.levelSOD)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
-	if(features.levelCHR)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
-	if(features.levelWOG)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
-	if(features.levelHOTA0)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
-
-	return identifierMapper;
-}
-
-static std::map<EMapFormat, MapIdentifiersH3M> generateMappings()
-{
-	std::map<EMapFormat, MapIdentifiersH3M> result;
-	auto addMapping = [&result](EMapFormat format)
-	{
-		try
-		{
-			result[format] = generateMapping(format);
-		}
-		catch(const std::runtime_error &)
-		{
-			// unsupported map format - skip
-		}
-	};
-
-	addMapping(EMapFormat::ROE);
-	addMapping(EMapFormat::AB);
-	addMapping(EMapFormat::SOD);
-	addMapping(EMapFormat::CHR);
-	addMapping(EMapFormat::HOTA);
-	addMapping(EMapFormat::WOG);
-
-	return result;
-}
-
 void CMapLoaderH3M::readHeader()
 {
 	// Map version
@@ -167,6 +109,14 @@ void CMapLoaderH3M::readHeader()
 		uint32_t hotaVersion = reader->readUInt32();
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(features);
+
+		if(features.levelHOTA8)
+		{
+			int hotaVersionMajor = reader->readUInt32();
+			int hotaVersionMinor = reader->readUInt32();
+			int hotaVersionPatch = reader->readUInt32();
+			logGlobal->trace("Loading HotA map, version %d.%d.%d", hotaVersionMajor, hotaVersionMinor, hotaVersionPatch);
+		}
 
 		if(features.levelHOTA1)
 		{
@@ -211,6 +161,13 @@ void CMapLoaderH3M::readHeader()
 			if (!canHireDefeatedHeroes)
 				logGlobal->warn("Map '%s': Option to block hiring of defeated heroes is not implemented!", mapName);
 		}
+
+		if(features.levelHOTA8)
+		{
+			bool forceMatchingVersion = reader->readBool();
+			if (forceMatchingVersion)
+				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", mapName);
+		}
 	}
 	else
 	{
@@ -218,12 +175,10 @@ void CMapLoaderH3M::readHeader()
 		reader->setFormatLevel(features);
 	}
 
-	// optimization - load mappings only once to avoid slow parsing of map headers for map list
-	static const std::map<EMapFormat, MapIdentifiersH3M> identifierMappers = generateMappings();
-	if (!identifierMappers.count(mapHeader->version))
+	if (!LIBRARY->mapFormat->isSupported(mapHeader->version))
 		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
 
-	const MapIdentifiersH3M & identifierMapper = identifierMappers.at(mapHeader->version);
+	const MapIdentifiersH3M & identifierMapper = LIBRARY->mapFormat->getMapping(mapHeader->version);
 
 	reader->setIdentifierRemapper(identifierMapper);
 
@@ -285,7 +240,12 @@ void CMapLoaderH3M::readPlayerInfo()
 		const bool allFactionsAllowed = playerInfo.isFactionRandom && allowedFactions.size() == features.factionsCount;
 
 		if(!allFactionsAllowed)
-			playerInfo.allowedFactions = allowedFactions;
+		{
+			if (!allowedFactions.empty())
+				playerInfo.allowedFactions = allowedFactions;
+			else
+				logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+		}
 
 		playerInfo.hasMainTown = reader->readBool();
 		if(playerInfo.hasMainTown)
@@ -871,8 +831,9 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		if(!custom)
 			continue;
 
-		auto hero = std::make_shared<CGHeroInstance>(map->cb);
-		hero->ID = Obj::HERO;
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+		auto object = handler->create(map->cb, handler->getTemplates().front());
+		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->subID = heroID;
 
 		bool hasExp = reader->readBool();
@@ -1111,9 +1072,9 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 	reward.heroExperience = reader->readUInt32();
 	reward.manaDiff = reader->readInt32();
 	if(auto val = reader->readInt8Checked(-3, 3))
-		reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven)));
 	if(auto val = reader->readInt8Checked(-3, 3))
-		reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven));
+		reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(idToBeGiven)));
 
 	reader->readResources(reward.resources);
 	for(int x = 0; x < GameConstants::PRIMARY_SKILLS; ++x)
@@ -2167,7 +2128,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
 		{
-			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
+			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), "");
 			if(ps->size())
 			{
 				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );
@@ -2303,12 +2264,12 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 			}
 			case ESeerHutRewardType::MORALE:
 			{
-				reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
+				reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::MORALE, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven)));
 				break;
 			}
 			case ESeerHutRewardType::LUCK:
 			{
-				reward.heroBonuses.emplace_back(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven));
+				reward.heroBonuses.push_back(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::LUCK, BonusSource::OBJECT_INSTANCE, reader->readInt8Checked(-3, 3), BonusSourceID(idToBeGiven)));
 				break;
 			}
 			case ESeerHutRewardType::RESOURCES:
@@ -2401,7 +2362,8 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 		case EQuestMission::KILL_HERO:
 		case EQuestMission::KILL_CREATURE:
 		{
-			assert(questsToResolve.count(guard) == 0);
+			// NOTE: assert might fail on multi-quest seers
+			//assert(questsToResolve.count(guard) == 0);
 			questsToResolve[guard] = reader->readUInt32();
 			break;
 		}

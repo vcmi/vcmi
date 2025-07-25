@@ -423,4 +423,18 @@ boost::filesystem::path TextOperations::Utf8TofilesystemPath(const std::string& 
 #endif
 }
 
+std::string TextOperations::convertMapName(std::string input)
+{
+	boost::algorithm::to_lower(input);
+	boost::algorithm::trim(input);
+	boost::algorithm::erase_all(input, ".");
+
+	size_t slashPos = input.find_last_of('/');
+
+	if(slashPos != std::string::npos)
+		return input.substr(slashPos + 1);
+
+	return input;
+}
+
 VCMI_LIB_NAMESPACE_END

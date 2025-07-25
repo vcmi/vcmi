@@ -19,12 +19,16 @@
 #include "../GameInstance.h"
 
 #include "../../lib/Point.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/battle/IBattleState.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/adventure/AdventureSpellEffect.h"
 
 MapRendererBaseContext::MapRendererBaseContext(const MapRendererContextState & viewState)
 	: viewState(viewState)
@@ -83,6 +87,18 @@ bool MapRendererBaseContext::isActiveHero(const CGObjectInstance * obj) const
 	}
 
 	return false;
+}
+
+int MapRendererBaseContext::attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const
+{
+	if(wanderingMonster->ID != Obj::MONSTER)
+		return -1;
+		
+	for(const auto & battle : GAME->interface()->cb->getActiveBattles())
+		if(wanderingMonster->pos == battle.second->getBattle()->getLocation())
+			return battle.second->getBattle()->getSideHero(BattleSide::ATTACKER)->moveDir;
+
+	return -1;
 }
 
 bool MapRendererBaseContext::tileAnimated(const int3 & coordinates) const
@@ -353,15 +369,14 @@ bool MapRendererAdventureContext::showTextOverlay() const
 
 bool MapRendererAdventureContext::showSpellRange(const int3 & position) const
 {
-	if (!settingSpellRange)
-		return false;
-
 	auto hero = GAME->interface()->localState->getCurrentHero();
+	auto spell = GAME->interface()->localState->getCurrentSpell();
 
-	if (!hero)
+	if (!hero || !spell.hasValue())
 		return false;
 
-	return !isInScreenRange(hero->getSightCenter(), position);
+	const auto * spellEffect = spell.toSpell()->getAdventureMechanics().getEffectAs<AdventureSpellRangedEffect>(hero);
+	return !spellEffect->isTargetInRange(GAME->interface()->cb.get(), hero, position);
 }
 
 MapRendererAdventureTransitionContext::MapRendererAdventureTransitionContext(const MapRendererContextState & viewState)

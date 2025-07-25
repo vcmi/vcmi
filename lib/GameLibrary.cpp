@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
 #include "spells/effects/Registry.h"
 #include "CSkillHandler.h"
 #include "entities/artifact/CArtHandler.h"
@@ -25,6 +26,8 @@
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
 #include "texts/CGeneralTextHandler.h"
+#include "campaign/CampaignRegionsHandler.h"
+#include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
 #include "modding/CModVersion.h"
@@ -178,9 +181,11 @@ void GameLibrary::initializeLibrary()
 	createHandler(biomeHandler);
 	createHandler(objh);
 	createHandler(objtypeh);
+	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(skillh);
 	createHandler(terviewh);
+	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 #if SCRIPTING_ENABLED
 	createHandler(scriptHandler);
@@ -190,6 +195,8 @@ void GameLibrary::initializeLibrary()
 
 	modh->load();
 	modh->afterLoad();
+
+	createHandler(mapFormat);
 }
 
 #if SCRIPTING_ENABLED

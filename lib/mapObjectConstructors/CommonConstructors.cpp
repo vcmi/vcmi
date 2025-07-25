@@ -26,8 +26,8 @@
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../mapping/TerrainTile.h"
 #include "../modding/IdentifierStorage.h"
-#include "../mapping/CMapDefines.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -51,7 +51,7 @@ void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
 	config = input;
 
 	resourceType = GameResID::GOLD; //set up fallback
-	LIBRARY->identifiers()->requestIdentifierOptional("resource", input["resource"], [&](si32 index)
+	LIBRARY->identifiers()->requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -269,7 +269,7 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 	boat->onboardAssaultAllowed = onboardAssaultAllowed;
 	boat->onboardVisitAllowed = onboardVisitAllowed;
 	for(auto & b : bonuses)
-		boat->addNewBonus(std::make_shared<Bonus>(b));
+		boat->addNewBonus(b);
 }
 
 AnimationPath BoatInstanceConstructor::getBoatAnimationName() const

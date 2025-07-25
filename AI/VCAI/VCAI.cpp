@@ -33,6 +33,7 @@
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/CQuest.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -453,19 +454,6 @@ void VCAI::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initi
 	//clear resource manager goal cache
 	ah->removeOutdatedObjectives(checkRemovalValidity);
 
-	//TODO: Find better way to handle hero boat removal
-	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
-	{
-		if(hero->inBoat())
-		{
-			vstd::erase_if_present(visitableObjs, hero->getBoat());
-			vstd::erase_if_present(alreadyVisited, hero->getBoat());
-
-			for(auto h : cb->getHeroesInfo())
-				unreserveObject(h, hero->getBoat());
-		}
-	}
-
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
 	//
@@ -762,7 +750,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * 
 	//you can't request action from action-response thread
 	executeActionAsync("showGarrisonDialog", [this, down, up, removableUnits, queryID]()
 	{
-		if(removableUnits && !cb->getStartInfo()->isRestorationOfErathiaCampaign())
+		if(removableUnits && !cb->getStartInfo()->restrictedGarrisonsForAI())
 			pickBestCreatures(down, up);
 
 		answerQuery(queryID, 0);

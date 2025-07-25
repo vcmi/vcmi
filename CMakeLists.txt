@@ -108,6 +108,7 @@ endif()
 include(CMakeDependentOption)
 cmake_dependent_option(ENABLE_INNOEXTRACT "Enable innoextract for GOG file extraction in launcher" ON "ENABLE_LAUNCHER" OFF)
 cmake_dependent_option(ENABLE_GITVERSION "Enable Version.cpp with Git commit hash" ON "NOT ENABLE_GOLDMASTER" OFF)
+cmake_dependent_option(ENABLE_TEMPLATE_EDITOR "Enable template editor inside map editor" ON "ENABLE_EDITOR" OFF)
 
 option(VCMI_PORTMASTER "PortMaster build" OFF)
 
@@ -251,6 +252,10 @@ endif()
 
 if(ENABLE_EDITOR)
 	add_definitions(-DENABLE_EDITOR)
+endif()
+
+if(ENABLE_TEMPLATE_EDITOR)
+	add_definitions(-DENABLE_TEMPLATE_EDITOR)
 endif()
 
 if(ENABLE_SINGLE_APP_BUILD)
@@ -520,6 +525,16 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+
+	if(ENABLE_TEMPLATE_EDITOR)
+		find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Svg Xml)
+		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Svg Xml)
+
+		if(QT_VERSION_MAJOR EQUAL 6)
+			find_package(QT NAMES Qt6 REQUIRED COMPONENTS SvgWidgets)
+			find_package(Qt6 REQUIRED COMPONENTS SvgWidgets)
+		endif()
+	endif()
 
 	if(ENABLE_TRANSLATIONS)
 		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)

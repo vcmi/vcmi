@@ -142,15 +142,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-		{
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->bonusesPerLevel.back().second);
-		}
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
+
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-		{
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), Bonus());
-			JsonUtils::parseBonus(bonus["bonus"], &art->thresholdBonuses.back().second);
-		}
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
 	}
 
 	art->id = ArtifactID(index);
@@ -166,10 +161,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
 
-	if(!graphics["large"].isNull())
-		art->large = graphics["large"].String();
+	if(!graphics["scenarioBonus"].isNull())
+		art->scenarioBonus = graphics["scenarioBonus"].String();
 	else
-		art->large = art->image;
+		art->scenarioBonus = art->image; // MOD COMPATIBILITY fallback for pre-1.7 mods
 
 	art->advMapDef = graphics["map"].String();
 
@@ -186,6 +181,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		for(const auto & b : node["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus(b);
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -196,6 +192,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			if (b.second.isNull())
 				continue;
 			auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
 	}
@@ -205,6 +202,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		if (b.second.isNull())
 			continue;
 		auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;
 		bonus->description.appendTextID(art->getNameTextID());
@@ -259,8 +257,20 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 			else
 				art->setDefaultStartCharges(charges);
 		}
-		if(art->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST && art->getBonusesOfType(BonusType::SPELL)->size() == 0)
-			logMod->warn("Warning! %s condition of discharge is \"SPELLCAST\", but there is not a single spell.", art->getNameTranslated());
+	}
+
+	// Some bonuses must be located in the instance.
+	for(const auto & b : art->getExportedBonusList())
+	{
+		if(std::dynamic_pointer_cast<const HasChargesLimiter>(b->limiter))
+		{
+			b->source = BonusSource::ARTIFACT;
+			b->duration = BonusDuration::PERMANENT;
+			b->description.appendTextID(art->getNameTextID());
+			b->description.appendRawString(" %+d");
+			art->instanceBonuses.push_back(b);
+			art->removeBonus(b);
+		}
 	}
 
 	return art;

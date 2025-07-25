@@ -25,7 +25,6 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/CCreatureHandler.h"
-#include "../lib/CCreatureSet.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CSoundBase.h"
 #include "../lib/GameConstants.h"
@@ -354,19 +353,21 @@ void CGameHandler::giveStackExperience(const CArmedInstance * army, TExpType val
 void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountToGain)
 {
 	TExpType maxExp = LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
-	TExpType currExp = hero->exp;
+	TExpType currHeroExp = hero->exp;
 
 	if (gameState().getMap().levelLimit != 0)
 		maxExp = LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
 
-	TExpType canGainExp = 0;
-	if (maxExp > currExp)
-		canGainExp = maxExp - currExp;
+	TExpType canGainHeroExp = 0;
+	if (maxExp > currHeroExp)
+		canGainHeroExp = maxExp - currHeroExp;
 
-	if (amountToGain > canGainExp)
+	TExpType actualHeroExperience = 0;
+
+	if (amountToGain > canGainHeroExp)
 	{
 		// set given experience to max possible, but don't decrease if hero already over top
-		amountToGain = canGainExp;
+		actualHeroExperience = canGainHeroExp;
 
 		InfoWindow iw;
 		iw.player = hero->tempOwner;
@@ -374,21 +375,29 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 		iw.text.replaceTextID(hero->getNameTextID());
 		sendAndApply(iw);
 	}
+	else
+		actualHeroExperience = amountToGain;
 
 	SetHeroExperience she;
 	she.id = hero->id;
 	she.mode = ChangeValueMode::RELATIVE;
-	she.val = amountToGain;
+	she.val = actualHeroExperience;
 	sendAndApply(she);
 
 	//hero may level up
 	if (hero->getCommander() && hero->getCommander()->alive)
 	{
-		//FIXME: trim experience according to map limit?
+		TExpType canGainCommanderExp = 0;
+		TExpType currCommanderExp = hero->getCommander()->getTotalExperience();
+		if (maxExp > currHeroExp)
+			canGainCommanderExp = maxExp - currCommanderExp;
+
+		TExpType actualCommanderExperience = amountToGain > canGainCommanderExp ? canGainCommanderExp : amountToGain;
+
 		SetCommanderProperty scp;
 		scp.heroid = hero->id;
 		scp.which = SetCommanderProperty::EXPERIENCE;
-		scp.amount = amountToGain;
+		scp.amount = actualCommanderExperience;
 		sendAndApply(scp);
 	}
 
@@ -654,6 +663,19 @@ void CGameHandler::onNewTurn()
 		addStatistics(*statistics); // write at end of turn
 	}
 
+	const auto & currentDaySelector = [day = gameState().day+1](const Bonus * bonus)
+	{
+		if (bonus->additionalInfo[0] <= 0)
+			return true;
+		if ((day % bonus->additionalInfo[0]) == 0)
+			return true;
+		return false;
+	};
+
+	const auto & fullMapScoutingSelector = Selector::type()(BonusType::FULL_MAP_SCOUTING).And(currentDaySelector);
+	const auto & fullMapDarknessSelector = Selector::type()(BonusType::FULL_MAP_DARKNESS).And(currentDaySelector);
+	const auto & darknessSelector = Selector::type()(BonusType::DARKNESS).And(currentDaySelector);
+
 	for (const auto & townID : gameState().getMap().getAllTowns())
 	{
 		const auto * t = gameState().getTown(townID);
@@ -661,25 +683,27 @@ void CGameHandler::onNewTurn()
 
 		// Skyship, probably easier to handle same as Veil of darkness
 		// do it every new day before veils
-		if(t->hasBuilt(BuildingID::GRAIL)
-		   && player.isValidPlayer()
-			&& t->getTown()->buildings.at(BuildingID::GRAIL)->height == CBuilding::HEIGHT_SKYSHIP)
-		{
-			changeFogOfWar(t->getSightCenter(), t->getSightRadius(), player, ETileVisibility::REVEALED);
-		}
+		if(t->hasBonus(fullMapScoutingSelector) && player.isValidPlayer())
+			changeFogOfWar(t->getSightCenter(), GameConstants::FULL_MAP_RANGE, player, ETileVisibility::REVEALED);
 	}
 
-	for (const auto & townID : gameState().getMap().getAllTowns())
+	for (const auto & object : gameState().getMap().getObjects<CArmedInstance>())
 	{
-		const auto * t = gameState().getTown(townID);
-		if(t->hasBonusOfType(BonusType::DARKNESS))
+		if(!object->hasBonus(darknessSelector) && !object->hasBonus(fullMapDarknessSelector))
+			continue;
+
+		for(const auto & player : gameState().players)
 		{
-			for(const auto & player : gameState().players)
-			{
-				if (gameInfo().getPlayerStatus(player.first) == EPlayerStatus::INGAME &&
-					gameInfo().getPlayerRelations(player.first, t->tempOwner) == PlayerRelations::ENEMIES)
-					changeFogOfWar(t->getSightCenter(), t->valOfBonuses(BonusType::DARKNESS), player.first, ETileVisibility::HIDDEN);
-			}
+			if (gameInfo().getPlayerStatus(player.first) != EPlayerStatus::INGAME)
+				continue;
+
+			if (gameInfo().getPlayerRelations(player.first, object->getOwner()) != PlayerRelations::ENEMIES)
+				continue;
+
+			if (object->hasBonus(fullMapDarknessSelector))
+				changeFogOfWar(object->getSightCenter(), GameConstants::FULL_MAP_RANGE, player.first, ETileVisibility::HIDDEN);
+			else
+				changeFogOfWar(object->getSightCenter(), object->valOfBonuses(darknessSelector), player.first, ETileVisibility::HIDDEN);
 		}
 	}
 
@@ -874,10 +898,15 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return complainRet("You cannot move your hero there. Simultaneous turns are active and another player is interacting with this map object!");
 
 	if (objectToVisit &&
-		objectToVisit->getOwner().isValidPlayer() &&
-		gameInfo().getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
-		!turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
-		return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
+		objectToVisit->getOwner().isValidPlayer())
+	{
+		if (gameInfo().getPlayerRelations(objectToVisit->getOwner(), h->getOwner()) == PlayerRelations::ENEMIES &&
+		   !turnOrder->isContactAllowed(objectToVisit->getOwner(), h->getOwner()))
+			return complainRet("You cannot move your hero there. This object belongs to another player and simultaneous turns are still active!");
+
+		if (gs->getBattle(objectToVisit->getOwner()) != nullptr)
+			return complainRet("You cannot move your hero there. This object belongs to another player who is engaged in battle and simultaneous turns are still active!");
+	}
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
@@ -1315,12 +1344,11 @@ void CGameHandler::setMovePoints(SetMovePoints * smp)
 	sendAndApply(*smp);
 }
 
-void CGameHandler::setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode)
+void CGameHandler::setMovePoints(ObjectInstanceID hid, int val)
 {
 	SetMovePoints smp;
 	smp.hid = hid;
 	smp.val = val;
-	smp.mode = mode;
 	sendAndApply(smp);
 }
 
@@ -2533,33 +2561,6 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 	}
 }
 
-bool CGameHandler::swapGarrisonOnSiege(ObjectInstanceID tid)
-{
-	const CGTownInstance * town = gameInfo().getTown(tid);
-
-	if(!town->getGarrisonHero() == !town->getVisitingHero())
-		return false;
-
-	SetHeroesInTown intown;
-	intown.tid = tid;
-
-	if(town->getGarrisonHero()) //garrison -> vising
-	{
-		intown.garrison = ObjectInstanceID();
-		intown.visiting = town->getGarrisonHero()->id;
-	}
-	else //visiting -> garrison
-	{
-		if(town->armedGarrison())
-			town->mergeGarrisonOnSiege(*this);
-
-		intown.visiting = ObjectInstanceID();
-		intown.garrison = town->getVisitingHero()->id;
-	}
-	sendAndApply(intown);
-	return true;
-}
-
 bool CGameHandler::garrisonSwap(ObjectInstanceID tid)
 {
 	const CGTownInstance * town = gameInfo().getTown(tid);
@@ -3239,11 +3240,10 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	//resulting creature - bone dragons or skeletons
 	CreatureID resCreature = CreatureID::SKELETON;
 
-	if ((s.hasBonusOfType(BonusType::DRAGON_NATURE)
-			&& !(s.hasBonusOfType(BonusType::UNDEAD)))
-			|| (s.getCreatureID() == CreatureID::HYDRA)
-			|| (s.getCreatureID() == CreatureID::CHAOS_HYDRA))
-		resCreature = CreatureID::BONE_DRAGON;
+	auto customTargerBonus = s.getBonusesOfType(BonusType::SKELETON_TRANSFORMER_TARGET);
+	if (!customTargerBonus->empty())
+		resCreature = customTargerBonus->front()->subtype.as<CreatureID>();
+
 	changeStackType(StackLocation(army->id, slot), resCreature.toCreature());
 	return true;
 }
@@ -3947,7 +3947,7 @@ void CGameHandler::castSpell(const spells::Caster * caster, SpellID spellID, con
 	s->adventureCast(spellEnv.get(), p);
 
 	if(const auto * hero = caster->getHeroCaster())
-		useChargedArtifactUsed(hero->id, spellID);
+		useChargeBasedSpell(hero->id, spellID);
 }
 
 bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)
@@ -4146,7 +4146,6 @@ void CGameHandler::changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerC
 	if (mode == ETileVisibility::HIDDEN)
 	{
 		// do not hide tiles observed by owned objects. May lead to disastrous AI problems
-		// FIXME: this leads to a bug - shroud of darkness from Necropolis does can not override Skyship from Tower
 		std::unordered_set<int3> observedTiles;
 		const auto * p = gameInfo().getPlayerState(player);
 		for (const auto * obj : p->getOwnedObjects())
@@ -4341,35 +4340,41 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 	battles->startBattle(army1, army2);
 }
 
-void CGameHandler::useChargedArtifactUsed(const ObjectInstanceID & heroObjectID, const SpellID & spellID)
+void CGameHandler::useChargeBasedSpell(const ObjectInstanceID & heroObjectID, const SpellID & spellID)
 {
 	const auto * hero = gameInfo().getHero(heroObjectID);
 	assert(hero);
 	assert(hero->canCastThisSpell(spellID.toSpell()));
 
-	if(vstd::contains(hero->getSpellsInSpellbook(), spellID))
-		return;
-
-	std::vector<std::pair<ArtifactPosition, ArtifactInstanceID>> chargedArts;
-	for(const auto & [slot, slotInfo] : hero->artifactsWorn)
+	// Check if hero used charge based spell
+	// Try to find other sources of the spell besides the charged artifacts. If there are any, we use them.
+	std::optional<std::tuple<ArtifactPosition, ArtifactInstanceID, uint16_t>> chargedArt;
+	for(const auto & source : hero->getSourcesForSpell(spellID))
 	{
-		const auto * artInst = slotInfo.getArt();
-		const auto * artType = artInst->getType();
-		if(artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+		if(const auto * artInst = hero->getArtByInstanceId(source.as<ArtifactInstanceID>()))
 		{
-			chargedArts.emplace_back(slot, artInst->getId());
+			const auto * artType = artInst->getType();
+			const auto spellCost = artType->getChargeCost(spellID);
+			if(spellCost.has_value() && spellCost.value() <= artInst->getCharges() && artType->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+			{
+				chargedArt.emplace(hero->getArtPos(artInst), artInst->getId(), spellCost.value());
+			}
+			else
+			{
+				return;
+			}
 		}
 		else
 		{
-			if(const auto bonuses = artInst->getBonusesOfType(BonusType::SPELL, spellID); !bonuses->empty())
-				return;
+			return;
 		}
 	}
 
-	if (chargedArts.empty())
+
+	if(!chargedArt.has_value())
 		return;
 
-	DischargeArtifact msg(chargedArts.front().second, 1);
-	msg.artLoc.emplace(hero->id, chargedArts.front().first);
+	DischargeArtifact msg(std::get<1>(chargedArt.value()), std::get<2>(chargedArt.value()));
+	msg.artLoc.emplace(hero->id, std::get<0>(chargedArt.value()));
 	sendAndApply(msg);
 }

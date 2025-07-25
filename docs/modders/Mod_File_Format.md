@@ -119,7 +119,16 @@ These are fields that are present only in local mod.json file
 	],
 	
 	// List of configuration files for skills
-	skills
+	"skills" :
+	[
+		"config/skills.json"
+	],
+
+	// List of configuration files for campaign regions for h3c campaigns
+	"campaignRegions" :
+	[
+		"config/campaignRegions.json"
+	],
 
 	// list of creature configuration files
 	"creatures" :

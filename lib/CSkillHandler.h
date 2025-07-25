@@ -28,6 +28,7 @@ public:
 		std::string iconSmall;
 		std::string iconMedium;
 		std::string iconLarge;
+		std::string scenarioBonus;
 		std::vector<std::shared_ptr<Bonus>> effects;
 	};
 

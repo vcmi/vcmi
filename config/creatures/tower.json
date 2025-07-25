@@ -9,6 +9,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:56",
+			"mapAttackFromLeft": "AvWattak.def:0:57",
 			"animation": "CGREMA.DEF"
 		},
 		"sound" :
@@ -36,6 +38,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:58",
+			"mapAttackFromLeft": "AvWattak.def:0:59",
 			"animation": "CGREMM.DEF",
 			"missile" :
 			{
@@ -71,6 +75,8 @@
 		"upgrades": ["obsidianGargoyle"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:60",
+			"mapAttackFromLeft": "AvWattak.def:0:61",
 			"animation": "CGARGO.DEF"
 		},
 		"sound" :
@@ -100,6 +106,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:62",
+			"mapAttackFromLeft": "AvWattak.def:0:63",
 			"animation": "COGARG.DEF"
 		},
 		"sound" :
@@ -132,6 +140,8 @@
 		"upgrades": ["stoneGolem"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:64",
+			"mapAttackFromLeft": "AvWattak.def:0:65",
 			"animation": "CSGOLE.DEF"
 		},
 		"sound" :
@@ -163,6 +173,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:66",
+			"mapAttackFromLeft": "AvWattak.def:0:67",
 			"animation": "CIGOLE.DEF"
 		},
 		"sound" :
@@ -199,6 +211,8 @@
 		"upgrades": ["archMage"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:68",
+			"mapAttackFromLeft": "AvWattak.def:0:69",
 			"animation": "CMAGE.DEF",
 			"missile" :
 			{
@@ -243,6 +257,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:70",
+			"mapAttackFromLeft": "AvWattak.def:0:71",
 			"animation": "CAMAGE.DEF",
 			"missile" :
 			{
@@ -294,6 +310,8 @@
 		"upgrades": ["masterGenie"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:72",
+			"mapAttackFromLeft": "AvWattak.def:0:73",
 			"animation": "CGENIE.DEF"
 		},
 		"sound" :
@@ -346,6 +364,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:74",
+			"mapAttackFromLeft": "AvWattak.def:0:75",
 			"animation": "CSULTA.DEF"
 		},
 		"sound" :
@@ -374,6 +394,8 @@
 		"upgrades": ["nagaQueen"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:76",
+			"mapAttackFromLeft": "AvWattak.def:0:77",
 			"animation": "CNAGA.DEF"
 		},
 		"sound" :
@@ -400,6 +422,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:78",
+			"mapAttackFromLeft": "AvWattak.def:0:79",
 			"animation": "CNAGAG.DEF"
 		},
 		"sound" :
@@ -431,6 +455,8 @@
 		"upgrades": ["titan"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:80",
+			"mapAttackFromLeft": "AvWattak.def:0:81",
 			"animation": "CLTITA.DEF"
 		},
 		"sound" :
@@ -476,6 +502,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:82",
+			"mapAttackFromLeft": "AvWattak.def:0:83",
 			"animation": "CGTITA.DEF",
 			"missile" :
 			{

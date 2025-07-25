@@ -40,6 +40,7 @@
 #include "../lib/CSoundBase.h"
 #include "../lib/StartInfo.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/gameState/CGameState.h"
@@ -478,8 +479,11 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
 	const CGObjectInstance *o = cl.gameInfo().getObj(pack.objectID);
+	const auto * h = dynamic_cast<const CGHeroInstance*>(o);
 
 	GAME->map().onObjectFadeOut(o, pack.initiator);
+	if (h && h->inBoat())
+		GAME->map().onObjectFadeOut(h->getBoat(), pack.initiator);
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -487,7 +491,11 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
 		if(gs.isVisibleFor(o, i->first) || (!cl.gameInfo().getPlayerState(i->first)->human && o->ID == Obj::HERO && o->tempOwner != i->first))
+		{
 			i->second->objectRemoved(o, pack.initiator);
+			if (h && h->inBoat())
+				i->second->objectRemoved(h->getBoat(), pack.initiator);
+		}
 	}
 
 	GAME->map().waitForOngoingAnimations();
@@ -509,6 +517,7 @@ void ApplyFirstClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 	{
 		case TryMoveHero::EMBARK:
 			GAME->map().onBeforeHeroEmbark(h, pack.start, pack.end);
+			GAME->map().waitForOngoingAnimations(); // required - hero must play fade-out animation on his pre-embark position
 			break;
 		case TryMoveHero::TELEPORTATION:
 			GAME->map().onBeforeHeroTeleported(h, pack.start, pack.end);
@@ -559,6 +568,8 @@ void ApplyClientNetPackVisitor::visitTryMoveHero(TryMoveHero & pack)
 			i->second->heroMoved(pack, verbose);
 		}
 	}
+
+	GAME->map().waitForOngoingAnimations();
 }
 
 void ApplyClientNetPackVisitor::visitNewStructures(NewStructures & pack)

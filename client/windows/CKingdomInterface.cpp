@@ -27,6 +27,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/ObjectLists.h"
+#include "../windows/CHeroWindow.h"
 #include "../windows/CMarketWindow.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -37,10 +38,12 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/texts/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "texts/CGeneralTextHandler.h"
+#include "../../lib/GameSettings.h"
 
 static const std::string OVERVIEW_BACKGROUND = "OvCast.pcx";
 static const size_t OVERVIEW_SIZE = 4;
@@ -99,6 +102,7 @@ void InfoBox::showPopupWindow(const Point & cursorPosition)
 	std::shared_ptr<CComponent> comp;
 	std::string text;
 	data->prepareMessage(text, comp);
+
 	if (comp)
 		CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 	else if (!text.empty())
@@ -113,6 +117,8 @@ void InfoBox::clickPressed(const Point & cursorPosition)
 
 	if(comp)
 		GAME->interface()->showInfoDialog(text, CInfoWindow::TCompsInfo(1, comp));
+	else if (!text.empty())
+		GAME->interface()->showInfoDialog(text);
 }
 
 IInfoBoxData::IInfoBoxData(InfoType Type)
@@ -130,9 +136,10 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	switch (type)
 	{
 	case HERO_MANA:
-	case HERO_EXPERIENCE:
 	case HERO_PRIMARY_SKILL:
 		return std::to_string(getValue());
+	case HERO_EXPERIENCE:
+		return TextOperations::formatMetric(getValue(), 6);
 	case HERO_SPECIAL:
 		return LIBRARY->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
@@ -374,7 +381,7 @@ std::string InfoBoxHeroData::getValueText()
 			return std::to_string(hero->mana) + '/' +
 				std::to_string(hero->manaLimit());
 		case HERO_EXPERIENCE:
-			return std::to_string(hero->exp);
+			return TextOperations::formatMetric(hero->exp, 6);
 		}
 	}
 	return InfoBoxAbstractHeroData::getValueText();
@@ -831,6 +838,9 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 	{
 		ENGINE->windows().createAndPushWindow<CCastleInterface>(town);
 	});
+
+	labelCreatureGrowth = std::make_shared<CMultiLineLabel>(Rect(4, 76, 50, 35), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.genrltxt.265"));
+	labelCreatureAvailable = std::make_shared<CMultiLineLabel>(Rect(349, 76, 57, 35), EFonts::FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::YELLOW, LIBRARY->generaltexth->translate("core.genrltxt.266"));
 }
 
 void CTownItem::updateGarrisons()
@@ -867,9 +877,9 @@ public:
 	std::shared_ptr<CAnimImage> background;
 	std::vector<std::shared_ptr<CArtPlace>> arts;
 
-	ArtSlotsTab(CIntObject * parent)
+	ArtSlotsTab()
 	{
-		OBJECT_CONSTRUCTION_TARGETED(parent);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 4);
 		pos = background->pos;
 		for(int i=0; i<9; i++)
@@ -885,9 +895,9 @@ public:
 	std::shared_ptr<CButton> btnLeft;
 	std::shared_ptr<CButton> btnRight;
 
-	BackpackTab(CIntObject * parent)
+	BackpackTab()
 	{
-		OBJECT_CONSTRUCTION_TARGETED(parent);
+		OBJECT_CONSTRUCTION;
 		background = std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), 5);
 		pos = background->pos;
 		btnLeft = std::make_shared<CButton>(Point(269, 66), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), 0);
@@ -903,9 +913,9 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 	OBJECT_CONSTRUCTION;
 
 	artTabs.resize(3);
-	auto arts1 = std::make_shared<ArtSlotsTab>(this);
-	auto arts2 = std::make_shared<ArtSlotsTab>(this);
-	auto backpack = std::make_shared<BackpackTab>(this);
+	auto arts1 = std::make_shared<ArtSlotsTab>();
+	auto arts2 = std::make_shared<ArtSlotsTab>();
+	auto backpack = std::make_shared<BackpackTab>();
 	artTabs[0] = arts1;
 	artTabs[1] = arts2;
 	artTabs[2] = backpack;
@@ -968,6 +978,7 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	portrait = std::make_shared<CAnimImage>(AnimationPath::builtin("PortraitsLarge"), hero->getIconIndex(), 0, 5, 6);
 	heroArea = std::make_shared<CHeroArea>(5, 6, hero);
+	heroArea->addRClickCallback([this](){ ENGINE->windows().createAndPushWindow<CRClickPopupInt>(std::make_shared<CHeroWindow>(hero)); });
 
 	name = std::make_shared<CLabel>(73, 7, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, hero->getNameTranslated());
 	artsText = std::make_shared<CLabel>(320, 55, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->overview[2]);
@@ -978,8 +989,17 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(78+(int)i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, data));
 	}
 
-	for(size_t i=0; i<GameConstants::SKILL_PER_HERO; i++)
+	int slots = 8;
+	bool isMoreSkillsThanSlots = hero->secSkills.size() > slots;
+	for(size_t i=0; i<slots; i++)
 	{
+		if(isMoreSkillsThanSlots && i == slots - 1)
+		{
+			Rect r(Point(410+(int)i*36, 5), Point(34, 28));
+			heroInfoFull = std::make_shared<CMultiLineLabel>(r, EFonts::FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, "...");
+			heroInfoFullArea = std::make_shared<LRClickableAreaWText>(r, LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.hover"), LIBRARY->generaltexth->translate("vcmi.kingdomOverview.secSkillOverflow.help"));
+			continue;
+		}
 		auto data = std::make_shared<InfoBoxHeroData>(IInfoBoxData::HERO_SECONDARY_SKILL, hero, (int)i);
 		heroInfo.push_back(std::make_shared<InfoBox>(Point(410+(int)i*36, 5), InfoBox::POS_NONE, InfoBox::SIZE_SMALL, data));
 	}
@@ -1000,6 +1020,8 @@ CHeroItem::CHeroItem(const CGHeroInstance * Hero)
 
 	morale->set(hero);
 	luck->set(hero);
+
+	redraw();
 }
 
 
@@ -1020,7 +1042,13 @@ std::shared_ptr<CIntObject> CHeroItem::onTabSelected(size_t index)
 
 void CHeroItem::onArtChange(int tabIndex)
 {
-	//redraw item after background change
 	if(isActive())
 		redraw();
+}
+
+void CHeroItem::redraw()
+{
+	for(int i = 0; i<3; i++)
+		artTabs.at(i)->setEnabled(artButtons->getSelected() == i);
+	CIntObject::redraw();
 }

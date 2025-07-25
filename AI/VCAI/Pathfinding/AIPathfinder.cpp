@@ -10,7 +10,8 @@
 #include "StdInc.h"
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
-#include "../../../lib/mapping/CMapDefines.h"
+
+#include "../../../lib/mapping/TerrainTile.h"
 
 #include <tbb/task_group.h>
 

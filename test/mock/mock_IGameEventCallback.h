@@ -72,10 +72,9 @@ public:
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town) override {} //use hero=nullptr for no hero
 	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2) override {}
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker) override {return false;}
-	bool swapGarrisonOnSiege(ObjectInstanceID tid) override {return false;}
 	void giveHeroBonus(GiveBonus * bonus) override {}
 	void setMovePoints(SetMovePoints * smp) override {}
-	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override {};
+	void setMovePoints(ObjectInstanceID hid, int val) override {};
 	void setManaPoints(ObjectInstanceID hid, int val) override {}
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId) override {}
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override {}

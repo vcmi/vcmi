@@ -294,8 +294,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Seleziona intervallo di tocco lungo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Modifica la durata dell'intervallo di tocco lungo.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d millisecondi",
-	"vcmi.systemOptions.framerateButton.hover"  : "Mostra FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Mostra FPS}\n\nAttiva o disattiva la visibilità del contatore dei fotogrammi al secondo nell'angolo della finestra di gioco.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Feedback aptico",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Feedback aptico}\n\nAttiva o disattiva il feedback aptico sugli input tattili.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Miglioramenti interfaccia",
@@ -607,6 +605,9 @@
 	
 	"mapObject.core.hillFort.object.description" : "Aggiorna le creature. I livelli 1 - 4 sono meno costosi rispetto alla città associata.",
 
+	"creatures.core.azureDragon.bonus.fearful" : "{Paura}\nProvoca paura su una pila nemica",
+	"creatures.core.azureDragon.bonus.fearless" : "{Impavido}\nImmune all'abilità Paura",
+
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Doppio colpo}\nAttacca due volte",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ritorsioni aggiuntive}\nPuò contrattaccare ${val} volte in più",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attacco a 360°}\nAttacca tutti i nemici adiacenti",
@@ -626,8 +627,6 @@
 	"core.bonus.ENCHANTER.description" : "{Incantatore}\nPuò lanciare l'incantesimo ${subtype.spell} ogni turno",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Ignora attacco (${val}%)}\nQuando viene attaccata, ignora il ${val}% dell'attacco dell'avversario",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Ignora difesa (${val}%)}\nQuando attacca, ignora il ${val}% della difesa dell'avversario",
-	"core.bonus.FEARLESS.description" : "{Impavido}\nImmune all'abilità Paura",
-	"core.bonus.FEAR.description" : "{Paura}\nProvoca paura su una pila nemica",
 	"core.bonus.FEROCITY.description" : "{Ferocia}\nAttacca ${val} volte aggiuntive se uccide qualcuno",
 	"core.bonus.FIRE_SHIELD.description" : "{Scudo di fuoco (${val}%)}\nRiflette una parte dei danni da mischia",
 	"core.bonus.FIRST_STRIKE.description" : "{Primo colpo}\nQuesta creatura contrattacca prima di essere attaccata",
@@ -682,7 +681,6 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description" : "{Immunità agli incantesimi}\nQuesta unità è immune a tutti gli incantesimi",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Immunità all'acqua}\nQuesta unità è immune a tutti gli incantesimi della scuola dell'Acqua",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Evoca guardiani}\nAll'inizio della battaglia evoca ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Sinergizzabile}\nQuesta creatura è vulnerabile all'effetto sinergico",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Attacco a tre teste}\nAttacca tre unità adiacenti",
 	"core.bonus.TRANSMUTATION.description" : "{Trasmutazione}\n${val}% di possibilità di trasformare l'unità attaccata in un altro tipo",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Soffio}\nAttacco a soffio (raggio di 2 esagoni)",

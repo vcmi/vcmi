@@ -16,6 +16,7 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleUnitTurnReason.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
 
 class CClient;
@@ -488,7 +489,7 @@ struct DLL_LINKAGE BattleTriggerEffect : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;
 	int stackID = 0;
-	int effect = 0; //use corresponding Bonus type
+	BonusType effect = BonusType::NONE;
 	int val = 0;
 	int additionalInfo = 0;
 

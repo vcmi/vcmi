@@ -1118,7 +1118,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <translation>Оберіть файл %1...</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="376"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="377"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
         <translation>Ви повинні обрати файл %1!</translation>
@@ -1135,19 +1135,19 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
         <source>GOG installer</source>
         <translation>Інсталятор GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Файли Heroes III: HD Edition не підтримуються VCMI.
 Будь ласка, виберіть теку з Heroes III: Complete Edition або Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
         <translation>Знайдено невідому або не підтримувану версію Heroes III.
@@ -1155,52 +1155,52 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="333"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="383"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
         <source>GOG data</source>
         <translation>Дані GOG</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="369"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="370"/>
         <source>Failed to open file: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="438"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="439"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
         <translation>Ви надали інсталятор GOG Galaxy! Цей файл не містить гри. Будь ласка, завантажте резервну копію інсталятора гри!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="466"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
         <source>Hash error!</source>
         <translation>Помилка хешу!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>No Heroes III data!</source>
         <translation>Немає файлів даних Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="470"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Selected files do not contain Heroes III data!</source>
         <translation>Обрані файли не містять файлів з грою Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="515"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="516"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
         <translation>Не вдалося виявити файли Heroes III у вибраному каталозі.
 Будь ласка, виберіть теку зі встановленими даними Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="518"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="532"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="539"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="519"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="533"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
         <source>Heroes III data not found!</source>
         <translation>Файли даних Heroes III не знайдено!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="462"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
         <source>Extracting error!</source>
         <translation>Помилка видобування!</translation>
     </message>
@@ -1567,12 +1567,12 @@ Bin (%n байтів):
         <translation>Не вдалося видобути дані модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="251"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="256"/>
         <source>Mod data was not found</source>
         <translation>Не знайдено файли даних модифікації</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Модифікація знаходиться в захищеному каталозі, будь ласка, видаліть її вручну:

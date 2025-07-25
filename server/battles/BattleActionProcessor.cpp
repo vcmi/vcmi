@@ -124,7 +124,7 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 	}
 
 	parameters.cast(gameHandler->spellcastEnvironment(), ba.getTarget(&battle));
-	gameHandler->useChargedArtifactUsed(h->id, ba.spell);
+	gameHandler->useChargeBasedSpell(h->id, ba.spell);
 
 	return true;
 }
@@ -1341,7 +1341,7 @@ void BattleActionProcessor::handleAfterAttackCasting(const CBattleInfoCallback &
 	if(!defender->alive())
 		return;
 
-	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving()) //transmutation mechanics, similar to WoG werewolf ability
+	if(attacker->hasBonusOfType(BonusType::TRANSMUTATION) && defender->isLiving() && !defender->hasBonusOfType(BonusType::TRANSMUTATION_IMMUNITY)) //transmutation mechanics, similar to WoG werewolf ability
 	{
 		int chanceToTrigger = attacker->valOfBonuses(BonusType::TRANSMUTATION);
 		if (!gameHandler->randomizer->rollCombatAbility(ownerArmy, chanceToTrigger))

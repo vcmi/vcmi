@@ -32,6 +32,13 @@
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
 	
 	"vcmi.artifact.charges" : "Charges",
+	
+	"vcmi.battle.action.move" : "Move unit to specified location",
+	"vcmi.battle.action.info" : "Show unit information",
+	"vcmi.battle.action.shoot" : "Use ranged attack",
+	"vcmi.battle.action.attack" : "Use melee attack",
+	"vcmi.battle.action.return" : "Use melee attack and return",
+	"vcmi.battle.action.genie" : "Cast random beneficial spell",
 
 	"vcmi.bonusSource.artifact" : "Artifact",
 	"vcmi.bonusSource.creature" : "Ability",
@@ -90,7 +97,12 @@
 	"vcmi.randomMap.description.monster.normal" : "normal",
 	"vcmi.randomMap.description.monster.strong" : "strong",
 
+	"vcmi.overlay.battery"  : "Battery",
+	"vcmi.overlay.charging"  : "Charging",
+
 	"vcmi.spellBook.search" : "search...",
+	"vcmi.spellBook.tab.hover" : "%s Spells",
+	"vcmi.spellBook.tab.help" : "Turn to view %s spells",
 
 	"vcmi.spellResearch.canNotAfford" : "You can't afford to replace {%SPELL1} with {%SPELL2}. But you can still discard this spell and continue spell research.",
 	"vcmi.spellResearch.comeAgain" : "Research has already been done today. Come back tomorrow.",
@@ -304,8 +316,8 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Select Long Touch Interval",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Change duration of long touch interval.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliseconds",
-	"vcmi.systemOptions.framerateButton.hover"  : "Show FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Show FPS}\n\nToggle the visibility of the Frames Per Second counter in the corner of the game window.",
+	"vcmi.systemOptions.performanceOverlayButton.hover"  : "Show Performance Overlay",
+	"vcmi.systemOptions.performanceOverlayButton.help"   : "{Show Performance Overlay}\n\nToggle the visibility of the overlay with additional information like frames per second, time and battery charge level (if available) in the corner of the game window.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Haptic feedback",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Haptic feedback}\n\nToggle the haptic feedback on touch inputs.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Interface Enhancements",
@@ -410,6 +422,36 @@
 	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Remaining duration : %d combat round",
 	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Remaining duration : %d combat rounds",
 
+	"vcmi.credits.website" : "Website",
+	"vcmi.credits.vcmi" : "VCMI",
+	"vcmi.credits.heroes" : "Heroes III",
+	"vcmi.credits.idea" : "Idea",
+	"vcmi.credits.developing" : "Developing",
+	"vcmi.credits.testing" : "Testing",
+	"core.credits.createdBy" : "Created By",
+	"core.credits.executiveProducer" : "Executive Producer",
+	"core.credits.producer" : "Producer",
+	"core.credits.director" : "Director",
+	"core.credits.designers" : "Designers",
+	"core.credits.leadProgrammers" : "Lead Programmers",
+	"core.credits.programmers" : "Programmers",
+	"core.credits.installerProgrammer" : "Installer Programmer",
+	"core.credits.leadArtists" : "Lead Artists",
+	"core.credits.artists" : "Artists",
+	"core.credits.assetCoordinator" : "Asset Coordinator",
+	"core.credits.levelDesigners" : "Level Designers",
+	"core.credits.musicProducer" : "Music Producer",
+	"core.credits.townThemes" : "Town Themes",
+	"core.credits.music" : "Music",
+	"core.credits.soundDesign" : "Sound Design",
+	"core.credits.voiceProduction" : "Voice Production",
+	"core.credits.voiceTalent" : "Voice Talent",
+	"core.credits.leadTester" : "Lead Tester",
+	"core.credits.seniorTester" : "Senior Tester",
+	"core.credits.testers" : "Testers",
+	"core.credits.specialThanks" : "Special Thanks",
+	"core.credits.visitUsOnTheWeb" : "Visit us on the Web",
+
 	"vcmi.tutorialWindow.title" : "Touchscreen Introduction",
 	"vcmi.tutorialWindow.decription.RightClick" : "Touch and hold the element on which you want to right-click. Touch the free area to close.",
 	"vcmi.tutorialWindow.decription.MapPanning" : "Touch and drag with one finger to move the map.",
@@ -434,6 +476,9 @@
 
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Not enough resources to upgrade all creatures. Do you want to upgrade following creatures?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Not enough resources to upgrade any creature.",
+
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "More skills",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{More skills}\n\nThis hero has more skills.\nYou can see all of them in the hero overview.",
 
 	"vcmi.logicalExpressions.anyOf"  : "Any of the following:",
 	"vcmi.logicalExpressions.allOf"  : "All of the following:",
@@ -634,6 +679,8 @@
 	"creatures.core.devil.bonus.decreaseLuck" : "{Reduces enemy luck}\nDevils and Archdevils reduce enemy luck by one",
 	"creatures.core.boneDragon.bonus.decreaseMorale" : "{Reduces enemy morale}\nBone Dragons and Ghost Dragons lower the morale of enemy units by one",
 	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
+	"creatures.core.azureDragon.bonus.fearful" : "{Fear}\nEnemy units have a 10% chance of freezing in fear",
+	"creatures.core.azureDragon.bonus.fearless" : "{Fearless}\nImmune to Fear ability",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
@@ -654,8 +701,6 @@
 	"core.bonus.ENCHANTER.description" : "{Enchanter}\nCan cast ${subtype.spell} every turn",
 	"core.bonus.ENEMY_ATTACK_REDUCTION.description" : "{Ignore Attack (${val}%) }\nWhen being attacked, ${val}% of the attacker's attack is ignored",
 	"core.bonus.ENEMY_DEFENCE_REDUCTION.description" : "{Ignore Defense (${val}%) }\nWhen attacking, ${val}% of the defender's defense is ignored",
-	"core.bonus.FEAR.description" : "{Fear}\nEnemy units have a 10% chance of freezing in fear",
-	"core.bonus.FEARLESS.description" : "{Fearless}\nImmune to Fear ability",
 	"core.bonus.FEROCITY.description" : "{Ferocity}\nAttacks ${val} additional times if killed anybody",
 	"core.bonus.FIRE_SHIELD.description" : "{Fire Shield (${val}%) }\nThe unit reflects ${val} of the melee damage received",
 	"core.bonus.FIRST_STRIKE.description.bonusSubtype.damageTypeMelee" : "{First Strike}\nThe unit retaliates before being attacked in melee",
@@ -699,6 +744,7 @@
 	"core.bonus.REVENGE.description" : "{Revenge}\nDeals extra damage based on attacker's lost health in battle",
 	"core.bonus.SHOOTER.description" : "{Shoots}\nThis unit can use its ammo to perform ranged attacks",
 	"core.bonus.SHOOTS_ALL_ADJACENT.description" : "{Shoot all around}\nThis unit’s ranged attacks strike all targets in a small area",
+	"core.bonus.SKELETON_TRANSFORMER_TARGET.description" : "{Skeleton Transformation}\nThe Skeleton Transformer will turn this unit into a ${subtype.creature}",
 	"core.bonus.SOUL_STEAL.description" : "{Soul Steal}\nGains ${val} new creatures for each enemy killed",
 	"core.bonus.SPELL_AFTER_ATTACK.description" : "{Cast After Attack}\nHas a ${val}% chance to cast ${subtype.spell} after it attacks",
 	"core.bonus.SPELL_BEFORE_ATTACK.description" : "{Cast Before Attack}\nHas a ${val}% chance to cast ${subtype.spell} before it attacks",
@@ -717,9 +763,9 @@
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.fire"  : "{Immune to Fire Magic}\nImmune to all spells from the school of Fire Magic",
 	"core.bonus.SPELL_SCHOOL_IMMUNITY.description.spellSchool.water" : "{Immune to Water Magic}\nImmune to all spells from the school of Water Magic",
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Summon guardians}\nAt the start of battle summons ${subtype.creature} (${val}%)",
-	"core.bonus.SYNERGY_TARGET.description" : "{Synergizable}\nThis creature is vulnerable to synergy effect",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Three-headed attack}\nAttacks three adjacent units",
 	"core.bonus.TRANSMUTATION.description" : "{Transmutation}\n${val}% chance to transform attacked unit to a different type",
+	"core.bonus.TRANSMUTATION_IMMUNITY.description" : "{Transmutation Immunity}\nThis unit cannot be transformed into another unit by enemy attack",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Breath Attack}\nAttacks by this unit will also hit any unit positioned immediately behind the target",
 	"core.bonus.UNDEAD.description" : "{Undead}\nCreature is Undead and is immune to effects that only affect living",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Unlimited retaliations}\nThis unit can retaliate against an unlimited number of attacks",
@@ -757,4 +803,9 @@
 	"spell.core.thunderbolt.description.none" : "{Thunderbolt}\n\nWhen the stack attacks, the there is a 20% chance that a lightning strike occurs before the enemy has a chance to retaliate. If if occurs, the lightning strike deals damage equal to ten times the number of attacking Thunderbirds",
 	"spell.core.dispelHelpful.description.none" : "{Dispel Helpful Spells}\n\nRemoves all spell effects from the targeted unit.",
 	"spell.core.acidBreath.description.none" : "{Acid breath}\n\nThe breath reduces the target stack's defense by 3, and has 20% chance to cause additional damage amount of 25 points per attacking unit.",
+
+	"spellSchool.core.air.name" : "Air",
+	"spellSchool.core.earth.name" : "Earth",
+	"spellSchool.core.fire.name" : "Fire",
+	"spellSchool.core.water.name" : "Water"
 }

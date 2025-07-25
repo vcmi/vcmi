@@ -67,7 +67,7 @@ public:
 	MOCK_CONST_METHOD2(getTileDigStatus, EDiggingStatus(int3 tile, bool verbose));
 	MOCK_CONST_METHOD1(calculatePaths, void(const std::shared_ptr<PathfinderConfig> & config));
 	MOCK_CONST_METHOD6(getTilesInRange, void( std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player, int3::EDistanceFormula formula));
-	MOCK_CONST_METHOD4(getAllTiles, void(std::unordered_set<int3> & tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter));
+	MOCK_CONST_METHOD4(getAllTiles, void(std::unordered_set<int3> & tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter));
 	MOCK_CONST_METHOD2(getVisibleTeleportObjects, std::vector<ObjectInstanceID>(std::vector<ObjectInstanceID> ids, PlayerColor player));
 	MOCK_CONST_METHOD2(getTeleportChannelEntrances, std::vector<ObjectInstanceID>(TeleportChannelID id, PlayerColor Player));
 	MOCK_CONST_METHOD2(getTeleportChannelExits, std::vector<ObjectInstanceID>(TeleportChannelID id, PlayerColor Player));
@@ -78,6 +78,7 @@ public:
 	MOCK_CONST_METHOD1(guardingCreaturePosition, int3(int3 pos));
 	MOCK_CONST_METHOD2(checkForVisitableDir, bool(const int3 & src, const int3 & dst));
 	MOCK_CONST_METHOD1(getGuardingCreatures, std::vector<const CGObjectInstance *>(int3 pos));
+	MOCK_CONST_METHOD1(isTileGuardedUnchecked, bool(int3 pos));
 
 	MOCK_METHOD2(pickAllowedArtsSet, void(std::vector<ArtifactID> & out, vstd::RNG & rand));
 

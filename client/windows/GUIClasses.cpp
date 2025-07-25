@@ -1641,13 +1641,22 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 
 	for(const auto & item : items)
 	{
-		if(auto score = TextOperations::textSearchSimilarityScore(text, item.second)) // Keep only relevant items
+		// remove color information
+		std::vector<std::string> parts;
+		boost::split(parts, item.second, boost::is_any_of("|"));
+		std::string name = parts.back();
+		boost::erase_all(name, "{");
+    	boost::erase_all(name, "}");
+		
+		if(auto score = TextOperations::textSearchSimilarityScore(text, name)) // Keep only relevant items
 			rankedItems.emplace_back(score.value(), item);
 	}
 
 	// Sort: Lower score is better match
-	std::sort(rankedItems.begin(), rankedItems.end(), [](const auto & a, const auto & b)
+	std::sort(rankedItems.begin(), rankedItems.end(), [text](const auto & a, const auto & b)
 	{
+		if(a.first == b.first || text.empty())
+			return a.second < b.second;
 		return a.first < b.first;
 	});
 

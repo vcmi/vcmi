@@ -358,13 +358,13 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 
 	if (currentBattle->townID.hasValue())
 	{
-		if (currentBattle->getTown()->fortificationsLevel().citadelHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().citadelHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_CENTRAL_TOWER);
 
-		if (currentBattle->getTown()->fortificationsLevel().upperTowerHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().upperTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_UPPER_TOWER);
 
-		if (currentBattle->getTown()->fortificationsLevel().lowerTowerHealth != 0)
+		if (currentBattle->getDefendedTown()->fortificationsLevel().lowerTowerHealth != 0)
 			currentBattle->generateNewStack(currentBattle->nextUnitId(), CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), BattleSide::DEFENDER, SlotID::ARROW_TOWERS_SLOT, BattleHex::CASTLE_BOTTOM_TOWER);
 
 		//Moat generating is done on server
@@ -467,7 +467,8 @@ BattleInfo::BattleInfo(IGameInfoCallback *cb, const BattleLayout & layout):
 }
 
 BattleInfo::BattleInfo(IGameInfoCallback *cb)
-	:GameCallbackHolder(cb),
+	:CBonusSystemNode(BonusNodeType::BATTLE_WIDE),
+	GameCallbackHolder(cb),
 	sides({SideInBattle(cb), SideInBattle(cb)}),
 	layout(std::make_unique<BattleLayout>()),
 	round(-1),
@@ -477,7 +478,6 @@ BattleInfo::BattleInfo(IGameInfoCallback *cb)
 	tacticsSide(BattleSide::NONE),
 	tacticDistance(0)
 {
-	setNodeType(BATTLE);
 }
 
 BattleLayout BattleInfo::getLayout() const
@@ -566,13 +566,6 @@ const CArmedInstance * BattleInfo::getSideArmy(BattleSide side) const
 const CGHeroInstance * BattleInfo::getSideHero(BattleSide side) const
 {
 	return getSide(side).getHero();
-}
-
-const CGTownInstance * BattleInfo::getTown() const
-{
-	if (townID.hasValue())
-		return cb->getTown(townID);
-	return nullptr;
 }
 
 uint8_t BattleInfo::getTacticDist() const

@@ -30,6 +30,7 @@ class JsonNode;
 class CStack;
 class CGObjectInstance;
 class CGHeroInstance;
+class IAdventureSpellEffect;
 
 namespace spells
 {
@@ -101,9 +102,6 @@ public:
 
 	//normal constructor
 	BattleCast(const CBattleInfoCallback * cb_, const Caster * caster_, const Mode mode_, const CSpell * spell_);
-
-	//magic mirror constructor
-	BattleCast(const BattleCast & orig, const Caster * caster_);
 
 	virtual ~BattleCast();
 
@@ -357,11 +355,20 @@ public:
 
 	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
 	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
-
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 
 	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
+
+	virtual bool givesBonus(const spells::Caster * caster, BonusType which) const = 0;
+
+	template<typename EffectType>
+	const EffectType * getEffectAs(const spells::Caster * caster) const
+	{
+		return dynamic_cast<const EffectType *>(getEffect(caster));
+	}
 protected:
+	virtual const IAdventureSpellEffect * getEffect(const spells::Caster * caster) const = 0;
+
 	const CSpell * owner;
 };
 

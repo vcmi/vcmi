@@ -80,14 +80,14 @@
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.123",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "good" }]
 			},
 			{
 				"type" : "MORALE",
 				"val" : -1,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.124",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "evil" }]
 			}
 		]
 	},
@@ -100,7 +100,7 @@
 				"val" : 2,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.83",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["neutral"] }]
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "neutral" }]
 			}
 		]
 	},
@@ -113,14 +113,14 @@
 				"val" : -1,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.126",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["good"] }]
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "good" }]
 			},
 			{
 				"type" : "MORALE",
 				"val" : 1,
 				"valueType" : "BASE_NUMBER",
 				"description" : "@core.arraytxt.125",
-				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "parameters" : ["evil"] }]
+				"limiters": [{ "type" : "CREATURE_ALIGNMENT_LIMITER", "alignment" : "evil" }]
 			}
 		]
 	},

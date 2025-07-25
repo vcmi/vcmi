@@ -18,6 +18,7 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
+#include "../callback/EditorCallback.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
@@ -30,6 +31,7 @@
 #include "../CCreatureHandler.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
+#include "../GameSettings.h"
 #include "CGTownInstance.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -88,20 +90,11 @@ const IBonusBearer* CGHeroInstance::getBonusBearer() const
 
 TerrainId CGHeroInstance::getNativeTerrain() const
 {
-	// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
-	// This is clearly bug in H3 however intended behaviour is not clear.
-	// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
-	// will always have best penalty without any influence from player-defined stacks order
-	// and army that consist solely from neutral will always be considered to be on native terrain
-
 	TerrainId nativeTerrain = ETerrainId::ANY_TERRAIN;
 
 	for(const auto & stack : stacks)
 	{
 		TerrainId stackNativeTerrain = stack.second->getNativeTerrain(); //consider terrain bonuses e.g. Lodestar.
-
-		if(stackNativeTerrain == ETerrainId::NONE)
-			continue;
 
 		if(nativeTerrain == ETerrainId::ANY_TERRAIN)
 			nativeTerrain = stackNativeTerrain;
@@ -175,7 +168,7 @@ int3 CGHeroInstance::convertFromVisitablePos(const int3 & position) const
 
 bool CGHeroInstance::canLearnSkill() const
 {
-	return secSkills.size() < GameConstants::SKILL_PER_HERO;
+	return secSkills.size() < cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO);
 }
 
 bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
@@ -251,7 +244,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 }
 
 CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
-	: CArmedInstance(cb),
+	: CArmedInstance(cb, BonusNodeType::HERO, false),
 	CArtifactSet(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
@@ -266,7 +259,6 @@ CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	turnInfoCache(std::make_unique<TurnInfoCache>(this)),
 	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))
 {
-	setNodeType(HERO);
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::NONE, -1);
 }
@@ -748,19 +740,30 @@ uint64_t CGHeroInstance::getValueForDiplomacy() const
 	return heroStrength * armyStrength;
 }
 
-uint32_t CGHeroInstance::getValueForCampaign() const
+bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGHeroInstance * right)
 {
-	/// Determined by testing H3: hero is preferred for transfer in campaigns if total sum of his primary skills and his secondary skill levels is greatest
-	uint32_t score = 0;
-	score += getPrimSkillLevel(PrimarySkill::ATTACK);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
-	score += getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	score += getPrimSkillLevel(PrimarySkill::DEFENSE);
+	// https://heroes.thelazy.net/index.php/Power_rating
 
-	for (const auto& secondary : secSkills)
-		score += secondary.second;
+	uint32_t leftLevel = left->level;
+	uint64_t leftExperience = left->exp;
+	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t leftPrimaryAndLevel = leftPrimary + leftLevel;
 
-	return score;
+	uint32_t rightLevel = right->level;
+	uint64_t rightExperience = right->exp;
+	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t rightPrimaryAndLevel = rightPrimary + rightLevel;
+
+	if (leftPrimaryAndLevel != rightPrimaryAndLevel)
+		return leftPrimaryAndLevel > rightPrimaryAndLevel;
+
+	if (leftLevel != rightLevel)
+		return leftLevel > rightLevel;
+
+	if (leftExperience != rightExperience)
+		return leftExperience > rightExperience;
+
+	return left->getHeroTypeID() > right->getHeroTypeID();
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
@@ -856,6 +859,11 @@ int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
 	return 0;
 }
 
+int64_t CGHeroInstance::getEffectRange(const spells::Spell * spell) const
+{
+	return 0;
+}
+
 PlayerColor CGHeroInstance::getCasterOwner() const
 {
 	return tempOwner;
@@ -899,22 +907,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = cb->isAllowed(spell->getId());
-
-	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
-	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
-
-	bool schoolBonus = false;
-
-	spell->forEachSchool([this, &schoolBonus](const SpellSchool & cnf, bool & stop)
-	{
-		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, BonusSubtypeID(cnf)))
-		{
-			schoolBonus = stop = true;
-		}
-	});
-
-	const bool levelBonus = hasBonusOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel()));
+	const bool inSpellBook = spellbookContainsSpell(spell->getId()) && hasSpellbook();
 
 	if(spell->isSpecial())
 	{
@@ -922,9 +915,9 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return specificBonus;
+		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
-	else if(!isAllowed)
+	else if(!cb->isAllowed(spell->getId()))
 	{
 		if(inSpellBook)
 		{
@@ -932,12 +925,8 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
 			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
-	else
-	{
-		return inSpellBook || schoolBonus || specificBonus || levelBonus;
-	}
+	return !getSourcesForSpell(spell->getId()).empty();
 }
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const
@@ -981,88 +970,86 @@ bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	bool hasImprovedNecromancy = hasBonusOfType(BonusType::IMPROVED_NECROMANCY);
+	TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
 
 	// need skill or cloak of undead king - lesser artifacts don't work without skill
-	if (hasImprovedNecromancy)
+	if (improvedNecromancy->empty())
+		return CStackBasicDescriptor();
+
+	int raisedUnitsPercentage = std::clamp(valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE), 0, 100);
+	if (raisedUnitsPercentage == 0)
+		return CStackBasicDescriptor();
+
+	const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
+	if(casualties.empty())
+		return CStackBasicDescriptor();
+
+	// figure out what to raise - pick strongest creature meeting requirements
+	CreatureID bestCreature = CreatureID::NONE;
+	int necromancerPower = improvedNecromancy->totalValue();
+
+	// pick best bonus available
+	for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
 	{
-		double necromancySkill = valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE) / 100.0;
-		const ui8 necromancyLevel = valOfBonuses(BonusType::IMPROVED_NECROMANCY);
-		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
-		const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
-		if(casualties.empty())
-			return CStackBasicDescriptor();
-		// figure out what to raise - pick strongest creature meeting requirements
-		CreatureID creatureTypeRaised = CreatureID::NONE; //now we always have IMPROVED_NECROMANCY, no need for hardcode
-		int requiredCasualtyLevel = 1;
-		TConstBonusListPtr improvedNecromancy = getBonusesOfType(BonusType::IMPROVED_NECROMANCY);
-		if(!improvedNecromancy->empty())
+		// addInfo[0] = required necromancy skill
+		if(newPick->additionalInfo[0] > necromancerPower)
+			continue;
+
+		CreatureID newCreature = newPick->subtype.as<CreatureID>();;
+
+		if(!bestCreature.hasValue())
 		{
-			int maxCasualtyLevel = 1;
-			for(const auto & casualty : casualties)
-				vstd::amax(maxCasualtyLevel, LIBRARY->creatures()->getById(casualty.first)->getLevel());
-			// pick best bonus available
-			std::shared_ptr<Bonus> topPick;
-			for(const std::shared_ptr<Bonus> & newPick : *improvedNecromancy)
-			{
-				// addInfo[0] = required necromancy skill, addInfo[1] = required casualty level
-				if(newPick->additionalInfo[0] > necromancyLevel || newPick->additionalInfo[1] > maxCasualtyLevel)
-					continue;
-				if(!topPick)
-				{
-					topPick = newPick;
-				}
-				else
-				{
-					auto quality = [](const std::shared_ptr<Bonus> & pick) -> std::tuple<int, int, int>
-					{
-						const auto * c = pick->subtype.as<CreatureID>().toCreature();
-						return std::tuple<int, int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue()), -pick->additionalInfo[1]};
-					};
-					if(quality(topPick) < quality(newPick))
-						topPick = newPick;
-				}
-			}
-			if(topPick)
-			{
-				creatureTypeRaised = topPick->subtype.as<CreatureID>();
-				requiredCasualtyLevel = std::max(topPick->additionalInfo[1], 1);
-			}
+			bestCreature = newCreature;
 		}
-		assert(creatureTypeRaised != CreatureID::NONE);
-		// raise upgraded creature (at 2/3 rate) if no space available otherwise
-		if(getSlotFor(creatureTypeRaised) == SlotID())
+		else
 		{
-			for (const auto & slot : Slots())
+			auto quality = [](CreatureID pick) -> std::tuple<int, int>
 			{
-				if (creatureTypeRaised.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
-				{
-					creatureTypeRaised = slot.second->getCreatureID();
-					necromancySkill *= 2/3.0;
-					break;
-				}
-			}
+				const auto * c = pick.toCreature();
+				return std::tuple<int, int> {c->getLevel(), static_cast<int>(c->getFullRecruitCost().marketValue())};
+			};
+			if(quality(bestCreature) < quality(newCreature))
+				bestCreature = newCreature;
 		}
-		// calculate number of creatures raised - low level units contribute at 50% rate
-		const double raisedUnitHealth = creatureTypeRaised.toCreature()->getMaxHealth();
-		double raisedUnits = 0;
-		for(const auto & casualty : casualties)
-		{
-			const CCreature * c = casualty.first.toCreature();
-			double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * necromancySkill;
-			if(c->getLevel() < requiredCasualtyLevel)
-				raisedFromCasualty *= 0.5;
-			raisedUnits += raisedFromCasualty;
-		}
-		return CStackBasicDescriptor(creatureTypeRaised, std::max(static_cast<int>(raisedUnits), 1));
 	}
 
-	return CStackBasicDescriptor();
+	assert(bestCreature != CreatureID::NONE);
+	CreatureID selectedCreature = bestCreature;
+
+	// raise upgraded creature (at 2/3 rate) if no space available otherwise
+	if(getSlotFor(selectedCreature) == SlotID())
+	{
+		for (const auto & slot : Slots())
+		{
+			if (selectedCreature.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
+			{
+				selectedCreature = slot.second->getCreatureID();
+				break;
+			}
+		}
+	}
+
+	// calculate number of creatures raised - low level units contribute at 50% rate
+	const double raisedUnitHealth = selectedCreature.toCreature()->getMaxHealth();
+	double raisedUnits = 0;
+	for(const auto & casualty : casualties)
+	{
+		const CCreature * c = casualty.first.toCreature();
+		double raisedFromCasualty = std::min(c->getMaxHealth() / raisedUnitHealth, 1.0) * casualty.second * raisedUnitsPercentage;
+
+		if (bestCreature != selectedCreature)
+			raisedUnits += raisedFromCasualty * 2 / 3 / 100;
+		else
+			raisedUnits += raisedFromCasualty / 100;
+	}
+
+	return CStackBasicDescriptor(selectedCreature, std::max(static_cast<int>(raisedUnits), 1));
 }
 
 int CGHeroInstance::getSightRadius() const
 {
-	return valOfBonuses(BonusType::SIGHT_RADIUS); // scouting gives SIGHT_RADIUS bonus
+	int baseValue = LIBRARY->engineSettings()->getInteger(EGameSettings::HEROES_BASE_SCOUNTING_RANGE);
+	return applyBonuses(BonusType::SIGHT_RADIUS, baseValue);
 }
 
 si32 CGHeroInstance::manaRegain() const
@@ -1253,6 +1240,29 @@ bool CGHeroInstance::spellbookContainsSpell(const SpellID & spell) const
 	return vstd::contains(spells, spell);
 }
 
+std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & spellId) const
+{
+	std::vector<BonusSourceID> sources;
+
+	if(hasSpellbook() && spellbookContainsSpell(spellId))
+		sources.emplace_back(getArt(ArtifactPosition::SPELLBOOK)->getId());
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
+		sources.emplace_back(bonus->sid);
+
+	const auto spell = spellId.toSpell();
+	spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
+	{
+		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
+			sources.emplace_back(bonus->sid);
+	});
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
+		sources.emplace_back(bonus->sid);
+
+	return sources;
+}
+
 void CGHeroInstance::removeSpellbook()
 {
 	spells.clear();
@@ -1345,34 +1355,12 @@ void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
 	}
 }
 
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(const bool isBattleOutsideTown) const
-{
-	if(!getVisitedTown())
-		return nullptr;
-
-	if (isBattleOutsideTown)
-		return const_cast<CTownAndVisitingHero *>(&getVisitedTown()->townAndVis);
-
-	return const_cast<CGTownInstance*>(getVisitedTown());
-}
-
-CBonusSystemNode * CGHeroInstance::whereShouldBeAttachedOnSiege(CGameState & gs)
-{
-	if(getVisitedTown())
-		return whereShouldBeAttachedOnSiege(getVisitedTown()->isBattleOutsideTown(this));
-
-	return &CArmedInstance::whereShouldBeAttached(gs);
-}
-
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(visitedTown.hasValue())
 	{
 		auto town = gs.getTown(visitedTown);
-		if(isGarrisoned())
-			return *town;
-		else
-			return town->townAndVis;
+		return town->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);
@@ -1706,7 +1694,15 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spellBook", spells);
 
 	if(handler.saving)
-		CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
+	{
+		// FIXME: EditorCallback (used in map editor) has no access to GameState.
+		// serializeJsonArtifacts expects non-const CMap *
+		// Find some cleaner solution
+		if(auto * ecb = dynamic_cast<EditorCallback *>(cb))
+			CArtifactSet::serializeJsonArtifacts(handler, "artifacts", const_cast<CMap *>(ecb->getMapConstPtr()));
+		else
+			CArtifactSet::serializeJsonArtifacts(handler, "artifacts", &cb->gameState().getMap());
+	}
 }
 
 void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1792,7 +1788,7 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
-	TConstBonusListPtr lista = getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
+	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
 	for(const auto & it : *lista)
 	{
 		auto nid = CreatureID(it->additionalInfo[0]);
@@ -1806,37 +1802,13 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 bool CGHeroInstance::isCampaignYog() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/YOG")) // "Birth of a Barbarian"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::SOLMYR) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getYogWizardID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
-
-	// it would be nice to find a way to move this hack to config/mapOverrides.json
-	if(!si || !si->campState)
-		return false;
-
-	std::string campaign = si->campState->getFilename();
-	if (!boost::starts_with(campaign, "DATA/GEM") &&  !boost::starts_with(campaign, "DATA/FINAL")) // "New Beginning" and "Unholy Alliance"
-		return false;
-
-	if (getHeroTypeID() != HeroTypeID::GEM) // Yog (based on Solmyr)
-		return false;
-
-	return true;
+	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
 }
 
 ResourceSet CGHeroInstance::dailyIncome() const

@@ -12,6 +12,9 @@
 #include "AdventureOptionsTab.h"
 
 #include "../../GameEngine.h"
+#include "../../GameInstance.h"
+#include "../../CPlayerInterface.h"
+#include "../../PlayerLocalState.h"
 #include "../../eventsSDL/InputHandler.h"
 #include "../../gui/WindowHandler.h"
 #include "../../widgets/Buttons.h"
@@ -153,6 +156,13 @@ AdventureOptionsTab::AdventureOptionsTab()
 		setBoolSetting("adventure", "minimapShowHeroes", value);
 		ENGINE->windows().totalRedraw();
 	});
+	addCallback("showMovePathChanged", [](bool value)
+	{
+		setBoolSetting("adventure", "showMovePath", value);
+		if (GAME->interface()->makingTurn && GAME->interface()->localState->getCurrentHero())
+			GAME->interface()->localState->erasePath(GAME->interface()->localState->getCurrentHero());
+		ENGINE->windows().totalRedraw();
+	});
 	build(config);
 
 	std::shared_ptr<CToggleGroup> playerHeroSpeedToggle = widget<CToggleGroup>("heroMovementSpeedPicker");
@@ -208,4 +218,7 @@ AdventureOptionsTab::AdventureOptionsTab()
 
 	std::shared_ptr<CToggleButton> minimapShowHeroesCheckbox = widget<CToggleButton>("minimapShowHeroesCheckbox");
 	minimapShowHeroesCheckbox->setSelected(settings["adventure"]["minimapShowHeroes"].Bool());
+
+	std::shared_ptr<CToggleButton> showMovePathCheckbox = widget<CToggleButton>("showMovePathCheckbox");
+	showMovePathCheckbox->setSelected(settings["adventure"]["showMovePath"].Bool());
 }

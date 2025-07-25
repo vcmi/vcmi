@@ -18,6 +18,7 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../mapping/TerrainTile.h"
 #include "../networkPacks/PacksForClient.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

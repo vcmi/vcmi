@@ -10,7 +10,7 @@
 #pragma once
 
 #include "../mapObjects/CGObjectInstance.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 #include "../callback/IGameInfoCallback.h"
 #include "CGPathNode.h"
 
@@ -33,12 +33,14 @@ namespace PathfinderUtil
 		case ELayer::SAIL:
 			if(tinfo.visitable())
 			{
-				auto frontVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.front());
-				auto backVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.front());
-
-				if(frontVisitable->ID == Obj::SANCTUARY && backVisitable->ID == Obj::HERO && backVisitable->getOwner() != player) //non-owned hero stands on Sanctuary
+				if (tinfo.visitableObjects.size() > 1)
 				{
-					return EPathAccessibility::BLOCKED;
+					auto frontVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.front());
+					auto backVisitable = gameInfo.getObjInstance(tinfo.visitableObjects.back());
+					if(frontVisitable->ID == Obj::SANCTUARY && backVisitable->ID == Obj::HERO && backVisitable->getOwner() != player)
+					{
+						return EPathAccessibility::BLOCKED;
+					}
 				}
 				else
 				{

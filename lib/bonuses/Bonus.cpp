@@ -14,8 +14,8 @@
 #include "Updaters.h"
 #include "Propagators.h"
 
+#include "../CBonusTypeHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
 #include "../CSkillHandler.h"
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
@@ -172,7 +172,7 @@ JsonNode Bonus::toJsonNode() const
 {
 	JsonNode root;
 	// only add values that might reasonably be found in config files
-	root["type"].String() = vstd::findKey(bonusNameMap, type);
+	root["type"].String() = LIBRARY->bth->bonusToString(type);
 	if(subtype != BonusSubtypeID())
 		root["subtype"].String() = subtype.toString();
 	if(additionalInfo != CAddInfo::NONE)
@@ -203,6 +203,8 @@ JsonNode Bonus::toJsonNode() const
 		root["updater"] = updater->toJsonNode();
 	if(propagator)
 		root["propagator"].String() = vstd::findKey(bonusPropagatorMap, propagator);
+	if(hidden)
+		root["hidden"].Bool() = hidden;
 	return root;
 }
 
@@ -235,6 +237,12 @@ Bonus::Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32
 	targetSourceType = BonusSource::OTHER;
 }
 
+Bonus::Bonus(const Bonus & inst, const BonusSourceID & sourceId)
+	: Bonus(inst)
+{
+	sid = sourceId;
+}
+
 std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 {
 	propagator = Propagator;
@@ -243,9 +251,7 @@ std::shared_ptr<Bonus> Bonus::addPropagator(const TPropagatorPtr & Propagator)
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
-	for(const auto & i : bonusNameMap)
-	if(i.second == bonus.type)
-		out << "\tType: " << i.first << " \t";
+	out << "\tType: " << LIBRARY->bth->bonusToString(bonus.type) << " \t";
 
 #define printField(field) out << "\t" #field ": " << (int)bonus.field << "\n"
 	printField(val);

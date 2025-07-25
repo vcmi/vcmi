@@ -176,13 +176,8 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.hid);
-
 	assert(hero);
-
-	if(pack.mode == ChangeValueMode::ABSOLUTE)
-		hero->setMovementPoints(pack.val);
-	else
-		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
+	hero->setMovementPoints(pack.val);
 }
 
 void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
@@ -385,7 +380,6 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		auto beatenHero = dynamic_cast<CGHeroInstance*>(obj);
 		assert(beatenHero);
 
-		auto * siegeNode = beatenHero->whereShouldBeAttachedOnSiege(gs);
 		vstd::erase_if(beatenHero->artifactsInBackpack, [](const ArtSlotInfo& asi)
 		{
 			return asi.getArt()->getTypeId() == ArtifactID::GRAIL;
@@ -400,14 +394,6 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 			beatenHero->setVisitedTown(nullptr, false);
 		}
-		beatenHero->detachFromBonusSystem(gs);
-		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
-
-		// FIXME: workaround:
-		// hero should be attached to siegeNode after battle
-		// however this code might also be called on dismissing hero while in town
-		if (siegeNode && vstd::contains(beatenHero->getParentNodes(), siegeNode))
-			beatenHero->detachFrom(*siegeNode);
 
 		//If hero on Boat is removed, the Boat disappears
 		if(beatenHero->inBoat())
@@ -417,13 +403,26 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 			gs.getMap().eraseObject(boat->id);
 		}
 
+		beatenHero->detachFromBonusSystem(gs);
+		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		auto beatenObject = gs.getMap().eraseObject(obj->id);
 
 		//return hero to the pool, so he may reappear in tavern
 		gs.heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
 		gs.getMap().addToHeroPool(std::dynamic_pointer_cast<CGHeroInstance>(beatenObject));
-
 		return;
+	}
+
+	if(obj->ID == Obj::TOWN)
+	{
+		auto * town = dynamic_cast<CGTownInstance *>(obj);
+		town->setVisitingHero(nullptr);
+
+		if (town->getGarrisonHero())
+		{
+			gs.getMap().showObject(gs.getHero(town->getGarrisonHero()->id));
+			town->setGarrisonedHero(nullptr);
+		}
 	}
 
 	const auto * quest = dynamic_cast<const IQuestObject *>(obj);
@@ -437,6 +436,7 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
+	obj->detachFromBonusSystem(gs);
 	gs.getMap().eraseObject(pack.objectID);
 	gs.getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
 }
@@ -946,6 +946,9 @@ void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
 		ePack.posPack.push_back(pack.artLoc.value().slot);
 		ePack.visit(*this);
 	}
+	// Workaround to inform hero bonus node about changes. Obviously this has to be done somehow differently.
+	if(pack.artLoc.has_value())
+		gs.getHero(pack.artLoc.value().artHolder)->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
@@ -1173,6 +1176,27 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 	pack.info->battleID = gs.nextBattleID;
 	pack.info->localInit();
 
+	if (pack.info->getDefendedTown() && pack.info->getSide(BattleSide::DEFENDER).heroID.hasValue())
+	{
+		CGTownInstance * town = gs.getTown(pack.info->townID);
+		CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(BattleSide::DEFENDER)->id);
+
+		if (hero)
+		{
+			hero->detachFrom(town->townAndVis);
+			hero->attachTo(*town);
+		}
+	}
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (pack.info->getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(i)->id);
+			hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
+		}
+	}
+
 	gs.currentBattles.push_back(std::move(pack.info));
 	gs.nextBattleID = BattleID(gs.nextBattleID.getNum() + 1);
 }
@@ -1191,7 +1215,7 @@ void GameStatePackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 {
 	CStack * st = gs.getBattle(pack.battleID)->getStack(pack.stackID);
 	assert(st);
-	switch(static_cast<BonusType>(pack.effect))
+	switch(pack.effect)
 	{
 		case BonusType::HP_REGENERATION:
 		{
@@ -1218,11 +1242,11 @@ void GameStatePackVisitor::visitBattleTriggerEffect(BattleTriggerEffect & pack)
 		case BonusType::ENCHANTER:
 		case BonusType::MORALE:
 			break;
-		case BonusType::FEAR:
+		case BonusType::FEARFUL:
 			st->fear = true;
 			break;
 		default:
-			logNetwork->error("Unrecognized trigger effect type %d", pack.effect);
+			logNetwork->error("Unrecognized trigger effect type %d", static_cast<int>(pack.effect));
 	}
 }
 
@@ -1230,17 +1254,6 @@ void GameStatePackVisitor::visitBattleUpdateGateState(BattleUpdateGateState & pa
 {
 	if(gs.getBattle(pack.battleID))
 		gs.getBattle(pack.battleID)->si.gateState = pack.state;
-}
-
-void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
-{
-	auto currentBattle = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
-	{
-		return battle->battleID == pack.battleID;
-	});
-
-	assert(currentBattle != gs.currentBattles.end());
-	gs.currentBattles.erase(currentBattle);
 }
 
 void GameStatePackVisitor::visitBattleResultAccepted(BattleResultAccepted & pack)
@@ -1348,8 +1361,55 @@ void GameStatePackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 	pack.visitTyped(battleVisitor);
 }
 
+void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
+{
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == battleID;
+	});
+
+	const auto & currentBattle = **battleIter;
+
+	if (currentBattle.getDefendedTown() && currentBattle.getSideHero(BattleSide::DEFENDER))
+	{
+		CGTownInstance * town = gs.getTown(currentBattle.townID);
+		CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(BattleSide::DEFENDER)->id);
+
+		if (hero)
+		{
+			hero->detachFrom(*town);
+			hero->attachTo(town->townAndVis);
+		}
+	}
+}
+
+void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
+{
+	restorePreBattleState(pack.battleID);
+
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
+
+	const auto & currentBattle = **battleIter;
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = currentBattle.getSide(i).initialMana;
+		}
+	}
+
+	assert(battleIter != gs.currentBattles.end());
+	gs.currentBattles.erase(battleIter);
+}
+
 void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack)
 {
+	restorePreBattleState(pack.battleID);
 	pack.learnedSpells.visit(*this);
 
 	for(auto & discharging : pack.dischargingArtifacts)
@@ -1361,14 +1421,23 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	for(auto & movingPack : pack.movingArtifacts)
 		movingPack.visit(*this);
 
-	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
-											[&](const auto & battle)
-											{
-												return battle->battleID == pack.battleID;
-											});
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
+	const auto & currentBattle = **battleIter;
 
-	assert(currentBattle != gs.currentBattles.end());
-	gs.currentBattles.erase(currentBattle);
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
+		}
+	}
+
+	assert(battleIter != gs.currentBattles.end());
+	gs.currentBattles.erase(battleIter);
 }
 
 void GameStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)

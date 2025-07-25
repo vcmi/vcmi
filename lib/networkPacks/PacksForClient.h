@@ -17,16 +17,16 @@
 #include "NetPacksBase.h"
 #include "ObjProperty.h"
 
-#include "../CCreatureSet.h"
 #include "../ResourceSet.h"
 #include "../TurnTimerInfo.h"
+#include "../bonuses/Bonus.h"
 #include "../gameState/EVictoryLossCheckResult.h"
 #include "../gameState/RumorState.h"
 #include "../gameState/QuestInfo.h"
 #include "../gameState/TavernSlot.h"
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapObjects/army/CSimpleArmy.h"
 #include "../spells/ViewSpellInt.h"
 
 class CClient;
@@ -351,15 +351,13 @@ struct DLL_LINKAGE SetMana : public CPackForClient
 struct DLL_LINKAGE SetMovePoints : public CPackForClient
 {
 	SetMovePoints() = default;
-	SetMovePoints(ObjectInstanceID hid, si32 val, ChangeValueMode mode)
+	SetMovePoints(ObjectInstanceID hid, si32 val)
 		: hid(hid)
 		, val(val)
-		, mode(mode)
 	{}
 
 	ObjectInstanceID hid;
 	si32 val = 0;
-	ChangeValueMode mode = ChangeValueMode::RELATIVE;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -367,7 +365,6 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 	{
 		h & val;
 		h & hid;
-		h & mode;
 	}
 };
 

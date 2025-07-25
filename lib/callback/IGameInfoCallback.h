@@ -73,10 +73,10 @@ public:
 	/// WEEK - number of week within month (1..4)
 	/// MONTH - current month (1..inf)
 	/// DAY_OF_MONTH - number of day within current month, (1..28)
-	virtual int getDate(Date mode=Date::DAY)const = 0;
+	virtual int getDate(Date mode=Date::DAY) const = 0;
 
 	/// Return pointer to static map header for current map
-	virtual const CMapHeader * getMapHeader()const = 0;
+	virtual const CMapHeader * getMapHeader() const = 0;
 
 	/// Returns post-randomized startin information on current game
 	virtual const StartInfo * getStartInfo() const = 0;
@@ -103,9 +103,9 @@ public:
 	virtual bool isInTheMap(const int3 &pos) const = 0;
 
 	/// Returns pointer to specified team. Team must be valid
-	virtual const TeamState *getTeam(TeamID teamID) const = 0;
+	virtual const TeamState * getTeam(TeamID teamID) const = 0;
 	/// Returns pointer to specified team. Player must be valid. Players without belong to a team with single member
-	virtual const TeamState *getPlayerTeam(PlayerColor color) const = 0;
+	virtual const TeamState * getPlayerTeam(PlayerColor color) const = 0;
 	/// Returns current state of a specific player. Player must be valid
 	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const = 0;
 	/// Returns starting settings of a specified player. Player must be valid
@@ -122,7 +122,7 @@ public:
 	/// Returns pointer to hero using provided object ID. Returns null on failure
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
 	/// Returns pointer to town using provided object ID. Returns null on failure
-	virtual const CGTownInstance* getTown(ObjectInstanceID objid) const = 0;
+	virtual const CGTownInstance * getTown(ObjectInstanceID objid) const = 0;
 	/// Returns pointer to object using provided object ID. Returns null on failure
 	virtual const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const = 0;
 	/// Returns pointer to object using provided object ID. Returns null on failure
@@ -146,13 +146,15 @@ public:
 	/// Return true if src tile is visitable from dst tile
 	virtual bool checkForVisitableDir(const int3 & src, const int3 & dst) const = 0;
 	/// Returns all wandering monsters that guard specified tile
-	virtual std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const = 0;
+	virtual std::vector<const CGObjectInstance *> getGuardingCreatures (int3 pos) const = 0;
+	/// Returns if tile is guarded by wandering monsters without checking whether player has access to the tile. AVOID USAGE.
+	virtual bool isTileGuardedUnchecked(int3 tile) const = 0;
 
 	/// Returns all tiles within specified range with specific tile visibility mode
 	virtual void getTilesInRange(std::unordered_set<int3> & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const = 0;
 
 	/// returns all tiles on given level (-1 - both levels, otherwise number of level)
-	virtual void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, std::function<bool(const TerrainTile *)> filter) const = 0;
+	virtual void getAllTiles(std::unordered_set<int3> &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const = 0;
 
 	virtual std::vector<ObjectInstanceID> getVisibleTeleportObjects(std::vector<ObjectInstanceID> ids, PlayerColor player)  const  = 0;
 	virtual std::vector<ObjectInstanceID> getTeleportChannelEntrances(TeleportChannelID id, PlayerColor Player = PlayerColor::UNFLAGGABLE) const  = 0;
