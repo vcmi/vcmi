@@ -34,7 +34,7 @@ DimensionDoorEffect::DimensionDoorEffect(const CSpell * s, const JsonNode & conf
 
 std::string DimensionDoorEffect::getCursorForTarget(const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const
 {
-	if(!cb->getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS))
+	if(!cb->getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS))
 		return cursor;
 
 	if (!exposeFow && !cb->isVisibleFor(pos, caster->getCasterOwner()))

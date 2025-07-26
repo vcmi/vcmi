@@ -154,6 +154,11 @@
 			"restorationOfErathia" : { 
 				"supported" : true,
 				"iconIndex" : 0,
+				"settings": {
+					"spells": {
+						"tomesGrantBannedSpells" : true
+					}
+				},
 				"buildingsCommon": {
 					"townHall"       : 0,
 					"cityHall"       : 1,
@@ -476,7 +481,12 @@
 				"iconIndex" : 3
 			},
 			"hornOfTheAbyss" : { 
-				"supported" : false
+				"supported" : false,
+				"settings": {
+					"spells": {
+						"tomesGrantBannedSpells" : false
+					}
+				}
 			},
 			"inTheWakeOfGods" : { 
 				"supported" : false
@@ -750,16 +760,12 @@
 
 		"spells":
 		{
-			// if enabled, dimension work doesn't work into tiles under Fog of War
-			"dimensionDoorOnlyToUncoveredTiles" : false,
-			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
-			"dimensionDoorExposesTerrainType" : false,
-			// if enabled, attempt to use dimension door on incompatible terrain (water/land) will result in spending of mana, movement and casts per day (H3 behavior)
-			"dimensionDoorFailureSpendsPoints" : true,
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
 			"dimensionDoorTriggersGuards" : false,
-			// if enabled, dimension door can be used 1x per day, exception being 2x per day for XL+U or bigger maps (41472 tiles) + hero having expert air magic
-			"dimensionDoorTournamentRulesLimit" : false
+			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic) 
+			// and SPELLS_OF_LEVEL bonus (Spellbinder Hat) will grant spells that are banned on map (SoD behavior)
+			// NOTE: this value only affects random maps and .vmap's. For h3m's value is loaded from map format configuration
+			"tomesGrantBannedSpells" : false
 		},
 		
 		"bonuses" : 

@@ -1250,15 +1250,20 @@ std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & sp
 	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
 		sources.emplace_back(bonus->sid);
 
-	const auto spell = spellId.toSpell();
-	spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
-	{
-		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
-			sources.emplace_back(bonus->sid);
-	});
+	bool tomesGrantBannedSpells = cb->getSettings().getBoolean(EGameSettings::SPELLS_TOMES_GRANT_BANNED_SPELLS);
 
-	for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
-		sources.emplace_back(bonus->sid);
+	if (tomesGrantBannedSpells || cb->isAllowed(spellId))
+	{
+		const auto spell = spellId.toSpell();
+		spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
+		{
+			for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
+				sources.emplace_back(bonus->sid);
+		});
+
+		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
+			sources.emplace_back(bonus->sid);
+	}
 
 	return sources;
 }

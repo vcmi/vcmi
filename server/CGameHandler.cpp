@@ -1021,7 +1021,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		if (blockingVisit()) // e.g. hero on the other side of teleporter
 			return true;
 
-		EGuardLook guardsCheck = (gameInfo().getSettings().getBoolean(EGameSettings::DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
+		EGuardLook guardsCheck = (gameInfo().getSettings().getBoolean(EGameSettings::SPELLS_DIMENSION_DOOR_TRIGGERS_GUARDS) && movementMode == EMovementMode::DIMENSION_DOOR)
 			? CHECK_FOR_GUARDS
 			: IGNORE_GUARDS;
 
@@ -1034,10 +1034,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 			if (const auto * town = dynamic_cast<const CGTownInstance *>(objectToVisit))
 				objectVisited(town, h);
 		}
-
 		return true;
 	}
-	
 
 	//still here? it is standard movement!
 	{
