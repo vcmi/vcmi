@@ -412,7 +412,6 @@
 				"range" : "X",
 				"adventureEffect" : {
 					"type" : "townPortal",
-					"castsPerDay" : 2,
 					"allowTownSelection" : false,
 					"skipOccupiedTowns" : false,
 					"movementPointsRequired" : 300,
