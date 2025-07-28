@@ -119,7 +119,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 	static const std::array<std::string, 4>  primSkillsArr = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
 	static const std::array<std::string, 4>  secSkillsArr =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
 	static const std::array<std::string, 4>  resourceArr =   {"SMALRES",        "RESOURCE",       "RESOURCE",       "RESOUR82"};
-	static const std::array<std::string, 4>  creatureArr =   {"CPRSMALL",       "CPRSMALL",       "CPRSMALL",       "TWCRPORT"};
+	static const std::array<std::string, 4>  creatureArr =   {"CPRSMALL",       "CPRSMALL",       "TWCRPORT",       "TWCRPORT"};
 	static const std::array<std::string, 4>  artifactArr =   {"Artifact",       "Artifact",       "Artifact",       "Artifact"};
 	static const std::array<std::string, 4>  spellsArr =     {"SpellInt",       "SpellInt",       "SpellInt",       "SPELLSCR"};
 	static const std::array<std::string, 4>  moraleArr =     {"IMRL22",         "IMRL30",         "IMRL42",         "imrl82"};

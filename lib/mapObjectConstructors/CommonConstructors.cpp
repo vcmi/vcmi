@@ -10,24 +10,20 @@
 #include "StdInc.h"
 #include "CommonConstructors.h"
 
-#include "../texts/CGeneralTextHandler.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
-#include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 
-#include "../CConfigHandler.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
-#include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/TerrainTile.h"
 #include "../modding/IdentifierStorage.h"
+#include "../texts/TextIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -275,92 +271,6 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
-}
-
-void MarketInstanceConstructor::initTypeData(const JsonNode & input)
-{
-	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(input, "vcmi:market", getJsonKey());
-
-	if (!input["description"].isNull())
-	{
-		std::string description = input["description"].String();
-		descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-		LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
-	}
-
-	if (!input["speech"].isNull())
-	{
-		std::string speech = input["speech"].String();
-		if (!speech.empty() && speech.at(0) == '@')
-		{
-			speechTextID = speech.substr(1);
-		}
-		else
-		{
-			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
-		}
-	}
-
-	for(auto & element : input["modes"].Vector())
-	{
-		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
-			marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
-	}
-	
-	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
-	predefinedOffer = input["offer"];
-}
-
-bool MarketInstanceConstructor::hasDescription() const
-{
-	return !descriptionTextID.empty();
-}
-
-std::shared_ptr<CGMarket> MarketInstanceConstructor::createObject(IGameInfoCallback * cb) const
-{
-	if(marketModes.size() == 1)
-	{
-		switch(*marketModes.begin())
-		{
-			case EMarketMode::ARTIFACT_RESOURCE:
-			case EMarketMode::RESOURCE_ARTIFACT:
-				return std::make_shared<CGBlackMarket>(cb);
-
-			case EMarketMode::RESOURCE_SKILL:
-				return std::make_shared<CGUniversity>(cb);
-		}
-	}
-	return std::make_shared<CGMarket>(cb);
-}
-
-const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
-{
-	return marketModes;
-}
-
-void MarketInstanceConstructor::randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const
-{
-	JsonRandom randomizer(object->cb, gameRandomizer);
-	JsonRandom::Variables emptyVariables;
-
-	if(auto * university = dynamic_cast<CGUniversity *>(object))
-	{
-		for(auto skill : randomizer.loadSecondaries(predefinedOffer, emptyVariables))
-			university->skills.push_back(skill.first);
-	}
-}
-
-std::string MarketInstanceConstructor::getSpeechTranslated() const
-{
-	assert(marketModes.count(EMarketMode::RESOURCE_SKILL));
-	return LIBRARY->generaltexth->translate(speechTextID);
-}
-
-int MarketInstanceConstructor::getMarketEfficiency() const
-{
-	return marketEfficiency;
 }
 
 VCMI_LIB_NAMESPACE_END

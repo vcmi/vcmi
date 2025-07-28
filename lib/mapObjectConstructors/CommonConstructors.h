@@ -15,10 +15,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGResource.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -124,27 +122,6 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
-};
-
-class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
-{
-	std::string descriptionTextID;
-	std::string speechTextID;
-	
-	std::set<EMarketMode> marketModes;
-	JsonNode predefinedOffer;
-	int marketEfficiency;
-
-	void initTypeData(const JsonNode & config) override;
-public:
-	std::shared_ptr<CGMarket> createObject(IGameInfoCallback * cb) const override;
-	void randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const override;
-
-	const std::set<EMarketMode> & availableModes() const;
-	bool hasDescription() const;
-
-	std::string getSpeechTranslated() const;
-	int getMarketEfficiency() const;
 };
 
 VCMI_LIB_NAMESPACE_END

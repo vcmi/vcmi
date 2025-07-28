@@ -233,7 +233,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 
 		std::vector<std::shared_ptr<CComponent>> guiComponents;
 		for(auto & component : components)
-			guiComponents.push_back(std::make_shared<CComponent>(component));
+			guiComponents.push_back(std::make_shared<CComponent>(component, CComponent::medium));
 
 		if(GAME->interface()->localState->getCurrentHero())
 			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()), guiComponents);

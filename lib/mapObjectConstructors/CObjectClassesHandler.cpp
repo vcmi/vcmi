@@ -25,6 +25,7 @@
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/MarketInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/CGCreature.h"
