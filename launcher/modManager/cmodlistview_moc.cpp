@@ -883,27 +883,30 @@ void CModListView::installFiles(QStringList files)
 			ZipArchive archive(qstringToPath(realFilename));
 			auto fileList = archive.listFiles();
 
-			bool hasRootMaps = false;
+			bool hasModJson = false;
+			bool hasMaps = false;
 
 			for (const auto& file : fileList)
 			{
-				QString lower = QString::fromStdString(file);
+				QString lower = QString::fromStdString(file).toLower();
 
-				// Skip subfolders
-				if (lower.contains("/") || lower.contains("\\"))
-					continue;
-
-				if (lower.endsWith(".h3m", Qt::CaseInsensitive) || lower.endsWith(".h3c", Qt::CaseInsensitive) || lower.endsWith(".vmap", Qt::CaseInsensitive) || lower.endsWith(".vcmp", Qt::CaseInsensitive))
+				// Check for mod.json anywhere in archive
+				if (lower.endsWith("mod.json"))
 				{
-					hasRootMaps = true;
+					hasModJson = true;
 					break;
 				}
+
+				// Check for map files anywhere
+				if (lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
+					hasMaps = true;
 			}
 
-			if (hasRootMaps)
-				maps.push_back(filename);
-			else
+			if (hasModJson)
 				mods.push_back(filename);
+
+			if (hasMaps)
+				maps.push_back(filename);
 		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
@@ -1096,10 +1099,6 @@ void CModListView::installMaps(QStringList maps)
 			for (const auto& file : fileList)
 			{
 				QString name = QString::fromStdString(file);
-
-				// only root maps, ignore folders
-				if (name.contains("/") || name.contains("\\"))
-					continue;
 
 				if (!(name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) || name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive)))
 					continue;
