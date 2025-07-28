@@ -10,27 +10,33 @@
 #include "StdInc.h"
 #include "CServerHandler.h"
 
-#include "AntilagServer.h"
-#include "Client.h"
-#include "ServerRunner.h"
-#include "GameChatHandler.h"
 #include "CPlayerInterface.h"
+#include "Client.h"
+#include "GameChatHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
-#include "gui/WindowHandler.h"
+#include "LobbyClientNetPackVisitors.h"
+#include "ServerRunner.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+
+#include "gui/WindowHandler.h"
+
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "windows/InfoWindows.h"
-#include "windows/GUIClasses.h"
+
+#include "netlag/NetworkLagCompensator.h"
+
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "mainmenu/CHighScoreScreen.h"
+
+#include "windows/InfoWindows.h"
+#include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
@@ -55,7 +61,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
 #include <SDL_thread.h>
@@ -612,13 +617,21 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
+void CServerHandler::enableLagCompensation(bool on)
+{
+	if (on)
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(),  client->gameStatePtr());
+	else
+		networkLagCompensator.reset();
+}
+
 void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
 
-	//if (isGuest())
-	networkLagCompensator = std::make_unique<AntilagServer>(getNetworkHandler(), gameState);
+	if (isGuest())
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{

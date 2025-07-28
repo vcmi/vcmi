@@ -144,6 +144,7 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
+	std::shared_ptr<CGameState> gameStatePtr() { return gamestate; }
 	CGameState & gameState() { return *gamestate; }
 	const CGameState & gameState() const { return *gamestate; }
 	IGameInfoCallback & gameInfo();

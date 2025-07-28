@@ -1,5 +1,5 @@
 /*
- * AntilagServer.h, part of VCMI engine
+ * PackRollbackGeneratorVisitor.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,83 +9,13 @@
  */
 #pragma once
 
-#include "../lib/networkPacks/NetPackVisitor.h"
-#include "../server/IGameServer.h"
-#include "../lib/network/NetworkInterface.h"
-#include "../lib/serializer/CSerializer.h"
-#include "../lib/serializer/BinarySerializer.h"
+#include "../../lib/networkPacks/NetPackVisitor.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
-struct CPackForServer;
-class GameConnection;
-VCMI_LIB_NAMESPACE_END
-
-class CGameHandler;
-
-class ConnectionPackWriter final : public IBinaryWriter
-{
-public:
-	std::vector<std::byte> buffer;
-	std::vector<std::unique_ptr<CPackForClient>> rollbackPacks;
-
-	int write(const std::byte * data, unsigned size) final;
-};
-
-class AntilagReplyPrediction
-{
-public:
-	PlayerColor senderID;
-	uint32_t requestID;
-	std::vector<ConnectionPackWriter> writtenPacks;
-};
-
-class AntilagReplyPredictionVisitor final : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
-{
-	bool canBeAppliedValue = false;
-
-	//void visitSaveGame(SaveGame & pack) override;
-	//void visitGamePause(GamePause & pack) override;
-	//void visitEndTurn(EndTurn & pack) override;
-	//void visitDismissHero(DismissHero & pack) override;
-	void visitMoveHero(MoveHero & pack) override;
-	//void visitCastleTeleportHero(CastleTeleportHero & pack) override;
-	void visitArrangeStacks(ArrangeStacks & pack) override;
-	//void visitBulkMoveArmy(BulkMoveArmy & pack) override;
-	//void visitBulkSplitStack(BulkSplitStack & pack) override;
-	//void visitBulkMergeStacks(BulkMergeStacks & pack) override;
-	//void visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack) override;
-	//void visitDisbandCreature(DisbandCreature & pack) override;
-	//void visitBuildStructure(BuildStructure & pack) override;
-	//void visitSpellResearch(SpellResearch & pack) override;
-	//void visitVisitTownBuilding(VisitTownBuilding & pack) override;
-	//void visitRecruitCreatures(RecruitCreatures & pack) override;
-	//void visitUpgradeCreature(UpgradeCreature & pack) override;
-	//void visitGarrisonHeroSwap(GarrisonHeroSwap & pack) override;
-	//void visitExchangeArtifacts(ExchangeArtifacts & pack) override;
-	//void visitBulkExchangeArtifacts(BulkExchangeArtifacts & pack) override;
-	//void visitManageBackpackArtifacts(ManageBackpackArtifacts & pack) override;
-	//void visitManageEquippedArtifacts(ManageEquippedArtifacts & pack) override;
-	//void visitAssembleArtifacts(AssembleArtifacts & pack) override;
-	//void visitEraseArtifactByClient(EraseArtifactByClient & pack) override;
-	//void visitBuyArtifact(BuyArtifact & pack) override;
-	//void visitTradeOnMarketplace(TradeOnMarketplace & pack) override;
-	//void visitSetFormation(SetFormation & pack) override;
-	//void visitHireHero(HireHero & pack) override;
-	//void visitBuildBoat(BuildBoat & pack) override;
-	//void visitQueryReply(QueryReply & pack) override;
-	//void visitMakeAction(MakeAction & pack) override;
-	//void visitDigWithHero(DigWithHero & pack) override;
-	//void visitCastAdvSpell(CastAdvSpell & pack) override;
-	//void visitPlayerMessage(PlayerMessage & pack) override;
-	//void visitSaveLocalState(SaveLocalState & pack) override;
-
-public:
-	AntilagReplyPredictionVisitor();
-
-	bool canBeApplied() const;
-};
-
-class AntilagRollbackGeneratorVisitor final : public ICPackVisitor
+/// Class that generates data for rollback
+/// on success, canBeRolledBack() method will return true
+/// and rollbackPacks will contain list of packs that can be applied to rollback provided pack
+/// Note that it is legal for rollbackPacks list to be empty for some trivial packs
+class PackRollbackGeneratorVisitor final : public ICPackVisitor
 {
 private:
 	const CGameState & gs;
@@ -173,41 +103,15 @@ private:
 	//void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
 
 public:
-	AntilagRollbackGeneratorVisitor(const CGameState & gs)
+	PackRollbackGeneratorVisitor(const CGameState & gs)
 		: gs(gs)
-	{}
+	{
+	}
 
+	/// Returns true if tested pack can be rolled back
 	bool canBeRolledBack() const;
-	std::vector<std::unique_ptr<CPackForClient>> getRollbackPacks();
-};
 
-// Fake server that is used by client to make a quick prediction on what real server would reply without waiting for network latency
-class AntilagServer final : public IGameServer, public INetworkConnectionListener, boost::noncopyable
-{
-	std::vector<AntilagReplyPrediction> predictedReplies;
-	std::shared_ptr<INetworkConnection> antilagNetConnection;
-	std::shared_ptr<GameConnection> antilagGameConnection;
-	std::shared_ptr<CGameState> gameState;
-
-	static constexpr uint32_t invalidPackageID = std::numeric_limits<uint32_t>::max();
-	uint32_t currentPackageID = invalidPackageID;
-
-	// IGameServer impl
-	void setState(EServerState value) override;
-	EServerState getState() const override;
-	bool isPlayerHost(const PlayerColor & color) const override;
-	bool hasPlayerAt(PlayerColor player, GameConnectionID connection) const override;
-	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
-	void applyPack(CPackForClient & pack) override;
-	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
-
-	void onDisconnected(const std::shared_ptr<INetworkConnection> & connection, const std::string & errorMessage) override;
-	void onPacketReceived(const std::shared_ptr<INetworkConnection> & connection, const std::vector<std::byte> & message) override;
-
-public:
-	AntilagServer(INetworkHandler & network, const std::shared_ptr<CGameState> & gs);
-	~AntilagServer();
-
-	void tryPredictReply(const CPackForServer & request);
-	bool verifyReply(const CPackForClient & reply);
+	/// Acquires list of packs that can be used to rollback tested pack
+	/// (!) non-reentrable
+	std::vector<std::unique_ptr<CPackForClient>> acquireRollbackPacks();
 };

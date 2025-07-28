@@ -33,7 +33,7 @@ class HighScoreParameter;
 
 VCMI_LIB_NAMESPACE_END
 
-class AntilagServer;
+class NetworkLagCompensator;
 class CClient;
 class CBaseForLobbyApply;
 class GlobalLobbyClient;
@@ -102,7 +102,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<GameChatHandler> gameChat;
 	std::unique_ptr<IServerRunner> serverRunner;
-	std::unique_ptr<AntilagServer> networkLagCompensator;
+	std::unique_ptr<NetworkLagCompensator> networkLagCompensator;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
 
@@ -150,6 +150,7 @@ public:
 	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
+	void enableLagCompensation(bool on);
 
 	GameChatHandler & getGameChat();
 	GlobalLobbyClient & getGlobalLobby();

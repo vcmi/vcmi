@@ -339,6 +339,29 @@ void ClientCommandManager::handleGetConfigCommand()
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
 }
 
+void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
+{
+	std::string commandName;
+	singleWordBuffer >> commandName;
+
+	if (commandName == "on")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now enabled.\n");
+	}
+	else if (commandName == "off")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now disabled.\n");
+	}
+	else
+	{
+		printCommandMessage("Unexpected syntax. Supported forms:\n");
+		printCommandMessage("'antilag on'\n");
+		printCommandMessage("'antilag off'\n");
+	}
+}
+
 void ClientCommandManager::handleGetScriptsCommand()
 {
 #if SCRIPTING_ENABLED
@@ -595,6 +618,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "setBattleAI")
 		handleSetBattleAICommand(singleWordBuffer);
+
+	else if(commandName == "antilag")
+		handleAntilagCommand(singleWordBuffer);
 
 	else if(commandName == "redraw")
 		handleRedrawCommand();
