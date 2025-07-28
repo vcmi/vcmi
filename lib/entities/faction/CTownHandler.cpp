@@ -885,8 +885,12 @@ void CTownHandler::beforeValidate(JsonNode & object)
 
 	const auto & inheritBuilding = [this](const std::string & name, JsonNode & target)
 	{
-		if (buildingsLibrary.Struct().count(name) == 0)
+		if(buildingsLibrary.Struct().count(name) == 0)
+		{
+			if(!target.Struct().count("id"))
+				logMod->warn("Mod '%s': Town building '%s' lack ID.", target.getModScope(), name);
 			return;
+		}
 
 		JsonNode baseCopy(buildingsLibrary[name]);
 
