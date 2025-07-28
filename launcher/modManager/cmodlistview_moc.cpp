@@ -1057,8 +1057,11 @@ void CModListView::installMaps(QStringList maps)
 
 	for(QString map : maps)
 	{
+		QString destFile = destDir + map.section('/', -1, -1);
 		logGlobal->info("Importing map '%s'", map.toStdString());
-		QFile(map).rename(destDir + map.section('/', -1, -1));
+
+		if (!QFile::copy(map, destFile))
+			logGlobal->warn("Failed to copy map '%s' to '%s'", map.toStdString(), destFile.toStdString());
 	}
 }
 
