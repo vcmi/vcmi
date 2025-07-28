@@ -157,6 +157,7 @@ public:
 	bool spellbookContainsSpell(const SpellID & spell) const;
 	std::vector<BonusSourceID> getSourcesForSpell(const SpellID & spell) const;
 	void removeSpellbook();
+	void removeAllSpells();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
