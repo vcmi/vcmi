@@ -1053,16 +1053,49 @@ void CModListView::installMods(QStringList archives)
 
 void CModListView::installMaps(QStringList maps)
 {
-	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
+	const auto destDir = CLauncherDirs::mapsPath() + QChar{ '/' };
+	int successCount = 0;
+	QStringList failedMaps;
 
-	for(QString map : maps)
+	for (const QString& map : maps)
 	{
-		QString destFile = destDir + map.section('/', -1, -1);
+		QString fileName = map.section('/', -1, -1);
+		QString destFile = destDir + fileName;
 		logGlobal->info("Importing map '%s'", map.toStdString());
 
-		if (!QFile::copy(map, destFile))
+		// Ask the user if the file already exists
+		if (QFile::exists(destFile))
+		{
+			int ret = QMessageBox::question(this, tr("Map exists"), tr("Map '%1' already exists. Do you want to overwrite it?").arg(fileName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+			if (ret != QMessageBox::Yes)
+			{
+				logGlobal->info("Skipped map '%s'", fileName.toStdString());
+				continue;
+			}
+
+			QFile::remove(destFile);
+		}
+
+		// Copy the map file to destination
+		if (QFile::copy(map, destFile))
+		{
+			successCount++;
+		}
+		else
+		{
 			logGlobal->warn("Failed to copy map '%s' to '%s'", map.toStdString(), destFile.toStdString());
+			failedMaps.push_back(map);
+		}
 	}
+
+	// Show a success message if at least one map was imported
+	if (successCount > 0)
+		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount), QMessageBox::Ok, QMessageBox::Ok);
+
+	// Show an error message if any map failed to import
+	if (!failedMaps.isEmpty())
+		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")), QMessageBox::Ok, QMessageBox::Ok);
 }
 
 void CModListView::on_refreshButton_clicked()
