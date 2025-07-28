@@ -56,7 +56,7 @@ void NetworkLagCompensator::onPacketReceived(const std::shared_ptr<INetworkConne
 	if(!packVisitor.canBeApplied())
 		return;
 
-	logGlobal->info("Predicting effects of pack '%s'", typeid(*serverPack).name());
+	logGlobal->trace("Predicting effects of pack '%s'", typeid(*serverPack).name());
 
 	NetworkLagReplyPrediction newPrediction;
 	newPrediction.requestID = serverPack->requestID;
@@ -77,12 +77,12 @@ void NetworkLagCompensator::onPacketReceived(const std::shared_ptr<INetworkConne
 void NetworkLagCompensator::tryPredictReply(const CPackForServer & request)
 {
 	antilagGameConnection->sendPack(request);
-	logGlobal->info("Scheduled prediction of effects of pack '%s'", typeid(request).name());
+	logGlobal->trace("Scheduled prediction of effects of pack '%s'", typeid(request).name());
 }
 
 bool NetworkLagCompensator::verifyReply(const CPackForClient & pack)
 {
-	logGlobal->info("Verifying reply: received pack '%s'", typeid(pack).name());
+	logGlobal->trace("Verifying reply: received pack '%s'", typeid(pack).name());
 
 	const auto * packageReceived = dynamic_cast<const PackageReceived *>(&pack);
 	const auto * packageApplied = dynamic_cast<const PackageApplied *>(&pack);
@@ -180,11 +180,11 @@ void NetworkLagCompensator::applyPack(CPackForClient & pack)
 	pack.visit(visitor);
 	if(!visitor.canBeRolledBack())
 	{
-		logGlobal->info("Prediction not possible: pack '%s'", typeid(pack).name());
+		logGlobal->trace("Prediction not possible: pack '%s'", typeid(pack).name());
 		throw RollbackNotSupportedException(std::string("Prediction not possible ") + typeid(pack).name());
 	}
 
-	logGlobal->info("Prediction: pack '%s'", typeid(pack).name());
+	logGlobal->trace("Prediction: pack '%s'", typeid(pack).name());
 
 	NetworkLagPredictedPack packWriter;
 	BinarySerializer serializer(&packWriter);
