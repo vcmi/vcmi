@@ -344,12 +344,12 @@
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished"></translation>
+        <translation>选择种族</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="25"/>
         <source>Faction Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>种族选择器</translation>
     </message>
 </context>
 <context>
@@ -438,12 +438,12 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="165"/>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -732,7 +732,7 @@
         <location filename="../mainwindow.ui" line="1085"/>
         <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
-        <translation type="unfinished"></translation>
+        <translation>模版编辑器</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1093"/>
@@ -1320,30 +1320,28 @@
     <message>
         <location filename="../mapcontroller.cpp" line="610"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">英雄 %1 无法在中立阵营被创建。</translation>
+        <translation>英雄 %1 无法在中立阵营被创建。</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="624"/>
         <source>Missing Required Mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">缺少必需的模组</translation>
+        <translation>缺少必需的模组</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="624"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">
+        <translation>
 
-
-你现在要这样做吗？</translation>
+你现在要这么做吗？</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="634"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">该对象的模组是地图保持有效所必需的。</translation>
+        <translation>该对象的模组是地图保持有效所必需的。</translation>
     </message>
 </context>
 <context>
@@ -1436,22 +1434,22 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished"></translation>
+        <translation>选择矿井</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="27"/>
         <source>Mine Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>矿井选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="33"/>
         <source>Resource</source>
-        <translation type="unfinished">资源</translation>
+        <translation>资源</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="33"/>
         <source>Mines</source>
-        <translation type="unfinished">矿井</translation>
+        <translation>矿井</translation>
     </message>
 </context>
 <context>
@@ -1565,26 +1563,23 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="45"/>
         <source>Select Player</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">选择玩家</translation>
+        <translation>选择玩家</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="54"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">无法将英雄创建为中立</translation>
+        <translation>英雄无法在中立阵营被创建</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="60"/>
         <source>Switch to one of the available players:</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">切换到可用玩家之一：</translation>
+        <translation>切换到一个可用玩家：</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="89"/>
         <source>Shortcut: %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">快捷键：%1</translation>
+        <translation>快捷键：%1</translation>
     </message>
 </context>
 <context>
@@ -1592,22 +1587,22 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation type="unfinished">玩家设置</translation>
+        <translation>玩家设置</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished">玩家</translation>
+        <translation>玩家</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation type="unfinished">确定</translation>
+        <translation>确定</translation>
     </message>
 </context>
 <context>
@@ -2020,16 +2015,14 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapcontroller.cpp" line="647"/>
         <source> (submod of %1)</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">（%1 的子模组）</translation>
+        <translation> （子模组%1）</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="649"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">模组 &apos;%1&apos;%2 是地图上某个对象所需的。
+        <translation>模组 &apos;%1&apos;%2 是地图上某个物体所必需的。
 请在地图-&gt;常规设置中将其添加为必需模组。</translation>
     </message>
     <message>
@@ -2645,8 +2638,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="32"/>
         <source>Scenario Properties</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">场景属性</translation>
+        <translation>场景属性</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="30"/>
@@ -3125,196 +3117,196 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
         <location filename="../templateeditor/templateeditor.cpp" line="586"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI模版编辑器</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">文件</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">编辑</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="53"/>
         <source>View</source>
-        <translation type="unfinished">视图</translation>
+        <translation>视图</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="68"/>
         <source>Toolbar</source>
-        <translation type="unfinished">工具栏</translation>
+        <translation>工具栏</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="114"/>
         <source>Selected Template:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的模版：</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1276"/>
         <location filename="../templateeditor/templateeditor.cpp" line="224"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="144"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="151"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="215"/>
         <source>General</source>
-        <translation type="unfinished">通用</translation>
+        <translation>通用</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="221"/>
         <source>Name</source>
-        <translation type="unfinished">名字</translation>
+        <translation>名字</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="233"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>描述</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="245"/>
         <source>Min Size</source>
-        <translation type="unfinished"></translation>
+        <translation>最小尺寸</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="264"/>
         <location filename="../templateeditor/templateeditor.ui" line="363"/>
         <location filename="../templateeditor/templateeditor.ui" line="548"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="294"/>
         <location filename="../templateeditor/templateeditor.ui" line="393"/>
         <location filename="../templateeditor/templateeditor.ui" line="578"/>
         <source>Y</source>
-        <translation type="unfinished">Y</translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="324"/>
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
         <location filename="../templateeditor/templateeditor.ui" line="1329"/>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="344"/>
         <source>Max Size</source>
-        <translation type="unfinished"></translation>
+        <translation>最大尺寸</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
         <location filename="../templateeditor/templateeditor.ui" line="449"/>
         <source>Players</source>
-        <translation type="unfinished">玩家</translation>
+        <translation>玩家</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
         <source>Human</source>
-        <translation type="unfinished"></translation>
+        <translation>人类</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="472"/>
         <source>Allowed water content</source>
-        <translation type="unfinished"></translation>
+        <translation>水域支持</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
         <location filename="../templateeditor/templateeditor.cpp" line="362"/>
         <location filename="../templateeditor/templateeditor.cpp" line="367"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>无</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <source>Normal</source>
-        <translation type="unfinished">普通</translation>
+        <translation>普通</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="492"/>
         <source>Islands</source>
-        <translation type="unfinished">岛屿</translation>
+        <translation>岛屿</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="524"/>
         <source>Zone</source>
-        <translation type="unfinished"></translation>
+        <translation>区域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="530"/>
         <source>Visualisation</source>
-        <translation type="unfinished"></translation>
+        <translation>可视化</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="536"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>位置</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="608"/>
         <location filename="../templateeditor/templateeditor.ui" line="664"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>尺寸</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="636"/>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="652"/>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="680"/>
         <source>Owner</source>
-        <translation type="unfinished">所有者</translation>
+        <translation>所有者</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="692"/>
         <source>Zone link</source>
-        <translation type="unfinished"></translation>
+        <translation>区域连接</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="698"/>
         <location filename="../templateeditor/templateeditor.ui" line="1196"/>
         <location filename="../templateeditor/templateeditor.ui" line="1202"/>
         <source>Mines</source>
-        <translation type="unfinished">矿井</translation>
+        <translation>矿井</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="705"/>
         <location filename="../templateeditor/templateeditor.ui" line="1218"/>
         <source>Custom objects</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义物体</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="712"/>
         <location filename="../templateeditor/templateeditor.ui" line="1090"/>
         <source>Towns</source>
-        <translation type="unfinished">城镇</translation>
+        <translation>城镇</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="719"/>
         <location filename="../templateeditor/templateeditor.ui" line="1060"/>
         <source>Terrain</source>
-        <translation type="unfinished"></translation>
+        <translation>地形</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="736"/>
@@ -3322,17 +3314,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="1186"/>
         <location filename="../templateeditor/templateeditor.cpp" line="337"/>
         <source>Treasure</source>
-        <translation type="unfinished"></translation>
+        <translation>财宝</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="799"/>
         <source>Town info</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇信息</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="805"/>
         <source>Town count</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇数量</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="817"/>
@@ -3340,7 +3332,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="943"/>
         <location filename="../templateeditor/templateeditor.ui" line="1006"/>
         <source>Player</source>
-        <translation type="unfinished">玩家</translation>
+        <translation>玩家</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="843"/>
@@ -3348,386 +3340,388 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="969"/>
         <location filename="../templateeditor/templateeditor.ui" line="1032"/>
         <source>Neutral</source>
-        <translation type="unfinished">中立</translation>
+        <translation>中立</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="868"/>
         <source>Castle count</source>
-        <translation type="unfinished"></translation>
+        <translation>城堡数量</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="931"/>
         <source>Town density</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇密度</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="994"/>
         <source>Castle density</source>
-        <translation type="unfinished"></translation>
+        <translation>城堡密度</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1066"/>
         <source>Match terrain to town</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇匹配地形</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1073"/>
         <source>Terrain types</source>
-        <translation type="unfinished"></translation>
+        <translation>地形类型</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1080"/>
         <source>Banned terrain types</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用地形类型</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1096"/>
         <source>Towns are same type</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇是同一类型</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1103"/>
         <source>Allowed towns</source>
-        <translation type="unfinished"></translation>
+        <translation>允许城镇</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1110"/>
         <source>Banned towns</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用城镇</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
         <source>Town hints</source>
-        <translation type="unfinished"></translation>
+        <translation>城镇提示</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1127"/>
         <source>Monsters</source>
-        <translation type="unfinished">怪物</translation>
+        <translation>怪物</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1133"/>
         <source>Allowed monsters</source>
-        <translation type="unfinished"></translation>
+        <translation>允许怪物</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1140"/>
         <source>Banned monsters</source>
-        <translation type="unfinished"></translation>
+        <translation>禁用怪物</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1158"/>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translation>强度</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1212"/>
         <source>Objects</source>
-        <translation type="unfinished">物体</translation>
+        <translation>物体</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1250"/>
         <source>Connections</source>
-        <translation type="unfinished"></translation>
+        <translation>连接</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1294"/>
         <source>Open</source>
-        <translation type="unfinished">打开</translation>
+        <translation>打开</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1302"/>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1310"/>
         <source>New</source>
-        <translation type="unfinished">新建</translation>
+        <translation>新建</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1318"/>
         <source>Save as...</source>
-        <translation type="unfinished">另存为</translation>
+        <translation>另存为</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1321"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1326"/>
         <source>Add zone</source>
-        <translation type="unfinished"></translation>
+        <translation>添加区域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1337"/>
         <source>Remove zone</source>
-        <translation type="unfinished"></translation>
+        <translation>移除区域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1340"/>
         <location filename="../templateeditor/templateeditor.cpp" line="417"/>
         <source>Del</source>
-        <translation type="unfinished">Del</translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1345"/>
         <source>Auto position</source>
-        <translation type="unfinished"></translation>
+        <translation>自动选择位置</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1348"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished">Ctrl+P</translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1353"/>
         <source>Zoom in</source>
-        <translation type="unfinished">放大</translation>
+        <translation>放大</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1356"/>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1361"/>
         <source>Zoom out</source>
-        <translation type="unfinished">缩小</translation>
+        <translation>缩小</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1364"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl+-</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1369"/>
         <source>Zoom auto</source>
-        <translation type="unfinished"></translation>
+        <translation>自动缩放</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1372"/>
         <source>Ctrl+Shift+:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1377"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">重置缩放</translation>
+        <translation>重置缩放</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1380"/>
         <source>Ctrl+Shift+=</source>
-        <translation type="unfinished">Ctrl+Shift+=</translation>
+        <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>最小</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>最大</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="195"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>行动</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="213"/>
         <location filename="../templateeditor/templateeditor.cpp" line="418"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="252"/>
         <source>ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ID: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>最大资源：%1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="335"/>
         <source>Player start</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家起始区域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="336"/>
         <source>CPU start</source>
-        <translation type="unfinished"></translation>
+        <translation>电脑起始区域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="338"/>
         <source>Junction</source>
-        <translation type="unfinished"></translation>
+        <translation>交汇处</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="339"/>
         <source>Water</source>
-        <translation type="unfinished"></translation>
+        <translation>水域</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="340"/>
         <source>Sealed</source>
-        <translation type="unfinished"></translation>
+        <translation>封闭区</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="368"/>
         <location filename="../templateeditor/templateeditor.cpp" line="405"/>
         <source>Random</source>
-        <translation type="unfinished">随机</translation>
+        <translation>随机</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>Weak</source>
-        <translation type="unfinished">弱</translation>
+        <translation>弱</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Strong</source>
-        <translation type="unfinished">强</translation>
+        <translation>强</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Zone A</source>
-        <translation type="unfinished"></translation>
+        <translation>区域A</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Zone B</source>
-        <translation type="unfinished"></translation>
+        <translation>区域B</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Guard</source>
-        <translation type="unfinished"></translation>
+        <translation>守卫</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="386"/>
         <source>Road</source>
-        <translation type="unfinished"></translation>
+        <translation>道路</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="400"/>
         <source>Guarded</source>
-        <translation type="unfinished"></translation>
+        <translation>有守卫的</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="401"/>
         <source>Fictive</source>
-        <translation type="unfinished"></translation>
+        <translation>虚拟的</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="402"/>
         <source>Repulsive</source>
-        <translation type="unfinished"></translation>
+        <translation>排斥的</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="403"/>
         <source>Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>宽阔的</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="404"/>
         <source>Force portal</source>
-        <translation type="unfinished"></translation>
+        <translation>强制传送门</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="406"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>是</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="407"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>否</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="514"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>区域A：%1
+区域B：%2
+守卫：%3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="574"/>
         <source>Confirmation</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="574"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">未保存的改动会丢失，你确定要这么做吗？</translation>
+        <translation>未保存的改动会丢失，你确定要这么做吗？</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="616"/>
         <source>Open template</source>
-        <translation type="unfinished"></translation>
+        <translation>打开模版</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="618"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI模版(*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="631"/>
         <source>Save template</source>
-        <translation type="unfinished"></translation>
+        <translation>保存模版</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="631"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI模版(*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="744"/>
         <location filename="../templateeditor/templateeditor.cpp" line="784"/>
         <source>Enter Name</source>
-        <translation type="unfinished"></translation>
+        <translation>输入名字</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="744"/>
         <location filename="../templateeditor/templateeditor.cpp" line="784"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>名字：</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
         <source>Already existing!</source>
-        <translation type="unfinished"></translation>
+        <translation>已存在！</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="751"/>
         <source>A template with this name is already existing.</source>
-        <translation type="unfinished"></translation>
+        <translation>同名模版已存在。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="767"/>
         <source>To few templates!</source>
-        <translation type="unfinished"></translation>
+        <translation>模版过少！</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="767"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished"></translation>
+        <translation>移除后最少需要保留一个模版。</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
         <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
         <source>Error</source>
-        <translation type="unfinished">错误</translation>
+        <translation>错误</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
         <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
         <source>Not implemented yet!</source>
-        <translation type="unfinished"></translation>
+        <translation>尚未实现！</translation>
     </message>
 </context>
 <context>
@@ -3736,12 +3730,12 @@ Guard: %3</source>
         <location filename="../templateeditor/terrainselector.ui" line="14"/>
         <location filename="../templateeditor/terrainselector.ui" line="20"/>
         <source>Select Terrains</source>
-        <translation type="unfinished"></translation>
+        <translation>选择地形</translation>
     </message>
     <message>
         <location filename="../templateeditor/terrainselector.cpp" line="25"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>地形选择器</translation>
     </message>
 </context>
 <context>
@@ -4090,32 +4084,32 @@ Guard: %3</source>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished"></translation>
+        <translation>选择财宝</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="26"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished"></translation>
+        <translation>财宝选择器</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translation>最小</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translation>最大</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Density</source>
-        <translation type="unfinished"></translation>
+        <translation>密度</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>行动</translation>
     </message>
 </context>
 <context>
@@ -4178,8 +4172,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="87"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">可归属对象 %1 是 UNFLAGGABLE，但必须为中立或玩家所有</translation>
+        <translation>可占领对象%1是无主的，需要设立为为中立或玩家所有</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="111"/>
@@ -4224,8 +4217,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="206"/>
         <source>The map is valid and has no issues.</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">地图有效，无任何问题。</translation>
+        <translation>地图有效，无任何问题。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>
