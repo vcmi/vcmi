@@ -30,6 +30,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/CModVersion.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -878,7 +879,32 @@ void CModListView::installFiles(QStringList files)
 		QString realFilename = Helper::getRealPath(filename);
 
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
-			mods.push_back(filename);
+		{
+			ZipArchive archive(qstringToPath(realFilename));
+			auto fileList = archive.listFiles();
+
+			bool hasRootMaps = false;
+
+			for (const auto& file : fileList)
+			{
+				QString lower = QString::fromStdString(file);
+
+				// Skip subfolders
+				if (lower.contains("/") || lower.contains("\\"))
+					continue;
+
+				if (lower.endsWith(".h3m", Qt::CaseInsensitive) || lower.endsWith(".h3c", Qt::CaseInsensitive) || lower.endsWith(".vmap", Qt::CaseInsensitive) || lower.endsWith(".vcmp", Qt::CaseInsensitive))
+				{
+					hasRootMaps = true;
+					break;
+				}
+			}
+
+			if (hasRootMaps)
+				maps.push_back(filename);
+			else
+				mods.push_back(filename);
+		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
 		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
@@ -1053,17 +1079,65 @@ void CModListView::installMods(QStringList archives)
 
 void CModListView::installMaps(QStringList maps)
 {
-	const auto destDir = CLauncherDirs::mapsPath() + QChar{ '/' };
+	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
 	int successCount = 0;
 	QStringList failedMaps;
 
-	for (const QString& map : maps)
+	for(QString map : maps)
 	{
+		// ZIP archive handling
+		if (map.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			logGlobal->info("Importing map archive '%s'", map.toStdString());
+
+			ZipArchive archive(qstringToPath(map));
+			auto fileList = archive.listFiles();
+
+			for (const auto& file : fileList)
+			{
+				QString name = QString::fromStdString(file);
+
+				// only root maps, ignore folders
+				if (name.contains("/") || name.contains("\\"))
+					continue;
+
+				if (!(name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) || name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive)))
+					continue;
+
+				QString destFile = destDir + name;
+
+				// prompt if exists
+				if (QFile::exists(destFile))
+				{
+					int ret = QMessageBox::question(this, tr("Map exists"), tr("Map '%1' already exists. Do you want to overwrite it?").arg(name), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+					if (ret != QMessageBox::Yes)
+					{
+						logGlobal->info("Skipped map '%s'", name.toStdString());
+						continue;
+					}
+					QFile::remove(destFile);
+				}
+
+				if (archive.extract(qstringToPath(destDir), file))
+				{
+					successCount++;
+				}
+				else
+				{
+					logGlobal->warn("Failed to extract map '%s'", name.toStdString());
+					failedMaps.push_back(name);
+				}
+			}
+
+			continue; // skip to next map entry
+		}
+
+		// Single map file handling
 		QString fileName = map.section('/', -1, -1);
 		QString destFile = destDir + fileName;
 		logGlobal->info("Importing map '%s'", map.toStdString());
 
-		// Ask the user if the file already exists
 		if (QFile::exists(destFile))
 		{
 			int ret = QMessageBox::question(this, tr("Map exists"), tr("Map '%1' already exists. Do you want to overwrite it?").arg(fileName), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
@@ -1077,7 +1151,6 @@ void CModListView::installMaps(QStringList maps)
 			QFile::remove(destFile);
 		}
 
-		// Copy the map file to destination
 		if (QFile::copy(map, destFile))
 		{
 			successCount++;
@@ -1089,11 +1162,11 @@ void CModListView::installMaps(QStringList maps)
 		}
 	}
 
-	// Show a success message if at least one map was imported
+	// success message
 	if (successCount > 0)
 		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount), QMessageBox::Ok, QMessageBox::Ok);
 
-	// Show an error message if any map failed to import
+	// error message
 	if (!failedMaps.isEmpty())
 		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")), QMessageBox::Ok, QMessageBox::Ok);
 }
