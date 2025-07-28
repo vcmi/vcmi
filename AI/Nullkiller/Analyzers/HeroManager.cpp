@@ -221,6 +221,10 @@ float HeroManager::getMagicStrength(const CGHeroInstance * hero) const
 	for(auto spellId : hero->getSpellsInSpellbook())
 	{
 		auto spell = spellId.toSpell();
+
+		if (!spell->isAdventure())
+			continue;
+
 		auto schoolLevel = hero->getSpellSchoolLevel(spell);
 		auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
 
