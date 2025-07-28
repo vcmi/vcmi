@@ -15,6 +15,7 @@
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../filesystem/Filesystem.h"
+#include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
@@ -38,6 +39,10 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 {
 	if (!mapping["supported"].Bool())
 		throw std::runtime_error("Unsupported map format!");
+
+	formatSettings.Struct(); // change type
+	if (!mapping["settings"].isNull())
+		JsonUtils::inherit(formatSettings, mapping["settings"]);
 
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{

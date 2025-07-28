@@ -743,6 +743,9 @@ void CMapLoaderH3M::readMapOptions()
 				logGlobal->warn("Map '%s': option to ban hero recruitment for %s is not implemented!!", mapName, PlayerColor(i).toString());
 		}
 	}
+
+	const MapIdentifiersH3M & identifierMapper = LIBRARY->mapFormat->getMapping(mapHeader->version);
+	map->overrideGameSettings(identifierMapper.getFormatSettings());
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()

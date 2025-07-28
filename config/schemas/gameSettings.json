@@ -167,11 +167,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"dimensionDoorOnlyToUncoveredTiles" : { "type" : "boolean" },
-				"dimensionDoorExposesTerrainType" :   { "type" : "boolean" },
-				"dimensionDoorFailureSpendsPoints" :  { "type" : "boolean" },
 				"dimensionDoorTriggersGuards" :       { "type" : "boolean" },
-				"dimensionDoorTournamentRulesLimit" : { "type" : "boolean" }
+				"tomesGrantBannedSpells" : { "type" : "boolean" }
 			}
 		},
 		"bonuses": {
