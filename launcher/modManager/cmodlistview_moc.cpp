@@ -149,10 +149,18 @@ CModListView::CModListView(QWidget * parent)
 #endif
 }
 
-void CModListView::reload()
+void CModListView::reload(const QString & modToSelect)
 {
 	modStateModel->reloadLocalState();
 	modModel->reloadViewModel();
+
+	if (!modToSelect.isEmpty())
+	{
+		QModelIndexList matches = filterModel->match(filterModel->index(0, 0), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
+
+		if (!matches.isEmpty())
+			ui->allModsView->setCurrentIndex(matches.first());
+	}
 }
 
 void CModListView::loadRepositories()
@@ -926,7 +934,6 @@ void CModListView::installFiles(QStringList files)
 	{
 		logGlobal->info("Installing mods: started");
 		installMods(mods);
-		reload();
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -950,9 +957,6 @@ void CModListView::installFiles(QStringList files)
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
-			reload();
-			if (modStateModel->isModExists("chronicles"))
-				enableModByName("chronicles");
 			return true;
 		});
 		
@@ -968,7 +972,9 @@ void CModListView::installFiles(QStringList files)
 			ui->pushButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
 			//update
-			reload();
+			reload("chronicles");
+			if (modStateModel->isModExists("chronicles"))
+				enableModByName("chronicles");
 		}
 		logGlobal->info("Installing chronicles: ended");
 	}
@@ -1015,16 +1021,21 @@ void CModListView::installMods(QStringList archives)
 		}
 	}
 
-	reload(); // FIXME: better way that won't reset selection
+	QString lastInstalled;
 
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
-		ui->progressBar->setFormat(tr("Installing mod %1").arg(modNames[i]));
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modStateModel->getMod(modNames[i]).getName()));
+
 		manager->installMod(modNames[i], archives[i]);
+
+		if (i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
+			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
-	reload();
+
+	reload(lastInstalled);	
 
 	if (!modsToEnable.empty())
 	{
