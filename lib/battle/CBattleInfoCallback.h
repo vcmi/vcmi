@@ -52,6 +52,12 @@ struct DLL_LINKAGE BattleClientInterfaceData
 	ui8 tacticsMode;
 };
 
+struct ForcedAction {
+	EActionType type;
+	BattleHex position;
+	const battle::Unit * target;
+};
+
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
@@ -115,7 +121,7 @@ public:
 	EWallPart battleHexToWallPart(const BattleHex & hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	bool isWallPartPotentiallyAttackable(EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
 	bool isWallPartAttackable(EWallPart wallPart) const; // returns true if the wall part is actually attackable, false if not
-	BattleHexArray getAttackableBattleHexes() const;
+	BattleHexArray getAttackableWallParts() const;
 
 	si8 battleMinSpellLevel(BattleSide side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	si8 battleMaxSpellLevel(BattleSide side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
@@ -162,7 +168,7 @@ public:
 	AccessibilityInfo getAccessibility() const;
 	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
 	AccessibilityInfo getAccessibility(const BattleHexArray & accessibleHexes) const; //given hexes will be marked as accessible
-	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
+	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 
 	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
 protected:

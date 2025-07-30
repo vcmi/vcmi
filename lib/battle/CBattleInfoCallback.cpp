@@ -762,7 +762,8 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 			return false;
 	}
 
-	if(emptyHexAreaAttack || (battleMatchOwner(attacker, defender) && defender->alive()))
+	bool attackerIsBerserk = attacker->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
+	if(emptyHexAreaAttack || (defender->alive() && (attackerIsBerserk || battleMatchOwner(attacker, defender))))
 	{
 		if(battleCanShoot(attacker))
 		{
@@ -1165,44 +1166,101 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 	return ret;
 }
 
-std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(const battle::Unit * closest) const
+ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * berserker) const
 {
-	auto reachability = getReachability(closest);
-	auto avHexes = battleGetAvailableHexes(reachability, closest, false);
-
-	// I hate std::pairs with their undescriptive member names first / second
-	struct DistStack
+	logGlobal->trace("Handle Berserk effect");
+	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
-		uint32_t distanceToPred;
-		BattleHex destination;
-		const battle::Unit * stack;
-	};
-
-	std::vector<DistStack> stackPairs;
-
-	battle::Units possible = battleGetUnitsIf([closest](const battle::Unit * unit)
-	{
-		return unit->isValidTarget(false) && unit != closest;
+		return u->isValidTarget(false) && u->unitId() != berserker->unitId();
 	});
+	auto cache = getReachability(berserker);
 
-	for(const battle::Unit * st : possible)
+	if (battleCanShoot(berserker))
 	{
-		for(const BattleHex & hex : avHexes)
-			if(CStack::isMeleeAttackPossible(closest, st, hex))
-			{
-				DistStack hlp = {reachability.distances[hex.toInt()], hex, st};
-				stackPairs.push_back(hlp);
-			}
-	}
-
-	if(!stackPairs.empty())
-	{
-		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
-		auto minimal = boost::min_element(stackPairs, comparator);
-		return std::make_pair(minimal->stack, minimal->destination);
+		const auto target = boost::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
+		{
+			return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
+		})[0];
+		ForcedAction result = {
+			EActionType::SHOOT,
+			berserker->getPosition(),
+			target
+		};
+		return result;
 	}
 	else
-		return std::make_pair<const battle::Unit * , BattleHex>(nullptr, BattleHex::INVALID);
+	{
+		struct TargetData
+		{
+			const battle::Unit * target;
+			BattleHex closestAttackableHex;
+			uint32_t distance;
+		};
+
+		std::vector<TargetData> targetData;
+		targetData.reserve(targets.size());
+		for (const battle::Unit * uTarget : targets)
+		{
+			BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
+			auto closestAttackableHex = boost::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
+			{
+				return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
+			})[0];
+			uint32_t distance = cache.distances[closestAttackableHex.toInt()];
+			TargetData temp = {uTarget, closestAttackableHex, distance};
+			targetData.push_back(temp);
+		}
+
+		auto closestUnit = boost::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
+		{
+			return lhs.distance < rhs.distance;
+		})[0];
+
+		if (closestUnit.distance <= berserker->getMovementRange())
+		{
+			ForcedAction result = {
+				EActionType::WALK_AND_ATTACK,
+				closestUnit.closestAttackableHex,
+				closestUnit.target
+			};
+			return result;
+		}
+		else if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
+		{
+			BattleHex intermediaryHex;
+			if (berserker->hasBonusOfType(BonusType::FLYING))
+			{
+				BattleHexArray reachableHexes = battleGetAvailableHexes(cache, berserker, false);
+				BattleHex targetPosition = closestUnit.target->getPosition();
+				intermediaryHex = boost::min_element(reachableHexes, [&targetPosition](const BattleHex & lhs, const BattleHex & rhs)
+				{
+					return BattleHex::getDistance(lhs, targetPosition) < BattleHex::getDistance(rhs, targetPosition);
+				})[0];
+			}
+			else
+			{
+				BattleHexArray path = getPath(berserker->getPosition(), closestUnit.closestAttackableHex, berserker).first;
+				intermediaryHex = path[path.size() - berserker->getMovementRange()];
+			}
+
+			ForcedAction result = {
+				EActionType::WALK,
+				intermediaryHex,
+				closestUnit.target
+			};
+			return result;
+		}
+		else
+		{
+			logGlobal->trace("No target found or unit cannot move");
+			ForcedAction result = {
+				EActionType::NO_ACTION,
+				berserker->getPosition(),
+				nullptr
+			};
+			return result;
+		}
+	}
 }
 
 BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
@@ -1671,7 +1729,7 @@ bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
 	return false;
 }
 
-BattleHexArray CBattleInfoCallback::getAttackableBattleHexes() const
+BattleHexArray CBattleInfoCallback::getAttackableWallParts() const
 {
 	BattleHexArray attackableBattleHexes;
 	RETURN_IF_NOT_BATTLE(attackableBattleHexes);
@@ -1721,9 +1779,10 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
+	bool isBerserk = unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
 	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{
-		if(adjacent->unitOwner() != unit->unitOwner()) //blocked by enemy stack
+		if(adjacent->unitOwner() != unit->unitOwner() || isBerserk)
 			return true;
 	}
 	return false;
