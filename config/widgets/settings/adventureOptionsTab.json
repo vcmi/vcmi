@@ -305,6 +305,9 @@
 				},
 				{
 					"text": "vcmi.adventureOptions.minimapShowHeroes.hover"
+				},
+				{
+					"text": "vcmi.keyBindings.button.hover"
 				}
 			]
 		},
@@ -343,6 +346,12 @@
 					"name": "minimapShowHeroesCheckbox",
 					"help": "vcmi.adventureOptions.minimapShowHeroes",
 					"callback": "minimapShowHeroesChanged"
+				},
+				{
+					"name": "shortcutButton",
+					"type": "buttonGear",
+					"help": "vcmi.keyBindings.button",
+					"callback": "openShortcutMenu"
 				}
 			]
 		},

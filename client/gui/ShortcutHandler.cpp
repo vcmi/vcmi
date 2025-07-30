@@ -13,21 +13,20 @@
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 
 ShortcutHandler::ShortcutHandler()
 {
-	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
-
-	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
-	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 
-	for (auto const & entry : config["keyboard"].Struct())
+	for (auto const & entry : keyBindingsConfig["keyboard"].Struct())
 	{
 		EShortcut shortcutID = findShortcut(entry.first);
 		assert(!vstd::contains(assignedShortcuts, shortcutID));

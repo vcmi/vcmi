@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "AdventureOptionsTab.h"
+#include "KeyBindingsWindow.h"
 
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
@@ -162,6 +163,10 @@ AdventureOptionsTab::AdventureOptionsTab()
 		if (GAME->interface()->makingTurn && GAME->interface()->localState->getCurrentHero())
 			GAME->interface()->localState->erasePath(GAME->interface()->localState->getCurrentHero());
 		ENGINE->windows().totalRedraw();
+	});
+	addCallback("openShortcutMenu", [](int dummyValue)
+	{
+		ENGINE->windows().createAndPushWindow<KeyBindingsWindow>();
 	});
 	build(config);
 
