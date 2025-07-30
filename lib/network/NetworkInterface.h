@@ -108,6 +108,9 @@ public:
 	/// On success INetworkTimerListener::onConnectionEstablished() will be called asynchronously, established connection provided as parameter
 	virtual void createInternalConnection(INetworkClientListener & listener, INetworkServer & server) = 0;
 
+	/// Creates one-way connection that allows sending messages to listener in async form
+	virtual std::shared_ptr<INetworkConnection> createAsyncConnection(INetworkConnectionListener & listener) = 0;
+
 	/// Creates a timer that will be called once, after specified interval has passed
 	/// On success: INetworkTimerListener::onTimer() will be called
 	/// On failure: no-op

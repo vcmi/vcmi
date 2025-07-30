@@ -189,7 +189,7 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 
 	if (pack.mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
-		std::unordered_set<int3> tilesRevealed;
+		FowTilesType tilesRevealed;
 		for (auto & o : gs.getMap().getObjects())
 		{
 			if (o->asOwnable())
@@ -319,19 +319,6 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 
 	// defeated player may be making turn right now
 	gs.actingPlayers.erase(pack.player);
-}
-
-void GameStatePackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)
-{
-	if(!gs.getStartInfo())
-		return;
-
-	//TODO: what does mean if more that one player connected?
-	if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
-	{
-		for(const auto & player : pack.players)
-			gs.getStartInfo()->getIthPlayersSettings(player).connectedPlayerIDs.clear();
-	}
 }
 
 void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)

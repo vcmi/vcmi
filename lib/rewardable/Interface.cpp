@@ -76,7 +76,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 			return score > 0;
 		};
 
-		std::unordered_set<int3> tiles;
+		FowTilesType tiles;
 		if (props.radius > 0)
 		{
 			cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->getOwner());

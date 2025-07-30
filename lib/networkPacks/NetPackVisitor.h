@@ -28,6 +28,7 @@ public:
 	virtual void visitForServer(CPackForServer & pack) {}
 	virtual void visitForClient(CPackForClient & pack) {}
 	virtual void visitPackageApplied(PackageApplied & pack) {}
+	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
@@ -53,7 +54,6 @@ public:
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
-	virtual void visitPlayerReinitInterface(PlayerReinitInterface & pack) {}
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}

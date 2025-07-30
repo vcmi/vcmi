@@ -49,7 +49,7 @@ public:
 class InternalConnection final : public IInternalConnection, public std::enable_shared_from_this<InternalConnection>
 {
 	std::weak_ptr<IInternalConnection> otherSideWeak;
-	NetworkContext & io;
+	NetworkContext & context;
 	INetworkConnectionListener & listener;
 	bool connectionActive = false;
 public:

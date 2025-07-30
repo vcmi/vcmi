@@ -125,6 +125,8 @@ public:
 class CClient : public Environment, public IClient
 {
 	std::shared_ptr<CGameState> gamestate;
+	int requestCounter = 1;
+
 public:
 	std::map<PlayerColor, std::shared_ptr<CGameInterface>> playerint;
 	std::map<PlayerColor, std::shared_ptr<CBattleGameInterface>> battleints;
@@ -142,6 +144,7 @@ public:
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
 
+	std::shared_ptr<CGameState> gameStatePtr() { return gamestate; }
 	CGameState & gameState() { return *gamestate; }
 	const CGameState & gameState() const { return *gamestate; }
 	IGameInfoCallback & gameInfo();

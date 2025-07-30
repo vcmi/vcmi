@@ -1,5 +1,5 @@
 /*
- * Connection.cpp, part of VCMI engine
+ * GameConnection.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "Connection.h"
+#include "GameConnection.h"
 
 #include "BinaryDeserializer.h"
 #include "BinarySerializer.h"
@@ -19,7 +19,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class DLL_LINKAGE ConnectionPackWriter final : public IBinaryWriter
+class GameConnectionPackWriter final : public IBinaryWriter
 {
 public:
 	std::vector<std::byte> buffer;
@@ -27,7 +27,7 @@ public:
 	int write(const std::byte * data, unsigned size) final;
 };
 
-class DLL_LINKAGE ConnectionPackReader final : public IBinaryReader
+class GameConnectionPackReader final : public IBinaryReader
 {
 public:
 	const std::vector<std::byte> * buffer;
@@ -36,13 +36,13 @@ public:
 	int read(std::byte * data, unsigned size) final;
 };
 
-int ConnectionPackWriter::write(const std::byte * data, unsigned size)
+int GameConnectionPackWriter::write(const std::byte * data, unsigned size)
 {
 	buffer.insert(buffer.end(), data, data + size);
 	return size;
 }
 
-int ConnectionPackReader::read(std::byte * data, unsigned size)
+int GameConnectionPackReader::read(std::byte * data, unsigned size)
 {
 	if (position + size > buffer->size())
 		throw std::runtime_error("End of file reached when reading received network pack!");
@@ -52,13 +52,12 @@ int ConnectionPackReader::read(std::byte * data, unsigned size)
 	return size;
 }
 
-CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
+GameConnection::GameConnection(std::weak_ptr<INetworkConnection> networkConnection)
 	: networkConnection(networkConnection)
-	, packReader(std::make_unique<ConnectionPackReader>())
-	, packWriter(std::make_unique<ConnectionPackWriter>())
+	, packReader(std::make_unique<GameConnectionPackReader>())
+	, packWriter(std::make_unique<GameConnectionPackWriter>())
 	, deserializer(std::make_unique<BinaryDeserializer>(packReader.get()))
 	, serializer(std::make_unique<BinarySerializer>(packWriter.get()))
-	, connectionID(-1)
 {
 	assert(networkConnection.lock() != nullptr);
 
@@ -66,9 +65,9 @@ CConnection::CConnection(std::weak_ptr<INetworkConnection> networkConnection)
 	deserializer->version = ESerializationVersion::CURRENT;
 }
 
-CConnection::~CConnection() = default;
+GameConnection::~GameConnection() = default;
 
-void CConnection::sendPack(const CPack & pack)
+void GameConnection::sendPack(const CPack & pack)
 {
 	std::scoped_lock lock(writeMutex);
 
@@ -87,7 +86,7 @@ void CConnection::sendPack(const CPack & pack)
 	serializer->clear();
 }
 
-std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & data)
+std::unique_ptr<CPack> GameConnection::retrievePack(const std::vector<std::byte> & data)
 {
 	std::unique_ptr<CPack> result;
 
@@ -108,28 +107,28 @@ std::unique_ptr<CPack> CConnection::retrievePack(const std::vector<std::byte> & 
 	return result;
 }
 
-bool CConnection::isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const
+bool GameConnection::isMyConnection(const std::shared_ptr<INetworkConnection> & otherConnection) const
 {
 	return otherConnection != nullptr && networkConnection.lock() == otherConnection;
 }
 
-std::shared_ptr<INetworkConnection> CConnection::getConnection()
+std::shared_ptr<INetworkConnection> GameConnection::getConnection()
 {
 	return networkConnection.lock();
 }
 
-void CConnection::enterLobbyConnectionMode()
+void GameConnection::enterLobbyConnectionMode()
 {
 	deserializer->clear();
 	serializer->clear();
 }
 
-void CConnection::setCallback(IGameInfoCallback & cb)
+void GameConnection::setCallback(IGameInfoCallback & cb)
 {
 	deserializer->cb = &cb;
 }
 
-void CConnection::setSerializationVersion(ESerializationVersion version)
+void GameConnection::setSerializationVersion(ESerializationVersion version)
 {
 	deserializer->version = version;
 	serializer->version = version;

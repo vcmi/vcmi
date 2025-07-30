@@ -75,7 +75,7 @@ public:
 	void preInit(Services * services);
 
 	void init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
-	void updateOnLoad(StartInfo * si);
+	void updateOnLoad(const StartInfo & si);
 
 	ui32 day; //total number of days in game
 	std::map<PlayerColor, PlayerState> players;

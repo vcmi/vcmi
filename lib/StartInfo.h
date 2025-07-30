@@ -15,7 +15,9 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
+#include "serializer/PlayerConnectionID.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -80,8 +82,6 @@ struct DLL_LINKAGE Handicap {
 /// Struct which describes the name, the color, the starting bonus of a player
 struct DLL_LINKAGE PlayerSettings
 {
-	enum { PLAYER_AI = 0 }; // for use in playerID
-
 	PlayerStartingBonus bonus;
 	FactionID castle;
 	HeroTypeID hero;
@@ -93,7 +93,7 @@ struct DLL_LINKAGE PlayerSettings
 	Handicap handicap;
 
 	std::string name;
-	std::set<ui8> connectedPlayerIDs; //Empty - AI, or connectrd player ids
+	std::set<PlayerConnectionID> connectedPlayerIDs; //Empty - AI, or connectrd player ids
 	bool compOnly; //true if this player is a computer only player; required for RMG
 	template <typename Handler>
 	void serialize(Handler &h)
@@ -148,7 +148,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 
 	PlayerSettings & getIthPlayersSettings(const PlayerColor & no);
 	const PlayerSettings & getIthPlayersSettings(const PlayerColor & no) const;
-	PlayerSettings * getPlayersSettings(const ui8 connectedPlayerId);
+	PlayerSettings * getPlayersSettings(PlayerConnectionID connectedPlayerId);
 
 	// TODO: Must be client-side
 	std::string getCampaignName() const;
@@ -183,7 +183,7 @@ struct DLL_LINKAGE StartInfo : public Serializeable
 
 struct ClientPlayer
 {
-	int connection;
+	GameConnectionID connection;
 	std::string name;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -197,14 +197,14 @@ struct DLL_LINKAGE LobbyState
 {
 	std::shared_ptr<StartInfo> si;
 	std::shared_ptr<CMapInfo> mi;
-	std::map<ui8, ClientPlayer> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
-	int hostClientId;
+	std::map<PlayerConnectionID, ClientPlayer> playerNames; // id of player <-> player name;
+	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	// TODO: Campaign-only and we don't really need either of them.
 	// Before start both go into CCampaignState that is part of StartInfo
 	CampaignScenarioID campaignMap;
 	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
+	LobbyState() : si(new StartInfo()), campaignMap(CampaignScenarioID::NONE), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -225,16 +225,16 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 
 	void verifyStateBeforeStart(bool ignoreNoHuman = false) const;
 
-	bool isClientHost(int clientId) const;
+	bool isClientHost(GameConnectionID clientId) const;
 	bool isPlayerHost(const PlayerColor & color) const;
-	std::set<PlayerColor> getAllClientPlayers(int clientId) const;
-	std::vector<ui8> getConnectedPlayerIdsForClient(int clientId) const;
+	std::set<PlayerColor> getAllClientPlayers(GameConnectionID clientId) const;
+	std::vector<PlayerConnectionID> getConnectedPlayerIdsForClient(GameConnectionID clientId) const;
 
 	// Helpers for lobby state access
-	std::set<PlayerColor> clientHumanColors(int clientId);
-	PlayerColor clientFirstColor(int clientId) const;
-	bool isClientColor(int clientId, const PlayerColor & color) const;
-	ui8 clientFirstId(int clientId) const; // Used by chat only!
+	std::set<PlayerColor> clientHumanColors(GameConnectionID clientId);
+	PlayerColor clientFirstColor(GameConnectionID clientId) const;
+	bool isClientColor(GameConnectionID clientId, const PlayerColor & color) const;
+	PlayerConnectionID clientFirstId(GameConnectionID clientId) const; // Used by chat only!
 	PlayerInfo & getPlayerInfo(PlayerColor color);
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };

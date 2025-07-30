@@ -36,9 +36,9 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/GameConnection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
@@ -152,14 +152,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareS
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.logicConnection->connectionID)
-	{
-		result = false;
-		return;
-	}
-	
 	handler.setState(EClientState::STARTING);
-	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.logicConnection->connectionID)
+	if(handler.si->mode != EStartMode::LOAD_GAME)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;

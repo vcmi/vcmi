@@ -48,27 +48,64 @@ class BattleInfo;
 // For now it's will be there till teleports code refactored and moved into own file
 using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 
+using FowTilesType = std::set<int3>;
+
 /***********************************************************************************************************/
 struct DLL_LINKAGE PackageApplied : public CPackForClient
 {
 	PackageApplied() = default;
-	explicit PackageApplied(ui8 Result)
-		: result(Result)
+	PackageApplied(PlayerColor player, uint32_t requestID, uint16_t packType, bool result)
+		: player(player)
+		, requestID(requestID)
+		, packType(packType)
+		, result(result)
 	{
 	}
+
 	void visitTyped(ICPackVisitor & visitor) override;
 
-	ui8 result = 0; //0 - something went wrong, request hasn't been realized; 1 - OK
-	ui32 packType = 0; //type id of applied package
-	ui32 requestID = 0; //an ID given by client to the request that was applied
+	/// ID of player that sent this package
 	PlayerColor player;
+	/// request ID, as provided by player
+	uint32_t requestID = 0;
+	/// type id of applied package
+	uint16_t packType = 0;
+	/// If false, then pack failed to apply, for example - illegal request
+	bool result = false;
 
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & result;
-		h & packType;
-		h & requestID;
 		h & player;
+		h & requestID;
+		h & packType;
+		h & result;
+	}
+};
+
+struct DLL_LINKAGE PackageReceived : public CPackForClient
+{
+	PackageReceived() = default;
+	PackageReceived(PlayerColor player, uint32_t requestID, uint16_t packType)
+		: player(player)
+		, requestID(requestID)
+		, packType(packType)
+	{
+	}
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	/// ID of player that sent this package
+	PlayerColor player;
+	/// request ID, as provided by player
+	uint32_t requestID;
+	/// type id of applied package
+	uint16_t packType;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & player;
+		h & requestID;
+		h & packType;
 	}
 };
 
@@ -370,7 +407,7 @@ struct DLL_LINKAGE SetMovePoints : public CPackForClient
 
 struct DLL_LINKAGE FoWChange : public CPackForClient
 {
-	std::unordered_set<int3> tiles;
+	FowTilesType tiles;
 	PlayerColor player;
 	ETileVisibility mode;
 	bool waitForDialogs = false;
@@ -495,20 +532,6 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 		h & player;
 		h & victoryLossCheckResult;
 		h & statistic;
-	}
-};
-
-struct DLL_LINKAGE PlayerReinitInterface : public CPackForClient
-{
-	std::vector<PlayerColor> players;
-	ui8 playerConnectionId; //PLAYER_AI for AI player
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & players;
-		h & playerConnectionId;
 	}
 };
 
@@ -638,7 +661,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 	/// Hero anchor position to which hero moves
 	int3 end;
 	/// Tiles that were revealed by this move
-	std::unordered_set<int3> fowRevealed;
+	FowTilesType fowRevealed;
 	/// If hero moves on guarded tile, this field will be set to visitable pos of attacked wandering monster
 	int3 attackedFrom;
 
@@ -658,6 +681,12 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		h & movePoints;
 		h & fowRevealed;
 		h & attackedFrom;
+
+		std::string fow;
+		for (const auto & tile : fowRevealed)
+			fow += tile.toString() + ", ";
+
+		logGlobal->info("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
 	}
 };
 

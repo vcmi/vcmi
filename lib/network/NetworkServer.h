@@ -15,7 +15,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class NetworkServer : public INetworkConnectionListener, public INetworkServer
 {
-	NetworkContext & io;
+	NetworkContext & context;
 	std::shared_ptr<NetworkAcceptor> acceptor;
 	std::set<std::shared_ptr<INetworkConnection>> connections;
 

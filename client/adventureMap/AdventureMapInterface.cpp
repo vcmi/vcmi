@@ -351,7 +351,7 @@ void AdventureMapInterface::onHeroOrderChanged()
 	widget->getHeroList()->updateWidget();
 }
 
-void AdventureMapInterface::onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions)
+void AdventureMapInterface::onMapTilesChanged(boost::optional<FowTilesType> positions)
 {
 	if (positions)
 		widget->getMinimap()->updateTiles(*positions);

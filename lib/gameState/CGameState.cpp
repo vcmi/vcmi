@@ -280,15 +280,15 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 	}
 }
 
-void CGameState::updateOnLoad(StartInfo * si)
+void CGameState::updateOnLoad(const StartInfo & si)
 {
 	assert(services);
-	scenarioOps->playerInfos = si->playerInfos;
-	for(auto & i : si->playerInfos)
+	scenarioOps->playerInfos = si.playerInfos;
+	for(auto & i : si.playerInfos)
 		players.at(i.first).human = i.second.isControlledByHuman();
-	scenarioOps->extraOptionsInfo = si->extraOptionsInfo;
-	scenarioOps->turnTimerInfo = si->turnTimerInfo;
-	scenarioOps->simturnsInfo = si->simturnsInfo;
+	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
+	scenarioOps->turnTimerInfo = si.turnTimerInfo;
+	scenarioOps->simturnsInfo = si.simturnsInfo;
 }
 
 void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
@@ -676,7 +676,7 @@ void CGameState::initFogOfWar()
 			if(!vstd::contains(elem.second.players, obj->getOwner()))
 				continue; //not a flagged object
 
-			std::unordered_set<int3> tiles;
+			FowTilesType tiles;
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{

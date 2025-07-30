@@ -71,7 +71,7 @@ const PlayerSettings & StartInfo::getIthPlayersSettings(const PlayerColor & no) 
 	return const_cast<StartInfo &>(*this).getIthPlayersSettings(no);
 }
 
-PlayerSettings * StartInfo::getPlayersSettings(const ui8 connectedPlayerId)
+PlayerSettings * StartInfo::getPlayersSettings(PlayerConnectionID connectedPlayerId)
 {
 	for(auto & elem : playerInfos)
 	{
@@ -124,7 +124,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 	}
 }
 
-bool LobbyInfo::isClientHost(int clientId) const
+bool LobbyInfo::isClientHost(GameConnectionID clientId) const
 {
 	return clientId == hostClientId;
 }
@@ -134,7 +134,7 @@ bool LobbyInfo::isPlayerHost(const PlayerColor & color) const
 	return vstd::contains(getAllClientPlayers(hostClientId), color);
 }
 
-std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId) const
+std::set<PlayerColor> LobbyInfo::getAllClientPlayers(GameConnectionID clientId) const
 {
 	std::set<PlayerColor> players;
 	for(auto & elem : si->playerInfos)
@@ -142,7 +142,7 @@ std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId) const
 		if(isClientHost(clientId) && elem.second.isControlledByAI())
 			players.insert(elem.first);
 
-		for(ui8 id : elem.second.connectedPlayerIDs)
+		for(PlayerConnectionID id : elem.second.connectedPlayerIDs)
 		{
 			if(vstd::contains(getConnectedPlayerIdsForClient(clientId), id))
 				players.insert(elem.first);
@@ -154,9 +154,9 @@ std::set<PlayerColor> LobbyInfo::getAllClientPlayers(int clientId) const
 	return players;
 }
 
-std::vector<ui8> LobbyInfo::getConnectedPlayerIdsForClient(int clientId) const
+std::vector<PlayerConnectionID> LobbyInfo::getConnectedPlayerIdsForClient(GameConnectionID clientId) const
 {
-	std::vector<ui8> ids;
+	std::vector<PlayerConnectionID> ids;
 
 	for(const auto & pair : playerNames)
 	{
@@ -172,12 +172,12 @@ std::vector<ui8> LobbyInfo::getConnectedPlayerIdsForClient(int clientId) const
 	return ids;
 }
 
-std::set<PlayerColor> LobbyInfo::clientHumanColors(int clientId)
+std::set<PlayerColor> LobbyInfo::clientHumanColors(GameConnectionID clientId)
 {
 	std::set<PlayerColor> players;
 	for(auto & elem : si->playerInfos)
 	{
-		for(ui8 id : elem.second.connectedPlayerIDs)
+		for(PlayerConnectionID id : elem.second.connectedPlayerIDs)
 		{
 			if(vstd::contains(getConnectedPlayerIdsForClient(clientId), id))
 			{
@@ -190,7 +190,7 @@ std::set<PlayerColor> LobbyInfo::clientHumanColors(int clientId)
 }
 
 
-PlayerColor LobbyInfo::clientFirstColor(int clientId) const
+PlayerColor LobbyInfo::clientFirstColor(GameConnectionID clientId) const
 {
 	for(auto & pair : si->playerInfos)
 	{
@@ -201,11 +201,11 @@ PlayerColor LobbyInfo::clientFirstColor(int clientId) const
 	return PlayerColor::CANNOT_DETERMINE;
 }
 
-bool LobbyInfo::isClientColor(int clientId, const PlayerColor & color) const
+bool LobbyInfo::isClientColor(GameConnectionID clientId, const PlayerColor & color) const
 {
 	if(si->playerInfos.find(color) != si->playerInfos.end())
 	{
-		for(ui8 id : si->playerInfos.find(color)->second.connectedPlayerIDs)
+		for(PlayerConnectionID id : si->playerInfos.find(color)->second.connectedPlayerIDs)
 		{
 			if(playerNames.find(id) != playerNames.end())
 			{
@@ -217,7 +217,7 @@ bool LobbyInfo::isClientColor(int clientId, const PlayerColor & color) const
 	return false;
 }
 
-ui8 LobbyInfo::clientFirstId(int clientId) const
+PlayerConnectionID LobbyInfo::clientFirstId(GameConnectionID clientId) const
 {
 	for(const auto & pair : playerNames)
 	{
@@ -225,7 +225,7 @@ ui8 LobbyInfo::clientFirstId(int clientId) const
 			return pair.first;
 	}
 
-	return 0;
+	throw std::runtime_error("LobbyInfo::clientFirstId: invalid GameConnectionID!");
 }
 
 PlayerInfo & LobbyInfo::getPlayerInfo(PlayerColor color)

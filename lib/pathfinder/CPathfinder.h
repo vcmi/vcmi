@@ -20,6 +20,8 @@ class TurnInfo;
 class CGTeleport;
 struct PathfinderOptions;
 
+using FowTilesType = std::set<int3>;
+
 // Optimized storage - tile can have 0-8 neighbour tiles
 // static_vector uses fixed, preallocated storage (capacity) and dynamic size
 // this avoid dynamic allocations on huge number of neighbour list queries
@@ -78,7 +80,7 @@ public:
 		PATROL_LOCKED = 1,
 		PATROL_RADIUS
 	} patrolState;
-	std::unordered_set<int3> patrolTiles;
+	FowTilesType patrolTiles;
 
 	int turn;
 	PlayerColor owner;

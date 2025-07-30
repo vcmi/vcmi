@@ -1,5 +1,5 @@
 /*
- * Connection.h, part of VCMI engine
+ * GameConnection.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "GameConnectionID.h"
+
 enum class ESerializationVersion : int32_t;
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -17,20 +19,20 @@ class BinaryDeserializer;
 class BinarySerializer;
 struct CPack;
 class INetworkConnection;
-class ConnectionPackReader;
-class ConnectionPackWriter;
+class GameConnectionPackReader;
+class GameConnectionPackWriter;
 class CGameState;
 class IGameInfoCallback;
 
 /// Wrapper class for game connection
 /// Handles serialization and deserialization of data received from network
-class DLL_LINKAGE CConnection : boost::noncopyable
+class DLL_LINKAGE GameConnection final : boost::noncopyable
 {
 	/// Non-owning pointer to underlying connection
 	std::weak_ptr<INetworkConnection> networkConnection;
 
-	std::unique_ptr<ConnectionPackReader> packReader;
-	std::unique_ptr<ConnectionPackWriter> packWriter;
+	std::unique_ptr<GameConnectionPackReader> packReader;
+	std::unique_ptr<GameConnectionPackWriter> packWriter;
 	std::unique_ptr<BinaryDeserializer> deserializer;
 	std::unique_ptr<BinarySerializer> serializer;
 
@@ -41,10 +43,10 @@ public:
 	std::shared_ptr<INetworkConnection> getConnection();
 
 	std::string uuid;
-	int connectionID;
+	GameConnectionID connectionID = GameConnectionID::INVALID;
 
-	explicit CConnection(std::weak_ptr<INetworkConnection> networkConnection);
-	~CConnection();
+	explicit GameConnection(std::weak_ptr<INetworkConnection> networkConnection);
+	~GameConnection();
 
 	void sendPack(const CPack & pack);
 	std::unique_ptr<CPack> retrievePack(const std::vector<std::byte> & data);

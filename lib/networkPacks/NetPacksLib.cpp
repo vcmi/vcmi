@@ -74,6 +74,11 @@ void PackageApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPackageApplied(*this);
 }
 
+void PackageReceived::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPackageReceived(*this);
+}
+
 void SystemMessage::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSystemMessage(*this);
@@ -186,11 +191,6 @@ void PlayerEndsTurn::visitTyped(ICPackVisitor & visitor)
 void PlayerEndsGame::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitPlayerEndsGame(*this);
-}
-
-void PlayerReinitInterface::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitPlayerReinitInterface(*this);
 }
 
 void RemoveBonus::visitTyped(ICPackVisitor & visitor)

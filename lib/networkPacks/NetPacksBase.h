@@ -15,8 +15,6 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGameState;
-class CConnection;
-
 class ICPackVisitor;
 
 struct DLL_LINKAGE CPack : public Serializeable
