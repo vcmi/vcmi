@@ -52,8 +52,8 @@
 				"specialtyCreatureGrowth" :       { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
 				"baseScoutingRange" :             { "type" : "number" },
-				"skillSelectionAmountUpgr" :      { "type" : "number" },
-				"skillSelectionAmount" :          { "type" : "number" }
+				"levelupTotalSkillsAmount" :      { "type" : "number" },
+				"levelupUpgradedSkillsAmount" :   { "type" : "number" }
 			}
 		},
 		"towns" : {

@@ -519,10 +519,10 @@
 			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
 			"specialtyCreatureGrowth" : 5,
 
-			/// Amount of advanced or expert skills selectable (if any)
-			"skillSelectionAmountUpgr" : 1,
-			/// Amount of basic skills selectable (if fewer advanced or expert skills than expected they will also filled up with basic skills)
-			"skillSelectionAmount" : 1
+			/// Maximum amount of skills that can be offered to hero on levelup
+			"levelupTotalSkillsAmount" : 2,
+			/// Maximum amount of advanced or expert skills that can be offered to hero on levelup
+			"levelupUpgradedSkillsAmount" : 1
 		},
 
 		"towns":
