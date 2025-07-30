@@ -70,7 +70,7 @@
 		},
 		{
 			// TODO: Implement bonus that gives chance to completely block one enemy attack per turn
-			"ability": [{ "type" : "NONE", "val": 30 }],
+			"ability": [{ "type" : "GENERAL_DAMAGE_REDUCTION", "val": 30, "subtype" : "damageTypeAll" }],
 			"skills": [1, 4]
 		}, 
 		{
