@@ -67,6 +67,13 @@
 				"baseScoutingRange" :                    { "type" : "number" }
 			}
 		},
+		"campaign": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"unlockAll" : { "type" : "boolean" }
+			}
+		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
