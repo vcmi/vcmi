@@ -761,13 +761,41 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& 
 
 void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b, double c, double d, double tx, double ty)
 {
+	// Check if the transform is purely scaling (and optionally translation)
+	bool isPureScaling = vstd::isAlmostZero(b) && vstd::isAlmostZero(c);
+
+	if (isPureScaling)
+	{
+		// Calculate target dimensions
+		int scaledW = static_cast<int>(src->w * a);
+		int scaledH = static_cast<int>(src->h * d);
+
+		SDL_Rect srcRect = { 0, 0, src->w, src->h };
+		SDL_Rect dstRect = { static_cast<int>(tx), static_cast<int>(ty), scaledW, scaledH };
+
+		// Convert surfaces to same format if needed
+		if (src->format->format != dst->format->format)
+		{
+			SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
+			if (!converted)
+				throw std::runtime_error("SDL_ConvertSurface failed!");
+
+			SDL_BlitScaled(converted, &srcRect, dst, &dstRect);
+			SDL_FreeSurface(converted);
+		}
+		else
+			SDL_BlitScaled(src, &srcRect, dst, &dstRect);
+
+		return;
+	}
+
 	// Lock surfaces for direct pixel access
 	if (SDL_MUSTLOCK(src)) SDL_LockSurface(src);
 	if (SDL_MUSTLOCK(dst)) SDL_LockSurface(dst);
 
 	// Calculate inverse matrix M_inv for mapping dst -> src
 	double det = a * d - b * c;
-	if (std::abs(det) < 1e-10)
+	if (vstd::isAlmostZero(det))
 		throw std::runtime_error("Singular transform matrix!");
 	double invDet = 1.0 / det;
 	double ia =  d * invDet;
@@ -781,7 +809,7 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, dst->h), [&](const tbb::blocked_range<size_t>& r)
 	{
 		// For each pixel in the destination image
-		for(int y = r.begin(); y != r.end(); ++y)	
+		for(int y = r.begin(); y != r.end(); ++y)
 		{
 			for(int x = 0; x < dst->w; x++)
 			{
@@ -796,7 +824,6 @@ void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b
 				// Check bounds
 				if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
 				{
-
 					Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
 					dstPixels[y * dst->w + x] = pixel;
 				}
