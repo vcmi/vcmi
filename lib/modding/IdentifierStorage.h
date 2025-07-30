@@ -37,10 +37,10 @@ class DLL_LINKAGE CIdentifierStorage
 		bool caseSensitive;
 
 		/// Builds callback from identifier in form "targetMod:type.name"
-		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool caseSensitive = true);
+		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool caseSensitive);
 
 		/// Builds callback from identifier in form "targetMod:name"
-		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool bypassDependenciesCheck, bool caseSensitive = true);
+		static ObjectCallback fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool bypassDependenciesCheck, bool caseSensitive);
 
 	private:
 		ObjectCallback() = default;
@@ -58,6 +58,7 @@ class DLL_LINKAGE CIdentifierStorage
 	};
 
 	std::multimap<std::string, ObjectData> registeredObjects;
+	std::map<std::string, std::string> registeredObjectsCaseLookup;
 	mutable std::vector<ObjectCallback> scheduledRequests;
 
 	/// All non-optional requests that have failed to resolve, for debug & error reporting
@@ -98,10 +99,11 @@ public:
 	void tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const;
 
 	/// get identifier immediately. If identifier is not know and not silent call will result in error message
-	std::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false, bool caseSensitive = true) const;
-	std::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false, bool caseSensitive = true) const;
-	std::optional<si32> getIdentifier(const JsonNode & name, bool silent = false, bool caseSensitive = true) const;
-	std::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false, bool caseSensitive = true) const;
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent = false) const;
+	std::optional<si32> getIdentifier(const std::string & type, const JsonNode & name, bool silent = false) const;
+	std::optional<si32> getIdentifier(const JsonNode & name, bool silent = false) const;
+	std::optional<si32> getIdentifier(const std::string & scope, const std::string & fullName, bool silent = false) const;
+	std::optional<si32> getIdentifierCaseInsensitive(const std::string & scope, const std::string & type, const std::string & name, bool silent) const;
 
 	/// registers new object
 	void registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier);
