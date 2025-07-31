@@ -828,7 +828,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 {
 	if(!pack.learnedSpells.spells.empty())
 	{
-		const auto hero = GAME->interface()->cb->getHero(pack.learnedSpells.hid);
+		const auto * hero = cl.gameInfo().getHero(pack.learnedSpells.hid);
 		assert(hero);
 		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL,
 			UIHelper::getEagleEyeInfoWindowText(*hero, pack.learnedSpells.spells), UIHelper::getSpellsComponents(pack.learnedSpells.spells), soundBase::soundID(0));
@@ -836,7 +836,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 
 	if(!pack.movingArtifacts.empty())
 	{
-		const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.movingArtifacts.front().dstArtHolder));
+		const auto * artSet = cl.gameState().getArtSet(ArtifactLocation(pack.movingArtifacts.front().dstArtHolder));
 		assert(artSet);
 		std::vector<Component> artComponents;
 		for(const auto & artPack : pack.movingArtifacts)
