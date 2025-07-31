@@ -291,9 +291,15 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::string imagePathString = pathToLoad.getName();
 
-	if(locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION)
+	bool generateShadow = locator.generateShadow && (*locator.generateShadow) != SharedImageLocator::ShadowMode::SHADOW_NONE;
+	bool generateOverlay = locator.generateOverlay && (*locator.generateOverlay) != SharedImageLocator::OverlayMode::OVERLAY_NONE;
+	bool isShadow = locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR;
+	bool isOverlay = locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION;
+	bool optimizeImage = !(isShadow && generateShadow) && !(isOverlay && generateOverlay); // images needs to expanded
+
+	if(isOverlay && !generateOverlay)
 		imagePathString += "-OVERLAY";
-	if(locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR)
+	if(isShadow && !generateShadow)
 		imagePathString += "-SHADOW";
 	if(locator.playerColored.isValidPlayer())
 		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
@@ -304,16 +310,26 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	auto imagePathSprites = ImagePath::builtin(imagePathString).addPrefix(scaledSpritesPath.at(locator.scalingFactor));
 	auto imagePathData = ImagePath::builtin(imagePathString).addPrefix(scaledDataPath.at(locator.scalingFactor));
 
+	std::shared_ptr<SDLImageShared> img = nullptr;
+
 	if(CResourceHandler::get()->existsResource(imagePathSprites) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
-		return std::make_shared<SDLImageShared>(imagePathSprites);
+		img = std::make_shared<SDLImageShared>(imagePathSprites, optimizeImage);
+	else if(CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
+		img = std::make_shared<SDLImageShared>(imagePathData, optimizeImage);
+	else if(CResourceHandler::get()->existsResource(imagePath))
+		img = std::make_shared<SDLImageShared>(imagePath, optimizeImage);
 
-	if(CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
-		return std::make_shared<SDLImageShared>(imagePathData);
+	if(img)
+	{
+		// TODO: Performance improvement - Run algorithm on optimized ("trimmed") images
+		// Not implemented yet because different frame image sizes seems to cause wobbeling shadow -> needs a way around this
+		if(isShadow && generateShadow)
+			img = img->drawShadow((*locator.generateShadow) == SharedImageLocator::ShadowMode::SHADOW_SHEAR);
+		if(isOverlay && generateOverlay && (*locator.generateOverlay) == SharedImageLocator::OverlayMode::OVERLAY_OUTLINE)
+			img = img->drawOutline(Colors::WHITE, 1);
+	}
 
-	if(CResourceHandler::get()->existsResource(imagePath))
-		return std::make_shared<SDLImageShared>(imagePath);
-
-	return nullptr;
+	return img;
 }
 
 std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator)

@@ -70,7 +70,7 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -89,7 +89,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename)
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 
-		optimizeSurface();
+		if(optimizeImage)
+			optimizeSurface();
 	}
 }
 
@@ -425,6 +426,49 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 
 	// erase our own reference
 	SDL_FreeSurface(flipped);
+
+	return ret;
+}
+
+std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
+{
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
+	if (!surf)
+		return nullptr;
+
+	SDL_Surface * shadow = CSDL_Ext::drawShadow(surf, doSheer);
+	auto ret = std::make_shared<SDLImageShared>(shadow);
+	ret->fullSize = fullSize;
+	ret->margins.x = margins.x;
+	ret->margins.y = margins.y;
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_FreeSurface(shadow);
+
+	return ret;
+}
+
+std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & color, int thickness) const
+{
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
+	if (!surf)
+		return nullptr;
+
+	SDL_Color sdlColor = { color.r, color.g, color.b, color.a };
+	SDL_Surface * outline = CSDL_Ext::drawOutline(surf, sdlColor, thickness);
+	auto ret = std::make_shared<SDLImageShared>(outline);
+	ret->fullSize = fullSize;
+	ret->margins.x = margins.x;
+	ret->margins.y = margins.y;
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_FreeSurface(outline);
 
 	return ret;
 }

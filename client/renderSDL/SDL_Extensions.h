@@ -76,4 +76,7 @@ SDL_Color toSDL(const ColorRGBA & color);
 	void setDefaultColorKey(SDL_Surface * surface);
 	///set key-color to 0,255,255 only if it exactly mapped
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
+
+	SDL_Surface * drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness);
+	SDL_Surface * drawShadow(SDL_Surface * source, bool doSheer);
 }

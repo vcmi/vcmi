@@ -16,11 +16,27 @@
 
 struct SharedImageLocator
 {
+	enum class ShadowMode
+	{
+		SHADOW_NONE,
+		SHADOW_NORMAL,
+		SHADOW_SHEAR
+	};
+	enum class OverlayMode
+	{
+		OVERLAY_NONE,
+		OVERLAY_OUTLINE,
+		OVERLAY_FLAG
+	};
+
 	std::optional<ImagePath> image;
 	std::optional<AnimationPath> defFile;
 	int defFrame = -1;
 	int defGroup = -1;
 	EImageBlitMode layer = EImageBlitMode::OPAQUE;
+
+	std::optional<ShadowMode> generateShadow;
+	std::optional<OverlayMode> generateOverlay;
 
 	SharedImageLocator() = default;
 	SharedImageLocator(const AnimationPath & path, int frame, int group, EImageBlitMode layer);
