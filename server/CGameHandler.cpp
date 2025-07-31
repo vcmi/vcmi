@@ -2947,6 +2947,8 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		sendAndApply(da);
 	}
 
+	checkVictoryLossConditionsForPlayer(hero->getOwner());
+
 	return true;
 }
 
