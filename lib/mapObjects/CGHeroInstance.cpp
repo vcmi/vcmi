@@ -1422,26 +1422,16 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRando
 			basicAndAdv.insert(elem.first);
 		none.erase(elem.first);
 	}
-
-	if (!basicAndAdv.empty())
+	
+	int maxUpgradedSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT);
+	while (skills.size() < maxUpgradedSkills && !basicAndAdv.empty())
 	{
 		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
 		basicAndAdv.erase(skills.back());
 	}
 
-	if (!none.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
-	}
-
-	if (!basicAndAdv.empty() && skills.size() < 2)
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
-	}
-
-	if (!none.empty() && skills.size() < 2)
+	int maxTotalSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT);
+	while (skills.size() < maxTotalSkills && !none.empty())
 	{
 		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
 		none.erase(skills.back());

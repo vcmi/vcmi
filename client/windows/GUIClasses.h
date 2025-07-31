@@ -152,7 +152,16 @@ class CLevelWindow : public CWindowObject
 	std::shared_ptr<CComponentBox> box; //skills to select
 	std::function<void(ui32)> cb;
 
+	int skillViewOffset = 0;
+	std::shared_ptr<CButton> buttonLeft;
+	std::shared_ptr<CButton> buttonRight;
+
+	std::vector<SecondarySkill> skills;
+	std::vector<SecondarySkill> sortedSkills;
+	const CGHeroInstance * hero;
+
 	void selectionChanged(unsigned to);
+	void createSkillBox();
 
 public:
 	CLevelWindow(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, std::function<void(ui32)> callback);
