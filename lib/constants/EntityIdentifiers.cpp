@@ -158,6 +158,16 @@ int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const 
 
 	if (rawId)
 		return rawId.value();
+
+	size_t semicolon = identifier.find(':');
+
+	if (semicolon != std::string::npos)
+	{
+		auto rawId2 = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), entityType, identifier.substr(semicolon + 1));
+		if (rawId2)
+			return rawId2.value();
+	}
+
 	throw IdentifierResolutionException(identifier);
 }
 
