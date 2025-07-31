@@ -103,26 +103,35 @@ void QuickRecruitmentWindow::maxAllCards(std::vector<std::shared_ptr<CreaturePur
 
 void QuickRecruitmentWindow::purchaseUnits()
 {
+	int freeSlotsLeft = town->getUpperArmy()->getFreeSlots().size();
+
 	for(auto selected : boost::adaptors::reverse(cards))
 	{
-		if(selected->slider->getValue())
+		if(selected->slider->getValue() == 0)
+			continue;
+
+		int level = 0;
+		int i = 0;
+		for(auto c : town->getTown()->creatures)
 		{
-			int level = 0;
-			int i = 0;
-			for(auto c : town->getTown()->creatures)
-			{
-				for(auto c2 : c)
-					if(c2 == selected->creatureOnTheCard->getId())
-						level = i;
-				i++;
-			}
-			auto onRecruit = [this, level](CreatureID id, int count){ GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), id, count, level); };
-			CreatureID crid =  selected->creatureOnTheCard->getId();
-			SlotID dstslot = town -> getSlotFor(crid);
-			if(!dstslot.validSlot())
-				continue;
-			onRecruit(crid, selected->slider->getValue());
+			for(auto c2 : c)
+				if(c2 == selected->creatureOnTheCard->getId())
+					level = i;
+			i++;
 		}
+
+		CreatureID crid = selected->creatureOnTheCard->getId();
+		SlotID dstslot = town->getUpperArmy()->getSlotFor(crid);
+
+		if(town->getUpperArmy()->slotEmpty(dstslot))
+		{
+			if(freeSlotsLeft == 0)
+				continue;
+			freeSlotsLeft -= 1;
+		}
+
+		if(dstslot.validSlot())
+			GAME->interface()->cb->recruitCreatures(town, town->getUpperArmy(), crid, selected->slider->getValue(), level);
 	}
 	close();
 }
