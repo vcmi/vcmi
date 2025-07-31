@@ -1606,8 +1606,8 @@ void CGameHandler::save(const std::string & filename)
 
 void CGameHandler::load(const StartInfo &info)
 {
-	logGlobal->info("Loading from %s", info.fileURI);
-	const auto stem	= FileInfo::GetPathStem(info.fileURI);
+	logGlobal->info("Loading from %s", info.mapname);
+	const auto stem	= FileInfo::GetPathStem(info.mapname);
 
 	reinitScripting();
 
