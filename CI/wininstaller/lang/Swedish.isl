@@ -72,14 +72,14 @@ SetupAppRunningError=Installationsprogrammet har upptäckt att %1 är igång.%n%
 UninstallAppRunningError=Avinstalleraren har upptäckt att %1 körs för tillfället.%n%nStäng all öppna instanser av det nu, klicka sedan på OK för att gå vidare eller på Avbryt för att avsluta.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Välj installationstyp
-PrivilegesRequiredOverrideInstruction=Välj installationstyp
-PrivilegesRequiredOverrideText1=%1 kan installeras för alla användare (kräver administratörsbehörighet) eller bara för dig.
-PrivilegesRequiredOverrideText2=%1 kan installeras bara för dig eller för alla användare (kräver administratörsbehörighet).
-PrivilegesRequiredOverrideAllUsers=Installera för &alla användare
-PrivilegesRequiredOverrideAllUsersRecommended=Installera för &alla användare (rekommenderas)
-PrivilegesRequiredOverrideCurrentUser=Installera för &mig enbart
-PrivilegesRequiredOverrideCurrentUserRecommended=Installera för &mig enbart (rekommenderas)
+PrivilegesRequiredOverrideTitle=Installationstyp – Behörigheter
+PrivilegesRequiredOverrideInstruction=Välj hur installationsprogrammet ska köras
+PrivilegesRequiredOverrideText1=%1 kräver administratörsbehörighet för att installeras för alla användare.%nDu kan också installera det endast för ditt eget konto utan administratörsbehörighet.
+PrivilegesRequiredOverrideText2=%1 kan installeras endast för ditt eget konto (utan administratörsbehörighet) eller för alla användare (kräver administratörsbehörighet).
+PrivilegesRequiredOverrideAllUsers=Kör som &Administratör (installera för alla användare)
+PrivilegesRequiredOverrideAllUsersRecommended=Kör som &Administratör (rekommenderas)
+PrivilegesRequiredOverrideCurrentUser=Kör som &Standardanvändare (installera endast för mig)
+PrivilegesRequiredOverrideCurrentUserRecommended=Kör som &Standardanvändare (rekommenderas)
 
 ; *** Misc. errors
 ErrorCreatingDir=Installationsprogrammet kunde inte skapa katalogen "%1"

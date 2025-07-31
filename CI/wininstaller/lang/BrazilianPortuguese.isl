@@ -64,14 +64,14 @@ SetupAppRunningError=O instalador detectou que o %1 está atualmente em execuç�
 UninstallAppRunningError=O Desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecione o Modo de Instalação do Instalador
-PrivilegesRequiredOverrideInstruction=Selecione o modo de instalação
-PrivilegesRequiredOverrideText1=O %1 pode ser instalado pra todos os usuários (requer privilégios administrativos) ou só pra você.
-PrivilegesRequiredOverrideText2=O %1 pode ser instalado só pra você ou pra todos os usuários (requer privilégios administrativos).
-PrivilegesRequiredOverrideAllUsers=Instalar pra &todos os usuários
-PrivilegesRequiredOverrideAllUsersRecommended=Instalar pra &todos os usuários (recomendado)
-PrivilegesRequiredOverrideCurrentUser=Instalar só &pra mim
-PrivilegesRequiredOverrideCurrentUserRecommended=Instalar só &pra mim (recomendado)
+PrivilegesRequiredOverrideTitle=Modo de Instalação - Permissões
+PrivilegesRequiredOverrideInstruction=Escolha como deseja executar o instalador
+PrivilegesRequiredOverrideText1=O %1 requer privilégios administrativos para ser instalado para todos os usuários.%nVocê também pode instalá-lo apenas para sua conta sem privilégios administrativos.
+PrivilegesRequiredOverrideText2=O %1 pode ser instalado apenas para sua conta (sem privilégios administrativos) ou para todos os usuários (requer privilégios administrativos).
+PrivilegesRequiredOverrideAllUsers=Executar como &Administrador (instalar para todos os usuários)
+PrivilegesRequiredOverrideAllUsersRecommended=Executar como &Administrador (recomendado)
+PrivilegesRequiredOverrideCurrentUser=Executar como &Usuário Padrão (instalar apenas para mim)
+PrivilegesRequiredOverrideCurrentUserRecommended=Executar como &Usuário Padrão (recomendado)
 
 ; *** Misc. errors
 ErrorCreatingDir=O instalador foi incapaz de criar o diretório "%1"

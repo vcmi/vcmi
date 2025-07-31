@@ -85,14 +85,14 @@ SetupAppRunningError=L'assistant d'installation a détecté que %1 est actuellem
 UninstallAppRunningError=La procédure de désinstallation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application  puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner la désinstallation.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Choix du Mode d'Installation
-PrivilegesRequiredOverrideInstruction=Choisissez le mode d'installation
-PrivilegesRequiredOverrideText1=%1 peut être installé pour tous les utilisateurs (nécessite des privilèges administrateur), ou seulement pour vous.
-PrivilegesRequiredOverrideText2=%1 peut-être installé seulement pour vous, ou pour tous les utilisateurs (nécessite des privilèges administrateur).
-PrivilegesRequiredOverrideAllUsers=Installer pour &tous les utilisateurs
-PrivilegesRequiredOverrideAllUsersRecommended=Installer pour &tous les utilisateurs (recommandé)
-PrivilegesRequiredOverrideCurrentUser=Installer seulement pour &moi
-PrivilegesRequiredOverrideCurrentUserRecommended=Installer seulement pour &moi (recommandé)
+PrivilegesRequiredOverrideTitle=Mode d'installation – Autorisations
+PrivilegesRequiredOverrideInstruction=Choisissez comment exécuter le programme d'installation
+PrivilegesRequiredOverrideText1=%1 nécessite des privilèges administrateur pour être installé pour tous les utilisateurs.%nVous pouvez également l'installer uniquement pour votre compte sans privilèges administrateur.
+PrivilegesRequiredOverrideText2=%1 peut être installé uniquement pour votre compte (sans privilèges administrateur), ou pour tous les utilisateurs (nécessite des privilèges administrateur).
+PrivilegesRequiredOverrideAllUsers=Exécuter en tant qu’&administrateur (installation pour tous les utilisateurs)
+PrivilegesRequiredOverrideAllUsersRecommended=Exécuter en tant qu’&administrateur (recommandé)
+PrivilegesRequiredOverrideCurrentUser=Exécuter en tant qu’&utilisateur standard (installation uniquement pour moi)
+PrivilegesRequiredOverrideCurrentUserRecommended=Exécuter en tant qu’&utilisateur standard (recommandé)
 
 ; *** Misc. errors
 ErrorCreatingDir=L'assistant d'installation n'a pas pu créer le dossier "%1"

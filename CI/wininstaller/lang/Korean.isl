@@ -73,14 +73,14 @@ SetupAppRunningError=설치에서 %1이(가) 현재 실행 중임을 감지했�
 UninstallAppRunningError=제거에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=설치 모드 설정 선택
-PrivilegesRequiredOverrideInstruction=설치 모드를 선택해 주세요
-PrivilegesRequiredOverrideText1=%1은 모든 사용자 (관리자 권한 필요) 또는 사용자용으로 설치합니다.
-PrivilegesRequiredOverrideText2=%1은 현재 사용자 또는 모든 사용자 (관리자 권한 필요)용으로 설치합니다.
-PrivilegesRequiredOverrideAllUsers=모든 사용자용으로 설치(&A)
-PrivilegesRequiredOverrideAllUsersRecommended=모든 사용자용으로 설치 (권장)(&A)
-PrivilegesRequiredOverrideCurrentUser=현재 사용자용으로 설치(&M)
-PrivilegesRequiredOverrideCurrentUserRecommended=현재 사용자용으로 설치 (권장)(&M)
+PrivilegesRequiredOverrideTitle=설치 모드 – 권한 선택
+PrivilegesRequiredOverrideInstruction=설치 프로그램 실행 방식을 선택하세요
+PrivilegesRequiredOverrideText1=%1을 모든 사용자에게 설치하려면 관리자 권한이 필요합니다.%n관리자 권한 없이 현재 사용자 계정에만 설치할 수도 있습니다.
+PrivilegesRequiredOverrideText2=%1은 관리자 권한 없이 현재 사용자 계정에만 설치하거나, 관리자 권한으로 모든 사용자에게 설치할 수 있습니다.
+PrivilegesRequiredOverrideAllUsers=&관리자 권한으로 실행 (모든 사용자용 설치)
+PrivilegesRequiredOverrideAllUsersRecommended=&관리자 권한으로 실행 (권장)
+PrivilegesRequiredOverrideCurrentUser=&일반 사용자로 실행 (현재 사용자용 설치)
+PrivilegesRequiredOverrideCurrentUserRecommended=&일반 사용자로 실행 (권장)
 
 ; *** Misc. errors
 ErrorCreatingDir=설치 프로그램에서 "%1" 디렉터리를 만들지 못했습니다.

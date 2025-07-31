@@ -47,14 +47,14 @@ SetupAppRunningError=Asennus löysi käynnissä olevan kopion ohjelmasta %1.%n%n
 UninstallAppRunningError=Asennuksen poisto löysi käynnissä olevan kopion ohjelmasta %1.%n%nSulje kaikki käynnissä olevat kopiot ohjelmasta ja valitse OK jatkaaksesi, tai valitse Peruuta poistuaksesi.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Valitse asennustapa
-PrivilegesRequiredOverrideInstruction=Valitse, kenen käyttöön ohjelma asennetaan
-PrivilegesRequiredOverrideText1=%1 voidaan asentaa kaikille käyttäjille (vaatii järjestelmänvalvojan oikeudet) tai vain sinun käyttöösi.
-PrivilegesRequiredOverrideText2=%1 voidaan asentaa vain sinun käyttöösi tai kaikille käyttäjille (vaatii järjestelmänvalvojan oikeudet).
-PrivilegesRequiredOverrideAllUsers=Asenna &kaikille käyttäjille
-PrivilegesRequiredOverrideAllUsersRecommended=Asenna &kaikille käyttäjille (suositus)
-PrivilegesRequiredOverrideCurrentUser=Asenna vain &minun käyttööni
-PrivilegesRequiredOverrideCurrentUserRecommended=Asenna vain &minun käyttööni (suositus)
+PrivilegesRequiredOverrideTitle=Asennustila – käyttöoikeudet
+PrivilegesRequiredOverrideInstruction=Valitse, miten asennusohjelma suoritetaan
+PrivilegesRequiredOverrideText1=%1 vaatii järjestelmänvalvojan oikeudet, jos se asennetaan kaikille käyttäjille.%nVoit myös asentaa sen vain omaan käyttöösi ilman järjestelmänvalvojan oikeuksia.
+PrivilegesRequiredOverrideText2=%1 voidaan asentaa vain omaan käyttöösi (ei vaadi järjestelmänvalvojan oikeuksia) tai kaikille käyttäjille (vaatii järjestelmänvalvojan oikeudet).
+PrivilegesRequiredOverrideAllUsers=Suorita &järjestelmänvalvojana (asennus kaikille käyttäjille)
+PrivilegesRequiredOverrideAllUsersRecommended=Suorita &järjestelmänvalvojana (suositus)
+PrivilegesRequiredOverrideCurrentUser=Suorita &normaalina käyttäjänä (asennus vain minulle)
+PrivilegesRequiredOverrideCurrentUserRecommended=Suorita &normaalina käyttäjänä (suositus)
 
 ; *** Misc. errors
 ErrorCreatingDir=Asennus ei voinut luoda hakemistoa "%1"

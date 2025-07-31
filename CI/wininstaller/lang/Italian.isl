@@ -73,14 +73,14 @@ SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le 
 UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Seleziona modo installazione
-PrivilegesRequiredOverrideInstruction=Seleziona modo installazione
-PrivilegesRequiredOverrideText1=%1 può essere installato per tutti gli utenti (richiede privilegi di amministratore), o solo per l'utente attuale.
-PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amministratore).
-PrivilegesRequiredOverrideAllUsers=Inst&alla per tutti gli utenti
-PrivilegesRequiredOverrideAllUsersRecommended=Inst&alla per tutti gli utenti (suggerito)
-PrivilegesRequiredOverrideCurrentUser=Installa solo per l'&utente attuale
-PrivilegesRequiredOverrideCurrentUserRecommended=Installa solo per l'&utente attuale (suggerito)
+PrivilegesRequiredOverrideTitle=Modalità di installazione – Permessi
+PrivilegesRequiredOverrideInstruction=Scegli come eseguire il programma di installazione
+PrivilegesRequiredOverrideText1=%1 richiede i privilegi di amministratore per essere installato per tutti gli utenti.%nPuoi anche installarlo solo per il tuo account senza privilegi di amministratore.
+PrivilegesRequiredOverrideText2=%1 può essere installato solo per il tuo account (senza privilegi di amministratore) oppure per tutti gli utenti (richiede privilegi di amministratore).
+PrivilegesRequiredOverrideAllUsers=Esegui come &Amministratore (installazione per tutti gli utenti)
+PrivilegesRequiredOverrideAllUsersRecommended=Esegui come &Amministratore (consigliato)
+PrivilegesRequiredOverrideCurrentUser=Esegui come &Utente Standard (installazione solo per me)
+PrivilegesRequiredOverrideCurrentUserRecommended=Esegui come &Utente Standard (consigliato)
 
 ; *** Misc. errors
 ErrorCreatingDir=Impossibile creare la cartella "%1"

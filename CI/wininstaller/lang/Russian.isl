@@ -63,14 +63,14 @@ SetupAppRunningError=Обнаружен запущенный экземпляр 
 UninstallAppRunningError=Деинсталлятор обнаружил запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Выбор режима установки
-PrivilegesRequiredOverrideInstruction=Выберите режим установки
-PrivilegesRequiredOverrideText1=%1 может быть установлена либо для всех пользователей (требуются привилегии администратора), либо только для вас.
-PrivilegesRequiredOverrideText2=%1 может быть установлена либо только для вас, либо для всех пользователей (требуются привилегии администратора).
-PrivilegesRequiredOverrideAllUsers=Установить для &всех пользователей
-PrivilegesRequiredOverrideAllUsersRecommended=Установить для &всех пользователей (рекомендуется)
-PrivilegesRequiredOverrideCurrentUser=Установить только для &меня
-PrivilegesRequiredOverrideCurrentUserRecommended=Установить только для &меня (рекомендуется)
+PrivilegesRequiredOverrideTitle=Режим установки – Права доступа
+PrivilegesRequiredOverrideInstruction=Выберите, как запустить программу установки
+PrivilegesRequiredOverrideText1=%1 требует прав администратора для установки для всех пользователей.%nВы также можете установить её только для своей учётной записи без прав администратора.
+PrivilegesRequiredOverrideText2=%1 может быть установлена только для вашей учётной записи (без прав администратора) или для всех пользователей (требуются права администратора).
+PrivilegesRequiredOverrideAllUsers=Запустить от имени &Администратора (установка для всех пользователей)
+PrivilegesRequiredOverrideAllUsersRecommended=Запустить от имени &Администратора (рекомендуется)
+PrivilegesRequiredOverrideCurrentUser=Запустить как &Обычный пользователь (установка только для меня)
+PrivilegesRequiredOverrideCurrentUserRecommended=Запустить как &Обычный пользователь (рекомендуется)
 
 ; *** Misc. errors
 ErrorCreatingDir=Невозможно создать папку "%1"

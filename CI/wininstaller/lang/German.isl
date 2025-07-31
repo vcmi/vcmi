@@ -85,14 +85,14 @@ SetupAppRunningError=Das Setup hat entdeckt, dass %1 zurzeit ausgeführt wird.%n
 UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Installationsmodus auswählen
-PrivilegesRequiredOverrideInstruction=Bitte wählen Sie den Installationsmodus
-PrivilegesRequiredOverrideText1=%1 kann für alle Benutzer (erfordert Administrationsrechte) oder nur für Sie installiert werden.
-PrivilegesRequiredOverrideText2=%1 kann nur für Sie oder für alle Benutzer (erfordert Administrationsrechte) installiert werden.
-PrivilegesRequiredOverrideAllUsers=Installation für &alle Benutzer
-PrivilegesRequiredOverrideAllUsersRecommended=Installation für &alle Benutzer (empfohlen)
-PrivilegesRequiredOverrideCurrentUser=Installation nur für &Sie
-PrivilegesRequiredOverrideCurrentUserRecommended=Installation nur für &Sie (empfohlen)
+PrivilegesRequiredOverrideTitle=Installationsmodus – Berechtigungen
+PrivilegesRequiredOverrideInstruction=Wählen Sie, wie das Installationsprogramm ausgeführt werden soll
+PrivilegesRequiredOverrideText1=%1 erfordert Administratorrechte, um für alle Benutzer installiert zu werden.%nSie können es auch nur für Ihr Benutzerkonto ohne Administratorrechte installieren.
+PrivilegesRequiredOverrideText2=%1 kann nur für Ihr Benutzerkonto (ohne Administratorrechte) oder für alle Benutzer (erfordert Administratorrechte) installiert werden.
+PrivilegesRequiredOverrideAllUsers=Als &Administrator ausführen (Installation für alle Benutzer)
+PrivilegesRequiredOverrideAllUsersRecommended=Als &Administrator ausführen (empfohlen)
+PrivilegesRequiredOverrideCurrentUser=Als &Standardbenutzer ausführen (Installation nur für mich)
+PrivilegesRequiredOverrideCurrentUserRecommended=Als &Standardbenutzer ausführen (empfohlen)
 
 ; *** Misc. errors
 ErrorCreatingDir=Das Setup konnte den Ordner "%1" nicht erstellen.

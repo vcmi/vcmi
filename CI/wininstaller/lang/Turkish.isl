@@ -66,14 +66,14 @@ SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının çalışmakta oldu
 UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının çalışmakta olduğunu algıladı.%n%nLütfen uygulamanın çalışan tüm kopyalarını kapatıp, ilerlemek için Tamam ya da kaldırma yardımcısından çıkmak için İptal üzerine tıklayın.
 
 ; *** Başlangıç soruları
-PrivilegesRequiredOverrideTitle=Kurulum kipini seçin
-PrivilegesRequiredOverrideInstruction=Kurulum kipini seçin
-PrivilegesRequiredOverrideText1=%1 tüm kullanıcılar için (yönetici izinleri gerekir) ya da yalnızca sizin hesabınız için kurulabilir.
-PrivilegesRequiredOverrideText2=%1 yalnızca sizin hesabınız için ya da tüm kullanıcılar için (yönetici izinleri gerekir) kurulabilir.
-PrivilegesRequiredOverrideAllUsers=&Tüm kullanıcılar için kurulsun
-PrivilegesRequiredOverrideAllUsersRecommended=&Tüm kullanıcılar için kurulsun (önerilir)
-PrivilegesRequiredOverrideCurrentUser=&Yalnızca geçerli kullanıcı için kurulsun
-PrivilegesRequiredOverrideCurrentUserRecommended=&Yalnızca geçerli kullanıcı için kurulsun (önerilir)
+PrivilegesRequiredOverrideTitle=Kurulum Kipi – Yetkiler
+PrivilegesRequiredOverrideInstruction=Yükleyicinin nasıl çalıştırılacağını seçin
+PrivilegesRequiredOverrideText1=%1 tüm kullanıcılar için kurulacaksa yönetici izinleri gerekir.%nYönetici izni olmadan yalnızca kendi hesabınıza da kurabilirsiniz.
+PrivilegesRequiredOverrideText2=%1 yalnızca kendi hesabınıza (yönetici izni olmadan) veya tüm kullanıcılar için (yönetici izinleri gerekir) kurulabilir.
+PrivilegesRequiredOverrideAllUsers=&Yönetici olarak çalıştır (tüm kullanıcılar için kurulum)
+PrivilegesRequiredOverrideAllUsersRecommended=&Yönetici olarak çalıştır (önerilen)
+PrivilegesRequiredOverrideCurrentUser=&Standart kullanıcı olarak çalıştır (yalnızca benim için kurulum)
+PrivilegesRequiredOverrideCurrentUserRecommended=&Standart kullanıcı olarak çalıştır (önerilen)
 
 ; *** Çeşitli hata metinleri
 ErrorCreatingDir=Kurulum yardımcısı "%1" klasörünü oluşturamadı.

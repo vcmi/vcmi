@@ -56,14 +56,14 @@ SetupAppRunningError=Instalator wykrył, iż aplikacja %1 jest aktualnie uruchom
 UninstallAppRunningError=Dezinstalator wykrył, iż aplikacja %1 jest aktualnie uruchomiona.%n%nPrzed wciśnięciem przycisku OK zamknij wszystkie procesy aplikacji. Kliknij przycisk Anuluj, aby przerwać dezinstalację.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Wybierz typ instalacji aplikacji
-PrivilegesRequiredOverrideInstruction=Wybierz typ instalacji
-PrivilegesRequiredOverrideText1=Aplikacja %1 może zostać zainstalowana dla wszystkich użytkowników (wymagane są uprawnienia administratora) lub tylko dla bieżącego użytkownika.
-PrivilegesRequiredOverrideText2=Aplikacja %1 może zostać zainstalowana dla bieżącego użytkownika lub wszystkich użytkowników (wymagane są uprawnienia administratora).
-PrivilegesRequiredOverrideAllUsers=Zainstaluj dla &wszystkich użytkowników
-PrivilegesRequiredOverrideAllUsersRecommended=Zainstaluj dla &wszystkich użytkowników (zalecane)
-PrivilegesRequiredOverrideCurrentUser=Zainstaluj dla &bieżącego użytkownika
-PrivilegesRequiredOverrideCurrentUserRecommended=Zainstaluj dla &bieżącego użytkownika (zalecane)
+PrivilegesRequiredOverrideTitle=Tryb instalacji – Uprawnienia
+PrivilegesRequiredOverrideInstruction=Wybierz sposób uruchomienia instalatora
+PrivilegesRequiredOverrideText1=Do zainstalowania %1 dla wszystkich użytkowników wymagane są uprawnienia administratora.%nMożesz również zainstalować aplikację tylko dla swojego konta bez uprawnień administratora.
+PrivilegesRequiredOverrideText2=%1 może zostać zainstalowana tylko dla twojego konta (bez uprawnień administratora) lub dla wszystkich użytkowników (wymagane są uprawnienia administratora).
+PrivilegesRequiredOverrideAllUsers=Uruchom jako &Administrator (instalacja dla wszystkich użytkowników)
+PrivilegesRequiredOverrideAllUsersRecommended=Uruchom jako &Administrator (zalecane)
+PrivilegesRequiredOverrideCurrentUser=Uruchom jako &Użytkownik standardowy (instalacja tylko dla mnie)
+PrivilegesRequiredOverrideCurrentUserRecommended=Uruchom jako &Użytkownik standardowy (zalecane)
 
 ; *** Misc. errors
 ErrorCreatingDir=Instalator nie mógł utworzyć katalogu "%1"

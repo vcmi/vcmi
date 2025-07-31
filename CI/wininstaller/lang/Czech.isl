@@ -58,14 +58,14 @@ SetupAppRunningError=Průvodce instalací zjistil, že produkt %1 je nyní spuš
 UninstallAppRunningError=Průvodce odinstalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete odinstalaci tlačítkem Zrušit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Výběr režimu průvodce instalací
-PrivilegesRequiredOverrideInstruction=Zvolte režim instalace
-PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uživatele (musíte být přihlášeni s oprávněními správce), nebo pouze pro Vás.
-PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uživatele (musíte být přihlášeni s oprávněními správce).
-PrivilegesRequiredOverrideAllUsers=Nainstalovat pro &všechny uživatele
-PrivilegesRequiredOverrideAllUsersRecommended=Nainstalovat pro &všechny uživatele (doporučuje se)
-PrivilegesRequiredOverrideCurrentUser=Nainstalovat pouze pro &mě
-PrivilegesRequiredOverrideCurrentUserRecommended=Nainstalovat pouze pro &mě (doporučuje se)
+PrivilegesRequiredOverrideTitle=Režim instalace – oprávnění
+PrivilegesRequiredOverrideInstruction=Zvolte, jak spustit instalační program
+PrivilegesRequiredOverrideText1=Produkt %1 vyžaduje oprávnění správce pro instalaci pro všechny uživatele.%nMůžete jej také nainstalovat pouze pro svůj účet bez oprávnění správce.
+PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro váš účet (bez oprávnění správce), nebo pro všechny uživatele (vyžaduje oprávnění správce).
+PrivilegesRequiredOverrideAllUsers=Spustit jako &správce (instalace pro všechny uživatele)
+PrivilegesRequiredOverrideAllUsersRecommended=Spustit jako &správce (doporučeno)
+PrivilegesRequiredOverrideCurrentUser=Spustit jako &běžný uživatel (instalace pouze pro mě)
+PrivilegesRequiredOverrideCurrentUserRecommended=Spustit jako &běžný uživatel (doporučeno)
 
 ; *** Misc. errors
 ErrorCreatingDir=Průvodci instalací se nepodařilo vytvořit složku "%1"

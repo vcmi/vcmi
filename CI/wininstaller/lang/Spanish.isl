@@ -65,14 +65,14 @@ SetupAppRunningError=El programa de instalación ha detectado que %1 está ejecu
 UninstallAppRunningError=El desinstalador ha detectado que %1 está ejecutándose.%n%nPor favor, ciérrelo ahora, luego haga clic en Aceptar para continuar o en Cancelar para salir.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selección del Modo de Instalación
-PrivilegesRequiredOverrideInstruction=Seleccione el modo de instalación
-PrivilegesRequiredOverrideText1=%1 puede ser instalado para todos los usuarios (requiere privilegios administrativos), o solo para Ud.
-PrivilegesRequiredOverrideText2=%1 puede ser instalado solo para Ud, o para todos los usuarios (requiere privilegios administrativos).
-PrivilegesRequiredOverrideAllUsers=Instalar para &todos los usuarios
-PrivilegesRequiredOverrideAllUsersRecommended=Instalar para &todos los usuarios (recomendado)
-PrivilegesRequiredOverrideCurrentUser=Instalar para &mí solamente
-PrivilegesRequiredOverrideCurrentUserRecommended=Instalar para &mí solamente (recomendado)
+PrivilegesRequiredOverrideTitle=Modo de instalación – Permisos
+PrivilegesRequiredOverrideInstruction=Elija cómo ejecutar el instalador
+PrivilegesRequiredOverrideText1=%1 requiere privilegios de administrador para instalarse para todos los usuarios.%nTambién puede instalarlo solo para su cuenta sin privilegios de administrador.
+PrivilegesRequiredOverrideText2=%1 puede instalarse solo para su cuenta (sin privilegios de administrador) o para todos los usuarios (requiere privilegios de administrador).
+PrivilegesRequiredOverrideAllUsers=Ejecutar como &Administrador (instalación para todos los usuarios)
+PrivilegesRequiredOverrideAllUsersRecommended=Ejecutar como &Administrador (recomendado)
+PrivilegesRequiredOverrideCurrentUser=Ejecutar como &Usuario estándar (instalación solo para mí)
+PrivilegesRequiredOverrideCurrentUserRecommended=Ejecutar como &Usuario estándar (recomendado)
 
 ; *** Misc. errors
 ErrorCreatingDir=El programa de instalación no pudo crear la carpeta "%1"

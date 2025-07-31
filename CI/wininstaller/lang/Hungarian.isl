@@ -66,14 +66,14 @@ SetupAppRunningError=A telepítő úgy észlelte, hogy a(z) %1 jelenleg fut.%n%n
 UninstallAppRunningError=Az eltávolító úgy észlelte, hogy a(z) %1 jelenleg fut.%n%nZárja be az összes példányt, majd kattintson az 'OK'-ra a folytatáshoz, vagy a 'Mégse'-re a kilépéshez.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Telepítési mód kiválasztása
-PrivilegesRequiredOverrideInstruction=Válasszon telepítési módot
-PrivilegesRequiredOverrideText1=%1 telepíthető az összes felhasználónak (rendszergazdai jogok szükségesek), vagy a jelenlegi felhasználónak.
-PrivilegesRequiredOverrideText2=%1 csak a jelenlegi felhasználónak telepíthető, vagy az összes felhasználónak (rendszergazdai jogok szükségesek).
-PrivilegesRequiredOverrideAllUsers=Telepítés &mindenkinek
-PrivilegesRequiredOverrideAllUsersRecommended=Telepítés &mindenkinek (ajánlott)
-PrivilegesRequiredOverrideCurrentUser=Telepítés csak &nekem
-PrivilegesRequiredOverrideCurrentUserRecommended=Telepítés csak &nekem (ajánlott)
+PrivilegesRequiredOverrideTitle=Telepítési mód – Jogosultságok
+PrivilegesRequiredOverrideInstruction=Válassza ki, hogyan fusson a telepítő
+PrivilegesRequiredOverrideText1=%1 rendszergazdai jogosultságot igényel, ha az összes felhasználó számára telepíti.%nTelepítheti csak a saját fiókjára is rendszergazdai jogosultság nélkül.
+PrivilegesRequiredOverrideText2=%1 telepíthető csak a saját fiókjára (rendszergazdai jogosultság nélkül), vagy az összes felhasználó számára (rendszergazdai jogosultság szükséges).
+PrivilegesRequiredOverrideAllUsers=Futtatás &rendszergazdaként (telepítés mindenkinek)
+PrivilegesRequiredOverrideAllUsersRecommended=Futtatás &rendszergazdaként (ajánlott)
+PrivilegesRequiredOverrideCurrentUser=Futtatás &normál felhasználóként (telepítés csak nekem)
+PrivilegesRequiredOverrideCurrentUserRecommended=Futtatás &normál felhasználóként (ajánlott)
 
 ; *** Misc. errors
 ErrorCreatingDir=A telepítő nem tudta létrehozni a(z) "%1" könyvtárat

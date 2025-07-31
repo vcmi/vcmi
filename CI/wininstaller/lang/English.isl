@@ -66,14 +66,14 @@ SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease 
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Select Setup Install Mode
-PrivilegesRequiredOverrideInstruction=Select install mode
-PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideAllUsers=Install for &all users
-PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
-PrivilegesRequiredOverrideCurrentUser=Install for &me only
-PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
+PrivilegesRequiredOverrideTitle=Administrator Privileges Required
+PrivilegesRequiredOverrideInstruction=Choose how to run the installer
+PrivilegesRequiredOverrideText1=%1 requires administrative rights to install for all users. You can also install just for your account without admin privileges.
+PrivilegesRequiredOverrideText2=%1 can be installed only for your account (no administrative rights required) or for all users (requires administrative rights).
+PrivilegesRequiredOverrideAllUsers=Run as &Administrator (install for all users)
+PrivilegesRequiredOverrideAllUsersRecommended=Run as &Administrator (recommended)
+PrivilegesRequiredOverrideCurrentUser=Run as &Standard User (install for me only)
+PrivilegesRequiredOverrideCurrentUserRecommended=Run as &Standard User (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Setup was unable to create the directory "%1"
