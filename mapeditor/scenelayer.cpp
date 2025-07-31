@@ -93,7 +93,7 @@ void PassabilityLayer::update()
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(Qt::transparent);
 	
-	if(scene->level == 0 || map->twoLevel)
+	if(scene->level == 0 || map->mapLevels == 2) // TODO: multilevel support
 	{
 		QPainter painter(pixmap.get());
 		for(int j = 0; j < map->height; ++j)
@@ -121,7 +121,7 @@ void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> 
 	if(!map)
 		return;
 	
-	if(scene->level == 0 || map->twoLevel)
+	if(scene->level == 0 || map->mapLevels == 2) // TODO: multilevel support
 	{
 		for(int j = 0; j < map->height; ++j)
 		{

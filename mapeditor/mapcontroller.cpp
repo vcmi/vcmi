@@ -260,7 +260,7 @@ void MapController::sceneForceUpdate()
 {
 	_scenes[0]->updateViews();
 	_miniscenes[0]->updateViews();
-	if(_map->twoLevel)
+	if(_map->mapLevels == 2)  // TODO: multilevel support
 	{
 		_scenes[1]->updateViews();
 		_miniscenes[1]->updateViews();

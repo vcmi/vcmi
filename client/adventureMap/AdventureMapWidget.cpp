@@ -410,7 +410,7 @@ void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "heroSleeping")
 				container->setEnabled(shortcuts->optionHeroSleeping());
 
-			if (container->disableCondition == "mapLayerSurface")
+			if (container->disableCondition == "mapLayerSurface") // TODO: multilevel support
 				container->setEnabled(shortcuts->optionMapLevelSurface());
 
 			if (container->disableCondition == "mapLayerUnderground")

@@ -387,7 +387,7 @@ void MainWindow::initializeMap(bool isNew)
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
-	ui->actionLevel->setEnabled(controller.map()->twoLevel);
+	ui->actionLevel->setEnabled(controller.map()->mapLevels == 2); // TODO: multilevel support
 	
 	//set minimal players count
 	if(isNew)
@@ -968,7 +968,7 @@ void MainWindow::loadObjectsTree()
 
 void MainWindow::on_actionLevel_triggered()
 {
-	if(controller.map() && controller.map()->twoLevel)
+	if(controller.map() && controller.map()->mapLevels == 2)  // TODO: multilevel support
 	{
 		mapLevel = mapLevel ? 0 : 1;
 		ui->mapView->setScene(controller.scene(mapLevel));

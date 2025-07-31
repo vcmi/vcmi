@@ -154,7 +154,7 @@ void AdventureMapShortcuts::worldViewScale4x()
 void AdventureMapShortcuts::switchMapLevel()
 {
 	int maxLevels = GAME->interface()->cb->getMapSize().z;
-	if (maxLevels < 2)
+	if (maxLevels < 2) // TODO: multilevel support
 		return;
 
 	owner.hotkeySwitchMapLevel();
