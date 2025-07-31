@@ -373,6 +373,9 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	else
 		ret->upgrade = BuildingID::NONE;
 
+	if (ret->town->buildings[ret->bid] != nullptr)
+		logMod->error("Mod %s, faction %s: detected multiple town buildings with ID %d", source.getModScope(), stringID, ret->bid.getNum());
+
 	ret->town->buildings[ret->bid].reset(ret);
 	for(const auto & element : source["marketModes"].Vector())
 	{
