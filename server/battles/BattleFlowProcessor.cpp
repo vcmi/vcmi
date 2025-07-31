@@ -451,28 +451,27 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		// TODO: unify logic with AI?
-		// Find best target using logic similar to H3 AI
-
-		const auto & isBetterTarget = [&battle](const battle::Unit * candidate, const battle::Unit * current)
+		const auto & getAttackValue = [&battle, &next] (const battle::Unit * unit)
 		{
-			bool candidateInsideWalls = battle.battleIsInsideWalls(candidate->getPosition());
-			bool currentInsideWalls = battle.battleIsInsideWalls(current->getPosition());
+			float singleHpValue = static_cast<float>(unit->unitType()->getAIValue()) / static_cast<float>(unit->getMaxHealth());
 
-			if (candidateInsideWalls != currentInsideWalls)
-				return candidateInsideWalls > currentInsideWalls;
+			int distance = BattleHex::getDistance(next->getPosition(), unit->getPosition());
+			BattleAttackInfo attackInfo(next, unit, distance, true);
+			DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
+			float avgDmg = (static_cast<float>(estimation.damage.max) + static_cast<float>(estimation.damage.min)) / 2;
 
-			// also check for war machines - shooters are more dangerous than war machines, ballista or catapult
-			bool candidateCanShoot = candidate->canShoot() && candidate->unitType()->warMachine == ArtifactID::NONE;
-			bool currentCanShoot = current->canShoot() && current->unitType()->warMachine == ArtifactID::NONE;
+			return avgDmg * singleHpValue;
+		};
 
-			if (candidateCanShoot != currentCanShoot)
-				return candidateCanShoot > currentCanShoot;
+		const auto & isBetterTarget = [&getAttackValue](const battle::Unit * candidate, const battle::Unit * current)
+		{
+			bool candidateIsParalyzed = candidate->hasBonusOfType(BonusType::NOT_ACTIVE);
+			bool currentIsParalyzed = current->hasBonusOfType(BonusType::NOT_ACTIVE);
 
-			int64_t candidateTargetValue = static_cast<int64_t>(candidate->unitType()->getAIValue() * candidate->getCount());
-			int64_t currentTargetValue = static_cast<int64_t>(current->unitType()->getAIValue() * current->getCount());
+			if (candidateIsParalyzed != currentIsParalyzed)
+				return currentIsParalyzed > candidateIsParalyzed;
 
-			return candidateTargetValue > currentTargetValue;
+			return getAttackValue(candidate) > getAttackValue(current);
 		};
 
 		const battle::Unit * target = nullptr;
