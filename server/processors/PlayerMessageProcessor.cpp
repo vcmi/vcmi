@@ -427,7 +427,7 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	{
 	}
 
-	std::optional<int32_t> creatureId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", creatureIdentifier, false);
+	std::optional<int32_t> creatureId = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "creature", creatureIdentifier, false);
 
 	if(creatureId.has_value())
 	{
@@ -468,7 +468,7 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 	{
 		for (auto const & word : words)
 		{
-			auto artID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", word, false);
+			auto artID = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "artifact", word, false);
 			if(artID &&  LIBRARY->arth->objects[*artID])
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
@@ -727,7 +727,7 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 		return;
 	}
 
-	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "skill", identifier, false);
+	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "skill", identifier, false);
 	if(!skillId.has_value())
 		return;
 	
