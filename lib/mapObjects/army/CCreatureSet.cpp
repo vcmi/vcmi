@@ -173,20 +173,6 @@ std::vector<SlotID> CCreatureSet::getFreeSlots(ui32 slotsAmount) const
 	return freeSlots;
 }
 
-std::queue<SlotID> CCreatureSet::getFreeSlotsQueue(ui32 slotsAmount) const
-{
-	std::queue<SlotID> freeSlots;
-
-	for(ui32 i = 0; i < slotsAmount; i++)
-	{
-		auto slot = SlotID(i);
-
-		if(!vstd::contains(stacks, slot))
-			freeSlots.push(slot);
-	}
-	return freeSlots;
-}
-
 TMapCreatureSlot CCreatureSet::getCreatureMap() const
 {
 	TMapCreatureSlot creatureMap;

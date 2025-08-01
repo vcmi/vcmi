@@ -2474,7 +2474,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	std::optional<FactionID> faction;
 	if (objectTemplate->id == Obj::TOWN)
+	{
 		faction = FactionID(objectTemplate->subid);
+		object->subID = objectTemplate->subid;
+	}
 
 	bool hasName = reader->readBool();
 	if(hasName)

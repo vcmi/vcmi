@@ -197,6 +197,10 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerat
 			hero.hero->eraseStack(slotID);
 	}
 
+	// Add spell flag to ensure that hero without spellbook won't receive one as part of initHero call
+	for(auto & hero : campaignHeroReplacements)
+		hero.hero->addSpellToSpellbook(SpellID::SPELLBOOK_PRESET);
+
 	// Removing short-term bonuses
 	for(auto & hero : campaignHeroReplacements)
 	{

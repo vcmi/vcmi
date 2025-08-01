@@ -21,7 +21,7 @@ void ArmyFormation::rearrangeArmyForWhirlpool(const CGHeroInstance * hero)
 
 void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 {
-	auto freeSlots = hero->getFreeSlotsQueue();
+	auto freeSlots = hero->getFreeSlots();
 
 	while(!freeSlots.empty())
 	{
@@ -37,8 +37,8 @@ void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 			break;
 		}
 
-		cb->splitStack(hero, hero, weakestCreature->first, freeSlots.front(), 1);
-		freeSlots.pop();
+		cb->splitStack(hero, hero, weakestCreature->first, freeSlots.back(), 1);
+		freeSlots.pop_back();
 	}
 }
 

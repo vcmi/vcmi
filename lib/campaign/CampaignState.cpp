@@ -316,6 +316,8 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
 	hero->serializeJsonOptions(handler);
+	node.setModScope(ModScope::scopeGame());
+	logGlobal->info(node.toString());
 	return node;
 }
 

@@ -117,7 +117,6 @@ public:
 
 	SlotID getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns first free slot
 	std::vector<SlotID> getFreeSlots(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
-	std::queue<SlotID> getFreeSlotsQueue(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
 
 	TMapCreatureSlot getCreatureMap() const;
 	TCreatureQueue getCreatureQueue(const SlotID & exclude) const;
