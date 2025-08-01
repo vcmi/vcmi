@@ -446,12 +446,37 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
 		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
+
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		const auto & getAttackValue = [&battle, &next] (const battle::Unit * unit)
+		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
+		{
+			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+		});
+
+		struct TargetInfo
+		{
+			bool canAttackNextTurn;
+			bool isParalyzed;
+			bool isMachine;
+			float towerAttackValue;
+			const CStack * stack;
+		};
+
+		const auto & getCanAttackNextTurn = [&battle] (const battle::Unit * unit)
+		{
+			if (unit->canShoot())
+				return true;
+
+			BattleHexArray attackableHexes;
+			battle.battleGetAvailableHexes(unit, true, false, &attackableHexes);
+			return !attackableHexes.empty();
+		};
+
+		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)
 		{
 			float singleHpValue = static_cast<float>(unit->unitType()->getAIValue()) / static_cast<float>(unit->getMaxHealth());
 
@@ -463,34 +488,43 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			return avgDmg * singleHpValue;
 		};
 
-		const auto & isBetterTarget = [&getAttackValue](const battle::Unit * candidate, const battle::Unit * current)
+		std::vector<TargetInfo>targetsInfo;
+
+		for (const CStack * possibleTarget : possibleTargets)
 		{
-			bool candidateIsParalyzed = candidate->hasBonusOfType(BonusType::NOT_ACTIVE);
-			bool currentIsParalyzed = current->hasBonusOfType(BonusType::NOT_ACTIVE);
+			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && possibleTarget->unitType()->warMachine != ArtifactID::AMMO_CART;
+			bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+			const TargetInfo targetInfo =
+			{
+				getCanAttackNextTurn(possibleTarget),
+				isParalyzed,
+				isMachine,
+				getTowerAttackValue(possibleTarget),
+				possibleTarget
+			};
+			targetsInfo.push_back(targetInfo);
+		}
 
-			if (candidateIsParalyzed != currentIsParalyzed)
-				return currentIsParalyzed > candidateIsParalyzed;
+		const auto & isBetterTarget = [&](const TargetInfo & candidate, const TargetInfo & current)
+		{
+			if (candidate.isParalyzed != current.isParalyzed)
+				return candidate.isParalyzed < current.isParalyzed;
 
-			return getAttackValue(candidate) > getAttackValue(current);
+			if (candidate.isMachine != current.isMachine)
+				return candidate.isMachine < current.isMachine;
+
+			if (candidate.canAttackNextTurn != current.canAttackNextTurn)
+				return candidate.canAttackNextTurn > current.canAttackNextTurn;
+
+			return candidate.towerAttackValue > current.towerAttackValue;
 		};
 
-		const battle::Unit * target = nullptr;
+		const TargetInfo * target = nullptr;
 
-		for(auto & elem : battle.battleGetAllStacks(true))
+		for(const auto & elem : targetsInfo)
 		{
-			if (elem->unitOwner() == next->unitOwner())
-				continue;
-
-			if (!elem->isValidTarget())
-				continue;
-
-			if (!battle.battleCanShoot(next, elem->getPosition()))
-				continue;
-
-			if (target && !isBetterTarget(elem, target))
-				continue;
-
-			target = elem;
+			if (target == nullptr || isBetterTarget(elem, *target))
+				target = &elem;
 		}
 
 		if(target == nullptr)
@@ -499,7 +533,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 		}
 		else
 		{
-			attack.aimToUnit(target);
+			attack.aimToUnit(target->stack);
 			makeAutomaticAction(battle, next, attack);
 		}
 		return true;
