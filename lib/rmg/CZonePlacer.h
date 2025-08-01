@@ -47,7 +47,6 @@ public:
 	float scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const;
 	void assignZones(vstd::RNG * rand);
 	void RemoveRoadsForWideConnections();
-	void dropRandomRoads(vstd::RNG * rand);
 
 	const TDistanceMap & getDistanceMap();
 	
