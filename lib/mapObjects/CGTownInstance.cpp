@@ -706,7 +706,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + getTown()->faction->getNameTranslated() + ") of " + getNameTranslated();
+	return "Town at " + pos.toString();
 }
 
 void CGTownInstance::updateMoraleBonusFromArmy()
