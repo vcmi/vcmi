@@ -505,7 +505,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			targetsInfo.push_back(targetInfo);
 		}
 
-		const auto & isBetterTarget = [&](const TargetInfo & candidate, const TargetInfo & current)
+		const auto & isBetterTarget = [](const TargetInfo & candidate, const TargetInfo & current)
 		{
 			if (candidate.isParalyzed != current.isParalyzed)
 				return candidate.isParalyzed < current.isParalyzed;
