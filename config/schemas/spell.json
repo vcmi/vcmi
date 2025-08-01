@@ -60,7 +60,7 @@
 				},
 				"castsPerDay" : { "type" : "number" },
 				"castsPerDayXL" : { "type" : "number" },
-				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }},
+				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }}
 			},
 			"allOf" : [
 				{ 
@@ -308,7 +308,7 @@
 							"turnsRemaining" : { "type" : "number" },
 							"triggerAbility" : { "type" : "string" },
 							"attacker" : {  },
-							"defender" : {  },
+							"defender" : {  }
 						},
 						"additionalProperties" : false
 					}
@@ -339,7 +339,7 @@
 							"permanent" : { "type" : "boolean" },
 							"exclusive" : { "type" : "boolean" },
 							"summonByHealth" : { "type" : "boolean" },
-							"summonSameUnit" : { "type" : "boolean" },
+							"summonSameUnit" : { "type" : "boolean" }
 						},
 						"additionalProperties" : false
 					}
@@ -376,7 +376,7 @@
 						},
 						"additionalProperties" : false
 					}
-				},
+				}
 			]
 		},
 		"flags" : {
