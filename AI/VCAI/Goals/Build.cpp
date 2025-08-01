@@ -36,7 +36,7 @@ TGoalVec Build::getAllPossibleSubgoals()
 		if(!t->hasBuilt(ai->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.has_value())
 		{
 			auto potentialBuilding = expensiveBuilding.value();
-			switch(expensiveBuilding.value().bid)
+			switch(expensiveBuilding.value().bid.toEnum())
 			{
 			case BuildingID::TOWN_HALL:
 			case BuildingID::CITY_HALL:

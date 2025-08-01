@@ -67,9 +67,8 @@ SDL_Color toSDL(const ColorRGBA & color);
 	SDL_Surface * newSurface(const Point & dimensions, SDL_Surface * mod); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * newSurface(const Point & dimensions); //creates new surface, with flags/format same as in screen surface
 
-	template<int bpp>
-	void convertToGrayscaleBpp(SDL_Surface * surf, const Rect & rect);
 	void convertToGrayscale(SDL_Surface * surf, const Rect & rect);
+	void convertToH2Scheme(SDL_Surface * surf, const Rect & rect);
 
 	void setColorKey(SDL_Surface * surface, SDL_Color color);
 
@@ -77,4 +76,7 @@ SDL_Color toSDL(const ColorRGBA & color);
 	void setDefaultColorKey(SDL_Surface * surface);
 	///set key-color to 0,255,255 only if it exactly mapped
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
+
+	SDL_Surface * drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness);
+	SDL_Surface * drawShadow(SDL_Surface * source, bool doSheer);
 }

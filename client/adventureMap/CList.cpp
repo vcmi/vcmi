@@ -28,12 +28,12 @@
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-
-#include "../../CCallback.h"
 
 CList::CListItem::CListItem(CList * Parent)
 	: CIntObject(LCLICK | SHOW_POPUP | HOVER),

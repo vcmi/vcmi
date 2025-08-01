@@ -10,32 +10,32 @@
 #include "StdInc.h"
 #include "BattleFieldController.h"
 
-#include "BattleInterface.h"
-#include "BattleWindow.h"
 #include "BattleActionsController.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleEffectsController.h"
-#include "BattleSiegeController.h"
-#include "BattleStacksController.h"
+#include "BattleInterface.h"
+#include "BattleHero.h"
 #include "BattleObstacleController.h"
 #include "BattleProjectileController.h"
 #include "BattleRenderer.h"
+#include "BattleSiegeController.h"
+#include "BattleStacksController.h"
+#include "BattleWindow.h"
 
 #include "../CPlayerInterface.h"
+#include "../GameEngine.h"
+#include "../GameInstance.h"
+#include "../adventureMap/CInGameConsole.h"
+#include "../client/render/CAnimation.h"
+#include "../gui/CursorHandler.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
-#include "../GameEngine.h"
-#include "../GameInstance.h"
-#include "../gui/CursorHandler.h"
-#include "../adventureMap/CInGameConsole.h"
-#include "../client/render/CAnimation.h"
 
-#include "../../CCallback.h"
 #include "../../lib/BattleFieldHandler.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/spells/ISpellMechanics.h"
 
 namespace HexMasks
@@ -116,9 +116,6 @@ BattleFieldController::BattleFieldController(BattleInterface & owner):
 	cellShade = ENGINE->renderHandler().loadImage(ImagePath::builtin("CCELLSHD.BMP"), EImageBlitMode::SIMPLE);
 	cellUnitMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
 	cellUnitMaxMovementHighlight = ENGINE->renderHandler().loadImage(ImagePath::builtin("UnitMaxMovementHighlight.PNG"), EImageBlitMode::COLORKEY);
-
-	attackCursors = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRCOMBAT"), EImageBlitMode::COLORKEY);
-	spellCursors = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CRSPELL"), EImageBlitMode::COLORKEY);
 
 	rangedFullDamageLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsGreen.json"), EImageBlitMode::COLORKEY);
 	shootingRangeLimitImages = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("battle/rangeHighlights/rangeHighlightsRed.json"), EImageBlitMode::COLORKEY);
@@ -377,12 +374,12 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	BattleHexArray availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
 
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex))
-	{
-		if(isTileAttackable(hoveredHex))
-		{
-			BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
 
+	if(isTileAttackable(hoveredHex))
+	{
+		BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
+		if(owner.getBattle()->battleCanAttack(stack, hoveredStack, attackFromHex))
+		{
 			if(stack->doubleWide())
 				return {attackFromHex, stack->occupiedHex(attackFromHex)};
 			else
@@ -390,24 +387,29 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 		}
 	}
 
-	if(availableHexes.contains(hoveredHex))
+	if (stack->doubleWide())
 	{
-		if(stack->doubleWide())
+		const bool canMoveHeadHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex);
+		const bool canMoveTailHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir()));
+		const bool backwardsMove = stack->unitSide() == BattleSide::ATTACKER ?
+									   hoveredHex.getX() < stack->getPosition().getX():
+									   hoveredHex.getX() > stack->getPosition().getX();
+
+		if(canMoveTailHere && (backwardsMove || !canMoveHeadHere))
+			return {hoveredHex, hoveredHex.cloneInDirection(stack->destShiftDir())};
+
+		if (canMoveHeadHere)
 			return {hoveredHex, stack->occupiedHex(hoveredHex)};
-		else
-			return {hoveredHex};
-	}
 
-	if(stack->doubleWide())
+		return {};
+	}
+	else
 	{
-		for(const auto & hex : availableHexes)
-		{
-			if(stack->occupiedHex(hex) == hoveredHex)
-				return {hoveredHex, hex};
-		}
+		if (availableHexes.contains(hoveredHex))
+			return {hoveredHex};
+		else
+			return {};
 	}
-
-	return {};
 }
 
 // Range limit highlight helpers
@@ -817,7 +819,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 	for (auto & elem : occupiableHexes)
 	{
-		if (BattleHex::mutualPosition(elem, number) != -1 || elem == number)
+		if (BattleHex::mutualPosition(elem, number) != BattleHex::EDir::NONE || elem == number)
 			return true;
 	}
 	return false;
@@ -856,24 +858,7 @@ void BattleFieldController::show(Canvas & to)
 	renderBattlefield(to);
 
 	if (isActive() && isGesturing() && getHoveredHex() != BattleHex::INVALID)
-	{
-		auto combatCursorIndex = ENGINE->cursor().get<Cursor::Combat>();
-		if (combatCursorIndex)
-		{
-			auto combatImageIndex = static_cast<size_t>(*combatCursorIndex);
-			to.draw(attackCursors->getImage(combatImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetCombat(combatImageIndex));
-			return;
-		}
-
-		auto spellCursorIndex = ENGINE->cursor().get<Cursor::Spellcast>();
-		if (spellCursorIndex)
-		{
-			auto spellImageIndex = static_cast<size_t>(*spellCursorIndex);
-			to.draw(spellCursors->getImage(spellImageIndex), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffsetSpellcast());
-			return;
-		}
-
-	}
+		to.draw(ENGINE->cursor().getCurrentImage(), hexPositionAbsolute(getHoveredHex()).center() - ENGINE->cursor().getPivotOffset());
 }
 
 bool BattleFieldController::receiveEvent(const Point & position, int eventType) const

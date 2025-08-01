@@ -12,6 +12,7 @@
 
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../serializer/Serializeable.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -48,6 +49,13 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// Number of free secondary slots that hero needs to have
 	bool canLearnSkills;
 
+	/// Hero has commander, and commander is currently alive
+	bool commanderAlive;
+
+	/// Hero has creatures other than those requested in 'creatures' field
+	/// In other words, it is possible to take requested creatures from hero
+	bool hasExtraCreatures;
+
 	/// resources player needs to have in order to trigger reward
 	TResources resources;
 
@@ -59,6 +67,12 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// checks for artifacts copies if same artifact id is included multiple times
 	std::vector<ArtifactID> artifacts;
 
+	/// artifact slots that hero needs to have available (not locked and without any artifact) to pass the limiter
+	std::vector<ArtifactPosition> availableSlots;
+
+	/// Spell scrolls that hero must have in inventory (equipped or in backpack)
+	std::vector<SpellID> scrolls;
+
 	/// Spells that hero must have in the spellbook
 	std::vector<SpellID> spells;
 
@@ -68,6 +82,9 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 	/// creatures that hero needs to have
 	std::vector<CStackBasicDescriptor> creatures;
 	
+	/// creatures that hero needs to have
+	std::vector<CStackBasicDescriptor> canReceiveCreatures;
+
 	/// only heroes/hero classes from list could pass limiter
 	std::vector<HeroTypeID> heroes;
 	std::vector<HeroClassID> heroClasses;
@@ -102,13 +119,27 @@ struct DLL_LINKAGE Limiter final : public Serializeable
 		h & manaPoints;
 		h & manaPercentage;
 		h & canLearnSkills;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & commanderAlive;
+			h & hasExtraCreatures;
+		}
 		h & resources;
 		h & primary;
 		h & secondary;
 		h & artifacts;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & availableSlots;
+			h & scrolls;
+		}
 		h & spells;
 		h & canLearnSpells;
 		h & creatures;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+		{
+			h & canReceiveCreatures;
+		}
 		h & heroes;
 		h & heroClasses;
 		h & players;

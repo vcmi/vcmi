@@ -11,11 +11,13 @@
 #include "StdInc.h"
 #include "CGResource.h"
 
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../networkPacks/PacksForClient.h"
 #include "../networkPacks/PacksForClientBattle.h"
-#include "../IGameCallback.h"
 #include "../gameState/CGameState.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../CSoundBase.h"
@@ -51,27 +53,27 @@ std::string CGResource::getHoverText(PlayerColor player) const
 	return LIBRARY->generaltexth->restypes[resourceID().getNum()];
 }
 
-void CGResource::pickRandomObject(vstd::RNG & rand)
+void CGResource::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	assert(ID == Obj::RESOURCE || ID == Obj::RANDOM_RESOURCE);
 
 	if (ID == Obj::RANDOM_RESOURCE)
 	{
 		ID = Obj::RESOURCE;
-		subID = rand.nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		subID = gameRandomizer.getDefault().nextInt(EGameResID::WOOD, EGameResID::GOLD);
 		setType(ID, subID);
 
 		amount *= getAmountMultiplier();
 	}
 }
 
-void CGResource::initObj(vstd::RNG & rand)
+void CGResource::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
-	getResourceHandler()->randomizeObject(this, rand);
+	getResourceHandler()->randomizeObject(this, gameRandomizer);
 }
 
-void CGResource::onHeroVisit( const CGHeroInstance * h ) const
+void CGResource::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(stacksCount())
 	{
@@ -80,20 +82,20 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text = message;
-			cb->showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(this, &ynd);
 		}
 		else
 		{
-			blockingDialogAnswered(h, true); //behave as if player accepted battle
+			blockingDialogAnswered(gameEvents, h, true); //behave as if player accepted battle
 		}
 	}
 	else
-		collectRes(h->getOwner());
+		collectRes(gameEvents, h->getOwner());
 }
 
-void CGResource::collectRes(const PlayerColor & player) const
+void CGResource::collectRes(IGameEventCallback & gameEvents, const PlayerColor & player) const
 {
-	cb->giveResource(player, resourceID(), amount);
+	gameEvents.giveResource(player, resourceID(), amount);
 	InfoWindow sii;
 	sii.player = player;
 	if(!message.empty())
@@ -108,21 +110,21 @@ void CGResource::collectRes(const PlayerColor & player) const
 		sii.text.replaceName(resourceID());
 	}
 	sii.components.emplace_back(ComponentType::RESOURCE, resourceID(), amount);
-	sii.soundID = soundBase::pickup01 + cb->gameState()->getRandomGenerator().nextInt(6);
-	cb->showInfoDialog(&sii);
-	cb->removeObject(this, player);
+	sii.soundID = soundBase::pickup01 + gameEvents.getRandomGenerator().nextInt(6);
+	gameEvents.showInfoDialog(&sii);
+	gameEvents.removeObject(this, player);
 }
 
-void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGResource::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER) //attacker won
-		collectRes(hero->getOwner());
+		collectRes(gameEvents, hero->getOwner());
 }
 
-void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGResource::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
-		cb->startBattle(hero, this);
+		gameEvents.startBattle(hero, this);
 }
 
 void CGResource::serializeJsonOptions(JsonSerializeFormat & handler)

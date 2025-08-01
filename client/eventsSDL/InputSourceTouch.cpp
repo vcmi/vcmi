@@ -65,15 +65,18 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 	if(std::abs(motionAccumulatedX[tfinger.fingerId]) < motionThreshold && std::abs(motionAccumulatedY[tfinger.fingerId]) < motionThreshold)
 		return;
 
+	int scalingFactor = ENGINE->screenHandler().getScalingFactor();
+
 	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
-		ENGINE->cursor().cursorMove(ENGINE->getCursorPosition().x, ENGINE->getCursorPosition().y);
+	{
+		Point cursorPosition = Point(tfinger.x * screenSize.x, tfinger.y * screenSize.y) * scalingFactor;
+		ENGINE->cursor().cursorMove(cursorPosition.x, cursorPosition.y);
+	}
 
 	switch(state)
 	{
 		case TouchState::RELATIVE_MODE:
 		{
-			int scalingFactor = ENGINE->screenHandler().getScalingFactor();
-
 			Point moveDistance {
 				static_cast<int>(screenSize.x * params.relativeModeSpeedFactor * motionAccumulatedX[tfinger.fingerId]),
 				static_cast<int>(screenSize.y * params.relativeModeSpeedFactor * motionAccumulatedY[tfinger.fingerId])
@@ -133,6 +136,14 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 	params.hapticFeedbackEnabled = settings["general"]["hapticFeedback"].Bool();
 
 	lastTapTimeTicks = tfinger.timestamp;
+
+	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
+	{
+		int scalingFactor = ENGINE->screenHandler().getScalingFactor();
+		Point screenSize = ENGINE->screenDimensions();
+		Point cursorPosition = Point(tfinger.x * screenSize.x, tfinger.y * screenSize.y) * scalingFactor;
+		ENGINE->cursor().cursorMove(cursorPosition.x, cursorPosition.y);
+	}
 
 	switch(state)
 	{
@@ -355,10 +366,10 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 void InputSourceTouch::hapticFeedback() {
 	if(params.hapticFeedbackEnabled) {
 #if defined(VCMI_ANDROID)
-        CAndroidVMHelper vmHelper;
-        vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
+		CAndroidVMHelper vmHelper;
+		vmHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "hapticFeedback");
 #elif defined(VCMI_IOS)
-    	iOS_utils::hapticFeedback();
+		iOS_utils::hapticFeedback();
 #endif
 	}
 }

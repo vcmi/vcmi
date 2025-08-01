@@ -58,6 +58,14 @@ int64_t ObstacleCasterProxy::getEffectValue(const Spell * spell) const
 		return obs.minimalDamage;
 }
 
+int64_t ObstacleCasterProxy::getEffectRange(const Spell * spell) const
+{
+	if(actualCaster)
+		actualCaster->getEffectRange(spell);
+
+	return 0;
+}
+
 int32_t SilentCaster::manaLimit() const
 {
 	return 0;

@@ -90,8 +90,7 @@ public:
 	SlotID unitSlot() const override;
 
 	///IBonusBearer
-	TConstBonusListPtr getAllBonuses(const CSelector & selector, const CSelector & limit,
-		const std::string & cachingStr = "") const override;
+	TConstBonusListPtr getAllBonuses(const CSelector & selector, const std::string & cachingStr = "") const override;
 
 	int32_t getTreeVersion() const override;
 
@@ -137,7 +136,7 @@ public:
 	battle::Units getUnitsIf(const battle::UnitFilter & predicate) const override;
 
 	void nextRound() override;
-	void nextTurn(uint32_t unitId) override;
+	void nextTurn(uint32_t unitId, BattleUnitTurnReason reason) override;
 
 	void addUnit(uint32_t id, const JsonNode & data) override;
 	void setUnitState(uint32_t id, const JsonNode & data, int64_t healthDelta) override;

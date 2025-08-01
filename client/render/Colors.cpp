@@ -13,6 +13,8 @@
 
 #include "../../lib/json/JsonNode.h"
 
+#include <boost/algorithm/hex.hpp>
+
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE_TRUE = { 255, 255, 255, ColorRGBA::ALPHA_OPAQUE };
@@ -50,4 +52,15 @@ std::optional<ColorRGBA> Colors::parseColor(std::string text)
 	}
 
 	return std::nullopt;
+}
+
+std::string Colors::colorToHexString(const ColorRGBA& color)
+{
+	std::ostringstream oss;
+	oss << "#" 
+		<< std::hex << std::uppercase 
+		<< std::setw(2) << std::setfill('0') << static_cast<int>(color.r)
+		<< std::setw(2) << std::setfill('0') << static_cast<int>(color.g)
+		<< std::setw(2) << std::setfill('0') << static_cast<int>(color.b);
+	return oss.str();
 }

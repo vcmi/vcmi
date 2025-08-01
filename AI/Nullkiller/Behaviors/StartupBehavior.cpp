@@ -32,7 +32,7 @@ const AIPath getShortestPath(const CGTownInstance * town, const std::vector<AIPa
 {
 	auto shortestPath = *vstd::minElementByFun(paths, [town](const AIPath & path) -> float
 	{
-		if(town->garrisonHero && path.targetHero == town->garrisonHero.get())
+		if(town->getGarrisonHero() && path.targetHero == town->getGarrisonHero())
 			return 1;
 
 		return path.movementCost();
@@ -53,7 +53,7 @@ const CGHeroInstance * getNearestHero(const Nullkiller * ai, const CGTownInstanc
 	if(shortestPath.nodes.size() > 1
 		|| shortestPath.turn() != 0
 		|| shortestPath.targetHero->visitablePos().dist2dSQ(town->visitablePos()) > 4
-		|| (town->garrisonHero && shortestPath.targetHero == town->garrisonHero.get()))
+		|| (town->getGarrisonHero() && shortestPath.targetHero == town->getGarrisonHero()))
 		return nullptr;
 
 	return shortestPath.targetHero;
@@ -64,7 +64,7 @@ bool needToRecruitHero(const Nullkiller * ai, const CGTownInstance * startupTown
 	if(!ai->heroManager->canRecruitHero(startupTown))
 		return false;
 
-	if(!startupTown->garrisonHero && !startupTown->visitingHero)
+	if(!startupTown->getGarrisonHero() && !startupTown->getVisitingHero())
 		return true;
 
 	int treasureSourcesCount = 0;
@@ -122,8 +122,8 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 	{
 		startupTown = *vstd::maxElementByFun(towns, [ai](const CGTownInstance * town) -> float
 		{
-			if(town->garrisonHero)
-				return ai->heroManager->evaluateHero(town->garrisonHero.get());
+			if(town->getGarrisonHero())
+				return ai->heroManager->evaluateHero(town->getGarrisonHero());
 
 			auto closestHero = getNearestHero(ai, town);
 
@@ -147,7 +147,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 
 	if(closestHero)
 	{
-		if(!startupTown->visitingHero)
+		if(!startupTown->getVisitingHero())
 		{
 			if(ai->armyManager->howManyReinforcementsCanGet(startupTown->getUpperArmy(), startupTown->getUpperArmy(), closestHero, TerrainId::NONE) > 200)
 			{
@@ -163,12 +163,12 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 		}
 		else
 		{
-			auto visitingHero = startupTown->visitingHero.get();
+			auto visitingHero = startupTown->getVisitingHero();
 			auto visitingHeroScore = ai->heroManager->evaluateHero(visitingHero);
 				
-			if(startupTown->garrisonHero)
+			if(startupTown->getGarrisonHero())
 			{
-				auto garrisonHero = startupTown->garrisonHero.get();
+				auto garrisonHero = startupTown->getGarrisonHero();
 				auto garrisonHeroScore = ai->heroManager->evaluateHero(garrisonHero);
 
 				if(visitingHeroScore > garrisonHeroScore
@@ -187,7 +187,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 			else if(canRecruitHero)
 			{
 				auto canPickTownArmy = startupTown->stacksCount() == 0
-					|| ai->armyManager->howManyReinforcementsCanGet(startupTown->visitingHero, startupTown) > 0;
+					|| ai->armyManager->howManyReinforcementsCanGet(startupTown->getVisitingHero(), startupTown) > 0;
 
 				if(canPickTownArmy)
 				{
@@ -197,16 +197,16 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 		}
 	}
 
-	if(tasks.empty() && canRecruitHero && !startupTown->visitingHero)
+	if(tasks.empty() && canRecruitHero && !startupTown->getVisitingHero())
 	{
 		tasks.push_back(Goals::sptr(Goals::RecruitHero(startupTown)));
 	}
 
-	if(tasks.empty() && !startupTown->visitingHero)
+	if(tasks.empty() && !startupTown->getVisitingHero())
 	{
 		for(auto town : towns)
 		{
-			if(!town->visitingHero && needToRecruitHero(ai, town))
+			if(!town->getVisitingHero() && needToRecruitHero(ai, town))
 			{
 				tasks.push_back(Goals::sptr(Goals::RecruitHero(town)));
 
@@ -219,10 +219,10 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 	{
 		for(const CGTownInstance * town : towns)
 		{
-			if(town->garrisonHero
-				&& town->garrisonHero->movementPointsRemaining()
-				&& !town->visitingHero
-				&& ai->getHeroLockedReason(town->garrisonHero) != HeroLockedReason::DEFENCE)
+			if(town->getGarrisonHero()
+				&& town->getGarrisonHero()->movementPointsRemaining()
+				&& !town->getVisitingHero()
+				&& ai->getHeroLockedReason(town->getGarrisonHero()) != HeroLockedReason::DEFENCE)
 			{
 				tasks.push_back(Goals::sptr(ExchangeSwapTownHeroes(town, nullptr).setpriority(MIN_PRIORITY)));
 			}

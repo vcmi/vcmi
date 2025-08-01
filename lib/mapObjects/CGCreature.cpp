@@ -15,7 +15,9 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../CConfigHandler.h"
 #include "../IGameSettings.h"
-#include "../IGameCallback.h"
+#include "../callback/IGameInfoCallback.h"
+#include "../callback/IGameEventCallback.h"
+#include "../callback/IGameRandomizer.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../networkPacks/PacksForClient.h"
@@ -55,9 +57,9 @@ std::string CGCreature::getHoverText(const CGHeroInstance * hero) const
 	if(hero->hasVisions(this, BonusCustomSubtype::visionsMonsters))
 	{
 		MetaString ms;
-		ms.appendNumber(stacks.begin()->second->count);
+		ms.appendNumber(stacks.begin()->second->getCount());
 		ms.appendRawString(" ");
-		ms.appendName(getCreatureID(), stacks.begin()->second->count);
+		ms.appendName(getCreatureID(), stacks.begin()->second->getCount());
 		return ms.toString();
 	}
 	else
@@ -154,7 +156,7 @@ std::vector<Component> CGCreature::getPopupComponents(PlayerColor player) const
 	};
 }
 
-void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
+void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	//show message
 	if(!message.empty())
@@ -163,18 +165,18 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		iw.text = message;
 		iw.type = EInfoWindowMode::MODAL;
-		cb->showInfoDialog(&iw);
+		gameEvents.showInfoDialog(&iw);
 	}
 	
 	int action = takenAction(h);
 	switch( action ) //decide what we do...
 	{
 	case FIGHT:
-		fight(h);
+		fight(gameEvents, h);
 		break;
 	case FLEE:
 		{
-			flee(h);
+			flee(gameEvents, h);
 			break;
 		}
 	case JOIN_FOR_FREE: //join for free
@@ -183,7 +185,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			ynd.player = h->tempOwner;
 			ynd.text.appendLocalString(EMetaText::ADVOB_TXT, 86);
 			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
-			cb->showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(this, &ynd);
 			break;
 		}
 	default: //join for gold
@@ -199,7 +201,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp, "%d", std::to_string(action));
 			boost::algorithm::replace_first(tmp,"%s",getCreature()->getNamePluralTranslated());
 			ynd.text.appendRawString(tmp);
-			cb->showBlockingDialog(this, &ynd);
+			gameEvents.showBlockingDialog(this, &ynd);
 			break;
 		}
 	}
@@ -220,33 +222,33 @@ TQuantity CGCreature::getJoiningAmount() const
 	return std::max(static_cast<int64_t>(1), getStackCount(SlotID(0)) * cb->getSettings().getInteger(EGameSettings::CREATURES_JOINING_PERCENTAGE) / 100);
 }
 
-void CGCreature::pickRandomObject(vstd::RNG & rand)
+void CGCreature::pickRandomObject(IGameRandomizer & gameRandomizer)
 {
 	switch(ID.toEnum())
 	{
 		case MapObjectID::RANDOM_MONSTER:
-			subID = LIBRARY->creh->pickRandomMonster(rand);
+			subID = gameRandomizer.rollCreature();
 			break;
 		case MapObjectID::RANDOM_MONSTER_L1:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 1);
+			subID = gameRandomizer.rollCreature(1);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L2:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 2);
+			subID = gameRandomizer.rollCreature(2);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L3:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 3);
+			subID = gameRandomizer.rollCreature(3);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L4:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 4);
+			subID = gameRandomizer.rollCreature(4);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L5:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 5);
+			subID = gameRandomizer.rollCreature(5);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L6:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 6);
+			subID = gameRandomizer.rollCreature(6);
 			break;
 		case MapObjectID::RANDOM_MONSTER_L7:
-			subID = LIBRARY->creh->pickRandomMonster(rand, 7);
+			subID = gameRandomizer.rollCreature(7);
 			break;
 	}
 
@@ -265,7 +267,7 @@ void CGCreature::pickRandomObject(vstd::RNG & rand)
 	setType(ID, subID);
 }
 
-void CGCreature::initObj(vstd::RNG & rand)
+void CGCreature::initObj(IGameRandomizer & gameRandomizer)
 {
 	blockVisit = true;
 	switch(character)
@@ -274,13 +276,13 @@ void CGCreature::initObj(vstd::RNG & rand)
 		character = -4;
 		break;
 	case 1:
-		character = rand.nextInt(1, 7);
+		character = gameRandomizer.getDefault().nextInt(1, 7);
 		break;
 	case 2:
-		character = rand.nextInt(1, 10);
+		character = gameRandomizer.getDefault().nextInt(1, 10);
 		break;
 	case 3:
-		character = rand.nextInt(4, 10);
+		character = gameRandomizer.getDefault().nextInt(4, 10);
 		break;
 	case 4:
 		character = 10;
@@ -288,49 +290,48 @@ void CGCreature::initObj(vstd::RNG & rand)
 	}
 
 	stacks[SlotID(0)]->setType(getCreature());
-	TQuantity &amount = stacks[SlotID(0)]->count;
 	const Creature * c = getCreature();
-	if(amount == 0)
+	if(stacks[SlotID(0)]->getCount() == 0)
 	{
-		amount = rand.nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax());
+		stacks[SlotID(0)]->setCount(gameRandomizer.getDefault().nextInt(c->getAdvMapAmountMin(), c->getAdvMapAmountMax()));
 
-		if(amount == 0) //armies with 0 creatures are illegal
+		if(stacks[SlotID(0)]->getCount() == 0) //armies with 0 creatures are illegal
 		{
 			logGlobal->warn("Stack cannot have 0 creatures. Check properties of %s", c->getJsonKey());
-			amount = 1;
+			stacks[SlotID(0)]->setCount(1);
 		}
 	}
 
-	temppower = stacks[SlotID(0)]->count * static_cast<int64_t>(1000);
+	temppower = stacks[SlotID(0)]->getCount() * static_cast<int64_t>(1000);
 	refusedJoining = false;
 }
 
-void CGCreature::newTurn(vstd::RNG & rand) const
+void CGCreature::newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const
 {//Works only for stacks of single type of size up to 2 millions
 	if (!notGrowingTeam)
 	{
-		if (stacks.begin()->second->count < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
+		if (stacks.begin()->second->getCount() < cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP) && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 		{
 			ui32 power = static_cast<ui32>(temppower * (100 + cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_PERCENT)) / 100);
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
+			gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_COUNT, std::min<uint32_t>(power / 1000, cb->getSettings().getInteger(EGameSettings::CREATURES_WEEKLY_GROWTH_CAP))); //set new amount
+			gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 		}
 	}
 	if (cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
+		gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_EXP, cb->getSettings().getInteger(EGameSettings::CREATURES_DAILY_STACK_EXPERIENCE)); //for testing purpose
 }
 void CGCreature::setPropertyDer(ObjProperty what, ObjPropertyID identifier)
 {
 	switch (what)
 	{
 		case ObjProperty::MONSTER_COUNT:
-			stacks[SlotID(0)]->count = identifier.getNum();
+			stacks[SlotID(0)]->setCount(identifier.getNum());
 			break;
 		case ObjProperty::MONSTER_POWER:
 			temppower = identifier.getNum();
 			break;
 		case ObjProperty::MONSTER_EXP:
-			giveStackExp(identifier.getNum());
+			giveAverageStackExperience(identifier.getNum());
 			break;
 		case ObjProperty::MONSTER_REFUSED_JOIN:
 			refusedJoining = identifier.getNum();
@@ -367,8 +368,8 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		bool isOurDowngrade = vstd::contains(elem.second->getCreature()->upgrades, getCreatureID());
 
 		if(isOurUpgrade || isOurDowngrade)
-			count += elem.second->count;
-		totalCount += elem.second->count;
+			count += elem.second->getCount();
+		totalCount += elem.second->getCount();
 	}
 
 	int sympathy = 0; // 0 if hero have no similar creatures
@@ -404,34 +405,34 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		return FIGHT;
 }
 
-void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
+void CGCreature::fleeDecision(IGameEventCallback & gameEvents, const CGHeroInstance *h, ui32 pursue) const
 {
 	if(refusedJoining)
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
+		gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
 
 	if(pursue)
 	{
-		fight(h);
+		fight(gameEvents, h);
 	}
 	else
 	{
-		cb->removeObject(this, h->getOwner());
+		gameEvents.removeObject(this, h->getOwner());
 	}
 }
 
-void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const
+void CGCreature::joinDecision(IGameEventCallback & gameEvents, const CGHeroInstance *h, int cost, ui32 accept) const
 {
 	if(!accept)
 	{
 		if(takenAction(h,false) == FLEE)
 		{
-			cb->setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
-			flee(h);
+			gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
+			flee(gameEvents, h);
 		}
 		else //they fight
 		{
-			h->showInfoDialog(87, 0, EInfoWindowMode::MODAL);//Insulted by your refusal of their offer, the monsters attack!
-			fight(h);
+			h->showInfoDialog(gameEvents, 87, 0, EInfoWindowMode::MODAL);//Insulted by your refusal of their offer, the monsters attack!
+			fight(gameEvents, h);
 		}
 	}
 	else //accepted
@@ -441,27 +442,27 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text.appendLocalString(EMetaText::GENERAL_TXT,29);  //You don't have enough gold
-			cb->showInfoDialog(&iw);
+			gameEvents.showInfoDialog(&iw);
 
 			//act as if player refused
-			joinDecision(h,cost,false);
+			joinDecision(gameEvents, h, cost, false);
 			return;
 		}
 
 		//take gold
 		if(cost)
-			cb->giveResource(h->tempOwner,EGameResID::GOLD,-cost);
+			gameEvents.giveResource(h->tempOwner,EGameResID::GOLD,-cost);
 
-		giveReward(h);
+		giveReward(gameEvents, h);
 
-		for(std::pair<const SlotID, CStackInstance*> stack : this->stacks)
-			stack.second->count = getJoiningAmount();
+		for(auto & stack : this->stacks)
+			stack.second->setCount(getJoiningAmount());
 
-		cb->tryJoiningArmy(this, h, true, true);
+		gameEvents.tryJoiningArmy(this, h, true, true);
 	}
 }
 
-void CGCreature::fight( const CGHeroInstance *h ) const
+void CGCreature::fight(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	//split stacks
 	int stacksCount = getNumberOfStacks(h);
@@ -476,13 +477,13 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	for (int slotID = 1; slotID < a; ++slotID)
 	{
 		int stackSize = m + 1;
-		cb->moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
+		gameEvents.moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
 	}
 	for (int slotID = a; slotID < stacksCount; ++slotID)
 	{
 		int stackSize = m;
 		if (slotID) //don't do this when a = 0 -> stack is single
-			cb->moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
+			gameEvents.moveStack(StackLocation(id, sourceSlot), StackLocation(id, SlotID(slotID)), stackSize);
 	}
 	if (stacksCount > 1)
 	{
@@ -492,36 +493,36 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			const auto & upgrades = getStack(slotID).getCreature()->upgrades;
 			if(!upgrades.empty())
 			{
-				auto it = RandomGeneratorUtil::nextItem(upgrades, cb->gameState()->getRandomGenerator());
-				cb->changeStackType(StackLocation(id, slotID), it->toCreature());
+				auto it = RandomGeneratorUtil::nextItem(upgrades, gameEvents.getRandomGenerator());
+				gameEvents.changeStackType(StackLocation(id, slotID), it->toCreature());
 			}
 		}
 	}
 
-	cb->startBattle(h, this);
+	gameEvents.startBattle(h, this);
 
 }
 
-void CGCreature::flee( const CGHeroInstance * h ) const
+void CGCreature::flee(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text.appendLocalString(EMetaText::ADVOB_TXT,91);
 	ynd.text.replaceName(getCreatureID(), getStackCount(SlotID(0)));
-	cb->showBlockingDialog(this, &ynd);
+	gameEvents.showBlockingDialog(this, &ynd);
 }
 
-void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
 {
 	if(result.winner == BattleSide::ATTACKER)
 	{
-		giveReward(hero);
-		cb->removeObject(this, hero->getOwner());
+		giveReward(gameEvents, hero);
+		gameEvents.removeObject(this, hero->getOwner());
 	}
 	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
-		cb->removeObject(this, hero->getOwner());
+		gameEvents.removeObject(this, hero->getOwner());
 	}
 	else
 	{
@@ -530,15 +531,15 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
-			if(cre->isMyUpgrade(i->second->getCreature()))
+			if(cre->isMyDirectUpgrade(i->second->getCreature()))
 			{
-				cb->changeStackType(StackLocation(id, i->first), cre); //un-upgrade creatures
+				gameEvents.changeStackType(StackLocation(id, i->first), cre); //un-upgrade creatures
 			}
 		}
 
 		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
 		if(!hasStackAtSlot(SlotID(0)))
-			cb->moveStack(StackLocation(id, stacks.begin()->first), StackLocation(id, SlotID(0)), stacks.begin()->second->count);
+			gameEvents.moveStack(StackLocation(id, stacks.begin()->first), StackLocation(id, SlotID(0)), stacks.begin()->second->getCount());
 
 		while(stacks.size() > 1) //hopefully that's enough
 		{
@@ -549,20 +550,20 @@ void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &
 			if(slot == i->first) //no reason to move stack to its own slot
 				break;
 			else
-				cb->moveStack(StackLocation(id, i->first), StackLocation(id, slot), i->second->count);
+				gameEvents.moveStack(StackLocation(id, i->first), StackLocation(id, slot), i->second->getCount());
 		}
 
-		cb->setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
+		gameEvents.setObjPropertyValue(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->getCount() * 1000); //remember casualties
 	}
 }
 
-void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const
+void CGCreature::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	auto action = takenAction(hero);
 	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
-		joinDecision(hero, action, answer);
+		joinDecision(gameEvents, hero, action, answer);
 	else if(action != FIGHT)
-		fleeDecision(hero, answer);
+		fleeDecision(gameEvents, hero, answer);
 	else
 		assert(0);
 }
@@ -615,20 +616,20 @@ int CGCreature::getNumberOfStacks(const CGHeroInstance *hero) const
 	else if (R4 >= 80)
 		split += 1;
 
-	vstd::amin(split, getStack(SlotID(0)).count); //can't divide into more stacks than creatures total
+	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total
 	vstd::amin(split, 7); //can't have more than 7 stacks
 
 	return split;
 }
 
-void CGCreature::giveReward(const CGHeroInstance * h) const
+void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	InfoWindow iw;
 	iw.player = h->tempOwner;
 
 	if(!resources.empty())
 	{
-		cb->giveResources(h->tempOwner, resources);
+		gameEvents.giveResources(h->tempOwner, resources);
 		for(const auto & res : GameResID::ALL_RESOURCES())
 		{
 			if(resources[res] > 0)
@@ -638,7 +639,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 
 	if(gainedArtifact != ArtifactID::NONE)
 	{
-		cb->giveHeroNewArtifact(h, gainedArtifact, ArtifactPosition::FIRST_AVAILABLE);
+		gameEvents.giveHeroNewArtifact(h, gainedArtifact, ArtifactPosition::FIRST_AVAILABLE);
 		iw.components.emplace_back(ComponentType::ARTIFACT, gainedArtifact);
 	}
 
@@ -647,7 +648,7 @@ void CGCreature::giveReward(const CGHeroInstance * h) const
 		iw.type = EInfoWindowMode::AUTO;
 		iw.text.appendLocalString(EMetaText::ADVOB_TXT, 183); // % has found treasure
 		iw.text.replaceRawString(h->getNameTranslated());
-		cb->showInfoDialog(&iw);
+		gameEvents.showInfoDialog(&iw);
 	}
 }
 
@@ -664,7 +665,7 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		if(hasStackAtSlot(SlotID(0)))
 		{
-			si32 amount = getStack(SlotID(0)).count;
+			si32 amount = getStack(SlotID(0)).getCount();
 			handler.serializeInt("amount", amount, 0);
 		}
 	}
@@ -672,10 +673,10 @@ void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 	{
 		si32 amount = 0;
 		handler.serializeInt("amount", amount);
-		auto * hlp = new CStackInstance();
-		hlp->count = amount;
+		auto hlp = std::make_unique<CStackInstance>(cb);
+		hlp->setCount(amount);
 		//type will be set during initialization
-		putStack(SlotID(0), hlp);
+		putStack(SlotID(0), std::move(hlp));
 	}
 
 	resources.serializeJson(handler, "rewardResources");

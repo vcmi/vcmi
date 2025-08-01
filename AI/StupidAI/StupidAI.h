@@ -11,7 +11,7 @@
 
 #include "../../lib/battle/BattleHex.h"
 #include "../../lib/battle/ReachabilityInfo.h"
-#include "../../lib/CGameInterface.h"
+#include "../../lib/callback/CBattleGameInterface.h"
 
 class EnemyInfo;
 
@@ -22,7 +22,6 @@ class CStupidAI : public CBattleGameInterface
 	std::shared_ptr<Environment> env;
 
 	bool wasWaitingForRealize;
-	bool wasUnlockingGs;
 
 	void print(const std::string &text) const;
 public:

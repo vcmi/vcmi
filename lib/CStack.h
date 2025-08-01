@@ -28,7 +28,6 @@ class DLL_LINKAGE CStack final : public CBonusSystemNode, public battle::CUnitSt
 private:
 	ui32 ID = -1; //unique ID of stack
 	CreatureID typeID;
-	TerrainId nativeTerrain; //tmp variable to save native terrain value on battle init
 	ui32 baseAmount = -1;
 
 	PlayerColor owner; //owner - player color (255 for neutrals)
@@ -38,8 +37,9 @@ private:
 
 	bool doubleWideCached = false;
 
-	void postDeserialize(const CArmedInstance * army, const SlotID & extSlot);
 public:
+	void postDeserialize(const CArmedInstance * army);
+
 	const CStackInstance * base = nullptr; //garrison slot from which stack originates (nullptr for war machines, summoned cres, etc)
 	
 	BattleHex initialPosition; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
@@ -56,7 +56,7 @@ public:
 
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
-	bool isOnTerrain(TerrainId terrain) const;
+	TerrainId getCurrentTerrain() const;
 
 	ui32 level() const;
 	si32 magicResistance() const override; //include aura of resistance
@@ -109,22 +109,6 @@ public:
 		h & slot;
 		h & side;
 		h & initialPosition;
-
-		const CArmedInstance * army = (base ? base->armyObj : nullptr);
-		SlotID extSlot = (base ? base->armyObj->findStack(base) : SlotID());
-
-		if(h.saving)
-		{
-			h & army;
-			h & extSlot;
-		}
-		else
-		{
-			h & army;
-			h & extSlot;
-
-			postDeserialize(army, extSlot);
-		}
 	}
 
 private:

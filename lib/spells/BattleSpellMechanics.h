@@ -59,6 +59,7 @@ public:
 
 	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;
+	bool isSmart() const override;
 
 	/// Returns list of hexes that are affected by spell assuming cast at centralHex
 	BattleHexArray rangeInHexes(const BattleHex & centralHex) const override;
@@ -75,6 +76,9 @@ private:
 	effects::Effects::EffectsToApply effectsToApply;
 
 	void beforeCast(BattleSpellCast & sc, vstd::RNG & rng, const Target & target);
+	bool isReflected(const battle::Unit * unit, vstd::RNG & rng);
+	void reflect(BattleSpellCast & sc, vstd::RNG & rng, const battle::Unit * unit);
+	const battle::Unit * getRandomUnit(vstd::RNG & rng, const BattleSide & side);
 
 	std::set<const battle::Unit *> collectTargets() const;
 
@@ -83,6 +87,8 @@ private:
 	BattleHexArray spellRangeInHexes(const BattleHex & centralHex) const;
 
 	Target transformSpellTarget(const Target & aimPoint) const;
+
+	bool canCastAtTarget(const battle::Unit * target) const;
 };
 
 }

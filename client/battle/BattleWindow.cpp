@@ -10,44 +10,52 @@
 #include "StdInc.h"
 #include "BattleWindow.h"
 
-#include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
-#include "BattleFieldController.h"
-#include "BattleStacksController.h"
 #include "BattleActionsController.h"
+#include "BattleConsole.h"
+#include "BattleFieldController.h"
+#include "BattleInterface.h"
+#include "BattleStacksController.h"
+#include "HeroInfoWindow.h"
+#include "QuickSpellPanel.h"
+#include "StackInfoBasicPanel.h"
+#include "StackQueue.h"
+#include "UnitActionPanel.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../adventureMap/CInGameConsole.h"
+#include "../adventureMap/TurnTimerWidget.h"
+#include "../gui/CursorHandler.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
-#include "../windows/CSpellWindow.h"
-#include "../widgets/Buttons.h"
-#include "../widgets/Images.h"
-#include "../windows/CMessage.h"
-#include "../windows/CCreatureWindow.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/IRenderHandler.h"
-#include "../adventureMap/CInGameConsole.h"
-#include "../adventureMap/TurnTimerWidget.h"
-
-#include "../../CCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/gameState/InfoAboutArmy.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/CStack.h"
-#include "../../lib/CConfigHandler.h"
-#include "../../lib/filesystem/ResourcePath.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/battle/BattleInfo.h"
-#include "../../lib/CPlayerState.h"
+#include "../widgets/Buttons.h"
+#include "../widgets/Images.h"
+#include "../windows/CCreatureWindow.h"
+#include "../windows/CMessage.h"
+#include "../windows/CSpellWindow.h"
 #include "../windows/settings/SettingsMainWindow.h"
 
-BattleWindow::BattleWindow(BattleInterface & Owner):
-	owner(Owner),
-	lastAlternativeAction(PossiblePlayerBattleAction::INVALID)
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/CPlayerState.h"
+#include "../../lib/CStack.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/StartInfo.h"
+#include "../../lib/battle/BattleInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/callback/CDynLibHandler.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
+#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/gameState/InfoAboutArmy.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+
+BattleWindow::BattleWindow(BattleInterface & Owner)
+	: owner(Owner)
 {
 	OBJECT_CONSTRUCTION;
 	pos.w = 800;
@@ -90,7 +98,6 @@ BattleWindow::BattleWindow(BattleInterface & Owner):
 	addShortcut(EShortcut::BATTLE_CONSOLE_DOWN, std::bind(&BattleWindow::bConsoleDownf, this));
 	addShortcut(EShortcut::BATTLE_TACTICS_NEXT, std::bind(&BattleWindow::bTacticNextStack, this));
 	addShortcut(EShortcut::BATTLE_TACTICS_END, std::bind(&BattleWindow::bTacticPhaseEnd, this));
-	addShortcut(EShortcut::BATTLE_SELECT_ACTION, std::bind(&BattleWindow::bSwitchActionf, this));
 	addShortcut(EShortcut::BATTLE_OPEN_ACTIVE_UNIT, std::bind(&BattleWindow::bOpenActiveUnit, this));
 	addShortcut(EShortcut::BATTLE_OPEN_HOVERED_UNIT, std::bind(&BattleWindow::bOpenHoveredUnit, this));
 
@@ -184,7 +191,10 @@ void BattleWindow::createQuickSpellWindow()
 	OBJECT_CONSTRUCTION;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
-	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y));
+	quickSpellWindow->moveTo(Point(pos.x - 52, pos.y));
+
+	unitActionWindow = std::make_shared<UnitActionPanel>(owner);
+	unitActionWindow->moveTo(Point(pos.x + pos.w, pos.y));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
 		showStickyQuickSpellWindow();
@@ -206,10 +216,10 @@ void BattleWindow::hideStickyQuickSpellWindow()
 	showStickyQuickSpellWindow->Bool() = false;
 
 	quickSpellWindow->disable();
-	quickSpellWindow->isEnabled = false;
+	unitActionWindow->disable();
 
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -220,19 +230,14 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	auto hero = owner.getBattle()->battleGetMyHero();
 
-	if(ENGINE->screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook())
-	{
-		quickSpellWindow->enable();
-		quickSpellWindow->isEnabled = true;
-	}
-	else
-	{
-		quickSpellWindow->disable();
-		quickSpellWindow->isEnabled = false;
-	}
+	bool quickSpellWindowVisible = hasSpaceForQuickActions() && hero != nullptr && hero->hasSpellbook();
+	bool unitActionWindowVisible = hasSpaceForQuickActions();
 
-	setPositionInfoWindow();
+	quickSpellWindow->setEnabled(quickSpellWindowVisible);
+	unitActionWindow->setEnabled(unitActionWindowVisible);
+
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -240,7 +245,8 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJECT_CONSTRUCTION;
 
-	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;
+	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 51;
 
 	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || GAME->interface()->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
@@ -249,16 +255,16 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (attacker.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-92 + xOffsetAttacker, 1), attacker);
+			if (placeInfoWindowsOutside())
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-76 + xOffsetAttacker, 0), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
 		}
 
 		if (defender.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 16, 1), defender);
+			if (placeInfoWindowsOutside())
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + xOffsetDefender, 0), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
@@ -377,32 +383,37 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::setPositionInfoWindow()
 {
-	int xOffsetAttacker = quickSpellWindow->isEnabled ? -53 : 0;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;
+	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 51;
+
+	int yOffsetAttacker = attackerTimerWidget ? attackerTimerWidget->pos.h + 9 : 0;
+	int yOffsetDefender = defenderTimerWidget ? defenderTimerWidget->pos.h + 9 : 0;
+
 	if(defenderHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x + pos.w - 1 + xOffsetDefender, pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x - 77 + xOffsetAttacker, pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x + pos.w - 1 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x - 77 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
 	}
@@ -422,7 +433,7 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 
 	if(stack && stack->unitSide() == BattleSide::DEFENDER)
 	{
-		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
+		defenderStackWindow = std::make_shared<StackInfoBasicPanel>(stack, true);
 		defenderStackWindow->setEnabled(showInfoWindows);
 	}
 	else
@@ -430,14 +441,14 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	
 	if(stack && stack->unitSide() == BattleSide::ATTACKER)
 	{
-		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack);
+		attackerStackWindow = std::make_shared<StackInfoBasicPanel>(stack, true);
 		attackerStackWindow->setEnabled(showInfoWindows);
 	}
 	else
 		attackerStackWindow = nullptr;
 	
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -501,12 +512,9 @@ void BattleWindow::tacticPhaseStarted()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
-	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->disable();
 	console->disable();
-	if (alternativeAction)
-		alternativeAction->disable();
 
 	menuTactics->enable();
 	tacticNext->enable();
@@ -522,12 +530,9 @@ void BattleWindow::tacticPhaseEnded()
 	auto menuTactics = widget<CIntObject>("menuTactics");
 	auto tacticNext = widget<CIntObject>("tacticNext");
 	auto tacticEnd = widget<CIntObject>("tacticEnd");
-	auto alternativeAction = widget<CIntObject>("alternativeAction");
 
 	menuBattle->enable();
 	console->enable();
-	if (alternativeAction)
-		alternativeAction->enable();
 
 	menuTactics->disable();
 	tacticNext->disable();
@@ -614,63 +619,9 @@ void BattleWindow::reallySurrender()
 	}
 }
 
-void BattleWindow::showAlternativeActionIcon(PossiblePlayerBattleAction action)
+void BattleWindow::setPossibleActions(const std::vector<PossiblePlayerBattleAction> & actions)
 {
-	auto w = widget<CButton>("alternativeAction");
-	if(!w)
-		return;
-	
-	AnimationPath iconName = AnimationPath::fromJson(variables["actionIconDefault"]);
-	switch(action.get())
-	{
-		case PossiblePlayerBattleAction::ATTACK:
-			iconName = AnimationPath::fromJson(variables["actionIconAttack"]);
-			break;
-			
-		case PossiblePlayerBattleAction::SHOOT:
-			iconName = AnimationPath::fromJson(variables["actionIconShoot"]);
-			break;
-			
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
-			break;
-
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-			iconName = AnimationPath::fromJson(variables["actionIconSpell"]);
-			break;
-			
-		//TODO: figure out purpose of this icon
-		//case PossiblePlayerBattleAction::???:
-			//iconName = variables["actionIconWalk"].String();
-			//break;
-			
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			iconName = AnimationPath::fromJson(variables["actionIconReturn"]);
-			break;
-			
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			iconName = AnimationPath::fromJson(variables["actionIconNoReturn"]);
-			break;
-	}
-
-	w->setImage(iconName);
-	w->redraw();
-}
-
-void BattleWindow::setAlternativeActions(const std::list<PossiblePlayerBattleAction> & actions)
-{
-	assert(actions.size() != 1);
-
-	alternativeActions = actions;
-	lastAlternativeAction = PossiblePlayerBattleAction::INVALID;
-
-	if(alternativeActions.size() > 1)
-	{
-		lastAlternativeAction = alternativeActions.back();
-		showAlternativeActionIcon(alternativeActions.front());
-	}
-	else
-		showAlternativeActionIcon(PossiblePlayerBattleAction::INVALID);
+	unitActionWindow->setPossibleActions(actions);
 }
 
 void BattleWindow::bAutofightf()
@@ -703,8 +654,7 @@ void BattleWindow::bAutofightf()
 
 		ai->initBattleInterface(owner.curInt->env, owner.curInt->cb, autocombatPreferences);
 		ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
-		owner.curInt->autofightingAI = ai;
-		owner.curInt->cb->registerBattleInterface(ai);
+		owner.curInt->registerBattleInterface(ai);
 
 		owner.requestAutofightingAIToTakeAction();
 	}
@@ -759,28 +709,6 @@ void BattleWindow::bSpellf()
 	{
 		logGlobal->warn("Unexpected problem with readiness to cast spell");
 	}
-}
-
-void BattleWindow::bSwitchActionf()
-{
-	if(alternativeActions.empty())
-		return;
-
-	auto actions = owner.actionsController->getPossibleActions();
-
-	if(!actions.empty() && actions.front() != lastAlternativeAction)
-	{
-		owner.actionsController->removePossibleAction(alternativeActions.front());
-		showAlternativeActionIcon(*std::next(alternativeActions.begin()));
-	}
-	else
-	{
-		owner.actionsController->resetCurrentStackPossibleActions();
-		showAlternativeActionIcon(owner.actionsController->getPossibleActions().front());
-	}
-	
-	alternativeActions.push_back(alternativeActions.front());
-	alternativeActions.pop_front();
 }
 
 void BattleWindow::bWaitf()
@@ -850,15 +778,15 @@ void BattleWindow::blockUI(bool on)
 	setShortcutBlocked(EShortcut::BATTLE_CAST_SPELL, on || owner.tacticsMode || !canCastSpells);
 	setShortcutBlocked(EShortcut::BATTLE_WAIT, on || owner.tacticsMode || !canWait);
 	setShortcutBlocked(EShortcut::BATTLE_DEFEND, on || owner.tacticsMode);
-	setShortcutBlocked(EShortcut::BATTLE_SELECT_ACTION, on || owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_AUTOCOMBAT, (settings["battle"]["endWithAutocombat"].Bool() && onlyOnePlayerHuman) ? on || owner.tacticsMode || owner.actionsController->heroSpellcastingModeActive() : owner.actionsController->heroSpellcastingModeActive());
-	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || owner.tacticsMode || !onlyOnePlayerHuman || owner.actionsController->heroSpellcastingModeActive());
+	setShortcutBlocked(EShortcut::BATTLE_END_WITH_AUTOCOMBAT, on || !onlyOnePlayerHuman || owner.actionsController->heroSpellcastingModeActive());
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_END, on || !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_TACTICS_NEXT, on || !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_DOWN, on && !owner.tacticsMode);
 	setShortcutBlocked(EShortcut::BATTLE_CONSOLE_UP, on && !owner.tacticsMode);
 
 	quickSpellWindow->setInputEnabled(!on);
+	unitActionWindow->setInputEnabled(!on);
 }
 
 void BattleWindow::bOpenActiveUnit()
@@ -888,7 +816,7 @@ std::optional<uint32_t> BattleWindow::getQueueHoveredUnitId()
 
 void BattleWindow::endWithAutocombat() 
 {
-	if(!owner.makingTurn() || owner.tacticsMode)
+	if(!owner.makingTurn())
 		return;
 
 	GAME->interface()->showYesNoDialog(
@@ -906,9 +834,7 @@ void BattleWindow::endWithAutocombat()
 			ai->battleStart(owner.getBattleID(), owner.army1, owner.army2, int3(0,0,0), owner.attackingHeroInstance, owner.defendingHeroInstance, owner.getBattle()->battleGetMySide(), false);
 
 			owner.curInt->isAutoFightOn = true;
-			owner.curInt->cb->registerBattleInterface(ai);
-			owner.curInt->autofightingAI = ai;
-
+			owner.curInt->registerBattleInterface(ai);
 			owner.requestAutofightingAIToTakeAction();
 
 			close();
@@ -924,7 +850,7 @@ void BattleWindow::showAll(Canvas & to)
 	CIntObject::showAll(to);
 
 	if (ENGINE->screenDimensions().x != 800 || ENGINE->screenDimensions().y !=600)
-		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		to.drawBorder(Rect(pos.x-1, pos.y - (queue && queue->embedded ? 1 : 0), pos.w+2, pos.h+1 + (queue && queue->embedded ? 1 : 0)), Colors::BRIGHT_YELLOW);
 }
 
 void BattleWindow::show(Canvas & to)
@@ -938,4 +864,27 @@ void BattleWindow::close()
 	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	ENGINE->windows().popWindows(1);
+}
+
+bool BattleWindow::hasSpaceForQuickActions() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2;
+
+	return ENGINE->screenDimensions().x >= widthWithQuickActions;
+}
+
+bool BattleWindow::placeInfoWindowsOutside() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2 + 75*2;
+	constexpr int widthBaseWindow = 800 + 75*2;
+
+	if (quickActionsPanelActive())
+		return ENGINE->screenDimensions().x >= widthWithQuickActions;
+	else
+		return ENGINE->screenDimensions().x >= widthBaseWindow;
+}
+
+bool BattleWindow::quickActionsPanelActive() const
+{
+	return unitActionWindow->isActive();
 }

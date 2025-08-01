@@ -100,6 +100,7 @@ void Modificator::run()
 
 void Modificator::dependency(Modificator * modificator)
 {
+	//TODO: Check for circular dependencies
 	if(modificator && modificator != this)
 	{
 		//TODO: use vstd::contains
@@ -110,6 +111,7 @@ void Modificator::dependency(Modificator * modificator)
 
 void Modificator::postfunction(Modificator * modificator)
 {
+	// TODO:Check for circular dependencies
 	if(modificator && modificator != this)
 	{
 		if(std::find(modificator->preceeders.begin(), modificator->preceeders.end(), this) == modificator->preceeders.end())

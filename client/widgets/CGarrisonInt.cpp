@@ -23,13 +23,13 @@
 #include "../windows/GUIClasses.h"
 #include "../CPlayerInterface.h"
 
-#include "../../CCallback.h"
-
-#include "../../lib/ArtifactUtils.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/gameState/CGameState.h"
@@ -81,7 +81,7 @@ void CGarrisonSlot::hover (bool on)
 				const bool isHeroOnMap = owner->upperArmy() // Hero is not a visitor and not a garrison defender
 					&& owner->upperArmy()->ID == Obj::HERO
 					&& (!owner->lowerArmy() || owner->lowerArmy()->ID == Obj::HERO) // one hero or we are in the Heroes exchange window
-					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->inTownGarrison;
+					&& !(static_cast<const CGHeroInstance*>(owner->upperArmy()))->isGarrisoned();
 
 				if(isHeroOnMap)
 				{
@@ -254,8 +254,8 @@ bool CGarrisonSlot::split()
 		}
 	}
 
-	int countLeft = selection->myStack ? selection->myStack->count : 0;
-	int countRight = myStack ? myStack->count : 0;
+	int countLeft = selection->myStack ? selection->myStack->getCount() : 0;
+	int countRight = myStack ? myStack->getCount() : 0;
 
 	auto splitFunctor = [this, selection](int amountLeft, int amountRight)
 	{
@@ -344,7 +344,7 @@ void CGarrisonSlot::clickPressed(const Point & cursorPosition)
 				refr = split();
 			}
 			else if(!creature && lastHeroStackSelected) // split all except last creature
-				GAME->interface()->cb->splitStack(selectedObj, owner->army(upg), selection->ID, ID, selection->myStack->count - 1);
+				GAME->interface()->cb->splitStack(selectedObj, owner->army(upg), selection->ID, ID, selection->myStack->getCount() - 1);
 			else if(creature != selection->creature) // swap
 				GAME->interface()->cb->swapCreatures(owner->army(upg), selectedObj, ID, selection->ID);
 			else if(lastHeroStackSelected) // merge last stack to other hero stack
@@ -387,7 +387,7 @@ void CGarrisonSlot::gesture(bool on, const Point & initialPosition, const Point 
 		{ RadialMenuConfig::ITEM_NW, hasSameUnit, "stackMerge", "vcmi.radialWheel.mergeSameUnit", [this](){owner->bulkMergeStacks(this);} },
 		{ RadialMenuConfig::ITEM_NE, hasOwnEmptySlots, "stackFillOne", "vcmi.radialWheel.fillSingleUnit", [this](){owner->bulkSplitStack(this);} },
 		{ RadialMenuConfig::ITEM_WW, hasOwnEmptySlots, "stackSplitOne", "vcmi.radialWheel.splitSingleUnit", [this](){splitIntoParts(this->getGarrison(), 1); } },
-		{ RadialMenuConfig::ITEM_EE, hasOwnEmptySlots, "stackSplitEqual", "vcmi.radialWheel.splitUnitEqually", [this](){owner->bulkSmartSplitStack(this);} },
+		{ RadialMenuConfig::ITEM_EE, hasOwnEmptySlots, "stackSplitEqual", "vcmi.radialWheel.splitUnitEqually", [this](){owner->bulkSplitAndRebalanceStack(this);} },
 		{ RadialMenuConfig::ITEM_SW, hasOtherEmptySlots, "heroMove", "vcmi.radialWheel.moveUnit", [this](){owner->moveStackToAnotherArmy(this);} },
 		{ RadialMenuConfig::ITEM_SE, hasAnyEmptySlots, "heroSwap", "vcmi.radialWheel.splitUnit", [this](){ owner->selectSlot(this); owner->splitClick();} },
 	};
@@ -417,7 +417,7 @@ void CGarrisonSlot::update()
 		creatureImage->setFrame(creature->getIconIndex());
 
 		stackCount->enable();
-		stackCount->setText(TextOperations::formatMetric(myStack->count, 4));
+		stackCount->setText(TextOperations::formatMetric(myStack->getCount(), 4));
 	}
 	else
 	{
@@ -498,7 +498,7 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 	if(!selected)
 		return true; // Some Shortcusts are pressed but there are no appropriate actions
 
-	auto units = selected->myStack->count;
+	auto units = selected->myStack->getCount();
 	if(units < 1)
 		return true;
 
@@ -528,7 +528,7 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 		if(isLCtrl && isLShift)
 			owner->bulkSplitStack(selected);
 		else if(isLShift)
-			owner->bulkSmartSplitStack(selected);
+			owner->bulkSplitAndRebalanceStack(selected);
 		else
 			splitIntoParts(selected->upg, 1); // LCtrl
 	}
@@ -602,7 +602,7 @@ void CGarrisonInt::splitStacks(const CGarrisonSlot * from, const CArmedInstance 
 
 bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) const
 {
-	return selected && selected->myStack && selected->myStack->count > min && selected->creature;
+	return selected && selected->myStack && selected->myStack->getCount() > min && selected->creature;
 }
 
 void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
@@ -633,7 +633,7 @@ void CGarrisonInt::moveStackToAnotherArmy(const CGarrisonSlot * selected)
 		destSlot = srcSlot; // Same place is more preferable
 
 	const bool isLastStack = srcArmy->stacksCount() == 1 && srcArmy->needsLastStack();
-	auto srcAmount = selected->myStack->count - (isLastStack ? 1 : 0);
+	auto srcAmount = selected->myStack->getCount() - (isLastStack ? 1 : 0);
 
 	if(!srcAmount)
 		return;
@@ -695,7 +695,7 @@ void CGarrisonInt::bulkSplitStack(const CGarrisonSlot * selected)
 	GAME->interface()->cb->bulkSplitStack(armedObjs[type]->id, selected->ID);
 }
 
-void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
+void CGarrisonInt::bulkSplitAndRebalanceStack(const CGarrisonSlot * selected)
 {
 	if(!checkSelected(selected, 1))
 		return;
@@ -706,7 +706,7 @@ void CGarrisonInt::bulkSmartSplitStack(const CGarrisonSlot * selected)
 	if(!hasEmptySlot(type) && armedObjs[type]->isCreatureBalanced(selected->creature))
 		return;
 
-	GAME->interface()->cb->bulkSmartSplitStack(armedObjs[type]->id, selected->ID);
+	GAME->interface()->cb->bulkSplitAndRebalanceStack(armedObjs[type]->id, selected->ID);
 }
 
 CGarrisonInt::CGarrisonInt(const Point & position, int inx, const Point & garsOffset, const CArmedInstance * s1, const CArmedInstance * s2, bool _removableUnits, bool smallImgs, ESlotsLayout _layout)

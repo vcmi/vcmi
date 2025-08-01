@@ -16,7 +16,7 @@
 #include "../widgets/CArtifactsOfHeroBackpack.h"
 #include "CWindowObject.h"
 
-class CWindowWithArtifacts : virtual public CWindowObject
+class CWindowWithArtifacts : virtual public CWindowObject, public IArtifactsHolder
 {
 public:
 	using CArtifactsOfHeroPtr = std::shared_ptr<CArtifactsOfHeroBase>;
@@ -36,7 +36,7 @@ public:
 	void deactivate() override;
 	void enableKeyboardShortcuts() const;
 
-	virtual void update();
+	void updateArtifacts() override;
 
 protected:
 	void markPossibleSlots() const;

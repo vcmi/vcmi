@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "army/CArmedInstance.h"
 #include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -27,7 +27,7 @@ public:
 		COMPLIANT = 0, FRIENDLY = 1, AGGRESSIVE = 2, HOSTILE = 3, SAVAGE = 4
 	};
 
-	ui32 identifier; //unique code for this monster (used in missions)
+	ui32 identifier = -1; //unique code for this monster (used in missions)
 	si8 character = 0; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	MetaString message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
@@ -38,17 +38,17 @@ public:
 
 	bool refusedJoining = false;
 
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	std::string getHoverText(PlayerColor player) const override;
 	std::string getHoverText(const CGHeroInstance * hero) const override;
 	std::string getPopupText(PlayerColor player) const override;
 	std::string getPopupText(const CGHeroInstance * hero) const override;
 	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void newTurn(vstd::RNG & rand) const override;
-	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(const CGHeroInstance *hero, int32_t answer) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
+	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
 	TQuantity getJoiningAmount() const;
@@ -76,13 +76,13 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void fight(const CGHeroInstance *h) const;
-	void flee( const CGHeroInstance * h ) const;
-	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
-	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
+	void fight(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
+	void flee(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
+	void fleeDecision(IGameEventCallback & gameEvents, const CGHeroInstance * h, ui32 pursue) const;
+	void joinDecision(IGameEventCallback & gameEvents, const CGHeroInstance * h, int cost, ui32 accept) const;
 
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
-	void giveReward(const CGHeroInstance * h) const;
+	void giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 	std::string getMonsterLevelText() const;
 };
 

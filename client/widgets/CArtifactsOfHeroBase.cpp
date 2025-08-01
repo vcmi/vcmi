@@ -18,8 +18,10 @@
 
 #include "../CPlayerInterface.h"
 
-#include "../../CCallback.h"
-#include "../../lib/ArtifactUtils.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/entities/artifact/ArtifactUtils.h"
+#include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 
@@ -267,14 +269,23 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 	artPlace->slot = slot;
 	if(auto slotInfo = curHero->getSlot(slot))
 	{
+		const auto curArt = slotInfo->getArt();
+
 		artPlace->lockSlot(slotInfo->locked);
-		artPlace->setArtifact(slotInfo->artifact->getTypeId(), slotInfo->artifact->getScrollSpellID());
-		if(slotInfo->locked || slotInfo->artifact->isCombined())
+		artPlace->setArtifact(curArt->getTypeId(), curArt->getScrollSpellID());
+		if(slotInfo->locked)
+			return;
+
+		// If the artifact has charges, add charges information
+		if(curArt->getType()->isCharged())
+			artPlace->addChargedArtInfo(curArt->getCharges());
+
+		if(curArt->isCombined())
 			return;
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
-		for(const auto combinedArt : slotInfo->artifact->getType()->getPartOf())
+		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
 			arts.try_emplace(combinedArt->getId());

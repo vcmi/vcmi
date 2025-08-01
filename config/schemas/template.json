@@ -19,10 +19,34 @@
 				"playerTowns" : {"$ref" : "#/definitions/towns"},
 				"neutralTowns" : {"$ref" : "#/definitions/towns"},
 				"matchTerrainToTown" : { "type" : "boolean"},
+				"townHints": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"likeZone": { "type": "number" },
+							"notLikeZone": { 
+								"oneOf": [
+									{ "type": "number" },
+									{ 
+										"type": "array",
+										"items": { "type": "number" }
+									}
+								]
+							},
+							"relatedToZoneTerrain": { "type": "number" }
+						}
+					}
+				},
+				"townsLikeZone" : { "type" : "number" },
 				"minesLikeZone" : { "type" : "number" },
 				"terrainTypeLikeZone" : { "type" : "number" },
 				"treasureLikeZone" : { "type" : "number" },
 				"customObjectsLikeZone" : { "type" : "number" },
+
+				"visiblePositionX" : { "type" : "number" },
+				"visiblePositionY" : { "type" : "number" },
+				"visibleSize" : { "type" : "number" },
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},
@@ -182,6 +206,27 @@
 			"type" : "object",
 			"$ref" : "gameSettings.json"
 		},
+		
+		"bannedSpells": {
+			"description" : "List of spells that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedArtifacts": {
+			"description" : "List of artifacts that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedSkills": {
+			"description" : "List of skills that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedHeroes": {
+			"description" : "List of heroes that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",
 			"type": "string"

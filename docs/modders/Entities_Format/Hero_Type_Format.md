@@ -129,8 +129,11 @@ In order to make functional hero you also need:
 			"someBonus" : {Bonus Format},
 			"anotherOne" : {Bonus Format}
 		},
-		// Optional. Shortcut for defining creature specialty, using standard H3 rules
-		"creature" : "griffin"
+		// Shortcut for defining creature specialty, using standard H3 rules
+		"creature" : "griffin",
+
+		// Shortcut for defining specialty in secondary skill, using standard H3 rules
+		"secondary" : "offence"
 	}
 }
 ```

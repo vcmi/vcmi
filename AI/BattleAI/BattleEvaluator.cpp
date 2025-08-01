@@ -16,6 +16,8 @@
 #include "tbb/parallel_for.h"
 #include "../../lib/CStopWatch.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/CSpellHandler.h"
@@ -24,6 +26,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/CRandomGenerator.h"
+#include "../../lib/GameLibrary.h"
 
 
 // TODO: remove
@@ -567,7 +570,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					ourTurnSpan++;
 				}
 
-				state->nextTurn(unit->unitId());
+				state->nextTurn(unit->unitId(), BattleUnitTurnReason::TURN_QUEUE);
 
 				PotentialTargets potentialTargets(unit, damageCache, state);
 

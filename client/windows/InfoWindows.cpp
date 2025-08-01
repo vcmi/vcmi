@@ -28,9 +28,8 @@
 #include "../widgets/TextControls.h"
 #include "../windows/CMessage.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -234,7 +233,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 
 		std::vector<std::shared_ptr<CComponent>> guiComponents;
 		for(auto & component : components)
-			guiComponents.push_back(std::make_shared<CComponent>(component));
+			guiComponents.push_back(std::make_shared<CComponent>(component, CComponent::medium));
 
 		if(GAME->interface()->localState->getCurrentHero())
 			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()), guiComponents);

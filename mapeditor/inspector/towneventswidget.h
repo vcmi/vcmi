@@ -12,7 +12,6 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../lib/mapping/CMapDefines.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../mapcontroller.h"
 

@@ -17,14 +17,17 @@
 #include "../GameInstance.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/Graphics.h"
+#include "../render/IFont.h"
+#include "../render/IRenderHandler.h"
 #include "../widgets/Images.h"
 #include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/TextControls.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CStack.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
+#include "../../lib/callback/CCallback.h"
 
 TurnTimerWidget::TurnTimerWidget(const Point & position)
 	: TurnTimerWidget(position, PlayerColor::NEUTRAL)
@@ -44,29 +47,28 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	const auto & timers = GAME->interface()->cb->getStartInfo()->turnTimerInfo;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos); // 1 px smaller on all sides
+	backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BRIGHT_YELLOW);
 
-	if (isBattleMode)
-		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BRIGHT_YELLOW);
-	else
-		backgroundBorder = std::make_shared<TransparentFilledRectangle>(pos, ColorRGBA(0, 0, 0, 128), Colors::BLACK);
+	int bigFontHeight = ENGINE->renderHandler().loadFont(FONT_BIG)->getLineHeight();
 
+	pos.h += 6;
 	if (isBattleMode)
 	{
-		pos.w = 76;
+		pos.w = 77;
 
-		pos.h += 20;
-		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+		pos.h += bigFontHeight - 4;
+		playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 2, FONT_BIG, ETextAlignment::BOTTOMCENTER, graphics->playerColors[player.getNum()], "");
 
 		if (timers.battleTimer != 0)
 		{
-			pos.h += 20;
-			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += bigFontHeight;
+			playerLabelsBattle[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 2, FONT_BIG, ETextAlignment::BOTTOMCENTER, graphics->playerColors[player.getNum()], "");
 		}
 
 		if (!timers.accumulatingUnitTimer && timers.unitTimer != 0)
 		{
-			pos.h += 20;
-			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += bigFontHeight;
+			playerLabelsUnit[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 2, FONT_BIG, ETextAlignment::BOTTOMCENTER, graphics->playerColors[player.getNum()], "");
 		}
 
 		updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
@@ -74,10 +76,10 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 	else
 	{
 		if (!timers.accumulatingTurnTimer && timers.baseTimer != 0)
-			pos.w = 120;
+			pos.w = 130;
 		else
-			pos.w = 60;
-
+			pos.w = 70;
+		
 		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 		{
 			if (GAME->interface()->cb->getStartInfo()->playerInfos.count(player) == 0)
@@ -86,8 +88,8 @@ TurnTimerWidget::TurnTimerWidget(const Point & position, PlayerColor player)
 			if (!GAME->interface()->cb->getStartInfo()->playerInfos.at(player).isControlledByHuman())
 				continue;
 
-			pos.h += 20;
-			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 10, FONT_BIG, ETextAlignment::CENTER, graphics->playerColors[player], "");
+			pos.h += bigFontHeight - 4;
+			playerLabelsMain[player] = std::make_shared<CLabel>(pos.w / 2, pos.h - 2, FONT_BIG, ETextAlignment::BOTTOMCENTER, graphics->playerColors[player.getNum()], "");
 
 			updateTextLabel(player, GAME->interface()->cb->getPlayerTurnTime(player));
 		}

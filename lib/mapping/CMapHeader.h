@@ -239,6 +239,8 @@ public:
 
 	ui8 levels() const;
 
+	void banWaterHeroes(bool isWaterMap);
+
 	EMapFormat version; /// The default value is EMapFormat::SOD.
 	ModCompatibilityInfo mods; /// set of mods required to play a map
 
@@ -287,25 +289,14 @@ public:
 		h & mods;
 		h & name;
 		h & description;
-		if (h.version >= Handler::Version::MAP_FORMAT_ADDITIONAL_INFOS)
-		{
-			h & author;
-			h & authorContact;
-			h & mapVersion;
-			h & creationDateTime;
-		}
+		h & author;
+		h & authorContact;
+		h & mapVersion;
+		h & creationDateTime;
 		h & width;
 		h & height;
 		h & twoLevel;
-
-		if (h.version >= Handler::Version::SAVE_COMPATIBILITY_FIXES)
-			h & difficulty;
-		else
-		{
-			uint8_t difficultyInteger = static_cast<uint8_t>(difficulty);
-			h & difficultyInteger;
-			difficulty = static_cast<EMapDifficulty>(difficultyInteger);
-		}
+		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;

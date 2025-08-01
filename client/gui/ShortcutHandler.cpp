@@ -13,21 +13,20 @@
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 
 ShortcutHandler::ShortcutHandler()
 {
-	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
-
-	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
-	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 
-	for (auto const & entry : config["keyboard"].Struct())
+	for (auto const & entry : keyBindingsConfig["keyboard"].Struct())
 	{
 		EShortcut shortcutID = findShortcut(entry.first);
 		assert(!vstd::contains(assignedShortcuts, shortcutID));
@@ -150,6 +149,10 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"mainMenuCampaignRoe",      EShortcut::MAIN_MENU_CAMPAIGN_ROE    },
 		{"mainMenuCampaignAb",       EShortcut::MAIN_MENU_CAMPAIGN_AB     },
 		{"mainMenuCampaignCustom",   EShortcut::MAIN_MENU_CAMPAIGN_CUSTOM },
+		{"mainMenuCampaignChr",      EShortcut::MAIN_MENU_CAMPAIGN_CHR    },
+		{"mainMenuCampaignHota",     EShortcut::MAIN_MENU_CAMPAIGN_HOTA   },
+		{"mainMenuCampaignWog",      EShortcut::MAIN_MENU_CAMPAIGN_WOG    },
+		{"mainMenuCampaignVCMI",     EShortcut::MAIN_MENU_CAMPAIGN_VCMI   },
 		{"mainMenuLobby",            EShortcut::MAIN_MENU_LOBBY           },
 		{"lobbyBeginStandardGame",   EShortcut::LOBBY_BEGIN_STANDARD_GAME },
 		{"lobbyBeginCampaign",       EShortcut::LOBBY_BEGIN_CAMPAIGN      },
@@ -225,7 +228,6 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"battleConsoleDown",        EShortcut::BATTLE_CONSOLE_DOWN       },
 		{"battleTacticsNext",        EShortcut::BATTLE_TACTICS_NEXT       },
 		{"battleTacticsEnd",         EShortcut::BATTLE_TACTICS_END        },
-		{"battleSelectAction",       EShortcut::BATTLE_SELECT_ACTION      },
 		{"battleToggleQuickSpell",   EShortcut::BATTLE_TOGGLE_QUICKSPELL   },
 		{"battleSpellShortcut0",     EShortcut::BATTLE_SPELL_SHORTCUT_0   },
 		{"battleSpellShortcut1",     EShortcut::BATTLE_SPELL_SHORTCUT_1   },

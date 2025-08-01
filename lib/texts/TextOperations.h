@@ -33,7 +33,7 @@ namespace TextOperations
 	bool DLL_LINKAGE isValidASCII(const char * data, size_t size);
 
 	/// test if text contains valid UTF-8 sequence
-	bool DLL_LINKAGE isValidUnicodeString(const std::string & text);
+	bool DLL_LINKAGE isValidUnicodeString(std::string_view text);
 	bool DLL_LINKAGE isValidUnicodeString(const char * data, size_t size);
 
 	/// converts text to UTF-8 from specified encoding or from one specified in settings
@@ -47,7 +47,7 @@ namespace TextOperations
 	DLL_LINKAGE void trimRightUnicode(std::string & text, size_t amount = 1);
 
 	/// give back amount of unicode characters
-	size_t DLL_LINKAGE getUnicodeCharactersCount(const std::string & text);
+	size_t DLL_LINKAGE getUnicodeCharactersCount(std::string_view text);
 
 	/// converts number into string using metric system prefixes, e.g. 'k' or 'M' to keep resulting strings within specified size
 	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
@@ -74,10 +74,26 @@ namespace TextOperations
 	/// Algorithm for detection of typos in words
 	/// Determines how 'different' two strings are - how many changes must be done to turn one string into another one
 	/// https://en.wikipedia.org/wiki/Levenshtein_distance#Iterative_with_two_matrix_rows
-	DLL_LINKAGE int getLevenshteinDistance(const std::string & s, const std::string & t);
+	DLL_LINKAGE int getLevenshteinDistance(std::string_view s, std::string_view t);
+
+	/// Compares two strings using locale-aware collation based on the selected game language.
+	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
 
 	/// Check if texts have similarity when typing into search boxes
-	DLL_LINKAGE bool textSearchSimilar(const std::string & s, const std::string & t);
+	/// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match, 
+	/// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
+	DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
+
+	/// This function is mainly used to avoid garbled text when reading or writing files
+	/// with non-ASCII (e.g. Chinese) characters in the path, especially on Windows.
+	/// Call this before passing the path to file I/O functions that take std::string.
+	DLL_LINKAGE std::string filesystemPathToUtf8(const boost::filesystem::path& path);
+
+	// Used for handling paths with non-ASCII characters.
+	DLL_LINKAGE boost::filesystem::path Utf8TofilesystemPath(const std::string& path);
+
+	/// Strip out unwanted characters from map name
+	DLL_LINKAGE std::string convertMapName(std::string input);
 };
 
 template<typename Arithmetic>

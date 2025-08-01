@@ -17,9 +17,10 @@ class ISoundPlayer
 public:
 	virtual ~ISoundPlayer() = default;
 
-	virtual int playSound(soundBase::soundID soundID, int repeats = 0) = 0;
-	virtual int playSound(const AudioPath & sound, int repeats = 0, bool cache = false) = 0;
-	virtual int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data, int repeats = 0, bool cache = false) = 0;
+	virtual int playSound(soundBase::soundID soundID) = 0;
+	virtual int playSound(const AudioPath & sound) = 0;
+	virtual int playSoundLooped(const AudioPath & sound) = 0;
+	virtual int playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data) = 0;
 	virtual int playSoundFromSet(std::vector<soundBase::soundID> & sound_vec) = 0;
 	virtual void stopSound(int handler) = 0;
 	virtual void pauseSound(int handler) = 0;

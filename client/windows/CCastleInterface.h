@@ -223,7 +223,7 @@ public:
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CStatusbarWindow, public IGarrisonHolder
+class CCastleInterface final : public CStatusbarWindow, public IGarrisonHolder, public IArtifactsHolder
 {
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CLabel> income;
@@ -257,6 +257,7 @@ public:
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr);
 	~CCastleInterface();
 
+	void updateArtifacts() override;
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 

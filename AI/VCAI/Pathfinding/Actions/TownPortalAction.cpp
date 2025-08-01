@@ -19,5 +19,5 @@ Goals::TSubgoal TownPortalAction::whatToDo(const HeroPtr & hero) const
 {
 	const CGTownInstance * targetTown = target; // const pointer is not allowed in settown
 
-	return Goals::sptr(Goals::AdventureSpellCast(hero, SpellID::TOWN_PORTAL).settown(targetTown).settile(targetTown->visitablePos()));
+	return Goals::sptr(Goals::AdventureSpellCast(hero, spellToUse).settown(targetTown).settile(targetTown->visitablePos()));
 }

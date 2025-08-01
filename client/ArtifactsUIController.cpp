@@ -12,16 +12,18 @@
 #include "ArtifactsUIController.h"
 #include "CPlayerInterface.h"
 
-#include "../CCallback.h"
-#include "../lib/ArtifactUtils.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/mapObjects/CGHeroInstance.h"
-
 #include "GameEngine.h"
 #include "GameInstance.h"
 #include "gui/WindowHandler.h"
 #include "widgets/CComponent.h"
 #include "windows/CWindowWithArtifacts.h"
+
+#include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/entities/artifact/ArtifactUtils.h"
+#include "../lib/entities/artifact/CArtifact.h"
+#include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 ArtifactsUIController::ArtifactsUIController()
 {
@@ -60,10 +62,9 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	{
 		auto askThread = new std::thread([this, hero, art, slot, assemblyPossibilities, checkIgnored]() -> void
 			{
-				std::scoped_lock askLock(askAssembleArtifactMutex);
+				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				for(const auto combinedArt : assemblyPossibilities)
 				{
-					std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 					if(checkIgnored)
 					{
 						if(vstd::contains(ignoredArtifacts, combinedArt->getId()))
@@ -126,8 +127,8 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 
 void ArtifactsUIController::artifactRemoved()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 	GAME->interface()->waitWhileDialog();
 }
 
@@ -138,10 +139,10 @@ void ArtifactsUIController::artifactMoved()
 		numOfMovedArts--;
 
 	if(numOfMovedArts == 0)
-		for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		{
-			artWin->update();
-		}
+	{
+		for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+			artWin->updateArtifacts();
+	}
 	GAME->interface()->waitWhileDialog();
 }
 
@@ -159,12 +160,12 @@ void ArtifactsUIController::bulkArtMovementStart(size_t totalNumOfArts, size_t p
 
 void ArtifactsUIController::artifactAssembled()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 }
 
 void ArtifactsUIController::artifactDisassembled()
 {
-	for(const auto & artWin : ENGINE->windows().findWindows<CWindowWithArtifacts>())
-		artWin->update();
+	for(const auto & artWin : ENGINE->windows().findWindows<IArtifactsHolder>())
+		artWin->updateArtifacts();
 }

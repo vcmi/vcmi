@@ -12,13 +12,14 @@
 #include "IMapRendererObserver.h"
 #include "mapHandler.h"
 
-#include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/TerrainHandler.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
@@ -57,9 +58,9 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 
 	std::string result = t.getTerrain()->getNameTranslated();
 
-	for(const auto & object : map->objects)
+	for(const auto & object : map->getObjects())
 	{
-		if(object && object->coveringAt(pos) && object->isTile2Terrain())
+		if(object->coveringAt(pos) && object->isTile2Terrain())
 		{
 			result = object->getObjectName();
 			break;

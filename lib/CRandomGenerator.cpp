@@ -34,8 +34,8 @@ void CRandomGenerator::setSeed(int seed)
 void CRandomGenerator::resetSeed()
 {
 	logRng->trace("CRandomGenerator::resetSeed");
-	boost::hash<std::string> stringHash;
-	auto threadIdHash = stringHash(boost::lexical_cast<std::string>(std::this_thread::get_id()));
+	std::hash<std::thread::id> hasher;
+	auto threadIdHash = hasher(std::this_thread::get_id());
 	setSeed(static_cast<int>(threadIdHash * std::time(nullptr)));
 }
 

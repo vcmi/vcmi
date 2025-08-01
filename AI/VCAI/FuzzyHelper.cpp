@@ -11,11 +11,11 @@
 #include "FuzzyHelper.h"
 
 #include "Goals/Goals.h"
+#include "Goals/CompleteQuest.h"
 #include "VCAI.h"
 
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGDwelling.h"
 #include "../../lib/gameState/InfoAboutArmy.h"

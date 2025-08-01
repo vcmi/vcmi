@@ -8,8 +8,8 @@
  *
  */
 #pragma once
-#include "../../lib/AI_Base.h"
 #include "../../lib/battle/ReachabilityInfo.h"
+#include "../../lib/callback/CGameInterface.h"
 #include "PossibleSpellcast.h"
 #include "PotentialTargets.h"
 
@@ -60,7 +60,6 @@ class CBattleAI : public CBattleGameInterface
 
 	//Previous setting of cb
 	bool wasWaitingForRealize;
-	bool wasUnlockingGs;
 	int movesSkippedByDefense;
 
 public:

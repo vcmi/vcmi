@@ -15,6 +15,8 @@
 #include "JsonWriter.h"
 #include "filesystem/Filesystem.h"
 
+#include <boost/lexical_cast.hpp>
+
 // to avoid duplicating const and non-const code
 template<typename Node>
 Node & resolvePointer(Node & in, const std::string & pointer)
@@ -302,28 +304,6 @@ bool JsonNode::isCompact() const
 		default:
 			return true;
 	}
-}
-
-bool JsonNode::TryBoolFromString(bool & success) const
-{
-	success = true;
-	if(getType() == JsonNode::JsonType::DATA_BOOL)
-		return Bool();
-
-	success = getType() == JsonNode::JsonType::DATA_STRING;
-	if(success)
-	{
-		auto boolParamStr = String();
-		boost::algorithm::trim(boolParamStr);
-		boost::algorithm::to_lower(boolParamStr);
-		success = boolParamStr == "true";
-
-		if(success)
-			return true;
-
-		success = boolParamStr == "false";
-	}
-	return false;
 }
 
 void JsonNode::clear()

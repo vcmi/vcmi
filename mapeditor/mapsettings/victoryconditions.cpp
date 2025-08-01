@@ -13,6 +13,7 @@
 #include "../mapcontroller.h"
 
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -423,7 +424,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::HAVE_BUILDING
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			auto * ctown = LIBRARY->townh->randomTown;
+			auto * ctown = LIBRARY->townh->randomFaction->town.get();
 			for(int bId : ctown->getAllBuildings())
 				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
 
@@ -559,7 +560,7 @@ void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 			continue;
 		
 		auto data = controller->map()->objects.at(w->itemData(i).toInt());
-		if(data == obj)
+		if(data.get() == obj)
 		{
 			w->setCurrentIndex(i);
 			break;

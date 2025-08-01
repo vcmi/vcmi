@@ -10,17 +10,13 @@
 
 #include "StdInc.h"
 #include "Limiters.h"
+#include "Updaters.h"
 
+#include "../CBonusTypeHandler.h"
 #include "../GameLibrary.h"
-#include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTownHandler.h"
-#include "../spells/CSpellHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CCreatureSet.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../CSkillHandler.h"
 #include "../CStack.h"
-#include "../CArtHandler.h"
 #include "../TerrainHandler.h"
 #include "../constants/StringConstants.h"
 #include "../battle/BattleInfo.h"
@@ -34,8 +30,6 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(BonusType::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNDEAD)},
 	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
-	{"CREATURE_FACTION", std::make_shared<AllOfLimiter>(std::initializer_list<TLimiterPtr>{std::make_shared<CreatureLevelLimiter>(), std::make_shared<FactionLimiter>()})},
-	{"SAME_FACTION", std::make_shared<FactionLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 };
@@ -44,7 +38,7 @@ static const CStack * retrieveStackBattle(const CBonusSystemNode * node)
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return dynamic_cast<const CStack *>(node);
 	default:
 		return nullptr;
@@ -55,9 +49,9 @@ static const CStackInstance * retrieveStackInstance(const CBonusSystemNode * nod
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::STACK_INSTANCE:
+	case BonusNodeType::STACK_INSTANCE:
 		return (dynamic_cast<const CStackInstance *>(node));
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return (dynamic_cast<const CStack *>(node))->base;
 	default:
 		return nullptr;
@@ -68,9 +62,9 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 {
 	switch(node->getNodeType())
 	{
-	case CBonusSystemNode::CREATURE:
+	case BonusNodeType::CREATURE:
 		return (dynamic_cast<const CCreature *>(node));
-	case CBonusSystemNode::STACK_BATTLE:
+	case BonusNodeType::STACK_BATTLE:
 		return (dynamic_cast<const CStack *>(node))->unitType();
 	default:
 		const CStackInstance * csi = retrieveStackInstance(node);
@@ -80,7 +74,7 @@ static const CCreature * retrieveCreature(const CBonusSystemNode *node)
 	}
 }
 
-ILimiter::EDecision ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
+ILimiter::EDecision ILimiter::limit(const BonusLimitationContext &context) const
 {
 	return ILimiter::EDecision::ACCEPT;
 }
@@ -101,9 +95,9 @@ ILimiter::EDecision CCreatureTypeLimiter::limit(const BonusLimitationContext &co
 {
 	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
-		return ILimiter::EDecision::DISCARD;
+		return ILimiter::EDecision::NOT_APPLICABLE;
 	
-	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyUpgrade(c));
+	auto accept =  c->getId() == creatureID || (includeUpgrades && creatureID.toCreature()->isMyDirectOrIndirectUpgrade(c));
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	//drop bonus if it's not our creature and (we don`t check upgrades or its not our upgrade)
 }
@@ -158,15 +152,21 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _
 
 ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
-	//TODO: proper selector config with parsing of JSON
-	auto mySelector = Selector::type()(type);
+	boost::container::static_vector<CSelector, 4> selectorSegments;
 
+	if (type != BonusType::NONE)
+		selectorSegments.push_back(Selector::type()(type));
 	if(isSubtypeRelevant)
-		mySelector = mySelector.And(Selector::subtype()(subtype));
+		selectorSegments.push_back(Selector::subtype()(subtype));
 	if(isSourceRelevant && isSourceIDRelevant)
-		mySelector = mySelector.And(Selector::source(source, sid));
+		selectorSegments.push_back(Selector::source(source, sid));
 	else if (isSourceRelevant)
-		mySelector = mySelector.And(Selector::sourceTypeSel(source));
+		selectorSegments.push_back(Selector::sourceTypeSel(source));
+
+	auto mySelector = selectorSegments.empty() ? Selector::none : selectorSegments[0];
+
+	for (size_t i = 1; i <selectorSegments.size(); ++i)
+		mySelector = mySelector.And(selectorSegments[i]);
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
@@ -182,7 +182,7 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 
 std::string HasAnotherBonusLimiter::toString() const
 {
-	std::string typeName = vstd::findKey(bonusNameMap, type);
+	std::string typeName = LIBRARY->bth->bonusToString(type);
 	if(isSubtypeRelevant)
 	{
 		boost::format fmt("HasAnotherBonusLimiter(type=%s, subtype=%s)");
@@ -200,7 +200,7 @@ std::string HasAnotherBonusLimiter::toString() const
 JsonNode HasAnotherBonusLimiter::toJsonNode() const
 {
 	JsonNode root;
-	std::string typeName = vstd::findKey(bonusNameMap, type);
+	std::string typeName = LIBRARY->bth->bonusToString(type);
 	auto sourceTypeName = vstd::findKey(bonusSourceMap, source);
 
 	root["type"].String() = "HAS_ANOTHER_BONUS_LIMITER";
@@ -217,7 +217,7 @@ ILimiter::EDecision UnitOnHexLimiter::limit(const BonusLimitationContext &contex
 {
 	const auto * stack = retrieveStackBattle(&context.node);
 	if(!stack)
-		return ILimiter::EDecision::DISCARD;
+		return ILimiter::EDecision::NOT_APPLICABLE;
 
 	auto accept = false;
 
@@ -255,18 +255,52 @@ CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
 
 ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CStack *stack = retrieveStackBattle(&context.node);
-	if(stack)
+	if (context.node.getNodeType() != BonusNodeType::STACK_BATTLE && context.node.getNodeType() != BonusNodeType::STACK_INSTANCE)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	if (terrainType == ETerrainId::NATIVE_TERRAIN)
 	{
-		if (terrainType == ETerrainId::NATIVE_TERRAIN && stack->isOnNativeTerrain())//terrainType not specified = native
+		auto selector = Selector::type()(BonusType::TERRAIN_NATIVE);
+
+		if(context.alreadyAccepted.getFirst(selector))
 			return ILimiter::EDecision::ACCEPT;
 
-		if(terrainType != ETerrainId::NATIVE_TERRAIN && stack->isOnTerrain(terrainType))
-			return ILimiter::EDecision::ACCEPT;
+		if(context.stillUndecided.getFirst(selector))
+			return ILimiter::EDecision::NOT_SURE;
 
+		// TODO: CStack and CStackInstance need some common base type that represents any stack
+		// Closest existing class is ACreature, however it is also used as base for CCreature, which is not a stack
+		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
+		{
+			const auto * unit = dynamic_cast<const CStack *>(&context.node);
+			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
+			if (unit->getCurrentTerrain() == unitNativeTerrain)
+				return ILimiter::EDecision::ACCEPT;
+		}
+		else
+		{
+			const auto * unit = dynamic_cast<const CStackInstance *>(&context.node);
+			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
+			if (unit->getCurrentTerrain() == unitNativeTerrain)
+				return ILimiter::EDecision::ACCEPT;
+		}
+	}
+	else
+	{
+		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
+		{
+			const auto * unit = dynamic_cast<const CStack *>(&context.node);
+			if (unit->getCurrentTerrain() == terrainType)
+				return ILimiter::EDecision::ACCEPT;
+		}
+		else
+		{
+			const auto * unit = dynamic_cast<const CStackInstance*>(&context.node);
+			if (unit->getCurrentTerrain() == terrainType)
+				return ILimiter::EDecision::ACCEPT;
+		}
 	}
 	return ILimiter::EDecision::DISCARD;
-	//TODO neutral creatues
 }
 
 std::string CreatureTerrainLimiter::toString() const
@@ -313,7 +347,7 @@ ILimiter::EDecision FactionLimiter::limit(const BonusLimitationContext &context)
 			//TODO: other sources of bonuses
 		}
 	}
-	return ILimiter::EDecision::DISCARD; //Discard by default
+	return ILimiter::EDecision::NOT_APPLICABLE; //Discard by default
 }
 
 std::string FactionLimiter::toString() const
@@ -342,7 +376,10 @@ CreatureLevelLimiter::CreatureLevelLimiter(uint32_t minLevel, uint32_t maxLevel)
 ILimiter::EDecision CreatureLevelLimiter::limit(const BonusLimitationContext &context) const
 {
 	const auto *c = retrieveCreature(&context.node);
-	auto accept = c && (c->getLevel() < maxLevel && c->getLevel() >= minLevel);
+	if (!c)
+		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	auto accept = c->getLevel() < maxLevel && c->getLevel() >= minLevel;
 	return accept ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD; //drop bonus for non-creatures or non-native residents
 }
 
@@ -379,9 +416,11 @@ ILimiter::EDecision CreatureAlignmentLimiter::limit(const BonusLimitationContext
 			return ILimiter::EDecision::ACCEPT;
 		if(alignment == EAlignment::NEUTRAL && !c->isEvil() && !c->isGood())
 			return ILimiter::EDecision::ACCEPT;
+
+		return ILimiter::EDecision::DISCARD;
 	}
 
-	return ILimiter::EDecision::DISCARD;
+	return ILimiter::EDecision::NOT_APPLICABLE;
 }
 
 std::string CreatureAlignmentLimiter::toString() const
@@ -416,23 +455,27 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	const CStackInstance * csi = retrieveStackInstance(&context.node);
 	if(csi)
 	{
-		if (csi->getNodeType() == CBonusSystemNode::COMMANDER) //no stack exp bonuses for commander creatures
+		if (csi->getNodeType() == BonusNodeType::COMMANDER) //no stack exp bonuses for commander creatures
 			return ILimiter::EDecision::DISCARD;
 		if (csi->getExpRank() > minRank && csi->getExpRank() < maxRank)
 			return ILimiter::EDecision::ACCEPT;
+
+		return ILimiter::EDecision::DISCARD;
 	}
-	return ILimiter::EDecision::DISCARD;
+	return ILimiter::EDecision::NOT_APPLICABLE;
 }
 
-OppositeSideLimiter::OppositeSideLimiter(PlayerColor Owner):
-	owner(std::move(Owner))
+OppositeSideLimiter::OppositeSideLimiter()
 {
 }
 
 ILimiter::EDecision OppositeSideLimiter::limit(const BonusLimitationContext & context) const
 {
-	auto contextOwner = context.node.getOwner();
-	auto decision = (owner == contextOwner || owner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
+	PlayerColor contextOwner = context.node.getOwner();
+	PlayerColor bonusOwner = context.b.bonusOwner;
+	if (contextOwner == PlayerColor::UNFLAGGABLE)
+		contextOwner = PlayerColor::NEUTRAL;
+	auto decision = (bonusOwner == contextOwner || bonusOwner == PlayerColor::CANNOT_DETERMINE) ? ILimiter::EDecision::DISCARD : ILimiter::EDecision::ACCEPT;
 	return decision;
 }
 
@@ -476,7 +519,7 @@ ILimiter::EDecision AllOfLimiter::limit(const BonusLimitationContext & context) 
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
-		if(result == ILimiter::EDecision::DISCARD)
+		if(result == ILimiter::EDecision::DISCARD || result == ILimiter::EDecision::NOT_APPLICABLE)
 			return result;
 		if(result == ILimiter::EDecision::NOT_SURE)
 			wasntSure = true;
@@ -530,6 +573,8 @@ ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context)
 	for(const auto & limiter : limiters)
 	{
 		auto result = limiter->limit(context);
+		if(result == ILimiter::EDecision::NOT_APPLICABLE)
+			return ILimiter::EDecision::NOT_APPLICABLE;
 		if(result == ILimiter::EDecision::ACCEPT)
 			return ILimiter::EDecision::DISCARD;
 		if(result == ILimiter::EDecision::NOT_SURE)
@@ -537,6 +582,27 @@ ILimiter::EDecision NoneOfLimiter::limit(const BonusLimitationContext & context)
 	}
 
 	return wasntSure ? ILimiter::EDecision::NOT_SURE : ILimiter::EDecision::ACCEPT;
+}
+
+HasChargesLimiter::HasChargesLimiter(const uint16_t cost)
+	: chargeCost(cost)
+{
+}
+
+ILimiter::EDecision HasChargesLimiter::limit(const BonusLimitationContext & context) const
+{
+	for(const auto & bonus : context.stillUndecided)
+	{
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == context.b.sid)
+			return ILimiter::EDecision::NOT_SURE;
+	}
+
+	for(const auto & bonus : context.alreadyAccepted)
+	{
+		if(bonus->type == BonusType::ARTIFACT_CHARGE && bonus->sid == context.b.sid)
+			return bonus->val >= chargeCost ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
+	}
+	return ILimiter::EDecision::DISCARD;
 }
 
 VCMI_LIB_NAMESPACE_END

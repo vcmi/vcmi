@@ -64,7 +64,7 @@ SettingsMainWindow::SettingsMainWindow(BattleInterface * parentBattleUi) : Inter
 
 	loadButton->block(GAME->server().isGuest());
 	saveButton->block(GAME->server().isGuest() || parentBattleUi);
-	restartButton->block(GAME->server().isGuest() || parentBattleUi);
+	restartButton->block(GAME->server().isGuest());
 
 	int defaultTabIndex = 0;
 	if(parentBattleUi != nullptr)
@@ -125,12 +125,9 @@ void SettingsMainWindow::quitGameButtonCallback()
 		[this]()
 		{
 			close();
-			ENGINE->dispatchMainThread( []()
-			{
-				handleQuit(false);
-			});
+			ENGINE->user().onShutdownRequested(false);
 		},
-		0
+		nullptr
 	);
 }
 

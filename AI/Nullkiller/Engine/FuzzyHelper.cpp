@@ -15,7 +15,6 @@
 
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../../lib/mapObjectConstructors/CBankInstanceConstructor.h"
 
 namespace NKAI
 {
@@ -48,16 +47,16 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 		{
 			auto hero = dynamic_cast<const CGHeroInstance *>(dangerousObject);
 
-			if(hero->visitedTown && !hero->visitedTown->garrisonHero)
+			if(hero->getVisitedTown() && !hero->getVisitedTown()->getGarrisonHero())
 			{
-				objectDanger += evaluateDanger(hero->visitedTown.get());
+				objectDanger += evaluateDanger(hero->getVisitedTown());
 			}
 			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
 		}
 		if (objWithID<Obj::TOWN>(dangerousObject))
 		{
 			auto town = dynamic_cast<const CGTownInstance*>(dangerousObject);
-			auto hero = town->garrisonHero;
+			auto hero = town->getGarrisonHero();
 
 			if (hero)
 				objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
@@ -122,7 +121,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 		auto danger = town->getUpperArmy()->getArmyStrength();
 
-		if(danger || town->visitingHero)
+		if(danger || town->getVisitingHero())
 		{
 			auto fortLevel = town->fortLevel();
 

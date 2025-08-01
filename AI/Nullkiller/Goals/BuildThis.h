@@ -34,7 +34,7 @@ namespace Goals
 		BuildThis(const BuildingInfo & buildingInfo, const TownDevelopmentInfo & townInfo) //should be private, but unit test uses it
 			: ElementarGoal(Goals::BUILD_STRUCTURE), buildingInfo(buildingInfo), townInfo(townInfo)
 		{
-			bid = buildingInfo.id;
+			bid = buildingInfo.id.getNum();
 			town = townInfo.town;
 		}
 		BuildThis(BuildingID Bid, const CGTownInstance * tid);

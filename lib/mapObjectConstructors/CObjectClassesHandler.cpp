@@ -8,6 +8,7 @@
  *
  */
 #include "StdInc.h"
+#include "CConfigHandler.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
@@ -19,12 +20,12 @@
 #include "../IGameSettings.h"
 #include "../CSoundBase.h"
 
-#include "../mapObjectConstructors/CBankInstanceConstructor.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../mapObjectConstructors/CommonConstructors.h"
 #include "../mapObjectConstructors/DwellingInstanceConstructor.h"
 #include "../mapObjectConstructors/FlaggableInstanceConstructor.h"
 #include "../mapObjectConstructors/HillFortInstanceConstructor.h"
+#include "../mapObjectConstructors/MarketInstanceConstructor.h"
 #include "../mapObjectConstructors/ShipyardInstanceConstructor.h"
 
 #include "../mapObjects/CGCreature.h"
@@ -59,7 +60,6 @@ CObjectClassesHandler::CObjectClassesHandler()
 	SET_HANDLER_CLASS("dwelling", DwellingInstanceConstructor);
 	SET_HANDLER_CLASS("hero", CHeroInstanceConstructor);
 	SET_HANDLER_CLASS("town", CTownInstanceConstructor);
-	SET_HANDLER_CLASS("bank", CBankInstanceConstructor);
 	SET_HANDLER_CLASS("boat", BoatInstanceConstructor);
 	SET_HANDLER_CLASS("flaggable", FlaggableInstanceConstructor);
 	SET_HANDLER_CLASS("market", MarketInstanceConstructor);
@@ -207,8 +207,19 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
 {
-	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
+
+	if (settings["mods"]["validation"].String() != "off")
+	{
+		size_t separator = identifier.find(':');
+
+		if (separator != std::string::npos)
+		{
+			std::string modName = identifier.substr(0, separator);
+			std::string objectName = identifier.substr(separator + 1);
+			logMod->warn("Mod %s: Map object type with format '%s' will add new map object, not modify it! Please use '%s' form and add dependency on mod '%s' instead!", scope, identifier, modName, identifier );
+		}
+	}
 
 	std::string handler = baseObject->handlerName;
 	if(!handlerConstructors.count(handler))
@@ -217,16 +228,6 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		// workaround for potential crash - if handler does not exists, continue with generic handler that is used for objects without any custom logc
 		handler = "generic";
 		assert(handlerConstructors.count(handler) != 0);
-	}
-
-	// Compatibility with 1.5 mods for 1.6. To be removed in 1.7
-	// Detect banks that use old format and load them using old bank hander
-	if (baseObject->id == Obj::CREATURE_BANK)
-	{
-		if (entry.Struct().count("levels") && !entry.Struct().count("rewards"))
-			handler = "bank";
-		else
-			handler = "configurable";
 	}
 
 	auto createdObject = handlerConstructors.at(handler)();

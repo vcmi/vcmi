@@ -12,6 +12,8 @@
 
 #include "Limiter.h"
 #include "Reward.h"
+
+#include "../json/JsonNode.h"
 #include "../networkPacks/EInfoWindowMode.h"
 #include "../texts/MetaString.h"
 
@@ -20,18 +22,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace Rewardable
 {
 
-enum EVisitMode
+enum EVisitMode : uint8_t
 {
 	VISIT_UNLIMITED, // any number of times. Side effect - object hover text won't contain visited/not visited text
 	VISIT_ONCE,      // only once, first to visit get all the rewards
 	VISIT_HERO,      // every hero can visit object once
 	VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 	VISIT_LIMITER,   // can be visited by heroes that don't fulfill provided limiter
-	VISIT_PLAYER     // every player can visit object once
+	VISIT_PLAYER,     // every player can visit object once
+	VISIT_PLAYER_GLOBAL // every player can visit object once. All objects of the same type will be considered as visited
 };
 
 /// controls selection of reward granted to player
-enum ESelectMode
+enum ESelectMode : uint8_t
 {
 	SELECT_FIRST,  // first reward that matches limiters
 	SELECT_PLAYER, // player can select from all allowed rewards
@@ -39,7 +42,7 @@ enum ESelectMode
 	SELECT_ALL // grant all rewards that match limiters
 };
 
-enum class EEventType
+enum class EEventType : uint8_t
 {
 	EVENT_INVALID = 0,
 	EVENT_FIRST_VISIT,
@@ -49,7 +52,7 @@ enum class EEventType
 };
 
 constexpr std::array<std::string_view, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
-constexpr std::array<std::string_view, 6> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player"};
+constexpr std::array<std::string_view, 7> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal" };
 
 struct DLL_LINKAGE ResetInfo
 {
@@ -142,10 +145,10 @@ struct DLL_LINKAGE Configuration
 	std::vector<Rewardable::VisitInfo> info;
 
 	/// how reward will be selected, uses ESelectMode enum
-	ui8 selectMode = Rewardable::SELECT_FIRST;
+	ESelectMode selectMode = Rewardable::SELECT_FIRST;
 
 	/// controls who can visit an object, uses EVisitMode enum
-	ui8 visitMode = Rewardable::VISIT_UNLIMITED;
+	EVisitMode visitMode = Rewardable::VISIT_UNLIMITED;
 
 	/// how and when should the object be reset
 	Rewardable::ResetInfo resetParameters;
@@ -160,6 +163,9 @@ struct DLL_LINKAGE Configuration
 
 	/// if true - player can refuse visiting an object (e.g. Tomb)
 	bool canRefuse = false;
+
+	/// if set to true and object is guarded, then hero visit will immediately start combat without confirmation
+	bool forceCombat = false;
 
 	/// if true - right-clicking object will show preview of object rewards
 	bool showScoutedPreview = false;
@@ -192,15 +198,12 @@ struct DLL_LINKAGE Configuration
 		h & variables;
 		h & visitLimiter;
 		h & canRefuse;
+		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
+			h & forceCombat;
 		h & showScoutedPreview;
 		h & infoWindowType;
-		if (h.version >= Handler::Version::REWARDABLE_BANKS)
-		{
-			h & coastVisitable;
-			h & guardsLayout;
-		}
-		else
-			coastVisitable = false;
+		h & coastVisitable;
+		h & guardsLayout;
 	}
 };
 

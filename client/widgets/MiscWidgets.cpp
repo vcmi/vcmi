@@ -29,10 +29,10 @@
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -261,7 +261,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -285,20 +285,20 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
-			subtitle = TextOperations::formatMetric(slot.second.count, 4);
+			subtitle = TextOperations::formatMetric(slot.second.getCount(), 4);
 		}
 		else
 		{
 			//if =0 - we have no information about stack size at all
-			if(slot.second.count)
+			if(slot.second.getCount())
 			{
 				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 				{
-					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.getCount())];
 				}
 			}
 		}
@@ -327,14 +327,16 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 
 	if(hero.details)
 	{
-		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-					   std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(77, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[0]), 25));
+		labels.push_back(std::make_shared<CLabel>(104, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[1]), 25));
+		labels.push_back(std::make_shared<CLabel>(132, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[2]), 25));
+		labels.push_back(std::make_shared<CLabel>(160, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[3]), 25));
 
-		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), hero.details->morale + 3, 0, 5, 74);
-		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), hero.details->luck + 3, 0, 5, 91);
+		labels.push_back(std::make_shared<CLabel>(158, 100, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana), 30));
+
+		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), std::clamp(hero.details->morale + 3, 0 , 6), 0, 5, 74);
+		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), std::clamp(hero.details->luck + 3, 0, 6), 0, 5, 91);
 	}
 }
 
@@ -366,14 +368,16 @@ void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 
 	if(hero.details)
 	{
-		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-													  std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(77, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[0]), 25));
+		labels.push_back(std::make_shared<CLabel>(104, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[1]), 25));
+		labels.push_back(std::make_shared<CLabel>(132, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[2]), 25));
+		labels.push_back(std::make_shared<CLabel>(160, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[3]), 25));
 
-		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), hero.details->morale + 3, 0, 5, 74);
-		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), hero.details->luck + 3, 0, 5, 91);
+		labels.push_back(std::make_shared<CLabel>(158, 99, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana), 30));
+
+		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), std::clamp(hero.details->morale + 3, 0 ,6), 0, 5, 74);
+		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), std::clamp(hero.details->luck + 3, 0, 6), 0, 5, 91);
 	}
 }
 
@@ -444,7 +448,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	OBJECT_CONSTRUCTION;
 
 	const InfoAboutTown townInfo = InfoAboutTown(town, true);
-	int townId = town->id;
+	ObjectInstanceID townId = town->id;
 
 	//order of icons in def: fort, citadel, castle, no fort
 	size_t fortIndex = townInfo.fortLevel ? townInfo.fortLevel - 1 : 3;
@@ -581,9 +585,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
-	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
+	if (morale && node && node->unaffectedByMorale())
 	{
 		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
@@ -623,7 +625,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
 
-	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), *component.value + 3);
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin(imageName), std::clamp(*component.value + 3, 0, 6));
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2)); //center icon
 	if(settings["general"]["enableUiEnhancements"].Bool())
 		label = std::make_shared<CLabel>((image->pos.topLeft() - pos.topLeft()).x + (small ? 28 : 40), (image->pos.topLeft() - pos.topLeft()).y + (small ? 20 : 38), EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(modifierList->totalValue()));

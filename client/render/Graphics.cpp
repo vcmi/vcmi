@@ -118,7 +118,6 @@ Graphics::Graphics()
 {
 	loadPaletteAndColors();
 	initializeBattleGraphics();
-	loadErmuToPicture();
 
 	//(!) do not load any CAnimation here
 }
@@ -129,7 +128,7 @@ void Graphics::setPlayerPalette(SDL_Palette * targetPalette, PlayerColor player)
 	if(player.isValidPlayer())
 	{
 		for(int i=0; i<32; ++i)
-			palette[i] = CSDL_Ext::toSDL(playerColorPalette[player][i]);
+			palette[i] = CSDL_Ext::toSDL(playerColorPalette[player.getNum()][i]);
 	}
 	else
 	{
@@ -152,22 +151,4 @@ void Graphics::setPlayerFlagColor(SDL_Palette * targetPalette, PlayerColor playe
 		SDL_Color color = CSDL_Ext::toSDL(neutralColor);
 		SDL_SetPaletteColors(targetPalette, &color, 5, 1);
 	}
-}
-
-void Graphics::loadErmuToPicture()
-{
-	//loading ERMU to picture
-	const JsonNode config(JsonPath::builtin("config/ERMU_to_picture.json"));
-	int etp_idx = 0;
-	for(const JsonNode &etp : config["ERMU_to_picture"].Vector()) {
-		int idx = 0;
-		for(const JsonNode &n : etp.Vector()) {
-			ERMUtoPicture[idx][etp_idx] = n.String();
-			idx ++;
-		}
-		assert (idx == std::size(ERMUtoPicture));
-
-		etp_idx ++;
-	}
-	assert (etp_idx == 44);
 }

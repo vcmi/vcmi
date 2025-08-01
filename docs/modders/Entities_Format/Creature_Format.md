@@ -128,6 +128,10 @@ In order to make functional creature you also need:
 		"iconSmall" : "",
 		// Large icon for this creature, used for example in town screen
 		"iconLarge" : "",
+
+		// Optional. Images of creatures when attacked on adventure map
+		"mapAttackFromRight": "",
+		"mapAttackFromLeft": "",
 		
 		// animation parameters
 

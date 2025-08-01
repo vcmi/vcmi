@@ -38,19 +38,24 @@ namespace spells
 
 struct DLL_LINKAGE AttackableTiles
 {
+	/// Hexes on which only hostile units will be targeted
 	BattleHexArray hostileCreaturePositions;
-	BattleHexArray friendlyCreaturePositions; //for Dragon Breath
-	template <typename Handler> void serialize(Handler &h)
-	{
-		h & hostileCreaturePositions;
-		h & friendlyCreaturePositions;
-	}
+	/// for Dragon Breath, hexes on which both friendly and hostile creatures will be targeted
+	BattleHexArray friendlyCreaturePositions;
+	/// for animation purposes, if any of targets are on specified positions, unit should play alternative animation
+	BattleHexArray overrideAnimationPositions;
 };
 
 struct DLL_LINKAGE BattleClientInterfaceData
 {
 	std::vector<SpellID> creatureSpellsToCast;
 	ui8 tacticsMode;
+};
+
+struct ForcedAction {
+	EActionType type;
+	BattleHex position;
+	const battle::Unit * target;
 };
 
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
@@ -116,7 +121,7 @@ public:
 	EWallPart battleHexToWallPart(const BattleHex & hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	bool isWallPartPotentiallyAttackable(EWallPart wallPart) const; // returns true if the wall part is potentially attackable (independent of wall state), false if not
 	bool isWallPartAttackable(EWallPart wallPart) const; // returns true if the wall part is actually attackable, false if not
-	BattleHexArray getAttackableBattleHexes() const;
+	BattleHexArray getAttackableWallParts() const;
 
 	si8 battleMinSpellLevel(BattleSide side) const; //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	si8 battleMaxSpellLevel(BattleSide side) const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
@@ -155,7 +160,7 @@ public:
 		BattleHex attackerPos = BattleHex::INVALID,
 		BattleHex defenderPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	
-	std::set<const CStack*> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
+	std::pair<std::set<const CStack*>, bool> getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos = BattleHex::INVALID) const; //calculates range of multi-hex attacks
 	bool isToReverse(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerHex = BattleHex::INVALID, BattleHex defenderHex = BattleHex::INVALID) const; //determines if attacker standing at attackerHex should reverse in order to attack defender
 
 	ReachabilityInfo getReachability(const battle::Unit * unit) const;
@@ -163,7 +168,7 @@ public:
 	AccessibilityInfo getAccessibility() const;
 	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
 	AccessibilityInfo getAccessibility(const BattleHexArray & accessibleHexes) const; //given hexes will be marked as accessible
-	std::pair<const battle::Unit *, BattleHex> getNearestStack(const battle::Unit * closest) const;
+	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 
 	BattleHex getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos = -1) const; //find place for adding new stack
 protected:

@@ -11,6 +11,7 @@
 #include "CZipLoader.h"
 
 #include "../ScopeGuard.h"
+#include "../texts/TextOperations.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -118,6 +119,19 @@ std::unordered_set<ResourcePath> CZipLoader::getFilteredFiles(std::function<bool
 			foundID.insert(file.first);
 	}
 	return foundID;
+}
+
+std::string CZipLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	auto relativePath = TextOperations::Utf8TofilesystemPath(resourceName.getName());
+	auto path = boost::filesystem::canonical(archiveName) / relativePath;
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::time_t CZipLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	auto path = boost::filesystem::canonical(archiveName);
+	return  boost::filesystem::last_write_time(path);
 }
 
 /// extracts currently selected file from zip into stream "where"

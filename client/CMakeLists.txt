@@ -1,6 +1,5 @@
 set(vcmiclientcommon_SRCS
 	StdInc.cpp
-	../CCallback.cpp
 
 	adventureMap/AdventureMapInterface.cpp
 	adventureMap/AdventureMapShortcuts.cpp
@@ -16,18 +15,25 @@ set(vcmiclientcommon_SRCS
 
 	battle/BattleActionsController.cpp
 	battle/BattleAnimationClasses.cpp
+	battle/BattleConsole.cpp
 	battle/BattleEffectsController.cpp
 	battle/BattleFieldController.cpp
+	battle/BattleHero.cpp
 	battle/BattleInterface.cpp
-	battle/BattleInterfaceClasses.cpp
 	battle/BattleObstacleController.cpp
+	battle/BattleOverlayLogVisualizer.cpp
 	battle/BattleProjectileController.cpp
 	battle/BattleRenderer.cpp
+	battle/BattleResultWindow.cpp
 	battle/BattleSiegeController.cpp
 	battle/BattleStacksController.cpp
 	battle/BattleWindow.cpp
 	battle/CreatureAnimation.cpp
-	battle/BattleOverlayLogVisualizer.cpp
+	battle/HeroInfoWindow.cpp
+	battle/QuickSpellPanel.cpp
+	battle/StackInfoBasicPanel.cpp
+	battle/StackQueue.cpp
+	battle/UnitActionPanel.cpp
 
 	eventsSDL/NotificationHandler.cpp
 	eventsSDL/InputHandler.cpp
@@ -81,6 +87,9 @@ set(vcmiclientcommon_SRCS
 	media/CMusicHandler.cpp
 	media/CSoundHandler.cpp
 	media/CVideoHandler.cpp
+
+	netlag/NetworkLagCompensator.cpp
+	netlag/PackRollbackGeneratorVisitor.cpp
 
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
@@ -175,6 +184,7 @@ set(vcmiclientcommon_SRCS
 	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
+	windows/settings/KeyBindingsWindow.cpp
 
 	xBRZ/xbrz.cpp
 
@@ -191,6 +201,7 @@ set(vcmiclientcommon_SRCS
 	NetPacksClient.cpp
 	NetPacksLobbyClient.cpp
 	ServerRunner.cpp
+	UIHelper.cpp
 )
 
 set(vcmiclientcommon_HEADERS
@@ -211,19 +222,25 @@ set(vcmiclientcommon_HEADERS
 
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
-	battle/BattleConstants.h
+	battle/BattleConsole.h
 	battle/BattleEffectsController.h
 	battle/BattleFieldController.h
+	battle/BattleHero.h
 	battle/BattleInterface.h
-	battle/BattleInterfaceClasses.h
 	battle/BattleObstacleController.h
+	battle/BattleOverlayLogVisualizer.h
 	battle/BattleProjectileController.h
 	battle/BattleRenderer.h
+	battle/BattleResultWindow.h
 	battle/BattleSiegeController.h
 	battle/BattleStacksController.h
 	battle/BattleWindow.h
 	battle/CreatureAnimation.h
-	battle/BattleOverlayLogVisualizer.h
+	battle/HeroInfoWindow.h
+	battle/QuickSpellPanel.h
+	battle/StackInfoBasicPanel.h
+	battle/StackQueue.h
+	battle/UnitActionPanel.h
 
 	eventsSDL/NotificationHandler.h
 	eventsSDL/InputHandler.h
@@ -286,6 +303,12 @@ set(vcmiclientcommon_HEADERS
 	media/IMusicPlayer.h
 	media/ISoundPlayer.h
 	media/IVideoPlayer.h
+
+	netlag/NetworkLagCompensator.h
+	netlag/NetworkLagPredictedPack.h
+	netlag/NetworkLagPredictionTestVisitor.h
+	netlag/NetworkLagReplyPrediction.h
+	netlag/PackRollbackGeneratorVisitor.h
 
 	render/AssetGenerator.h
 	render/CAnimation.h
@@ -390,6 +413,7 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
+	windows/settings/KeyBindingsWindow.h
 
 	xBRZ/xbrz.h
 	xBRZ/xbrz_tools.h
@@ -410,6 +434,7 @@ set(vcmiclientcommon_HEADERS
 	LobbyClientNetPackVisitors.h
 	ServerRunner.h
 	resource.h
+	UIHelper.h
 )
 
 if(APPLE_IOS)

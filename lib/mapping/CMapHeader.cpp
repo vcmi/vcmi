@@ -39,6 +39,7 @@ FactionID PlayerInfo::defaultCastle() const
 	if(isFactionRandom)
 		return FactionID::RANDOM;
 
+	assert(!allowedFactions.empty());
 	if(!allowedFactions.empty())
 		return *allowedFactions.begin();
 

@@ -21,6 +21,8 @@
 #include "../mapObjectConstructors/CRewardableConstructor.h"
 #include "../modding/IdentifierStorage.h"
 
+#include <boost/lexical_cast.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 static bool isOnVisitableFromTopList(Obj identifier, int type)
@@ -496,6 +498,23 @@ void ObjectTemplate::calculateVisitableOffset()
 		}
 	}
 	visitableOffset = int3(0, 0, 0);
+}
+
+int3 ObjectTemplate::getCornerOffset() const
+{
+	assert(isVisitable());
+
+	int3 ret = visitableOffset;
+	for (const auto & tile : blockedOffsets)
+	{
+		ret = {
+			std::min(-tile.x, ret.x),
+			std::min(-tile.y, ret.y),
+			ret.z
+		};
+	}
+
+	return ret;
 }
 
 bool ObjectTemplate::canBePlacedAt(TerrainId terrainID) const

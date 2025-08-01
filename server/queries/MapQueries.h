@@ -16,6 +16,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGObjectInstance;
 class IObjectInterface;
+class CArmedInstance;
 VCMI_LIB_NAMESPACE_END
 
 //Created when player starts turn or when player puts game on [ause

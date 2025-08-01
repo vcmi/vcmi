@@ -5,7 +5,7 @@
 		"index": 144,
 		"class" : "knight",
 		"female": false,
-		"special" : false, // available in single scenario, replacement for no longer available Lord Haart
+		"special" : true,
 		"skills":
 		[
 			{ "skill" : "leadership", "level": "advanced" }
@@ -110,8 +110,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "behemoth", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "behemoth",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -149,8 +150,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "blackKnight", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "blackKnight",
+						"includeUpgrades" : true
 					}
 				]
 			},
@@ -189,8 +191,8 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "DRAGON_NATURE" ],
-						"type" : "HAS_ANOTHER_BONUS_LIMITER"
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType" : "DRAGON_NATURE"
 					}
 				],
 				"type" : "PRIMARY_SKILL",
@@ -233,8 +235,8 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "DRAGON_NATURE" ],
-						"type" : "HAS_ANOTHER_BONUS_LIMITER"
+						"type" : "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType" : "DRAGON_NATURE"
 					}
 				],
 				"type" : "PRIMARY_SKILL",
@@ -306,8 +308,9 @@
 			"base" : {
 				"limiters" : [
 					{
-						"parameters" : [ "devil", true ],
-						"type" : "CREATURE_TYPE_LIMITER"
+						"type" : "CREATURE_TYPE_LIMITER",
+						"creature" : "devil",
+						"includeUpgrades" : true
 					}
 				]
 			},

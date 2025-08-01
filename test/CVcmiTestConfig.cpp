@@ -22,8 +22,9 @@
 
 void CVcmiTestConfig::SetUp()
 {
-	preinitDLL(true);
-	loadDLLClasses(true);
+	LIBRARY = new GameLibrary;
+	LIBRARY->initializeFilesystem(false);
+	LIBRARY->initializeLibrary();
 
 	/* TEST_DATA_DIR may be wrong, if yes below test don't run,
 	find your test data folder in your build and change TEST_DATA_DIR for it*/
@@ -31,14 +32,14 @@ void CVcmiTestConfig::SetUp()
 	auto path = boost::filesystem::current_path();
 	path+= "/" + TEST_DATA_DIR;
 	if(boost::filesystem::exists(path)){
-		auto loader = new CFilesystemLoader("test/", TEST_DATA_DIR);
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
+		auto loader = std::make_unique<CFilesystemLoader>("test/", TEST_DATA_DIR);
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
 
-		loader = new CFilesystemLoader("scripts/test/erm/", TEST_DATA_DIR+"erm/");
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
+		loader = std::make_unique<CFilesystemLoader>("scripts/test/erm/", TEST_DATA_DIR+"erm/");
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
 
-		loader = new CFilesystemLoader("scripts/test/lua/", TEST_DATA_DIR+"lua/");
-		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(loader, false);
+		loader = std::make_unique<CFilesystemLoader>("scripts/test/lua/", TEST_DATA_DIR+"lua/");
+		dynamic_cast<CFilesystemList*>(CResourceHandler::get("core"))->addLoader(std::move(loader), false);
 
 	}
 }

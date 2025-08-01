@@ -15,6 +15,7 @@
 #include "Unit.h"
 
 #include "../bonuses/Bonus.h"
+#include "../CCreatureHandler.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../spells/CSpellHandler.h"
 #include "../IGameSettings.h"
@@ -31,14 +32,14 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 	minDmg = info.attacker->getMinDamage(info.shooting);
 	maxDmg = info.attacker->getMaxDamage(info.shooting);
 
-    if(minDmg > maxDmg)
-    {
+	if(minDmg > maxDmg)
+	{
 	const auto & creatureName = info.attacker->creatureId().toEntity(LIBRARY)->getNamePluralTranslated();
 	logGlobal->error("Creature %s: min damage %lld exceeds max damage %lld.", creatureName, minDmg, maxDmg);
-        logGlobal->error("This may lead to unexpected results, please report it to the mod's creator.");
-        // to avoid an RNG crash and make bless and curse spells work as expected
-        std::swap(minDmg, maxDmg);
-    }
+		logGlobal->error("This may lead to unexpected results, please report it to the mod's creator.");
+		// to avoid an RNG crash and make bless and curse spells work as expected
+		std::swap(minDmg, maxDmg);
+	}
 
 	if(info.attacker->creatureIndex() == CreatureID::ARROW_TOWERS)
 	{
@@ -62,15 +63,15 @@ DamageRange DamageCalculator::getBaseDamageSingle() const
 
 	if(info.attacker->hasBonus(selectorSiedgeWeapon, cachingStrSiedgeWeapon) && info.attacker->creatureIndex() != CreatureID::ARROW_TOWERS)
 	{
-		auto retrieveHeroPrimSkill = [&](PrimarySkill skill) -> int
-		{
-			std::shared_ptr<const Bonus> b = info.attacker->getBonus(Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL).And(Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(skill))));
-			return b ? b->val : 0;
-		};
+		static const auto bonusSelector =
+			Selector::sourceTypeSel(BonusSource::ARTIFACT).Or(
+			Selector::sourceTypeSel(BonusSource::HERO_BASE_SKILL)).And(
+			Selector::typeSubtype(BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK)));
 
-		//minDmg and maxDmg are multiplied by hero attack + 1
-		minDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
-		maxDmg *= retrieveHeroPrimSkill(PrimarySkill::ATTACK) + 1;
+		//minDmg and maxDmg of a Ballista are multiplied by hero attack + 1
+		int heroAttackSkill = info.attacker->valOfBonuses(bonusSelector);
+		minDmg *= heroAttackSkill + 1;
+		maxDmg *= heroAttackSkill + 1;
 	}
 	return { minDmg, maxDmg };
 }
@@ -275,6 +276,15 @@ double DamageCalculator::getAttackJoustingFactor() const
 	return 0.0;
 }
 
+double DamageCalculator::getAttackFromBackFactor() const
+{
+	int value = info.defender->valOfBonuses(BonusType::VULNERABLE_FROM_BACK);
+
+	if (value != 0 && callback.isToReverse(info.attacker, info.defender, info.attackerPos, info.defenderPos))
+		return value / 100.0;
+	return 0;
+}
+
 double DamageCalculator::getAttackHateFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
@@ -462,6 +472,7 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackBlessFactor(),
 		getAttackLuckFactor(),
 		getAttackJoustingFactor(),
+		getAttackFromBackFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
 		getAttackHateFactor(),
@@ -513,7 +524,7 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 						: Selector::effectRange()(BonusLimitEffect::ONLY_MELEE_FIGHT);
 
 	//any regular bonuses or just ones for melee/ranged
-	return bearer->getBonuses(selector, noLimit.Or(limitMatches))->totalValue();
+	return bearer->getBonuses(selector)->valOfBonuses(noLimit.Or(limitMatches));
 };
 
 DamageEstimation DamageCalculator::calculateDmgRange() const

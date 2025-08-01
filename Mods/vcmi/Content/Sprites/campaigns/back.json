@@ -1,0 +1,20 @@
+{
+	"basepath" : "campaigns/",
+ 
+	"images" :
+	[
+		{
+			"frame": 0,
+			"file" : "arrow-back-normal"
+		},
+		{
+			"frame": 1,
+			"file" : "arrow-back-down"
+		},
+		{
+			"frame": 2,
+			"file" : "arrow-back-hover"
+		}
+	]
+
+}

@@ -12,6 +12,8 @@
 #include "ui_townspellswidget.h"
 #include "inspector.h"
 #include "mapeditorroles.h"
+
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/spells/CSpellHandler.h"
 

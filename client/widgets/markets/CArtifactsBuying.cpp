@@ -18,8 +18,9 @@
 #include "../../CPlayerInterface.h"
 #include "../../GameInstance.h"
 
-#include "../../../CCallback.h"
-
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/callback/CCallback.h"
+#include "../../../lib/entities/artifact/CArtHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/IMarket.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"

@@ -56,6 +56,18 @@ std::unordered_set<ResourcePath> CMappedFileLoader::getFilteredFiles(std::functi
 	return foundID;
 }
 
+std::string CMappedFileLoader::getFullFileURI(const ResourcePath& resourceName) const
+{
+	return CResourceHandler::get()->getFullFileURI(fileList.at(resourceName));
+}
+
+std::time_t CMappedFileLoader::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	return CResourceHandler::get()->getLastWriteTime(fileList.at(resourceName));
+}
+
+
+
 CFilesystemList::CFilesystemList()
 {
 }
@@ -157,11 +169,12 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 	return ret;
 }
 
-void CFilesystemList::addLoader(ISimpleResourceLoader * loader, bool writeable)
+void CFilesystemList::addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable)
 {
-	loaders.push_back(std::unique_ptr<ISimpleResourceLoader>(loader));
 	if (writeable)
-		writeableLoaders.insert(loader);
+		writeableLoaders.insert(loader.get());
+
+	loaders.push_back(std::move(loader));
 }
 
 bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
@@ -175,7 +188,29 @@ bool CFilesystemList::removeLoader(ISimpleResourceLoader * loader)
 			return true;
 		}
 	}
+
+
 	return false;
+}
+
+std::string CFilesystemList::getFullFileURI(const ResourcePath& resourceName) const
+{
+	for (const auto& loader : boost::adaptors::reverse(loaders))
+		if (loader->existsResource(resourceName))
+			return loader->getFullFileURI(resourceName);
+
+	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
+		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
+}
+
+std::time_t CFilesystemList::getLastWriteTime(const ResourcePath& resourceName) const
+{
+	for (const auto& loader : boost::adaptors::reverse(loaders))
+		if (loader->existsResource(resourceName))
+			return loader->getLastWriteTime(resourceName);
+
+	throw std::runtime_error("Resource with name " + resourceName.getName() + " and type "
+		+ EResTypeHelper::getEResTypeAsString(resourceName.getType()) + " wasn't found.");
 }
 
 VCMI_LIB_NAMESPACE_END

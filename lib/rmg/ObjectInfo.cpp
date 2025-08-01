@@ -21,7 +21,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 ObjectInfo::ObjectInfo(si32 ID, si32 subID):
 	primaryID(ID),
 	secondaryID(subID),
-	destroyObject([](CGObjectInstance * obj){}),
+	destroyObject([](const CGObjectInstance & obj){}),
 	maxPerZone(std::numeric_limits<ui32>::max())
 {
 }

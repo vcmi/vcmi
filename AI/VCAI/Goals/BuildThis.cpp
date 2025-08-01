@@ -32,7 +32,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 
 	// find town if not set
 	if(!town && hero)
-		town = hero->visitedTown;
+		town = hero->getVisitedTown();
 
 	if(!town)
 	{

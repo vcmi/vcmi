@@ -3,15 +3,16 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QStandardItemModel>
+#include <QTranslator>
+#include <QTableWidgetItem>
 #include "mapcontroller.h"
 #include "resourceExtractor/ResourceConverter.h"
 
 class ObjectBrowser;
 class ObjectBrowserProxyModel;
+class MapSettings;
 
 VCMI_LIB_NAMESPACE_BEGIN
-class CMap;
-class CampaignState;
 class CConsoleHandler;
 class CBasicLogConfigurator;
 class CGObjectInstance;
@@ -26,7 +27,7 @@ namespace Ui
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 
 	const QString mainWindowSizeSetting = "MainWindow/Size";
 	const QString mainWindowPositionSetting = "MainWindow/Position";
@@ -42,12 +43,9 @@ class MainWindow : public QMainWindow
 #endif
 	std::unique_ptr<CBasicLogConfigurator> logConfig;
 
-	std::unique_ptr<CMap> openMapInternal(const QString &);
-	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);
-
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow();
 
 	void initializeMap(bool isNew);
 
@@ -66,6 +64,11 @@ public:
 
 	void loadTranslation();
 
+	QAction * getActionPlayer(const PlayerColor &);
+
+public slots:
+	void switchDefaultPlayer(const PlayerColor &);
+
 private slots:
 	void on_actionOpen_triggered();
 	
@@ -74,6 +77,10 @@ private slots:
 	void on_menuOpenRecent_aboutToShow();
 
 	void on_actionSave_as_triggered();
+
+	void on_actionCampaignEditor_triggered();
+
+	void on_actionTemplateEditor_triggered();
 
 	void on_actionNew_triggered();
 
@@ -112,8 +119,6 @@ private slots:
 	void on_actionUpdate_appearance_triggered();
 
 	void on_actionRecreate_obstacles_triggered();
-	
-	void switchDefaultPlayer(const PlayerColor &);
 
 	void on_actionCut_triggered();
 
@@ -171,8 +176,6 @@ private:
 	void preparePreview(const QModelIndex & index);
 	void addGroupIntoCatalog(const QString & groupName, bool staticOnly);
 	void addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID);
-	
-	QAction * getActionPlayer(const PlayerColor &);
 
 	void changeBrushState(int idx);
 	void setTitle();
@@ -189,9 +192,10 @@ private:
 	void updateRecentMenu(const QString & filenameSelect);
 
 private:
-    Ui::MainWindow * ui;
+	Ui::MainWindow * ui;
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
+	MapSettings * mapSettings = nullptr;
 	
 	QString filename;
 	QString lastSavingDir;
@@ -206,4 +210,7 @@ private:
 
 	// command line options
 	QString mapFilePath;			// FilePath to the H3 or VCMI map to open
+
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
 };

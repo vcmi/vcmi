@@ -30,14 +30,9 @@ if(NOT fuzzylite_FOUND)
 	if(ANDROID)
 		set(FL_BACKTRACE OFF CACHE BOOL "" FORCE)
 	endif()
-	#It is for compiling FuzzyLite, it will not compile without it on GCC
-	if("x${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" STREQUAL "xGNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-		add_compile_options(-Wno-error=deprecated-declarations)
-	endif()
-	add_subdirectory(FuzzyLite/fuzzylite EXCLUDE_FROM_ALL)
-	set_property(TARGET fl-static PROPERTY CXX_STANDARD 14) # doesn't compile under 17 due to using removed symbol(s)
-	add_library(fuzzylite::fuzzylite ALIAS fl-static)
-	target_include_directories(fl-static PUBLIC ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite/fuzzylite)
+
+	add_subdirectory(FuzzyLite EXCLUDE_FROM_ALL)
+	add_library(fuzzylite::fuzzylite ALIAS staticTarget)
 endif()
 
 #######################################

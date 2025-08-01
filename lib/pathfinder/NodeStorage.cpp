@@ -21,14 +21,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void NodeStorage::initialize(const PathfinderOptions & options, const CGameState * gs)
+void NodeStorage::initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo)
 {
 	//TODO: fix this code duplication with AINodeStorage::initialize, problem is to keep `resetTile` inline
 
 	int3 pos;
 	const PlayerColor player = out.hero->tempOwner;
-	const int3 sizes = gs->getMapSize();
-	const auto & fow = static_cast<const CGameInfoCallback *>(gs)->getPlayerTeam(player)->fogOfWarMap;
+	const int3 sizes = gameInfo.getMapSize();
+	const auto & fow = gameInfo.getPlayerTeam(player)->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
@@ -40,20 +40,20 @@ void NodeStorage::initialize(const PathfinderOptions & options, const CGameState
 		{
 			for(pos.y=0; pos.y < sizes.y; ++pos.y)
 			{
-				const TerrainTile & tile = gs->getMap().getTile(pos);
-				if(tile.isWater())
+				const TerrainTile * tile = gameInfo.getTile(pos);
+				if(tile->isWater())
 				{
-					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::SAIL, PathfinderUtil::evaluateAccessibility<ELayer::SAIL>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 					if(useWaterWalking)
-						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::WATER, PathfinderUtil::evaluateAccessibility<ELayer::WATER>(pos, *tile, fow, player, gameInfo));
 				}
-				if(tile.isLand())
+				if(tile->isLand())
 				{
-					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, tile, fow, player, gs));
+					resetTile(pos, ELayer::LAND, PathfinderUtil::evaluateAccessibility<ELayer::LAND>(pos, *tile, fow, player, gameInfo));
 					if(useFlying)
-						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, tile, fow, player, gs));
+						resetTile(pos, ELayer::AIR, PathfinderUtil::evaluateAccessibility<ELayer::AIR>(pos, *tile, fow, player, gameInfo));
 				}
 			}
 		}
@@ -126,7 +126,7 @@ void NodeStorage::resetTile(const int3 & tile, const EPathfindingLayer & layer, 
 
 std::vector<CGPathNode *> NodeStorage::getInitialNodes()
 {
-	auto * initialNode = getNode(out.hpos, out.hero->boat ? out.hero->boat->layer : EPathfindingLayer::LAND);
+	auto * initialNode = getNode(out.hpos, out.hero->inBoat() ? out.hero->getBoat()->layer : EPathfindingLayer::LAND);
 
 	initialNode->turns = 0;
 	initialNode->moveRemains = out.hero->movementPointsRemaining();

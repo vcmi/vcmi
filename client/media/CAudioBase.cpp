@@ -37,7 +37,8 @@ CAudioBase::~CAudioBase()
 	--initializationCounter;
 
 	if(initializationCounter == 0 && initializeSuccess)
+	{
 		Mix_CloseAudio();
-
-	initializeSuccess = false;
+		initializeSuccess = false;
+	}
 }

@@ -10,26 +10,20 @@
 #include "StdInc.h"
 #include "CommonConstructors.h"
 
-#include "../texts/CGeneralTextHandler.h"
-#include "../IGameCallback.h"
 #include "../json/JsonRandom.h"
 #include "../constants/StringConstants.h"
-#include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 
-#include "../CConfigHandler.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
-#include "../json/JsonUtils.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
-
+#include "../mapping/TerrainTile.h"
 #include "../modding/IdentifierStorage.h"
-
-#include "../mapping/CMapDefines.h"
+#include "../texts/TextIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -53,7 +47,7 @@ void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
 	config = input;
 
 	resourceType = GameResID::GOLD; //set up fallback
-	LIBRARY->identifiers()->requestIdentifierOptional("resource", input["resource"], [&](si32 index)
+	LIBRARY->identifiers()->requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -81,16 +75,16 @@ int ResourceInstanceConstructor::getAmountMultiplier() const
 	return config["amountMultiplier"].Integer();
 }
 
-void ResourceInstanceConstructor::randomizeObject(CGResource * object, vstd::RNG & rng) const
+void ResourceInstanceConstructor::randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const
 {
 	if (object->amount != CGResource::RANDOM_AMOUNT)
 		return;
 
-	JsonRandom randomizer(object->cb);
+	JsonRandom randomizer(object->cb, gameRandomizer);
 	JsonRandom::Variables dummy;
 
 	if (!config["amounts"].isNull())
-		object->amount = randomizer.loadValue(config["amounts"], rng, dummy, 0) * getAmountMultiplier();
+		object->amount = randomizer.loadValue(config["amounts"], dummy, 0) * getAmountMultiplier();
 	else
 		object->amount = 5 * getAmountMultiplier();
 }
@@ -138,7 +132,7 @@ void CTownInstanceConstructor::initializeObject(CGTownInstance * obj) const
 	obj->tempOwner = PlayerColor::NEUTRAL;
 }
 
-void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, vstd::RNG & rng) const
+void CTownInstanceConstructor::randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const
 {
 	auto templ = getOverride(object->cb->getTile(object->pos)->getTerrainID(), object);
 	if(templ)
@@ -229,7 +223,7 @@ std::shared_ptr<const ObjectTemplate> CHeroInstanceConstructor::getOverride(Terr
 	return candidateBase;
 }
 
-void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, vstd::RNG & rng) const
+void CHeroInstanceConstructor::randomizeObject(CGHeroInstance * object, IGameRandomizer & gameRandomizer) const
 {
 
 }
@@ -271,98 +265,12 @@ void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
 	boat->onboardAssaultAllowed = onboardAssaultAllowed;
 	boat->onboardVisitAllowed = onboardVisitAllowed;
 	for(auto & b : bonuses)
-		boat->addNewBonus(std::make_shared<Bonus>(b));
+		boat->addNewBonus(b);
 }
 
 AnimationPath BoatInstanceConstructor::getBoatAnimationName() const
 {
 	return actualAnimation;
-}
-
-void MarketInstanceConstructor::initTypeData(const JsonNode & input)
-{
-	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(input, "vcmi:market", getJsonKey());
-
-	if (!input["description"].isNull())
-	{
-		std::string description = input["description"].String();
-		descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-		LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
-	}
-
-	if (!input["speech"].isNull())
-	{
-		std::string speech = input["speech"].String();
-		if (!speech.empty() && speech.at(0) == '@')
-		{
-			speechTextID = speech.substr(1);
-		}
-		else
-		{
-			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
-		}
-	}
-
-	for(auto & element : input["modes"].Vector())
-	{
-		if(MappedKeys::MARKET_NAMES_TO_TYPES.count(element.String()))
-			marketModes.insert(MappedKeys::MARKET_NAMES_TO_TYPES.at(element.String()));
-	}
-	
-	marketEfficiency = input["efficiency"].isNull() ? 5 : input["efficiency"].Integer();
-	predefinedOffer = input["offer"];
-}
-
-bool MarketInstanceConstructor::hasDescription() const
-{
-	return !descriptionTextID.empty();
-}
-
-CGMarket * MarketInstanceConstructor::createObject(IGameCallback * cb) const
-{
-	if(marketModes.size() == 1)
-	{
-		switch(*marketModes.begin())
-		{
-			case EMarketMode::ARTIFACT_RESOURCE:
-			case EMarketMode::RESOURCE_ARTIFACT:
-				return new CGBlackMarket(cb);
-
-			case EMarketMode::RESOURCE_SKILL:
-				return new CGUniversity(cb);
-		}
-	}
-	return new CGMarket(cb);
-}
-
-const std::set<EMarketMode> & MarketInstanceConstructor::availableModes() const
-{
-	return marketModes;
-}
-
-void MarketInstanceConstructor::randomizeObject(CGMarket * object, vstd::RNG & rng) const
-{
-	JsonRandom randomizer(object->cb);
-	JsonRandom::Variables emptyVariables;
-
-	if(auto * university = dynamic_cast<CGUniversity *>(object))
-	{
-		for(auto skill : randomizer.loadSecondaries(predefinedOffer, rng, emptyVariables))
-			university->skills.push_back(skill.first);
-	}
-}
-
-std::string MarketInstanceConstructor::getSpeechTranslated() const
-{
-	assert(marketModes.count(EMarketMode::RESOURCE_SKILL));
-	return LIBRARY->generaltexth->translate(speechTextID);
-}
-
-int MarketInstanceConstructor::getMarketEfficiency() const
-{
-	return marketEfficiency;
 }
 
 VCMI_LIB_NAMESPACE_END

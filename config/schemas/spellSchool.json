@@ -1,0 +1,33 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI spell school format",
+	"description" : "Format used to define new spell schools in VCMI",
+	"required" : [ "schoolBorders", "name" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"index" : {
+			"type" : "number",
+			"description" : "numeric id of h3 spell school, prohibited for new schools"
+		},
+		"name" : {
+			"type" : "string",
+			"description" : "Localizable name of this school"
+		},
+		"schoolBorders" : {
+			"type" : "string",
+			"description" : "File with frame borders of mastery levels for spells of this spell school in spellbook",
+			"format" : "animationFile"
+		},
+		"schoolBookmark" : {
+			"type" : "string",
+			"description" : "File with bookmark symbol (first frame unselected, second is selected)",
+			"format" : "animationFile"
+		},
+		"schoolHeader" : {
+			"type" : "string",
+			"description" : "Header of scool for spellbook",
+			"format" : "imageFile"
+		}
+	}
+}

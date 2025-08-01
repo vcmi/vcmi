@@ -59,12 +59,12 @@ void RecruitHero::accept(AIGateway * ai)
 	if(!heroToHire)
 		throw cannotFulfillGoalException("No hero to hire!");
 
-	if(t->visitingHero)
+	if(t->getVisitingHero())
 	{
 		cb->swapGarrisonHero(t);
 	}
 
-	if(t->visitingHero)
+	if(t->getVisitingHero())
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
 	cb->recruitHero(t, heroToHire);

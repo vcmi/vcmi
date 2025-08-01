@@ -11,20 +11,27 @@
 
 #include "../networkPacks/TradeItem.h"
 #include "../constants/Enumerations.h"
-#include "../CArtHandler.h"
+#include "../entities/artifact/CArtifactSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class DLL_LINKAGE IMarket : public virtual Serializeable, boost::noncopyable
 {
 public:
-	IMarket();
+	explicit IMarket(IGameInfoCallback *cb);
 	~IMarket();
 
 	class CArtifactSetAltar : public CArtifactSet
 	{
+		IGameInfoCallback *cb;
 	public:
-		ArtBearer::ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
+		CArtifactSetAltar(IGameInfoCallback *cb)
+			: CArtifactSet(cb)
+			, cb(cb)
+		{}
+
+		IGameInfoCallback * getCallback() const override {return cb;};
+		ArtBearer bearerType() const override {return ArtBearer::ALTAR;};
 	};
 
 	virtual ObjectInstanceID getObjInstanceID() const = 0;	// The market is always an object on the map
@@ -35,11 +42,6 @@ public:
 	virtual std::set<EMarketMode> availableModes() const = 0;
 	CArtifactSet * getArtifactsStorage() const;
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
-
-	template <typename Handler> void serializeArtifactsAltar(Handler &h)
-	{
-		h & *altarArtifactsStorage;
-	}
 
 private:
 	std::unique_ptr<CArtifactSetAltar> altarArtifactsStorage;

@@ -51,7 +51,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	const auto attackableBattleHexes = m->battle()->getAttackableBattleHexes();
+	const auto attackableBattleHexes = m->battle()->getAttackableWallParts();
 
 	return !attackableBattleHexes.empty() || m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 }
@@ -263,7 +263,7 @@ void Catapult::adjustHitChance()
 	vstd::abetween(wall, 0, 100);
 	vstd::abetween(crit, 0, 100);
 	vstd::abetween(hit, 0, 100 - crit);
-	vstd::amin(noDmg, 100 - hit - crit);
+	noDmg = 100 - hit - crit;
 }
 
 void Catapult::serializeJsonEffect(JsonSerializeFormat & handler)

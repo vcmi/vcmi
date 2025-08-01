@@ -81,13 +81,16 @@ In order to make functional hero class you also need:
 
 	// Chance to get specific secondary skill on level-up
 	// All missing skills are considered to be banned, including universities
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"secondarySkills" :
 	{
 		"pathfinding"  : 3.
 		"archery"      : 6.
 		 ...
 		"resistance"   : 5,
-		"firstAid"     : 4
+		"firstAid"     : 4,
+		"modName:skillName" : 9
 	},
 
 	// Chance for a this hero class to appear in a town, creates pair with same field in town format 
@@ -99,11 +102,14 @@ In order to make functional hero class you also need:
 	// Reversed version of field "tavern" from town format
 	// If faction-class pair is not listed in any of them
 	// chance set to 0 and the class won't appear in tavern of this town
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"tavern" :
 	{
 		"castle"     : 4,
 		 ...
-		"conflux"    : 6
+		"conflux"    : 6,
+		"modID:factionFromMod" : 5
 	}
 }
 ```

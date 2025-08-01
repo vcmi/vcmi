@@ -13,14 +13,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CGameInfoCallback;
+class IGameInfoCallback;
 class CGHeroInstance;
 class PathfinderConfig;
 struct CPathsInfo;
 
 class DLL_LINKAGE PathfinderCache
 {
-	const CGameInfoCallback * cb;
+	const IGameInfoCallback * cb;
 	std::mutex pathCacheMutex;
 	std::map<const CGHeroInstance *, std::shared_ptr<CPathsInfo>> pathCache;
 	PathfinderOptions options;
@@ -28,7 +28,7 @@ class DLL_LINKAGE PathfinderCache
 	std::shared_ptr<PathfinderConfig> createConfig(const CGHeroInstance *h, CPathsInfo &out);
 	std::shared_ptr<CPathsInfo> buildPaths(const CGHeroInstance *h);
 public:
-	PathfinderCache(const CGameInfoCallback * cb, const PathfinderOptions & options);
+	PathfinderCache(const IGameInfoCallback * cb, const PathfinderOptions & options);
 
 	/// Invalidates and erases all existing paths from the cache
 	void invalidatePaths();

@@ -27,14 +27,14 @@ namespace Goals
 		BuildThis(BuildingID Bid, const CGTownInstance * tid)
 			: CGoal(Goals::BUILD_STRUCTURE)
 		{
-			bid = Bid;
+			bid = Bid.getNum();
 			town = tid;
 			priority = 1;
 		}
 		BuildThis(BuildingID Bid)
 			: CGoal(Goals::BUILD_STRUCTURE)
 		{
-			bid = Bid;
+			bid = Bid.getNum();
 			priority = 1;
 		}
 		TGoalVec getAllPossibleSubgoals() override

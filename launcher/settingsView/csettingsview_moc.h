@@ -60,6 +60,7 @@ private slots:
 	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
 	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 	void on_refreshRepositoriesButton_clicked();
+	void on_buttonConfigEditor_clicked();
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 	void on_buttonVSync_toggled(bool value);
 	void on_comboBoxEnemyPlayerAI_currentTextChanged(const QString &arg1);
@@ -91,18 +92,13 @@ private slots:
 	void on_buttonFontScalable_clicked(bool checked);
 	void on_buttonFontOriginal_clicked(bool checked);
 
-
 	void on_buttonValidationOff_clicked(bool checked);
-
 	void on_buttonValidationBasic_clicked(bool checked);
-
 	void on_buttonValidationFull_clicked(bool checked);
-
 	void on_sliderScalingCursor_valueChanged(int value);
-
 	void on_buttonScalingAuto_toggled(bool checked);
-
 	void on_buttonHandleBackRightMouseButton_toggled(bool checked);
+	void on_buttonIgnoreMuteSwitch_toggled(bool checked);
 
 private:
 	Ui::CSettingsView * ui;

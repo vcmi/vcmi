@@ -10,7 +10,6 @@
 #pragma once
 
 #include "../AIUtility.h"
-#include "../../../CCallback.h"
 #include "../Goals/CGoal.h"
 #include "../../../lib/gameState/QuestInfo.h"
 

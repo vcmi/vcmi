@@ -18,9 +18,8 @@
 	{
 		"images" :
 		[
-			{"x": 0,   "y": 0,   "name":"CAMPBACK"},
-			{"x": 34,  "y": 417, "name":"CAMP1FWX"},//one campaign have special inactive image
-			{"x": 385, "y": 401, "name":"CAMPNOSC"},//and the last one is not present
+			{"x": 0,   "y": 0,   "name":"CampaignBackground6"},
+			{"x": 34,  "y": 417, "name":"CAMP1FWX"}				// 6. campaign have special inactive image
 		],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
@@ -54,14 +53,14 @@
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
 		[
-			{ "id": 1, "x":40,  "y":72,  "file":"Maps/Chronicles/Hc1_Main", "image":"CampaignHc1Image", "video":"", "requires": [], "optional": true },
-			{ "id": 2, "x":310, "y":72,  "file":"Maps/Chronicles/Hc2_Main", "image":"CampaignHc2Image", "video":"", "requires": [], "optional": true },
-			{ "id": 3, "x":590, "y":72,  "file":"Maps/Chronicles/Hc3_Main", "image":"CampaignHc3Image", "video":"", "requires": [], "optional": true },
+			{ "id": 1, "x":41,  "y":72,  "file":"Maps/Chronicles/Hc1_Main", "image":"CampaignHc1Image", "video":"", "requires": [], "optional": true },
+			{ "id": 2, "x":312, "y":72,  "file":"Maps/Chronicles/Hc2_Main", "image":"CampaignHc2Image", "video":"", "requires": [], "optional": true },
+			{ "id": 3, "x":581, "y":72,  "file":"Maps/Chronicles/Hc3_Main", "image":"CampaignHc3Image", "video":"", "requires": [], "optional": true },
 			{ "id": 4, "x":43,  "y":245, "file":"Maps/Chronicles/Hc4_Main", "image":"CampaignHc4Image", "video":"", "requires": [], "optional": true },
 			{ "id": 5, "x":313, "y":244, "file":"Maps/Chronicles/Hc5_Main", "image":"CampaignHc5Image", "video":"", "requires": [], "optional": true },
-			{ "id": 6, "x":586, "y":244, "file":"Maps/Chronicles/Hc6_Main", "image":"CampaignHc6Image", "video":"", "requires": [], "optional": true },
+			{ "id": 6, "x":585, "y":244, "file":"Maps/Chronicles/Hc6_Main", "image":"CampaignHc6Image", "video":"", "requires": [], "optional": true },
 			{ "id": 7, "x":34,  "y":413, "file":"Maps/Chronicles/Hc7_Main", "image":"CampaignHc7Image", "video":"", "requires": [], "optional": true },
-			{ "id": 8, "x":404, "y":414, "file":"Maps/Chronicles/Hc8_Main", "image":"CampaignHc8Image", "video":"", "requires": [], "optional": true }
+			{ "id": 8, "x":404, "y":415, "file":"Maps/Chronicles/Hc8_Main", "image":"CampaignHc8Image", "video":"", "requires": [], "optional": true }
 		]
 	}
 }

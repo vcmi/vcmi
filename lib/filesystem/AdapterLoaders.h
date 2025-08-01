@@ -44,6 +44,8 @@ public:
 	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
 	void updateFilteredFiles(std::function<bool(const std::string &)> filter) const override {}
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
+	std::string getFullFileURI(const ResourcePath& resourceName) const override;
+	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
 
 private:
 	/** A list of files in this map
@@ -77,6 +79,8 @@ public:
 	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
 	bool createResource(const std::string & filename, bool update = false) override;
 	std::vector<const ISimpleResourceLoader *> getResourcesWithName(const ResourcePath & resourceName) const override;
+	std::string getFullFileURI(const ResourcePath& resourceName) const override;
+	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
 
 	/**
 	 * Adds a resource loader to the loaders list
@@ -85,8 +89,8 @@ public:
 	 * @param loader The simple resource loader object to add
 	 * @param writeable - resource shall be treated as writeable
 	 */
-	void addLoader(ISimpleResourceLoader * loader, bool writeable);
-	
+	void addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable);
+
 	/**
 	 * Removes loader from the loader list
 	 * Take care about memory deallocation

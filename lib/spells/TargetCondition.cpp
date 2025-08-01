@@ -15,7 +15,6 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
-#include "../bonuses/BonusParams.h"
 #include "../bonuses/BonusList.h"
 #include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
@@ -356,21 +355,11 @@ public:
 	{
 		if(type == "bonus")
 		{
-			//TODO: support custom bonus types
-
-			auto it = bonusNameMap.find(identifier);
-			if(it != bonusNameMap.end())
-				return std::make_shared<SelectorCondition>(Selector::type()(it->second));
-
-			auto params = BonusParams(identifier, "", -1);
-			if(params.isConverted)
-			{
-				if(params.val)
-					return std::make_shared<SelectorCondition>(params.toSelector(), *params.val, *params.val);
-				return std::make_shared<SelectorCondition>(params.toSelector());
-			}
-
-				logMod->error("Invalid bonus type %s in spell target condition.", identifier);
+			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			if (bonusID)
+				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
+			else
+				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}
 		else if(type == "creature")
 		{

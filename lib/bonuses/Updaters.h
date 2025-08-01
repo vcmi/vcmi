@@ -14,6 +14,17 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
+class AggregateLimiter;
+class CCreatureTypeLimiter;
+class HasAnotherBonusLimiter;
+class CreatureTerrainLimiter;
+class CreatureLevelLimiter;
+class FactionLimiter;
+class CreatureAlignmentLimiter;
+class OppositeSideLimiter;
+class RankRangeLimiter;
+class UnitOnHexLimiter;
+
 // observers for updating bonuses based on certain events (e.g. hero gaining level)
 
 class DLL_LINKAGE IUpdater : public Serializeable
@@ -53,47 +64,115 @@ public:
 
 class DLL_LINKAGE TimesHeroLevelUpdater : public IUpdater
 {
+	int stepSize = 1;
 public:
+	TimesHeroLevelUpdater() = default;
+	TimesHeroLevelUpdater(int stepSize)
+		: stepSize(stepSize)
+	{
+		assert(stepSize > 0);
+	}
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<IUpdater &>(*this);
+		if (h.hasFeature(Handler::Version::UNIVERSITY_CONFIG))
+			h & stepSize;
 	}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE TimesStackSizeUpdater : public IUpdater
+{
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int count) const;
+
+	int minimum = std::numeric_limits<int>::min();
+	int maximum = std::numeric_limits<int>::max();
+	int stepSize = 1;
+public:
+	TimesStackSizeUpdater() = default;
+	TimesStackSizeUpdater(int minimum, int maximum, int stepSize)
+		: minimum(minimum)
+		, maximum(maximum)
+		, stepSize(stepSize)
+	{}
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
+	}
+};
+
+class DLL_LINKAGE TimesArmySizeUpdater : public IUpdater
+{
+public:
+	int minimum = std::numeric_limits<int>::min();
+	int maximum = std::numeric_limits<int>::max();
+	int stepSize = 1;
+	int filteredLevel = -1;
+	CreatureID filteredCreature;
+	FactionID filteredFaction;
+	TimesArmySizeUpdater() = default;
+
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<IUpdater &>(*this);
+		h & minimum;
+		h & maximum;
+		h & stepSize;
+		h & filteredLevel;
+		h & filteredCreature;
+		h & filteredFaction;
+	}
 };
 
 class DLL_LINKAGE TimesStackLevelUpdater : public IUpdater
 {
-public:
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & static_cast<IUpdater &>(*this);
-	}
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
 
+public:
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;
 };
 
-class DLL_LINKAGE ArmyMovementUpdater : public IUpdater
+class DLL_LINKAGE DivideStackLevelUpdater : public IUpdater
 {
+	std::shared_ptr<Bonus> apply(const std::shared_ptr<Bonus> & b, int level) const;
+
 public:
-	si32 base;
-	si32 divider;
-	si32 multiplier;
-	si32 max;
-	ArmyMovementUpdater();
-	ArmyMovementUpdater(int base, int divider, int multiplier, int max);
+	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
+	std::string toString() const override;
+	JsonNode toJsonNode() const override;
+};
+
+class DLL_LINKAGE TimesHeroLevelDivideStackLevelUpdater : public TimesHeroLevelUpdater
+{
+	std::shared_ptr<DivideStackLevelUpdater> divideStackLevel;
+public:
 	template <typename Handler> void serialize(Handler & h)
 	{
-		h & static_cast<IUpdater &>(*this);
-		h & base;
-		h & divider;
-		h & multiplier;
-		h & max;
+		h & static_cast<TimesHeroLevelUpdater &>(*this);
+		h & divideStackLevel;
 	}
+
+	TimesHeroLevelDivideStackLevelUpdater()
+		: divideStackLevel(std::make_shared<DivideStackLevelUpdater>())
+	{}
 
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & context) const override;
 	std::string toString() const override;
@@ -103,11 +182,6 @@ public:
 class DLL_LINKAGE OwnerUpdater : public IUpdater
 {
 public:
-	template <typename Handler> void serialize(Handler& h)
-	{
-		h & static_cast<IUpdater &>(*this);
-	}
-
 	std::shared_ptr<Bonus> createUpdatedBonus(const std::shared_ptr<Bonus>& b, const CBonusSystemNode& context) const override;
 	std::string toString() const override;
 	JsonNode toJsonNode() const override;

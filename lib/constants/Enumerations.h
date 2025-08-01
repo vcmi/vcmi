@@ -259,4 +259,18 @@ enum class EWeekType : int8_t
 	PLAGUE
 };
 
+enum class ColorScheme : int8_t
+{
+	NONE,
+	KEEP,
+	GRAYSCALE,
+	H2_SCHEME
+};
+
+enum class ChangeValueMode : int8_t
+{
+	RELATIVE,
+	ABSOLUTE
+};
+
 VCMI_LIB_NAMESPACE_END

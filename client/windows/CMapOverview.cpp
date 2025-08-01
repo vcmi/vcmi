@@ -34,8 +34,9 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
-
+#include "../../lib/callback/EditorCallback.h"
 #include "../../lib/StartInfo.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -74,9 +75,10 @@ std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::uniq
 
 			if(drawPlayerElements)
 				// if object at tile is owned - it will be colored as its owner
-				for (const CGObjectInstance *obj : tile.blockingObjects)
+				for (ObjectInstanceID objectID : tile.blockingObjects)
 				{
-					PlayerColor player = obj->getOwner();
+					const auto * object = map->getObject(objectID);
+					PlayerColor player = object->getOwner();
 					if(player == PlayerColor::NEUTRAL)
 					{
 						color = graphics->neutralColor;
@@ -103,7 +105,8 @@ std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(con
 	std::unique_ptr<CMap> map;
 	try
 	{
-		map = mapService.loadMap(resource, nullptr);
+		auto cb = std::make_unique<EditorCallback>(map.get());
+		map = mapService.loadMap(resource, cb.get());
 	}
 	catch (const std::exception & e)
 	{
@@ -158,16 +161,15 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), ESerializationVersion::MINIMAL);
-			lf.checkMagicBytes(SAVEGAME_MAGIC);
+			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), nullptr);
+			CMapHeader mapHeader;
+			StartInfo startInfo;
+			lf.load(mapHeader);
+			lf.load(startInfo);
 
-			auto mapHeader = std::make_unique<CMapHeader>();
-			StartInfo * startInfo;
-			lf >> *(mapHeader) >> startInfo;
-
-			if(startInfo->campState)
-				campaignMap = startInfo->campState->getMap(*startInfo->campState->currentScenario(), nullptr);
-			res = ResourcePath(startInfo->fileURI, EResType::MAP);
+			if(startInfo.campState)
+				campaignMap = startInfo.campState->getMap(*startInfo.campState->currentScenario(), nullptr);
+			res = ResourcePath(startInfo.fileURI, EResType::MAP);
 		}
 		if(!campaignMap)
 			minimaps = createMinimaps(res);

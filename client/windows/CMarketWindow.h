@@ -20,7 +20,8 @@ public:
 	void updateArtifacts() override;
 	void updateGarrisons() override;
 	void updateExperience() override;
-	void update() override;
+
+	void update();
 	void close() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 

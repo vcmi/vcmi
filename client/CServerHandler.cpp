@@ -8,22 +8,26 @@
  *
  */
 #include "StdInc.h"
-
 #include "CServerHandler.h"
-#include "Client.h"
-#include "ServerRunner.h"
-#include "GameChatHandler.h"
+
 #include "CPlayerInterface.h"
+#include "Client.h"
+#include "GameChatHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
-#include "gui/WindowHandler.h"
+#include "LobbyClientNetPackVisitors.h"
+#include "ServerRunner.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+
+#include "gui/WindowHandler.h"
+
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "windows/InfoWindows.h"
-#include "windows/GUIClasses.h"
+
+#include "netlag/NetworkLagCompensator.h"
+
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
 
@@ -31,7 +35,11 @@
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "mainmenu/CHighScoreScreen.h"
 
+#include "windows/InfoWindows.h"
+#include "windows/GUIClasses.h"
+
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
@@ -47,16 +55,17 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
+#include <SDL_thread.h>
+
+#include <boost/lexical_cast.hpp>
 
 CServerHandler::~CServerHandler()
 {
@@ -112,15 +121,19 @@ void CServerHandler::threadRunNetwork()
 	}
 	catch (const TerminationRequestedException &)
 	{
+		// VCMI can run SDL methods on network thread, leading to usage of thread-local storage by SDL
+		// Such storage needs to be cleaned up manually for threads that were not created by SDL
+		SDL_TLSCleanup();
 		logGlobal->info("Terminating network thread");
 		return;
 	}
+	SDL_TLSCleanup();
 	logGlobal->info("Ending network thread");
 }
 
 void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & playerNames)
 {
-	hostClientId = -1;
+	hostClientId = GameConnectionID::INVALID;
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	mapToStart = nullptr;
@@ -261,7 +274,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 		getGlobalLobby().sendProxyConnectionLogin(netConnection);
 	}
 
-	logicConnection = std::make_shared<CConnection>(netConnection);
+	logicConnection = std::make_shared<GameConnection>(netConnection);
 	logicConnection->uuid = uuid;
 	logicConnection->enterLobbyConnectionMode();
 	sendClientConnecting();
@@ -289,7 +302,7 @@ bool CServerHandler::isMyColor(PlayerColor color) const
 	return isClientColor(logicConnection->connectionID, color);
 }
 
-ui8 CServerHandler::myFirstId() const
+PlayerConnectionID CServerHandler::myFirstId() const
 {
 	return clientFirstId(logicConnection->connectionID);
 }
@@ -500,7 +513,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		if(id.length())
 		{
 			LobbyChangeHost lch;
-			lch.newHostConnectionId = boost::lexical_cast<int>(id);
+			lch.newHostConnectionId = static_cast<GameConnectionID>(boost::lexical_cast<int>(id));
 			sendLobbyPack(lch);
 		}
 	}
@@ -512,7 +525,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
 		{
-			ui8 connected = boost::lexical_cast<int>(connectedId);
+			auto connected = static_cast<PlayerConnectionID>(boost::lexical_cast<int>(connectedId));
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
 			if(color.isValidPlayer() && playerNames.find(connected) != playerNames.end())
 			{
@@ -604,10 +617,21 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
-void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState)
+void CServerHandler::enableLagCompensation(bool on)
+{
+	if (on)
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(),  client->gameStatePtr());
+	else
+		networkLagCompensator.reset();
+}
+
+void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
+
+	if (isGuest())
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{
@@ -626,17 +650,16 @@ void CServerHandler::startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameSta
 		throw std::runtime_error("Invalid mode");
 	}
 	// After everything initialized we can accept CPackToClient netpacks
-	logicConnection->enterGameplayConnectionMode(client->gameState());
 	setState(EClientState::GAMEPLAY);
 }
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(client->gameState(), player, victory);
+	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
 
-	if(victory && client->gameState()->getStartInfo()->campState)
+	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState()->getStartInfo()->campState, statistic);
+		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{
@@ -702,8 +725,6 @@ void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared
 			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
 			entry->Bool() = true;
 		}
-
-		GAME->mainmenu()->makeActiveInterface();
 
 		if(!ourCampaign->isCampaignFinished())
 			GAME->mainmenu()->openCampaignLobby(ourCampaign);
@@ -936,9 +957,11 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	if (networkLagCompensator && networkLagCompensator->verifyReply(clientPack))
+		return;
+
 	client->handlePack(clientPack);
 }
-
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
@@ -954,4 +977,12 @@ bool CServerHandler::inLobbyRoom() const
 bool CServerHandler::inGame() const
 {
 	return logicConnection != nullptr;
+}
+
+void CServerHandler::sendGamePack(const CPackForServer & pack) const
+{
+	if (networkLagCompensator)
+		networkLagCompensator->tryPredictReply(pack);
+
+	logicConnection->sendPack(pack);
 }

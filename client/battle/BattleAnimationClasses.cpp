@@ -10,23 +10,23 @@
 #include "StdInc.h"
 #include "BattleAnimationClasses.h"
 
+#include "BattleEffectsController.h"
+#include "BattleFieldController.h"
+#include "BattleHero.h"
 #include "BattleInterface.h"
-#include "BattleInterfaceClasses.h"
 #include "BattleProjectileController.h"
 #include "BattleSiegeController.h"
-#include "BattleFieldController.h"
-#include "BattleEffectsController.h"
 #include "BattleStacksController.h"
 #include "CreatureAnimation.h"
 
 #include "../CPlayerInterface.h"
-#include "../gui/CursorHandler.h"
 #include "../GameEngine.h"
+#include "../gui/CursorHandler.h"
 #include "../media/ISoundPlayer.h"
 #include "../render/CAnimation.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/CStack.h"
 
 BattleAnimation::BattleAnimation(BattleInterface & owner)
@@ -357,7 +357,7 @@ bool MovementAnimation::init()
 
 	if (moveSoundHandler == -1)
 	{
-		moveSoundHandler = ENGINE->sound().playSound(stack->unitType()->sounds.move, -1);
+		moveSoundHandler = ENGINE->sound().playSoundLooped(stack->unitType()->sounds.move);
 	}
 
 	Point begPosition = owner.stacksController->getStackPositionAtHex(prevHex, stack);

@@ -49,9 +49,9 @@ void MinePlacer::init()
 
 bool MinePlacer::placeMines(ObjectManager & manager)
 {
-	std::vector<CGMine*> createdMines;
+	std::vector<std::shared_ptr<CGMine>> createdMines;
 
-	std::vector<std::pair<CGObjectInstance*, ui32>> requiredObjects;
+	std::vector<std::pair<std::shared_ptr<CGObjectInstance>, ui32>> requiredObjects;
 
 	for(const auto & mineInfo : zone.getMinesInfo())
 	{
@@ -60,7 +60,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		{
 			auto mineHandler = LIBRARY->objtypeh->getHandlerFor(Obj::MINE, res);
 			const auto & rmginfo = mineHandler->getRMGInfo();
-			auto * mine = dynamic_cast<CGMine *>(mineHandler->create(map.mapInstance->cb, nullptr));
+			auto mine = std::dynamic_pointer_cast<CGMine>(mineHandler->create(map.mapInstance->cb, nullptr));
 			mine->producedResource = res;
 			mine->tempOwner = PlayerColor::NEUTRAL;
 			mine->producedQuantity = mine->defaultResProduction();
@@ -73,7 +73,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 				manager.addCloseObject(RequiredObjectInfo(mine, rmginfo.value));
 			}
 			else
-				requiredObjects.push_back(std::pair<CGObjectInstance*, ui32>(mine, rmginfo.value));
+				requiredObjects.emplace_back(mine, rmginfo.value);
 		}
 	}
 
@@ -87,15 +87,15 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	//create extra resources
 	if(int extraRes = generator.getConfig().mineExtraResources)
 	{
-		for(auto * mine : createdMines)
+		for(auto mine : createdMines)
 		{
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto * resource = dynamic_cast<CGResource *>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
+				auto resource = std::dynamic_pointer_cast<CGResource>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
 
 				RequiredObjectInfo roi;
 				roi.obj = resource;
-				roi.nearbyTarget = mine;
+				roi.nearbyTarget = mine.get();
 				manager.addNearbyObject(roi);
 			}
 		}

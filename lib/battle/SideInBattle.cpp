@@ -9,16 +9,23 @@
  */
 #include "StdInc.h"
 #include "SideInBattle.h"
-#include "../mapObjects/CArmedInstance.h"
+
+#include "../callback/IGameInfoCallback.h"
+#include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army)
 {
-	hero = Hero;
-	armyObject = Army;
+	armyObjectID = Army->id;
+	if (Hero)
+	{
+		heroID = Hero->id;
+		initialMana = Hero->mana;
+		additionalMana = Hero->valOfBonuses(BonusType::COMBAT_MANA_BONUS);
+	}
 
-	switch(armyObject->ID.toEnum())
+	switch(Army->ID.toEnum())
 	{
 		case Obj::CREATURE_GENERATOR1:
 		case Obj::CREATURE_GENERATOR2:
@@ -27,11 +34,25 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 			color = PlayerColor::NEUTRAL;
 			break;
 		default:
-			color = armyObject->getOwner();
+			color = Army->getOwner();
 	}
 
 	if(color == PlayerColor::UNFLAGGABLE)
 		color = PlayerColor::NEUTRAL;
+}
+
+const CArmedInstance * SideInBattle::getArmy() const
+{
+	if (armyObjectID.hasValue())
+		return dynamic_cast<const CArmedInstance*>(cb->getObjInstance(armyObjectID));
+	return nullptr;
+}
+
+const CGHeroInstance * SideInBattle::getHero() const
+{
+	if (heroID.hasValue())
+		return cb->getHero(heroID);
+	return nullptr;
 }
 
 VCMI_LIB_NAMESPACE_END
