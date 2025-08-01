@@ -29,7 +29,13 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
                 "frame1.png",
                 "frame2.png"
                     ...
-            ]
+            ],
+
+            // Automatically create shadow for this frame if required. Optional, 0 = None, 1 = Normal Shadow, 2 = Sheared Shadow (e.g. for adventure map)
+            "generateShadow" : 1,
+
+            // Automatically create overlay for this frame if required. Optional, 0 = None, 1 = Outline
+            "generateOverlay" : 1,
         },
         ...
     ],

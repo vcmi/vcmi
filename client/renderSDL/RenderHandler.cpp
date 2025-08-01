@@ -93,6 +93,10 @@ void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & c
 			JsonNode toAdd = frame;
 			JsonUtils::inherit(toAdd, base);
 			toAdd["file"].String() = basepath + frame.String();
+			if(group["generateShadow"].isNumber())
+				toAdd["generateShadow"].Integer() = group["generateShadow"].Integer();
+			if(group["generateOverlay"].isNumber())
+				toAdd["generateOverlay"].Integer() = group["generateOverlay"].Integer();
 			source[groupID].emplace_back(toAdd, mode);
 		}
 	}
