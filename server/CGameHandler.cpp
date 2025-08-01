@@ -1714,83 +1714,68 @@ bool CGameHandler::bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destA
 	if(!srcSlot.validSlot() && complain(complainInvalidSlot))
 		return false;
 
-	const auto * armySrc = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(srcArmy));
-	const CCreatureSet & setSrc = *armySrc;
+	if(!isAllowedExchange(srcArmy, destArmy))
+		COMPLAIN_RET("That heroes cannot make any exchange!");
 
-	if(!vstd::contains(setSrc.stacks, srcSlot) && complain(complainNoCreatures))
+	const auto * armySrc = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(srcArmy));
+	const auto * armyDest = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(destArmy));
+
+	if(!vstd::contains(armySrc->stacks, srcSlot) && complain(complainNoCreatures))
 		return false;
 
-	const auto * armyDest = dynamic_cast<const CArmedInstance*>(gameInfo().getObjInstance(destArmy));
-	const CCreatureSet & setDest = *armyDest;
-	auto freeSlots = setDest.getFreeSlotsQueue();
+	auto freeSlots = armyDest->getFreeSlots();
+	bool allTroopsMoved = true;
 
-	std::map<SlotID, std::pair<SlotID, TQuantity>> moves;
-
-	auto srcQueue = setSrc.getCreatureQueue(srcSlot); // Exclude srcSlot, it should be moved last
-	auto slotsLeft = setSrc.stacksCount();
-	auto destMap = setDest.getCreatureMap();
-	TMapCreatureSlot::key_compare keyComp = destMap.key_comp();
-
-	while(!srcQueue.empty())
-	{
-		auto pair = srcQueue.top();
-		srcQueue.pop();
-
-		const auto * currCreature = pair.first;
-		auto currSlot = pair.second;
-		const auto quantity = setSrc.getStackCount(currSlot);
-
-		const auto lb = destMap.lower_bound(currCreature);
-		const bool alreadyExists = (lb != destMap.end() && !(keyComp(currCreature, lb->first)));
-
-		if(!alreadyExists)
-		{
-			if(freeSlots.empty())
-				continue;
-
-			auto currFreeSlot = freeSlots.front();
-			freeSlots.pop();
-			destMap.insert(lb, TMapCreatureSlot::value_type(currCreature, currFreeSlot));
-		}
-		moves.insert(std::make_pair(currSlot, std::make_pair(destMap[currCreature], quantity)));
-		slotsLeft--;
-	}
-	if(slotsLeft == 1)
-	{
-		const auto * lastCreature = setSrc.getCreature(srcSlot);
-		auto slotToMove = SlotID();
-		// Try to find a slot for last creature
-		if(destMap.find(lastCreature) == destMap.end())
-		{
-			if(!freeSlots.empty())
-				slotToMove = freeSlots.front();
-		}
-		else
-		{
-			slotToMove = destMap[lastCreature];
-		}
-
-		if(slotToMove != SlotID())
-		{
-			const bool needsLastStack = armySrc->needsLastStack();
-			const auto quantity = setSrc.getStackCount(srcSlot) - (needsLastStack ? 1 : 0);
-
-			if(quantity > 0) //0 may happen when we need last creature and we have exactly 1 amount of that creature - amount of "rest we can transfer" becomes 0
-				moves.insert(std::make_pair(srcSlot, std::make_pair(slotToMove, quantity)));
-		}
-	}
 	BulkRebalanceStacks bulkRS;
 
-	for(const auto & move : moves)
+	for (const auto & slot : armySrc->Slots())
 	{
+		auto targetSlot = armyDest->getSlotFor(slot.second->getCreature());
+
+		if (armyDest->slotEmpty(targetSlot))
+		{
+			if (freeSlots.empty())
+			{
+				allTroopsMoved = false;
+				continue; // no more free slots, but we might still have units that are present in both armies
+			}
+
+			targetSlot = freeSlots.front();
+			freeSlots.erase(freeSlots.begin());
+		}
+
 		RebalanceStacks rs;
 		rs.srcArmy = armySrc->id;
 		rs.dstArmy = armyDest->id;
-		rs.srcSlot = move.first;
-		rs.dstSlot = move.second.first;
-		rs.count = move.second.second;
+		rs.srcSlot = slot.first;
+		rs.dstSlot = targetSlot;
+		rs.count = slot.second->getCount();
+
 		bulkRS.moves.push_back(rs);
 	}
+
+	// all troops were moved, but we can't leave source hero without troops - undo movement of 1 unit from srcSlot
+	if (allTroopsMoved)
+	{
+		if (armySrc->getStack(srcSlot).getCount() == 1)
+		{
+			// slot only had 1 unit - remove this move completely
+			vstd::erase_if(bulkRS.moves, [srcSlot](const RebalanceStacks & move)
+			{
+				return move.srcSlot == srcSlot;
+			});
+		}
+		else
+		{
+			// slot has multiple units - move all but one
+			for (auto & move : bulkRS.moves)
+			{
+				if (move.srcSlot == srcSlot)
+					move.count -= 1;
+			}
+		}
+	}
+
 	sendAndApply(bulkRS);
 	return true;
 }
