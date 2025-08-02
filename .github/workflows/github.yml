@@ -87,6 +87,7 @@ jobs:
             os: windows-latest
             test: 0
             pack: 0
+            upload: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
@@ -96,6 +97,7 @@ jobs:
             os: windows-11-arm
             test: 0
             pack: 0
+            upload: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
@@ -311,7 +313,7 @@ jobs:
         "${{ env.VCMI_PACKAGE_BUILD }}"
         "${{ matrix.arch }}"
         "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
-        "${{ env.VCMI_PACKAGE_FILE_NAME }}-${{ matrix.arch }}"
+        "${{ env.VCMI_PACKAGE_FILE_NAME }}"
         "${{ github.workspace }}\out\build\${{ matrix.preset }}\bin\RelWithDebInfo"
         "${{ github.workspace }}\ucrt"
       shell: cmd
@@ -390,7 +392,9 @@ jobs:
       if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
       continue-on-error: true
       run: |
-        if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
+        if [[ ${{startsWith(matrix.platform, 'msvc') }} ]] ; then
+          cd '${{github.workspace}}/CI/wininstaller/Output'
+        elif [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         fi
         source '${{github.workspace}}/CI/upload_package.sh'
