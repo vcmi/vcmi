@@ -24,16 +24,19 @@ jobs:
             test: 0
             before_install: linux_qt6.sh
             preset: linux-clang-test
+
           - platform: linux
             os: ubuntu-24.04
             test: 1
             before_install: linux_qt5.sh
             preset: linux-gcc-test
+
           - platform: linux
             os: ubuntu-22.04
             test: 0
             before_install: linux_qt5.sh
             preset: linux-gcc-debug
+
           - platform: mac-intel
             os: macos-13
             test: 0
@@ -47,6 +50,7 @@ jobs:
             conan_prebuilts: dependencies-mac-intel
             conan_options: --options with_apple_system_libs=True
             artifact_platform: intel
+
           - platform: mac-arm
             os: macos-13
             test: 0
@@ -60,6 +64,7 @@ jobs:
             conan_prebuilts: dependencies-mac-arm
             conan_options: --options with_apple_system_libs=True
             artifact_platform: arm
+
           - platform: ios
             os: macos-13
             test: 0
@@ -72,6 +77,7 @@ jobs:
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
             conan_options: --options with_apple_system_libs=True
+
           - platform: msvc-x64
             arch: x64
             os: windows-latest
@@ -82,6 +88,8 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release
+            artifact_platform: x64
+
           - platform: msvc-x86
             arch: x86
             os: windows-latest
@@ -92,6 +100,8 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release-x86
+            artifact_platform: x86
+
           - platform: msvc-arm64
             arch: arm64
             os: windows-11-arm
@@ -102,6 +112,8 @@ jobs:
             extension: exe
             before_install: msvc.sh
             preset: windows-msvc-release-arm64
+            artifact_platform: arm64
+
           - platform: mingw_x86_64
             os: ubuntu-24.04
             test: 0
@@ -113,6 +125,7 @@ jobs:
             preset: windows-mingw-conan-linux
             conan_profile: mingw64-linux.jinja
             conan_prebuilts: dependencies-mingw-x86-64
+
           - platform: mingw_x86
             os: ubuntu-24.04
             test: 0
@@ -124,6 +137,7 @@ jobs:
             preset: windows-mingw-conan-linux
             conan_profile: mingw32-linux.jinja
             conan_prebuilts: dependencies-mingw-x86
+
           - platform: android-32
             os: ubuntu-24.04
             upload: 1
@@ -133,6 +147,7 @@ jobs:
             conan_profile: android-32-ndk
             conan_prebuilts: dependencies-android-armeabi-v7a
             artifact_platform: armeabi-v7a
+
           - platform: android-64
             os: ubuntu-24.04
             upload: 1
@@ -142,6 +157,7 @@ jobs:
             conan_profile: android-64-ndk
             conan_prebuilts: dependencies-android-arm64-v8a
             artifact_platform: arm64-v8a
+
     runs-on: ${{ matrix.os }}
     defaults:
       run:
