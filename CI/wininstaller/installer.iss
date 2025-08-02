@@ -172,6 +172,7 @@ var
   InstallModePage: TInputOptionWizardPage;
   FooterLabel: TLabel;
   IsUpgrade: Boolean;
+  IsPR: Boolean;
   Heroes3Path: String;
   GlobalUserName: String;
   GlobalUserDocsFolder: String;
@@ -517,7 +518,20 @@ end;
 
 
 procedure InitializeWizard();
+var
+  i: Integer;
 begin
+
+  // Detect if installer name contains "-PR-"
+  IsPR := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
+ 
+  if IsPR then
+  begin
+    // Uncheck all tasks manually for PR builds
+    for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+      WizardForm.TasksList.Checked[i] := False;
+  end;
+
   // Check if the application is already installed
   if not IsUpgrade then
   begin
@@ -578,7 +592,14 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False; // Default is not to skip the page
-  
+
+  // Skip Tasks page if this is a PR build
+  if IsPR and (PageID = wpSelectTasks) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
   if IsUpgrade then
   begin
     if (PageID = wpLicense) or (PageID = wpSelectTasks) or (PageID = wpReady) then
@@ -863,3 +884,4 @@ begin
       Abort;
   end;
 end;
+
