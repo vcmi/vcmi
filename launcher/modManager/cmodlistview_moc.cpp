@@ -1083,11 +1083,11 @@ void CModListView::installMods(QStringList archives)
 
 void CModListView::installMaps(QStringList maps)
 {
-	const auto destDir = CLauncherDirs::mapsPath() + QChar{ '/' };
+	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
 	int successCount = 0;
 	QStringList failedMaps;
 
-	// Pre-scan all maps and ZIPs to detect total number of conflicts
+	// Pre-scan maps to count total conflicts (used for Yes to All/No to All)
 	int conflictCount = 0;
 	for (const QString& map : maps)
 	{
@@ -1100,8 +1100,7 @@ void CModListView::installMaps(QStringList maps)
 				if (name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) ||
 					name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive))
 				{
-					QString destFile = destDir + name;
-					if (QFile::exists(destFile))
+					if (QFile::exists(destDir + name))
 						conflictCount++;
 				}
 			}
@@ -1109,8 +1108,7 @@ void CModListView::installMaps(QStringList maps)
 		else
 		{
 			QString fileName = map.section('/', -1, -1);
-			QString destFile = destDir + fileName;
-			if (QFile::exists(destFile))
+			if (QFile::exists(destDir + fileName))
 				conflictCount++;
 		}
 	}
@@ -1118,75 +1116,66 @@ void CModListView::installMaps(QStringList maps)
 	bool applyToAll = false;
 	bool overwriteAll = false;
 
-	for (QString map : maps)
+	auto askOverwrite = [&](const QString& name) -> bool {
+		if (applyToAll)
+			return overwriteAll;
+
+		QMessageBox msgBox(this);
+		msgBox.setIcon(QMessageBox::Question);
+		msgBox.setWindowTitle(tr("Map exists"));
+		msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(name));
+
+		QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
+		msgBox.addButton(QMessageBox::No);
+
+		QPushButton* yesAll = nullptr;
+		QPushButton* noAll = nullptr;
+		if (conflictCount > 1)
+		{
+			yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
+			noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
+		}
+
+		msgBox.exec();
+		QAbstractButton* clicked = msgBox.clickedButton();
+
+		if (clicked == yes)
+			return true;
+		if (clicked == yesAll)
+		{
+			applyToAll = true;
+			overwriteAll = true;
+			return true;
+		}
+		if (clicked == noAll)
+		{
+			applyToAll = true;
+			overwriteAll = false;
+			return false;
+		}
+		return false;
+	};
+
+	// Process each map file and archive
+	for (const QString& map : maps)
 	{
-		// Handle ZIP archive
 		if (map.endsWith(".zip", Qt::CaseInsensitive))
 		{
-			logGlobal->info("Importing map archive '%s'", map.toStdString());
+			// ZIP archive
 			ZipArchive archive(qstringToPath(map));
-			auto fileList = archive.listFiles();
-
-			for (const auto& file : fileList)
+			for (const auto& file : archive.listFiles())
 			{
 				QString name = QString::fromStdString(file);
-
 				if (!(name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) ||
 					name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive)))
 					continue;
 
 				QString destFile = destDir + name;
+				logGlobal->info("Importing map '%s' from ZIP '%s'", name.toStdString(), map.toStdString());
 
-				// Ask user if file exists
 				if (QFile::exists(destFile))
 				{
-					bool overwrite = false;
-
-					if (!applyToAll)
-					{
-						QMessageBox msgBox(this);
-						msgBox.setIcon(QMessageBox::Question);
-						msgBox.setWindowTitle(tr("Map exists"));
-						msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(name));
-
-						QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
-						msgBox.addButton(QMessageBox::No); // no variable needed
-
-						QPushButton* yesAll = nullptr;
-						QPushButton* noAll = nullptr;
-
-						if (conflictCount > 1)
-						{
-							yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
-							noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
-						}
-
-						msgBox.exec();
-						QAbstractButton* clicked = msgBox.clickedButton();
-
-						if (clicked == yes)
-							overwrite = true;
-						else if (clicked == yesAll)
-						{
-							applyToAll = true;
-							overwriteAll = true;
-							overwrite = true;
-						}
-						else if (clicked == noAll)
-						{
-							applyToAll = true;
-							overwriteAll = false;
-							overwrite = false;
-						}
-						else
-							overwrite = false;
-					}
-					else
-					{
-						overwrite = overwriteAll;
-					}
-
-					if (!overwrite)
+					if (!askOverwrite(name))
 					{
 						logGlobal->info("Skipped map '%s'", name.toStdString());
 						continue;
@@ -1195,97 +1184,46 @@ void CModListView::installMaps(QStringList maps)
 				}
 
 				if (archive.extract(qstringToPath(destDir), file))
-				{
 					successCount++;
-				}
 				else
 				{
 					logGlobal->warn("Failed to extract map '%s'", name.toStdString());
 					failedMaps.push_back(name);
 				}
 			}
-
-			continue; // next map in list
-		}
-
-		// Handle single map file
-		QString fileName = map.section('/', -1, -1);
-		QString destFile = destDir + fileName;
-		logGlobal->info("Importing map '%s'", map.toStdString());
-
-		if (QFile::exists(destFile))
-		{
-			bool overwrite = false;
-
-			if (!applyToAll)
-			{
-				QMessageBox msgBox(this);
-				msgBox.setIcon(QMessageBox::Question);
-				msgBox.setWindowTitle(tr("Map exists"));
-				msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(fileName));
-
-				QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
-				msgBox.addButton(QMessageBox::No); // no variable needed
-
-				QPushButton* yesAll = nullptr;
-				QPushButton* noAll = nullptr;
-
-				if (conflictCount > 1)
-				{
-					yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
-					noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
-				}
-
-				msgBox.exec();
-				QAbstractButton* clicked = msgBox.clickedButton();
-
-				if (clicked == yes)
-					overwrite = true;
-				else if (clicked == yesAll)
-				{
-					applyToAll = true;
-					overwriteAll = true;
-					overwrite = true;
-				}
-				else if (clicked == noAll)
-				{
-					applyToAll = true;
-					overwriteAll = false;
-					overwrite = false;
-				}
-				else
-					overwrite = false;
-			}
-			else
-			{
-				overwrite = overwriteAll;
-			}
-
-			if (!overwrite)
-			{
-				logGlobal->info("Skipped map '%s'", fileName.toStdString());
-				continue;
-			}
-
-			QFile::remove(destFile);
-		}
-
-		if (QFile::copy(map, destFile))
-		{
-			successCount++;
 		}
 		else
 		{
-			logGlobal->warn("Failed to copy map '%s' to '%s'", map.toStdString(), destFile.toStdString());
-			failedMaps.push_back(map);
+			// Single map file
+			QString fileName = map.section('/', -1, -1);
+			QString destFile = destDir + fileName;
+			logGlobal->info("Importing map '%s'", map.toStdString());
+
+			if (QFile::exists(destFile))
+			{
+				if (!askOverwrite(fileName))
+				{
+					logGlobal->info("Skipped map '%s'", fileName.toStdString());
+					continue;
+				}
+				QFile::remove(destFile);
+			}
+
+			if (QFile::copy(map, destFile))
+				successCount++;
+			else
+			{
+				logGlobal->warn("Failed to copy map '%s'", fileName.toStdString());
+				failedMaps.push_back(fileName);
+			}
 		}
 	}
 
 	if (successCount > 0)
-		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount), QMessageBox::Ok, QMessageBox::Ok);
+		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount));
 
 	if (!failedMaps.isEmpty())
-		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")), QMessageBox::Ok, QMessageBox::Ok);
+		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")));
 }
 
 void CModListView::on_refreshButton_clicked()
