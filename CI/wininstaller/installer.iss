@@ -123,14 +123,13 @@ Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI
 
 
 [Tasks]
-Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
-Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
-Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:SystemIntegration}"; Flags: unchecked
-Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"
+Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
+Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
+Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:SystemIntegration}"; Flags: unchecked; Check: not IsPRInstaller
+Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
 
-Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: IsAdminInstallMode
-Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: IsHeroes3Installed and IsCopyFilesNeeded
-
+Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: not IsPRInstaller and IsAdminInstallMode
+Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: not IsPRInstaller and IsHeroes3Installed and IsCopyFilesNeeded
 
 [Registry]
 Root: HKCU; Subkey: "Software\{#VCMIFolder}"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
@@ -172,7 +171,6 @@ var
   InstallModePage: TInputOptionWizardPage;
   FooterLabel: TLabel;
   IsUpgrade: Boolean;
-  IsPR: Boolean;
   Heroes3Path: String;
   GlobalUserName: String;
   GlobalUserDocsFolder: String;
@@ -465,6 +463,14 @@ begin
 end;
 
 
+function IsPRInstaller(): Boolean;
+begin
+  // Check if is PR build
+  Result := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
+
+end;
+
+
 function InitializeSetup(): Boolean;
 var
   InstallPath: String;
@@ -519,10 +525,6 @@ end;
 
 procedure InitializeWizard();
 begin
-
-  // Detect if installer name contains "-PR-"
-  IsPR := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
-
   // Check if the application is already installed
   if not IsUpgrade then
   begin
@@ -585,7 +587,7 @@ begin
   Result := False; // Default is not to skip the page
 
   // Skip Tasks page if this is a PR build
-  if IsPR and (PageID = wpSelectTasks) then
+  if IsPRInstaller and (PageID = wpSelectTasks) then
   begin
     Result := True;
     Exit;
@@ -608,14 +610,6 @@ var
 begin
   // Ensure the footer message is visible on every page
   FooterLabel.Visible := True;
-
-  if IsPR then
-  begin
-    // Uncheck all tasks manually for PR builds
-    for i := 0 to WizardForm.TasksList.Items.Count - 1 do
-      WizardForm.TasksList.Checked[i] := False;
-  end;
-
 end;
 
 
@@ -884,5 +878,6 @@ begin
       Abort;
   end;
 end;
+
 
 
