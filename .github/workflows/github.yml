@@ -408,7 +408,7 @@ jobs:
       if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
       continue-on-error: true
       run: |
-        if [[ ${{startsWith(matrix.platform, 'msvc') }} ]] ; then
+        if ${{startsWith(matrix.platform, 'msvc') }}; then
           cd '${{github.workspace}}/CI/wininstaller/Output'
         elif [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
