@@ -77,8 +77,7 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		int height = ui->heightTxt->text().toInt();
 		mapGenOptions.setWidth(width ? width : 1);
 		mapGenOptions.setHeight(height ? height : 1);
-		bool twoLevel = ui->twoLevelCheck->isChecked();
-		mapGenOptions.setLevels(twoLevel ? 2 : 1);  // TODO: multilevel support
+		mapGenOptions.setLevels(ui->spinBoxLevels->value());
 
 		updateTemplateList();
 	}
@@ -123,7 +122,7 @@ bool WindowNewMap::loadUserSettings()
 			}
 		}
 
-		ui->twoLevelCheck->setChecked(mapGenOptions.getLevels() == 2); // TODO: multilevel support
+		ui->spinBoxLevels->setValue(mapGenOptions.getLevels());
 
 		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
 		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
@@ -328,10 +327,12 @@ void WindowNewMap::on_sizeCombo_activated(int index)
 }
 
 
-void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
+void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	bool twoLevel = ui->twoLevelCheck->isChecked();
-	mapGenOptions.setLevels(twoLevel ? 2 : 1); // TODO: multilevel support
+	if(value > 2)
+		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+
+	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
 }
 

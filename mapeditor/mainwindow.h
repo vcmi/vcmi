@@ -5,6 +5,7 @@
 #include <QStandardItemModel>
 #include <QTranslator>
 #include <QTableWidgetItem>
+#include <QComboBox>
 #include "mapcontroller.h"
 #include "resourceExtractor/ResourceConverter.h"
 
@@ -83,8 +84,6 @@ private slots:
 	void on_actionTemplateEditor_triggered();
 
 	void on_actionNew_triggered();
-
-	void on_actionLevel_triggered();
 
 	void on_actionSave_triggered();
 
@@ -196,6 +195,8 @@ private:
 	ObjectBrowserProxyModel * objectBrowser = nullptr;
 	QGraphicsScene * scenePreview;
 	MapSettings * mapSettings = nullptr;
+
+	QList<QComboBox*> levelComboBoxes;
 	
 	QString filename;
 	QString lastSavingDir;
