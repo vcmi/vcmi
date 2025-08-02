@@ -1150,11 +1150,11 @@ void CModListView::installMaps(QStringList maps)
 						msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(name));
 
 						QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
-						QPushButton* no = msgBox.addButton(QMessageBox::No);
+						msgBox.addButton(QMessageBox::No); // no variable needed
+
 						QPushButton* yesAll = nullptr;
 						QPushButton* noAll = nullptr;
 
-						// Only show Yes to All / No to All if we have more than one conflict in total
 						if (conflictCount > 1)
 						{
 							yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
@@ -1225,11 +1225,11 @@ void CModListView::installMaps(QStringList maps)
 				msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(fileName));
 
 				QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
-				QPushButton* no = msgBox.addButton(QMessageBox::No);
+				msgBox.addButton(QMessageBox::No); // no variable needed
+
 				QPushButton* yesAll = nullptr;
 				QPushButton* noAll = nullptr;
 
-				// Only show Yes to All / No to All if we have more than one conflict in total
 				if (conflictCount > 1)
 				{
 					yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
@@ -1281,11 +1281,9 @@ void CModListView::installMaps(QStringList maps)
 		}
 	}
 
-	// Show success message
 	if (successCount > 0)
 		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount), QMessageBox::Ok, QMessageBox::Ok);
 
-	// Show error message
 	if (!failedMaps.isEmpty())
 		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")), QMessageBox::Ok, QMessageBox::Ok);
 }
