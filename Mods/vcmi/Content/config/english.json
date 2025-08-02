@@ -765,6 +765,7 @@
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "By class",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Sort by class}\n\nSort artifacts in backpack by artifact class. Treasure, Minor, Major, Relic",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "You possess all of the components needed for the fusion of the %s. Do you wish to perform the fusion? {All components will be consumed upon fusion.}",
+	"vcmi.heroWindow.lockedartifact.hover" : "Occupied by %s",
 
 	"vcmi.tavernWindow.inviteHero"  : "Invite hero",
 
