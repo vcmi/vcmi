@@ -116,8 +116,9 @@ void MapView::onMapLevelSwitched()
 {
 	if(GAME->interface()->cb->getMapSize().z > 1)
 	{
-		if(model->getLevel() == 0)
-			controller->setViewCenter(model->getMapViewCenter(), 1);
+		int newLevel = model->getLevel() + 1;
+		if(newLevel < GAME->interface()->cb->getMapSize().z)
+			controller->setViewCenter(model->getMapViewCenter(), newLevel);
 		else
 			controller->setViewCenter(model->getMapViewCenter(), 0);
 	}
