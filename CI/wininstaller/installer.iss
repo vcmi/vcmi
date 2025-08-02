@@ -465,7 +465,7 @@ end;
 
 function IsPRInstaller(): Boolean;
 begin
-  // Check if is PR build
+  // Skip Tasks page if this is a PR build
   Result := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
 
 end;
@@ -605,8 +605,6 @@ end;
 
 
 procedure CurPageChanged(CurPageID: Integer);
-var
-  i: Integer;
 begin
   // Ensure the footer message is visible on every page
   FooterLabel.Visible := True;
@@ -878,6 +876,3 @@ begin
       Abort;
   end;
 end;
-
-
-
