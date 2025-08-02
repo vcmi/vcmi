@@ -87,6 +87,7 @@ jobs:
             os: windows-latest
             test: 0
             pack: 0
+            upload: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
@@ -96,6 +97,7 @@ jobs:
             os: windows-11-arm
             test: 0
             pack: 0
+            upload: 1
             pack_type: RelWithDebInfo
             extension: exe
             before_install: msvc.sh
