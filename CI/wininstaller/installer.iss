@@ -329,7 +329,7 @@ begin
       // For 32-bit installer on ARM64, return the 32-bit Program Files directory
       Result := ExpandConstant('{commonpf32}')
     else
-			// For AMR64 installer, return the Program Files directory
+      // For AMR64 installer, return the Program Files directory
       Result := ExpandConstant('{commonpf}')
   end
   else if IsWin64 then
@@ -518,19 +518,10 @@ end;
 
 
 procedure InitializeWizard();
-var
-  i: Integer;
 begin
 
   // Detect if installer name contains "-PR-"
   IsPR := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
- 
-  if IsPR then
-  begin
-    // Uncheck all tasks manually for PR builds
-    for i := 0 to WizardForm.TasksList.Items.Count - 1 do
-      WizardForm.TasksList.Checked[i] := False;
-  end;
 
   // Check if the application is already installed
   if not IsUpgrade then
@@ -612,10 +603,19 @@ end;
 
 
 procedure CurPageChanged(CurPageID: Integer);
+var
+  i: Integer;
 begin
   // Ensure the footer message is visible on every page
   FooterLabel.Visible := True;
-  
+
+  if IsPR then
+  begin
+    // Uncheck all tasks manually for PR builds
+    for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+      WizardForm.TasksList.Checked[i] := False;
+  end;
+
 end;
 
 
@@ -884,4 +884,5 @@ begin
       Abort;
   end;
 end;
+
 
