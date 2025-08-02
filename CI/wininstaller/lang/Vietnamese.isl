@@ -64,14 +64,14 @@ SetupAppRunningError=Cài đặt phát hiện %1 đang chạy.%n%nHãy đóng t�
 UninstallAppRunningError=Gỡ cài đặt phát hiện %1 đang chạy.%n%nHãy đóng tất cả các tiến trình của nó ngay, rồi click OK để tiếp tục, hoặc Hủy để thoát.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Select Setup Install Mode
-PrivilegesRequiredOverrideInstruction=Select install mode
-PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideAllUsers=Install for &all users
-PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
-PrivilegesRequiredOverrideCurrentUser=Install for &me only
-PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
+PrivilegesRequiredOverrideTitle=Setup Mode – Permissions
+PrivilegesRequiredOverrideInstruction=Choose how to run the installer
+PrivilegesRequiredOverrideText1=%1 requires administrative privileges to install for all users.%nYou can also install it only for your account without administrative privileges.
+PrivilegesRequiredOverrideText2=%1 can be installed only for your account (without administrative privileges) or for all users (requires administrative privileges).
+PrivilegesRequiredOverrideAllUsers=Run as &Administrator (install for all users)
+PrivilegesRequiredOverrideAllUsersRecommended=Run as &Administrator (recommended)
+PrivilegesRequiredOverrideCurrentUser=Run as &Standard User (install for me only)
+PrivilegesRequiredOverrideCurrentUserRecommended=Run as &Standard User (recommended)
 
 ; *** Misc. errors
 ErrorCreatingDir=Cài đặt không thể tạo ra thư mục "%1"

@@ -18,10 +18,12 @@
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
 
-; #define AppVersion "1.6.2"
+; #define AppVersion "1.7.0"
 ; #define AppBuild "1122334455A"
 ; #define InstallerArch "x64"
-; 
+; #define AllowedArch "x64compatible"
+; #define VCMIFolder "VCMI"
+; #define InstallerName "VCMI-Windows"
 ; #define SourceFilesPath "C:\_VCMI_source\bin\Release"
 ; #define UCRTFilesPath "C:\Program Files (x86)\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
 ; #define LangPath "C:\_VCMI_Source\CI\wininstaller\lang"
@@ -30,10 +32,7 @@
 ; #define SmallLogo "C:\_VCMI_Source\CI\wininstaller\vcmismalllogo.bmp"
 ; #define WizardLogo "C:\_VCMI_Source\CI\wininstaller\vcmilogo.bmp"
 
-#define VCMIFolder "VCMI"
-
 #define VCMIFilesFolder "My Games\vcmi"
-#define InstallerName "VCMI_Installer"
 
 #define AppComment "VCMI is an open-source engine for Heroes III, offering new and extended possibilities."
 #define VCMITeam "VCMI Team"
@@ -55,7 +54,7 @@ AppComments={#AppComment}
 DefaultDirName={code:GetDefaultDir}
 DefaultGroupName={#VCMIFolder}
 UninstallDisplayIcon={app}\VCMI_launcher.exe
-OutputBaseFilename={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
+OutputBaseFilename={#InstallerName}
 PrivilegesRequiredOverridesAllowed=commandline dialog
 ShowLanguageDialog=yes
 DisableWelcomePage=no
@@ -70,9 +69,10 @@ DisableStartupPrompt=yes
 UsedUserAreasWarning=no
 WindowResizable=no
 CloseApplicationsFilter=*.exe
+CloseApplications=force
 Compression=lzma2/ultra64
 SolidCompression=yes
-ArchitecturesAllowed={#InstallerArch}compatible
+ArchitecturesAllowed={#AllowedArch}
 LicenseFile={#LicenseFile}
 SetupIconFile={#IconFile}
 WizardSmallImageFile={#SmallLogo}
@@ -84,7 +84,7 @@ VersionInfoCompany={#VCMITeam}
 VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
 VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
-VersionInfoVersion={#AppVersion} 
+VersionInfoVersion={#AppVersion}
 VersionInfoOriginalFileName={#InstallerName}.exe
 
 
@@ -109,7 +109,7 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 
 [Files]
-Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.lib,*.exp,*.ilk,*.obj,*.tlog,*.log,*.pch,*.idb,*.res,*.tmp,*.bak,*.sdf,*.ipch,*.vc.db,*.iobj,*.ipdb"; BeforeInstall: RunPreInstallTasks
 Source: "{#UCRTFilesPath}\{#InstallerArch}\*"; DestDir: "{app}"; Flags: ignoreversion; Check: IsUCRTNeeded
 
 
@@ -152,7 +152,7 @@ Root: HKCU; Subkey: "Software\Classes\VCMI.h3m\shell\open\command"; ValueType: s
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_server dir=in action=allow program=""{app}\vcmi_server.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_client dir=in action=allow program=""{app}\vcmi_client.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 
-Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall; Check: ShouldRunLauncher
 
 
 [UninstallRun]
@@ -186,6 +186,18 @@ begin
     Exit
   else
     Result := '';
+end;
+
+
+function ShouldRunLauncher(): Boolean;
+begin
+  Result := True;
+
+  if Pos('SILENT', UpperCase(GetCmdTail())) > 0 then
+    Result := False;
+
+  if Pos('LAUNCH', UpperCase(GetCmdTail())) > 0 then
+    Result := True;
 end;
 
 
@@ -310,8 +322,16 @@ end;
 
 function GetCommonProgramFilesDir: String;
 begin
-  // Check if the installer is running on a 64-bit system
-  if IsWin64 then
+  if IsARM64 then
+  begin
+    if ExpandConstant('{#InstallerArch}') = 'x86' then
+      // For 32-bit installer on ARM64, return the 32-bit Program Files directory
+      Result := ExpandConstant('{commonpf32}')
+    else
+			// For AMR64 installer, return the Program Files directory
+      Result := ExpandConstant('{commonpf}')
+  end
+  else if IsWin64 then
   begin
     if ExpandConstant('{#InstallerArch}') = 'x64' then
       // For 64-bit installer, return the 64-bit Program Files directory
@@ -606,6 +626,25 @@ begin
 end;
 
 
+procedure RemoveLegacyInstaller();
+var
+  AppFolder: String;
+  ResultCode: Integer;
+begin
+  AppFolder := ExpandConstant('{app}');
+
+  // Silently remove old NSIS installation
+  if FileExists(AppFolder + '\Uninstall.exe') then
+  begin
+    Exec(AppFolder + '\Uninstall.exe', '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    // Attempt to remove leftovers from target folder to ensure clean install
+    if DirExists(AppFolder) then
+      DelTree(AppFolder, True, True, False);
+  end;
+end;
+
+
 procedure PerformHeroes3FileCopy();
 var
   i: Integer;
@@ -636,6 +675,15 @@ begin
       Exit; // Task found, exit the loop
     end;
   end;
+end;
+
+
+procedure RunPreInstallTasks();
+begin
+  // Remove Legacy installer when needed
+  RemoveLegacyInstaller();
+  // Copy H3 files when needed
+  PerformHeroes3FileCopy();
 end;
 
 
