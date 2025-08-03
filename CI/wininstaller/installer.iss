@@ -638,6 +638,13 @@ function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False; // Default is not to skip the page
 
+  // Don't skip Target page if this is a PR build and upgrade
+  if IsPRInstaller and IsUpgrade and (PageID = wpSelectDir) then
+  begin
+    Result := False;
+    Exit;
+  end;
+
   // Skip Tasks page if this is a PR build
   if IsPRInstaller and (PageID = wpSelectTasks) then
   begin
@@ -652,14 +659,6 @@ begin
       Result := True; // Skip these pages during upgrade
       Exit;
     end;
-
-		// Don't Skip Target page if this is a PR build and upgrade
-		if IsPRInstaller and (PageID = wpSelectDir) then
-		begin
-			Result := False;
-			Exit;
-		end;
-
   end;
 end;
 
@@ -751,12 +750,42 @@ begin
 end;
 
 
+procedure CreateDefaultSettingsFile();
+var
+  ConfigDir, SettingsFile, Language, JSONContent: String;
+begin
+  ConfigDir := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}' + '\config';
+  SettingsFile := ConfigDir + '\settings.json';
+
+  if not FileExists(SettingsFile) then
+  begin
+    Language := ActiveLanguage;
+    if Language = '' then
+      Language := 'english';
+
+    JSONContent :=
+      '{' + #13#10 +
+      '    "general" : {' + #13#10 +
+      '        "language" : "' + Language + '"' + #13#10 +
+      '    }' + #13#10 +
+      '}';
+
+    if not DirExists(ConfigDir) then
+      ForceDirectories(ConfigDir);
+
+    SaveStringToFile(SettingsFile, JSONContent, False);
+  end;
+end;
+
+
 procedure RunPreInstallTasks();
 begin
   // Remove Legacy installer when needed
   RemoveLegacyInstaller();
   // Copy H3 files when needed
   PerformHeroes3FileCopy();
+  // Create default language JSON
+  CreateDefaultSettingsFile();
 end;
 
 
@@ -936,5 +965,6 @@ begin
       Abort;
   end;
 end;
+
 
 
