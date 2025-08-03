@@ -600,6 +600,14 @@ begin
       Result := True; // Skip these pages during upgrade
       Exit;
     end;
+
+		// Don't Skip Target page if this is a PR build and upgrade
+		if IsPRInstaller and (PageID = wpSelectDir) then
+		begin
+			Result := False;
+			Exit;
+		end;
+
   end;
 end;
 
@@ -876,3 +884,4 @@ begin
       Abort;
   end;
 end;
+
