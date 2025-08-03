@@ -1,19 +1,71 @@
-; VCMI Installer Script Instructions
-
-; Steps to Add a New Translation to the Installer:
-
-; 1. Download the ISL file for your language from the Inno Setup repository:
-;    https://github.com/jrsoftware/issrc/tree/main/Files/Languages
-; 
-; 2. Add the required VCMI custom messages to the downloaded ISL file.
-;    - Refer to the English.isl file for examples of the necessary custom messages.
-;    - Ensure all custom messages, including WindowsVersionNotSupported, are properly translated and aligned with the English version.
-; 3. Update the ConfirmUninstall message:
-;    - Custom Uninstall Wizard is used, ensure the ConfirmUninstall message is consistent with the English version and accurately reflects the intended functionality.
-; 4. Update the WindowsVersionNotSupported message:
-;    - Ensure the WindowsVersionNotSupported message is consistent with the English version and accurately reflects the intended functionality.
-; 5. Add the new language entry to the [Languages] section of the script:
-;    - Use the correct syntax to include the language and its corresponding ISL file in the installer configuration.
+; ============================================================================
+; VCMI Installer – Adding a New Translation
+; ============================================================================
+;
+; 1. Download the base ISL file for your language:
+;    - Get the appropriate .isl file from the official Inno Setup repository:
+;      https://github.com/jrsoftware/issrc/tree/main/Files/Languages
+;
+; 2. Add VCMI custom messages:
+;    - Open the downloaded .isl file and insert all VCMI-specific messages.
+;    - Use English.isl (VCMI version) as a reference.
+;    - Ensure translations keep placeholders (%1, %2, etc.) intact and match
+;      the format of the English version exactly.
+;
+; 3. Update/translate the following modified messages:
+;    These differ from the default Inno Setup language files and are required
+;    for VCMI's custom installer functionality.
+;
+;    ------------------------------------------------------------------------
+;    WindowsVersionNotSupported
+;    ------------------------------------------------------------------------
+;    Why: VCMI adds a more descriptive message for unsupported Windows versions.
+;    Original:
+;      WindowsVersionNotSupported=This program does not support the version of Windows your computer is running.
+;    VCMI version:
+;      WindowsVersionNotSupported=This program cannot run on your version of Windows. Please ensure you are using the correct Windows version.
+;
+;    ------------------------------------------------------------------------
+;    PrivilegesRequiredOverride* messages
+;    ------------------------------------------------------------------------
+;    Why: VCMI customizes privilege escalation messages to clarify installation
+;         for all users vs. current user and highlight administrative rights.
+;    Messages to add/update:
+;      PrivilegesRequiredOverrideTitle
+;      PrivilegesRequiredOverrideInstruction
+;      PrivilegesRequiredOverrideText1
+;      PrivilegesRequiredOverrideText2
+;      PrivilegesRequiredOverrideAllUsers
+;      PrivilegesRequiredOverrideAllUsersRecommended
+;      PrivilegesRequiredOverrideCurrentUser
+;      PrivilegesRequiredOverrideCurrentUserRecommended
+;
+;    Example (VCMI English):
+;      PrivilegesRequiredOverrideTitle=Administrator Privileges Required
+;      PrivilegesRequiredOverrideInstruction=Choose how to run the installer
+;      PrivilegesRequiredOverrideText1=%1 requires administrative rights to install for all users. You can also install just for your account (no administrative rights required) or for all users (administrator rights required).
+;      PrivilegesRequiredOverrideText2=%1 can be installed only for your account (no administrative rights required) or for all users (administrator rights required).
+;      PrivilegesRequiredOverrideAllUsers=Run as &Administrator (install for all users)
+;      PrivilegesRequiredOverrideAllUsersRecommended=Run as &Administrator (recommended)
+;      PrivilegesRequiredOverrideCurrentUser=Run as &Standard User (install for me only)
+;      PrivilegesRequiredOverrideCurrentUserRecommended=Run as &Standard User (recommended)
+;
+;    ------------------------------------------------------------------------
+;    ConfirmUninstall
+;    ------------------------------------------------------------------------
+;    Why: VCMI uses a custom uninstall wizard. The message must reflect this.
+;    Original:
+;      ConfirmUninstall=Are you sure you want to completely remove %1 and all of its components?
+;    VCMI version:
+;      ConfirmUninstall=Are you sure you want to run the %1 uninstall wizard?
+;
+; 4. Add the new language to the installer:
+;    - In the [Languages] section of the script, register your translation:
+;      Name: "YourLanguage"; MessagesFile: "{#LangPath}\YourLanguage.isl"
+;
+; 5. Verify consistency:
+;    - Check all custom messages against the English VCMI ISL file.
+;    - Test the installer to confirm all messages appear correctly.
 
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
@@ -884,4 +936,5 @@ begin
       Abort;
   end;
 end;
+
 
