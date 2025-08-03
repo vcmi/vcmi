@@ -82,10 +82,10 @@ jobs:
             arch: x64
             os: windows-latest
             test: 0
-            pack: 0
+            pack: 1
             upload: 1
             pack_type: RelWithDebInfo
-            extension: exe
+            extension: zip
             before_install: msvc.sh
             preset: windows-msvc-release
             artifact_platform: x64
@@ -94,10 +94,10 @@ jobs:
             arch: x86
             os: windows-latest
             test: 0
-            pack: 0
+            pack: 1
             upload: 1
             pack_type: RelWithDebInfo
-            extension: exe
+            extension: zip
             before_install: msvc.sh
             preset: windows-msvc-release-x86
             artifact_platform: x86
@@ -106,10 +106,10 @@ jobs:
             arch: arm64
             os: windows-11-arm
             test: 0
-            pack: 0
+            pack: 1
             upload: 1
             pack_type: RelWithDebInfo
-            extension: exe
+            extension: zip
             before_install: msvc.sh
             preset: windows-msvc-release-arm64
             artifact_platform: arm64
@@ -338,7 +338,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
         path: |
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
