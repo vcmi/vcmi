@@ -4,11 +4,14 @@
 
 ### General
 
+* Windows ARM platform is now officially supported
 * Added support for loading h3m maps and campaigns from HotA 1.7 (also needs support from HotA mod)
 * It is now possible to change default directory paths used by VCMI on Windows
 * Added option for VCMI to honor mute switch on iOS
 * Added alternative versions of cheats from RoE and AB editions
 * Implemented nwcphisherprice and a new grayscale cheat
+* Cheat parameters (e.g. creature, artifact and skill identifiers) are now case-insensitive
+* Implemented network lag compensation system for some actions like hero movement and troops rearrangement
 
 ### Stability
 
@@ -19,9 +22,11 @@
 * Fixed small memory leak on playing a video file
 * Fixed large number of small memory leaks when restating map or returning to main menu
 * Fixed crash on attempting to access map located in .zip archive
+* Fixed rare freeze on starting combat with opening spells present, such as from Armor of the Damned
 
 ### Interface
 
+* It is now possible to view and configure keybinding in game
 * Implemented unit action panel in combat for easy selection of unit's alternative actions
 * It is now possible to permanently open creature window of any unit using "show info" button from unit action panel
 * Fixed not functioning keybindings when non-lating keyboard layout is in use
@@ -48,6 +53,16 @@
 * Equipping or unequipping artifacts that affect unit growth will now instantly update town interface with new growth values
 * Implemented "Show Path" setting option from H3
 * Fixed hero path not updating instantly after using infinite movement cheat
+* Game will no longer show chat button in campaign selection screen
+* Added missing tooltips for campaign set buttons (RoE/AB/SoD/etc)
+* Battle window now uses thin border and require less screen space. Quick actions side panels are now active on all 900px-wide resolutions
+* Fixed corrupted background for Armaggeddon's Blade campaign selection screen
+* Swapping two armies on hero exchange window will now maintain unit ordering
+* "Show FPS" option has been replaced with "Show Performance Overlay" option that also displays time and remaining battery level, if any
+* It is now possible to search for any objects on map, including individual heroes or wandering monsters
+* Right-click on previously visited University will now show skills available in it
+* Fixed quick recruitment dialog failing if there are no free slots in army
+* Fixed army transfer during hero exchange sometimes not transferring all possible units
 
 ### Mechanics
 
@@ -89,6 +104,18 @@
 * Multi-creature dwellings like Elemental Conflux now correctly provide town growth bonus for every available creature
 * Changed formula of town arrow towers to be more in line with H3
 * During simultaneous turns, it is no longer possible to interact (for example, start battle) with player that is already engaged into a different combat
+* Fixed events that are available for all players not activating on maps in .vmap format
+* Garrisoned hero will no longer receive bonuses from town buildings that give bonuses during siege, and will only receive them for the duration of combat
+* Added option to view game statistics for campaign scenario
+* Artifacts that provide multiple spells, such as Tomes of Spells and Spellbinder Hat will no longer provide spells banned on maps (only for random maps and maps in HotA format)
+* Added missing ability for commanders that mastered Defense and Speed skills
+* Fixed large number of issue with Magic Mirror spell. The spell logic should now be in line with H3
+* Unit under Berserk effect will now correctly move towards nearest unit if they can't reach any target
+* Ranged unit under Berserk effect will now use ranged attack if able
+* Commanders experience is now capped to map hero level limit, if any exists on map
+* Fixed bug that allowed to attack heroes inside Sanctuary
+* Assembling an artifact will now correctly trigger victory conditions, if any
+* Magic heroes without spellbook will no longer receive one on transferring to next scenario (e.g. Yog)
 
 ## AI
 
@@ -111,7 +138,7 @@
 * Added support for custom description and icons for creature abilities and artifacts
 * Added support for charged artifacts that can be used a limited number of times
 * Added basic support for addition of new bonuses via mods, for use in limiters
-* Added partial support for custom magic schools
+* Added support for custom magic schools
 * It is now possible to have growing artifacts for heroes, not only for commanders
 * It is now possible to replace or append individual entries in json lists (`[ 1, 2, 3 ]`) without replacing entire list
 * It is now possible to specify both nominator and denominator (roll difficulty & dice size) for luck and morale probabilities
@@ -155,9 +182,12 @@
 * Added LIVING bonus that is automatically given to all creatures that don't have other creature nature bonus
 * Added SKELETON_TRANSFORMER_TARGET that indicates which creature this unit should be transformed into when placed into Skeleton Transformer
 * Added TRANSMUTATION_IMMUNITY bonus that prevents affected unit from TRANSMUTATION effects
+* Added COMBAT_MANA_BONUS that gives hero additional mana for the duration of combat (Skyship)
+* Added SPECIFIC_SPELL_RANGE that limits possible range for casting spells by creatures in combat
 * Reworked DARKNESS bonus. Bonus now can be used on both towns and heroes, and only applies on start of turn
 * DRAGON_NATURE bonus will no longer affect result of Skeleton Transformer use
 * Removed SYNERGY_TARGET bonus
+* All limiters now use named parameters instead of ambiguous `parameters` value
 * Added `playerGlobal` visit mode to configurable map objects. After visit of such object, all map objects of the same type are considered as visited by player
 * Added `forceCombat` property to configurable map objects. If such object is guarded, visiting it would immediately force combat without asking a player
 * Added `commanderBonuses` property to configurable map objects rewards that gives bonuses to hero commander (if exists)
@@ -174,13 +204,20 @@
 * Added `availableSlots` property to configurable map objects limiter that requires hero to have specific artifact slots empty
 * It is now possible to give units to visiting hero using configurable town building, but only if hero can accept these units into his army
 * Added support for configuring positions of spells in mage guild window per town
+* It is now possible to hide creature ability from creature window
+* Added support for banning heroes, artifacts, spells, and secondary skills in random map templates
+* Added support for configuring parameters of H3 adventure map spells and for creating similar spells in mods
+* It is now possible to change number of skills offered to hero on levelup
+* Game will now generate shadow and selection overlay if enabled in animation config
 
 ### Map Editor
 
+* Added random map template editor, available from map editor
 * Added initial version of campaign editor, available from map editor
 * Added support for drag-and-drop of maps into map editor
 * Added new keyboard shortcuts
 * Keyboard shortcuts are now visible in menu
+* Add filter to hero spell selection widget
 * Map validation results window now dynamically adjusts its size based on message lengths
 * A valid map will now properly display an appropriate message in the map validation results
 * Added word wrap for item text activates only when the map validation window reaches a defined width limit
