@@ -763,12 +763,12 @@ begin
     if Language = '' then
       Language := 'english';
 
-    JSONContent :=
-      '{' + #13#10 +
-      #9'"general" : {' + #13#10 +
-      #9#9'"language" : "' + Language + '"' + #13#10 +
-      #9'}' + #13#10 +
-      '}';
+      JSONContent :=
+        '{' + #13#10 +
+        #9 + '"general" : {' + #13#10 +
+        #9 + #9 + '"language" : "' + Language + '"' + #13#10 +
+        #9 + '}' + #13#10 +
+        '}';
 
     if not DirExists(ConfigDir) then
       ForceDirectories(ConfigDir);
@@ -965,6 +965,7 @@ begin
       Abort;
   end;
 end;
+
 
 
 
