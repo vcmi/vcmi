@@ -82,7 +82,9 @@ MainWindow::MainWindow(QWidget * parent)
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
-	if (!setupCompleted)
+	std::string currentLanguage = settings["general"]["language"].String();
+
+	if (!setupCompleted && currentLanguage.empty())
 		detectPreferredLanguage();
 
 	updateTranslation(); // load translation
