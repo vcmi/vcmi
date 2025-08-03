@@ -132,26 +132,31 @@ MainWindow::MainWindow(QWidget * parent)
 
 void MainWindow::detectPreferredLanguage()
 {
-	auto preferredLanguages = QLocale::system().uiLanguages();
+    auto appLanguages = QLocale().uiLanguages();
+    auto sysLanguages = QLocale::system().uiLanguages();
 
-	std::string selectedLanguage;
+    const auto &preferredLanguages = (appLanguages != sysLanguages && !appLanguages.isEmpty()) ? appLanguages : sysLanguages;
 
-	for (auto const & userLang : preferredLanguages)
-	{
-		logGlobal->info("Preferred language: %s", userLang.toStdString());
+    std::string selectedLanguage;
 
-		for (auto const & vcmiLang : Languages::getLanguageList())
-			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
-				selectedLanguage = vcmiLang.identifier;
+    for (auto const & userLang : preferredLanguages)
+    {
+        logGlobal->info("Preferred language: %s", userLang.toStdString());
 
-		if (!selectedLanguage.empty())
-		{
-			logGlobal->info("Selected language: %s", selectedLanguage);
-			Settings node = settings.write["general"]["language"];
-			node->String() = selectedLanguage;
-			return;
-		}
-	}
+        for (auto const & vcmiLang : Languages::getLanguageList())
+        {
+            if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
+                selectedLanguage = vcmiLang.identifier;
+        }
+
+        if (!selectedLanguage.empty())
+        {
+            logGlobal->info("Selected language: %s", selectedLanguage);
+            Settings node = settings.write["general"]["language"];
+            node->String() = selectedLanguage;
+            return;
+        }
+    }
 }
 
 void MainWindow::enterSetup()
