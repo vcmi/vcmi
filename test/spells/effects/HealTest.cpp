@@ -325,7 +325,7 @@ protected:
 	}
 };
 
-TEST_P(HealApplyTest, DISABLED_Heals)
+TEST_P(HealApplyTest, Heals)
 {
 	{
 		JsonNode config;
@@ -373,7 +373,7 @@ TEST_P(HealApplyTest, DISABLED_Heals)
 
 	EXPECT_CALL(*battleFake, setUnitState(Eq(unitId), _, Gt(0))).Times(1);
 
-	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(-1));
+	EXPECT_CALL(actualCaster, getCasterUnitId()).WillRepeatedly(Return(CreatureID(unitId)));
 
 	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(1);
 	EXPECT_CALL(serverMock, apply(Matcher<BattleLogMessage &>(_))).Times(AtLeast(1));

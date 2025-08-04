@@ -188,7 +188,7 @@ protected:
 
 };
 
-TEST_F(CloneApplyTest, DISABLED_AddsNewUnit)
+TEST_F(CloneApplyTest, AddsNewUnit)
 {
 	setDefaultExpectations();
 

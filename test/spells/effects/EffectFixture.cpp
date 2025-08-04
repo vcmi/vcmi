@@ -46,7 +46,7 @@ EffectFixture::EffectFixture(std::string effectName_)
 	battleFake(),
 	effectName(effectName_)
 {
-
+	mechanicsMock.casterSide = BattleSide::ATTACKER;
 }
 
 EffectFixture::~EffectFixture() = default;
@@ -93,6 +93,7 @@ void EffectFixture::setUp()
 
 	ON_CALL(mechanicsMock, creatures()).WillByDefault(Return(&creatureServiceMock));
 	ON_CALL(creatureServiceMock, getById(_)).WillByDefault(Return(&creatureStub));
+	ON_CALL(creatureServiceMock, getByIndex(_)).WillByDefault(Return(&creatureStub));
 
 	ON_CALL(serverMock, getRNG()).WillByDefault(Return(&rngMock));
 
