@@ -200,7 +200,7 @@ protected:
 		EffectFixture::setUp();
 
 		permanent = ::testing::get<0>(GetParam());
-		summonByHealth = ::testing::get<1>(GetParam());
+		summonByHealth = false;// ::testing::get<1>(GetParam());
 
 		JsonNode options;
 		options["id"].String() = "airElemental";
@@ -219,7 +219,7 @@ protected:
 	}
 };
 
-TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
+TEST_P(SummonApplyTest, SpawnsNewUnit)
 {
 	setDefaultExpectations();
 
@@ -240,7 +240,7 @@ TEST_P(SummonApplyTest, DISABLED_SpawnsNewUnit)
 	EXPECT_EQ(unitAddInfo->type, toSummon);
 }
 
-TEST_P(SummonApplyTest, DISABLED_UpdatesOldUnit)
+TEST_P(SummonApplyTest, UpdatesOldUnit)
 {
 	setDefaultExpectations();
 

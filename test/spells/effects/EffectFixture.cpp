@@ -56,7 +56,9 @@ void EffectFixture::setupEffect(const JsonNode & effectConfig)
 	subject = Effect::create(GlobalRegistry::get(), effectName);
 	ASSERT_TRUE(subject);
 
-	JsonDeserializer deser(nullptr, effectConfig);
+	JsonNode effectConfigActual = effectConfig;
+	effectConfigActual.setModScope("game");
+	JsonDeserializer deser(nullptr, effectConfigActual);
 	subject->serializeJson(deser);
 }
 
@@ -65,7 +67,9 @@ void EffectFixture::setupEffect(Registry * registry, const JsonNode & effectConf
 	subject = Effect::create(registry, effectName);
 	ASSERT_TRUE(subject);
 
-	JsonDeserializer deser(nullptr, effectConfig);
+	JsonNode effectConfigActual = effectConfig;
+	effectConfigActual.setModScope("game");
+	JsonDeserializer deser(nullptr, effectConfigActual);
 	subject->serializeJson(deser);
 }
 

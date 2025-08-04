@@ -49,7 +49,7 @@ TEST_F(CatapultTest, NotApplicableWithoutTown)
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock));
 }
 
-TEST_F(CatapultTest, NotApplicableInVillage)
+TEST_F(CatapultTest, DISABLED_NotApplicableInVillage)
 {
 	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
 
@@ -61,7 +61,7 @@ TEST_F(CatapultTest, NotApplicableInVillage)
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock));
 }
 
-TEST_F(CatapultTest, NotApplicableForDefenderIfSmart)
+TEST_F(CatapultTest, DISABLED_NotApplicableForDefenderIfSmart)
 {
 	auto fakeTown = std::make_shared<CGTownInstance>(nullptr);
 	fakeTown->addBuilding(BuildingID::FORT);

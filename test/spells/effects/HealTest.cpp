@@ -184,7 +184,7 @@ TEST_F(HealTest, ApplicableToDeadUnit)
 	EXPECT_TRUE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
+TEST_F(HealTest, NotApplicableIfDeadUnitIsBlocked)
 {
 	{
 		JsonNode config;
@@ -221,7 +221,7 @@ TEST_F(HealTest, DISABLED_NotApplicableIfDeadUnitIsBlocked)
 	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, target));
 }
 
-TEST_F(HealTest, DISABLED_ApplicableWithAnotherDeadUnitInSamePosition)
+TEST_F(HealTest, ApplicableWithAnotherDeadUnitInSamePosition)
 {
 	{
 		JsonNode config;
