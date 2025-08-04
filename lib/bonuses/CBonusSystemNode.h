@@ -39,8 +39,12 @@ public:
 	};
 
 private:
-	BonusList bonuses; //wielded bonuses (local or up-propagated here)
-	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
+	/// List of bonuses that affect this node, whether local, or propagated to this node
+	BonusList bonuses;
+
+	/// List of bonuses that ar ecoming from this node.
+	/// Also includes nodes that are propagated away from this node, and might not affect this node itself
+	BonusList exportedBonuses;
 
 	TCNodesVector parentsToInherit; // we inherit bonuses from them
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
@@ -71,11 +75,8 @@ private:
 	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
 
-	void getAllParents(TCNodes & out) const;
-
 	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
-	void recomputePropagationUpdaters(const CBonusSystemNode & source);
 	bool actsAsBonusSourceOnly() const;
 
 	void newRedDescendant(CBonusSystemNode & descendant) const; //propagation needed
@@ -95,7 +96,7 @@ public:
 	virtual ~CBonusSystemNode();
 
 	TConstBonusListPtr getAllBonuses(const CSelector &selector, const std::string &cachingStr = "") const override;
-	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
+	void getDirectParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	/// Returns first bonus matching selector
 	std::shared_ptr<const Bonus> getFirstBonus(const CSelector & selector) const;

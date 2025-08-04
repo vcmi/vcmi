@@ -35,7 +35,7 @@ std::shared_ptr<const Bonus> CBonusSystemNode::getFirstBonus(const CSelector & s
 		return ret;
 
 	TCNodes lparents;
-	getParents(lparents);
+	getDirectParents(lparents);
 	for(const CBonusSystemNode *pname : lparents)
 	{
 		ret = pname->getFirstBonus(selector);
@@ -46,23 +46,10 @@ std::shared_ptr<const Bonus> CBonusSystemNode::getFirstBonus(const CSelector & s
 	return nullptr;
 }
 
-void CBonusSystemNode::getParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
+void CBonusSystemNode::getDirectParents(TCNodes & out) const /*retrieves list of parent nodes (nodes to inherit bonuses from) */
 {
 	for(const auto * elem : parentsToInherit)
 		out.insert(elem);
-}
-
-void CBonusSystemNode::getAllParents(TCNodes & out) const //retrieves list of parent nodes (nodes to inherit bonuses from)
-{
-	for(auto * parent : parentsToInherit)
-	{
-		// Diamond found! One of the parents of the targeted node can be discovered in two ways.
-		// For example, a hero has been attached to both the player node and the global node (to which the player node is also attached).
-		// This is illegal and can be a source of duplicate bonuses.
-		assert(out.count(parent) == 0);
-		out.insert(parent);
-		parent->getAllParents(out);
-	}
 }
 
 void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
@@ -219,13 +206,15 @@ void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
 	assert(!vstd::contains(parentsToInherit, &parent));
 	parentsToInherit.push_back(&parent);
 
+	++globalCounter;
+
 	if(!isHypothetic())
 	{
 		if(parent.actsAsBonusSourceOnly())
 			parent.newRedDescendant(*this);
 	}
 
-	nodeHasChanged();
+	invalidateChildrenNodes(globalCounter);
 }
 
 void CBonusSystemNode::detachFrom(CBonusSystemNode & parent)
@@ -268,6 +257,8 @@ void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
 {
 	assert(vstd::contains(parentsToInherit, &parent));
 
+	++globalCounter;
+
 	if(!isHypothetic())
 	{
 		if(parent.actsAsBonusSourceOnly())
@@ -284,7 +275,7 @@ void CBonusSystemNode::detachFromSource(const CBonusSystemNode & parent)
 			nodeShortInfo(), static_cast<int>(nodeType), parent.nodeShortInfo(), static_cast<int>(parent.nodeType));
 	}
 
-	nodeHasChanged();
+	invalidateChildrenNodes(globalCounter);
 }
 
 void CBonusSystemNode::removeBonusesRecursive(const CSelector & s)
@@ -371,7 +362,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 {
 	if(b->propagator->shouldBeAttached(this))
 	{
-		auto propagated = b->propagationUpdater 
+		auto propagated = b->propagationUpdater
 			? source.getUpdatedBonus(b, b->propagationUpdater)
 			: b;
 		bonuses.push_back(propagated);
@@ -442,7 +433,7 @@ std::string CBonusSystemNode::nodeShortInfo() const
 void CBonusSystemNode::getRedParents(TCNodes & out) const
 {
 	TCNodes lparents;
-	getParents(lparents);
+	getDirectParents(lparents);
 	for(const CBonusSystemNode *pname : lparents)
 	{
 		if(pname->actsAsBonusSourceOnly())
@@ -606,31 +597,12 @@ void CBonusSystemNode::nodeHasChanged()
 	invalidateChildrenNodes(++globalCounter);
 }
 
-void CBonusSystemNode::recomputePropagationUpdaters(const CBonusSystemNode & source)
-{
-	for(const auto & b : exportedBonuses)
-	{
-		if (b->propagator && b->propagationUpdater)
-		{
-			unpropagateBonus(b);
-			propagateBonus(b,  source);
-		}
-	}
-
-	for(const CBonusSystemNode * parent : source.parentsToInherit)
-		if (parent->actsAsBonusSourceOnly())
-			recomputePropagationUpdaters(*parent);
-
-}
-
 void CBonusSystemNode::invalidateChildrenNodes(int32_t changeCounter)
 {
 	if (nodeChanged == changeCounter)
 		return;
 
 	nodeChanged = changeCounter;
-
-	recomputePropagationUpdaters(*this);
 
 	for(CBonusSystemNode * child : children)
 		child->invalidateChildrenNodes(changeCounter);

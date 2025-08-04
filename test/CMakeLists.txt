@@ -23,6 +23,8 @@ set(test_SRCS
 		battle/CUnitStateMagicTest.cpp
 		battle/battle_UnitTest.cpp
 
+		bonus/BonusSystemTest.cpp
+
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/CFactionTest.cpp
