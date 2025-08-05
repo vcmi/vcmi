@@ -81,10 +81,8 @@ MainWindow::MainWindow(QWidget * parent)
 	load(); // load FS before UI
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
-
-	std::string currentLanguage = settings["general"]["language"].String();
-
-	if (!setupCompleted && currentLanguage.empty())
+	
+	if (!setupCompleted)
 		detectPreferredLanguage();
 
 	updateTranslation(); // load translation
@@ -132,31 +130,47 @@ MainWindow::MainWindow(QWidget * parent)
 
 void MainWindow::detectPreferredLanguage()
 {
-    auto appLanguages = QLocale().uiLanguages();
-    auto sysLanguages = QLocale::system().uiLanguages();
+	// Skip autodetection if language is already set to a valid VCMI language
+	std::string currentLanguage = settings["general"]["language"].String();
 
-    const auto &preferredLanguages = (appLanguages != sysLanguages && !appLanguages.isEmpty()) ? appLanguages : sysLanguages;
+	if (!currentLanguage.empty())
+	{
+		for (const auto &vcmiLang : Languages::getLanguageList())
+		{
+			if (vcmiLang.identifier == currentLanguage && vcmiLang.selectable)
+			{
+				logGlobal->info("Language '%s' is already valid, skipping autodetection", currentLanguage);
+				return;
+			}
+		}
+	}
 
-    std::string selectedLanguage;
+	// Proceed with autodetection
+	auto appLanguages = QLocale().uiLanguages();
+	auto sysLanguages = QLocale::system().uiLanguages();
 
-    for (auto const & userLang : preferredLanguages)
-    {
-        logGlobal->info("Preferred language: %s", userLang.toStdString());
+	const auto &preferredLanguages = (appLanguages != sysLanguages && !appLanguages.isEmpty()) ? appLanguages : sysLanguages;
 
-        for (auto const & vcmiLang : Languages::getLanguageList())
-        {
-            if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
-                selectedLanguage = vcmiLang.identifier;
-        }
+	std::string selectedLanguage;
 
-        if (!selectedLanguage.empty())
-        {
-            logGlobal->info("Selected language: %s", selectedLanguage);
-            Settings node = settings.write["general"]["language"];
-            node->String() = selectedLanguage;
-            return;
-        }
-    }
+	for (const auto &userLang : preferredLanguages)
+	{
+		logGlobal->info("Preferred language: %s", userLang.toStdString());
+
+		for (const auto &vcmiLang : Languages::getLanguageList())
+		{
+			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
+				selectedLanguage = vcmiLang.identifier;
+		}
+
+		if (!selectedLanguage.empty())
+		{
+			logGlobal->info("Detected language: %s", selectedLanguage);
+			Settings node = settings.write["general"]["language"];
+			node->String() = selectedLanguage;
+			return;
+		}
+	}
 }
 
 void MainWindow::enterSetup()
