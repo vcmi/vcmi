@@ -633,7 +633,12 @@
 		},
 		"targetCondition" : {
 			"type" : "object",
-			"additionalProperties" : true
+			"additionalProperties" : false,
+			"properties" : {
+				"noneOf" : { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"anyOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"allOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } }
+			}
 		},
 		"animation" : {"$ref" : "#/definitions/animation"},
 		"graphics" : {
@@ -681,11 +686,6 @@
 			 "type" : "object",
 			 "additionalProperties" : false,
 			 "properties" : {
-				"base" : {
-					"type" : "object",
-					"description" : "will be merged with all levels",
-					"additionalProperties" : true
-				},
 				"none" : {
 					"$ref" : "#/definitions/levelInfo"
 				},

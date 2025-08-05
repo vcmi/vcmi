@@ -1028,6 +1028,8 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
+	levels.Struct().erase("base");
 }
 
 std::set<SpellID> CSpellHandler::getDefaultAllowed() const

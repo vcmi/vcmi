@@ -356,6 +356,12 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 	}
 
 	JsonUtils::inherit(config, mapObjectTypes.at(ID.getNum())->base);
+	for (auto & templ : config["templates"].Struct())
+		JsonUtils::inherit(templ.second, config["base"]);
+
+	if (settings["mods"]["validation"].String() != "off")
+		JsonUtils::validate(config, "vcmi:objectType", identifier);
+
 	loadSubObject(config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
 }
 

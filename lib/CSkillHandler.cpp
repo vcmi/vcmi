@@ -316,6 +316,8 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
+	object.Struct().erase("base");
 }
 
 std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const

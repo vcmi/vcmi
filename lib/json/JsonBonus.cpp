@@ -536,13 +536,15 @@ static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode &
 		creatureLimiter->setCreature(CreatureID(creature));
 	});
 
-	creatureLimiter->includeUpgrades = upgradesNode.Bool();
-
 	if (upgradesNode.isString())
 	{
 		logGlobal->warn("CREATURE_TYPE_LIMITER: parameter 'includeUpgrades' is invalid! expected boolean, but string '%s' found!", upgradesNode.String());
 		if (upgradesNode.String() == "true") // MOD COMPATIBILITY - broken mod, compensating
 			creatureLimiter->includeUpgrades = true;
+	}
+	else
+	{
+		creatureLimiter->includeUpgrades = upgradesNode.Bool();
 	}
 
 	return creatureLimiter;

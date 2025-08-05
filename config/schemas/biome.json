@@ -4,7 +4,7 @@
 	"title" : "VCMI map obstacle set format",
 	"description" : "Description of map object set, used only as sub-schema of object",
 	"required" : ["biome", "templates"],
-	"additionalProperties" : true, // may have type-dependant properties
+	"additionalProperties" : false,
 	"properties" : {
 		"biome" : {
 			"type" : "object",

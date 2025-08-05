@@ -153,7 +153,7 @@
 		"connection" :
 		{
 			"required" : ["a", "b"],
-			"additionalProperties" : true,
+			"additionalProperties" : false,
 			"properties" : {
 				"a" : {
 					"type" : "string"
@@ -170,6 +170,11 @@
 				{
 					"type" : "string",
 					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
+				},
+				"road":
+				{
+					"type" : "string",
+					"enum" : ["true", "false", "random"]
 				}
 			}
 		},
