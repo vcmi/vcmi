@@ -835,6 +835,7 @@ set(CPACK_PACKAGE_VENDOR "VCMI team")
 
 if(WIN32)
 	# Note: due to NSI script generation process all of the backward slashes here are useful
+	set(CPACK_GENERATOR ZIP)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/license.txt")
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
