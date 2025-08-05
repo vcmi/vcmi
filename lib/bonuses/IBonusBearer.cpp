@@ -48,7 +48,7 @@ TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type) const
 
 TConstBonusListPtr IBonusBearer::getBonusesOfType(BonusType type, BonusSubtypeID subtype) const
 {
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
 	CSelector s = Selector::typeSubtype(type, subtype);
 	return getBonuses(s, cachingStr);
 }
@@ -79,7 +79,7 @@ bool IBonusBearer::hasBonusOfType(BonusType type) const
 int IBonusBearer::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
 
 	CSelector s = Selector::typeSubtype(type, subtype);
 
@@ -89,7 +89,7 @@ int IBonusBearer::valOfBonuses(BonusType type, BonusSubtypeID subtype) const
 bool IBonusBearer::hasBonusOfType(BonusType type, BonusSubtypeID subtype) const
 {
 	//This part is performance-critical
-	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + subtype.toString();
+	std::string cachingStr = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
 
 	CSelector s = Selector::typeSubtype(type, subtype);
 

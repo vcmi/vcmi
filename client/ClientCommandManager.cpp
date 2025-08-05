@@ -467,7 +467,7 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		GAME->interface()->localState->getCurrentArmy()->getParents(parents);
+		GAME->interface()->localState->getCurrentArmy()->getDirectParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
 		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all)) + "\n");

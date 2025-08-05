@@ -27,6 +27,7 @@ public:
 		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(1));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, getSpellIndex()).WillRepeatedly(Return(castSpell));
+		EXPECT_CALL(mechanicsMock, getSpellId()).WillRepeatedly(Return(SpellID(castSpell)));
 	}
 
 	void SetUp() override
@@ -40,7 +41,7 @@ public:
 	}
 };
 
-TEST_P(NormalSpellConditionTest, DISABLED_ChecksAbsoluteCase)
+TEST_P(NormalSpellConditionTest, ChecksAbsoluteCase)
 {
 	setDefaultExpectations();
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID(), BonusSubtypeID(SpellID(immuneSpell)));
@@ -54,7 +55,7 @@ TEST_P(NormalSpellConditionTest, DISABLED_ChecksAbsoluteCase)
 		EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
-TEST_P(NormalSpellConditionTest, DISABLED_ChecksNormalCase)
+TEST_P(NormalSpellConditionTest, ChecksNormalCase)
 {
 	setDefaultExpectations();
 	auto bonus = std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_IMMUNITY, BonusSource::OTHER, 4, BonusSourceID(), BonusSubtypeID(SpellID(immuneSpell)));

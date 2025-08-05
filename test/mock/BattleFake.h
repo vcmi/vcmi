@@ -90,7 +90,7 @@ public:
 
 	const IBattleInfo * getBattle() const override
 	{
-		return nullptr;
+		return this;
 	}
 
 	std::optional<PlayerColor> getPlayerID() const override
