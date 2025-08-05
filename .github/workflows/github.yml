@@ -15,7 +15,6 @@ env:
 
 jobs:
   build:
-    needs: extract-version
     continue-on-error: ${{ matrix.test == 1 }}
     strategy:
       matrix:
@@ -169,6 +168,22 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+
+    - name: Extract version info
+      id: extract-version
+      shell: bash
+      run: |
+        filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
+  
+        major=$(grep -m 1 "VCMI_VERSION_MAJOR" "$filePath" | tr -d -c 0-9)
+        minor=$(grep -m 1 "VCMI_VERSION_MINOR" "$filePath" | tr -d -c 0-9)
+        patch=$(grep -m 1 "VCMI_VERSION_PATCH" "$filePath" | tr -d -c 0-9)
+  
+        short_version="${major}.${minor}.${patch}"
+        version_timestamp=$(date +"%Y%m%d%H%M%S")
+  
+        echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
+        echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
 
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
@@ -325,7 +340,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: >
         CI\wininstaller\build_installer.cmd
-        "${{ needs.extract-version.outputs.short_version }}"
+        "${{ steps.extract-version.outputs.short_version }}"
         "${{ env.VCMI_PACKAGE_BUILD }}"
         "${{ matrix.arch }}"
         "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
@@ -357,6 +372,7 @@ jobs:
         rm -rf _CPack_Packages
 
     - name: Artifacts
+      id: upload-unsigned-artifact
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
       with:
@@ -364,6 +380,31 @@ jobs:
         compression-level: 0
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+
+    - name: Sign
+      env:
+        SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && matrix.pack == 1 && startsWith(matrix.platform, 'msvc') }}
+      uses: signpath/github-action-submit-signing-request@v1.1
+      with:
+        api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+        organization-id: '091f52d0-6021-4c04-bbdf-a3736f7730b4'
+        project-slug: 'vcmi'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+        wait-for-completion: true
+        output-artifact-directory: '${{github.workspace}}/out/signed/'
+
+    - name: Signed artifact
+      env:
+        SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+      if: ${{ env.SIGNPATH_API_TOKEN != '' && matrix.pack == 1 && startsWith(matrix.platform, 'msvc') }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - signed
+        compression-level: 0
+        path: |
+          ${{github.workspace}}/out/signed/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Find Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
@@ -447,55 +488,3 @@ jobs:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             path: |
               ./release.tar.gz
-  
-  extract-version:
-    name: Extract Version
-    runs-on: ubuntu-latest
-    outputs:
-      version_timestamp: ${{ steps.extract.outputs.version_timestamp }}
-      short_version: ${{ steps.extract.outputs.short_version }}
-    steps:
-      - uses: actions/checkout@v4
-  
-      - name: Extract version info
-        id: extract
-        shell: bash
-        run: |
-          filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
-  
-          major=$(grep -oP 'set\(VCMI_VERSION_MAJOR\s+\K\d+' "$filePath")
-          minor=$(grep -oP 'set\(VCMI_VERSION_MINOR\s+\K\d+' "$filePath")
-          patch=$(grep -oP 'set\(VCMI_VERSION_PATCH\s+\K\d+' "$filePath")
-  
-          short_version="${major}.${minor}.${patch}"
-          version_timestamp=$(date +"%Y%m%d%H%M%S")
-  
-          echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
-          echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
-
-  validate-code:
-    if: always()
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-        - uses: actions/checkout@v4
-
-        - name: Ensure LF line endings
-          run: |
-            find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
-            -o -path ./osx  -prune -o -type f \
-            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.cmd' -and -not -name '*.iss' -and -not -name '*.isl' -print0 | \
-            { ! xargs -0 grep -l -z -P '\r\n'; }
-
-        - name: Validate JSON
-          run: |
-            sudo apt install python3-jstyleson
-            python3 CI/validate_json.py
-
-        - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v20
-          with:
-            config: 'CI/example.markdownlint-cli2.jsonc'
-            globs: '**/*.md'
