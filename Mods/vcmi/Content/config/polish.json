@@ -782,7 +782,7 @@
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Zionięcie}\nAtak zionący (zasięg 2 heksów)",
 	"core.bonus.UNDEAD.description" : "{Nieumarły}\nStworzenie jest nieumarłe",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Nieskończone kontrataki}\nKontratakuje nieskończoną ilość razy",
-	"core.bonus.WIDE_BREATH.description" : "{Szerokie zionięcie}\nSzeroki atak zionięciem (wiele heksów)"
+	"core.bonus.WIDE_BREATH.description" : "{Szerokie zionięcie}\nSzeroki atak zionięciem (wiele heksów)",
 
 	"spell.core.castleMoat.name" : "Fosa",
 	"spell.core.castleMoatTrigger.name" : "Fosa",
