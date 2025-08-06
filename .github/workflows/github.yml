@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    name: build-${{ matrix.platform }}
+    name: Build (${{ matrix.platform }})
     strategy:
       matrix:
         include:
@@ -377,32 +377,32 @@ jobs:
 
   test:
     continue-on-error: true
-    name: ${{ matrix.platform }}
+    name: Test(${{ matrix.platform }})
     strategy:
       matrix:
         include:
-          - platform: test-gcc-latest-release
+          - platform: gcc-latest-release
             os: ubuntu-24.04
             before_install: linux_qt6.sh
             compiler_cxx: g++-14
             compiler_cc: gcc-14
             preset: linux-gcc-test
 
-          - platform: test-clang-latest-debug
+          - platform: clang-latest-debug
             os: ubuntu-24.04
             before_install: linux_qt6.sh
             compiler_cxx: clang++-18
             compiler_cc: clang-18
             preset: linux-clang-debug
 
-          - platform: test-gcc-oldest-debug
+          - platform: gcc-oldest-debug
             os: ubuntu-22.04
             before_install: linux_qt5.sh
             compiler_cxx: g++-10
             compiler_cc: gcc-10
             preset: linux-gcc-debug
 
-          - platform: test-clang-oldest-release
+          - platform: clang-oldest-release
             os: ubuntu-22.04
             before_install: linux_qt5.sh
             compiler_cxx: clang++-13
@@ -477,7 +477,7 @@ jobs:
 
   windows-installer:
     needs: build
-    name: windows-installer-${{ matrix.arch }}
+    name: Create Windows Installer (${{ matrix.arch }})
     strategy:
       matrix:
         include:
@@ -582,6 +582,7 @@ jobs:
         PACKAGE_EXTENSION: exe
 
   validate-code:
+    name: Validate Code
     if: always()
     runs-on: ubuntu-latest
     defaults:
