@@ -433,21 +433,18 @@ end;
 
 procedure OnTaskCheck(Sender: TObject);
 var
-  i: Integer;
+  idx: Integer;
 begin
-  // Loop through all tasks in the tasks list
-  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  // Get the index of the currently clicked task
+  idx := WizardForm.TasksList.ItemIndex;
+
+  // Check if the clicked task is the "AddFirewallRules" one
+  if WizardForm.TasksList.Items[idx] = ExpandConstant('{cm:AddFirewallRules}') then
   begin
-    // Check if the current task is "firewallrules"
-    if WizardForm.TasksList.Items[i] = ExpandConstant('{cm:AddFirewallRules}') then
+    // If it was just unchecked, show the warning
+    if not WizardForm.TasksList.Checked[idx] then
     begin
-      // Check if the "firewallrules" task is unchecked
-      if not WizardForm.TasksList.Checked[i] then
-      begin
-        // Show a custom warning message box
-        MsgBox(ExpandConstant('{cm:Warning}') + '!' + #13#10 + #13#10 + ExpandConstant('{cm:InstallForMeOnly1}') + #13#10 + ExpandConstant('{cm:InstallForMeOnly2}'), mbError, MB_OK);
-      end;
-      Exit; // Task found, exit the loop
+      MsgBox(ExpandConstant('{cm:Warning}') + '!' + #13#10 + #13#10 + ExpandConstant('{cm:InstallForMeOnly1}') + #13#10 + ExpandConstant('{cm:InstallForMeOnly2}'), mbError, MB_OK);
     end;
   end;
 end;
@@ -965,6 +962,7 @@ begin
       Abort;
   end;
 end;
+
 
 
 
