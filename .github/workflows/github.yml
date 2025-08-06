@@ -345,11 +345,12 @@ jobs:
         "${{ matrix.arch }}"
         "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
         "${{ env.VCMI_PACKAGE_FILE_NAME }}"
-        "${{ github.workspace }}\out\build\${{ matrix.preset }}\bin\RelWithDebInfo"
+        "${{ github.workspace }}\out\build\${{ matrix.preset }}\bin\${{matrix.pack_type}}"
         "${{ github.workspace }}\ucrt"
       shell: cmd
 
     - name: Upload VCMI Installer Artifacts
+      id: upload-unsigned-artifact
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v4
       with:
@@ -371,15 +372,15 @@ jobs:
         done
         rm -rf _CPack_Packages
 
-    - name: Artifacts
-      id: upload-unsigned-artifact
-      if: ${{ matrix.pack == 1 }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
-        compression-level: 0
-        path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }} - installer
+    #- name: Artifacts
+    #  id: upload-unsigned-artifact
+    #  if: ${{ matrix.pack == 1 }}
+    #  uses: actions/upload-artifact@v4
+    #  with:
+    #    name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+    #    compression-level: 0
+    #    path: |
+    #      ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }} - installer
 
     - name: Sign
       env:
