@@ -157,7 +157,7 @@ jobs:
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
-    - name: ccache for PRs
+    - name: Install ccache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' && !startsWith(matrix.platform, 'msvc') }}
       with:
@@ -165,18 +165,16 @@ jobs:
         restore-keys: |
           ${{ matrix.platform }}-PR-${{ github.event.number }}
           ${{ matrix.platform }}-branch-${{ github.base_ref }}
-        # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
 
-    - name: ccache for branch builds
+    - name: Install ccache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number == '' && !startsWith(matrix.platform, 'msvc')}}
       with:
         key: ${{ matrix.platform }}-${{ github.ref_name }}
         restore-keys: |
           ${{ matrix.platform }}-branch-${{ github.ref_name }}
-        # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
 
@@ -230,13 +228,7 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
-        elif [[ ${{matrix.preset}} == linux-gcc-debug ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 --preset ${{ matrix.preset }}
-        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
+        if [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
         elif ${{startsWith(matrix.platform, 'msvc') }}
@@ -275,6 +267,20 @@ jobs:
         done
         rm -rf _CPack_Packages
 
+    - name: Find Android package
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: |
+        builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
+        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
+        ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
+        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
+        echo "Moving $builtApkPath to $ANDROID_APK_PATH"
+        echo "Moving $builtAabPath to $ANDROID_AAB_PATH"
+        mv "$builtApkPath" "$ANDROID_APK_PATH"
+        mv "$builtAabPath" "$ANDROID_AAB_PATH"
+        echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
+        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+
     - name: Artifacts
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
@@ -283,18 +289,6 @@ jobs:
         compression-level: 0
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
-
-    - name: Find Android package
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      run: |
-        builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
-        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
-        ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
-        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
-        mv "$builtApkPath" "$ANDROID_APK_PATH"
-        mv "$builtAabPath" "$ANDROID_AAB_PATH"
-        echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
-        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
     - name: Upload Android apk Artifacts
       if: ${{ startsWith(matrix.platform, 'android') }}
@@ -324,8 +318,7 @@ jobs:
             ${{github.workspace}}/**/*.pdb
 
     - name: Upload build
-      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
-      continue-on-error: true
+      if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
@@ -334,16 +327,6 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
-        
-    - name: Upload Installer
-      if: ${{ startsWith(matrix.platform, 'msvc') && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
-      continue-on-error: true
-      run: |
-        cd '${{github.workspace}}/CI/wininstaller/Output'
-        source '${{github.workspace}}/CI/upload_package.sh'
-      env:
-        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
-        PACKAGE_EXTENSION: exe
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
@@ -423,7 +406,7 @@ jobs:
     - name: Prepare CI
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
 
-    - name: ccache for PRs
+    - name: Install ccache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' }}
       with:
@@ -434,7 +417,7 @@ jobs:
         max-size: "5G"
         verbose: 2
 
-    - name: ccache for branch builds
+    - name: Install ccache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number == '' }}
       with:
@@ -573,7 +556,7 @@ jobs:
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
     - name: Upload Installer
-      if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' }}
+      if: ${{ github.event.number == '' && env.DEPLOY_RSA != '' }}
       run: |
         cd '${{github.workspace}}/CI/wininstaller/Output'
         source '${{github.workspace}}/CI/upload_package.sh'
