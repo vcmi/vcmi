@@ -16,31 +16,11 @@ env:
 jobs:
   build:
     needs: extract-version
-    continue-on-error: ${{ matrix.test == 1 }}
     strategy:
       matrix:
         include:
-          - platform: linux-qt6
-            os: ubuntu-24.04
-            test: 0
-            before_install: linux_qt6.sh
-            preset: linux-clang-test
-
-          - platform: linux-qt5
-            os: ubuntu-24.04
-            test: 1
-            before_install: linux_qt5.sh
-            preset: linux-gcc-test
-
-          - platform: linux-debug
-            os: ubuntu-22.04
-            test: 0
-            before_install: linux_qt5.sh
-            preset: linux-gcc-debug
-
           - platform: mac-intel
             os: macos-13
-            test: 0
             pack: 1
             upload: 1
             pack_type: Release
@@ -54,7 +34,6 @@ jobs:
 
           - platform: mac-arm
             os: macos-13
-            test: 0
             pack: 1
             upload: 1
             pack_type: Release
@@ -68,7 +47,6 @@ jobs:
 
           - platform: ios
             os: macos-13
-            test: 0
             pack: 1
             upload: 1
             pack_type: Release
@@ -82,7 +60,6 @@ jobs:
           - platform: msvc-x64
             arch: x64
             os: windows-latest
-            test: 0
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -94,7 +71,6 @@ jobs:
           - platform: msvc-x86
             arch: x86
             os: windows-latest
-            test: 0
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -106,7 +82,6 @@ jobs:
           - platform: msvc-arm64
             arch: arm64
             os: windows-11-arm
-            test: 0
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -117,7 +92,6 @@ jobs:
 
           - platform: mingw_x86_64
             os: ubuntu-24.04
-            test: 0
             pack: 1
             pack_type: Release
             extension: zip
@@ -129,7 +103,6 @@ jobs:
 
           - platform: mingw_x86
             os: ubuntu-24.04
-            test: 0
             pack: 1
             pack_type: Release
             extension: zip
@@ -173,8 +146,6 @@ jobs:
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
-      env:
-        VCMI_BUILD_PLATFORM: x64
 
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
@@ -208,22 +179,6 @@ jobs:
         # actual cache takes up less space, at most ~1 GB
         max-size: "5G"
         verbose: 2
-
-    - name: Prepare Heroes 3 data
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
-      run: |
-        if [[ ${{github.repository_owner}} == vcmi ]]
-        then
-            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        else
-            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        fi
-        wget --progress=dot:giga "$data_url" -O h3_assets.zip
-        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
-        mkdir -p ~/.local/share/vcmi/
-        mv h3_assets/* ~/.local/share/vcmi/
 
     - name: Install Conan
       if: "${{ matrix.conan_profile != '' }}"
@@ -297,13 +252,6 @@ jobs:
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: Test
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
-      run: |
-        ctest --preset ${{matrix.preset}}
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
@@ -455,7 +403,107 @@ jobs:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             path: |
               ./release.tar.gz
+
+  test:
+    continue-on-error: true
+    name: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        include:
+          - platform: test-gcc-latest-release
+            os: ubuntu-24.04
+            before_install: linux_qt6.sh
+            compiler_cxx: g++-14
+            compiler_cc: gcc-14
+            preset: linux-gcc-test
+
+          - platform: test-clang-latest-debug
+            os: ubuntu-24.04
+            before_install: linux_qt6.sh
+            compiler_cxx: clang++-18
+            compiler_cc: clang-18
+            preset: linux-clang-debug
+
+          - platform: test-gcc-oldest-debug
+            os: ubuntu-22.04
+            before_install: linux_qt5.sh
+            compiler_cxx: g++-10
+            compiler_cc: gcc-10
+            preset: linux-gcc-debug
+
+          - platform: test-clang-oldest-release
+            os: ubuntu-22.04
+            before_install: linux_qt5.sh
+            compiler_cxx: clang++-13
+            compiler_cc: clang-13
+            preset: linux-clang-test
   
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Prepare CI
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
+
+    - name: ccache for PRs
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number != '' }}
+      with:
+        key: ${{ matrix.platform }}-PR-${{ github.event.number }}
+        restore-keys: |
+          ${{ matrix.platform }}-PR-${{ github.event.number }}
+          ${{ matrix.platform }}-branch-${{ github.base_ref }}
+        max-size: "5G"
+        verbose: 2
+
+    - name: ccache for branch builds
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number == '' }}
+      with:
+        key: ${{ matrix.platform }}-${{ github.ref_name }}
+        restore-keys: |
+          ${{ matrix.platform }}-branch-${{ github.ref_name }}
+        max-size: "5G"
+        verbose: 2
+
+    - name: Prepare Heroes 3 data
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
+      run: |
+        if [[ ${{github.repository_owner}} == vcmi ]]
+        then
+            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        else
+            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        fi
+        wget --progress=dot:giga "$data_url" -O h3_assets.zip
+        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
+        mkdir -p ~/.local/share/vcmi/
+        mv h3_assets/* ~/.local/share/vcmi/
+  
+    - name: Configure
+      run: |
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
+
+    - name: Build
+      run: |
+        cmake --build --preset ${{matrix.preset}}
+
+    - name: Test
+      env:
+        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
+      run: |
+        ctest --preset ${{matrix.preset}}
+        
   extract-version:
     name: Extract Version
     runs-on: ubuntu-latest
