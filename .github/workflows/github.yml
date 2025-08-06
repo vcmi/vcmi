@@ -329,7 +329,8 @@ jobs:
         PACKAGE_EXTENSION: ${{ matrix.extension }}
 
   deploy-src:
-    if: always() && github.ref == 'refs/heads/master'
+    name: Deploy Source Code Package
+    if: always() && github.event.number == ''
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -360,7 +361,7 @@ jobs:
 
   test:
     continue-on-error: true
-    name: Test(${{ matrix.platform }})
+    name: Test (${{ matrix.platform }})
     strategy:
       matrix:
         include:
