@@ -9,10 +9,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
   build:
     name: Build (${{ matrix.platform }})
@@ -270,18 +266,11 @@ jobs:
     - name: Find Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
-        builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
-        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
-        ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
-        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
-        echo "Moving $builtApkPath to $ANDROID_APK_PATH"
-        echo "Moving $builtAabPath to $ANDROID_AAB_PATH"
-        mv "$builtApkPath" "$ANDROID_APK_PATH"
-        mv "$builtAabPath" "$ANDROID_AAB_PATH"
-        echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
-        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+        OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
+        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.apk"
+        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
 
-    - name: Artifacts
+    - name: Upload Artifact
       if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
       with:
@@ -290,23 +279,14 @@ jobs:
         path: |
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
-    - name: Upload Android apk Artifacts
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
-        compression-level: 0
-        path: |
-          ${{ env.ANDROID_APK_PATH }}
-
-    - name: Upload Android aab Artifacts
+    - name: Upload AAB Artifact
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
         compression-level: 0
         path: |
-          ${{ env.ANDROID_AAB_PATH }}
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
     - name: Upload debug symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
@@ -317,7 +297,7 @@ jobs:
         path: |
             ${{github.workspace}}/**/*.pdb
 
-    - name: Upload build
+    - name: Upload build to download.vcmi.eu
       if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
