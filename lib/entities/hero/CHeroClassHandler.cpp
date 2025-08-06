@@ -123,9 +123,9 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	LIBRARY->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index) {
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
+		classConf["heroClass"].setModScope(scope);
 		if (!node["compatibilityIdentifiers"].isNull())
 			classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
-		classConf.setModScope(scope);
 		LIBRARY->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
 	});
 

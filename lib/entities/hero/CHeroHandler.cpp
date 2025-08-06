@@ -207,9 +207,9 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 	JsonNode & specialtyNode = object["specialty"];
 	if(specialtyNode.getType() == JsonNode::JsonType::DATA_STRUCT)
 	{
-		const JsonNode & base = specialtyNode["base"];
-		if(!base.isNull())
+		if(specialtyNode.Struct().count("base") != 0)
 		{
+			const JsonNode & base = specialtyNode["base"];
 			if(specialtyNode["bonuses"].isNull())
 			{
 				logMod->warn("specialty has base without bonuses");
@@ -220,6 +220,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 				for(std::pair<std::string, JsonNode> keyValue : bonuses)
 					JsonUtils::inherit(bonuses[keyValue.first], base);
 			}
+			specialtyNode.Struct().erase("base");
 		}
 	}
 }
