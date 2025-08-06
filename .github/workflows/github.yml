@@ -283,7 +283,7 @@ jobs:
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
-        elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
+        elif ${{startsWith(matrix.platform, 'msvc') }}
         then
             cmake --preset ${{ matrix.preset }}
         else
