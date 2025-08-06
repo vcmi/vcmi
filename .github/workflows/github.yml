@@ -55,7 +55,7 @@ jobs:
 
           - platform: msvc-x64
             arch: x64
-            os: windows-latest
+            os: windows-2025
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -66,7 +66,7 @@ jobs:
 
           - platform: msvc-x86
             arch: x86
-            os: windows-latest
+            os: windows-2025
             pack: 1
             upload: 0
             pack_type: RelWithDebInfo
@@ -448,11 +448,11 @@ jobs:
         include:
           - platform: msvc-x64
             arch: x64
-            os: windows-latest
+            os: windows-2025
 
           - platform: msvc-x86
             arch: x86
-            os: windows-latest
+            os: windows-2025
 
           - platform: msvc-arm64
             arch: arm64
