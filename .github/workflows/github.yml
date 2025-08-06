@@ -15,6 +15,7 @@ env:
 
 jobs:
   build:
+    name: build-${{ matrix.platform }}
     strategy:
       matrix:
         include:
@@ -142,22 +143,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Extract version info
-      id: extract-version
-      shell: bash
-      run: |
-        filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
-
-        major=$(grep -m 1 "VCMI_VERSION_MAJOR" "$filePath" | tr -d -c 0-9)
-        minor=$(grep -m 1 "VCMI_VERSION_MINOR" "$filePath" | tr -d -c 0-9)
-        patch=$(grep -m 1 "VCMI_VERSION_PATCH" "$filePath" | tr -d -c 0-9)
-
-        short_version="${major}.${minor}.${patch}"
-        version_timestamp=$(date +"%Y%m%d%H%M%S")
-
-        echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
-        echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
-
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
@@ -275,35 +260,6 @@ jobs:
         echo Killing...; sudo pkill -9 XProtect >/dev/null || true;
         echo "Waiting..."; counter=0; while pgrep XProtect && ((counter < 20)); do sleep 3; ((counter++)); done
         pgrep XProtect || true
-
-    - name: Ensure Inno Setup is installed
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      shell: bash
-      run: |
-        if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ] && [ ! -f "/c/ProgramData/Chocolatey/bin/ISCC.exe" ]; then
-          choco install innosetup --no-progress -y
-        fi
-
-    - name: Build VCMI Installer
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: >
-        CI\wininstaller\build_installer.cmd
-        "${{ steps.extract-version.outputs.short_version }}"
-        "${{ env.VCMI_PACKAGE_BUILD }}"
-        "${{ matrix.arch }}"
-        "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
-        "${{ env.VCMI_PACKAGE_FILE_NAME }}"
-        "${{ github.workspace }}\out\build\${{ matrix.preset }}\bin\RelWithDebInfo"
-        "${{ github.workspace }}\ucrt"
-      shell: cmd
-
-    - name: Upload VCMI Installer Artifacts
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
-        path: |
-          ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
     - name: Pack
       id: cpack
@@ -518,6 +474,112 @@ jobs:
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
       run: |
         ctest --preset ${{matrix.preset}}
+
+  windows-installer:
+    needs: build
+    name: windows-installer-${{ matrix.arch }}
+    strategy:
+      matrix:
+        include:
+          - platform: msvc-x64
+            arch: x64
+            os: windows-latest
+
+          - platform: msvc-x86
+            arch: x86
+            os: windows-latest
+
+          - platform: msvc-arm64
+            arch: arm64
+            os: windows-11-arm
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Extract version info
+      id: extract-version
+      shell: bash
+      run: |
+        filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
+
+        major=$(grep -m 1 "VCMI_VERSION_MAJOR" "$filePath" | tr -d -c 0-9)
+        minor=$(grep -m 1 "VCMI_VERSION_MINOR" "$filePath" | tr -d -c 0-9)
+        patch=$(grep -m 1 "VCMI_VERSION_PATCH" "$filePath" | tr -d -c 0-9)
+
+        short_version="${major}.${minor}.${patch}"
+        version_timestamp=$(date +"%Y%m%d%H%M%S")
+
+        echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
+        echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
+
+    - name: Install vcpkg Dependencies
+      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
+
+    - name: Build Number
+      run: |
+        source '${{github.workspace}}/CI/get_package_name.sh'
+        VCMI_PACKAGE_FILE_NAME+="-${{ matrix.arch }}"
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_BUILD="$VCMI_PACKAGE_BUILD" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: ${{github.workspace}}/artifact
+
+    - name: Extract Artifact
+      shell: bash
+      run: |
+        mkdir artifact/extracted
+        unzip "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d artifact/extracted
+
+    - name: Ensure Inno Setup is installed
+      shell: bash
+      run: |
+        if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ] && [ ! -f "/c/ProgramData/Chocolatey/bin/ISCC.exe" ]; then
+          choco install innosetup --no-progress -y
+        fi
+
+    - name: Build VCMI Installer
+      run: >
+        CI\wininstaller\build_installer.cmd
+        "${{ steps.extract-version.outputs.short_version }}"
+        "${{ env.VCMI_PACKAGE_BUILD }}"
+        "${{ matrix.arch }}"
+        "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
+        "${{ env.VCMI_PACKAGE_FILE_NAME }}"
+        "${{ github.workspace }}\artifact\extracted"
+        "${{ github.workspace }}\ucrt"
+      shell: cmd
+
+    - name: Upload VCMI Installer Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
+        path: |
+          ${{ github.workspace }}/CI/wininstaller/Output/*.exe
+
+    - name: Upload Installer
+      if: ${{ github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master' }}
+      run: |
+        cd '${{github.workspace}}/CI/wininstaller/Output'
+        source '${{github.workspace}}/CI/upload_package.sh'
+      env:
+        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        PACKAGE_EXTENSION: exe
 
   validate-code:
     if: always()
