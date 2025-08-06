@@ -308,8 +308,8 @@ jobs:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
 
-  deploy-src:
-    name: Deploy Source Code Package
+  upload-source-package:
+    name: Upload Source Code Package
     if: always() && github.event.number == ''
     runs-on: ubuntu-24.04
     defaults:
@@ -336,6 +336,7 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
+            compression-level: 0
             path: |
               ./release.tar.gz
 
@@ -533,6 +534,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
+        compression-level: 0
         path: |
           ${{ github.workspace }}/CI/wininstaller/Output/*.exe
 
