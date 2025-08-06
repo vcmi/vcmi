@@ -84,7 +84,7 @@ jobs:
             os: windows-latest
             test: 0
             pack: 1
-            upload: 1
+            upload: 0
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
@@ -96,7 +96,7 @@ jobs:
             os: windows-latest
             test: 0
             pack: 1
-            upload: 1
+            upload: 0
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
@@ -108,7 +108,7 @@ jobs:
             os: windows-11-arm
             test: 0
             pack: 1
-            upload: 1
+            upload: 0
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
@@ -120,7 +120,7 @@ jobs:
             test: 0
             pack: 1
             pack_type: Release
-            extension: exe
+            extension: zip
             cmake_args: -G Ninja
             before_install: mingw.sh
             preset: windows-mingw-conan-linux
@@ -132,7 +132,7 @@ jobs:
             test: 0
             pack: 1
             pack_type: Release
-            extension: exe
+            extension: zip
             cmake_args: -G Ninja
             before_install: mingw.sh
             preset: windows-mingw-conan-linux
@@ -408,15 +408,23 @@ jobs:
       if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
       continue-on-error: true
       run: |
-        if ${{startsWith(matrix.platform, 'msvc') }}; then
-          cd '${{github.workspace}}/CI/wininstaller/Output'
-        elif [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
+        if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
         fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
+        
+    - name: Upload Installer
+      if: ${{ startsWith(matrix.platform, 'msvc') && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
+      continue-on-error: true
+      run: |
+        cd '${{github.workspace}}/CI/wininstaller/Output'
+        source '${{github.workspace}}/CI/upload_package.sh'
+      env:
+        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        PACKAGE_EXTENSION: exe
 
   deploy-src:
     if: always() && github.ref == 'refs/heads/master'
