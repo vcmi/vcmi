@@ -385,7 +385,7 @@ jobs:
     - name: Sign
       env:
         SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: signpath/github-action-submit-signing-request@v1.1
       with:
         api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
@@ -399,7 +399,7 @@ jobs:
     - name: Signed artifact
       env:
         SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-      if: ${{ env.SIGNPATH_API_TOKEN != '' && startsWith(matrix.platform, 'msvc') }}
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - signed
