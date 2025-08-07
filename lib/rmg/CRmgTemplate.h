@@ -88,9 +88,9 @@ enum class EConnectionType
 
 enum class ERoadOption
 {
+	ROAD_RANDOM = 0,
 	ROAD_TRUE,
-	ROAD_FALSE,
-	ROAD_RANDOM
+	ROAD_FALSE
 };
 
 class DLL_LINKAGE ZoneConnection

@@ -555,7 +555,7 @@ ZoneConnection::ZoneConnection():
 	zoneB(-1),
 	guardStrength(0),
 	connectionType(rmg::EConnectionType::GUARDED),
-	hasRoad(rmg::ERoadOption::ROAD_TRUE)
+	hasRoad(rmg::ERoadOption::ROAD_RANDOM)
 {
 
 }
@@ -639,9 +639,9 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 
 	static const std::vector<std::string> roadOptions =
 	{
+		"random",
 		"true",
-		"false",
-		"random"
+		"false"
 	};
 
 	if (handler.saving)
