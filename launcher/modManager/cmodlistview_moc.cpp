@@ -892,10 +892,7 @@ void CModListView::installFiles(QStringList files)
 
 				// Check for mod.json anywhere in archive
 				if (lower.endsWith("mod.json"))
-				{
 					hasModJson = true;
-					break;
-				}
 
 				// Check for map files anywhere
 				if (lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
