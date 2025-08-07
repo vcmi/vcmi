@@ -473,24 +473,27 @@ function IsUCRTNeeded: Boolean;
 var
   FileName: String;
 begin
-  Result := False; // Default to not copying files
+  Result := True; // Default to copy the file
 
-  // Normalize and extract the file name from CurrentFileName
   FileName := ExtractFileName(ExpandConstant(CurrentFileName));
 
-  // Check for file existence based on architecture
-  if IsWin64 then
+  // Only check system if the file name contains "api"
+  if Pos('API', UpperCase(FileName)) = 1 then
   begin
-    if ExpandConstant('{#InstallerArch}') = 'x64' then
-      // For 64-bit installer on 64-bit OS, check System32
-      Result := not FileExists(ExpandConstant('{win}\System32\' + FileName))
+    // Check existence based on architecture
+    if IsWin64 then
+    begin
+      if ExpandConstant('{#InstallerArch}') = 'x64' then
+        // For 64-bit installer on 64-bit OS, check System32
+        Result := not FileExists(ExpandConstant('{win}\System32\' + FileName))
+      else
+        // For 32-bit installer on 64-bit OS, check SysWOW64
+        Result := not FileExists(ExpandConstant('{win}\SysWOW64\' + FileName));
+    end
     else
-      // For 32-bit installer on 64-bit OS, check SysWOW64
-      Result := not FileExists(ExpandConstant('{win}\SysWOW64\' + FileName));
-  end
-  else
-    // For 32-bit OS, always check System32
-    Result := not FileExists(ExpandConstant('{win}\System32\' + FileName));
+      // For 32-bit OS, always check System32
+      Result := not FileExists(ExpandConstant('{win}\System32\' + FileName));
+  end;
 end;
 
 
@@ -962,6 +965,7 @@ begin
       Abort;
   end;
 end;
+
 
 
 
