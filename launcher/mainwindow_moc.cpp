@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget * parent)
 	load(); // load FS before UI
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
-	
+
 	if (!setupCompleted)
 		detectPreferredLanguage();
 
