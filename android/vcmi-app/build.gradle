@@ -46,7 +46,7 @@ android {
 			manifest.srcFile '../AndroidManifest.xml'
 			jniLibs.srcDirs = ['../libs']
 
-			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+			java.srcDirs = [qt5AndroidDir + '/src', 'src', SDL_JAVA_SRC_DIR]
 			aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
 			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']
 		}
