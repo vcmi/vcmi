@@ -46,6 +46,7 @@ public:
 	void placeOnGrid(vstd::RNG* rand);
 	float scaleForceBetweenZones(const std::shared_ptr<Zone> zoneA, const std::shared_ptr<Zone> zoneB) const;
 	void assignZones(vstd::RNG * rand);
+	void RemoveRoadsForWideConnections();
 
 	const TDistanceMap & getDistanceMap();
 	

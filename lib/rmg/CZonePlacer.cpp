@@ -18,6 +18,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../GameLibrary.h"
 #include "CMapGenOptions.h"
+#include "CRmgTemplate.h"
 #include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"
@@ -1003,6 +1004,24 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+void CZonePlacer::RemoveRoadsForWideConnections()
+{
+	auto zones = map.getZones();
+	
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{
+			if(connection.getConnectionType() == rmg::EConnectionType::WIDE)
+			{
+				zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+			}
+		}
+	}
+}
+
+
 
 const TDistanceMap& CZonePlacer::getDistanceMap()
 {
