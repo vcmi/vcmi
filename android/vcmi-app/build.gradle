@@ -14,7 +14,15 @@ android {
 	 * Changing them manually might break the compilation!
 	 *******************************************************/
 
-	ndkVersion '25.2.9519653'
+	namespace = "eu.vcmi.vcmi"
+
+	buildToolsVersion = androidBuildToolsVersion
+	ndkVersion = androidNdkVersion // Qt generates this property
+
+	buildFeatures {
+		aidl = true
+		buildConfig = true
+	}
 
 	// Extract native libraries from the APK
 	packagingOptions.jniLibs.useLegacyPackaging true
@@ -84,8 +92,8 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 
 	// Do not compress Qt binary resources file
@@ -123,9 +131,9 @@ def SigningKeystorePath(final basePath, final keystoreFileName) {
 def LoadSigningConfig(final signingConfigKey) {
 	final def props = new Properties()
 	final def propFile = SigningPropertiesPath(signingRoot, signingConfigKey)
-	
+
 	def signingConfig = android.signingConfigs.getAt(signingConfigKey)
-	
+
 	if (propFile.canRead()) {
 		props.load(new FileInputStream(propFile))
 
@@ -136,12 +144,12 @@ def LoadSigningConfig(final signingConfigKey) {
 			signingConfig.storeFile = SigningKeystorePath(signingRoot, props['STORE_FILE'])
 			signingConfig.storePassword = props['STORE_PASSWORD']
 			signingConfig.keyAlias = props['KEY_ALIAS']
-			
+
 			if(props.containsKey('STORE_PASSWORD'))
 				signingConfig.storePassword = props['STORE_PASSWORD']
 			else
 				signingConfig.storePassword = System.getenv("ANDROID_STORE_PASSWORD")
-			
+
 			if(props.containsKey('KEY_PASSWORD'))
 				signingConfig.keyPassword = props['KEY_PASSWORD']
 			else

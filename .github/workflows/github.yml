@@ -243,6 +243,11 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    # Can't be set in Gradle project
+    - name: Configure enableUncompressedNativeLibs
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
+
     # Workaround for gradle not discovering SDK that was installed via conan
     - name: Find Android NDK
       if: ${{ startsWith(matrix.platform, 'android') }}
@@ -253,7 +258,7 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
     - name: Bump Android x64 build ID
