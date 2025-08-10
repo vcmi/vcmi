@@ -183,7 +183,7 @@ include(VersionDefinition)
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
-# Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
+# Very useful to put 3rd-party libraries such as GoogleTest and FuzzyLite in their own folders
 set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
 # Make FOLDER property inheritable
 # So when we set FOLDER property on AI directory all and targets inside will inherit it
@@ -500,14 +500,7 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
-if(NOT FORCE_BUNDLED_MINIZIP)
-	find_package(minizip)
-	if(TARGET minizip::minizip)
-		add_definitions(-DUSE_SYSTEM_MINIZIP)
-	endif()
-endif()
-
+find_package(minizip REQUIRED)
 
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)
@@ -703,11 +696,6 @@ endif()
 
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
-endif()
-
-if(NOT TARGET minizip::minizip)
-	add_subdirectory_with_folder("3rdparty" lib/minizip)
-	add_library(minizip::minizip ALIAS minizip)
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)

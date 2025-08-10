@@ -10,8 +10,7 @@
             "name": "build-with-conan",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
-                "FORCE_BUNDLED_MINIZIP": "OFF"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake"
             }
         },
         {
@@ -163,8 +162,7 @@
             },
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
@@ -176,7 +174,6 @@
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "CMAKE_GENERATOR_PLATFORM": "WIN32"
             }
         },
@@ -192,8 +189,7 @@
             },
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
@@ -298,7 +294,6 @@
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "iOS",
                 "FORCE_BUNDLED_FL": "ON",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "ENABLE_EDITOR" : "OFF"
             }
         },
