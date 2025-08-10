@@ -53,6 +53,11 @@ void CComponentHolder::setShowPopupCallback(const ClickFunctor & callback)
 	showPopupCallback = callback;
 }
 
+void CComponentHolder::setClosePopupWindowCallback(const std::function<void()> & callback)
+{
+    closePopupWindowCallback = callback;
+}
+
 void CComponentHolder::setGestureCallback(const ClickFunctor & callback)
 {
 	gestureCallback = callback;
@@ -68,6 +73,12 @@ void CComponentHolder::showPopupWindow(const Point & cursorPosition)
 {
 	if(showPopupCallback)
 		showPopupCallback(*this, cursorPosition);
+}
+
+void CComponentHolder::closePopupWindow(bool alreadyClosed)
+{
+    if(closePopupWindowCallback)
+        closePopupWindowCallback();
 }
 
 void CComponentHolder::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
