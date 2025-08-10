@@ -133,15 +133,12 @@ void MainWindow::detectPreferredLanguage()
 	// Skip autodetection if language is already set to a valid VCMI language
 	std::string currentLanguage = settings["general"]["language"].String();
 
-	if (!currentLanguage.empty())
+	for (const auto &vcmiLang : Languages::getLanguageList())
 	{
-		for (const auto &vcmiLang : Languages::getLanguageList())
+		if (vcmiLang.identifier == currentLanguage && vcmiLang.selectable)
 		{
-			if (vcmiLang.identifier == currentLanguage && vcmiLang.selectable)
-			{
-				logGlobal->info("Language '%s' is already valid, skipping autodetection", currentLanguage);
-				return;
-			}
+			logGlobal->info("Language '%s' is already valid, skipping autodetection", currentLanguage);
+			return;
 		}
 	}
 
