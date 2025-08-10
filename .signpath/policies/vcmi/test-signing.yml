@@ -1,0 +1,4 @@
+github-policies:
+  runners:
+    allowed_groups:
+      - 'GitHub Actions'                         # all jobs need to run on GitHub-hosted runners
