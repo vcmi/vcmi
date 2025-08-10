@@ -105,7 +105,7 @@ private:
 	std::vector<std::unique_ptr<CGObjectInstance>> _clipboard;
 	int _clipboardShiftIndex = 0;
 
-	const int MAX_LEVELS = 10;
+	const int MAX_LEVELS = 10; // TODO: multilevel support: remove this constant
 
 	std::map<TerrainId, std::unique_ptr<EditorObstaclePlacer>> _obstaclePainters;
 
