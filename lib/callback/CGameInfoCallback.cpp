@@ -791,7 +791,7 @@ bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, Playe
 	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
 }
 
-void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
+void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles, bool skipIfNearbyBlocked) const
 {
 	std::vector<int> floors;
 	floors.reserve(gameState().getMap().levels());
@@ -808,7 +808,38 @@ void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles) const
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
-					tiles.emplace_back(xd, yd, zd);
+				{
+					bool nearbyMonsterOrBlocked = false;
+					if (skipIfNearbyBlocked)
+					{
+						FowTilesType nearbyTiles;
+						getTilesInRange( nearbyTiles, int3 (xd,yd,zd), 1, ETileVisibility::REVEALED);
+
+						for (auto & nearbyTile : nearbyTiles)
+						{
+							auto nearbyTileInfo = getTile(nearbyTile);
+							if (nearbyTileInfo->isLand() && nearbyTileInfo->getTerrain()->isPassable() && !nearbyTileInfo->blocked())
+								continue;
+							else
+							{
+								std::ostringstream tPos;
+								tPos << "(" << xd << "," << yd << "," << zd << ")";
+								std::ostringstream nearbyTPos;
+								nearbyTPos << "(" << nearbyTile.x << "," << nearbyTile.y << "," << nearbyTile.z << ")";
+
+								logGlobal->trace("Skipping free tile %d because nearby tile %s is blocked", tPos.str(),  nearbyTPos.str());
+								nearbyMonsterOrBlocked = true;
+								break;
+							}
+						}
+					}
+
+					// Ensure that CGameHandler::spawnWanderingMonsters won't set a random monster next to another monster
+					// because Nullkiller AI is not able to go to one monster without falling into the attack range of the nearby one
+					// See GraphPaths::addChainInfo if(node.linkDanger > 0) (no link between random monsters and map monsters)
+					if (!nearbyMonsterOrBlocked)
+						tiles.emplace_back(xd, yd, zd);
+				}
 			}
 		}
 	}
