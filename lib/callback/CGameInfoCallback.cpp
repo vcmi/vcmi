@@ -820,17 +820,17 @@ void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles, bool skipIfNearb
 							auto nearbyTileInfo = getTile(nearbyTile);
 							if (nearbyTileInfo->isLand() && nearbyTileInfo->getTerrain()->isPassable() && !nearbyTileInfo->blocked())
 								continue;
-							else
-							{
-								std::ostringstream tPos;
-								tPos << "(" << xd << "," << yd << "," << zd << ")";
-								std::ostringstream nearbyTPos;
-								nearbyTPos << "(" << nearbyTile.x << "," << nearbyTile.y << "," << nearbyTile.z << ")";
 
-								logGlobal->trace("Skipping free tile %d because nearby tile %s is blocked", tPos.str(),  nearbyTPos.str());
-								nearbyMonsterOrBlocked = true;
-								break;
-							}
+#if NKAI_TRACE_LEVEL >= 2
+							std::ostringstream tPos;
+							tPos << "(" << xd << "," << yd << "," << zd << ")";
+							std::ostringstream nearbyTPos;
+							nearbyTPos << "(" << nearbyTile.x << "," << nearbyTile.y << "," << nearbyTile.z << ")";
+							logGlobal->trace("Skipping free tile %d because nearby tile %s is blocked", tPos.str(), nearbyTPos.str());
+#endif
+
+							nearbyMonsterOrBlocked = true;
+							break;
 						}
 					}
 
