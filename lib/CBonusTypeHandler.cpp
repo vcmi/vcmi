@@ -42,6 +42,7 @@ CBonusTypeHandler::CBonusTypeHandler()
 #define BONUS_NAME(x) { #x },
 	builtinBonusNames = {
 		BONUS_LIST
+		BONUS_AFFECTING_CREATURE
 	};
 #undef BONUS_NAME
 

@@ -870,6 +870,11 @@ void CStackWindow::initBonusesList()
 
 	// these bonuses require special handling. For example they come with own descriptions, for use in morale/luck description
 	// also, this information is already available in creature window
+
+	receivedBonuses.remove_if([](const Bonus* b)
+	{
+		return std::find(bonusAffectingCreature.begin(), bonusAffectingCreature.end(), b->type) == bonusAffectingCreature.end();
+	});
 	receivedBonuses.remove_if(Selector::type()(BonusType::MORALE));
 	receivedBonuses.remove_if(Selector::type()(BonusType::LUCK));
 
