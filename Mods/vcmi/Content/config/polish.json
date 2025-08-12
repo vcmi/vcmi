@@ -747,7 +747,7 @@
 	"core.bonus.NO_MELEE_PENALTY.description" : "{Bez ograniczeń}\nStworzenie nie ma kar w walce wręcz",
 	"core.bonus.NO_MORALE.description" : "{Neutralne Morale}\nOdporność na efekty morale",
 	"core.bonus.NON_LIVING.description" : "{Nieżyjący}\nNiewrażliwość na wiele efektów",
-	"core.bonus.NO_WALL_PENALTY.description" : "{Bez przeszkód}\nPełne obrażenia podczas oblężenia",
+	"core.bonus.NO_WALL_PENALTY.description" : "{Bez przeszkód}\nPełne obrażenia niezależnie od murów",
 	"core.bonus.PRISM_HEX_ATTACK_BREATH.description" : "{Pryzmatyczny oddech}\nAtakuje pryzmatycznym zionięciem (3 kierunki)",
 	"core.bonus.RANDOM_SPELLCASTER.description" : "{Losowy czarodziej}\nMoże rzucić losowy czar",
 	"core.bonus.RANGED_RETALIATION.description" : "{Dystansowy kontratak}\nMoże wykonać kontratak dystansowy",
