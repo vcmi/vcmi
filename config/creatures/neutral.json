@@ -621,7 +621,8 @@
 			{
 				"type" : "NO_TERRAIN_PENALTY",
 				"subtype" : "terrain.sand",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "Hero ignores terrain penalty on sand"
 			}
 		},
 		"graphics" :
@@ -652,7 +653,8 @@
 				"subtype" : "visionsMonsters",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "Hero can see detailed informations about neutral monsters."
 			},
 			"visionsHeroes" :
 			{
@@ -660,7 +662,8 @@
 				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "Hero can see detailed informations about enemy heroes."
 			},
 			"visionsTowns" :
 			{
@@ -668,7 +671,8 @@
 				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "Hero can see detailed informations about enemy towns."
 			}
 		},
 		"graphics" :
