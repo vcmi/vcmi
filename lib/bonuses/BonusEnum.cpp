@@ -18,8 +18,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 	const std::map<std::string, BonusValueType> bonusValueMap = { BONUS_VALUE_LIST };
 #undef BONUS_VALUE
 
-#define BONUS_NAME(x) { BonusType::x },
-	extern DLL_LINKAGE const std::vector<BonusType> bonusAffectingCreature = {
+#define BONUS_NAME(x) BonusType::x,
+	const std::vector<BonusType> bonusAffectingCreature = {
 		BONUS_AFFECTING_CREATURE
 	};
 #undef BONUS_AFFECTING_CREATURE
