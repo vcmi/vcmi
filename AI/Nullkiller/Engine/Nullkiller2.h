@@ -73,7 +73,7 @@ public:
 	void merge(Goals::TSubgoal task);
 };
 
-class Nullkiller
+class Nullkiller2
 {
 private:
 	const CGHeroInstance * activeHero;
@@ -110,8 +110,8 @@ public:
 	std::mutex aiStateMutex;
 	mutable ThreadInterruption makingTurnInterrupption;
 
-	Nullkiller();
-	~Nullkiller();
+	Nullkiller2();
+	~Nullkiller2();
 	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
 	void makeTurn();
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }

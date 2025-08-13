@@ -8,7 +8,7 @@
 *
 */
 #include "StdInc.h"
-#include "Nullkiller.h"
+#include "Nullkiller2.h"
 #include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
@@ -33,9 +33,9 @@ namespace NKAI
 using namespace Goals;
 
 // while we play vcmieagles graph can be shared
-std::unique_ptr<ObjectGraph> Nullkiller::baseGraph;
+std::unique_ptr<ObjectGraph> Nullkiller2::baseGraph;
 
-Nullkiller::Nullkiller()
+Nullkiller2::Nullkiller2()
 	: activeHero(nullptr)
 	, scanDepth(ScanDepth::MAIN_FULL)
 	, useHeroChain(true)
@@ -45,7 +45,7 @@ Nullkiller::Nullkiller()
 
 }
 
-Nullkiller::~Nullkiller() = default;
+Nullkiller2::~Nullkiller2() = default;
 
 bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 {
@@ -69,7 +69,7 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	return true;
 }
 
-void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
+void Nullkiller2::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
 	this->cb = cb;
 	this->gateway = gateway;
@@ -166,7 +166,7 @@ void TaskPlan::merge(TSubgoal task)
 	tasks.emplace_back(task);
 }
 
-Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
+Goals::TTask Nullkiller2::choseBestTask(Goals::TGoalVec & tasks) const
 {
 	if(tasks.empty())
 	{
@@ -187,7 +187,7 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 	return taskptr(*bestTask);
 }
 
-Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
+Goals::TTaskVec Nullkiller2::buildPlan(TGoalVec & tasks, int priorityTier) const
 {
 	TaskPlan taskPlan;
 
@@ -216,7 +216,7 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 	return taskPlan.getTasks();
 }
 
-void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const
+void Nullkiller2::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
 	makingTurnInterrupption.interruptionPoint();
 
@@ -234,7 +234,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 		timeElapsed(start));
 }
 
-void Nullkiller::resetAiState()
+void Nullkiller2::resetAiState()
 {
 	std::unique_lock lockGuard(aiStateMutex);
 
@@ -252,12 +252,12 @@ void Nullkiller::resetAiState()
 	}
 }
 
-void Nullkiller::invalidatePathfinderData()
+void Nullkiller2::invalidatePathfinderData()
 {
 	pathfinderInvalidated = true;
 }
 
-void Nullkiller::updateAiState(int pass, bool fast)
+void Nullkiller2::updateAiState(int pass, bool fast)
 {
 	makingTurnInterrupption.interruptionPoint();
 
@@ -334,12 +334,12 @@ void Nullkiller::updateAiState(int pass, bool fast)
 	logAi->debug("AI state updated in %ld ms", timeElapsed(start));
 }
 
-bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
+bool Nullkiller2::isHeroLocked(const CGHeroInstance * hero) const
 {
 	return getHeroLockedReason(hero) != HeroLockedReason::NOT_LOCKED;
 }
 
-bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
+bool Nullkiller2::arePathHeroesLocked(const AIPath & path) const
 {
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
@@ -365,14 +365,14 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 	return false;
 }
 
-HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) const
+HeroLockedReason Nullkiller2::getHeroLockedReason(const CGHeroInstance * hero) const
 {
 	auto found = lockedHeroes.find(hero);
 
 	return found != lockedHeroes.end() ? found->second : HeroLockedReason::NOT_LOCKED;
 }
 
-void Nullkiller::makeTurn()
+void Nullkiller2::makeTurn()
 {
 	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
 
@@ -572,7 +572,7 @@ void Nullkiller::makeTurn()
 	}
 }
 
-bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
+bool Nullkiller2::areAffectedObjectsPresent(Goals::TTask task) const
 {
 	auto affectedObjs = task->getAffectedObjects();
 
@@ -585,7 +585,7 @@ bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
 	return true;
 }
 
-HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
+HeroRole Nullkiller2::getTaskRole(Goals::TTask task) const
 {
 	HeroPtr hero = task->getHero();
 	HeroRole heroRole = HeroRole::MAIN;
@@ -596,7 +596,7 @@ HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
 	return heroRole;
 }
 
-bool Nullkiller::executeTask(Goals::TTask task)
+bool Nullkiller2::executeTask(Goals::TTask task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
@@ -624,7 +624,7 @@ bool Nullkiller::executeTask(Goals::TTask task)
 	return true;
 }
 
-TResources Nullkiller::getFreeResources() const
+TResources Nullkiller2::getFreeResources() const
 {
 	auto freeRes = cb->getResourceAmount() - lockedResources;
 
@@ -633,12 +633,12 @@ TResources Nullkiller::getFreeResources() const
 	return freeRes;
 }
 
-void Nullkiller::lockResources(const TResources & res)
+void Nullkiller2::lockResources(const TResources & res)
 {
 	lockedResources += res;
 }
 
-bool Nullkiller::handleTrading()
+bool Nullkiller2::handleTrading()
 {
 	bool haveTraded = false;
 	bool shouldTryToTrade = true;
@@ -736,12 +736,12 @@ bool Nullkiller::handleTrading()
 	return haveTraded;
 }
 
-std::shared_ptr<const CPathsInfo> Nullkiller::getPathsInfo(const CGHeroInstance * h) const
+std::shared_ptr<const CPathsInfo> Nullkiller2::getPathsInfo(const CGHeroInstance * h) const
 {
 	return pathfinderCache->getPathsInfo(h);
 }
 
-void Nullkiller::invalidatePaths()
+void Nullkiller2::invalidatePaths()
 {
 	pathfinderCache->invalidatePaths();
 }

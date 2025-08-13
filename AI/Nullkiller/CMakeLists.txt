@@ -47,7 +47,7 @@ set(Nullkiller_SRCS
 		Markers/UnlockCluster.cpp
 		Markers/DefendTown.cpp
 		Markers/ExplorationPoint.cpp
-		Engine/Nullkiller.cpp
+		Engine/Nullkiller2.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
@@ -123,7 +123,7 @@ set(Nullkiller_HEADERS
 		Markers/UnlockCluster.h
 		Markers/DefendTown.h
 		Markers/ExplorationPoint.h
-		Engine/Nullkiller.h
+		Engine/Nullkiller2.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
 		Analyzers/DangerHitMapAnalyzer.h
