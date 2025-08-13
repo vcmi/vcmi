@@ -18,7 +18,7 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 struct PathfinderSettings
 {
@@ -40,11 +40,11 @@ class AIPathfinder
 private:
 	std::shared_ptr<AINodeStorage> storage;
 	CPlayerSpecificInfoCallback * cb;
-	Nullkiller2 * ai;
+	Nullkiller * ai;
 	static std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
 
 public:
-	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller2 * ai);
+	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai);
 	void calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
 	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);

@@ -10,7 +10,7 @@
 
 #include "StdInc.h"
 #include "ArmyManager.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/IGameSettings.h"

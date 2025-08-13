@@ -25,7 +25,7 @@ namespace AIPathfinding
 	{
 	private:
 		CPlayerSpecificInfoCallback * cb;
-		Nullkiller2 * ai;
+		Nullkiller * ai;
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		std::map<const CGHeroInstance *, std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;
@@ -35,7 +35,7 @@ namespace AIPathfinding
 	public:
 		AILayerTransitionRule(
 			CPlayerSpecificInfoCallback * cb,
-			Nullkiller2 * ai,
+			Nullkiller * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual void process(

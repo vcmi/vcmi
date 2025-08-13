@@ -28,7 +28,7 @@ namespace Goals
 		{
 		}
 
-		Goals::TGoalVec decompose(const Nullkiller2 * ai) const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
 		std::string toString() const override;
 
 		bool operator==(const DefenceBehavior & other) const override
@@ -37,8 +37,8 @@ namespace Goals
 		}
 
 	private:
-		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller2 * ai) const;
-		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller2 * ai) const;
+		void evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * ai) const;
+		void evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const;
 	};
 }
 

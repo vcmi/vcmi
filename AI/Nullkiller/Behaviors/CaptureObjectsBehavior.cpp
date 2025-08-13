@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Invalid.h"
@@ -49,7 +49,7 @@ bool CaptureObjectsBehavior::operator==(const CaptureObjectsBehavior & other) co
 
 Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 	const std::vector<AIPath> & paths,
-	const Nullkiller2 * nullkiller,
+	const Nullkiller * nullkiller,
 	const CGObjectInstance * objToVisit,
 	bool force)
 {
@@ -169,7 +169,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 void CaptureObjectsBehavior::decomposeObjects(
 	Goals::TGoalVec & result,
 	const std::vector<const CGObjectInstance *> & objs,
-	const Nullkiller2 * nullkiller) const
+	const Nullkiller * nullkiller) const
 {
 	if(objs.empty())
 	{
@@ -212,7 +212,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 		});
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 

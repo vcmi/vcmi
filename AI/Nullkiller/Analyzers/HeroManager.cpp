@@ -9,7 +9,7 @@
 */
 
 #include "../StdInc.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/spells/ISpellMechanics.h"

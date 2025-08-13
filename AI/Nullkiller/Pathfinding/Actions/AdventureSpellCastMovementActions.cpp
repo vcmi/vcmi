@@ -56,7 +56,7 @@ namespace AIPathfinding
 		Goals::AdventureSpellCast(hero, spellToCast).accept(ai);
 	}
 
-	bool AdventureCastAction::canAct(const Nullkiller2 * ai, const AIPathNode * source) const
+	bool AdventureCastAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
 		assert(hero == this->hero);
 

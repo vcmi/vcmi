@@ -16,7 +16,7 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 namespace AIPathfinding
 {
@@ -29,7 +29,7 @@ namespace AIPathfinding
 	public:
 		AIPathfinderConfig(
 			CPlayerSpecificInfoCallback * cb,
-			Nullkiller2 * ai,
+			Nullkiller * ai,
 			std::shared_ptr<AINodeStorage> nodeStorage,
 			bool allowBypassObjects);
 

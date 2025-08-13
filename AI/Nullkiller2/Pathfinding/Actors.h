@@ -21,7 +21,7 @@ extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;
 
 class ChainActor;
 class HeroActor;
-class Nullkiller2;
+class Nullkiller;
 
 class HeroExchangeArmy : public CArmedInstance
 {
@@ -92,11 +92,11 @@ class HeroExchangeMap
 private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 	std::shared_mutex sync;
 
 public:
-	HeroExchangeMap(const HeroActor * actor, const Nullkiller2 * ai);
+	HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai);
 	~HeroExchangeMap();
 
 	ExchangeResult tryExchangeNoLock(const ChainActor * other);
@@ -121,8 +121,8 @@ public:
 	std::shared_ptr<SpecialAction> exchangeAction;
 	// chain flags, can be combined meaning hero exchange and so on
 
-	HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller2 * ai);
-	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller2 * ai);
+	HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai);
+	HeroActor(const ChainActor * carrier, const ChainActor * other, const HeroExchangeArmy * army, const Nullkiller * ai);
 
 protected:
 	ExchangeResult tryExchangeNoLock(const ChainActor * specialActor, const ChainActor * other) const override;

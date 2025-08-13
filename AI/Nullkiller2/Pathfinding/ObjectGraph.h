@@ -16,7 +16,7 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 struct ObjectLink
 {
@@ -71,11 +71,11 @@ public:
 	{
 	}
 
-	void updateGraph(const Nullkiller2 * ai);
+	void updateGraph(const Nullkiller * ai);
 	void addObject(const CGObjectInstance * obj);
 	void registerJunction(const int3 & pos);
 	void addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard);
-	void connectHeroes(const Nullkiller2 * ai);
+	void connectHeroes(const Nullkiller * ai);
 	void removeObject(const CGObjectInstance * obj);
 	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
 	void removeConnection(const int3 & from, const int3 & to);

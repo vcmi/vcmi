@@ -12,7 +12,7 @@
 #include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
@@ -24,7 +24,7 @@ std::string BuyArmyBehavior::toString() const
 	return "Buy army";
 }
 
-Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 

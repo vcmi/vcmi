@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "DefenceBehavior.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 #include "../Goals/BuyArmy.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -34,7 +34,7 @@ std::string DefenceBehavior::toString() const
 	return "Defend towns";
 }
 
-Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 		
@@ -46,7 +46,7 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller2 * ai) const
 	return tasks;
 }
 
-bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller2 * ai, const std::vector<AIPath> & paths)
+bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller * ai, const std::vector<AIPath> & paths)
 {
 	int dayOfWeek = ai->cb->getDate(Date::DAY_OF_WEEK);
 
@@ -81,7 +81,7 @@ void handleCounterAttack(
 	const CGTownInstance * town,
 	const HitMapInfo & threat,
 	const HitMapInfo & maximumDanger,
-	const Nullkiller2 * ai,
+	const Nullkiller * ai,
 	Goals::TGoalVec & tasks)
 {
 	if(threat.hero.validAndSet()
@@ -107,7 +107,7 @@ void handleCounterAttack(
 	}
 }
 
-bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller2 * ai)
+bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoalVec & tasks, const Nullkiller * ai)
 {
 	if(ai->isHeroLocked(town->getGarrisonHero()))
 	{
@@ -149,7 +149,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	return false;
 }
 
-void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller2 * ai) const
+void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * ai) const
 {
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
@@ -423,7 +423,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	logAi->debug("Found %d tasks", tasks.size());
 }
 
-void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller2 * ai) const
+void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * ai) const
 {
 	if (threat.turn > 0 || town->getGarrisonHero() || town->getVisitingHero())
 		return;

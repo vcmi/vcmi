@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Actors.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/pathfinder/TurnInfo.h"
@@ -97,7 +97,7 @@ std::string ObjectActor::toString() const
 	return object->getObjectName() + " at " + object->visitablePos().toString();
 }
 
-HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller2 * ai)
+HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai)
 	:ChainActor(hero, heroRole, chainMask)
 {
 	exchangeMap.reset(new HeroExchangeMap(this, ai));
@@ -108,7 +108,7 @@ HeroActor::HeroActor(
 	const ChainActor * carrier,
 	const ChainActor * other,
 	const HeroExchangeArmy * army,
-	const Nullkiller2 * ai)
+	const Nullkiller * ai)
 	:ChainActor(carrier, other, army)
 {
 	exchangeMap.reset(new HeroExchangeMap(this, ai));
@@ -185,7 +185,7 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 	return result;
 }
 
-HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller2 * ai)
+HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
 	:actor(actor), ai(ai), sync()
 {
 }

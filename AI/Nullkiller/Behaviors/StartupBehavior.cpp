@@ -16,7 +16,7 @@
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 #include "../../../lib/mapObjects/CGResource.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
@@ -41,7 +41,7 @@ const AIPath getShortestPath(const CGTownInstance * town, const std::vector<AIPa
 	return shortestPath;
 }
 
-const CGHeroInstance * getNearestHero(const Nullkiller2 * ai, const CGTownInstance * town)
+const CGHeroInstance * getNearestHero(const Nullkiller * ai, const CGTownInstance * town)
 {
 	auto paths = ai->pathfinder->getPathInfo(town->visitablePos());
 
@@ -59,7 +59,7 @@ const CGHeroInstance * getNearestHero(const Nullkiller2 * ai, const CGTownInstan
 	return shortestPath.targetHero;
 }
 
-bool needToRecruitHero(const Nullkiller2 * ai, const CGTownInstance * startupTown)
+bool needToRecruitHero(const Nullkiller * ai, const CGTownInstance * startupTown)
 {
 	if(!ai->heroManager->canRecruitHero(startupTown))
 		return false;
@@ -108,7 +108,7 @@ bool needToRecruitHero(const Nullkiller2 * ai, const CGTownInstance * startupTow
 	return cb->getHeroCount(ai->playerID, true) < basicCount + boost;
 }
 
-Goals::TGoalVec StartupBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 	auto towns = ai->cb->getTownsInfo();

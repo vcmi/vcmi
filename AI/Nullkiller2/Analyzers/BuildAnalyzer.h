@@ -15,7 +15,7 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 class DLL_EXPORT BuildingInfo
 {
@@ -44,7 +44,7 @@ public:
 		const CCreature * creature,
 		CreatureID baseCreature,
 		const CGTownInstance * town,
-		Nullkiller2 * ai);
+		Nullkiller * ai);
 
 	std::string toString() const;
 };
@@ -85,10 +85,10 @@ private:
 	TResources armyCost;
 	TResources dailyIncome;
 	float goldPressure;
-	Nullkiller2 * ai;
+	Nullkiller * ai;
 
 public:
-	BuildAnalyzer(Nullkiller2 * ai) : ai(ai) {}
+	BuildAnalyzer(Nullkiller * ai) : ai(ai) {}
 	void update();
 
 	TResources getResourcesRequiredNow() const;

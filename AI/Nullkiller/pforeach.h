@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Nullkiller2.h"
+#include "Engine/Nullkiller.h"
 
 namespace NKAI
 {
@@ -26,7 +26,7 @@ void pforeachTilePos(const int3 & mapSize, TFunc fn)
 }
 
 template<typename TFunc>
-void pforeachTilePaths(const int3 & mapSize, const Nullkiller2 * ai, TFunc fn)
+void pforeachTilePaths(const int3 & mapSize, const Nullkiller * ai, TFunc fn)
 {
 	for(int z = 0; z < mapSize.z; ++z)
 	{

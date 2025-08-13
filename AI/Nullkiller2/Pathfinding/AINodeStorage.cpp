@@ -11,7 +11,7 @@
 #include "AINodeStorage.h"
 #include "Actions/TownPortalAction.h"
 #include "Actions/WhirlpoolAction.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
@@ -102,7 +102,7 @@ int AINodeStorage::getBucketSize() const
 	return ai->settings->getPathfinderBucketSize();
 }
 
-AINodeStorage::AINodeStorage(const Nullkiller2 * ai, const int3 & Sizes)
+AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
 	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes, ai->settings->getPathfinderBucketSize() * ai->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(

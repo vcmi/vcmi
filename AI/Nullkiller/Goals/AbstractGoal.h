@@ -20,7 +20,7 @@ namespace NKAI
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
-class Nullkiller2;
+class Nullkiller;
 
 namespace Goals
 {
@@ -133,7 +133,7 @@ namespace Goals
 			return const_cast<AbstractGoal *>(this);
 		}
 
-		virtual TGoalVec decompose(const Nullkiller2 * ai) const
+		virtual TGoalVec decompose(const Nullkiller * ai) const
 		{
 			return TGoalVec();
 		}

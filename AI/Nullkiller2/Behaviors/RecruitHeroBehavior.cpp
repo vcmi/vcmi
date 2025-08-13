@@ -24,7 +24,7 @@ std::string RecruitHeroBehavior::toString() const
 	return "Recruit hero";
 }
 
-Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 	auto towns = ai->cb->getTownsInfo();

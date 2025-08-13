@@ -18,7 +18,7 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 struct SlotInfo
 {
@@ -83,11 +83,11 @@ class DLL_EXPORT ArmyManager : public IArmyManager
 {
 private:
 	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 	std::map<CreatureID, SlotInfo> totalArmy;
 
 public:
-	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller2 * ai): cb(CB), ai(ai) {}
+	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai): cb(CB), ai(ai) {}
 	void update() override;
 
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;

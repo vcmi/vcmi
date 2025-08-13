@@ -209,7 +209,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	return false;
 }
 
-bool isObjectPassable(const Nullkiller2 * ai, const CGObjectInstance * obj)
+bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
 {
 	return isObjectPassable(obj, ai->playerID, ai->cb->getPlayerRelations(obj->tempOwner, ai->playerID));
 }
@@ -600,7 +600,7 @@ int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInst
 	return totalScore;
 }
 
-bool isWeeklyRevisitable(const Nullkiller2 * ai, const CGObjectInstance * obj)
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
 {
 	if(!obj)
 		return false;
@@ -644,7 +644,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 }
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller2 * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
 	auto relations = ai->cb->getPlayerRelations(obj->tempOwner, h->tempOwner);
 

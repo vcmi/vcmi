@@ -55,7 +55,7 @@ namespace NKAI
 {
 struct creInfo;
 class AIGateway;
-class Nullkiller2;
+class Nullkiller;
 
 const int GOLD_MINE_PRODUCTION = 1000;
 const int WOOD_ORE_MINE_PRODUCTION = 2;
@@ -201,11 +201,11 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-bool isObjectPassable(const Nullkiller2 * ai, const CGObjectInstance * obj);
+bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
-bool isWeeklyRevisitable(const Nullkiller2 * ai, const CGObjectInstance * obj);
+bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);
@@ -222,7 +222,7 @@ uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCr
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller2 * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
+bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
 
 template <class T>

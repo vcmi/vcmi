@@ -23,7 +23,7 @@ namespace NKAI
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
-		const Nullkiller2 * ai,
+		const Nullkiller * ai,
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)

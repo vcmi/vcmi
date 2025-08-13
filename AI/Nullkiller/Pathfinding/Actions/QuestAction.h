@@ -28,11 +28,11 @@ namespace AIPathfinding
 		{
 		}
 
-		bool canAct(const Nullkiller2 * ai, const AIPathNode * node) const override;
-		bool canAct(const Nullkiller2 * ai, const AIPathNodeInfo & node) const override;
-		bool canAct(const Nullkiller2 * ai, const CGHeroInstance * hero) const;
+		bool canAct(const Nullkiller * ai, const AIPathNode * node) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & node) const override;
+		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero) const;
 
-		Goals::TSubgoal decompose(const Nullkiller2 * ai, const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
 		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 

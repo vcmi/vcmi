@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ArmyUpgrade.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 
 namespace NKAI

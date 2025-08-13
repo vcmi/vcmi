@@ -11,7 +11,7 @@
 #include "ObjectClusterizer.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {

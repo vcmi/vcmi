@@ -10,7 +10,7 @@
 #pragma once
 
 #include "CGoal.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {

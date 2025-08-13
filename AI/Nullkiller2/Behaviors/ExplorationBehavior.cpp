@@ -29,7 +29,7 @@ std::string ExplorationBehavior::toString() const
 	return "Explore";
 }
 
-Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 

@@ -845,7 +845,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
-	setThreadName("AIGateway::makeTurn");
+	setThreadName("AIGateway2::makeTurn");
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);

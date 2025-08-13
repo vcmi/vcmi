@@ -11,7 +11,7 @@
 #include "CaptureObject.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 
@@ -35,7 +35,7 @@ std::string CaptureObject::toString() const
 	return "Capture " + name + " at " + tile.toString();
 }
 
-TGoalVec CaptureObject::decompose(const Nullkiller2 * ai) const
+TGoalVec CaptureObject::decompose(const Nullkiller * ai) const
 {
 	return CaptureObjectsBehavior(ai->cb->getObj(ObjectInstanceID(objid))).decompose(ai);
 }

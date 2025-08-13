@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Composition.h"
 #include "../Goals/RecruitHero.h"
@@ -30,7 +30,7 @@ std::string GatherArmyBehavior::toString() const
 	return "Gather army";
 }
 
-Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 
@@ -59,7 +59,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller2 * ai) const
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller2 * ai, const CGHeroInstance * hero) const
+Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, const CGHeroInstance * hero) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
@@ -216,7 +216,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller2 * ai, co
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller2 * ai, const CGTownInstance * upgrader) const
+Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGTownInstance * upgrader) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = upgrader->visitablePos();

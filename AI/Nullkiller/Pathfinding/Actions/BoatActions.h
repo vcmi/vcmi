@@ -40,7 +40,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool canAct(const Nullkiller2 * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -62,13 +62,13 @@ namespace AIPathfinding
 		{
 		}
 
-		bool canAct(const Nullkiller2 * ai, const AIPathNode * source) const override;
-		bool canAct(const Nullkiller2 * ai, const AIPathNodeInfo & source) const override;
-		bool canAct(const Nullkiller2 * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
+		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const override;
+		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
 
 		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
-		Goals::TSubgoal decompose(const Nullkiller2 * ai, const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -87,7 +87,7 @@ namespace AIPathfinding
 		{
 		}
 
-		std::shared_ptr<SpecialAction> create(const Nullkiller2 * ai) override;
+		std::shared_ptr<SpecialAction> create(const Nullkiller * ai) override;
 	};
 }
 

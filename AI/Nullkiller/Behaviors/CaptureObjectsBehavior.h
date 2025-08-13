@@ -49,7 +49,7 @@ namespace Goals
 			specificObjects = true;
 		}
 
-		Goals::TGoalVec decompose(const Nullkiller2 * ai) const override;
+		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
 		std::string toString() const override;
 
 		CaptureObjectsBehavior & ofType(int type)
@@ -70,7 +70,7 @@ namespace Goals
 
 		static Goals::TGoalVec getVisitGoals(
 			const std::vector<AIPath> & paths,
-			const Nullkiller2 * nullkiller,
+			const Nullkiller * nullkiller,
 			const CGObjectInstance * objToVisit = nullptr,
 			bool force = false);
 
@@ -79,7 +79,7 @@ namespace Goals
 		void decomposeObjects(
 			Goals::TGoalVec & result,
 			const std::vector<const CGObjectInstance *> & objs,
-			const Nullkiller2 * nullkiller) const;
+			const Nullkiller * nullkiller) const;
 	};
 }
 

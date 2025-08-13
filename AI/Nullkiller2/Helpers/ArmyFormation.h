@@ -20,7 +20,7 @@ namespace NKAI
 struct HeroPtr;
 class AIGateway;
 class FuzzyHelper;
-class Nullkiller2;
+class Nullkiller;
 
 class DLL_EXPORT ArmyFormation
 {
@@ -28,7 +28,7 @@ private:
 	std::shared_ptr<CCallback> cb; //this is enough, but we downcast from CCallback
 
 public:
-	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller2 * ai): cb(CB) {}
+	ArmyFormation(std::shared_ptr<CCallback> CB, const Nullkiller * ai): cb(CB) {}
 
 	void rearrangeArmyForSiege(const CGTownInstance * town, const CGHeroInstance * attacker);
 

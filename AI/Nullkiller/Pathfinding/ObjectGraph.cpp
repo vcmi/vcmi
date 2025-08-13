@@ -13,7 +13,7 @@
 #include "AIPathfinderConfig.h"
 #include "../../../lib/CRandomGenerator.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
@@ -44,7 +44,7 @@ void ObjectGraph::removeConnection(const int3 & from, const int3 & to)
 	nodes[from].connections.erase(to);
 }
 
-void ObjectGraph::updateGraph(const Nullkiller2 * ai)
+void ObjectGraph::updateGraph(const Nullkiller * ai)
 {
 	auto cb = ai->cb;
 
@@ -95,7 +95,7 @@ void ObjectGraph::removeObject(const CGObjectInstance * obj)
 	}
 }
 
-void ObjectGraph::connectHeroes(const Nullkiller2 * ai)
+void ObjectGraph::connectHeroes(const Nullkiller * ai)
 {
 	for(auto obj : ai->memory->visitableObjs)
 	{

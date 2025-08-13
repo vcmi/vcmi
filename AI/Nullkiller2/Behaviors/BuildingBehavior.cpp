@@ -15,7 +15,7 @@
 #include "../Goals/Composition.h"
 #include "../Goals/BuildThis.h"
 #include "../Goals/SaveResources.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
@@ -27,7 +27,7 @@ std::string BuildingBehavior::toString() const
 	return "Build";
 }
 
-Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 

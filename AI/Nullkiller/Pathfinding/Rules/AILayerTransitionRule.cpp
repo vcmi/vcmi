@@ -9,7 +9,7 @@
 */
 #include "StdInc.h"
 #include "AILayerTransitionRule.h"
-#include "../../Engine/Nullkiller2.h"
+#include "../../Engine/Nullkiller.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
 #include "../../../../lib/pathfinder/TurnInfo.h"
 #include "../../../../lib/spells/ISpellMechanics.h"
@@ -21,7 +21,7 @@ namespace AIPathfinding
 {
 	AILayerTransitionRule::AILayerTransitionRule(
 		CPlayerSpecificInfoCallback * cb,
-		Nullkiller2 * ai,
+		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
 		:cb(cb), ai(ai), nodeStorage(nodeStorage)
 	{

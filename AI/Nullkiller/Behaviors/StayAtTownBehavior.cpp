@@ -15,7 +15,7 @@
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "lib/mapObjects/MapObjects.h" //for victory conditions
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
@@ -27,7 +27,7 @@ std::string StayAtTownBehavior::toString() const
 	return "StayAtTownBehavior";
 }
 
-Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 	auto towns = ai->cb->getTownsInfo();

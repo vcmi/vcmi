@@ -27,7 +27,7 @@ class ObjectGraphCalculator
 {
 private:
 	ObjectGraph * target;
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 	std::mutex syncLock;
 
 	std::map<const CGHeroInstance *, HeroRole> actors;
@@ -37,7 +37,7 @@ private:
 	std::vector<std::unique_ptr<CGHeroInstance>> temporaryActorHeroes;
 
 public:
-	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller2 * ai);
+	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai);
 	void setGraphObjects();
 	void calculateConnections();
 	float getNeighborConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache);

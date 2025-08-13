@@ -13,16 +13,16 @@
 namespace NKAI
 {
 
-class Nullkiller2;
+class Nullkiller;
 
 class DLL_EXPORT FuzzyHelper
 {
 private:
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 	TacticalAdvantageEngine tacticalAdvantageEngine;
 
 public:
-	FuzzyHelper(const Nullkiller2 * ai): ai(ai) {}
+	FuzzyHelper(const Nullkiller * ai): ai(ai) {}
 
 	ui64 evaluateDanger(const CGObjectInstance * obj);
 	ui64 evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards = true);

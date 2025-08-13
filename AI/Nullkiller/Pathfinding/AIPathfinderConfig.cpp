@@ -13,7 +13,7 @@
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 #include "../../../lib/pathfinder/CPathfinder.h"
 
@@ -23,7 +23,7 @@ namespace AIPathfinding
 {
 	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
 		CPlayerSpecificInfoCallback * cb,
-		Nullkiller2 * ai,
+		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
 	{
@@ -41,7 +41,7 @@ namespace AIPathfinding
 
 	AIPathfinderConfig::AIPathfinderConfig(
 		CPlayerSpecificInfoCallback * cb,
-		Nullkiller2 * ai,
+		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
 		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)

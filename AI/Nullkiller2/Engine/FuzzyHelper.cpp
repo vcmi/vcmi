@@ -11,7 +11,7 @@
 #include "FuzzyHelper.h"
 
 #include "../Goals/Goals.h"
-#include "Nullkiller2.h"
+#include "Nullkiller.h"
 
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"

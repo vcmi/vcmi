@@ -12,7 +12,7 @@
 #include "AIPathfinderConfig.h"
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
@@ -20,7 +20,7 @@
 namespace NKAI
 {
 
-ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller2 * ai)
+ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai)
 	:ai(ai), target(target), syncLock()
 {
 }

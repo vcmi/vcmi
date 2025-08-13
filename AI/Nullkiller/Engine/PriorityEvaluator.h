@@ -24,15 +24,15 @@ namespace NKAI
 {
 
 class BuildingInfo;
-class Nullkiller2;
+class Nullkiller;
 struct HitMapInfo;
 
 class RewardEvaluator
 {
 public:
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 
-	RewardEvaluator(const Nullkiller2 * ai) : ai(ai) {}
+	RewardEvaluator(const Nullkiller * ai) : ai(ai) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
 	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
@@ -86,7 +86,7 @@ struct DLL_EXPORT EvaluationContext
 	int explorePriority;
 	float powerRatio;
 
-	EvaluationContext(const Nullkiller2 * ai);
+	EvaluationContext(const Nullkiller * ai);
 
 	void addNonCriticalStrategicalValue(float value);
 };
@@ -98,12 +98,12 @@ public:
 	virtual void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal goal) const = 0;
 };
 
-class Nullkiller2;
+class Nullkiller;
 
 class PriorityEvaluator
 {
 public:
-	PriorityEvaluator(const Nullkiller2 * ai);
+	PriorityEvaluator(const Nullkiller * ai);
 	~PriorityEvaluator();
 	void initVisitTile();
 
@@ -125,7 +125,7 @@ public:
 	};
 
 private:
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 
 	fl::Engine * engine;
 	fl::InputVariable * armyLossPersentageVariable;

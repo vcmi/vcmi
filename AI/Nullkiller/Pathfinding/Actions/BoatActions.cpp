@@ -27,7 +27,7 @@ namespace AIPathfinding
 		return Goals::BuildBoat(shipyard).accept(ai);
 	}
 
-	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller2 * ai, const CGHeroInstance * hero) const
+	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
 	{
 		if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
@@ -37,7 +37,7 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::Invalid());
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller2 * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
 		if(cb->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
@@ -63,12 +63,12 @@ namespace AIPathfinding
 		return true;
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller2 * ai, const AIPathNode * source) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
 		return canAct(ai, source->actor->hero, source->actor->armyCost);
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller2 * ai, const AIPathNodeInfo & source) const
+	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const
 	{
 		TResources res;
 
@@ -85,7 +85,7 @@ namespace AIPathfinding
 		return sourceActor->resourceActor;
 	}
 
-	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller2 * ai)
+	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * ai)
 	{
 		return std::make_shared<BuildBoatAction>(ai->cb.get(), dynamic_cast<const IShipyard * >(ai->cb->getObj(shipyard)));
 	}
@@ -116,7 +116,7 @@ namespace AIPathfinding
 		return "Build Boat at " + shipyard->getObject()->visitablePos().toString();
 	}
 
-	bool SummonBoatAction::canAct(const Nullkiller2 * ai, const AIPathNode * source) const
+	bool SummonBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
 	{
 		auto hero = source->actor->hero;
 

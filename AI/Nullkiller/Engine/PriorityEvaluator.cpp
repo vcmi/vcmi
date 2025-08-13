@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include <limits>
 
-#include "Nullkiller2.h"
+#include "Nullkiller.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -37,7 +37,7 @@ namespace NKAI
 
 constexpr float MIN_CRITICAL_VALUE = 2.0f;
 
-EvaluationContext::EvaluationContext(const Nullkiller2* ai)
+EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	: movementCost(0.0),
 	manaCost(0),
 	danger(0),
@@ -938,10 +938,10 @@ public:
 class ExecuteHeroChainEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 private:
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 
 public:
-	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller2 * ai) : ai(ai) {}
+	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * ai) : ai(ai) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1057,7 +1057,7 @@ public:
 class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	ClusterEvaluationContextBuilder(const Nullkiller2 * ai) {}
+	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1141,10 +1141,10 @@ public:
 class DismissHeroContextBuilder : public IEvaluationContextBuilder
 {
 private:
-	const Nullkiller2 * ai;
+	const Nullkiller * ai;
 
 public:
-	DismissHeroContextBuilder(const Nullkiller2 * ai) : ai(ai) {}
+	DismissHeroContextBuilder(const Nullkiller * ai) : ai(ai) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1276,7 +1276,7 @@ uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, cons
 	return upgradedPower - creaturesToUpgrade.power;
 }
 
-PriorityEvaluator::PriorityEvaluator(const Nullkiller2 * ai)
+PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
 	:ai(ai)
 {
 	initVisitTile();

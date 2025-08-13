@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ExplorationHelper.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -24,7 +24,7 @@ namespace NKAI
 
 using namespace Goals;
 
-ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller2 * ai, bool useCPathfinderAccessibility)
+ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai, bool useCPathfinderAccessibility)
 	:ai(ai), cbp(ai->cb.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
 {
 	ts = cbp->getPlayerTeam(ai->playerID);

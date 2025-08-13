@@ -19,7 +19,7 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
-#include "Engine/Nullkiller2.h"
+#include "Engine/Nullkiller.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class AsyncRunner;
@@ -80,7 +80,7 @@ public:
 public:
 	ObjectInstanceID selectedObject;
 
-	std::unique_ptr<Nullkiller2> nullkiller2;
+	std::unique_ptr<Nullkiller> nullkiller2;
 
 	AIGateway();
 	~AIGateway();

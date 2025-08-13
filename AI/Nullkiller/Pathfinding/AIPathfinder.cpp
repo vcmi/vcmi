@@ -11,14 +11,14 @@
 #include "AIPathfinder.h"
 #include "AIPathfinderConfig.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 
 namespace NKAI
 {
 
 std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
 
-AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller2 * ai)
+AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
 	:cb(cb), ai(ai)
 {
 }

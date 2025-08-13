@@ -8,8 +8,8 @@
 *
 */
 #include "../StdInc.h"
-#include "../Engine/Nullkiller2.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/IGameSettings.h"
 
@@ -405,7 +405,7 @@ BuildingInfo::BuildingInfo(
 	const CCreature * creature,
 	CreatureID baseCreature,
 	const CGTownInstance * town,
-	Nullkiller2 * ai)
+	Nullkiller * ai)
 {
 	id = building->bid;
 	buildCost = building->resources;

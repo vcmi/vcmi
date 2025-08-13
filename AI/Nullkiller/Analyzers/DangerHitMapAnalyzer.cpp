@@ -10,7 +10,7 @@
 #include "../StdInc.h"
 #include "DangerHitMapAnalyzer.h"
 
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../pforeach.h"
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/logging/VisualLogger.h"

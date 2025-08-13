@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "ClusterBehavior.h"
 #include "../AIGateway.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../AIUtility.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Goals/Composition.h"
@@ -26,7 +26,7 @@ std::string ClusterBehavior::toString() const
 	return "Unlock Clusters";
 }
 
-Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller2 * ai) const
+Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * ai) const
 {
 	Goals::TGoalVec tasks;
 	auto clusters = ai->objectClusterizer->getLockedClusters();
@@ -39,7 +39,7 @@ Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller2 * ai) const
 	return tasks;
 }
 
-Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller2 * ai, std::shared_ptr<ObjectCluster> cluster) const
+Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const
 {
 	auto center = cluster->calculateCenter(ai->cb.get());
 	auto paths = ai->pathfinder->getPathInfo(center->visitablePos(), ai->isObjectGraphAllowed());

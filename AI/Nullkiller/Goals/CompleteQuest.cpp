@@ -31,7 +31,7 @@ std::string CompleteQuest::toString() const
 	return "Complete quest " + questToString();
 }
 
-TGoalVec CompleteQuest::decompose(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::decompose(const Nullkiller * ai) const
 {
 	if(isKeyMaster(q))
 	{
@@ -106,7 +106,7 @@ std::string CompleteQuest::questToString() const
 	return ms.toString();
 }
 
-TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * ai) const
 {
 	auto paths = ai->pathfinder->getPathInfo(q.getObject(cb)->visitablePos());
 
@@ -118,7 +118,7 @@ TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller2 * ai) const
 	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cb));
 }
 
-TGoalVec CompleteQuest::missionArt(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
 {
 	TGoalVec solutions = tryCompleteQuest(ai);
 
@@ -135,7 +135,7 @@ TGoalVec CompleteQuest::missionArt(const Nullkiller2 * ai) const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionHero(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionHero(const Nullkiller * ai) const
 {
 	TGoalVec solutions = tryCompleteQuest(ai);
 
@@ -148,7 +148,7 @@ TGoalVec CompleteQuest::missionHero(const Nullkiller2 * ai) const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionArmy(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionArmy(const Nullkiller * ai) const
 {
 	auto paths = ai->pathfinder->getPathInfo(q.getObject(cb)->visitablePos());
 
@@ -160,17 +160,17 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller2 * ai) const
 	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cb));
 }
 
-TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * ai) const
 {
 	return tryCompleteQuest(ai);
 }
 
-TGoalVec CompleteQuest::missionLevel(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionLevel(const Nullkiller * ai) const
 {
 	return tryCompleteQuest(ai);
 }
 
-TGoalVec CompleteQuest::missionKeymaster(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * ai) const
 {
 	if(isObjectPassable(ai, q.getObject(cb)))
 	{
@@ -182,13 +182,13 @@ TGoalVec CompleteQuest::missionKeymaster(const Nullkiller2 * ai) const
 	}
 }
 
-TGoalVec CompleteQuest::missionResources(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
 {
 	TGoalVec solutions = tryCompleteQuest(ai);
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller2 * ai) const
+TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * ai) const
 {
 	auto obj = ai->cb->getObj(q.getQuest(cb)->killTarget);
 

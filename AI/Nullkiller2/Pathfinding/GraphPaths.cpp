@@ -13,7 +13,7 @@
 #include "../../../lib/CRandomGenerator.h"
 #include "../../../lib/mapObjects/CQuest.h"
 #include "../../../lib/mapping/CMap.h"
-#include "../Engine/Nullkiller2.h"
+#include "../Engine/Nullkiller.h"
 #include "../../../lib/logging/VisualLogger.h"
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
@@ -33,7 +33,7 @@ GraphPaths::GraphPaths()
 }
 
 std::shared_ptr<SpecialAction> getCompositeAction(
-	const Nullkiller2 * ai,
+	const Nullkiller * ai,
 	std::shared_ptr<ISpecialActionFactory> linkActionFactory,
 	std::shared_ptr<SpecialAction> transitionAction)
 {
@@ -53,7 +53,7 @@ std::shared_ptr<SpecialAction> getCompositeAction(
 	return std::make_shared<CompositeAction>(actionsArray);
 }
 
-void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller2 * ai, uint8_t scanDepth)
+void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth)
 {
 	graph.copyFrom(*ai->baseGraph);
 	graph.connectHeroes(ai);
@@ -188,7 +188,7 @@ bool GraphPathNode::tryUpdate(
 	return false;
 }
 
-void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller2 * ai) const
+void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const
 {
 	auto nodes = pathNodes.find(tile);
 
@@ -299,7 +299,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 	}
 }
 
-void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller2 * ai) const
+void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const
 {
 	auto nodes = pathNodes.find(tile);
 

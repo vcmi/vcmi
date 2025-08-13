@@ -48,7 +48,7 @@ namespace Goals
 
 		virtual bool operator==(const T & other) const = 0;
 
-		TGoalVec decompose(const Nullkiller2 * ai) const override
+		TGoalVec decompose(const Nullkiller * ai) const override
 		{
 			TSubgoal single = decomposeSingle(ai);
 
@@ -59,7 +59,7 @@ namespace Goals
 		}
 
 	protected:
-		virtual TSubgoal decomposeSingle(const Nullkiller2 * ai) const
+		virtual TSubgoal decomposeSingle(const Nullkiller * ai) const
 		{
 			return TSubgoal();
 		}
