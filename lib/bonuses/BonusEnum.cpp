@@ -22,7 +22,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 	const std::vector<BonusType> bonusAffectingCreature = {
 		BONUS_AFFECTING_CREATURE
 	};
-#undef BONUS_AFFECTING_CREATURE
+#undef BONUS_NAME
 
 #define BONUS_SOURCE(x) { #x, BonusSource::x },
 	const std::map<std::string, BonusSource> bonusSourceMap = { BONUS_SOURCE_LIST };
