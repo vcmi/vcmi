@@ -459,6 +459,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 
 		struct TargetInfo
 		{
+			bool insideTheWalls;
 			bool canAttackNextTurn;
 			bool isParalyzed;
 			bool isMachine;
@@ -468,7 +469,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 
 		const auto & getCanAttackNextTurn = [&battle] (const battle::Unit * unit)
 		{
-			if (unit->canShoot())
+			if (battle.battleCanShoot(unit))
 				return true;
 
 			BattleHexArray attackableHexes;
@@ -478,24 +479,31 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 
 		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)
 		{
-			float singleHpValue = static_cast<float>(unit->unitType()->getAIValue()) / static_cast<float>(unit->getMaxHealth());
+			float unitValue = static_cast<float>(unit->unitType()->getAIValue());
+			float singleHpValue = unitValue / static_cast<float>(unit->getMaxHealth());
+			float fullHp = static_cast<float>(unit->getTotalHealth());
 
 			int distance = BattleHex::getDistance(next->getPosition(), unit->getPosition());
 			BattleAttackInfo attackInfo(next, unit, distance, true);
 			DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
 			float avgDmg = (static_cast<float>(estimation.damage.max) + static_cast<float>(estimation.damage.min)) / 2;
+			float realAvgDmg = avgDmg > fullHp ? fullHp : avgDmg;
+			float avgUnitKilled = (static_cast<float>(estimation.kills.max) + static_cast<float>(estimation.kills.min)) / 2;
+			float dmgValue = realAvgDmg * singleHpValue;
+			float killValue = avgUnitKilled * unitValue;
 
-			return avgDmg * singleHpValue;
+			return dmgValue + killValue;
 		};
 
 		std::vector<TargetInfo>targetsInfo;
 
 		for (const CStack * possibleTarget : possibleTargets)
 		{
-			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && possibleTarget->unitType()->warMachine != ArtifactID::AMMO_CART;
 			bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
 			const TargetInfo targetInfo =
 			{
+				battle.battleIsInsideWalls(possibleTarget->getPosition()),
 				getCanAttackNextTurn(possibleTarget),
 				isParalyzed,
 				isMachine,
@@ -515,6 +523,9 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 
 			if (candidate.canAttackNextTurn != current.canAttackNextTurn)
 				return candidate.canAttackNextTurn > current.canAttackNextTurn;
+
+			if (candidate.insideTheWalls != current.insideTheWalls)
+				return candidate.insideTheWalls > current.insideTheWalls;
 
 			return candidate.towerAttackValue > current.towerAttackValue;
 		};
