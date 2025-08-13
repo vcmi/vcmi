@@ -15,7 +15,7 @@
 #include "../../../../lib/spells/ISpellMechanics.h"
 #include "../../../../lib/spells/adventure/SummonBoatEffect.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

@@ -17,7 +17,7 @@
 #include "lib/mapObjects/MapObjects.h" //for victory conditions
 #include "../Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

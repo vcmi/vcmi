@@ -2,7 +2,7 @@
 
 #include "Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 template<typename TFunc>

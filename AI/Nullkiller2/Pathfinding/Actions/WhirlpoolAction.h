@@ -14,7 +14,7 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../Goals/AdventureSpellCast.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

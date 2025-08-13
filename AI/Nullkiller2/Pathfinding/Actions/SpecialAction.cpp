@@ -14,7 +14,7 @@
 #include "../../Goals/CGoal.h"
 #include "../../Goals/Invalid.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 Goals::TSubgoal SpecialAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const

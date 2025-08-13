@@ -14,7 +14,7 @@
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/entities/building/CBuilding.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

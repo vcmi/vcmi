@@ -12,7 +12,7 @@
 #include "../AIUtility.h"
 #include "../../../lib/ResourceSet.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class Nullkiller;

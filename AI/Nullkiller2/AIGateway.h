@@ -25,7 +25,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class AsyncRunner;
 VCMI_LIB_NAMESPACE_END
 
-namespace NKAI
+namespace NK2AI
 {
 
 class AIStatus

@@ -14,7 +14,7 @@
 #include "../../Goals/CompleteQuest.h"
 #include "../../../../lib/mapObjects/CQuest.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 namespace AIPathfinding

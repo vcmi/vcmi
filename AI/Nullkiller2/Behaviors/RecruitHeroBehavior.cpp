@@ -14,7 +14,7 @@
 #include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

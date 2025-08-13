@@ -15,7 +15,7 @@
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 const SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(

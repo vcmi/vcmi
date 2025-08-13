@@ -13,7 +13,7 @@
 #include "AINodeStorage.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class Nullkiller;

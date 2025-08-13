@@ -13,7 +13,7 @@
 #include "SpecialAction.h"
 #include "../../../../lib/mapObjects/MapObjects.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 namespace AIPathfinding

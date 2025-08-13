@@ -14,7 +14,7 @@
 #include "../Goals/BuyArmy.h"
 #include "../Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

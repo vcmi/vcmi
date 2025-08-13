@@ -21,7 +21,7 @@ class CArmedInstance;
 
 VCMI_LIB_NAMESPACE_END
 
-namespace NKAI
+namespace NK2AI
 {
 
 class engineBase //subclasses create fuzzylite variables with "new" that are not freed - this is desired as fl::Engine wants to destroy these...

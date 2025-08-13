@@ -13,7 +13,7 @@
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path, float priority)
@@ -220,7 +220,7 @@ void ObjectClusterizer::onObjectRemoved(ObjectInstanceID id)
 
 	vstd::erase_if_present(invalidated, id);
 
-	NKAI::ClusterMap::accessor cluster;
+	NK2AI::ClusterMap::accessor cluster;
 	
 	if(blockedObjects.find(cluster, id))
 	{

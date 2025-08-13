@@ -21,7 +21,7 @@
 #include "../Goals/Invalid.h"
 #include "../Goals/Composition.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

@@ -15,7 +15,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

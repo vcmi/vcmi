@@ -11,7 +11,7 @@
 #include "DismissHero.h"
 #include "../AIGateway.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

@@ -15,7 +15,7 @@
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/logging/VisualLogger.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 const HitMapInfo HitMapInfo::NoThreat;

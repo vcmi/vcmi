@@ -13,7 +13,7 @@
 #include "../AIUtility.h"
 #include "../Goals/CGoal.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

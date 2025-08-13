@@ -22,7 +22,7 @@
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/CPlayerState.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 std::shared_ptr<boost::multi_array<AIPathNode, 4>> AISharedStorage::shared;

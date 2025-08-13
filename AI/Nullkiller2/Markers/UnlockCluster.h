@@ -13,7 +13,7 @@
 #include "../Analyzers/ObjectClusterizer.h"
 
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct HeroPtr;

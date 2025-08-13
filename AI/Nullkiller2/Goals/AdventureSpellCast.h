@@ -11,7 +11,7 @@
 
 #include "CGoal.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 namespace Goals

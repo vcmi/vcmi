@@ -13,7 +13,7 @@
 #include "../../AIGateway.h"
 #include "../../Goals/CompleteQuest.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 namespace AIPathfinding

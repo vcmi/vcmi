@@ -12,7 +12,7 @@
 
 #include "SpecialAction.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

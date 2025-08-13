@@ -15,7 +15,7 @@
 #include "GraphPaths.h"
 #include "../AIUtility.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class Nullkiller;

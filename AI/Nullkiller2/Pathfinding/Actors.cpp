@@ -16,7 +16,7 @@
 #include "../../../lib/pathfinder/TurnInfo.h"
 #include "Actions/BuyArmyAction.h"
 
-using namespace NKAI;
+using namespace NK2AI;
 
 const CCreatureSet emptyArmy;
 

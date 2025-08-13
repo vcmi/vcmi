@@ -13,7 +13,7 @@
 #include "ObjectGraph.h"
 #include "../AIUtility.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct ConnectionCostInfo

@@ -13,7 +13,7 @@
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/IGameSettings.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo)

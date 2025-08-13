@@ -14,7 +14,7 @@
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../AIGateway.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 constexpr float MIN_AI_STRENGTH = 0.5f; //lower when combat AI gets smarter

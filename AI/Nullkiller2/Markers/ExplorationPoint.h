@@ -12,7 +12,7 @@
 #include "../Goals/CGoal.h"
 #include "../Pathfinding/AINodeStorage.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

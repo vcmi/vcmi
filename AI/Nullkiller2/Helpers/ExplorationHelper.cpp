@@ -19,7 +19,7 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Goals/ExploreNeighbourTile.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

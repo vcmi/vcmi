@@ -18,7 +18,7 @@ struct PathNodeInfo;
 struct CDestinationNodeInfo;
 VCMI_LIB_NAMESPACE_END
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct AIPathNode;

@@ -14,7 +14,7 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../AIUtility.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct HeroPtr;

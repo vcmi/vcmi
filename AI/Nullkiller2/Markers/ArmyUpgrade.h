@@ -13,7 +13,7 @@
 #include "../Pathfinding/AINodeStorage.h"
 #include "../Analyzers/ArmyManager.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

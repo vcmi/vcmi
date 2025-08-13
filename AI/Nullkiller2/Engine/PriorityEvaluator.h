@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 VCMI_LIB_NAMESPACE_END
 
-namespace NKAI
+namespace NK2AI
 {
 
 class BuildingInfo;

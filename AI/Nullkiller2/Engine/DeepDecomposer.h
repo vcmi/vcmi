@@ -11,7 +11,7 @@
 
 #include "../Goals/AbstractGoal.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct GoalHash

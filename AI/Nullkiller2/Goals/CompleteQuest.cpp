@@ -15,7 +15,7 @@
 #include "../../../lib/mapObjects/CQuest.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

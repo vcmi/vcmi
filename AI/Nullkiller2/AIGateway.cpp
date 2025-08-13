@@ -36,7 +36,7 @@
 #include "AIGateway.h"
 #include "Goals/Goals.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 //one thread may be turn of AI and another will be handling a side effect for AI2

@@ -12,7 +12,7 @@
 
 #include "../../../../lib/pathfinder/CPathfinder.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

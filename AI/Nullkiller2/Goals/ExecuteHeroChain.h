@@ -12,7 +12,7 @@
 #include "CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

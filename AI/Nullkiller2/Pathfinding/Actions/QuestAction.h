@@ -13,7 +13,7 @@
 #include "SpecialAction.h"
 #include "../../../../lib/gameState/QuestInfo.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

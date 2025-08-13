@@ -12,7 +12,7 @@
 #include "../Pathfinding/AINodeStorage.h"
 #include "../Engine/PriorityEvaluator.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct ClusterObjectInfo

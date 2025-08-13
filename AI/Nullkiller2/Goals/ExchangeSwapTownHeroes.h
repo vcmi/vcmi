@@ -12,7 +12,7 @@
 #include "CGoal.h"
 #include "../Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

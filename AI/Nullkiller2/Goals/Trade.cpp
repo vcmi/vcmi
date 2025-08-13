@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "Trade.h"
 
-namespace NKAI
+namespace NK2AI
 {
 using namespace Goals;
 

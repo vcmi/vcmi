@@ -11,7 +11,7 @@
 #include "ArmyFormation.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 void ArmyFormation::rearrangeArmyForWhirlpool(const CGHeroInstance * hero)

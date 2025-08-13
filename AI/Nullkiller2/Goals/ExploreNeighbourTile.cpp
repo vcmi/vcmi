@@ -14,7 +14,7 @@
 #include "../Helpers/ExplorationHelper.h"
 
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

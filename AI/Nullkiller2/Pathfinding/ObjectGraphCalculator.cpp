@@ -17,7 +17,7 @@
 #include "Actions/QuestAction.h"
 #include "../pforeach.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai)

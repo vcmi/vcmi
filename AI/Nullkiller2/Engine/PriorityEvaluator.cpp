@@ -32,7 +32,7 @@
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 constexpr float MIN_CRITICAL_VALUE = 2.0f;

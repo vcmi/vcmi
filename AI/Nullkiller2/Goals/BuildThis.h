@@ -12,7 +12,7 @@
 #include "CGoal.h"
 #include "../Analyzers/BuildAnalyzer.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct HeroPtr;

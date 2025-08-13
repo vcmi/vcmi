@@ -15,7 +15,7 @@
 #include "../../../lib/GameLibrary.h"
 #include "../Goals/AbstractGoal.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class ExplorationHelper

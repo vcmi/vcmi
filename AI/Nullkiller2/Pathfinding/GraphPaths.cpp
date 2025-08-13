@@ -19,7 +19,7 @@
 #include "../pforeach.h"
 #include "Actions/BoatActions.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 bool GraphNodeComparer::operator()(const GraphPathNodePointer & lhs, const GraphPathNodePointer & rhs) const

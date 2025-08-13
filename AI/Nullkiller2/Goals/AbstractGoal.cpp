@@ -13,7 +13,7 @@
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

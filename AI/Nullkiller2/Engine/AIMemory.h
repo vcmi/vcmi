@@ -12,7 +12,7 @@
 #include "../AIUtility.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class AIMemory

@@ -17,7 +17,7 @@
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/TerrainHandler.h"
 
-namespace NKAI
+namespace NK2AI
 {
 class StackUpgradeInfo
 {

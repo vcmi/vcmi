@@ -10,7 +10,7 @@
 #pragma once
 #include "FuzzyEngines.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class Nullkiller;

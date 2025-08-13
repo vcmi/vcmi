@@ -10,7 +10,7 @@
 #include "StdInc.h"
 #include "AIMovementToDestinationRule.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

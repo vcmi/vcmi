@@ -17,7 +17,7 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "BoatActions.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 namespace AIPathfinding

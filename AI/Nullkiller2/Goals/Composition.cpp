@@ -14,7 +14,7 @@
 #include "../../../lib/constants/StringConstants.h"
 
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

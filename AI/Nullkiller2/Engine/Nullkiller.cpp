@@ -27,7 +27,7 @@
 #include "../../lib/pathfinder/PathfinderCache.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

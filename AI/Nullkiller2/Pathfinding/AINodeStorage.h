@@ -19,7 +19,7 @@ constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualizat
 #include "Actions/SpecialAction.h"
 #include "Actors.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

@@ -25,7 +25,7 @@
 
 #include <vcmi/CreatureService.h>
 
-namespace NKAI
+namespace NK2AI
 {
 
 const CGObjectInstance * ObjectIdRef::operator->() const

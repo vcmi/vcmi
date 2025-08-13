@@ -29,7 +29,7 @@ class PathfinderCache;
 
 VCMI_LIB_NAMESPACE_END
 
-namespace NKAI
+namespace NK2AI
 {
 
 const float MIN_PRIORITY = 0.01f;

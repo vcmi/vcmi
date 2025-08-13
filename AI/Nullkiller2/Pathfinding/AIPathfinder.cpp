@@ -13,7 +13,7 @@
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;

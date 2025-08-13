@@ -20,7 +20,7 @@
 #include "../AIUtility.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace Goals;

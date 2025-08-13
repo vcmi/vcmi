@@ -14,7 +14,7 @@
 #include "../Analyzers/ArmyManager.h"
 #include "../Analyzers/DangerHitMapAnalyzer.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace Goals
 {

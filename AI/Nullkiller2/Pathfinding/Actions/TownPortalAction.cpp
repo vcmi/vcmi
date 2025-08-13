@@ -13,7 +13,7 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "TownPortalAction.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 using namespace AIPathfinding;

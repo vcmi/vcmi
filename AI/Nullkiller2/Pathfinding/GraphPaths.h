@@ -12,7 +12,7 @@
 
 #include "ObjectGraph.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class Nullkiller;

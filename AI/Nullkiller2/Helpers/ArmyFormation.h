@@ -14,7 +14,7 @@
 #include "../../../lib/GameConstants.h"
 #include "../../../lib/GameLibrary.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 struct HeroPtr;

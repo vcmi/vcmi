@@ -22,7 +22,7 @@
 #include "../Markers/DefendTown.h"
 #include "../Goals/ExchangeSwapTownHeroes.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 const float THREAT_IGNORE_RATIO = 2;

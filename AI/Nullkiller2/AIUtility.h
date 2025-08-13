@@ -51,7 +51,7 @@
 
 using dwellingContent = std::pair<ui32, std::vector<CreatureID>>;
 
-namespace NKAI
+namespace NK2AI
 {
 struct creInfo;
 class AIGateway;

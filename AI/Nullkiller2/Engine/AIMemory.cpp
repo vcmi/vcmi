@@ -10,7 +10,7 @@
 #include "../StdInc.h"
 #include "AIMemory.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 void AIMemory::removeFromMemory(const CGObjectInstance * obj)

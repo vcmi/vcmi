@@ -17,7 +17,7 @@
 #include "../../../../lib/mapObjects/MapObjects.h"
 #include "../../../../lib/pathfinder/PathfindingRules.h"
 
-namespace NKAI
+namespace NK2AI
 {
 namespace AIPathfinding
 {

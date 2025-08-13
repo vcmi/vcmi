@@ -14,7 +14,7 @@
 #include "../AIUtility.h"
 #include "Actions/SpecialAction.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 extern const uint64_t MIN_ARMY_STRENGTH_FOR_CHAIN;

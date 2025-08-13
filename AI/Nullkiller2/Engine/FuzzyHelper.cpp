@@ -16,7 +16,7 @@
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)

@@ -21,7 +21,7 @@
 #include "../../../lib/filesystem/Filesystem.h"
 #include "../../../lib/json/JsonUtils.h"
 
-namespace NKAI
+namespace NK2AI
 {
 	Settings::Settings(int difficultyLevel)
 		: maxRoamingHeroes(8),

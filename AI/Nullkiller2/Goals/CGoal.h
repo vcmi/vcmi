@@ -11,7 +11,7 @@
 
 #include "AbstractGoal.h"
 
-namespace NKAI
+namespace NK2AI
 {
 
 class AIGateway;
