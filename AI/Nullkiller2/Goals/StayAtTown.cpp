@@ -42,7 +42,7 @@ std::string StayAtTown::toString() const
 
 void StayAtTown::accept(AIGateway * ai)
 {
-	ai->nullkiller2->lockHero(hero, HeroLockedReason::DEFENCE);
+	ai->nullkiller->lockHero(hero, HeroLockedReason::DEFENCE);
 }
 
 }

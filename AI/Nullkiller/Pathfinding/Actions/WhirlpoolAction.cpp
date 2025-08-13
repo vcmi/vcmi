@@ -23,7 +23,7 @@ std::shared_ptr<WhirlpoolAction> WhirlpoolAction::instance = std::make_shared<Wh
 
 void WhirlpoolAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
 {
-	ai->nullkiller2->armyFormation->rearrangeArmyForWhirlpool(hero);
+	ai->nullkiller->armyFormation->rearrangeArmyForWhirlpool(hero);
 }
 
 std::string WhirlpoolAction::toString() const

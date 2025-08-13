@@ -70,10 +70,10 @@ void RecruitHero::accept(AIGateway * ai)
 	cb->recruitHero(t, heroToHire);
 
 	{
-		std::unique_lock lockGuard(ai->nullkiller2->aiStateMutex);
+		std::unique_lock lockGuard(ai->nullkiller->aiStateMutex);
 
-		ai->nullkiller2->heroManager->update();
-		ai->nullkiller2->objectClusterizer->reset();
+		ai->nullkiller->heroManager->update();
+		ai->nullkiller->objectClusterizer->reset();
 	}
 }
 

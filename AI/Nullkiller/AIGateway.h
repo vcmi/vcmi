@@ -80,7 +80,7 @@ public:
 public:
 	ObjectInstanceID selectedObject;
 
-	std::unique_ptr<Nullkiller> nullkiller2;
+	std::unique_ptr<Nullkiller> nullkiller;
 
 	AIGateway();
 	~AIGateway();

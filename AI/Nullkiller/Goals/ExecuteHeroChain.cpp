@@ -84,9 +84,9 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 {
 	logAi->debug("Executing hero chain towards %s. Path %s", targetName, chainPath.toString());
 
-	ai->nullkiller2->setActive(chainPath.targetHero, tile);
-	ai->nullkiller2->setTargetObject(objid);
-	ai->nullkiller2->objectClusterizer->reset();
+	ai->nullkiller->setActive(chainPath.targetHero, tile);
+	ai->nullkiller->setTargetObject(objid);
+	ai->nullkiller->objectClusterizer->reset();
 
 	auto targetObject = ai->myCb->getObj(static_cast<ObjectInstanceID>(objid), false);
 
@@ -96,7 +96,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 		if(relations == PlayerRelations::ENEMIES)
 		{
-			ai->nullkiller2->armyFormation->rearrangeArmyForSiege(
+			ai->nullkiller->armyFormation->rearrangeArmyForSiege(
 				dynamic_cast<const CGTownInstance *>(targetObject),
 				chainPath.targetHero);
 		}
@@ -126,7 +126,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 		if(vstd::contains(blockedIndexes, i))
 		{
 			blockedIndexes.insert(node->parentIndex);
-			ai->nullkiller2->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 
 			continue;
 		}
@@ -137,7 +137,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 		{
 			if(hero->movementPointsRemaining() > 0)
 			{
-				ai->nullkiller2->setActive(hero, node->coord);
+				ai->nullkiller->setActive(hero, node->coord);
 
 				if(node->specialAction)
 				{
@@ -155,7 +155,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						return;
 					}
 				}
-				else if(i > 0 && ai->nullkiller2->isObjectGraphAllowed())
+				else if(i > 0 && ai->nullkiller->isObjectGraphAllowed())
 				{
 					auto chainMask = i < chainPath.nodes.size() - 1 ? chainPath.nodes[i + 1].chainMask : node->chainMask;
 
@@ -166,7 +166,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						if(nextNode.specialAction || nextNode.chainMask != chainMask)
 							break;
 
-						auto targetNode = ai->nullkiller2->getPathsInfo(hero)->getPathInfo(nextNode.coord);
+						auto targetNode = ai->nullkiller->getPathsInfo(hero)->getPathInfo(nextNode.coord);
 
 						if(!targetNode->reachable()
 							|| targetNode->getCost() > nextNode.cost)
@@ -182,7 +182,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 
 				if(node->turns == 0 && node->coord != hero->visitablePos())
 				{
-					auto targetNode = ai->nullkiller2->getPathsInfo(hero)->getPathInfo(node->coord);
+					auto targetNode = ai->nullkiller->getPathsInfo(hero)->getPathInfo(node->coord);
 
 					if(targetNode->accessible == EPathAccessibility::NOT_SET
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
@@ -239,13 +239,13 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 						if(hero->movementPointsRemaining() > 0)
 						{
 							CGPath path;
-							bool isOk = ai->nullkiller2->getPathsInfo(hero)->getPath(path, node->coord);
+							bool isOk = ai->nullkiller->getPathsInfo(hero)->getPath(path, node->coord);
 
 							if(isOk && path.nodes.back().turns > 0)
 							{
 								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTranslated(), hero->movementPointsRemaining(), node->coord.toString());
 
-								ai->nullkiller2->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+								ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 								return;
 							}
 						}
@@ -270,7 +270,7 @@ void ExecuteHeroChain::accept(AIGateway * ai)
 			}
 			
 			// no exception means we were not able to reach the tile
-			ai->nullkiller2->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+			ai->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);
 		}
 		catch(const goalFulfilledException &)

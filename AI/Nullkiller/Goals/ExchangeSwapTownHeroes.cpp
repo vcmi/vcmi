@@ -74,7 +74,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 		}
 
 		ai->buildArmyIn(town);
-		ai->nullkiller2->unlockHero(currentGarrisonHero);
+		ai->nullkiller->unlockHero(currentGarrisonHero);
 		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTranslated(), town->getNameTranslated());
 
 		return;
@@ -103,12 +103,12 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 
 	if(lockingReason != HeroLockedReason::NOT_LOCKED)
 	{
-		ai->nullkiller2->lockHero(getGarrisonHero(), lockingReason);
+		ai->nullkiller->lockHero(getGarrisonHero(), lockingReason);
 	}
 
 	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 	{
-		ai->nullkiller2->unlockHero(town->getVisitingHero());
+		ai->nullkiller->unlockHero(town->getVisitingHero());
 		ai->makePossibleUpgrades(town->getVisitingHero());
 	}
 

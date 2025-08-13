@@ -36,7 +36,7 @@ void BuyArmy::accept(AIGateway * ai)
 
 	auto upgradeSuccessful = ai->makePossibleUpgrades(town);
 
-	auto armyToBuy = ai->nullkiller2->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
+	auto armyToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
 
 	if(armyToBuy.empty())
 	{
