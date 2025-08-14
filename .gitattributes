@@ -3,3 +3,4 @@
 *.cpp linguist-language=C++
 
 *.bat text eol=crlf
+/android/gradlew text eol=lf
