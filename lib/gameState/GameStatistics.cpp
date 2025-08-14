@@ -325,7 +325,7 @@ float Statistic::getMapExploredRatio(const CGameState * gs, PlayerColor player)
 	float visible = 0.0;
 	float numTiles = 0.0;
 
-	for(int layer = 0; layer < (gs->getMap().twoLevel ? 2 : 1); layer++)
+	for(int layer = 0; layer < gs->getMap().levels(); layer++)
 		for(int y = 0; y < gs->getMap().height; ++y)
 			for(int x = 0; x < gs->getMap().width; ++x)
 			{

@@ -93,18 +93,15 @@ void PassabilityLayer::update()
 	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
 	pixmap->fill(Qt::transparent);
 	
-	if(scene->level == 0 || map->twoLevel)
+	QPainter painter(pixmap.get());
+	for(int j = 0; j < map->height; ++j)
 	{
-		QPainter painter(pixmap.get());
-		for(int j = 0; j < map->height; ++j)
+		for(int i = 0; i < map->width; ++i)
 		{
-			for(int i = 0; i < map->width; ++i)
+			auto tl = map->getTile(int3(i, j, scene->level));
+			if(tl.blocked() || tl.visitable())
 			{
-				auto tl = map->getTile(int3(i, j, scene->level));
-				if(tl.blocked() || tl.visitable())
-				{
-					painter.fillRect(i * 32, j * 32, 31, 31, tl.visitable() ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
-				}
+				painter.fillRect(i * 32, j * 32, 31, 31, tl.visitable() ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
 			}
 		}
 	}
@@ -121,24 +118,21 @@ void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> 
 	if(!map)
 		return;
 	
-	if(scene->level == 0 || map->twoLevel)
+	for(int j = 0; j < map->height; ++j)
 	{
-		for(int j = 0; j < map->height; ++j)
+		for(int i = 0; i < map->width; ++i)
 		{
-			for(int i = 0; i < map->width; ++i)
-			{
-				auto tl = map->getTile(int3(i, j, scene->level));
-				ObjectInstanceID objID = tl.topVisitableObj();
-				if(!objID.hasValue() && !tl.blockingObjects.empty())
-					objID = tl.blockingObjects.front();
+			auto tl = map->getTile(int3(i, j, scene->level));
+			ObjectInstanceID objID = tl.topVisitableObj();
+			if(!objID.hasValue() && !tl.blockingObjects.empty())
+				objID = tl.blockingObjects.front();
 
-				if (objID.hasValue())
-				{
-					const CGObjectInstance * obj = map->getObject(objID);
-				
-					if(obj && predicate(obj))
-						possibleObjects.insert(obj);
-				}
+			if (objID.hasValue())
+			{
+				const CGObjectInstance * obj = map->getObject(objID);
+			
+				if(obj && predicate(obj))
+					possibleObjects.insert(obj);
 			}
 		}
 	}

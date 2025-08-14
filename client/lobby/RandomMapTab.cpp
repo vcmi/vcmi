@@ -54,15 +54,15 @@ RandomMapTab::RandomMapTab():
 		mapGenOptions->setWidth(mapSizeVal[btnId]);
 		mapGenOptions->setHeight(mapSizeVal[btnId]);
 		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
 		updateMapInfoByHost();
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
-		mapGenOptions->setHasTwoLevels(on);
+		mapGenOptions->setLevels(on ? 2 : 1); // TODO: multilevel support
 		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
 		updateMapInfoByHost();
 	});
@@ -202,7 +202,7 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
+	mapInfo->mapHeader->mapLevels = mapGenOptions->getLevels();
 
 	// Generate player information
 	int playersToGen = mapGenOptions->getMaxPlayersCount();
@@ -321,7 +321,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 			{
 				const auto & mapSizes = getPossibleMapSizes();
-				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], 1 + mapGenOptions->getHasTwoLevels());
+				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], mapGenOptions->getLevels());
 
 				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
 				button->block(!sizeAllowed);
@@ -335,7 +335,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 
 		bool undergoundAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
 
-		w->setSelected(opts->getHasTwoLevels());
+		w->setSelected(opts->getLevels() == 2); // TODO: multilevel support
 		w->block(!undergoundAllowed);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))

@@ -185,7 +185,7 @@ void CMapLoaderH3M::readHeader()
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
-	mapHeader->twoLevel = reader->readBool();
+	mapHeader->mapLevels = reader->readBool() ? 2 : 1;
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->author.appendRawString("");

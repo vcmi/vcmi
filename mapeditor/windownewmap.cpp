@@ -77,8 +77,7 @@ WindowNewMap::WindowNewMap(QWidget *parent) :
 		int height = ui->heightTxt->text().toInt();
 		mapGenOptions.setWidth(width ? width : 1);
 		mapGenOptions.setHeight(height ? height : 1);
-		bool twoLevel = ui->twoLevelCheck->isChecked();
-		mapGenOptions.setHasTwoLevels(twoLevel);
+		mapGenOptions.setLevels(ui->spinBoxLevels->value());
 
 		updateTemplateList();
 	}
@@ -123,7 +122,7 @@ bool WindowNewMap::loadUserSettings()
 			}
 		}
 
-		ui->twoLevelCheck->setChecked(mapGenOptions.getHasTwoLevels());
+		ui->spinBoxLevels->setValue(mapGenOptions.getLevels());
 
 		ui->humanCombo->setCurrentIndex(mapGenOptions.getHumanOrCpuPlayerCount());
 		ui->cpuCombo->setCurrentIndex(mapGenOptions.getCompOnlyPlayerCount());
@@ -213,7 +212,7 @@ std::unique_ptr<CMap> generateEmptyMap(CMapGenOptions & options)
 	map->creationDateTime = std::time(nullptr);
 	map->width = options.getWidth();
 	map->height = options.getHeight();
-	map->twoLevel = options.getHasTwoLevels();
+	map->mapLevels = options.getLevels();
 	
 	map->initTerrain();
 	map->getEditManager()->clearTerrain(&CRandomGenerator::getDefault());
@@ -328,10 +327,12 @@ void WindowNewMap::on_sizeCombo_activated(int index)
 }
 
 
-void WindowNewMap::on_twoLevelCheck_stateChanged(int arg1)
+void WindowNewMap::on_spinBoxLevels_valueChanged(int value)
 {
-	bool twoLevel = ui->twoLevelCheck->isChecked();
-	mapGenOptions.setHasTwoLevels(twoLevel);
+	if(value > 2)
+		QMessageBox::warning(this, tr("Multilevel support"), tr("Multilevel support is highly experimental yet. Expect issues.")); // TODO: multilevel support
+
+	mapGenOptions.setLevels(ui->spinBoxLevels->value());
 	updateTemplateList();
 }
 

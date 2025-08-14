@@ -247,7 +247,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->menuOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
-	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
 	ui->actionPass->setIcon(QIcon{":/icons/toggle-pass.png"});
 	ui->actionCut->setIcon(QIcon{":/icons/edit-cut.png"});
 	ui->actionCopy->setIcon(QIcon{":/icons/edit-copy.png"});
@@ -265,6 +264,54 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
 	ui->actionCampaignEditor->setIcon(QIcon{":/icons/mapeditor.64x64.png"});
 	ui->actionTemplateEditor->setIcon(QIcon{":/icons/dice.png"});
+
+	// Add combobox action
+	for (QWidget* c : QList<QWidget*>{ ui->toolBar, ui->menuView })
+	{
+		QWidget* container = new QWidget;
+		QHBoxLayout* layout = new QHBoxLayout(container);
+		layout->setContentsMargins(6, 2, 4, 2);
+		layout->setSpacing(2);
+
+		if (c == ui->menuView)
+		{
+			// Add icon label only for QMenu
+			QLabel* iconLabel = new QLabel;
+			iconLabel->setPixmap(QIcon(":/icons/toggle-underground.png").pixmap(16, 16));
+			iconLabel->setContentsMargins(0, 2, 0, 0);
+			layout->addWidget(iconLabel);
+		}
+
+		// Add the combo box
+		QComboBox* combo = new QComboBox;
+		combo->setFixedHeight(ui->menuView->fontMetrics().height() + 6);
+		connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int index) {
+			for(auto & box : levelComboBoxes)
+				if (box->currentIndex() != index && combo != box)
+        			box->setCurrentIndex(index);
+			
+			if(!controller.map())
+				return;
+			
+			mapLevel = combo->currentIndex();
+			ui->mapView->setScene(controller.scene(mapLevel));
+			ui->minimapView->setScene(controller.miniScene(mapLevel));
+		});
+		layout->addWidget(combo, c == ui->menuView ? 1 : 0);
+
+		// Create the widget action
+		QWidgetAction* comboAction = new QWidgetAction(this);
+		comboAction->setDefaultWidget(container);
+
+		int index = c->actions().indexOf(ui->actionLevel);
+		if (index != -1)
+		{
+			c->removeAction(ui->actionLevel);
+			c->insertAction(c->actions().value(index), comboAction);
+		}
+
+		levelComboBoxes.push_back(combo);
+	}
 
 #ifndef ENABLE_TEMPLATE_EDITOR
 	ui->actionTemplateEditor->setVisible(false);
@@ -387,7 +434,19 @@ void MainWindow::initializeMap(bool isNew)
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
-	ui->actionLevel->setEnabled(controller.map()->twoLevel);
+	for(auto & box : levelComboBoxes)
+	{
+		box->clear();
+		for(int i = 0; i < controller.map()->mapLevels; i++)
+		{
+			if(i == 0)
+				box->addItems({ tr("Surface") });
+			else if(i == 1)
+				box->addItems({ tr("Underground") });
+			else
+				box->addItems({ tr("Level - %1").arg(i + 1) });
+		}
+	}
 	
 	//set minimal players count
 	if(isNew)
@@ -963,26 +1022,6 @@ void MainWindow::loadObjectsTree()
 	catch(const std::exception &)
 	{
 		QMessageBox::critical(this, tr("Mods loading problem"), tr("Critical error during Mods loading. Disable invalid mods and restart."));
-	}
-}
-
-void MainWindow::on_actionLevel_triggered()
-{
-	if(controller.map() && controller.map()->twoLevel)
-	{
-		mapLevel = mapLevel ? 0 : 1;
-		ui->mapView->setScene(controller.scene(mapLevel));
-		ui->minimapView->setScene(controller.miniScene(mapLevel));
-		if (mapLevel == 0)
-		{
-			ui->actionLevel->setText(tr("View underground"));
-			ui->actionLevel->setToolTip(tr("View underground"));
-		}
-		else
-		{
-			ui->actionLevel->setText(tr("View surface"));
-			ui->actionLevel->setToolTip(tr("View surface"));
-		}
 	}
 }
 

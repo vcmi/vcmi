@@ -45,7 +45,7 @@ MapController::MapController(QObject * parent)
 
 MapController::MapController(MainWindow * m): main(m)
 {
-	for(int i : {0, 1})
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		_scenes[i].reset(new MapScene(i));
 		_miniscenes[i].reset(new MinimapScene(i));
@@ -56,12 +56,12 @@ MapController::MapController(MainWindow * m): main(m)
 
 void MapController::connectScenes()
 {
-	for (int level = 0; level <= 1; level++)
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		//selections for both layers will be handled separately
-		QObject::connect(_scenes[level].get(), &MapScene::selected, [this, level](bool anythingSelected)
+		QObject::connect(_scenes[i].get(), &MapScene::selected, [this, i](bool anythingSelected)
 		{
-			main->onSelectionMade(level, anythingSelected);
+			main->onSelectionMade(i, anythingSelected);
 		});
 	}
 }
@@ -223,7 +223,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 	
 	repairMap();
 	
-	for(int i : {0, 1})
+	for(int i = 0; i < _map->mapLevels; i++)
 	{
 		_scenes[i].reset(new MapScene(i));
 		_miniscenes[i].reset(new MinimapScene(i));
@@ -258,12 +258,10 @@ void MapController::initObstaclePainters(CMap * map)
 
 void MapController::sceneForceUpdate()
 {
-	_scenes[0]->updateViews();
-	_miniscenes[0]->updateViews();
-	if(_map->twoLevel)
+	for(int i = 0; i < _map->mapLevels; i++)
 	{
-		_scenes[1]->updateViews();
-		_miniscenes[1]->updateViews();
+		_scenes[i]->updateViews();
+		_miniscenes[i]->updateViews();
 	}
 }
 
@@ -278,7 +276,7 @@ void MapController::resetMapHandler()
 	if(!_mapHandler)
 		_mapHandler.reset(new MapHandler());
 	_mapHandler->reset(map());
-	for(int i : {0, 1})
+	for(int i = 0; i < MAX_LEVELS; i++)
 	{
 		_scenes[i]->initialize(*this);
 		_miniscenes[i]->initialize(*this);
