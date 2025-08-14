@@ -220,6 +220,11 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 {
 	bool popupOpen = ENGINE->windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
 
+	if(popupOpen)
+	{
+		ENGINE->windows().popWindows(1);
+	}
+
 	auto hlp = rclickable;
 
 	for(auto & i : hlp)
@@ -229,9 +234,6 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 
 		i->closePopupWindow(!popupOpen);
 	}
-
-	if(popupOpen)
-		ENGINE->windows().popWindows(1);
 }
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)

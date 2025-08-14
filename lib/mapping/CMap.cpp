@@ -239,8 +239,7 @@ void CMap::showObject(CGObjectInstance * obj)
 
 void CMap::calculateGuardingGreaturePositions()
 {
-	int levels = twoLevel ? 2 : 1;
-	for(int z = 0; z < levels; z++)
+	for(int z = 0; z < levels(); z++)
 	{
 		for(int x = 0; x < width; x++)
 		{

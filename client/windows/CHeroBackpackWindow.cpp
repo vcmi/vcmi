@@ -41,7 +41,7 @@ CHeroBackpackWindow::CHeroBackpackWindow(const CGHeroInstance * hero, const std:
 	};
 	arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		showArtifactAssembling(*arts, artPlace, cursorPosition);
+		showArtifactPopup(*arts, artPlace, cursorPosition);
 	};
 	addSet(arts);
 	arts->setHero(hero);

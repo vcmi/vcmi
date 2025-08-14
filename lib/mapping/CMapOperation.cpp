@@ -563,14 +563,11 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, std::stri
 
 CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CComposedOperation(map)
 {
-	CTerrainSelection terrainSel(map);
-	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, 0, gen));
-	if(map->twoLevel)
+	for (int i = 0; i < map->mapLevels; i++)
 	{
-		terrainSel.clearSelection();
-		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, 0, gen));
+		CTerrainSelection terrainSel(map);
+		terrainSel.selectRange(MapRect(int3(0, 0, i), map->width, map->height));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, i == 1 ? ETerrainId::ROCK : ETerrainId::WATER, 0, gen));
 	}
 }
 

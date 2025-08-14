@@ -60,7 +60,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), onlyEquipped);
 	if(!assemblyPossibilities.empty())
 	{
-		auto askThread = new std::thread([this, hero, art, slot, assemblyPossibilities, checkIgnored]() -> void
+		auto askThread = new std::thread([this, hero, slot, assemblyPossibilities, checkIgnored]() -> void
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				for(const auto combinedArt : assemblyPossibilities)
@@ -73,7 +73,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 					}
 
 					bool assembleConfirmed = false;
-					MetaString message = MetaString::createFromTextID(art->getType()->getDescriptionTextID());
+					MetaString message = MetaString::createFromTextID(combinedArt->getDescriptionTextID());
 					message.appendEOL();
 					message.appendEOL();
 					if(combinedArt->isFused())

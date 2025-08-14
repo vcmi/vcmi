@@ -59,7 +59,7 @@ struct DLL_EXPORT EvaluationContext
 	int manaCost;
 	uint64_t danger;
 	float closestWayRatio;
-	float armyLossPersentage;
+	float armyLossRatio;
 	float armyReward;
 	uint64_t armyGrowth;
 	int32_t goldReward;
@@ -128,7 +128,7 @@ private:
 	const Nullkiller * ai;
 
 	fl::Engine * engine;
-	fl::InputVariable * armyLossPersentageVariable;
+	fl::InputVariable * armyLossRatioVariable;
 	fl::InputVariable * heroRoleVariable;
 	fl::InputVariable * mainTurnDistanceVariable;
 	fl::InputVariable * scoutTurnDistanceVariable;

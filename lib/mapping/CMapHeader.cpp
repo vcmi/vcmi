@@ -122,7 +122,7 @@ CMapHeader::CMapHeader()
 	: version(EMapFormat::VCMI)
 	, height(72)
 	, width(72)
-	, twoLevel(true)
+	, mapLevels(2)
 	, difficulty(EMapDifficulty::NORMAL)
 	, levelLimit(0)
 	, victoryIconIndex(0)
@@ -139,7 +139,7 @@ CMapHeader::~CMapHeader() = default;
 
 ui8 CMapHeader::levels() const
 {
-	return (twoLevel ? 2 : 1);
+	return mapLevels;
 }
 
 void CMapHeader::registerMapStrings()

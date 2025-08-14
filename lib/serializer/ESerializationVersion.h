@@ -48,8 +48,9 @@ enum class ESerializationVersion : int32_t
 	UNIVERSITY_CONFIG, // town university is configurable
 	CAMPAIGN_BONUSES, // new format for scenario bonuses in campaigns
 	BONUS_HIDDEN, // hidden bonus
+	MORE_MAP_LAYERS, // more map layers
 
-	CURRENT = BONUS_HIDDEN,
+	CURRENT = MORE_MAP_LAYERS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

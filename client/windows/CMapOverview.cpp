@@ -121,7 +121,7 @@ std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(std
 {
 	std::vector<std::shared_ptr<CanvasImage>> ret;
 
-	for(int i = 0; i < (map->twoLevel ? 2 : 1); i++)
+	for(int i = 0; i < map->levels(); i++)
 		ret.push_back(createMinimapForLayer(map, i));
 
 	return ret;
@@ -129,6 +129,7 @@ std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(std
 
 std::shared_ptr<CPicture> CMapOverviewWidget::buildDrawMinimap(const JsonNode & config) const
 {
+	// TODO: multilevel support
 	logGlobal->debug("Building widget drawMinimap");
 
 	auto rect = readRect(config["rect"]);

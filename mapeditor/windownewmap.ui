@@ -270,24 +270,40 @@
      </item>
     </layout>
    </widget>
-   <widget class="QCheckBox" name="twoLevelCheck">
+   <widget class="QWidget" name="horizontalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>277</width>
-      <height>20</height>
+      <x>20</x>
+      <y>86</y>
+      <width>191</width>
+      <height>29</height>
      </rect>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>96</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Underground</string>
-    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>Levels</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinBoxLevels">
+       <property name="specialValueText">
+        <string/>
+       </property>
+       <property name="suffix">
+        <string/>
+       </property>
+       <property name="prefix">
+        <string/>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QGroupBox" name="randomOptions">

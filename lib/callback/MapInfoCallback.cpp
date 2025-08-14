@@ -97,7 +97,7 @@ bool MapInfoCallback::isAllowed(SecondarySkill id) const
 
 int3 MapInfoCallback::getMapSize() const
 {
-	return int3(getMapConstPtr()->width, getMapConstPtr()->height, getMapConstPtr()->twoLevel ? 2 : 1);
+	return int3(getMapConstPtr()->width, getMapConstPtr()->height, getMapConstPtr()->levels());
 }
 
 void MapInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)

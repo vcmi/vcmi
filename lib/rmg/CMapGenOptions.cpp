@@ -24,7 +24,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 CMapGenOptions::CMapGenOptions()
-	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
+	: width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), levels(2),
 	humanOrCpuPlayerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(RANDOM_SIZE), compOnlyTeamCount(RANDOM_SIZE),
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr),
 	customizedPlayers(false)
@@ -54,14 +54,14 @@ void CMapGenOptions::setHeight(si32 value)
 	height = value;
 }
 
-bool CMapGenOptions::getHasTwoLevels() const
+int CMapGenOptions::getLevels() const
 {
-	return hasTwoLevels;
+	return levels;
 }
 
-void CMapGenOptions::setHasTwoLevels(bool value)
+void CMapGenOptions::setLevels(int value)
 {
-	hasTwoLevels = value;
+	levels = value;
 }
 
 si8 CMapGenOptions::getHumanOrCpuPlayerCount() const
@@ -425,12 +425,12 @@ void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
 	//validate & adapt options according to template
 	if(mapTemplate)
 	{
-		if(!mapTemplate->matchesSize(int3(getWidth(), getHeight(), 1 + getHasTwoLevels())))
+		if(!mapTemplate->matchesSize(int3(getWidth(), getHeight(), getLevels())))
 		{
 			auto sizes = mapTemplate->getMapSizes();
 			setWidth(sizes.first.x);
 			setHeight(sizes.first.y);
-			setHasTwoLevels(sizes.first.z - 1);
+			setLevels(sizes.first.z);
 		}
 
 		si8 maxPlayerCount = getMaxPlayersCount(false);
@@ -488,7 +488,7 @@ void CMapGenOptions::setPlayerTeam(const PlayerColor & color, const TeamID & tea
 
 void CMapGenOptions::finalize(vstd::RNG & rand)
 {
-	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getHasTwoLevels() ? "WITH" : "NO");
+	logGlobal->info("RMG map: %dx%d, %s underground", getWidth(), getHeight(), getLevels() >= 2 ? "WITH" : "NO");
 	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getHumanOrCpuPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
@@ -700,7 +700,7 @@ bool CMapGenOptions::arePlayersCustomized() const
 
 std::vector<const CRmgTemplate *> CMapGenOptions::getPossibleTemplates() const
 {
-	int3 tplSize(width, height, (hasTwoLevels ? 2 : 1));
+	int3 tplSize(width, height, levels);
 	auto humanPlayers = countHumanPlayers();
 
 	auto templates = LIBRARY->tplh->getTemplates();
@@ -825,7 +825,12 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("width", width);
 	handler.serializeInt("height", height);
-	handler.serializeBool("haswoLevels", hasTwoLevels);
+	bool hasTwoLevelsKey = !handler.getCurrent()["haswoLevels"].isNull();
+	bool hasTwoLevels = levels == 2;
+	if(handler.saving || !hasTwoLevelsKey)
+		handler.serializeInt("levels", levels);
+	else
+		handler.serializeBool("haswoLevels", hasTwoLevels);
 	handler.serializeInt("humanOrCpuPlayerCount", humanOrCpuPlayerCount);
 	handler.serializeInt("teamCount", teamCount);
 	handler.serializeInt("compOnlyPlayerCount", compOnlyPlayerCount);
