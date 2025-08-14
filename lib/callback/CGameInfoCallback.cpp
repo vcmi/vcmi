@@ -791,7 +791,7 @@ bool CGameInfoCallback::isTeleportEntrancePassable(const CGTeleport * obj, Playe
 	return obj && obj->isEntrance() && !isTeleportChannelImpassable(obj->channel, player);
 }
 
-void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles, bool skipIfNearbyBlocked) const
+void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles, bool skipIfNearbyGuarded) const
 {
 	std::vector<int> floors;
 	floors.reserve(gameState().getMap().levels());
@@ -809,36 +809,19 @@ void CGameInfoCallback::getFreeTiles(std::vector<int3> & tiles, bool skipIfNearb
 				tinfo = getTile(int3 (xd,yd,zd));
 				if (tinfo->isLand() && tinfo->getTerrain()->isPassable() && !tinfo->blocked()) //land and free
 				{
-					bool nearbyMonsterOrBlocked = false;
-					if (skipIfNearbyBlocked)
-					{
-						FowTilesType nearbyTiles;
-						getTilesInRange( nearbyTiles, int3 (xd,yd,zd), 1, ETileVisibility::REVEALED);
-
-						for (auto & nearbyTile : nearbyTiles)
-						{
-							auto nearbyTileInfo = getTile(nearbyTile);
-							if (nearbyTileInfo->isLand() && nearbyTileInfo->getTerrain()->isPassable() && !nearbyTileInfo->blocked())
-								continue;
-
-#if NKAI_TRACE_LEVEL >= 2
-							std::ostringstream tPos;
-							tPos << "(" << xd << "," << yd << "," << zd << ")";
-							std::ostringstream nearbyTPos;
-							nearbyTPos << "(" << nearbyTile.x << "," << nearbyTile.y << "," << nearbyTile.z << ")";
-							logGlobal->trace("Skipping free tile %d because nearby tile %s is blocked", tPos.str(), nearbyTPos.str());
-#endif
-
-							nearbyMonsterOrBlocked = true;
-							break;
-						}
-					}
-
 					// Ensure that CGameHandler::spawnWanderingMonsters won't set a random monster next to another monster
 					// because Nullkiller AI is not able to go to one monster without falling into the attack range of the nearby one
 					// See GraphPaths::addChainInfo if(node.linkDanger > 0) (no link between random monsters and map monsters)
-					if (!nearbyMonsterOrBlocked)
-						tiles.emplace_back(xd, yd, zd);
+					// Ivan: When new monster spawns, AI should receive AIGateway::newObject call for each object visible to AI. Probably you need to invalidate
+					// that data for AI & force recalculation on next turn. New queries to gamestate, like getGuardingCreaturePosition that are done either
+					// from AIGateway::newObject method or at any point later should correctly include newly spawned monsters
+					// TODO: Ensure this linking issue is properly fixed, not just with the workaround below
+					if (skipIfNearbyGuarded && guardingCreaturePosition(int3 (xd,yd,zd)).isValid())
+					{
+						continue;
+					}
+
+					tiles.emplace_back(xd, yd, zd);
 				}
 			}
 		}

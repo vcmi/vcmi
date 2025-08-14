@@ -3996,7 +3996,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	std::vector<int3>::iterator tile;
 	std::vector<int3> tiles;
 	gameState().getFreeTiles(tiles, true);
-	ui32 amount = tiles.size() / 10; //Chance is 10% for each free tile. Higher than 0.5% because there are way fewer with nearby unblocked
+	ui32 amount = tiles.size() / 100; //Chance is 1% for each tile. Higher than the original 0.5% because there are fewer with nearby unguarded
 
 	RandomGeneratorUtil::randomShuffle(tiles, getRandomGenerator());
 	logGlobal->trace("Spawning wandering monsters. Found %d free tiles. Creature type: %d", tiles.size(), creatureID.num);
