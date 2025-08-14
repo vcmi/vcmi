@@ -225,6 +225,7 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 		case BonusType::DARKNESS:
 		case BonusType::FULL_MAP_SCOUTING:
 		case BonusType::FULL_MAP_DARKNESS:
+		case BonusType::OPENING_BATTLE_SPELL:
 			// 1 number
 			var = getFirstValue(value).Integer();
 			break;

@@ -206,7 +206,8 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			parameters.setSpellLevel(3);
+			int32_t spellLevel = b->additionalInfo != CAddInfo::NONE ? b->additionalInfo[0] : 3;
+			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
 			parameters.massive = true;
 			parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target());
