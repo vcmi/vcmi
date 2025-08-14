@@ -257,24 +257,21 @@ void Nullkiller::invalidatePathfinderData()
 	pathfinderInvalidated = true;
 }
 
-void Nullkiller::updateAiState(int pass, bool fast)
+void Nullkiller::updateState(bool partialUpdate)
 {
 	makingTurnInterrupption.interruptionPoint();
-
 	std::unique_lock lockGuard(aiStateMutex);
-
 	auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 	setTargetObject(-1);
-
 	decomposer->reset();
 	buildAnalyzer->update();
 
 	if (!pathfinderInvalidated)
 		logAi->trace("Skipping paths regeneration - up to date");
 
-	if(!fast && pathfinderInvalidated)
+	if(!partialUpdate && pathfinderInvalidated)
 	{
 		memory->removeInvisibleObjects(cb.get());
 
@@ -396,7 +393,7 @@ void Nullkiller::makeTurn()
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
-		updateAiState(i);
+		updateState();
 
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
@@ -419,12 +416,12 @@ void Nullkiller::makeTurn()
 				if(!executeTask(bestTask))
 					return;
 
-				bool fastUpdate = true;
+				bool partialUpdate = true;
 
 				if (bestTask->getHero() != nullptr)
-					fastUpdate = false;
+					partialUpdate = false;
 
-				updateAiState(i, fastUpdate);
+				updateState(partialUpdate);
 			}
 			else
 			{
@@ -458,12 +455,12 @@ void Nullkiller::makeTurn()
 				break;
 		}
 
-		std::sort(selectedTasks.begin(), selectedTasks.end(), [](const TTask& a, const TTask& b) 
+		boost::range::sort(selectedTasks, [](const TTask& a, const TTask& b)
 		{
 			return a->priority > b->priority;
 		});
 
-		logAi->debug("Decision madel in %ld", timeElapsed(start));
+		logAi->debug("Decision made in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{
@@ -623,7 +620,6 @@ bool Nullkiller::executeTask(Goals::TTask task)
 	{
 		logAi->error("Failed to realize subgoal of type %s, I will stop.", taskDescr);
 		logAi->error("The error message was: %s", e.what());
-
 		return false;
 	}
 

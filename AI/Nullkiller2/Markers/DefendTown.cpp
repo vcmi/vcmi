@@ -18,15 +18,15 @@ namespace NK2AI
 
 using namespace Goals;
 
-DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isCounterAttack)
-	: CGoal(Goals::DEFEND_TOWN), treat(treat), defenceArmyStrength(defencePath.getHeroStrength()), turn(defencePath.turn()), counterattack(isCounterAttack)
+DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & threat, const AIPath & defencePath, bool isCounterAttack)
+	: CGoal(Goals::DEFEND_TOWN), threat(threat), defenceArmyStrength(defencePath.getHeroStrength()), turn(defencePath.turn()), counterattack(isCounterAttack)
 {
 	settown(town);
 	hero = defencePath.targetHero;
 }
 
-DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const CGHeroInstance * defender)
-	: CGoal(Goals::DEFEND_TOWN), treat(treat), defenceArmyStrength(defender->getTotalStrength()), turn(0)
+DefendTown::DefendTown(const CGTownInstance * town, const HitMapInfo & threat, const CGHeroInstance * defender)
+	: CGoal(Goals::DEFEND_TOWN), threat(threat), defenceArmyStrength(defender->getTotalStrength()), turn(0)
 {
 	settown(town);
 	sethero(defender);

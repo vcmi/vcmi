@@ -359,10 +359,10 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 
 float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const
 {
-	auto objectsUnderTreat = ai->dangerHitMap->getOneTurnAccessibleObjects(enemy);
+	auto objectsUnderThreat = ai->dangerHitMap->getOneTurnAccessibleObjects(enemy);
 	float objectValue = 0;
 
-	for(auto obj : objectsUnderTreat)
+	for(auto obj : objectsUnderThreat)
 	{
 		vstd::amax(objectValue, getStrategicalValue(obj));
 	}
@@ -691,15 +691,15 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 
 const HitMapInfo & RewardEvaluator::getEnemyHeroDanger(const int3 & tile, uint8_t turn) const
 {
-	auto & treatNode = ai->dangerHitMap->getTileThreat(tile);
+	auto & threatNode = ai->dangerHitMap->getTileThreat(tile);
 
-	if(treatNode.maximumDanger.danger == 0)
+	if(threatNode.maximumDanger.danger == 0)
 		return HitMapInfo::NoThreat;
 
-	if(treatNode.maximumDanger.turn <= turn)
-		return treatNode.maximumDanger;
+	if(threatNode.maximumDanger.turn <= turn)
+		return threatNode.maximumDanger;
 
-	return treatNode.fastestDanger.turn <= turn ? treatNode.fastestDanger : HitMapInfo::NoThreat;
+	return threatNode.fastestDanger.turn <= turn ? threatNode.fastestDanger : HitMapInfo::NoThreat;
 }
 
 int32_t getArmyCost(const CArmedInstance * army)
@@ -896,21 +896,21 @@ public:
 
 		Goals::DefendTown & defendTown = dynamic_cast<Goals::DefendTown &>(*task);
 		const CGTownInstance * town = defendTown.town;
-		auto & treat = defendTown.getTreat();
+		auto & threat = defendTown.getThreat();
 
 		auto strategicalValue = evaluationContext.evaluator.getStrategicalValue(town);
 
 		float multiplier = 1;
 
-		if(treat.turn < defendTown.getTurn())
-			multiplier /= 1 + (defendTown.getTurn() - treat.turn);
+		if(threat.turn < defendTown.getTurn())
+			multiplier /= 1 + (defendTown.getTurn() - threat.turn);
 
-		multiplier /= 1.0f + treat.turn / 5.0f;
+		multiplier /= 1.0f + threat.turn / 5.0f;
 
 		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
 			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
-			auto enemySpeed = treat.hero.get(evaluationContext.evaluator.ai->cb.get())->movementPointsLimit(true);
+			auto enemySpeed = threat.hero.get(evaluationContext.evaluator.ai->cb.get())->movementPointsLimit(true);
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -928,9 +928,9 @@ public:
 
 		evaluationContext.defenseValue = town->fortLevel();
 		evaluationContext.isDefend = true;
-		evaluationContext.threatTurns = treat.turn;
+		evaluationContext.threatTurns = threat.turn;
 
-		vstd::amax(evaluationContext.danger, defendTown.getTreat().danger);
+		vstd::amax(evaluationContext.danger, defendTown.getThreat().danger);
 		addTileDanger(evaluationContext, town->visitablePos(), defendTown.getTurn(), defendTown.getDefenceStrength());
 	}
 };

@@ -22,18 +22,18 @@ namespace Goals
 	{
 	private:
 		uint64_t defenceArmyStrength;
-		HitMapInfo treat;
+		HitMapInfo threat;
 		uint8_t turn;
 		bool counterattack;
 
 	public:
-		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const AIPath & defencePath, bool isCounterAttack = false);
-		DefendTown(const CGTownInstance * town, const HitMapInfo & treat, const CGHeroInstance * defender);
+		DefendTown(const CGTownInstance * town, const HitMapInfo & threat, const AIPath & defencePath, bool isCounterAttack = false);
+		DefendTown(const CGTownInstance * town, const HitMapInfo & threat, const CGHeroInstance * defender);
 
 		bool operator==(const DefendTown & other) const override;
 		std::string toString() const override;
 
-		const HitMapInfo & getTreat() const { return treat; }
+		const HitMapInfo & getThreat() const { return threat; }
 
 		uint64_t getDefenceStrength() const { return defenceArmyStrength; }
 

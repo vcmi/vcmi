@@ -32,13 +32,13 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 		{
 			foreach_tile_pos([&b, &data](const int3 & pos)
 				{
-					auto & treat = data.getTileThreat(pos).maximumDanger;
-					b.addText(pos, std::to_string(treat.danger));
+					auto & threat = data.getTileThreat(pos).maximumDanger;
+					b.addText(pos, std::to_string(threat.danger));
 
-					if(treat.hero.validAndSet())
+					if(threat.hero.validAndSet())
 					{
-						b.addText(pos, std::to_string(treat.turn));
-						b.addText(pos, treat.hero->getNameTranslated());
+						b.addText(pos, std::to_string(threat.turn));
+						b.addText(pos, threat.hero->getNameTranslated());
 					}
 				});
 		});
@@ -47,13 +47,13 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 		{
 			foreach_tile_pos([&b, &data](const int3 & pos)
 				{
-					auto & treat = data.getTileThreat(pos).fastestDanger;
-					b.addText(pos, std::to_string(treat.danger));
+					auto & threat = data.getTileThreat(pos).fastestDanger;
+					b.addText(pos, std::to_string(threat.danger));
 
-					if(treat.hero.validAndSet())
+					if(threat.hero.validAndSet())
 					{
-						b.addText(pos, std::to_string(treat.turn));
-						b.addText(pos, treat.hero->getNameTranslated());
+						b.addText(pos, std::to_string(threat.turn));
+						b.addText(pos, threat.hero->getNameTranslated());
 					}
 				});
 		});
