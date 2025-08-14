@@ -234,7 +234,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 		timeElapsed(start));
 }
 
-void Nullkiller::resetAiState()
+void Nullkiller::resetState()
 {
 	std::unique_lock lockGuard(aiStateMutex);
 
@@ -375,26 +375,24 @@ HeroLockedReason Nullkiller::getHeroLockedReason(const CGHeroInstance * hero) co
 void Nullkiller::makeTurn()
 {
 	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
-
 	const int MAX_DEPTH = 10;
-
-	resetAiState();
-
+	resetState();
 	Goals::TGoalVec bestTasks;
 
 #if NKAI_TRACE_LEVEL >= 1
-	float totalHeroStrength = 0;
-	int totalTownLevel = 0;
-	for (auto heroInfo : cb->getHeroesInfo())
+	float totalHeroesStrength = 0;
+	int totalTownsLevel = 0;
+	for (const auto *heroInfo : cb->getHeroesInfo())
 	{
-		totalHeroStrength += heroInfo->getTotalStrength();
+		totalHeroesStrength += heroInfo->getTotalStrength();
 	}
-	for (auto townInfo : cb->getTownsInfo())
+	for (const auto *townInfo : cb->getTownsInfo())
 	{
-		totalTownLevel += townInfo->getTownLevel();
+		totalTownsLevel += townInfo->getTownLevel();
 	}
-	logAi->info("Beginning: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+	logAi->info("Beginning: totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
 #endif
+
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		auto start = std::chrono::high_resolution_clock::now();
@@ -417,6 +415,7 @@ void Nullkiller::makeTurn()
 #if NKAI_TRACE_LEVEL >= 1
 				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
 #endif
+
 				if(!executeTask(bestTask))
 					return;
 
@@ -443,14 +442,17 @@ void Nullkiller::makeTurn()
 			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
+
 #if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
 #endif
+
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
 #if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
 #endif
+
 			selectedTasks = buildPlan(bestTasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
@@ -470,25 +472,25 @@ void Nullkiller::makeTurn()
 
 		bool hasAnySuccess = false;
 
-		for(auto bestTask : selectedTasks)
+		for(const auto& selectedTask : selectedTasks)
 		{
 			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 				return;
 
-			if(!areAffectedObjectsPresent(bestTask))
+			if(!areAffectedObjectsPresent(selectedTask))
 			{
 				logAi->debug("Affected object not found. Canceling task.");
 				continue;
 			}
 
-			std::string taskDescription = bestTask->toString();
-			HeroRole heroRole = getTaskRole(bestTask);
+			std::string taskDescription = selectedTask->toString();
+			HeroRole heroRole = getTaskRole(selectedTask);
 
-			if(heroRole != HeroRole::MAIN || bestTask->getHeroExchangeCount() <= 1)
+			if(heroRole != HeroRole::MAIN || selectedTask->getHeroExchangeCount() <= 1)
 				useHeroChain = false;
 
 			// TODO: better to check turn distance here instead of priority
-			if((heroRole != HeroRole::MAIN || bestTask->priority < SMALL_SCAN_MIN_PRIORITY)
+			if((heroRole != HeroRole::MAIN || selectedTask->priority < SMALL_SCAN_MIN_PRIORITY)
 				&& scanDepth == ScanDepth::MAIN_FULL)
 			{
 				useHeroChain = false;
@@ -497,10 +499,10 @@ void Nullkiller::makeTurn()
 				logAi->trace(
 					"Goal %s has low priority %f so decreasing  scan depth to gain performance.",
 					taskDescription,
-					bestTask->priority);
+					selectedTask->priority);
 			}
 
-			if((settings->isUseFuzzy() && bestTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && bestTask->priority <= 0))
+			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
 			{
 				auto heroes = cb->getHeroesInfo();
 				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
@@ -513,7 +515,7 @@ void Nullkiller::makeTurn()
 					logAi->trace(
 						"Goal %s has too low priority %f so increasing scan depth to full.",
 						taskDescription,
-						bestTask->priority);
+						selectedTask->priority);
 
 					scanDepth = ScanDepth::ALL_FULL;
 					useHeroChain = false;
@@ -525,10 +527,12 @@ void Nullkiller::makeTurn()
 
 				continue;
 			}
+
 #if NKAI_TRACE_LEVEL >= 1
-			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, bestTask->toString(), bestTask->priority);
+			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
 #endif
-			if(!executeTask(bestTask))
+
+			if(!executeTask(selectedTask))
 			{
 				if(hasAnySuccess)
 					break;
@@ -546,23 +550,25 @@ void Nullkiller::makeTurn()
 		if(!hasAnySuccess)
 		{
 			logAi->trace("Nothing was done this turn. Ending turn.");
+
 #if NKAI_TRACE_LEVEL >= 1
-			totalHeroStrength = 0;
-			totalTownLevel = 0;
-			for (auto heroInfo : cb->getHeroesInfo())
+			totalHeroesStrength = 0;
+			totalTownsLevel = 0;
+			for (const auto *heroInfo : cb->getHeroesInfo())
 			{
-				totalHeroStrength += heroInfo->getTotalStrength();
+				totalHeroesStrength += heroInfo->getTotalStrength();
 			}
-			for (auto townInfo : cb->getTownsInfo())
+			for (const auto *townInfo : cb->getTownsInfo())
 			{
-				totalTownLevel += townInfo->getTownLevel();
+				totalTownsLevel += townInfo->getTownLevel();
 			}
-			logAi->info("End: Strength: %f Townlevel: %d Resources: %s", totalHeroStrength, totalTownLevel, cb->getResourceAmount().toString());
+			logAi->info("End: totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
 #endif
+
 			return;
 		}
 
-		for (auto heroInfo : cb->getHeroesInfo())
+		for (const auto *heroInfo : cb->getHeroesInfo())
 			AIGateway::pickBestArtifacts(heroInfo);
 
 		if(i == settings->getMaxPass())

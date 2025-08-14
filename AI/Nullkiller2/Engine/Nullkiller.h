@@ -140,7 +140,7 @@ public:
 	void invalidatePaths();
 
 private:
-	void resetAiState();
+	void resetState();
 	void updateAiState(int pass, bool fast = false);
 	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
