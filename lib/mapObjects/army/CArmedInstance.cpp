@@ -112,6 +112,8 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 	b->description = bonusDescription;
 
+	b->targetSourceType = BonusSource::COMMANDER;
+
 	nodeHasChanged();
 
 	//-1 modifier for any Undead unit in army

@@ -394,6 +394,7 @@
 				"val" : -1,
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
+				"targetSourceType" : "COMMANDER",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"description" : "PLACEHOLDER",
 				"limiters" : [ "OPPOSITE_SIDE" ]
@@ -457,6 +458,7 @@
 				"val" : -1,
 				"stacking" : "Devils",
 				"propagator": "BATTLE_WIDE",
+				"targetSourceType" : "COMMANDER",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
 				"description" : "@creatures.core.devil.bonus.decreaseLuck",
 				"limiters" : [ "OPPOSITE_SIDE" ]

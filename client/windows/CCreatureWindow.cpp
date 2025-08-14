@@ -868,10 +868,8 @@ void CStackWindow::initBonusesList()
 			return  info->stackNode->bonusToString(v1) < info->stackNode->bonusToString(v2);
 	};
 
-	// these bonuses require special handling. For example they come with own descriptions, for use in morale/luck description
-	// also, this information is already available in creature window
-	receivedBonuses.remove_if(Selector::type()(BonusType::MORALE));
-	receivedBonuses.remove_if(Selector::type()(BonusType::LUCK));
+	receivedBonuses.remove_if(Selector::targetSourceType()(BonusSource::COMMANDER));
+	receivedBonuses.remove_if(Selector::targetSourceType()(BonusSource::GLOBAL));
 
 	std::vector<BonusList> groupedBonuses;
 	while (!receivedBonuses.empty())

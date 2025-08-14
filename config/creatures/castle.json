@@ -384,6 +384,7 @@
 				"type" : "MORALE",
 				"val" : 1,
 				"propagator" : "ARMY",
+				"targetSourceType" : "COMMANDER",
 				"description" : "PLACEHOLDER",
 				"stacking" : "Angels"
 			},
@@ -454,6 +455,7 @@
 				"type" : "MORALE",
 				"val" : 1,
 				"propagator" : "ARMY",
+				"targetSourceType" : "COMMANDER",
 				"description" : "@creatures.core.angel.bonus.raisesMorale",
 				"stacking" : "Angels"
 			},

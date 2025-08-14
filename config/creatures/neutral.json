@@ -512,7 +512,8 @@
 			{
 				"type" : "LUCK",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "INDEPENDENT_MAX",
+				"description" : "PLACEHOLDER"
 			}
 		 },
 		"graphics" :
@@ -621,7 +622,9 @@
 			{
 				"type" : "NO_TERRAIN_PENALTY",
 				"subtype" : "terrain.sand",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER",
+				"targetSourceType" : "COMMANDER"
 			}
 		},
 		"graphics" :
@@ -652,7 +655,9 @@
 				"subtype" : "visionsMonsters",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER",
+				"targetSourceType" : "COMMANDER"
 			},
 			"visionsHeroes" :
 			{
@@ -660,7 +665,9 @@
 				"subtype" : "visionsHeroes",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER",
+				"targetSourceType" : "COMMANDER"
 			},
 			"visionsTowns" :
 			{
@@ -668,7 +675,9 @@
 				"subtype" : "visionsTowns",
 				"val" : 3,
 				"valueType" : "INDEPENDENT_MAX",
-				"propagator" : "HERO"
+				"propagator" : "HERO",
+				"description" : "PLACEHOLDER",
+				"targetSourceType" : "COMMANDER"
 			}
 		},
 		"graphics" :
