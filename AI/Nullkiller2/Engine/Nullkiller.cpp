@@ -563,7 +563,7 @@ void Nullkiller::makeTurn()
 		}
 
 		for (auto heroInfo : cb->getHeroesInfo())
-			gateway->pickBestArtifacts(heroInfo);
+			AIGateway::pickBestArtifacts(heroInfo);
 
 		if(i == settings->getMaxPass())
 		{

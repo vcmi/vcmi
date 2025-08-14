@@ -205,7 +205,7 @@ bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
-bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj);
+bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio);

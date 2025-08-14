@@ -134,7 +134,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		auto boat = dynamic_cast<const CGBoat *>(o1);
 		if(boat)
-			addVisitableObj(boat);
+			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID);
 	}
 }
 
@@ -284,7 +284,7 @@ void AIGateway::tileRevealed(const FowTilesType & pos)
 	for(int3 tile : pos)
 	{
 		for(const CGObjectInstance * obj : myCb->getVisitableObjs(tile))
-			addVisitableObj(obj);
+			memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID);
 	}
 
 	if (nullkiller->settings->isUpdateHitmapOnTileReveal() && !pos.empty())
@@ -306,7 +306,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 		{
 			this->pickBestCreatures(h1, h2);
-			this->pickBestArtifacts(h1, h2);
+			pickBestArtifacts(h1, h2);
 		};
 
 		//Do not attempt army or artifacts exchange if we visited ally player
@@ -370,7 +370,7 @@ void AIGateway::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	if(obj->isVisitable())
-		addVisitableObj(obj);
+		memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID);
 }
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
@@ -587,7 +587,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 
 	nullkiller->init(CB, this);
 
-	retrieveVisitableObjs();
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, myCb);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -705,7 +705,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	{
 		int sel = 0;
 
-		if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
+		if(selection) //select from multiple components -> take the last one (they'bool executeTask(Goals::TTask task);re indexed [1-size])
 			sel = components.size();
 
 		{
@@ -852,23 +852,9 @@ void AIGateway::makeTurn()
 
 	std::shared_lock gsLock(CGameState::mutex);
 
-	if(nullkiller->isOpenMap())
-	{
-		cb->sendMessage("vcmieagles");
-	}
-
-	retrieveVisitableObjs();
-
-	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
-	{
-		for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
-		{
-			if(isWeeklyRevisitable(nullkiller.get(), obj))
-			{
-				nullkiller->memory->markObjectUnvisited(obj);
-			}
-		}
-	}
+	cheatMapReveal(nullkiller);
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, myCb);
+	memorizeRevisitableObjs(nullkiller->memory, playerID);
 
 #if NKAI_TRACE_LEVEL == 0
 	try
@@ -902,7 +888,6 @@ void AIGateway::makeTurn()
 	catch (const TerminationRequestedException &)
 	{
 		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
-		return;
 	}
 }
 
@@ -1042,139 +1027,6 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	//TODO - having now strongest possible army, we may want to think about arranging stacks
 }
 
-void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
-{
-	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
-	{
-		bool changeMade = false;
-		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID> > swappedSet;
-		do
-		{
-			changeMade = false;
-
-			//we collect gear always in same order
-			std::vector<ArtifactLocation> allArtifacts;
-			if(giveStuffToFirstHero)
-			{
-				for(auto p : h->artifactsWorn)
-				{
-					if(p.second.getArt())
-						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
-				}
-			}
-			for(auto slot : h->artifactsInBackpack)
-				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
-
-			if(otherh)
-			{
-				for(auto p : otherh->artifactsWorn)
-				{
-					if(p.second.getArt())
-						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
-				}
-				for(auto slot : otherh->artifactsInBackpack)
-					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
-			}
-			//we give stuff to one hero or another, depending on giveStuffToFirstHero
-
-			const CGHeroInstance * target = nullptr;
-			if(giveStuffToFirstHero || !otherh)
-				target = h;
-			else
-				target = otherh;
-
-			for(auto location : allArtifacts)
-			{
-				if(location.artHolder == target->id && ArtifactUtils::isSlotEquipment(location.slot))
-					continue; //don't reequip artifact we already wear
-
-				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
-					continue;
-
-				auto artHolder = cb->getHero(location.artHolder);
-				auto s = artHolder->getSlot(location.slot);
-				if(!s || s->locked) //we can't move locks
-					continue;
-				auto artifact = s->getArt();
-				if(!artifact)
-					continue;
-				//FIXME: why are the above possible to be null?
-
-				bool emptySlotFound = false;
-				for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
-				{
-					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
-					{
-						ArtifactLocation destLocation(target->id, slot);
-						cb->swapArtifacts(location, destLocation); //just put into empty slot
-						emptySlotFound = true;
-						changeMade = true;
-						break;
-					}
-				}
-				if(!emptySlotFound) //try to put that atifact in already occupied slot
-				{
-					int64_t artifactScore = getArtifactScoreForHero(target, artifact);
-
-					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
-					{
-						auto otherSlot = target->getSlot(slot);
-						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
-						{
-							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->getArt());
-							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey(), artifactScore, otherArtifactScore);
-
-							//if that artifact is better than what we have, pick it
-							//combined artifacts are not always allowed to move
-							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
-							{
-								std::pair swapPair = std::minmax<ArtifactInstanceID>({artifact->getId(), otherSlot->artifactID});
-								if (swappedSet.find(swapPair) != swappedSet.end())
-								{
-									logAi->warn(
-										"Artifacts % s < -> % s have already swapped before, ignored.",
-										artifact->getType()->getJsonKey(),
-										otherSlot->getArt()->getType()->getJsonKey());
-									continue;
-								}
-								logAi->trace(
-									"Exchange artifacts %s <-> %s",
-									artifact->getType()->getJsonKey(),
-									otherSlot->getArt()->getType()->getJsonKey());
-
-								if(!otherSlot->getArt()->canBePutAt(artHolder, location.slot, true))
-								{
-									ArtifactLocation destLocation(target->id, slot);
-									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
-
-									cb->swapArtifacts(destLocation, backpack);
-									cb->swapArtifacts(location, destLocation);
-								}
-								else
-								{
-									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
-								}
-
-								changeMade = true;
-								swappedSet.insert(swapPair);
-								break;
-							}
-						}
-					}
-				}
-				if(changeMade)
-					break; //start evaluating artifacts from scratch
-			}
-		}
-		while(changeMade);
-	};
-
-	equipBest(h, other, true);
-
-	if(other)
-		equipBest(h, other, false);
-}
-
 void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter)
 {
 	//now used only for visited dwellings / towns, not BuyArmy goal
@@ -1253,17 +1105,6 @@ void AIGateway::waitTillFree()
 	status.waitTillFree();
 }
 
-void AIGateway::retrieveVisitableObjs()
-{
-	foreach_tile_pos([&](const int3 & pos)
-	{
-		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
-		{
-			addVisitableObj(obj);
-		}
-	});
-}
-
 std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
@@ -1273,19 +1114,6 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 			ret.push_back(obj);
 	}
 	return ret;
-}
-
-void AIGateway::addVisitableObj(const CGObjectInstance * obj)
-{
-	if(obj->ID == Obj::EVENT)
-		return;
-
-	nullkiller->memory->addVisitableObject(obj);
-
-	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
-	{
-		nullkiller->dangerHitMap->resetHitmap();
-	}
 }
 
 bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
@@ -1846,6 +1674,201 @@ bool AIStatus::channelProbing()
 void AIGateway::invalidatePaths()
 {
 	nullkiller->invalidatePaths();
+}
+
+/*
+ * ////////////////////////////////////
+ * ////////// STATIC Methods //////////
+ * ////////////////////////////////////
+ */
+
+void AIGateway::cheatMapReveal(const std::unique_ptr<Nullkiller> & nullkiller)
+{
+	if(cb->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
+	{
+		if(nullkiller->isOpenMap())
+		{
+			cb->sendMessage("vcmieagles");
+		}
+	}
+}
+
+void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
+                                      const std::unique_ptr<DangerHitMapAnalyzer> & dangerHitMap,
+                                      const PlayerColor & playerID,
+                                      const std::shared_ptr<CCallback> & myCb)
+{
+	foreach_tile_pos([&](const int3 & pos)
+	{
+		// TODO: Inspect what not visible means when using verbose true
+		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
+		{
+			memorizeVisitableObj(obj, memory, dangerHitMap, playerID);
+		}
+	});
+}
+
+void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
+                                     const std::unique_ptr<AIMemory> & memory,
+                                     const std::unique_ptr<DangerHitMapAnalyzer> & dangerHitMap,
+                                     const PlayerColor & playerID)
+{
+	if(obj->ID == Obj::EVENT)
+		return;
+
+	memory->addVisitableObject(obj);
+
+	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
+	{
+		dangerHitMap->resetHitmap();
+	}
+}
+
+void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory, const PlayerColor & playerID)
+{
+	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
+	{
+		for(const CGObjectInstance * obj : memory->visitableObjs)
+		{
+			if(isWeeklyRevisitable(playerID, obj))
+			{
+				memory->markObjectUnvisited(obj);
+			}
+		}
+	}
+}
+
+void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
+{
+	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
+	{
+		bool changeMade = false;
+		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID> > swappedSet;
+		do
+		{
+			changeMade = false;
+
+			//we collect gear always in same order
+			std::vector<ArtifactLocation> allArtifacts;
+			if(giveStuffToFirstHero)
+			{
+				for(auto p : h->artifactsWorn)
+				{
+					if(p.second.getArt())
+						allArtifacts.push_back(ArtifactLocation(h->id, p.first));
+				}
+			}
+			for(auto slot : h->artifactsInBackpack)
+				allArtifacts.push_back(ArtifactLocation(h->id, h->getArtPos(slot.getArt())));
+
+			if(otherh)
+			{
+				for(auto p : otherh->artifactsWorn)
+				{
+					if(p.second.getArt())
+						allArtifacts.push_back(ArtifactLocation(otherh->id, p.first));
+				}
+				for(auto slot : otherh->artifactsInBackpack)
+					allArtifacts.push_back(ArtifactLocation(otherh->id, otherh->getArtPos(slot.getArt())));
+			}
+			//we give stuff to one hero or another, depending on giveStuffToFirstHero
+
+			const CGHeroInstance * target = nullptr;
+			if(giveStuffToFirstHero || !otherh)
+				target = h;
+			else
+				target = otherh;
+
+			for(auto location : allArtifacts)
+			{
+				if(location.artHolder == target->id && ArtifactUtils::isSlotEquipment(location.slot))
+					continue; //don't reequip artifact we already wear
+
+				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
+					continue;
+
+				auto artHolder = cb->getHero(location.artHolder);
+				auto s = artHolder->getSlot(location.slot);
+				if(!s || s->locked) //we can't move locks
+					continue;
+				auto artifact = s->getArt();
+				if(!artifact)
+					continue;
+				//FIXME: why are the above possible to be null?
+
+				bool emptySlotFound = false;
+				for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
+				{
+					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
+					{
+						ArtifactLocation destLocation(target->id, slot);
+						cb->swapArtifacts(location, destLocation); //just put into empty slot
+						emptySlotFound = true;
+						changeMade = true;
+						break;
+					}
+				}
+				if(!emptySlotFound) //try to put that atifact in already occupied slot
+				{
+					int64_t artifactScore = getArtifactScoreForHero(target, artifact);
+
+					for(auto slot : artifact->getType()->getPossibleSlots().at(target->bearerType()))
+					{
+						auto otherSlot = target->getSlot(slot);
+						if(otherSlot && otherSlot->getArt()) //we need to exchange artifact for better one
+						{
+							int64_t otherArtifactScore = getArtifactScoreForHero(target, otherSlot->getArt());
+							logAi->trace( "Comparing artifacts of %s: %s vs %s. Score: %d vs %d", target->getHeroTypeName(), artifact->getType()->getJsonKey(), otherSlot->getArt()->getType()->getJsonKey(), artifactScore, otherArtifactScore);
+
+							//if that artifact is better than what we have, pick it
+							//combined artifacts are not always allowed to move
+							if(artifactScore > otherArtifactScore && artifact->canBePutAt(target, slot, true))
+							{
+								std::pair swapPair = std::minmax<ArtifactInstanceID>({artifact->getId(), otherSlot->artifactID});
+								if (swappedSet.find(swapPair) != swappedSet.end())
+								{
+									logAi->warn(
+										"Artifacts % s < -> % s have already swapped before, ignored.",
+										artifact->getType()->getJsonKey(),
+										otherSlot->getArt()->getType()->getJsonKey());
+									continue;
+								}
+								logAi->trace(
+									"Exchange artifacts %s <-> %s",
+									artifact->getType()->getJsonKey(),
+									otherSlot->getArt()->getType()->getJsonKey());
+
+								if(!otherSlot->getArt()->canBePutAt(artHolder, location.slot, true))
+								{
+									ArtifactLocation destLocation(target->id, slot);
+									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
+
+									cb->swapArtifacts(destLocation, backpack);
+									cb->swapArtifacts(location, destLocation);
+								}
+								else
+								{
+									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
+								}
+
+								changeMade = true;
+								swappedSet.insert(swapPair);
+								break;
+							}
+						}
+					}
+				}
+				if(changeMade)
+					break; //start evaluating artifacts from scratch
+			}
+		}
+		while(changeMade);
+	};
+
+	equipBest(h, other, true);
+
+	if(other)
+		equipBest(h, other, false);
 }
 
 }

@@ -85,7 +85,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * ai) const
 				if ((obj->ID == Obj::RESOURCE)
 					|| obj->ID == Obj::TREASURE_CHEST
 					|| obj->ID == Obj::CAMPFIRE
-					|| isWeeklyRevisitable(ai, obj)
+					|| isWeeklyRevisitable(ai->playerID, obj)
 					|| obj->ID == Obj::ARTIFACT)
 				{
 					auto tile = obj->visitablePos();

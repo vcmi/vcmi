@@ -105,6 +105,7 @@ public:
 	std::unique_ptr<DeepDecomposer> decomposer;
 	std::unique_ptr<ArmyFormation> armyFormation;
 	std::unique_ptr<Settings> settings;
+	/// Same value as AIGateway->playerID
 	PlayerColor playerID;
 	std::shared_ptr<CCallback> cb;
 	std::mutex aiStateMutex;

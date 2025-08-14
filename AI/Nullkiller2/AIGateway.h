@@ -77,7 +77,6 @@ public:
 	std::shared_ptr<CCallback> myCb;
 	std::unique_ptr<AsyncRunner> asyncTasks;
 
-public:
 	ObjectInstanceID selectedObject;
 
 	std::unique_ptr<Nullkiller> nullkiller;
@@ -162,7 +161,7 @@ public:
 	// TODO: all the routines like recruiting hero or building army should be removed from here and extracted to elementar goals or whatever
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
-	void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
+
 	void moveCreaturesToHero(const CGTownInstance * t);
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
@@ -173,17 +172,23 @@ public:
 	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)
 	void waitTillFree();
 
-	void addVisitableObj(const CGObjectInstance * obj);
-
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
 	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
-	void retrieveVisitableObjs();
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
 	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
+
+	static void cheatMapReveal(const std::unique_ptr<Nullkiller>& nullkiller);
+	static void memorizeVisitableObj(const CGObjectInstance* obj, const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>& dangerHitMap, const
+	                                 PlayerColor& playerID);
+	static void memorizeVisitableObjs(const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>& dangerHitMap, const PlayerColor&
+	                                  playerID, const std::shared_ptr<CCallback>& myCb);
+	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID);
+
+	static void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 };
 
 }

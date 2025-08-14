@@ -600,7 +600,7 @@ int64_t getArtifactScoreForHero(const CGHeroInstance * hero, const CArtifactInst
 	return totalScore;
 }
 
-bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
+bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * obj)
 {
 	if(!obj)
 		return false;
@@ -618,7 +618,7 @@ bool isWeeklyRevisitable(const Nullkiller * ai, const CGObjectInstance * obj)
 		return true;
 	case Obj::BORDER_GATE:
 	case Obj::BORDERGUARD:
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID); //FIXME: they could be revisited sooner than in a week
+		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(playerID); //FIXME: they could be revisited sooner than in a week
 	}
 	return false;
 }
