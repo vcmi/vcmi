@@ -856,30 +856,26 @@ void AIGateway::makeTurn()
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, myCb);
 	memorizeRevisitableObjs(nullkiller->memory, playerID);
 
-#if NKAI_TRACE_LEVEL == 0
 	try
 	{
-#endif
 		nullkiller->makeTurn();
 
-		//for debug purpose
-		for (auto h : cb->getHeroesInfo())
+		// for debug purpose
+		for (const auto *h : cb->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
 		}
-#if NKAI_TRACE_LEVEL == 0
 	}
 	catch (const TerminationRequestedException &)
 	{
-		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
+		logAi->debug("Making turn thread has been interrupted while nullkiller->makeTurn(). We'll end without calling endTurn.");
 		return;
 	}
 	catch (const std::exception & e)
 	{
 		logAi->debug("Making turn thread has caught an exception: %s", e.what());
 	}
-#endif
 
 	try
 	{
@@ -887,7 +883,7 @@ void AIGateway::makeTurn()
 	}
 	catch (const TerminationRequestedException &)
 	{
-		logAi->debug("Making turn thread has been interrupted. We'll end without calling endTurn.");
+		logAi->debug("Making turn thread has been interrupted endTurn().");
 	}
 }
 
