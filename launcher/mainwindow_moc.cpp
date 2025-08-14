@@ -130,39 +130,21 @@ MainWindow::MainWindow(QWidget * parent)
 
 void MainWindow::detectPreferredLanguage()
 {
-	// Skip autodetection if language is already set to a valid VCMI language
-	std::string currentLanguage = settings["general"]["language"].String();
-
-	for (const auto &vcmiLang : Languages::getLanguageList())
-	{
-		if (vcmiLang.identifier == currentLanguage && vcmiLang.selectable)
-		{
-			logGlobal->info("Language '%s' is already valid, skipping autodetection", currentLanguage);
-			return;
-		}
-	}
-
-	// Proceed with autodetection
-	auto appLanguages = QLocale().uiLanguages();
-	auto sysLanguages = QLocale::system().uiLanguages();
-
-	const auto &preferredLanguages = (appLanguages != sysLanguages && !appLanguages.isEmpty()) ? appLanguages : sysLanguages;
+	auto preferredLanguages = QLocale::system().uiLanguages();
 
 	std::string selectedLanguage;
 
-	for (const auto &userLang : preferredLanguages)
+	for (auto const & userLang : preferredLanguages)
 	{
 		logGlobal->info("Preferred language: %s", userLang.toStdString());
 
-		for (const auto &vcmiLang : Languages::getLanguageList())
-		{
+		for (auto const & vcmiLang : Languages::getLanguageList())
 			if (vcmiLang.tagIETF == userLang.toStdString() && vcmiLang.selectable)
 				selectedLanguage = vcmiLang.identifier;
-		}
 
 		if (!selectedLanguage.empty())
 		{
-			logGlobal->info("Detected language: %s", selectedLanguage);
+			logGlobal->info("Selected language: %s", selectedLanguage);
 			Settings node = settings.write["general"]["language"];
 			node->String() = selectedLanguage;
 			return;
