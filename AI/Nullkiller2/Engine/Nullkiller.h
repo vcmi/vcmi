@@ -142,12 +142,13 @@ public:
 private:
 	void resetState();
 	void updateState(bool partialUpdate = false);
-	void decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
+	void decompose(Goals::TGoalVec & results, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier) const;
 	bool executeTask(Goals::TTask task);
 	bool areAffectedObjectsPresent(Goals::TTask task) const;
 	HeroRole getTaskRole(Goals::TTask task) const;
+	void tracePlayerStatus(bool beginning) const;
 };
 
 }

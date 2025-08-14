@@ -37,7 +37,7 @@ void DeepDecomposer::reset()
 	goals.clear();
 }
 
-void DeepDecomposer::decompose(TGoalVec & result, TSubgoal behavior, int depthLimit)
+void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthLimit)
 {
 	goals.clear();
 	goals.resize(depthLimit);
@@ -77,7 +77,7 @@ void DeepDecomposer::decompose(TGoalVec & result, TSubgoal behavior, int depthLi
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
-					result.push_back(task);
+					results.push_back(task);
 
 					if(!fromCache)
 					{

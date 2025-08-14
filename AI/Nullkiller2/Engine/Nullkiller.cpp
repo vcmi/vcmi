@@ -216,7 +216,7 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 	return taskPlan.getTasks();
 }
 
-void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, int decompositionMaxDepth) const
+void Nullkiller::decompose(Goals::TGoalVec & results, Goals::TSubgoal behavior, int decompositionMaxDepth) const
 {
 	makingTurnInterrupption.interruptionPoint();
 
@@ -224,7 +224,7 @@ void Nullkiller::decompose(Goals::TGoalVec & result, Goals::TSubgoal behavior, i
 
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	decomposer->decompose(result, behavior, decompositionMaxDepth);
+	decomposer->decompose(results, behavior, decompositionMaxDepth);
 
 	makingTurnInterrupption.interruptionPoint();
 
@@ -374,39 +374,23 @@ void Nullkiller::makeTurn()
 	std::lock_guard<std::mutex> sharedStorageLock(AISharedStorage::locker);
 	const int MAX_DEPTH = 10;
 	resetState();
-	Goals::TGoalVec bestTasks;
-
-#if NKAI_TRACE_LEVEL >= 1
-	float totalHeroesStrength = 0;
-	int totalTownsLevel = 0;
-	for (const auto *heroInfo : cb->getHeroesInfo())
-	{
-		totalHeroesStrength += heroInfo->getTotalStrength();
-	}
-	for (const auto *townInfo : cb->getTownsInfo())
-	{
-		totalTownsLevel += townInfo->getTownLevel();
-	}
-	logAi->info("Beginning: totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
-#endif
+	Goals::TGoalVec tasks;
+	tracePlayerStatus(true);
 
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
-		auto start = std::chrono::high_resolution_clock::now();
 		updateState();
-
 		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
 		for(int j = 1; j <= settings->getMaxPriorityPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; j++)
 		{
-			bestTasks.clear();
+			tasks.clear();
 
-			decompose(bestTasks, sptr(RecruitHeroBehavior()), 1);
-			decompose(bestTasks, sptr(BuyArmyBehavior()), 1);
-			decompose(bestTasks, sptr(BuildingBehavior()), 1);
+			decompose(tasks, sptr(RecruitHeroBehavior()), 1);
+			decompose(tasks, sptr(BuyArmyBehavior()), 1);
+			decompose(tasks, sptr(BuildingBehavior()), 1);
 
-			bestTask = choseBestTask(bestTasks);
-
+			bestTask = choseBestTask(tasks);
 			if(bestTask->priority > 0)
 			{
 #if NKAI_TRACE_LEVEL >= 1
@@ -416,27 +400,23 @@ void Nullkiller::makeTurn()
 				if(!executeTask(bestTask))
 					return;
 
-				bool partialUpdate = true;
-
-				if (bestTask->getHero() != nullptr)
-					partialUpdate = false;
-
-				updateState(partialUpdate);
+				updateState(bestTask->getHero() == nullptr);
 			}
 			else
 			{
+				tasks.clear();
 				break;
 			}
 		}
 
-		decompose(bestTasks, sptr(CaptureObjectsBehavior()), 1);
-		decompose(bestTasks, sptr(ClusterBehavior()), MAX_DEPTH);
-		decompose(bestTasks, sptr(DefenceBehavior()), MAX_DEPTH);
-		decompose(bestTasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
-		decompose(bestTasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
+		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(GatherArmyBehavior()), MAX_DEPTH);
+		decompose(tasks, sptr(StayAtTownBehavior()), MAX_DEPTH);
 
 		if(!isOpenMap())
-			decompose(bestTasks, sptr(ExplorationBehavior()), MAX_DEPTH);
+			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
 
@@ -450,7 +430,7 @@ void Nullkiller::makeTurn()
 			prioOfTask = prio;
 #endif
 
-			selectedTasks = buildPlan(bestTasks, prio);
+			selectedTasks = buildPlan(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
 		}
@@ -459,8 +439,6 @@ void Nullkiller::makeTurn()
 		{
 			return a->priority > b->priority;
 		});
-
-		logAi->debug("Decision made in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{
@@ -543,25 +521,10 @@ void Nullkiller::makeTurn()
 		}
 
 		hasAnySuccess |= handleTrading();
-
 		if(!hasAnySuccess)
 		{
 			logAi->trace("Nothing was done this turn. Ending turn.");
-
-#if NKAI_TRACE_LEVEL >= 1
-			totalHeroesStrength = 0;
-			totalTownsLevel = 0;
-			for (const auto *heroInfo : cb->getHeroesInfo())
-			{
-				totalHeroesStrength += heroInfo->getTotalStrength();
-			}
-			for (const auto *townInfo : cb->getTownsInfo())
-			{
-				totalTownsLevel += townInfo->getTownLevel();
-			}
-			logAi->info("End: totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
-#endif
-
+			tracePlayerStatus(false);
 			return;
 		}
 
@@ -746,6 +709,25 @@ std::shared_ptr<const CPathsInfo> Nullkiller::getPathsInfo(const CGHeroInstance 
 void Nullkiller::invalidatePaths()
 {
 	pathfinderCache->invalidatePaths();
+}
+
+void Nullkiller::tracePlayerStatus(bool beginning) const
+{
+#if NKAI_TRACE_LEVEL >= 1
+	float totalHeroesStrength = 0;
+	int totalTownsLevel = 0;
+	for (const auto *heroInfo : cb->getHeroesInfo())
+	{
+		totalHeroesStrength += heroInfo->getTotalStrength();
+	}
+	for (const auto *townInfo : cb->getTownsInfo())
+	{
+		totalTownsLevel += townInfo->getTownLevel();
+	}
+
+	const auto *firstWord = beginning ? "Beginning:" : "End:";
+	logAi->info("%s totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", firstWord, totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
+#endif
 }
 
 }
