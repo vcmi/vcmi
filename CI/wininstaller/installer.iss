@@ -784,8 +784,8 @@ begin
   RemoveLegacyInstaller();
   // Copy H3 files when needed
   PerformHeroes3FileCopy();
-  // Create default language JSON
-  CreateDefaultSettingsFile();
+  // Create default language JSON - for future use
+  // CreateDefaultSettingsFile();
 end;
 
 
@@ -965,3 +965,4 @@ begin
       Abort;
   end;
 end;
+
