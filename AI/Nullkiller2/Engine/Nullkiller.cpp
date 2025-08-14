@@ -9,6 +9,8 @@
 */
 #include "StdInc.h"
 #include "Nullkiller.h"
+
+#include <boost/range/algorithm/sort.hpp>
 #include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
@@ -61,12 +63,7 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 			return cb->getPlayerState(teamMateID)->isHuman();
 		});
 
-	if(hasHumanInTeam)
-	{
-		return false;
-	}
-
-	return true;
+	return !hasHumanInTeam;
 }
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
@@ -117,7 +114,7 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 	armyFormation.reset(new ArmyFormation(cb, this));
 }
 
-TaskPlanItem::TaskPlanItem(TSubgoal task)
+TaskPlanItem::TaskPlanItem(const TSubgoal & task)
 	:task(task), affectedObjects(task->asTask()->getAffectedObjects())
 {
 }
@@ -136,7 +133,7 @@ Goals::TTaskVec TaskPlan::getTasks() const
 	return result;
 }
 
-void TaskPlan::merge(TSubgoal task)
+void TaskPlan::merge(const TSubgoal & task)
 {
 	TGoalVec blockers;
 
@@ -158,9 +155,9 @@ void TaskPlan::merge(TSubgoal task)
 		}
 	}
 
-	vstd::erase_if(tasks, [&](const TaskPlanItem & task)
+	vstd::erase_if(tasks, [&](const TaskPlanItem & task2)
 		{
-			return vstd::contains(blockers, task.task);
+			return vstd::contains(blockers, task2.task);
 		});
 
 	tasks.emplace_back(task);
@@ -173,13 +170,13 @@ Goals::TTask Nullkiller::choseBestTask(Goals::TGoalVec & tasks) const
 		return taskptr(Invalid());
 	}
 
-	for(TSubgoal & task : tasks)
+	for(const TSubgoal & task : tasks)
 	{
 		if(task->asTask()->priority <= 0)
 			task->asTask()->priority = priorityEvaluator->evaluate(task);
 	}
 
-	auto bestTask = *vstd::maxElementByFun(tasks, [](Goals::TSubgoal task) -> float
+	auto bestTask = *vstd::maxElementByFun(tasks, [](const Goals::TSubgoal& task) -> float
 		{
 			return task->asTask()->priority;
 		});
@@ -197,18 +194,18 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 
 			for(size_t i = r.begin(); i != r.end(); i++)
 			{
-				auto task = tasks[i];
+				const auto & task = tasks[i];
 				if (task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
 					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
 			}
 		});
 
-	std::sort(tasks.begin(), tasks.end(), [](TSubgoal g1, TSubgoal g2) -> bool
+	boost::range::sort(tasks, [](const TSubgoal& g1, const TSubgoal& g2) -> bool
 		{
 			return g2->asTask()->priority < g1->asTask()->priority;
 		});
 
-	for(TSubgoal & task : tasks)
+	for(const TSubgoal & task : tasks)
 	{
 		taskPlan.merge(task);
 	}
@@ -216,22 +213,15 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 	return taskPlan.getTasks();
 }
 
-void Nullkiller::decompose(Goals::TGoalVec & results, Goals::TSubgoal behavior, int decompositionMaxDepth) const
+void Nullkiller::decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const
 {
 	makingTurnInterrupption.interruptionPoint();
-
-	logAi->debug("Checking behavior %s", behavior->toString());
-
+	logAi->debug("Decomposing behavior %s", behavior->toString());
 	auto start = std::chrono::high_resolution_clock::now();
-	
 	decomposer->decompose(results, behavior, decompositionMaxDepth);
 
 	makingTurnInterrupption.interruptionPoint();
-
-	logAi->debug(
-		"Behavior %s. Time taken %ld",
-		behavior->toString(),
-		timeElapsed(start));
+	logAi->debug("Decomposing behavior %s done in %ld", behavior->toString(), timeElapsed(start));
 }
 
 void Nullkiller::resetState()
@@ -266,6 +256,7 @@ void Nullkiller::updateState(bool partialUpdate)
 	activeHero = nullptr;
 	setTargetObject(-1);
 	decomposer->reset();
+
 	buildAnalyzer->update();
 
 	if (!pathfinderInvalidated)
@@ -380,35 +371,10 @@ void Nullkiller::makeTurn()
 	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		updateState();
-		Goals::TTask bestTask = taskptr(Goals::Invalid());
 
-		for(int j = 1; j <= settings->getMaxPriorityPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; j++)
-		{
-			tasks.clear();
+		if (!makeTurnHelperPriorityPass(tasks, i)) return;
 
-			decompose(tasks, sptr(RecruitHeroBehavior()), 1);
-			decompose(tasks, sptr(BuyArmyBehavior()), 1);
-			decompose(tasks, sptr(BuildingBehavior()), 1);
-
-			bestTask = choseBestTask(tasks);
-			if(bestTask->priority > 0)
-			{
-#if NKAI_TRACE_LEVEL >= 1
-				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
-#endif
-
-				if(!executeTask(bestTask))
-					return;
-
-				updateState(bestTask->getHero() == nullptr);
-			}
-			else
-			{
-				tasks.clear();
-				break;
-			}
-		}
-
+		tasks.clear();
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
 		decompose(tasks, sptr(ClusterBehavior()), MAX_DEPTH);
 		decompose(tasks, sptr(DefenceBehavior()), MAX_DEPTH);
@@ -419,17 +385,10 @@ void Nullkiller::makeTurn()
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-
-#if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
-#endif
-
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-#if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
-#endif
-
 			selectedTasks = buildPlan(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
@@ -446,7 +405,6 @@ void Nullkiller::makeTurn()
 		}
 
 		bool hasAnySuccess = false;
-
 		for(const auto& selectedTask : selectedTasks)
 		{
 			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
@@ -480,7 +438,7 @@ void Nullkiller::makeTurn()
 			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
 			{
 				auto heroes = cb->getHeroesInfo();
-				auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
+				const auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
 					{
 						return h->movementPointsRemaining() > 100;
 					});
@@ -499,7 +457,6 @@ void Nullkiller::makeTurn()
 				}
 
 				logAi->trace("Goal %s has too low priority. It is not worth doing it.", taskDescription);
-
 				continue;
 			}
 
@@ -511,13 +468,9 @@ void Nullkiller::makeTurn()
 			{
 				if(hasAnySuccess)
 					break;
-				else
-					return;
+				return;
 			}
-			else
-			{
-				hasAnySuccess = true;
-			}
+			hasAnySuccess = true;
 		}
 
 		hasAnySuccess |= handleTrading();
@@ -533,9 +486,46 @@ void Nullkiller::makeTurn()
 
 		if(i == settings->getMaxPass())
 		{
-			logAi->warn("Maxpass exceeded. Terminating AI turn.");
+			logAi->warn("MaxPass reached. Terminating AI turn.");
 		}
 	}
+}
+
+bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int passIndex)
+{
+	Goals::TTask bestPrioPassTask = taskptr(Goals::Invalid());
+	for(int i = 1; i <= settings->getMaxPriorityPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	{
+		tempResults.clear();
+
+		decompose(tempResults, sptr(RecruitHeroBehavior()), 1);
+		decompose(tempResults, sptr(BuyArmyBehavior()), 1);
+		decompose(tempResults, sptr(BuildingBehavior()), 1);
+
+		bestPrioPassTask = choseBestTask(tempResults);
+		if(bestPrioPassTask->priority > 0)
+		{
+#if NKAI_TRACE_LEVEL >= 1
+			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
+#endif
+
+			if(!executeTask(bestPrioPassTask))
+				return false;
+
+			// TODO: Inspect why it's ok to do a partial update if condition is true
+			updateState(bestPrioPassTask->getHero() == nullptr);
+		}
+		else
+		{
+			break;
+		}
+
+		if(i == settings->getMaxPriorityPass())
+		{
+			logAi->warn("MaxPriorityPass reached. Terminating priorityPass loop.");
+		}
+	}
+	return true;
 }
 
 bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
@@ -661,7 +651,7 @@ bool Nullkiller::handleTrading()
 
 					if (i == GameResID::GOLD)
 					{
-						if (income[i] > 0 && !buildAnalyzer->isGoldPressureHigh())
+						if (income[i] > 0 && !buildAnalyzer->isGoldPressureOverMax())
 							okToSell = true;
 					}
 					else

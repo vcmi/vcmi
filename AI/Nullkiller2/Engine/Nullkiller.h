@@ -60,7 +60,7 @@ struct TaskPlanItem
 	std::vector<ObjectInstanceID> affectedObjects;
 	Goals::TSubgoal task;
 
-	TaskPlanItem(Goals::TSubgoal goal);
+	TaskPlanItem(const Goals::TSubgoal& goal);
 };
 
 class TaskPlan
@@ -70,7 +70,7 @@ private:
 
 public:
 	Goals::TTaskVec getTasks() const;
-	void merge(Goals::TSubgoal task);
+	void merge(const Goals::TSubgoal& task);
 };
 
 class Nullkiller
@@ -115,6 +115,7 @@ public:
 	~Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
 	void makeTurn();
+	bool makeTurnHelperPriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
 	HeroPtr getActiveHero() { return activeHero; }
@@ -142,7 +143,7 @@ public:
 private:
 	void resetState();
 	void updateState(bool partialUpdate = false);
-	void decompose(Goals::TGoalVec & results, Goals::TSubgoal behavior, int decompositionMaxDepth) const;
+	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier) const;
 	bool executeTask(Goals::TTask task);

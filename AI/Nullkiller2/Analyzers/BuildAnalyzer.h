@@ -14,6 +14,7 @@
 
 namespace NK2AI
 {
+class ArmyManager;
 
 class Nullkiller;
 
@@ -44,7 +45,7 @@ public:
 		const CCreature * creature,
 		CreatureID baseCreature,
 		const CGTownInstance * town,
-		Nullkiller * ai);
+		const std::unique_ptr<ArmyManager> & armyManager);
 
 	std::string toString() const;
 };
@@ -96,20 +97,23 @@ public:
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
 	TResources getDailyIncome() const { return dailyIncome; }
 	float getGoldPressure() const { return goldPressure; }
-	bool isGoldPressureHigh() const;
-	bool hasAnyBuilding(FactionID alignment, BuildingID bid) const;
+	bool isGoldPressureOverMax() const;
+	bool isBuilt(FactionID alignment, BuildingID bid) const;
 
-private:
-	BuildingInfo getBuildingOrPrerequisite(
+	void reset();
+
+	static float calculateGoldPressure(TResource lockedGold, float armyCostGold, float economyDevelopmentCost, float freeGold, float dailyIncomeGold);
+	static TResources calculateDailyIncome(std::vector<const CGObjectInstance *> objects, std::vector<const CGTownInstance *> townInfos);
+	static void updateTownDwellings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
+	static void updateOtherBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
+	static BuildingInfo getBuildingOrPrerequisite(
 		const CGTownInstance* town,
 		BuildingID toBuild,
-		bool excludeDwellingDependencies = true) const;
-
-
-	void updateTownDwellings(TownDevelopmentInfo & developmentInfo);
-	void updateOtherBuildings(TownDevelopmentInfo & developmentInfo);
-	void updateDailyIncome();
-	void reset();
+		std::unique_ptr<ArmyManager> & armyManager,
+		std::shared_ptr<CCallback> & cb,
+		bool excludeDwellingDependencies = true);
+	static int32_t approximateInGold(const TResources & res);
+	static TResources withoutGold(TResources other);
 };
 
 }

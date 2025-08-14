@@ -46,7 +46,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 
 	goals[0] = {behavior};
 
-	while(goals[0].size())
+	while(!goals[0].empty())
 	{
 		bool fromCache;
 		TSubgoal current = goals[depth].back();
@@ -61,7 +61,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 			goals[depth + 1].clear();
 		}
 
-		for(TSubgoal subgoal : subgoals)
+		for(const TSubgoal & subgoal : subgoals)
 		{
 			if(subgoal->invalid())
 				continue;
@@ -104,7 +104,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 			}
 		}
 
-		if(depth < depthLimit - 1 && goals[depth + 1].size())
+		if(depth < depthLimit - 1 && !goals[depth + 1].empty())
 		{
 			depth++;
 		}

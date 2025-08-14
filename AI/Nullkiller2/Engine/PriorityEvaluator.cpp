@@ -1267,7 +1267,7 @@ public:
 
 uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const
 {
-	if(ai->buildAnalyzer->hasAnyBuilding(town->getFactionID(), bi.id))
+	if(ai->buildAnalyzer->isBuilt(town->getFactionID(), bi.id))
 		return 0;
 
 	auto creaturesToUpgrade = ai->armyManager->getTotalCreaturesAvailable(bi.baseCreatureID);
@@ -1616,7 +1616,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					score += 1000;
 					auto resourcesAvailable = evaluationContext.evaluator.ai->getFreeResources();
 					auto income = ai->buildAnalyzer->getDailyIncome();
-					if(ai->buildAnalyzer->isGoldPressureHigh())
+					if(ai->buildAnalyzer->isGoldPressureOverMax())
 						score /= evaluationContext.buildingCost.marketValue();
 					if (!resourcesAvailable.canAfford(evaluationContext.buildingCost))
 					{

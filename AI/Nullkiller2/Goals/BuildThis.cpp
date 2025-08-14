@@ -22,12 +22,15 @@ using namespace Goals;
 BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
 	: ElementarGoal(Goals::BUILD_STRUCTURE)
 {
+	// FIXME: Remove this constructor (the parent constructor BuildThis::BuildThis)
+	// Seems like StartupBehavior is instantiating via this BuildThis constructor
+	// Or needs to be unit tested to ensure there's no problem with the limited constructor params
 	buildingInfo = BuildingInfo(
 		tid->getTown()->buildings.at(Bid).get(),
 		nullptr,
 		CreatureID::NONE,
 		tid,
-		nullptr);
+		std::unique_ptr<ArmyManager>(nullptr));
 
 	bid = Bid.getNum();
 	town = tid;

@@ -47,7 +47,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		totalDevelopmentCost.toString());
 
 	auto & developmentInfos = ai->buildAnalyzer->getDevelopmentInfo();
-	auto isGoldPressureLow = !ai->buildAnalyzer->isGoldPressureHigh();
+	auto isGoldPressureLow = !ai->buildAnalyzer->isGoldPressureOverMax();
 
 	ai->dangerHitMap->updateHitMap();
 
