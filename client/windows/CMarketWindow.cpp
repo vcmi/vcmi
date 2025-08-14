@@ -267,7 +267,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	};
 	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+		showArtifactPopup(*heroArts, artPlace, cursorPosition);
 	};
 	heroArts->gestureCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{

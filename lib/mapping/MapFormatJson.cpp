@@ -240,7 +240,16 @@ const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
 const std::string CMapFormatJson::OBJECTS_FILE_NAME = "objects.json";
-const std::string CMapFormatJson::TERRAIN_FILE_NAMES[2] = {"surface_terrain.json", "underground_terrain.json"};
+
+std::string getTerrainFilename(int i)
+{
+	if(i == 0)
+		return "surface_terrain.json";
+	else if(i == 1)
+		return "underground_terrain.json";
+	else
+		return "level-" + std::to_string(i + 1) + "_terrain.json";
+}
 
 CMapFormatJson::CMapFormatJson():
 	fileVersionMajor(0), fileVersionMinor(0),
@@ -844,7 +853,6 @@ void CMapLoaderJson::readHeader(const bool complete)
 	//loading mods
 	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
-	//todo: multilevel map load support
 	{
 		auto levels = handler.enterStruct("mapLevels");
 		{
@@ -852,10 +860,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 			handler.serializeInt("height", mapHeader->height);
 			handler.serializeInt("width", mapHeader->width);
 		}
-		{
-			auto underground = handler.enterStruct("underground");
-			mapHeader->twoLevel = !underground->getCurrent().isNull();
-		}
+		mapHeader->mapLevels = levels->getCurrent().Struct().size();
 	}
 
 	serializeHeader(handler);
@@ -993,14 +998,10 @@ void CMapLoaderJson::readTerrainLevel(const JsonNode & src, const int index)
 
 void CMapLoaderJson::readTerrain()
 {
+	for(int i = 0; i < map->mapLevels; i++)
 	{
-		const JsonNode surface = getFromArchive(TERRAIN_FILE_NAMES[0]);
-		readTerrainLevel(surface, 0);
-	}
-	if(map->twoLevel)
-	{
-		const JsonNode underground = getFromArchive(TERRAIN_FILE_NAMES[1]);
-		readTerrainLevel(underground, 1);
+		const JsonNode node = getFromArchive(getTerrainFilename(i));
+		readTerrainLevel(node, i);
 	}
 }
 
@@ -1198,17 +1199,22 @@ void CMapSaverJson::writeHeader()
 	//write mods
 	header["mods"] = ModVerificationInfo::jsonSerializeList(mapHeader->mods);
 
-	//todo: multilevel map save support
-	JsonNode & levels = header["mapLevels"];
-	levels["surface"]["height"].Float() = mapHeader->height;
-	levels["surface"]["width"].Float() = mapHeader->width;
-	levels["surface"]["index"].Float() = 0;
+	auto getName = [](int level){
+		if(level == 0)
+			return std::string("surface");
+		else if(level == 1)
+			return std::string("underground");
+		else
+			return "level-" + std::to_string(level + 1);
+	};
 
-	if(mapHeader->twoLevel)
+	JsonNode & levels = header["mapLevels"];
+	for(int i = 0; i < map->mapLevels; i++)
 	{
-		levels["underground"]["height"].Float() = mapHeader->height;
-		levels["underground"]["width"].Float() = mapHeader->width;
-		levels["underground"]["index"].Float() = 1;
+		auto name = getName(i);
+		levels[name]["height"].Float() = mapHeader->height;
+		levels[name]["width"].Float() = mapHeader->width;
+		levels[name]["index"].Float() = i;
 	}
 
 	serializeHeader(handler);
@@ -1266,15 +1272,11 @@ JsonNode CMapSaverJson::writeTerrainLevel(const int index)
 void CMapSaverJson::writeTerrain()
 {
 	logGlobal->trace("Saving terrain");
-	//todo: multilevel map save support
 
-	JsonNode surface = writeTerrainLevel(0);
-	addToArchive(surface, TERRAIN_FILE_NAMES[0]);
-
-	if(map->twoLevel)
+	for(int i = 0; i < map->mapLevels; i++)
 	{
-		JsonNode underground = writeTerrainLevel(1);
-		addToArchive(underground, TERRAIN_FILE_NAMES[1]);
+		JsonNode node = writeTerrainLevel(i);
+		addToArchive(node, getTerrainFilename(i));
 	}
 }
 

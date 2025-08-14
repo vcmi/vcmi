@@ -563,7 +563,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 				};
 				newHeroSet->showPopupCallback = [this, newHeroSet](CArtPlace & artPlace, const Point & cursorPosition)
 				{
-					showArtifactAssembling(*newHeroSet, artPlace, cursorPosition);
+					showArtifactPopup(*newHeroSet, artPlace, cursorPosition);
 				};
 				newHeroSet->gestureCallback = [this, newHeroSet](const CArtPlace & artPlace, const Point & cursorPosition)
 				{

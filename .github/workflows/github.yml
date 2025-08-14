@@ -135,7 +135,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: recursive
 
@@ -321,7 +321,7 @@ jobs:
       run:
         shell: bash
     steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
           with:
             submodules: recursive
 
@@ -386,7 +386,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: recursive
 
@@ -470,7 +470,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         submodules: recursive
 
@@ -505,7 +505,7 @@ jobs:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
     - name: Download Artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
@@ -560,7 +560,7 @@ jobs:
       run:
         shell: bash
     steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
 
         - name: Ensure LF line endings
           run: |

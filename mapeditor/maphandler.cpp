@@ -256,7 +256,7 @@ void MapHandler::initObjectRects()
 	if(!map)
 		return;
 	
-	tileObjects.resize(map->width * map->height * (map->twoLevel ? 2 : 1));
+	tileObjects.resize(map->width * map->height * map->mapLevels);
 	
 	//initializing objects / rects
 	for(const auto & elem : map->objects)

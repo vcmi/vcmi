@@ -403,6 +403,7 @@ In battle, army affected by this bonus will cast spell at the very start of the 
 
 - subtype: spell identifier
 - val: duration of the spell, in rounds
+- addInfo - spell mastery level (1 - Basic, 3 - Expert)
 
 ### FREE_SHIP_BOARDING
 

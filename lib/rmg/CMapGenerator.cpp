@@ -463,7 +463,7 @@ void CMapGenerator::addHeaderInfo()
 	m.version = EMapFormat::VCMI;
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
-	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.mapLevels = mapGenOptions.getLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
