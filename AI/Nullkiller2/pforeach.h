@@ -26,7 +26,7 @@ void pforeachTilePos(const int3 & mapSize, TFunc fn)
 }
 
 template<typename TFunc>
-void pforeachTilePaths(const int3 & mapSize, const Nullkiller * ai, TFunc fn)
+void pforeachTilePaths(const int3 & mapSize, const Nullkiller * aiNk, TFunc fn)
 {
 	for(int z = 0; z < mapSize.z; ++z)
 	{
@@ -39,7 +39,7 @@ void pforeachTilePaths(const int3 & mapSize, const Nullkiller * ai, TFunc fn)
 				{
 					for(pos.y = 0; pos.y < mapSize.y; ++pos.y)
 					{
-						ai->pathfinder->calculatePathInfo(paths, pos);
+						aiNk->pathfinder->calculatePathInfo(paths, pos);
 						fn(pos, paths);
 					}
 				}

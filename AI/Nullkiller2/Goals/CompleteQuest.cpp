@@ -106,16 +106,16 @@ std::string CompleteQuest::questToString() const
 	return ms.toString();
 }
 
-TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * ai) const
+TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const
 {
-	auto paths = ai->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
+	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
 		return !q.getQuest(cbc)->checkQuest(path.targetHero);
 	});
 	
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cbc));
+	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(cbc));
 }
 
 TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
@@ -148,16 +148,16 @@ TGoalVec CompleteQuest::missionHero(const Nullkiller * ai) const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionArmy(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 {
-	auto paths = ai->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
+	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
 		return !CQuest::checkMissionArmy(q.getQuest(cbc), path.heroArmy);
 	});
 
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cbc));
+	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(cbc));
 }
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * ai) const
@@ -188,14 +188,14 @@ TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 {
-	auto obj = ai->cb->getObj(q.getQuest(cbc)->killTarget);
+	auto obj = aiNk->cbc->getObj(q.getQuest(cbc)->killTarget);
 
 	if(!obj)
-		return CaptureObjectsBehavior(q.getObject(cbc)).decompose(ai);
+		return CaptureObjectsBehavior(q.getObject(cbc)).decompose(aiNk);
 
-	auto relations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
+	auto relations = aiNk->cbc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
 	//if(relations == PlayerRelations::SAME_PLAYER)
 	//{
@@ -206,7 +206,7 @@ TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * ai) const
 	//else 
 	if(relations == PlayerRelations::ENEMIES)
 	{
-		return CaptureObjectsBehavior(obj).decompose(ai);
+		return CaptureObjectsBehavior(obj).decompose(aiNk);
 	}
 
 	return TGoalVec();

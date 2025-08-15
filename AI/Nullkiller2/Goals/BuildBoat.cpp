@@ -40,7 +40,7 @@ bool BuildBoat::operator==(const BuildBoat & other) const
 //	return iAmElementar();
 //}
 
-void BuildBoat::accept(AIGateway * ai)
+void BuildBoat::accept(AIGateway * aiGw)
 {
 	TResources boatCost;
 	shipyard->getBoatCost(boatCost);
@@ -50,7 +50,7 @@ void BuildBoat::accept(AIGateway * ai)
 		throw cannotFulfillGoalException("Can not afford boat");
 	}
 
-	if(cbc->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+	if(cbc->getPlayerRelations(aiGw->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 	{
 		throw cannotFulfillGoalException("Can not build boat in enemy shipyard");
 	}

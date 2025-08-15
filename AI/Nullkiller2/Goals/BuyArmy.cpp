@@ -29,14 +29,14 @@ std::string BuyArmy::toString() const
 	return "Buy army at " + town->getNameTranslated();
 }
 
-void BuyArmy::accept(AIGateway * ai)
+void BuyArmy::accept(AIGateway * aiGw)
 {
 	ui64 valueBought = 0;
 	//buy the stacks with largest AI value
 
-	auto upgradeSuccessful = ai->makePossibleUpgrades(town);
+	auto upgradeSuccessful = aiGw->makePossibleUpgrades(town);
 
-	auto armyToBuy = ai->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
+	auto armyToBuy = aiGw->nullkiller->armyManager->getArmyAvailableToBuy(town->getUpperArmy(), town);
 
 	if(armyToBuy.empty())
 	{
@@ -99,7 +99,7 @@ void BuyArmy::accept(AIGateway * ai)
 
 	if(town->getVisitingHero() && !town->getGarrisonHero())
 	{
-		ai->moveHeroToTile(town->visitablePos(), town->getVisitingHero());
+		aiGw->moveHeroToTile(town->visitablePos(), town->getVisitingHero());
 	}
 }
 

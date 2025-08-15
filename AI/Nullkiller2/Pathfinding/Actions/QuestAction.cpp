@@ -31,8 +31,8 @@ namespace AIPathfinding
 
 	bool QuestAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero) const
 	{
-		auto object = questInfo.getObject(ai->cb.get());
-		auto quest = questInfo.getQuest(ai->cb.get());
+		auto object = questInfo.getObject(ai->cbc.get());
+		auto quest = questInfo.getQuest(ai->cbc.get());
 		if(object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD)
 		{
 			return dynamic_cast<const IQuestObject *>(object)->checkQuest(hero);

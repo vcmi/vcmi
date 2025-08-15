@@ -27,7 +27,7 @@ namespace Goals
 		{
 		}
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 		bool operator==(const BuildBoat & other) const override;
 	};

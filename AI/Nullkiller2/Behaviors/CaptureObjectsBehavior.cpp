@@ -212,7 +212,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 		});
 }
 
-Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
@@ -223,23 +223,23 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * ai) const
 
 	if(specificObjects)
 	{
-		decomposeObjects(tasks, objectsToCapture, ai);
+		decomposeObjects(tasks, objectsToCapture, aiNk);
 	}
 	else if(objectTypes.size())
 	{
 		decomposeObjects(
 			tasks,
 			std::vector<const CGObjectInstance *>(
-				ai->memory->visitableObjs.begin(),
-				ai->memory->visitableObjs.end()),
-			ai);
+				aiNk->memory->visitableObjs.begin(),
+				aiNk->memory->visitableObjs.end()),
+			aiNk);
 	}
 	else
 	{
-		decomposeObjects(tasks, ai->objectClusterizer->getNearbyObjects(), ai);
+		decomposeObjects(tasks, aiNk->objectClusterizer->getNearbyObjects(), aiNk);
 
-		if(tasks.empty() || ai->getScanDepth() != ScanDepth::SMALL)
-			decomposeObjects(tasks, ai->objectClusterizer->getFarObjects(), ai);
+		if(tasks.empty() || aiNk->getScanDepth() != ScanDepth::SMALL)
+			decomposeObjects(tasks, aiNk->objectClusterizer->getFarObjects(), aiNk);
 	}
 
 	return tasks;

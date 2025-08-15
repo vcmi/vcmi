@@ -46,7 +46,7 @@ void ObjectGraph::removeConnection(const int3 & from, const int3 & to)
 
 void ObjectGraph::updateGraph(const Nullkiller * ai)
 {
-	auto cb = ai->cb;
+	auto cb = ai->cbc;
 
 	ObjectGraphCalculator calculator(this, ai);
 

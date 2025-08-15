@@ -69,12 +69,12 @@ std::vector<const CGObjectInstance *> ObjectCluster::getObjects(const CPlayerSpe
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getNearbyObjects() const
 {
-	return nearObjects.getObjects(ai->cb.get());
+	return nearObjects.getObjects(aiNk->cbc.get());
 }
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getFarObjects() const
 {
-	return farObjects.getObjects(ai->cb.get());
+	return farObjects.getObjects(aiNk->cbc.get());
 }
 
 std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters() const
@@ -95,14 +95,14 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 
 	if(node.layer == EPathfindingLayer::LAND || node.layer == EPathfindingLayer::SAIL)
 	{
-		auto guardPos = ai->cb->getGuardingCreaturePosition(node.coord);
+		auto guardPos = aiNk->cbc->getGuardingCreaturePosition(node.coord);
 
-		if (ai->cb->isVisible(node.coord))
-			blockers = ai->cb->getVisitableObjs(node.coord);
+		if (aiNk->cbc->isVisible(node.coord))
+			blockers = aiNk->cbc->getVisitableObjs(node.coord);
 
-		if(guardPos.isValid() && ai->cb->isVisible(guardPos))
+		if(guardPos.isValid() && aiNk->cbc->isVisible(guardPos))
 		{
-			auto guard = ai->cb->getTopObj(ai->cb->getGuardingCreaturePosition(node.coord));
+			auto guard = aiNk->cbc->getTopObj(aiNk->cbc->getGuardingCreaturePosition(node.coord));
 
 			if(guard)
 			{
@@ -126,7 +126,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 
 	auto blocker = blockers.front();
 
-	if(isObjectPassable(ai, blocker))
+	if(isObjectPassable(aiNk, blocker))
 		return std::optional< const CGObjectInstance *>();
 
 	if(blocker->ID == Obj::GARRISON
@@ -147,7 +147,7 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 		return blocker;
 	}
 
-	auto danger = ai->dangerEvaluator->evaluateDanger(blocker);
+	auto danger = aiNk->dangerEvaluator->evaluateDanger(blocker);
 
 	if(danger > 0 && blocker->isBlockedVisitable() && isObjectRemovable(blocker))
 	{
@@ -190,7 +190,7 @@ void ObjectClusterizer::validateObjects()
 	{
 		for(auto & pair : cluster.objects)
 		{
-			if(!ai->cb->getObj(pair.first, false))
+			if(!aiNk->cbc->getObj(pair.first, false))
 				toRemove.push_back(pair.first);
 		}
 	};
@@ -200,7 +200,7 @@ void ObjectClusterizer::validateObjects()
 
 	for(auto & pair : blockedObjects)
 	{
-		if(!ai->cb->getObj(pair.first, false) || pair.second->objects.empty())
+		if(!aiNk->cbc->getObj(pair.first, false) || pair.second->objects.empty())
 			toRemove.push_back(pair.first);
 		else
 			scanRemovedObjects(*pair.second);
@@ -242,15 +242,15 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 
 	const int3 pos = obj->visitablePos();
 
-	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(ai->memory->alreadyVisited, obj))
-		|| obj->wasVisited(ai->playerID))
+	if((obj->ID != Obj::CREATURE_GENERATOR1 && vstd::contains(aiNk->memory->alreadyVisited, obj))
+		|| obj->wasVisited(aiNk->playerID))
 	{
 		return false;
 	}
 
-	auto playerRelations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
+	auto playerRelations = aiNk->cbc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
-	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(ai->playerID, obj))
+	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(aiNk->playerID, obj))
 	{
 		return false;
 	}
@@ -258,12 +258,12 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 	//it may be hero visiting this obj
 	//we don't try visiting object on which allied or owned hero stands
 	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	const CGObjectInstance * topObj = ai->cb->getTopObj(pos);
+	const CGObjectInstance * topObj = aiNk->cbc->getTopObj(pos);
 
 	if(!topObj)
 		return false; // partly visible obj but its visitable pos is not visible.
 
-	if(topObj->ID == Obj::HERO && ai->cb->getPlayerRelations(ai->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
+	if(topObj->ID == Obj::HERO && aiNk->cbc->getPlayerRelations(aiNk->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
 	else
 		return true; //all of the following is met
@@ -328,8 +328,8 @@ void ObjectClusterizer::clusterize()
 		invalidated.clear();
 
 		objs = std::vector<const CGObjectInstance *>(
-			ai->memory->visitableObjs.begin(),
-			ai->memory->visitableObjs.end());
+			aiNk->memory->visitableObjs.begin(),
+			aiNk->memory->visitableObjs.end());
 	}
 
 #if NKAI_TRACE_LEVEL == 0
@@ -337,8 +337,8 @@ void ObjectClusterizer::clusterize()
 #else
 	tbb::blocked_range<size_t> r(0, objs.size());
 #endif
-		auto priorityEvaluator = ai->priorityEvaluators->acquire();
-		auto heroes = ai->cb->getHeroesInfo();
+		auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
+		auto heroes = aiNk->cbc->getHeroesInfo();
 		std::vector<AIPath> pathCache;
 
 		for(int i = r.begin(); i != r.end(); i++)
@@ -359,7 +359,7 @@ void ObjectClusterizer::clusterize()
 		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NKAI_TRACE_LEVEL >= 1
-		for(auto obj : pair.second->getObjects(ai->cb.get()))
+		for(auto obj : pair.second->getObjects(aiNk->cbc.get()))
 		{
 			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
 		}
@@ -389,12 +389,12 @@ void ObjectClusterizer::clusterizeObject(
 	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
-	if(ai->isObjectGraphAllowed())
+	if(aiNk->isObjectGraphAllowed())
 	{
-		ai->pathfinder->calculateQuickPathsWithBlocker(pathCache, heroes, obj->visitablePos());
+		aiNk->pathfinder->calculateQuickPathsWithBlocker(pathCache, heroes, obj->visitablePos());
 	}
 	else
-		ai->pathfinder->calculatePathInfo(pathCache, obj->visitablePos(), false);
+		aiNk->pathfinder->calculatePathInfo(pathCache, obj->visitablePos(), false);
 
 	if(pathCache.empty())
 	{
@@ -428,7 +428,7 @@ void ObjectClusterizer::clusterizeObject(
 		logAi->trace("Checking path %s", path.toString());
 #endif
 
-		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
 		{
 			if(path.movementCost() > 2.0f)
 			{
@@ -451,7 +451,7 @@ void ObjectClusterizer::clusterizeObject(
 			}
 		}
 
-		if(!shouldVisit(ai, path.targetHero, obj))
+		if(!shouldVisit(aiNk, path.targetHero, obj))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
@@ -482,7 +482,7 @@ void ObjectClusterizer::clusterizeObject(
 					priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 				}
 
-				if(ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+				if(aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 					continue;
 				else if (priority <= 0)
 					continue;
@@ -508,12 +508,12 @@ void ObjectClusterizer::clusterizeObject(
 			priority = std::max(priority, priorityEvaluator->evaluate(Goals::sptr(Goals::ExecuteHeroChain(path, obj)), prio));
 		}
 
-		if (ai->settings->isUseFuzzy() && priority < MIN_PRIORITY)
+		if (aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 			continue;
 		else if (priority <= 0)
 			continue;
 
-		bool interestingObject = path.turn() <= 2 || priority > (ai->settings->isUseFuzzy() ? 0.5f : 0);
+		bool interestingObject = path.turn() <= 2 || priority > (aiNk->settings->isUseFuzzy() ? 0.5f : 0);
 
 		if(interestingObject)
 		{

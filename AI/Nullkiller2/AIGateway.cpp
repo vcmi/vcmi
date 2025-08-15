@@ -1679,11 +1679,11 @@ void AIGateway::invalidatePaths()
 
 void AIGateway::cheatMapReveal(const std::unique_ptr<Nullkiller> & nullkiller)
 {
-	if(cbc->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
+	if(nullkiller->cbc->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
 	{
 		if(nullkiller->isOpenMap())
 		{
-			cbc->sendMessage("vcmieagles");
+			nullkiller->cbc->sendMessage("vcmieagles");
 		}
 	}
 }

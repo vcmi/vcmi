@@ -28,7 +28,7 @@ namespace Goals
 		{
 		}
 
-		TGoalVec decompose(const Nullkiller * ai) const override;
+		TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;
 
 		bool operator==(const ClusterBehavior & other) const override
@@ -37,7 +37,7 @@ namespace Goals
 		}
 
 	private:
-		Goals::TGoalVec decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const;
+		Goals::TGoalVec decomposeCluster(const Nullkiller * aiNk, std::shared_ptr<ObjectCluster> cluster) const;
 	};
 }
 

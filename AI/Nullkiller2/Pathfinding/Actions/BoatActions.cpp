@@ -87,7 +87,7 @@ namespace AIPathfinding
 
 	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * ai)
 	{
-		return std::make_shared<BuildBoatAction>(ai->cb.get(), dynamic_cast<const IShipyard * >(ai->cb->getObj(shipyard)));
+		return std::make_shared<BuildBoatAction>(ai->cbc.get(), dynamic_cast<const IShipyard * >(ai->cbc->getObj(shipyard)));
 	}
 
 	void SummonBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const

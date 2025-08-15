@@ -294,16 +294,16 @@ std::string ExecuteHeroChain::toString() const
 #endif
 }
 
-bool ExecuteHeroChain::moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile)
+bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
 {
-	if(tile == hero->visitablePos() && ai->cbc->getVisitableObjs(hero->visitablePos()).size() < 2)
+	if(tile == hero->visitablePos() && aiGw->cbc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
 
 		return true;
 	}
 
-	return ai->moveHeroToTile(tile, hero);
+	return aiGw->moveHeroToTile(tile, hero);
 }
 
 }

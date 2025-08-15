@@ -49,7 +49,7 @@ namespace Goals
 			specificObjects = true;
 		}
 
-		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
+		Goals::TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;
 
 		CaptureObjectsBehavior & ofType(int type)

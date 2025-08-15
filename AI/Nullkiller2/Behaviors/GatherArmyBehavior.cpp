@@ -30,11 +30,11 @@ std::string GatherArmyBehavior::toString() const
 	return "Gather army";
 }
 
-Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	auto heroes = ai->cb->getHeroesInfo();
+	auto heroes = aiNk->cbc->getHeroesInfo();
 
 	if(heroes.empty())
 	{
@@ -43,33 +43,33 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * ai) const
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(ai->heroManager->getHeroRole(hero) == HeroRole::MAIN)
+		if(aiNk->heroManager->getHeroRole(hero) == HeroRole::MAIN)
 		{
-			vstd::concatenate(tasks, deliverArmyToHero(ai, hero));
+			vstd::concatenate(tasks, deliverArmyToHero(aiNk, hero));
 		}
 	}
 
-	auto towns = ai->cb->getTownsInfo();
+	auto towns = aiNk->cbc->getTownsInfo();
 
 	for(const CGTownInstance * town : towns)
 	{
-		vstd::concatenate(tasks, upgradeArmy(ai, town));
+		vstd::concatenate(tasks, upgradeArmy(aiNk, town));
 	}
 
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, const CGHeroInstance * hero) const
+Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = hero->visitablePos();
-	auto targetHeroScore = ai->heroManager->evaluateHero(hero);
+	auto targetHeroScore = aiNk->heroManager->evaluateHero(hero);
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to gaher army for hero %s, %s", hero->getObjectName(), pos.toString());
 #endif
 
-	auto paths = ai->pathfinder->getPathInfo(pos, ai->isObjectGraphAllowed());
+	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Gather army found %d paths", paths.size());
@@ -81,7 +81,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getObjectName(), path.heroArmy->getArmyStrength());
 #endif
 		
-		if (path.targetHero->getOwner() != ai->playerID)
+		if (path.targetHero->getOwner() != aiNk->playerID)
 			continue;
 		
 		if(path.containsHero(hero))
@@ -92,7 +92,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 			continue;
 		}
 
-		if(ai->arePathHeroesLocked(path))
+		if(aiNk->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
@@ -102,7 +102,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 
 		HeroExchange heroExchange(hero, path);
 
-		uint64_t armyValue = heroExchange.getReinforcementArmyStrength(ai);
+		uint64_t armyValue = heroExchange.getReinforcementArmyStrength(aiNk);
 		float armyRatio = (float)armyValue / hero->getArmyStrength();
 
 		// avoid transferring very small amount of army
@@ -121,11 +121,11 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		{
 			if(!node.targetHero) continue;
 
-			auto heroRole = ai->heroManager->getHeroRole(node.targetHero);
+			auto heroRole = aiNk->heroManager->getHeroRole(node.targetHero);
 
 			if(heroRole == HeroRole::MAIN)
 			{
-				auto score = ai->heroManager->evaluateHero(node.targetHero);
+				auto score = aiNk->heroManager->evaluateHero(node.targetHero);
 
 				if(score >= targetHeroScore)
 				{
@@ -145,7 +145,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 		}
 
 		auto danger = path.getTotalDanger();
-		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger, ai->settings->getSafeAttackRatio());
+		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger, aiNk->settings->getSafeAttackRatio());
 
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(
@@ -169,7 +169,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 
 			if(hero->isGarrisoned() && path.turn() == 0)
 			{
-				auto lockReason = ai->getHeroLockedReason(hero);
+				auto lockReason = aiNk->getHeroLockedReason(hero);
 
 				if(path.targetHero->getVisitedTown() == hero->getVisitedTown())
 				{
@@ -196,7 +196,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 	#if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Action is blocked. Considering decomposition.");
 	#endif
-				auto subGoal = blockedAction->decompose(ai, path.targetHero);
+				auto subGoal = blockedAction->decompose(aiNk, path.targetHero);
 
 				if(subGoal->invalid())
 				{
@@ -216,18 +216,18 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 	return tasks;
 }
 
-Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGTownInstance * upgrader) const
+Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const CGTownInstance * upgrader) const
 {
 	Goals::TGoalVec tasks;
 	const int3 pos = upgrader->visitablePos();
-	TResources availableResources = ai->getFreeResources();
+	TResources availableResources = aiNk->getFreeResources();
 
 #if NKAI_TRACE_LEVEL >= 1
 	logAi->trace("Checking ways to upgrade army in town %s, %s", upgrader->getObjectName(), pos.toString());
 #endif
 	
-	auto paths = ai->pathfinder->getPathInfo(pos, ai->isObjectGraphAllowed());
-	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, ai);
+	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk);
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
@@ -239,9 +239,9 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 	for(const AIPath & path : paths)
 	{
-		auto heroRole = ai->heroManager->getHeroRole(path.targetHero);
+		auto heroRole = aiNk->heroManager->getHeroRole(path.targetHero);
 
-		if(heroRole == HeroRole::MAIN && path.turn() < ai->settings->getScoutHeroTurnDistanceLimit())
+		if(heroRole == HeroRole::MAIN && path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 			hasMainAround = true;
 	}
 
@@ -270,7 +270,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 			continue;
 		}
 
-		if(ai->arePathHeroesLocked(path))
+		if(aiNk->arePathHeroesLocked(path))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path because of locked hero");
@@ -287,17 +287,17 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 			continue;
 		}
 
-		auto upgrade = ai->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
+		auto upgrade = aiNk->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
 		if(!upgrader->getGarrisonHero()
 			&& (
 				hasMainAround
-				|| ai->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
+				|| aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 
 			armyToGetOrBuy.addArmyToGet(
-				ai->armyManager->getBestArmy(
+				aiNk->armyManager->getBestArmy(
 					path.targetHero,
 					path.heroArmy,
 					upgrader->getUpperArmy(),
@@ -311,16 +311,16 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 			if(!upgrade.upgradeValue
 				&& armyToGetOrBuy.upgradeValue > 20000
-				&& ai->heroManager->canRecruitHero(upgrader)
-				&& path.turn() < ai->settings->getScoutHeroTurnDistanceLimit())
+				&& aiNk->heroManager->canRecruitHero(upgrader)
+				&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 			{
 				for(auto hero : cbc->getAvailableHeroes(upgrader))
 				{
-					auto scoutReinforcement = ai->armyManager->howManyReinforcementsCanGet(hero, upgrader);
+					auto scoutReinforcement = aiNk->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
-						&& ai->getFreeGold() >20000
-						&& !ai->buildAnalyzer->isGoldPressureOverMax())
+						&& aiNk->getFreeGold() >20000
+						&& !aiNk->buildAnalyzer->isGoldPressureOverMax())
 					{
 						Composition recruitHero;
 
@@ -342,7 +342,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 		auto danger = path.getTotalDanger();
 
-		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger, ai->settings->getSafeAttackRatio());
+		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger, aiNk->settings->getSafeAttackRatio());
 
 #if NKAI_TRACE_LEVEL >= 2
 		logAi->trace(

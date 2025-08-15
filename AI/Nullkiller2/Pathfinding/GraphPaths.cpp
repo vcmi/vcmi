@@ -122,7 +122,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 					if(targetGraphNode.objID.hasValue())
 					{
-						targetNode.obj = ai->cb->getObj(targetGraphNode.objID, false);
+						targetNode.obj = ai->cbc->getObj(targetGraphNode.objID, false);
 
 						if(targetNode.obj && targetNode.obj->ID == Obj::HERO)
 							return;

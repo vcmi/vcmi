@@ -40,7 +40,7 @@ namespace Goals
 
 		std::string toString() const override;
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 	};
 }
 

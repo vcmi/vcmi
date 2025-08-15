@@ -24,7 +24,7 @@ std::string BuyArmyBehavior::toString() const
 	return "Buy army";
 }
 
-Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
@@ -35,33 +35,33 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * ai) const
 		return tasks;
 	}
 
-	ai->dangerHitMap->updateHitMap();
+	aiNk->dangerHitMap->updateHitMap();
 
 	for(auto town : cbc->getTownsInfo())
 	{
-		uint8_t closestThreat = ai->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
+		uint8_t closestThreat = aiNk->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
 
-		if (closestThreat >=2 && ai->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) && cbc->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		if (closestThreat >=2 && aiNk->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) && cbc->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
 			return tasks;
 		}
 		
-		auto townArmyAvailableToBuy = ai->armyManager->getArmyAvailableToBuyAsCCreatureSet(
+		auto townArmyAvailableToBuy = aiNk->armyManager->getArmyAvailableToBuyAsCCreatureSet(
 			town,
-			ai->getFreeResources());
+			aiNk->getFreeResources());
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(ai->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
+			if(aiNk->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
-				auto reinforcement = ai->armyManager->howManyReinforcementsCanGet(
+				auto reinforcement = aiNk->armyManager->howManyReinforcementsCanGet(
 					targetHero,
 					targetHero,
 					&*townArmyAvailableToBuy,
 					TerrainId::NONE);
 
 				if(reinforcement)
-					vstd::amin(reinforcement, ai->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
+					vstd::amin(reinforcement, aiNk->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
 
 				if(reinforcement)
 				{

@@ -38,7 +38,7 @@ namespace Goals
 		bool isObjectAffected(ObjectInstanceID id) const override;
 
 	private:
-		bool moveHeroToTile(AIGateway * ai, const CGHeroInstance * hero, const int3 & tile);
+		bool moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile);
 	};
 }
 

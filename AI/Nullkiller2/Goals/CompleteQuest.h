@@ -36,12 +36,12 @@ namespace Goals
 		bool operator==(const CompleteQuest & other) const override;
 
 	private:
-		TGoalVec tryCompleteQuest(const Nullkiller * ai) const;
+		TGoalVec tryCompleteQuest(const Nullkiller * aiNk) const;
 		TGoalVec missionArt(const Nullkiller * ai) const;
 		TGoalVec missionHero(const Nullkiller * ai) const;
-		TGoalVec missionArmy(const Nullkiller * ai) const;
+		TGoalVec missionArmy(const Nullkiller * aiNk) const;
 		TGoalVec missionResources(const Nullkiller * ai) const;
-		TGoalVec missionDestroyObj(const Nullkiller * ai) const;
+		TGoalVec missionDestroyObj(const Nullkiller * aiNk) const;
 		TGoalVec missionIncreasePrimaryStat(const Nullkiller * ai) const;
 		TGoalVec missionLevel(const Nullkiller * ai) const;
 		TGoalVec missionKeymaster(const Nullkiller * ai) const;

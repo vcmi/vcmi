@@ -29,11 +29,11 @@ std::string ExplorationBehavior::toString() const
 	return "Explore";
 }
 
-Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	for (auto obj : ai->memory->visitableObjs)
+	for (auto obj : aiNk->memory->visitableObjs)
 	{
 		switch (obj->ID.num)
 		{
@@ -41,7 +41,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 			case Obj::PILLAR_OF_FIRE:
 			{
 				auto rObj = dynamic_cast<const CRewardableObject*>(obj);
-				if (!rObj->wasScouted(ai->playerID))
+				if (!rObj->wasScouted(aiNk->playerID))
 					tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 200)).addNext(CaptureObject(obj))));
 				break;
 			}
@@ -63,11 +63,11 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 		}
 	}
 
-	auto heroes = ai->cb->getHeroesInfo();
+	auto heroes = aiNk->cbc->getHeroesInfo();
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		ExplorationHelper scanResult(hero, ai);
+		ExplorationHelper scanResult(hero, aiNk);
 
 		if(scanResult.scanSector(1))
 		{
@@ -81,7 +81,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * ai) const
 			continue;
 		}
 
-		if(ai->getScanDepth() == ScanDepth::ALL_FULL)
+		if(aiNk->getScanDepth() == ScanDepth::ALL_FULL)
 		{
 			if(scanResult.scanMap())
 			{

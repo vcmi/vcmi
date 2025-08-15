@@ -77,7 +77,7 @@ std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
-	return howManyReinforcementsCanGet(hero, hero, source, ai->cb->getTile(hero->visitablePos())->getTerrainID());
+	return howManyReinforcementsCanGet(hero, hero, source, aiNk->cbc->getTile(hero->visitablePos())->getTerrainID());
 }
 
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const
@@ -283,7 +283,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 
 ui64 ArmyManager::howManyReinforcementsCanBuy(const CCreatureSet * h, const CGDwelling * t) const
 {
-	return howManyReinforcementsCanBuy(h, t, ai->getFreeResources());
+	return howManyReinforcementsCanBuy(h, t, aiNk->getFreeResources());
 }
 
 std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
@@ -336,7 +336,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(
 
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(const CCreatureSet * hero, const CGDwelling * dwelling) const
 {
-	return getArmyAvailableToBuy(hero, dwelling, ai->getFreeResources());
+	return getArmyAvailableToBuy(hero, dwelling, aiNk->getFreeResources());
 }
 
 std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(

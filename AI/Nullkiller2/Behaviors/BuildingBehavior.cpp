@@ -27,14 +27,14 @@ std::string BuildingBehavior::toString() const
 	return "Build";
 }
 
-Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	TResources resourcesRequired = ai->buildAnalyzer->getResourcesRequiredNow();
-	TResources totalDevelopmentCost = ai->buildAnalyzer->getTotalResourcesRequired();
-	TResources availableResources = ai->getFreeResources();
-	TResources dailyIncome = ai->buildAnalyzer->getDailyIncome();
+	TResources resourcesRequired = aiNk->buildAnalyzer->getResourcesRequiredNow();
+	TResources totalDevelopmentCost = aiNk->buildAnalyzer->getTotalResourcesRequired();
+	TResources availableResources = aiNk->getFreeResources();
+	TResources dailyIncome = aiNk->buildAnalyzer->getDailyIncome();
 
 	logAi->trace("Free resources amount: %s", availableResources.toString());
 
@@ -46,16 +46,16 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 		resourcesRequired.toString(),
 		totalDevelopmentCost.toString());
 
-	auto & developmentInfos = ai->buildAnalyzer->getDevelopmentInfo();
-	auto isGoldPressureLow = !ai->buildAnalyzer->isGoldPressureOverMax();
+	auto & developmentInfos = aiNk->buildAnalyzer->getDevelopmentInfo();
+	auto isGoldPressureLow = !aiNk->buildAnalyzer->isGoldPressureOverMax();
 
-	ai->dangerHitMap->updateHitMap();
+	aiNk->dangerHitMap->updateHitMap();
 
 	for(auto & developmentInfo : developmentInfos)
 	{
 		bool emergencyDefense = false;
 		uint8_t closestThreat = std::numeric_limits<uint8_t>::max();
-		for (auto threat : ai->dangerHitMap->getTownThreats(developmentInfo.town))
+		for (auto threat : aiNk->dangerHitMap->getTownThreats(developmentInfo.town))
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
@@ -80,7 +80,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * ai) const
 				{
 					if (buildingInfo.notEnoughRes)
 					{
-						if (ai->getLockedResources().canAfford(buildingInfo.buildCost))
+						if (aiNk->getLockedResources().canAfford(buildingInfo.buildCost))
 							continue;
 
 						Composition composition;

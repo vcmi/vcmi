@@ -209,9 +209,9 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	return false;
 }
 
-bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj)
+bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 {
-	return isObjectPassable(obj, ai->playerID, ai->cb->getPlayerRelations(obj->tempOwner, ai->playerID));
+	return isObjectPassable(obj, aiNk->playerID, aiNk->cbc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
 }
 
 // Pathfinder internal helper
@@ -644,9 +644,9 @@ int getDuplicatingSlots(const CArmedInstance * army)
 }
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	auto relations = ai->cb->getPlayerRelations(obj->tempOwner, h->tempOwner);
+	auto relations = aiNk->cbc->getPlayerRelations(obj->tempOwner, h->tempOwner);
 
 	switch(obj->ID)
 	{
@@ -656,7 +656,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 
 	case Obj::BORDER_GATE:
 	{
-		for(auto q : ai->cb->getMyQuests())
+		for(auto q : aiNk->cbc->getMyQuests())
 		{
 			if(q.obj == obj->id)
 			{
@@ -666,14 +666,14 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		return true; //we don't have this quest yet
 	}
 	case Obj::BORDERGUARD: //open borderguard if possible
-		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(ai->playerID);
+		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(aiNk->playerID);
 	case Obj::SEER_HUT:
 	{
-		for(auto q : ai->cb->getMyQuests())
+		for(auto q : aiNk->cbc->getMyQuests())
 		{
 			if(q.obj == obj->id)
 			{
-				if(q.getQuest(ai->cb.get())->checkQuest(h))
+				if(q.getQuest(aiNk->cbc.get())->checkQuest(h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest
@@ -698,7 +698,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 			{
 				if(level.first
 					&& (h->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
-					&& ai->cb->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
+					&& aiNk->cbc->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
 				}
@@ -724,7 +724,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 	{
-		if(ai->getFreeGold() < 1000)
+		if(aiNk->getFreeGold() < 1000)
 			return false;
 		break;
 	}
@@ -734,10 +734,10 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		if(ai->heroManager->getHeroRole(h) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRole(h) == HeroRole::SCOUT)
 			return false;
 
-		TResources myRes = ai->getFreeResources();
+		TResources myRes = aiNk->getFreeResources();
 		if(myRes[EGameResID::GOLD] < 2000 || myRes[EGameResID::GEMS] < 10)
 			return false;
 		break;
@@ -745,7 +745,7 @@ bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObject
 	case Obj::MAGIC_WELL:
 		return h->mana < h->manaLimit();
 	case Obj::PRISON:
-		return !ai->heroManager->heroCapReached();
+		return !aiNk->heroManager->heroCapReached();
 	case Obj::TAVERN:
 	case Obj::EYE_OF_MAGI:
 	case Obj::BOAT:

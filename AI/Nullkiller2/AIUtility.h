@@ -201,7 +201,7 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
-bool isObjectPassable(const Nullkiller * ai, const CGObjectInstance * obj);
+bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
 bool isBlockVisitObj(const int3 & pos);
 
@@ -222,7 +222,7 @@ uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCr
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller * ai, const CGHeroInstance * h, const CGObjectInstance * obj);
+bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
 
 template <class T>

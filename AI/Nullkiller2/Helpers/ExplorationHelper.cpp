@@ -25,7 +25,7 @@ namespace NK2AI
 using namespace Goals;
 
 ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai, bool useCPathfinderAccessibility)
-	:ai(ai), cbp(ai->cb.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
+	:ai(ai), cbp(ai->cbc.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
 {
 	ts = cbp->getPlayerTeam(ai->playerID);
 	sightRadius = hero->getSightRadius();
@@ -143,7 +143,7 @@ bool ExplorationHelper::scanMap()
 void ExplorationHelper::scanTile(const int3 & tile)
 {
 	if(tile == ourPos
-		|| !ai->cb->getTile(tile, false)
+		|| !ai->cbc->getTile(tile, false)
 		|| !ai->pathfinder->isTileAccessible(hero, tile)) //shouldn't happen, but it does
 		return;
 
@@ -152,7 +152,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 		return;
 	
 	auto paths = ai->pathfinder->getPathInfo(tile);
-	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, ai, ai->cb->getTopObj(tile));
+	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, ai, ai->cbc->getTopObj(tile));
 
 	for(int i = 0; i != paths.size(); i++)
 	{

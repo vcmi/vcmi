@@ -46,7 +46,7 @@ std::string BuildThis::toString() const
 	return "Build " + buildingInfo.name + " in " + town->getNameTranslated();
 }
 
-void BuildThis::accept(AIGateway * ai)
+void BuildThis::accept(AIGateway * aiGw)
 {
 	auto b = BuildingID(bid);
 
@@ -55,7 +55,7 @@ void BuildThis::accept(AIGateway * ai)
 		if(cbc->canBuildStructure(town, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
-				ai->playerID, town->getTown()->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->anchorPos().toString());
+				aiGw->playerID, town->getTown()->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->anchorPos().toString());
 			cbc->buildBuilding(town, b);
 
 			return;

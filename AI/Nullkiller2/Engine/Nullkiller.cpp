@@ -68,7 +68,7 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 
 void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
 {
-	this->cb = cb;
+	this->cbc = cb;
 	this->gateway = gateway;
 	this->playerID = gateway->playerID;
 
@@ -264,7 +264,7 @@ void Nullkiller::updateState(bool partialUpdate)
 
 	if(!partialUpdate && pathfinderInvalidated)
 	{
-		memory->removeInvisibleObjects(cb.get());
+		memory->removeInvisibleObjects(cbc.get());
 
 		dangerHitMap->updateHitMap();
 		dangerHitMap->calculateTileOwners();
@@ -276,7 +276,7 @@ void Nullkiller::updateState(bool partialUpdate)
 
 		std::map<const CGHeroInstance *, HeroRole> activeHeroes;
 
-		for(auto hero : cb->getHeroesInfo())
+		for(auto hero : cbc->getHeroesInfo())
 		{
 			if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
 				continue;
@@ -368,7 +368,7 @@ void Nullkiller::makeTurn()
 	Goals::TGoalVec tasks;
 	tracePlayerStatus(true);
 
-	for(int i = 1; i <= settings->getMaxPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	for(int i = 1; i <= settings->getMaxPass() && cbc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		updateState();
 
@@ -407,7 +407,7 @@ void Nullkiller::makeTurn()
 		bool hasAnySuccess = false;
 		for(const auto& selectedTask : selectedTasks)
 		{
-			if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
+			if(cbc->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 				return;
 
 			if(!areAffectedObjectsPresent(selectedTask))
@@ -437,7 +437,7 @@ void Nullkiller::makeTurn()
 
 			if((settings->isUseFuzzy() && selectedTask->priority < MIN_PRIORITY) || (!settings->isUseFuzzy() && selectedTask->priority <= 0))
 			{
-				auto heroes = cb->getHeroesInfo();
+				auto heroes = cbc->getHeroesInfo();
 				const auto hasMp = vstd::contains_if(heroes, [](const CGHeroInstance * h) -> bool
 					{
 						return h->movementPointsRemaining() > 100;
@@ -481,7 +481,7 @@ void Nullkiller::makeTurn()
 			return;
 		}
 
-		for (const auto *heroInfo : cb->getHeroesInfo())
+		for (const auto *heroInfo : cbc->getHeroesInfo())
 			AIGateway::pickBestArtifacts(heroInfo);
 
 		if(i == settings->getMaxPass())
@@ -494,7 +494,7 @@ void Nullkiller::makeTurn()
 bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int passIndex)
 {
 	Goals::TTask bestPrioPassTask = taskptr(Goals::Invalid());
-	for(int i = 1; i <= settings->getMaxPriorityPass() && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
+	for(int i = 1; i <= settings->getMaxPriorityPass() && cbc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		tempResults.clear();
 
@@ -534,7 +534,7 @@ bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
 
 	for(auto oid : affectedObjs)
 	{
-		if(!cb->getObj(oid, false))
+		if(!cbc->getObj(oid, false))
 			return false;
 	}
 
@@ -581,7 +581,7 @@ bool Nullkiller::executeTask(Goals::TTask task)
 
 TResources Nullkiller::getFreeResources() const
 {
-	auto freeRes = cb->getResourceAmount() - lockedResources;
+	auto freeRes = cbc->getResourceAmount() - lockedResources;
 
 	freeRes.positive();
 
@@ -598,7 +598,7 @@ bool Nullkiller::handleTrading()
 	bool haveTraded = false;
 	bool shouldTryToTrade = true;
 	ObjectInstanceID marketId;
-	for (auto town : cb->getTownsInfo())
+	for (auto town : cbc->getTownsInfo())
 	{
 		if (town->hasBuiltSomeTradeBuilding())
 		{
@@ -607,7 +607,7 @@ bool Nullkiller::handleTrading()
 	}
 	if (!marketId.hasValue())
 		return false;
-	if (const CGObjectInstance* obj = cb->getObj(marketId, false))
+	if (const CGObjectInstance* obj = cbc->getObj(marketId, false))
 	{
 		if (const auto* m = dynamic_cast<const IMarket*>(obj))
 		{
@@ -617,7 +617,7 @@ bool Nullkiller::handleTrading()
 				buildAnalyzer->update();
 				TResources required = buildAnalyzer->getTotalResourcesRequired();
 				TResources income = buildAnalyzer->getDailyIncome();
-				TResources available = cb->getResourceAmount();
+				TResources available = cbc->getResourceAmount();
 #if NKAI_TRACE_LEVEL >= 2
 				logAi->debug("Available %s", available.toString());
 				logAi->debug("Required  %s", required.toString());
@@ -678,7 +678,7 @@ bool Nullkiller::handleTrading()
 				//TODO trade only as much as needed
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
-					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
+					cbc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
 #if NKAI_TRACE_LEVEL >= 2
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 #endif
@@ -706,17 +706,17 @@ void Nullkiller::tracePlayerStatus(bool beginning) const
 #if NKAI_TRACE_LEVEL >= 1
 	float totalHeroesStrength = 0;
 	int totalTownsLevel = 0;
-	for (const auto *heroInfo : cb->getHeroesInfo())
+	for (const auto *heroInfo : cbc->getHeroesInfo())
 	{
 		totalHeroesStrength += heroInfo->getTotalStrength();
 	}
-	for (const auto *townInfo : cb->getTownsInfo())
+	for (const auto *townInfo : cbc->getTownsInfo())
 	{
 		totalTownsLevel += townInfo->getTownLevel();
 	}
 
 	const auto *firstWord = beginning ? "Beginning:" : "End:";
-	logAi->info("%s totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", firstWord, totalHeroesStrength, totalTownsLevel, cb->getResourceAmount().toString());
+	logAi->info("%s totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", firstWord, totalHeroesStrength, totalTownsLevel, cbc->getResourceAmount().toString());
 #endif
 }
 

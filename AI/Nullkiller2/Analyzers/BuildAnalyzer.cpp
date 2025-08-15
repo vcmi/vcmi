@@ -45,7 +45,7 @@ void BuildAnalyzer::update()
 	logAi->trace("Start BuildAnalyzer::update");
 	BuildingInfo bi;
 	reset();
-	auto towns = aiNk->cb->getTownsInfo();
+	auto towns = aiNk->cbc->getTownsInfo();
 	float economyDevelopmentCost = 0;
 
 	for(const CGTownInstance* town : towns)
@@ -60,8 +60,8 @@ void BuildAnalyzer::update()
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & tdi = developmentInfos.back();
 
-		updateTownDwellings(tdi, aiNk->armyManager, aiNk->cb);
-		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cb);
+		updateTownDwellings(tdi, aiNk->armyManager, aiNk->cbc);
+		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cbc);
 		requiredResources += tdi.requiredResources;
 		totalDevelopmentCost += tdi.townDevelopmentCost;
 
@@ -86,7 +86,7 @@ void BuildAnalyzer::update()
 		return val1 > val2;
 	});
 
-	dailyIncome = calculateDailyIncome(aiNk->cb->getMyObjects(), aiNk->cb->getTownsInfo());
+	dailyIncome = calculateDailyIncome(aiNk->cbc->getMyObjects(), aiNk->cbc->getTownsInfo());
 	goldPressure = calculateGoldPressure(aiNk->getLockedResources()[EGameResID::GOLD],
 	                                     (float)armyCost[EGameResID::GOLD],
 	                                     economyDevelopmentCost,

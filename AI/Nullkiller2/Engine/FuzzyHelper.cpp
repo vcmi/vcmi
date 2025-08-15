@@ -21,7 +21,7 @@ namespace NK2AI
 
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
-	auto cb = ai->cb.get();
+	auto cb = aiNk->cbc.get();
 	const TerrainTile * t = cb->getTile(tile, false);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH
@@ -51,7 +51,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			{
 				objectDanger += evaluateDanger(hero->getVisitedTown());
 			}
-			objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
+			objectDanger *= aiNk->heroManager->getFightingStrengthCached(hero);
 		}
 		if (objWithID<Obj::TOWN>(dangerousObject))
 		{
@@ -59,7 +59,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			auto hero = town->getGarrisonHero();
 
 			if (hero)
-				objectDanger *= ai->heroManager->getFightingStrengthCached(hero);
+				objectDanger *= aiNk->heroManager->getFightingStrengthCached(hero);
 		}
 
 		if(objectDanger)
@@ -75,8 +75,8 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 		if(dangerousObject->ID == Obj::SUBTERRANEAN_GATE)
 		{
 			//check guard on the other side of the gate
-			auto it = ai->memory->knownSubterraneanGates.find(dangerousObject);
-			if(it != ai->memory->knownSubterraneanGates.end())
+			auto it = aiNk->memory->knownSubterraneanGates.find(dangerousObject);
+			if(it != aiNk->memory->knownSubterraneanGates.end())
 			{
 				auto guards = cb->getGuardingCreatures(it->second->visitablePos());
 
@@ -109,9 +109,9 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 
 ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 {
-	auto cb = ai->cb.get();
+	auto cb = aiNk->cbc.get();
 
-	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
+	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, aiNk->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
@@ -143,7 +143,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
-		if(!vstd::contains(ai->memory->alreadyVisited, obj))
+		if(!vstd::contains(aiNk->memory->alreadyVisited, obj))
 			return 0;
 		[[fallthrough]];
 	}

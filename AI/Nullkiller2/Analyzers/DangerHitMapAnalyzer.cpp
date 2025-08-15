@@ -70,8 +70,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 	hitMapUpToDate = true;
 	auto start = std::chrono::high_resolution_clock::now();
 
-	auto cb = ai->cb.get();
-	auto mapSize = ai->cb->getMapSize();
+	auto cb = aiNk->cbc.get();
+	auto mapSize = aiNk->cbc->getMapSize();
 	
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
@@ -81,7 +81,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
 
-	for(const CGObjectInstance * obj : ai->memory->visitableObjs)
+	for(const CGObjectInstance * obj : aiNk->memory->visitableObjs)
 	{
 		if(obj->ID == Obj::HERO)
 		{
@@ -114,19 +114,19 @@ void DangerHitMapAnalyzer::updateHitMap()
 		if(!pair.first.isValidPlayer())
 			continue;
 
-		if(ai->cb->getPlayerRelations(ai->playerID, pair.first) != PlayerRelations::ENEMIES)
+		if(aiNk->cbc->getPlayerRelations(aiNk->playerID, pair.first) != PlayerRelations::ENEMIES)
 			continue;
 
 		PathfinderSettings ps;
 
-		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = ai->settings->getThreatTurnDistanceLimit();
+		ps.scoutTurnDistanceLimit = ps.mainTurnDistanceLimit = aiNk->settings->getThreatTurnDistanceLimit();
 		ps.useHeroChain = false;
 
-		ai->pathfinder->updatePaths(pair.second, ps);
+		aiNk->pathfinder->updatePaths(pair.second, ps);
 
-		ai->makingTurnInterrupption.interruptionPoint();
+		aiNk->makingTurnInterrupption.interruptionPoint();
 
-		pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
+		pforeachTilePaths(mapSize, aiNk, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{
 			for(const AIPath & path : paths)
 			{
@@ -143,7 +143,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				// Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
 				// shouldn't it use the path danger instead of hero strength?
 				newThreat.danger = path.getHeroStrength();
-				auto danger2 = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero);
+				auto danger2 = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero);
 				logAi->trace("Danger comparison for (%d %d %d) %s is %f vs %f",
 					pos.x, pos.y, pos.z, path.targetHero->getNameTranslated(), newThreat.danger, danger2);
 
@@ -162,7 +162,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				for(auto obj : objects)
 				{
-					if(obj->ID == Obj::TOWN && obj->getOwner() == ai->playerID)
+					if(obj->ID == Obj::TOWN && obj->getOwner() == aiNk->playerID)
 					{
 						auto & threats = townThreats[obj->id];
 						auto threat = std::find_if(threats.begin(), threats.end(), [&](const HitMapInfo & i) -> bool
@@ -183,7 +183,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 						if(newThreat.turn == 0)
 						{
-							if(cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES)
+							if(cb->getPlayerRelations(obj->tempOwner, aiNk->playerID) != PlayerRelations::ENEMIES)
 								enemyHeroAccessibleObjects.emplace_back(path.targetHero, obj);
 						}
 					}
@@ -194,7 +194,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
 
-	logHitmap(ai->playerID, *this);
+	logHitmap(aiNk->playerID, *this);
 }
 
 void DangerHitMapAnalyzer::calculateTileOwners()
@@ -203,8 +203,8 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	tileOwnersUpToDate = true;
 
-	auto cb = ai->cb.get();
-	auto mapSize = ai->cb->getMapSize();
+	auto cb = aiNk->cbc.get();
+	auto mapSize = aiNk->cbc->getMapSize();
 
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
@@ -220,7 +220,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			auto visitablePos = town->visitablePos();
 			
 			townHero->id = town->id;
-			townHero->setOwner(ai->playerID); // lets avoid having multiple colors
+			townHero->setOwner(aiNk->playerID); // lets avoid having multiple colors
 			townHero->initHero(randomizer, static_cast<HeroTypeID>(0));
 			townHero->pos = townHero->convertFromVisitablePos(visitablePos);
 			townHero->initObj(randomizer);
@@ -229,7 +229,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			townHeroes[townHero] = HeroRole::MAIN;
 	};
 
-	for(auto obj : ai->memory->visitableObjs)
+	for(auto obj : aiNk->memory->visitableObjs)
 	{
 		if(obj && obj->ID == Obj::TOWN)
 		{
@@ -243,11 +243,11 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 	}
 
 	PathfinderSettings ps;
-	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = ai->settings->getMainHeroTurnDistanceLimit();
+	ps.mainTurnDistanceLimit = ps.scoutTurnDistanceLimit = aiNk->settings->getMainHeroTurnDistanceLimit();
 
-	ai->pathfinder->updatePaths(townHeroes, ps);
+	aiNk->pathfinder->updatePaths(townHeroes, ps);
 
-	pforeachTilePaths(mapSize, ai, [&](const int3 & pos, const std::vector<AIPath> & paths)
+	pforeachTilePaths(mapSize, aiNk, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{
 			float ourDistance = std::numeric_limits<float>::max();
 			float enemyDistance = std::numeric_limits<float>::max();
@@ -261,7 +261,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 				auto town = heroTownMap[path.targetHero];
 
-				if(town->getOwner() == ai->playerID)
+				if(town->getOwner() == aiNk->playerID)
 				{
 					if(ourDistance > path.movementCost())
 					{
@@ -322,8 +322,8 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 
 	const auto& info = getTileThreat(tile);
 	
-	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger, ai->settings->getSafeAttackRatio()))
-		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger, ai->settings->getSafeAttackRatio()));
+	return (info.fastestDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.fastestDanger.danger, aiNk->settings->getSafeAttackRatio()))
+		|| (info.maximumDanger.turn <= turn && !isSafeToVisit(path.targetHero, path.heroArmy, info.maximumDanger.danger, aiNk->settings->getSafeAttackRatio()));
 }
 
 const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance * obj) const

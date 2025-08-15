@@ -25,7 +25,7 @@ namespace Goals
 		{
 		}
 
-		TGoalVec decompose(const Nullkiller * ai) const override;
+		TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;
 
 		bool operator==(const StartupBehavior & other) const override

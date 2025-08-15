@@ -23,8 +23,8 @@
 namespace Nullkiller
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
+extern boost::thread_specific_ptr<CCallback> cbc;
+extern boost::thread_specific_ptr<AIGateway> aiGw;
 extern FuzzyHelper * fh;
 
 using namespace Goals;
@@ -33,15 +33,15 @@ TGoalVec Build::getAllPossibleSubgoals()
 {
 	TGoalVec ret;
 
-	for(const CGTownInstance * t : cb->getTownsInfo())
+	for(const CGTownInstance * t : cbc->getTownsInfo())
 	{
 		//start fresh with every town
-		ai->ah->getBuildingOptions(t);
-		auto immediateBuilding = ai->ah->immediateBuilding();
-		auto expensiveBuilding = ai->ah->expensiveBuilding();
+		aiGw->ah->getBuildingOptions(t);
+		auto immediateBuilding = aiGw->ah->immediateBuilding();
+		auto expensiveBuilding = aiGw->ah->expensiveBuilding();
 
 		//handling for early town development to save money and focus on income
-		if(!t->hasBuilt(ai->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.has_value())
+		if(!t->hasBuilt(aiGw->ah->getMaxPossibleGoldBuilding(t)) && expensiveBuilding.has_value())
 		{
 			auto potentialBuilding = expensiveBuilding.value();
 			switch(expensiveBuilding.value().bid)
@@ -53,7 +53,7 @@ TGoalVec Build::getAllPossibleSubgoals()
 			case BuildingID::CITADEL:
 			case BuildingID::CASTLE:
 				//If above buildings are next to be bought, but no money... do not buy anything else, try to gather resources for these. Simple but has to suffice for now.
-				auto goal = ai->ah->whatToDo(potentialBuilding.price, sptr(BuildThis(potentialBuilding.bid, t).setpriority(2.25)));
+				auto goal = aiGw->ah->whatToDo(potentialBuilding.price, sptr(BuildThis(potentialBuilding.bid, t).setpriority(2.25)));
 				ret.push_back(goal);
 				return ret;
 				break;
@@ -69,7 +69,7 @@ TGoalVec Build::getAllPossibleSubgoals()
 			if(expensiveBuilding.has_value())
 			{
 				auto potentialBuilding = expensiveBuilding.value(); //gather resources for any we can't afford
-				auto goal = ai->ah->whatToDo(potentialBuilding.price, sptr(BuildThis(potentialBuilding.bid, t).setpriority(0.5)));
+				auto goal = aiGw->ah->whatToDo(potentialBuilding.price, sptr(BuildThis(potentialBuilding.bid, t).setpriority(0.5)));
 				ret.push_back(goal);
 			}
 		}

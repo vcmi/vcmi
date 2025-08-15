@@ -18,11 +18,11 @@ class Nullkiller;
 class DLL_EXPORT FuzzyHelper
 {
 private:
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 	TacticalAdvantageEngine tacticalAdvantageEngine;
 
 public:
-	FuzzyHelper(const Nullkiller * ai): ai(ai) {}
+	FuzzyHelper(const Nullkiller * ai): aiNk(ai) {}
 
 	ui64 evaluateDanger(const CGObjectInstance * obj);
 	ui64 evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards = true);

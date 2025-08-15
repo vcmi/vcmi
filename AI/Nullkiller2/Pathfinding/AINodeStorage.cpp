@@ -103,7 +103,7 @@ int AINodeStorage::getBucketSize() const
 }
 
 AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
-	: sizes(Sizes), ai(ai), cb(ai->cb.get()), nodes(Sizes, ai->settings->getPathfinderBucketSize() * ai->settings->getPathfinderBucketsCount())
+	: sizes(Sizes), ai(ai), cb(ai->cbc.get()), nodes(Sizes, ai->settings->getPathfinderBucketSize() * ai->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);

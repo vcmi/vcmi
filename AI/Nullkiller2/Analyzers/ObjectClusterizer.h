@@ -66,7 +66,7 @@ private:
 	ObjectCluster nearObjects;
 	ObjectCluster farObjects;
 	ClusterMap blockedObjects;
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 	RewardEvaluator valueEvaluator;
 	bool isUpToDate;
 	std::vector<ObjectInstanceID> invalidated;
@@ -79,7 +79,7 @@ public:
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
 	std::optional<const CGObjectInstance *> getBlocker(const AIPathNodeInfo & node) const;
 
-	ObjectClusterizer(const Nullkiller * ai): ai(ai), valueEvaluator(ai), isUpToDate(false){}
+	ObjectClusterizer(const Nullkiller * ai): aiNk(ai), valueEvaluator(ai), isUpToDate(false){}
 
 	void validateObjects();
 	void onObjectRemoved(ObjectInstanceID id);

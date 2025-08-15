@@ -56,7 +56,7 @@ bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) co
 	return town == other.town;
 }
 
-void ExchangeSwapTownHeroes::accept(AIGateway * ai)
+void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 {
 	if(!getGarrisonHero())
 	{
@@ -73,8 +73,8 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 			return;
 		}
 
-		ai->buildArmyIn(town);
-		ai->nullkiller->unlockHero(currentGarrisonHero);
+		aiGw->buildArmyIn(town);
+		aiGw->nullkiller->unlockHero(currentGarrisonHero);
 		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTranslated(), town->getNameTranslated());
 
 		return;
@@ -83,8 +83,8 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 		cbc->swapGarrisonHero(town);
 
-	ai->makePossibleUpgrades(town);
-	ai->moveHeroToTile(town->visitablePos(), getGarrisonHero());
+	aiGw->makePossibleUpgrades(town);
+	aiGw->moveHeroToTile(town->visitablePos(), getGarrisonHero());
 
 	auto upperArmy = town->getUpperArmy();
 	
@@ -103,13 +103,13 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 
 	if(lockingReason != HeroLockedReason::NOT_LOCKED)
 	{
-		ai->nullkiller->lockHero(getGarrisonHero(), lockingReason);
+		aiGw->nullkiller->lockHero(getGarrisonHero(), lockingReason);
 	}
 
 	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 	{
-		ai->nullkiller->unlockHero(town->getVisitingHero());
-		ai->makePossibleUpgrades(town->getVisitingHero());
+		aiGw->nullkiller->unlockHero(town->getVisitingHero());
+		aiGw->makePossibleUpgrades(town->getVisitingHero());
 	}
 
 	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTranslated(), town->getNameTranslated());

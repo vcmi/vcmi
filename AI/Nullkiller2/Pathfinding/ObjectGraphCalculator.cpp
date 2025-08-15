@@ -35,7 +35,7 @@ void ObjectGraphCalculator::setGraphObjects()
 		}
 	}
 
-	for(auto town : ai->cb->getTownsInfo())
+	for(auto town : ai->cbc->getTownsInfo())
 	{
 		addObjectActor(town);
 	}
@@ -47,7 +47,7 @@ void ObjectGraphCalculator::calculateConnections()
 
 	std::vector<AIPath> pathCache;
 
-	foreach_tile_pos(ai->cb.get(), [this, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
+	foreach_tile_pos(ai->cbc.get(), [this, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
 		{
 			calculateConnections(pos, pathCache);
 		});
@@ -65,7 +65,7 @@ float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::v
 	}
 
 	foreach_neighbour(
-		ai->cb.get(),
+		ai->cbc.get(),
 		pos,
 		[this, &neighborCost, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
 		{
@@ -91,12 +91,12 @@ void ObjectGraphCalculator::addMinimalDistanceJunctions()
 {
 	tbb::concurrent_unordered_set<int3, std::hash<int3>> junctions;
 
-	pforeachTilePaths(ai->cb->getMapSize(), ai, [this, &junctions](const int3 & pos, std::vector<AIPath> & paths)
+	pforeachTilePaths(ai->cbc->getMapSize(), ai, [this, &junctions](const int3 & pos, std::vector<AIPath> & paths)
 		{
 			if(target->hasNodeAt(pos))
 				return;
 
-			if(ai->cb->getGuardingCreaturePosition(pos).isValid())
+			if(ai->cbc->getGuardingCreaturePosition(pos).isValid())
 				return;
 
 			ConnectionCostInfo currentCost = getConnectionsCost(paths);
@@ -134,7 +134,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 	if(target->hasNodeAt(pos))
 	{
 		foreach_neighbour(
-			ai->cb.get(),
+			ai->cbc.get(),
 			pos,
 			[this, &pos, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
 			{
@@ -152,7 +152,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 				}
 			});
 
-		auto obj = ai->cb->getTopObj(pos);
+		auto obj = ai->cbc->getTopObj(pos);
 
 		if((obj && obj->ID == Obj::BOAT) || target->isVirtualBoat(pos))
 		{
@@ -185,7 +185,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 		return;
 	}
 
-	auto guardPos = ai->cb->getGuardingCreaturePosition(pos);
+	auto guardPos = ai->cbc->getGuardingCreaturePosition(pos);
 		
 	ai->pathfinder->calculatePathInfo(pathCache, pos);
 
@@ -332,7 +332,7 @@ void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isV
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 	objectActor->initObj(randomizer);
 
-	if(isVirtualBoat || ai->cb->getTile(visitablePos)->isWater())
+	if(isVirtualBoat || ai->cbc->getTile(visitablePos)->isWater())
 	{
 		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}

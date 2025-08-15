@@ -26,23 +26,23 @@ std::string ClusterBehavior::toString() const
 	return "Unlock Clusters";
 }
 
-Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * ai) const
+Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-	auto clusters = ai->objectClusterizer->getLockedClusters();
+	auto clusters = aiNk->objectClusterizer->getLockedClusters();
 
 	for(auto cluster : clusters)
 	{
-		vstd::concatenate(tasks, decomposeCluster(ai, cluster));
+		vstd::concatenate(tasks, decomposeCluster(aiNk, cluster));
 	}
 
 	return tasks;
 }
 
-Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::shared_ptr<ObjectCluster> cluster) const
+Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::shared_ptr<ObjectCluster> cluster) const
 {
-	auto center = cluster->calculateCenter(ai->cb.get());
-	auto paths = ai->pathfinder->getPathInfo(center->visitablePos(), ai->isObjectGraphAllowed());
+	auto center = cluster->calculateCenter(aiNk->cbc.get());
+	auto paths = aiNk->pathfinder->getPathInfo(center->visitablePos(), aiNk->isObjectGraphAllowed());
 
 	auto blockerPos = cluster->blocker->visitablePos();
 	std::vector<AIPath> blockerPaths;
@@ -65,7 +65,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::sh
 		logAi->trace("Checking path %s", path->toString());
 #endif
 
-		auto blocker = ai->objectClusterizer->getBlocker(*path);
+		auto blocker = aiNk->objectClusterizer->getBlocker(*path);
 
 		if(blocker != cluster->blocker)
 		{
@@ -83,7 +83,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::sh
 		{
 			clonedPath.nodes.insert(clonedPath.nodes.begin(), *node);
 
-			if(node->coord == blockerPos || ai->cb->getGuardingCreaturePosition(node->coord) == blockerPos)
+			if(node->coord == blockerPos || aiNk->cbc->getGuardingCreaturePosition(node->coord) == blockerPos)
 				break;
 		}
 
@@ -100,7 +100,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * ai, std::sh
 	logAi->trace("Decompose unlock paths");
 #endif
 
-	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths, ai, cluster->blocker);
+	auto unlockTasks = CaptureObjectsBehavior::getVisitGoals(blockerPaths, aiNk, cluster->blocker);
 
 	for(int i = 0; i < paths.size(); i++)
 	{

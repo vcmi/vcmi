@@ -75,11 +75,11 @@ private:
 	tbb::concurrent_vector<EnemyHeroAccessibleObject> enemyHeroAccessibleObjects;
 	bool hitMapUpToDate = false;
 	bool tileOwnersUpToDate = false;
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 	std::map<ObjectInstanceID, std::vector<HitMapInfo>> townThreats;
 
 public:
-	DangerHitMapAnalyzer(const Nullkiller * ai) :ai(ai) {}
+	DangerHitMapAnalyzer(const Nullkiller * ai) :aiNk(ai) {}
 
 	void updateHitMap();
 	void calculateTileOwners();

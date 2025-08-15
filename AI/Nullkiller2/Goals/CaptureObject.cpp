@@ -35,9 +35,9 @@ std::string CaptureObject::toString() const
 	return "Capture " + name + " at " + tile.toString();
 }
 
-TGoalVec CaptureObject::decompose(const Nullkiller * ai) const
+TGoalVec CaptureObject::decompose(const Nullkiller * aiNk) const
 {
-	return CaptureObjectsBehavior(ai->cb->getObj(ObjectInstanceID(objid))).decompose(ai);
+	return CaptureObjectsBehavior(aiNk->cbc->getObj(ObjectInstanceID(objid))).decompose(aiNk);
 }
 
 }

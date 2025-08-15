@@ -30,9 +30,9 @@ struct HitMapInfo;
 class RewardEvaluator
 {
 public:
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 
-	RewardEvaluator(const Nullkiller * ai) : ai(ai) {}
+	RewardEvaluator(const Nullkiller * ai) : aiNk(ai) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
 	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
@@ -125,7 +125,7 @@ public:
 	};
 
 private:
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 
 	fl::Engine * engine;
 	fl::InputVariable * armyLossRatioVariable;

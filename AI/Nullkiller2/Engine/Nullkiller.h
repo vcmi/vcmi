@@ -107,7 +107,7 @@ public:
 	std::unique_ptr<Settings> settings;
 	/// Same value as AIGateway->playerID
 	PlayerColor playerID;
-	std::shared_ptr<CCallback> cb;
+	std::shared_ptr<CCallback> cbc;
 	std::mutex aiStateMutex;
 	mutable ThreadInterruption makingTurnInterrupption;
 

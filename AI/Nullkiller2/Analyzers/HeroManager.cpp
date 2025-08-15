@@ -290,11 +290,11 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, const CGTownInstance* townToSpare) const
 {
 	const CGHeroInstance * weakestHero = nullptr;
-	auto myHeroes = ai->cb->getHeroesInfo();
+	auto myHeroes = aiNk->cbc->getHeroesInfo();
 
 	for(auto existingHero : myHeroes)
 	{
-		if(ai->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
+		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
 			|| existingHero->getArmyStrength() >armyLimit
 			|| getHeroRole(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
