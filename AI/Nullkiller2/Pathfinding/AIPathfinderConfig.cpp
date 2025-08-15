@@ -41,17 +41,17 @@ namespace AIPathfinding
 
 	AIPathfinderConfig::AIPathfinderConfig(
 		CPlayerSpecificInfoCallback * cb,
-		Nullkiller * ai,
+		Nullkiller * aiNk,
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, ai, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
+		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, aiNk, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;
 		options.useTeleportWhirlpool = true;
 		options.forceUseTeleportWhirlpool = true;
-		options.useTeleportOneWay = ai->settings->isOneWayMonolithUsageAllowed();
-		options.useTeleportOneWayRandom = ai->settings->isOneWayMonolithUsageAllowed();
+		options.useTeleportOneWay = aiNk->settings->isOneWayMonolithUsageAllowed();
+		options.useTeleportOneWayRandom = aiNk->settings->isOneWayMonolithUsageAllowed();
 	}
 
 	AIPathfinderConfig::~AIPathfinderConfig() = default;

@@ -27,7 +27,7 @@ class ObjectGraphCalculator
 {
 private:
 	ObjectGraph * target;
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 	std::mutex syncLock;
 
 	std::map<const CGHeroInstance *, HeroRole> actors;

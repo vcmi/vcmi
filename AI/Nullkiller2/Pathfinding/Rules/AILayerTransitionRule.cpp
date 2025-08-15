@@ -23,7 +23,7 @@ namespace AIPathfinding
 		CPlayerSpecificInfoCallback * cb,
 		Nullkiller * ai,
 		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), ai(ai), nodeStorage(nodeStorage)
+		:cb(cb), aiNk(ai), nodeStorage(nodeStorage)
 	{
 		setup();
 	}
@@ -143,7 +143,7 @@ namespace AIPathfinding
 				shipyards.push_back(t);
 		}
 
-		for(const CGObjectInstance * obj : ai->memory->visitableObjs)
+		for(const CGObjectInstance * obj : aiNk->memory->visitableObjs)
 		{
 			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
@@ -198,7 +198,7 @@ namespace AIPathfinding
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
 			if(vstd::contains(summonableVirtualBoats, hero)
-				&& summonableVirtualBoats.at(hero)->canAct(ai, nodeStorage->getAINode(source.node)))
+				&& summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}

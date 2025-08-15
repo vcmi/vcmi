@@ -71,11 +71,11 @@ public:
 	{
 	}
 
-	void updateGraph(const Nullkiller * ai);
+	void updateGraph(const Nullkiller * aiNk);
 	void addObject(const CGObjectInstance * obj);
 	void registerJunction(const int3 & pos);
 	void addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard);
-	void connectHeroes(const Nullkiller * ai);
+	void connectHeroes(const Nullkiller * aiNk);
 	void removeObject(const CGObjectInstance * obj);
 	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
 	void removeConnection(const int3 & from, const int3 & to);

@@ -92,7 +92,7 @@ class HeroExchangeMap
 private:
 	const HeroActor * actor;
 	std::map<const ChainActor *, HeroActor *> exchangeMap;
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 	std::shared_mutex sync;
 
 public:

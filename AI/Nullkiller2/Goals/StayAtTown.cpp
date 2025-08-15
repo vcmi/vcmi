@@ -40,9 +40,9 @@ std::string StayAtTown::toString() const
 		+ " / " + std::to_string(hero->manaLimit());
 }
 
-void StayAtTown::accept(AIGateway * ai)
+void StayAtTown::accept(AIGateway * aiGw)
 {
-	ai->nullkiller->lockHero(hero, HeroLockedReason::DEFENCE);
+	aiGw->nullkiller->lockHero(hero, HeroLockedReason::DEFENCE);
 }
 
 }

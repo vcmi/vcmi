@@ -186,7 +186,7 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 }
 
 HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
-	:actor(actor), ai(ai), sync()
+	:actor(actor), aiNk(ai), sync()
 {
 }
 
@@ -260,7 +260,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 		if(actor->allowSpellCast || other->allowSpellCast)
 			return result;
 
-		TResources resources = ai->cbc->getResourceAmount();
+		TResources resources = aiNk->cbc->getResourceAmount();
 
 		if(!resources.canAfford(actor->armyCost + other->armyCost))
 		{
@@ -325,7 +325,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 			return result;
 		}
 
-		auto * exchanged = new HeroActor(actor, other, newArmy, ai);
+		auto * exchanged = new HeroActor(actor, other, newArmy, aiNk);
 
 		exchanged->armyCost += newArmy->armyCost;
 		result.actor = exchanged;
@@ -341,7 +341,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 	TResources resources) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto upgradeInfo = ai->armyManager->calculateCreaturesUpgrade(army, upgrader, resources);
+	auto upgradeInfo = aiNk->armyManager->calculateCreaturesUpgrade(army, upgrader, resources);
 
 	if(upgradeInfo.upgradeValue)
 	{
@@ -367,7 +367,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 	if(upgrader->ID == Obj::TOWN)
 	{
-		auto buyArmy = ai->armyManager->getArmyAvailableToBuy(target, ai->cbc->getTown(upgrader->id), resources);
+		auto buyArmy = aiNk->armyManager->getArmyAvailableToBuy(target, aiNk->cbc->getTown(upgrader->id), resources);
 
 		for(auto & creatureToBuy : buyArmy)
 		{
@@ -394,7 +394,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = ai->armyManager->getBestArmy(actor->hero, army1, army2, ai->cbc->getTile(actor->hero->visitablePos())->getTerrainID());
+	auto bestArmy = aiNk->armyManager->getBestArmy(actor->hero, army1, army2, aiNk->cbc->getTile(actor->hero->visitablePos())->getTerrainID());
 
 	for(auto & slotInfo : bestArmy)
 	{

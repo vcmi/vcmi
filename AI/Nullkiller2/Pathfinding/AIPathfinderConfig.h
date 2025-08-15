@@ -29,7 +29,7 @@ namespace AIPathfinding
 	public:
 		AIPathfinderConfig(
 			CPlayerSpecificInfoCallback * cb,
-			Nullkiller * ai,
+			Nullkiller * aiNk,
 			std::shared_ptr<AINodeStorage> nodeStorage,
 			bool allowBypassObjects);
 

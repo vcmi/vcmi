@@ -22,9 +22,9 @@ bool SaveResources::operator==(const SaveResources & other) const
 	return true;
 }
 
-void SaveResources::accept(AIGateway * ai)
+void SaveResources::accept(AIGateway * aiGw)
 {
-	ai->nullkiller->lockResources(resources);
+	aiGw->nullkiller->lockResources(resources);
 
 	logAi->debug("Locked %s resources", resources.toString());
 

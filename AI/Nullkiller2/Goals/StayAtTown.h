@@ -28,7 +28,7 @@ namespace Goals
 
 		bool operator==(const StayAtTown & other) const override;
 		std::string toString() const override;
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		float getMovementWasted() const { return movementWasted; }
 	};
 }

@@ -26,7 +26,7 @@ namespace AIPathfinding
 			return true;
 		}
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 		std::string toString() const override;
 	};
 }

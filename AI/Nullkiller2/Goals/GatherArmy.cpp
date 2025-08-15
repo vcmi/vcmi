@@ -22,8 +22,8 @@
 namespace Nullkiller
 {
 
-extern boost::thread_specific_ptr<CCallback> cb;
-extern boost::thread_specific_ptr<AIGateway> ai;
+extern boost::thread_specific_ptr<CCallback> cbc;
+extern boost::thread_specific_ptr<AIGateway> aiGw;
 extern FuzzyHelper * fh;
 
 using namespace Goals;
@@ -57,16 +57,16 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	}
 
 	//TODO: include evaluation of monsters gather in calculation
-	for(auto t : cb->getTownsInfo())
+	for(auto t : cbc->getTownsInfo())
 	{
-		auto waysToVisit = ai->ah->howToVisitObj(hero, t);
+		auto waysToVisit = aiGw->ah->howToVisitObj(hero, t);
 
 		if(waysToVisit.size())
 		{
 			//grab army from town
-			if(!t->visitingHero && ai->ah->howManyReinforcementsCanGet(hero.get(), t))
+			if(!t->visitingHero && aiGw->ah->howManyReinforcementsCanGet(hero.get(), t))
 			{
-				if(!vstd::contains(ai->townVisitsThisWeek[hero], t))
+				if(!vstd::contains(aiGw->townVisitsThisWeek[hero], t))
 					vstd::concatenate(ret, waysToVisit);
 			}
 
@@ -75,8 +75,8 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 			{
 				std::vector<int> values = {
 					value,
-					(int)ai->ah->howManyReinforcementsCanBuy(t->getUpperArmy(), t),
-					(int)ai->ah->howManyReinforcementsCanBuy(hero.get(), t) };
+					(int)aiGw->ah->howManyReinforcementsCanBuy(t->getUpperArmy(), t),
+					(int)aiGw->ah->howManyReinforcementsCanBuy(hero.get(), t) };
 
 				int val = *std::min_element(values.begin(), values.end());
 
@@ -84,10 +84,10 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 				{
 					auto goal = sptr(BuyArmy(t, val).sethero(hero));
 
-					if(!ai->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
+					if(!aiGw->ah->containsObjective(goal)) //avoid loops caused by reserving same objective twice
 						ret.push_back(goal);
 					else
-						logAi->debug("Can not buy army, because of ai->ah->containsObjective");
+						logAi->debug("Can not buy army, because of aiGw->ah->containsObjective");
 				}
 			}
 			//build dwelling
@@ -107,17 +107,17 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	auto otherHeroes = cb->getHeroesInfo();
+	auto otherHeroes = cbc->getHeroesInfo();
 	auto heroDummy = hero;
 	vstd::erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
 	{
 		if(h == heroDummy.h)
 			return true;
-		else if(!ai->isAccessibleForHero(heroDummy->visitablePos(), h, true))
+		else if(!aiGw->isAccessibleForHero(heroDummy->visitablePos(), h, true))
 			return true;
-		else if(!ai->ah->canGetArmy(heroDummy.h, h)) //TODO: return actual aiValue
+		else if(!aiGw->ah->canGetArmy(heroDummy.h, h)) //TODO: return actual aiValue
 			return true;
-		else if(ai->getGoal(h)->goalType == GATHER_ARMY)
+		else if(aiGw->getGoal(h)->goalType == GATHER_ARMY)
 			return true;
 		else
 		   return false;
@@ -126,31 +126,31 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	for(auto h : otherHeroes)
 	{
 		// Go to the other hero if we are faster
-		if(!vstd::contains(ai->visitedHeroes[hero], h))
+		if(!vstd::contains(aiGw->visitedHeroes[hero], h))
 		{
-			vstd::concatenate(ret, ai->ah->howToVisitObj(hero, h, false));
+			vstd::concatenate(ret, aiGw->ah->howToVisitObj(hero, h, false));
 		}
 
 		// Go to the other hero if we are faster
-		if(!vstd::contains(ai->visitedHeroes[h], hero))
+		if(!vstd::contains(aiGw->visitedHeroes[h], hero))
 		{
-			vstd::concatenate(ret, ai->ah->howToVisitObj(h, hero.get(), false));
+			vstd::concatenate(ret, aiGw->ah->howToVisitObj(h, hero.get(), false));
 		}
 	}
 
 	std::vector<const CGObjectInstance *> objs;
-	for(auto obj : ai->visitableObjs)
+	for(auto obj : aiGw->visitableObjs)
 	{
 		if(obj->ID == Obj::CREATURE_GENERATOR1)
 		{
-			auto relationToOwner = cb->getPlayerRelations(obj->getOwner(), ai->playerID);
+			auto relationToOwner = cbc->getPlayerRelations(obj->getOwner(), aiGw->playerID);
 
 			//Use flagged dwellings only when there are available creatures that we can afford
 			if(relationToOwner == PlayerRelations::SAME_PLAYER)
 			{
 				auto dwelling = dynamic_cast<const CGDwelling *>(obj);
 
-				ui32 val = std::min((ui32)value, (ui32)ai->ah->howManyReinforcementsCanBuy(hero.get(), dwelling));
+				ui32 val = std::min((ui32)value, (ui32)aiGw->ah->howManyReinforcementsCanBuy(hero.get(), dwelling));
 
 				if(val)
 				{
@@ -161,7 +161,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 							for(auto & creatureID : creLevel.second)
 							{
 								auto creature = VLC->creh->creatures[creatureID];
-								if(ai->ah->freeResources().canAfford(creature->getFullRecruitCost()))
+								if(aiGw->ah->freeResources().canAfford(creature->getFullRecruitCost()))
 									objs.push_back(obj); //TODO: reserve resources?
 							}
 						}
@@ -171,23 +171,23 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 		}
 	}
 
-	for(auto h : cb->getHeroesInfo())
+	for(auto h : cbc->getHeroesInfo())
 	{
 		for(auto obj : objs)
 		{
 			//find safe dwelling
-			if(ai->isGoodForVisit(obj, h))
+			if(aiGw->isGoodForVisit(obj, h))
 			{
-				vstd::concatenate(ret, ai->ah->howToVisitObj(h, obj));
+				vstd::concatenate(ret, aiGw->ah->howToVisitObj(h, obj));
 			}
 		}
 	}
 
-	if(ai->canRecruitAnyHero() && ai->ah->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
+	if(aiGw->canRecruitAnyHero() && aiGw->ah->freeGold() > GameConstants::HERO_GOLD_COST) //this is not stupid in early phase of game
 	{
-		if(auto t = ai->findTownWithTavern())
+		if(auto t = aiGw->findTownWithTavern())
 		{
-			for(auto h : cb->getAvailableHeroes(t)) //we assume that all towns have same set of heroes
+			for(auto h : cbc->getAvailableHeroes(t)) //we assume that all towns have same set of heroes
 			{
 				if(h && h->getTotalStrength() > 500) //do not buy heroes with single creatures for GatherArmy
 				{
@@ -202,7 +202,7 @@ TGoalVec GatherArmy::getAllPossibleSubgoals()
 	{
 		const bool allowGatherArmy = false;
 
-		if(hero == ai->primaryHero())
+		if(hero == aiGw->primaryHero())
 			ret.push_back(sptr(Explore(allowGatherArmy)));
 		else
 			throw cannotFulfillGoalException("No ways to gather army");

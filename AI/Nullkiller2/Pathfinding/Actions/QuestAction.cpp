@@ -29,16 +29,16 @@ namespace AIPathfinding
 		return canAct(ai, node.targetHero);
 	}
 
-	bool QuestAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero) const
+	bool QuestAction::canAct(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		auto object = questInfo.getObject(ai->cbc.get());
-		auto quest = questInfo.getQuest(ai->cbc.get());
+		auto object = questInfo.getObject(aiNk->cbc.get());
+		auto quest = questInfo.getQuest(aiNk->cbc.get());
 		if(object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD)
 		{
 			return dynamic_cast<const IQuestObject *>(object)->checkQuest(hero);
 		}
 
-		auto notActivated = !object->wasVisited(ai->playerID)
+		auto notActivated = !object->wasVisited(aiNk->playerID)
 			&& !quest->activeForPlayers.count(hero->getOwner());
 		
 		return notActivated

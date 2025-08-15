@@ -27,7 +27,7 @@ std::string RecruitHero::toString() const
 		return "Recruit hero at " + town->getNameTranslated();
 }
 
-void RecruitHero::accept(AIGateway * ai)
+void RecruitHero::accept(AIGateway * aiGw)
 {
 	auto t = town;
 
@@ -70,10 +70,10 @@ void RecruitHero::accept(AIGateway * ai)
 	cbc->recruitHero(t, heroToHire);
 
 	{
-		std::unique_lock lockGuard(ai->nullkiller->aiStateMutex);
+		std::unique_lock lockGuard(aiGw->nullkiller->aiStateMutex);
 
-		ai->nullkiller->heroManager->update();
-		ai->nullkiller->objectClusterizer->reset();
+		aiGw->nullkiller->heroManager->update();
+		aiGw->nullkiller->objectClusterizer->reset();
 	}
 }
 

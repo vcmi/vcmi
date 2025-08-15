@@ -27,15 +27,15 @@ private:
 	Goals::TSubgoal bestGoal;
 	int3 bestTile;
 	int bestTilesDiscovered;
-	const Nullkiller * ai;
-	CCallback * cbp;
+	const Nullkiller * aiNk;
+	CCallback * cbc;
 	const TeamState * ts;
 	int3 ourPos;
 	bool allowDeadEndCancellation;
 	bool useCPathfinderAccessibility;
 
 public:
-	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * ai, bool useCPathfinderAccessibility = false);
+	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * aiNk, bool useCPathfinderAccessibility = false);
 	Goals::TSubgoal makeComposition() const;
 	bool scanSector(int scanRadius);
 	bool scanMap();

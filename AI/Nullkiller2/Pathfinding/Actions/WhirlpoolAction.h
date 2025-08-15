@@ -27,7 +27,7 @@ namespace AIPathfinding
 
 		static std::shared_ptr<WhirlpoolAction> instance;
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 
 		std::string toString() const override;
 	};

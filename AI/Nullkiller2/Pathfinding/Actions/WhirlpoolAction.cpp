@@ -21,9 +21,9 @@ using namespace AIPathfinding;
 
 std::shared_ptr<WhirlpoolAction> WhirlpoolAction::instance = std::make_shared<WhirlpoolAction>();
 
-void WhirlpoolAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+void WhirlpoolAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 {
-	ai->nullkiller->armyFormation->rearrangeArmyForWhirlpool(hero);
+	aiGw->nullkiller->armyFormation->rearrangeArmyForWhirlpool(hero);
 }
 
 std::string WhirlpoolAction::toString() const

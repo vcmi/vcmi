@@ -18,9 +18,9 @@ namespace NK2AI
 
 namespace AIPathfinding
 {
-	void BattleAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void BattleAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		ai->moveHeroToTile(targetTile, hero);
+		aiGw->moveHeroToTile(targetTile, hero);
 	}
 
 	std::string BattleAction::toString() const

@@ -21,13 +21,13 @@ namespace NK2AI
 {
 
 ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai)
-	:ai(ai), target(target), syncLock()
+	:aiNk(ai), target(target), syncLock()
 {
 }
 
 void ObjectGraphCalculator::setGraphObjects()
 {
-	for(auto obj : ai->memory->visitableObjs)
+	for(auto obj : aiNk->memory->visitableObjs)
 	{
 		if(obj && obj->isVisitable() && obj->ID != Obj::HERO && obj->ID != Obj::EVENT)
 		{
@@ -35,7 +35,7 @@ void ObjectGraphCalculator::setGraphObjects()
 		}
 	}
 
-	for(auto town : ai->cbc->getTownsInfo())
+	for(auto town : aiNk->cbc->getTownsInfo())
 	{
 		addObjectActor(town);
 	}
@@ -47,7 +47,7 @@ void ObjectGraphCalculator::calculateConnections()
 
 	std::vector<AIPath> pathCache;
 
-	foreach_tile_pos(ai->cbc.get(), [this, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
+	foreach_tile_pos(aiNk->cbc.get(), [this, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
 		{
 			calculateConnections(pos, pathCache);
 		});
@@ -65,11 +65,11 @@ float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::v
 	}
 
 	foreach_neighbour(
-		ai->cbc.get(),
+		aiNk->cbc.get(),
 		pos,
 		[this, &neighborCost, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
 		{
-			ai->pathfinder->calculatePathInfo(pathCache, neighbor);
+			aiNk->pathfinder->calculatePathInfo(pathCache, neighbor);
 
 			auto costTotal = this->getConnectionsCost(pathCache);
 
@@ -91,12 +91,12 @@ void ObjectGraphCalculator::addMinimalDistanceJunctions()
 {
 	tbb::concurrent_unordered_set<int3, std::hash<int3>> junctions;
 
-	pforeachTilePaths(ai->cbc->getMapSize(), ai, [this, &junctions](const int3 & pos, std::vector<AIPath> & paths)
+	pforeachTilePaths(aiNk->cbc->getMapSize(), aiNk, [this, &junctions](const int3 & pos, std::vector<AIPath> & paths)
 		{
 			if(target->hasNodeAt(pos))
 				return;
 
-			if(ai->cbc->getGuardingCreaturePosition(pos).isValid())
+			if(aiNk->cbc->getGuardingCreaturePosition(pos).isValid())
 				return;
 
 			ConnectionCostInfo currentCost = getConnectionsCost(paths);
@@ -126,7 +126,7 @@ void ObjectGraphCalculator::updatePaths()
 	ps.scoutTurnDistanceLimit = 1;
 	ps.allowBypassObjects = false;
 
-	ai->pathfinder->updatePaths(actors, ps);
+	aiNk->pathfinder->updatePaths(actors, ps);
 }
 
 void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<AIPath> & pathCache)
@@ -134,13 +134,13 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 	if(target->hasNodeAt(pos))
 	{
 		foreach_neighbour(
-			ai->cbc.get(),
+			aiNk->cbc.get(),
 			pos,
 			[this, &pos, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & neighbor)
 			{
 				if(target->hasNodeAt(neighbor))
 				{
-					ai->pathfinder->calculatePathInfo(pathCache, neighbor);
+					aiNk->pathfinder->calculatePathInfo(pathCache, neighbor);
 
 					for(auto & path : pathCache)
 					{
@@ -152,18 +152,18 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 				}
 			});
 
-		auto obj = ai->cbc->getTopObj(pos);
+		auto obj = aiNk->cbc->getTopObj(pos);
 
 		if((obj && obj->ID == Obj::BOAT) || target->isVirtualBoat(pos))
 		{
-			ai->pathfinder->calculatePathInfo(pathCache, pos);
+			aiNk->pathfinder->calculatePathInfo(pathCache, pos);
 
 			for(AIPath & path : pathCache)
 			{
 				auto from = path.targetHero->visitablePos();
 				auto fromObj = actorObjectMap[path.targetHero];
 
-				auto danger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, true);
+				auto danger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, true);
 				auto updated = target->tryAddConnection(
 					from,
 					pos,
@@ -185,9 +185,9 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 		return;
 	}
 
-	auto guardPos = ai->cbc->getGuardingCreaturePosition(pos);
+	auto guardPos = aiNk->cbc->getGuardingCreaturePosition(pos);
 		
-	ai->pathfinder->calculatePathInfo(pathCache, pos);
+	aiNk->pathfinder->calculatePathInfo(pathCache, pos);
 
 	for(AIPath & path1 : pathCache)
 	{
@@ -219,7 +219,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 					continue;
 			}
 
-			auto danger = ai->dangerEvaluator->evaluateDanger(pos2, path1.targetHero, true);
+			auto danger = aiNk->dangerEvaluator->evaluateDanger(pos2, path1.targetHero, true);
 
 			auto updated = target->tryAddConnection(
 				pos1,
@@ -290,7 +290,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 	GameRandomizer randomizer(*obj->cb);
 	auto visitablePos = obj->visitablePos();
 
-	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
+	objectActor->setOwner(aiNk->playerID); // lets avoid having multiple colors
 	objectActor->initHero(randomizer, static_cast<HeroTypeID>(0));
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 	objectActor->initObj(randomizer);
@@ -327,12 +327,12 @@ void ObjectGraphCalculator::addJunctionActor(const int3 & visitablePos, bool isV
 
 	GameRandomizer randomizer(*internalCb);
 
-	objectActor->setOwner(ai->playerID); // lets avoid having multiple colors
+	objectActor->setOwner(aiNk->playerID); // lets avoid having multiple colors
 	objectActor->initHero(randomizer, static_cast<HeroTypeID>(0));
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 	objectActor->initObj(randomizer);
 
-	if(isVirtualBoat || ai->cbc->getTile(visitablePos)->isWater())
+	if(isVirtualBoat || aiNk->cbc->getTile(visitablePos)->isWater())
 	{
 		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}

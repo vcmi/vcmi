@@ -53,12 +53,12 @@ std::shared_ptr<SpecialAction> getCompositeAction(
 	return std::make_shared<CompositeAction>(actionsArray);
 }
 
-void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * ai, uint8_t scanDepth)
+void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkiller * aiNk, uint8_t scanDepth)
 {
-	graph.copyFrom(*ai->baseGraph);
-	graph.connectHeroes(ai);
+	graph.copyFrom(*aiNk->baseGraph);
+	graph.connectHeroes(aiNk);
 
-	visualKey = std::to_string(ai->playerID.getNum()) + ":" + targetHero->getNameTranslated();
+	visualKey = std::to_string(aiNk->playerID.getNum()) + ":" + targetHero->getNameTranslated();
 	pathNodes.clear();
 
 	GraphNodeComparer cmp(pathNodes);
@@ -93,7 +93,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
 
-				if(!questAction->canAct(ai, targetHero))
+				if(!questAction->canAct(aiNk, targetHero))
 				{
 					transitionAction = questAction;
 				}
@@ -102,9 +102,9 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 		node.isInQueue = false;
 
-		graph.iterateConnections(pos.coord, [this, ai, &pos, &node, &transitionAction, &pq, scanDepth](int3 target, const ObjectLink & o)
+		graph.iterateConnections(pos.coord, [this, aiNk, &pos, &node, &transitionAction, &pq, scanDepth](int3 target, const ObjectLink & o)
 			{
-				auto compositeAction = getCompositeAction(ai, o.specialAction, transitionAction);
+				auto compositeAction = getCompositeAction(aiNk, o.specialAction, transitionAction);
 				auto targetNodeType = o.danger || compositeAction ? GrapthPathNodeType::BATTLE : pos.nodeType;
 				auto targetPointer = GraphPathNodePointer(target, targetNodeType);
 				auto & targetNode = getOrCreateNode(targetPointer);
@@ -122,7 +122,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 					if(targetGraphNode.objID.hasValue())
 					{
-						targetNode.obj = ai->cbc->getObj(targetGraphNode.objID, false);
+						targetNode.obj = aiNk->cbc->getObj(targetGraphNode.objID, false);
 
 						if(targetNode.obj && targetNode.obj->ID == Obj::HERO)
 							return;
@@ -188,7 +188,7 @@ bool GraphPathNode::tryUpdate(
 	return false;
 }
 
-void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const
+void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * aiNk) const
 {
 	auto nodes = pathNodes.find(tile);
 
@@ -235,7 +235,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 		if(tilesToPass.empty())
 			continue;
 
-		auto entryPaths = ai->pathfinder->getPathInfo(tilesToPass.back().coord);
+		auto entryPaths = aiNk->pathfinder->getPathInfo(tilesToPass.back().coord);
 
 		for(auto & path : entryPaths)
 		{
@@ -260,7 +260,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 				
 				if(node.linkDanger > 0)
 				{
-					auto additionalLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, strength, node.linkDanger);
+					auto additionalLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, strength, node.linkDanger);
 					loss += additionalLoss;
 
 					if(strength > additionalLoss)
@@ -274,7 +274,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
+					n.actionIsBlocked = !n.specialAction->canAct(aiNk, n);
 				}
 
 				for(auto & node : path.nodes)
@@ -291,15 +291,15 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			}
 
 			path.armyLoss += loss;
-			path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
-			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
+			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
+			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			paths.push_back(path);
 		}
 	}
 }
 
-void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * ai) const
+void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 tile, const CGHeroInstance * hero, const Nullkiller * aiNk) const
 {
 	auto nodes = pathNodes.find(tile);
 
@@ -343,7 +343,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 		if(tilesToPass.empty())
 			continue;
 
-		auto entryPaths = ai->pathfinder->getPathInfo(tilesToPass.back().coord);
+		auto entryPaths = aiNk->pathfinder->getPathInfo(tilesToPass.back().coord);
 
 		for(auto & entryPath : entryPaths)
 		{
@@ -355,9 +355,9 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			path.targetHero = entryPath.targetHero;
 			path.heroArmy = entryPath.heroArmy;
 			path.exchangeCount = entryPath.exchangeCount;
-			path.armyLoss = entryPath.armyLoss + ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
-			path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
-			path.targetObjectArmyLoss = ai->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
+			path.armyLoss = entryPath.armyLoss + aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
+			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
+			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			AIPathNodeInfo n;
 
@@ -374,7 +374,7 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 			for(auto entryNode = entryPath.nodes.rbegin(); entryNode != entryPath.nodes.rend(); entryNode++)
 			{
-				auto blocker = ai->objectClusterizer->getBlocker(*entryNode);
+				auto blocker = aiNk->objectClusterizer->getBlocker(*entryNode);
 
 				if(blocker)
 				{
@@ -401,10 +401,10 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 
 				if(n.specialAction)
 				{
-					n.actionIsBlocked = !n.specialAction->canAct(ai, n);
+					n.actionIsBlocked = !n.specialAction->canAct(aiNk, n);
 				}
 
-				auto blocker = ai->objectClusterizer->getBlocker(n);
+				auto blocker = aiNk->objectClusterizer->getBlocker(n);
 
 				if(!blocker)
 					continue;

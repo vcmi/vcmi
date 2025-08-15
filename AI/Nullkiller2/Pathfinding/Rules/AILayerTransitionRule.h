@@ -25,7 +25,7 @@ namespace AIPathfinding
 	{
 	private:
 		CPlayerSpecificInfoCallback * cb;
-		Nullkiller * ai;
+		Nullkiller * aiNk;
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		std::map<const CGHeroInstance *, std::shared_ptr<const SummonBoatAction>> summonableVirtualBoats;

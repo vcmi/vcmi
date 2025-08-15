@@ -27,9 +27,9 @@ namespace AIPathfinding
 		return Goals::BuildBoat(shipyard).accept(ai);
 	}
 
-	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
+	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+		if(cbc->getPlayerRelations(aiNk->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 			return Goals::sptr(Goals::CaptureObject(targetObject()));
 		}
@@ -39,7 +39,7 @@ namespace AIPathfinding
 
 	bool BuildBoatAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
-		if(cb->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+		if(cbc->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Shipyard is enemy.");
@@ -51,7 +51,7 @@ namespace AIPathfinding
 
 		shipyard->getBoatCost(boatCost);
 
-		if(!cb->getResourceAmount().canAfford(reservedResources + boatCost))
+		if(!cbc->getResourceAmount().canAfford(reservedResources + boatCost))
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Not enough resources.");
@@ -85,14 +85,14 @@ namespace AIPathfinding
 		return sourceActor->resourceActor;
 	}
 
-	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * ai)
+	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * aiNk)
 	{
-		return std::make_shared<BuildBoatAction>(ai->cbc.get(), dynamic_cast<const IShipyard * >(ai->cbc->getObj(shipyard)));
+		return std::make_shared<BuildBoatAction>(aiNk->cbc.get(), dynamic_cast<const IShipyard * >(aiNk->cbc->getObj(shipyard)));
 	}
 
-	void SummonBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void SummonBoatAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		Goals::AdventureSpellCast(hero, usedSpell).accept(ai);
+		Goals::AdventureSpellCast(hero, usedSpell).accept(aiGw);
 	}
 
 	const ChainActor * SummonBoatAction::getActor(const ChainActor * sourceActor) const
@@ -116,7 +116,7 @@ namespace AIPathfinding
 		return "Build Boat at " + shipyard->getObject()->visitablePos().toString();
 	}
 
-	bool SummonBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
+	bool SummonBoatAction::canAct(const Nullkiller * aiNk, const AIPathNode * source) const
 	{
 		auto hero = source->actor->hero;
 

@@ -23,7 +23,7 @@ namespace AIPathfinding
 	{
 	private:
 		CPlayerSpecificInfoCallback * cb;
-		const Nullkiller * ai;
+		const Nullkiller * aiNk;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		bool allowBypassObjects;
 

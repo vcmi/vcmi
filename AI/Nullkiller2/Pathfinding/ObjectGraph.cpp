@@ -44,11 +44,9 @@ void ObjectGraph::removeConnection(const int3 & from, const int3 & to)
 	nodes[from].connections.erase(to);
 }
 
-void ObjectGraph::updateGraph(const Nullkiller * ai)
+void ObjectGraph::updateGraph(const Nullkiller * aiNk)
 {
-	auto cb = ai->cbc;
-
-	ObjectGraphCalculator calculator(this, ai);
+	ObjectGraphCalculator calculator(this, aiNk);
 
 	calculator.setGraphObjects();
 	calculator.calculateConnections();
@@ -95,9 +93,9 @@ void ObjectGraph::removeObject(const CGObjectInstance * obj)
 	}
 }
 
-void ObjectGraph::connectHeroes(const Nullkiller * ai)
+void ObjectGraph::connectHeroes(const Nullkiller * aiNk)
 {
-	for(auto obj : ai->memory->visitableObjs)
+	for(auto obj : aiNk->memory->visitableObjs)
 	{
 		if(obj && obj->ID == Obj::HERO)
 		{
@@ -108,7 +106,7 @@ void ObjectGraph::connectHeroes(const Nullkiller * ai)
 	for(auto & node : nodes)
 	{
 		auto pos = node.first;
-		auto paths = ai->pathfinder->getPathInfo(pos);
+		auto paths = aiNk->pathfinder->getPathInfo(pos);
 
 		for(AIPath & path : paths)
 		{

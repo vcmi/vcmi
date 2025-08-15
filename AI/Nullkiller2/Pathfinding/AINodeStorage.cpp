@@ -94,16 +94,16 @@ void AIPathNode::addSpecialAction(std::shared_ptr<const SpecialAction> action)
 
 int AINodeStorage::getBucketCount() const
 {
-	return ai->settings->getPathfinderBucketsCount();
+	return aiNk->settings->getPathfinderBucketsCount();
 }
 
 int AINodeStorage::getBucketSize() const
 {
-	return ai->settings->getPathfinderBucketSize();
+	return aiNk->settings->getPathfinderBucketSize();
 }
 
-AINodeStorage::AINodeStorage(const Nullkiller * ai, const int3 & Sizes)
-	: sizes(Sizes), ai(ai), cb(ai->cbc.get()), nodes(Sizes, ai->settings->getPathfinderBucketSize() * ai->settings->getPathfinderBucketsCount())
+AINodeStorage::AINodeStorage(const Nullkiller * aiNk, const int3 & Sizes)
+	: sizes(Sizes), aiNk(aiNk), cbc(aiNk->cbc.get()), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -119,7 +119,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 	AISharedStorage::version++;
 
 	//TODO: fix this code duplication with NodeStorage::initialize, problem is to keep `resetTile` inline
-	const PlayerColor fowPlayer = ai->playerID;
+	const PlayerColor fowPlayer = aiNk->playerID;
 	const auto & fow = gameInfo.getPlayerTeam(fowPlayer)->fogOfWarMap;
 	const int3 sizes = gameInfo.getMapSize();
 
@@ -179,8 +179,8 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
-	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % ai->settings->getPathfinderBucketsCount();
-	int bucketOffset = bucketIndex * ai->settings->getPathfinderBucketSize();
+	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % aiNk->settings->getPathfinderBucketsCount();
+	int bucketOffset = bucketIndex * aiNk->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
 
 	if(blocked(pos, layer))
@@ -188,7 +188,7 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 		return std::nullopt;
 	}
 
-	for(auto i = ai->settings->getPathfinderBucketSize() - 1; i >= 0; i--)
+	for(auto i = aiNk->settings->getPathfinderBucketSize() - 1; i >= 0; i--)
 	{
 		AIPathNode & node = chains[i + bucketOffset];
 
@@ -666,7 +666,7 @@ bool AINodeStorage::selectNextActor()
 
 uint64_t AINodeStorage::evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const
 {
-	float fightingStrength = ai->heroManager->getFightingStrengthCached(hero);
+	float fightingStrength = aiNk->heroManager->getFightingStrengthCached(hero);
 	double ratio = (double)danger / (armyValue * fightingStrength);
 
 	return (uint64_t)(armyValue * ratio * ratio);
@@ -952,22 +952,22 @@ bool AINodeStorage::isDistanceLimitReached(const PathNodeInfo & source, CDestina
 
 void AINodeStorage::setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes)
 {
-	playerID = ai->playerID;
+	playerID = aiNk->playerID;
 
 	for(auto & hero : heroes)
 	{
 		// do not allow our own heroes in garrison to act on map
-		if(hero.first->getOwner() == ai->playerID
+		if(hero.first->getOwner() == aiNk->playerID
 			&& hero.first->isGarrisoned()
-			&& (ai->isHeroLocked(hero.first) || ai->heroManager->heroCapReached(false)))
+			&& (aiNk->isHeroLocked(hero.first) || aiNk->heroManager->heroCapReached(false)))
 		{
 			continue;
 		}
 
 		uint64_t mask = FirstActorMask << actors.size();
-		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, ai);
+		auto actor = std::make_shared<HeroActor>(hero.first, hero.second, mask, aiNk);
 
-		if(actor->hero->tempOwner != ai->playerID)
+		if(actor->hero->tempOwner != aiNk->playerID)
 		{
 			bool onLand = !actor->hero->inBoat() || actor->hero->getBoat()->layer != EPathfindingLayer::SAIL;
 			actor->initialMovement = actor->hero->movementPointsLimit(onLand);
@@ -1162,11 +1162,11 @@ void AINodeStorage::calculateTownPortal(
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
-	auto towns = cb->getTownsInfo(false);
+	auto towns = cbc->getTownsInfo(false);
 
 	vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 		{
-			return cb->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
+			return cbc->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
 		});
 
 	if(!towns.size())
@@ -1428,10 +1428,10 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
-		path.targetObjectDanger = ai->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
+		path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero, !node.actor->allowBattle);
 		for (auto pathNode : path.nodes)
 		{
-			path.targetObjectDanger = std::max(ai->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle), path.targetObjectDanger);
+			path.targetObjectDanger = std::max(aiNk->dangerEvaluator->evaluateDanger(pathNode.coord, path.targetHero, !node.actor->allowBattle), path.targetObjectDanger);
 		}
 
 		if(path.targetObjectDanger > 0)
@@ -1457,7 +1457,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		}
 
 		int fortLevel = 0;
-		auto visitableObjects = cb->getVisitableObjs(pos);
+		auto visitableObjects = cbc->getVisitableObjs(pos);
 		for (auto obj : visitableObjects)
 		{
 			if (objWithID<Obj::TOWN>(obj))
@@ -1506,7 +1506,7 @@ void AINodeStorage::fillChainInfo(const AIPathNode * node, AIPath & path, int pa
 		{
 			auto targetNode =node->theNodeBefore ?  getAINode(node->theNodeBefore) : node;
 
-			pathNode.actionIsBlocked = !pathNode.specialAction->canAct(ai, targetNode);
+			pathNode.actionIsBlocked = !pathNode.specialAction->canAct(aiNk, targetNode);
 		}
 
 		parentIndex = path.nodes.size();

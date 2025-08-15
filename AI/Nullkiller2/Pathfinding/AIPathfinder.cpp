@@ -19,7 +19,7 @@ namespace NK2AI
 std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
 
 AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
-	:cb(cb), ai(ai)
+	:cb(cb), aiNk(ai)
 {
 }
 
@@ -43,7 +43,7 @@ void AIPathfinder::calculateQuickPathsWithBlocker(std::vector<AIPath> & result, 
 		auto graph = heroGraphs.find(hero->id);
 
 		if(graph != heroGraphs.end())
-			graph->second->quickAddChainInfoWithBlocker(result, tile, hero, ai);
+			graph->second->quickAddChainInfoWithBlocker(result, tile, hero, aiNk);
 	}
 }
 
@@ -67,7 +67,7 @@ void AIPathfinder::calculatePathInfo(std::vector<AIPath> & result, const int3 & 
 			auto graph = heroGraphs.find(hero->id);
 
 			if(graph != heroGraphs.end())
-				graph->second->addChainInfo(result, tile, hero, ai);
+				graph->second->addChainInfo(result, tile, hero, aiNk);
 		}
 	}
 }
@@ -76,7 +76,7 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 {
 	if(!storage)
 	{
-		storage.reset(new AINodeStorage(ai, cb->getMapSize()));
+		storage.reset(new AINodeStorage(aiNk, cb->getMapSize()));
 	}
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -95,10 +95,10 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 
 	if(pathfinderSettings.useHeroChain)
 	{
-		storage->setTownsAndDwellings(cb->getTownsInfo(), ai->memory->visitableObjs);
+		storage->setTownsAndDwellings(cb->getTownsInfo(), aiNk->memory->visitableObjs);
 	}
 
-	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, ai, storage, pathfinderSettings.allowBypassObjects);
+	auto config = std::make_shared<AIPathfinding::AIPathfinderConfig>(cb, aiNk, storage, pathfinderSettings.allowBypassObjects);
 
 	logAi->trace("Recalculate paths pass %d", pass++);
 	cb->calculatePaths(config);
@@ -116,11 +116,11 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 
 		do
 		{
-			ai->makingTurnInterrupption.interruptionPoint();
+			aiNk->makingTurnInterrupption.interruptionPoint();
 
 			while(storage->calculateHeroChain())
 			{
-				ai->makingTurnInterrupption.interruptionPoint();
+				aiNk->makingTurnInterrupption.interruptionPoint();
 
 				logAi->trace("Recalculate paths pass %d", pass++);
 				cb->calculatePaths(config);
@@ -129,11 +129,11 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 			logAi->trace("Select next actor");
 		} while(storage->selectNextActor());
 
-		ai->makingTurnInterrupption.interruptionPoint();
+		aiNk->makingTurnInterrupption.interruptionPoint();
 
 		if(storage->calculateHeroChainFinal())
 		{
-			ai->makingTurnInterrupption.interruptionPoint();
+			aiNk->makingTurnInterrupption.interruptionPoint();
 
 			logAi->trace("Recalculate paths pass final");
 			cb->calculatePaths(config);
@@ -169,7 +169,7 @@ void AIPathfinder::updateGraphs(
 				auto role = heroes.at(heroesVector[i]);
 				auto scanLimit = role == HeroRole::MAIN ? mainScanDepth : scoutScanDepth;
 
-				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], ai, scanLimit);
+				heroGraphs.at(heroesVector[i]->id)->calculatePaths(heroesVector[i], aiNk, scanLimit);
 			}
 		});
 

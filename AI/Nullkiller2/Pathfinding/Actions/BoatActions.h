@@ -31,7 +31,7 @@ namespace AIPathfinding
 		{
 		}
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,
@@ -40,7 +40,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * aiNk, const AIPathNode * source) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -54,11 +54,11 @@ namespace AIPathfinding
 	{
 	private:
 		const IShipyard * shipyard;
-		const CPlayerSpecificInfoCallback * cb;
+		const CPlayerSpecificInfoCallback * cbc;
 
 	public:
-		BuildBoatAction(const CPlayerSpecificInfoCallback * cb, const IShipyard * shipyard)
-			: cb(cb), shipyard(shipyard)
+		BuildBoatAction(const CPlayerSpecificInfoCallback * cbc, const IShipyard * shipyard)
+			: cbc(cbc), shipyard(shipyard)
 		{
 		}
 
@@ -68,7 +68,7 @@ namespace AIPathfinding
 
 		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
 
-		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
+		Goals::TSubgoal decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const override;
 
 		const ChainActor * getActor(const ChainActor * sourceActor) const override;
 
@@ -87,7 +87,7 @@ namespace AIPathfinding
 		{
 		}
 
-		std::shared_ptr<SpecialAction> create(const Nullkiller * ai) override;
+		std::shared_ptr<SpecialAction> create(const Nullkiller * aiNk) override;
 	};
 }
 

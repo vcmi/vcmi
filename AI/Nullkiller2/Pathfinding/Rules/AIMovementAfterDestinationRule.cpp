@@ -27,7 +27,7 @@ namespace AIPathfinding
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:ai(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+		:aiNk(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -176,7 +176,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		if(!questAction.canAct(ai, destinationNode))
+		if(!questAction.canAct(aiNk, destinationNode))
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{
@@ -228,7 +228,7 @@ namespace AIPathfinding
 			return false;
 		}
 
-		auto danger = ai->dangerEvaluator->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
+		auto danger = aiNk->dangerEvaluator->evaluateDanger(destination.coord, nodeStorage->getHero(destination.node), true);
 
 		if(danger)
 		{
@@ -314,7 +314,7 @@ namespace AIPathfinding
 		}
 
 		auto hero = nodeStorage->getHero(source.node);
-		uint64_t danger = ai->dangerEvaluator->evaluateDanger(destination.coord, hero, true);
+		uint64_t danger = aiNk->dangerEvaluator->evaluateDanger(destination.coord, hero, true);
 		uint64_t actualArmyValue = srcNode->actor->armyValue - srcNode->armyLoss;
 		uint64_t loss = nodeStorage->evaluateArmyLoss(hero, actualArmyValue, danger);
 

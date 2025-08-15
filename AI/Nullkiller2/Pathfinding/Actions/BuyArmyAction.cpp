@@ -18,7 +18,7 @@ namespace NK2AI
 
 namespace AIPathfinding
 {
-	void BuyArmyAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void BuyArmyAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
 		if(!hero->getVisitedTown())
 		{
@@ -26,7 +26,7 @@ namespace AIPathfinding
 				hero->getNameTranslated() + " being at " + hero->visitablePos().toString() + " has no town to recruit creatures.");
 		}
 
-		ai->recruitCreatures(hero->getVisitedTown(), hero);
+		aiGw->recruitCreatures(hero->getVisitedTown(), hero);
 	}
 
 	std::string BuyArmyAction::toString() const
