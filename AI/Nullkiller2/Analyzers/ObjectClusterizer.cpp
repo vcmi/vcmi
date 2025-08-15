@@ -310,7 +310,7 @@ void ObjectClusterizer::clusterize()
 	{
 		for(auto id : invalidated)
 		{
-			auto obj = cbc->getObj(id, false);
+			auto obj = cbcTl->getObj(id, false);
 
 			if(obj)
 			{
@@ -354,7 +354,7 @@ void ObjectClusterizer::clusterize()
 
 	for(auto pair : blockedObjects)
 	{
-		auto blocker = cbc->getObj(pair.first);
+		auto blocker = cbcTl->getObj(pair.first);
 
 		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 

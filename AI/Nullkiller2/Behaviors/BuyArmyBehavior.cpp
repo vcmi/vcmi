@@ -28,7 +28,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	auto heroes = cbc->getHeroesInfo();
+	auto heroes = cbcTl->getHeroesInfo();
 
 	if(heroes.empty())
 	{
@@ -37,11 +37,11 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 
 	aiNk->dangerHitMap->updateHitMap();
 
-	for(auto town : cbc->getTownsInfo())
+	for(auto town : cbcTl->getTownsInfo())
 	{
 		uint8_t closestThreat = aiNk->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
 
-		if (closestThreat >=2 && aiNk->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) && cbc->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		if (closestThreat >=2 && aiNk->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) && cbcTl->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
 			return tasks;
 		}

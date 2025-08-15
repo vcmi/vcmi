@@ -30,17 +30,17 @@ namespace NK2AI
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
-	return cbc->getObj(id, false);
+	return cbcTl->getObj(id, false);
 }
 
 ObjectIdRef::operator const CGObjectInstance *() const
 {
-	return cbc->getObj(id, false);
+	return cbcTl->getObj(id, false);
 }
 
 ObjectIdRef::operator bool() const
 {
-	return cbc->getObj(id, false);
+	return cbcTl->getObj(id, false);
 }
 
 ObjectIdRef::ObjectIdRef(ObjectInstanceID _id)
@@ -101,7 +101,7 @@ std::string HeroPtr::name() const
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
-	return get(cbc, doWeExpectNull);
+	return get(cbcTl, doWeExpectNull);
 }
 
 const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
@@ -203,7 +203,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && cbc->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
+		if(t->visitableObjects.size() == 1 && cbcTl->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
 			return true;
 	}
 	return false;
@@ -234,7 +234,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 
 bool isBlockVisitObj(const int3 & pos)
 {
-	if(auto obj = cbc->getTopObj(pos))
+	if(auto obj = cbcTl->getTopObj(pos))
 	{
 		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;

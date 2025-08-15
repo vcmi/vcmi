@@ -26,7 +26,7 @@ void DismissHero::accept(AIGateway * aiGw)
 	if(!hero)
 		throw cannotFulfillGoalException("Invalid hero!");
 
-	cbc->dismissHero(hero);
+	cbcTl->dismissHero(hero);
 
 	throw goalFulfilledException(sptr(*this));
 }

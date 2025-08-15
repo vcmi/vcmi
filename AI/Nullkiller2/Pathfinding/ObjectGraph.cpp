@@ -86,7 +86,7 @@ void ObjectGraph::removeObject(const CGObjectInstance * obj)
 	{
 		vstd::erase_if(nodes[obj->visitablePos()].connections, [&](const std::pair<int3, ObjectLink> & link) -> bool
 			{
-				auto tile = cbc->getTile(link.first, false);
+				auto tile = cbcTl->getTile(link.first, false);
 
 				return tile && tile->isWater();
 			});

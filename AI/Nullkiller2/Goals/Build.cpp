@@ -23,8 +23,8 @@
 namespace Nullkiller
 {
 
-extern boost::thread_specific_ptr<CCallback> cbc;
-extern boost::thread_specific_ptr<AIGateway> aiGw;
+extern thread_local CCallback * cbc;
+extern thread_local AIGateway * aiGw;
 extern FuzzyHelper * fh;
 
 using namespace Goals;

@@ -314,7 +314,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 				&& aiNk->heroManager->canRecruitHero(upgrader)
 				&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 			{
-				for(auto hero : cbc->getAvailableHeroes(upgrader))
+				for(auto hero : cbcTl->getAvailableHeroes(upgrader))
 				{
 					auto scoutReinforcement = aiNk->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 

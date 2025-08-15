@@ -40,26 +40,26 @@ namespace NK2AI
 {
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-thread_local CCallback * cbc = nullptr;
-thread_local AIGateway * aiGw = nullptr;
+thread_local CCallback * cbcTl = nullptr;
+thread_local AIGateway * aiGwTl = nullptr;
 
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
 	SetGlobalState(AIGateway * gateway)
 	{
-		assert(!aiGw);
-		assert(!cbc);
+		assert(!aiGwTl);
+		assert(!cbcTl);
 
-		aiGw = gateway;
-		cbc = gateway->cbc.get();
+		aiGwTl = gateway;
+		cbcTl = gateway->cbc.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		aiGw = nullptr;
-		cbc = nullptr;
+		aiGwTl = nullptr;
+		cbcTl = nullptr;
 	}
 };
 
@@ -1337,7 +1337,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", aiGw->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
+	logAi->debug("Player %d will build %s in town of %s at %s", aiGwTl->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cbc->buildBuilding(t, building); //just do this;
 }
 
