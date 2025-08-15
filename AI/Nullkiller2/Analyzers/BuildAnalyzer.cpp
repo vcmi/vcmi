@@ -402,13 +402,13 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			if(vstd::contains_if(missingBuildings, otherDwelling))
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->trace("cant build %d. Need other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
+				logAi->trace("Can't build %d. Needs other dwelling %d", toBuild.getNum(), missingBuildings.front().getNum());
 #endif
 			}
 			else if(missingBuildings[0] != toBuild)
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->trace("cant build %d. Need %d", toBuild.getNum(), missingBuildings[0].num);
+				logAi->trace("Can't build %d. Needs %d", toBuild.getNum(), missingBuildings[0].num);
 #endif
 				BuildingInfo prerequisite = getBuildingOrPrerequisite(town, missingBuildings[0], armyManager, cb, excludeDwellingDependencies);
 
@@ -436,7 +436,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 			else
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->trace("Cant build. The building requires itself as prerequisite");
+				logAi->trace("Can't build. The building requires itself as prerequisite");
 #endif
 				return info;
 			}
@@ -444,7 +444,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 		else
 		{
 #if NKAI_TRACE_LEVEL >= 1
-			logAi->trace("Cant build. Reason: %d", static_cast<int>(canBuild));
+			logAi->trace("Can't build. Reason: %d", static_cast<int>(canBuild));
 #endif
 		}
 	}
