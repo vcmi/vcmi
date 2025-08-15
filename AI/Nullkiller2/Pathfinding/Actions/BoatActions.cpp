@@ -22,9 +22,9 @@ namespace NK2AI
 
 namespace AIPathfinding
 {
-	void BuildBoatAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void BuildBoatAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		return Goals::BuildBoat(shipyard).accept(ai);
+		return Goals::BuildBoat(shipyard).accept(aiGw);
 	}
 
 	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const

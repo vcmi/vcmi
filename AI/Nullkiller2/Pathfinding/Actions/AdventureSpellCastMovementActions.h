@@ -29,7 +29,7 @@ namespace AIPathfinding
 	public:
 		AdventureCastAction(SpellID spellToCast, const CGHeroInstance * hero, DayFlags flagsToAdd = DayFlags::NONE);
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 
 		virtual void applyOnDestination(
 			const CGHeroInstance * hero,

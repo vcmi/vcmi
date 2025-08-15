@@ -44,13 +44,13 @@ std::string Composition::toString() const
 	return result;
 }
 
-void Composition::accept(AIGateway * ai)
+void Composition::accept(AIGateway * aiGw)
 {
 	for(auto task : subtasks.back())
 	{
 		if(task->isElementar())
 		{
-			taskptr(*task)->accept(ai);
+			taskptr(*task)->accept(aiGw);
 		}
 		else
 		{

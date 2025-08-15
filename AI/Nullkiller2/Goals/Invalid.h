@@ -42,7 +42,7 @@ namespace Goals
 			return "Invalid";
 		}
 
-		void accept(AIGateway * ai) override
+		void accept(AIGateway * aiGw) override
 		{
 			throw cannotFulfillGoalException("Can not fulfill Invalid goal!");
 		}

@@ -42,7 +42,7 @@ public:
 
 	virtual Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const;
 
-	virtual void execute(AIGateway * ai, const CGHeroInstance * hero) const;
+	virtual void execute(AIGateway * aiGw, const CGHeroInstance * hero) const;
 
 	virtual void applyOnDestination(
 		const CGHeroInstance * hero,
@@ -77,7 +77,7 @@ public:
 	CompositeAction(std::vector<std::shared_ptr<const SpecialAction>> parts) : parts(parts) {}
 
 	bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
-	void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+	void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 	std::string toString() const override;
 	const CGObjectInstance * targetObject() const override;
 	Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;

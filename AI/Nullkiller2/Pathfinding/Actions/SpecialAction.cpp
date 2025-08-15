@@ -22,7 +22,7 @@ Goals::TSubgoal SpecialAction::decompose(const Nullkiller * ai, const CGHeroInst
 	return Goals::sptr(Goals::Invalid());
 }
 
-void SpecialAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+void SpecialAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 {
 	throw cannotFulfillGoalException("Can not execute " + toString());
 }
@@ -49,11 +49,11 @@ Goals::TSubgoal CompositeAction::decompose(const Nullkiller * ai, const CGHeroIn
 	return SpecialAction::decompose(ai, hero);
 }
 
-void CompositeAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+void CompositeAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 {
 	for(auto part : parts)
 	{
-		part->execute(ai, hero);
+		part->execute(aiGw, hero);
 	}
 }
 

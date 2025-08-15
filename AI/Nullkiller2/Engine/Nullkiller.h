@@ -84,7 +84,7 @@ private:
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
-	AIGateway * gateway;
+	AIGateway * aiGw;
 	bool openMap;
 	bool useObjectGraph;
 	bool pathfinderInvalidated;
@@ -113,7 +113,7 @@ public:
 
 	Nullkiller();
 	~Nullkiller();
-	void init(std::shared_ptr<CCallback> cb, AIGateway * gateway);
+	void init(std::shared_ptr<CCallback> cb, AIGateway * aiGw);
 	void makeTurn();
 	bool makeTurnHelperPriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }

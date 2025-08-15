@@ -49,11 +49,11 @@ namespace AIPathfinding
 		dstNode->dayFlags = static_cast<DayFlags>(dstNode->dayFlags | flagsToAdd);
 	}
 
-	void AdventureCastAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void AdventureCastAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
 		assert(hero == this->hero);
 
-		Goals::AdventureSpellCast(hero, spellToCast).accept(ai);
+		Goals::AdventureSpellCast(hero, spellToCast).accept(aiGw);
 	}
 
 	bool AdventureCastAction::canAct(const Nullkiller * ai, const AIPathNode * source) const

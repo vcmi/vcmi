@@ -1507,8 +1507,8 @@ void AIGateway::validateObject(ObjectIdRef obj)
 	}
 }
 
-AIStatus::AIStatus(AIGateway * gateway)
-	: gateway(gateway)
+AIStatus::AIStatus(AIGateway * aiGw)
+	: aiGw(aiGw)
 {
 	battle = NO_BATTLE;
 	havingTurn = false;
@@ -1592,7 +1592,7 @@ void AIStatus::waitTillFree()
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
 	{
 		cv.wait_for(lock, std::chrono::milliseconds(10));
-		gateway->nullkiller->makingTurnInterrupption.interruptionPoint();
+		aiGw->nullkiller->makingTurnInterrupption.interruptionPoint();
 	}
 }
 

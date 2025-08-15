@@ -28,7 +28,7 @@ namespace Goals
 			heroName = hero->getNameTranslated();
 		}
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 		bool operator==(const DismissHero & other) const override;
 	};

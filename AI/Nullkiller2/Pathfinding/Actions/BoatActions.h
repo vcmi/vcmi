@@ -66,7 +66,7 @@ namespace AIPathfinding
 		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const override;
 		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 
 		Goals::TSubgoal decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const override;
 

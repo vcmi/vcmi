@@ -28,7 +28,7 @@ namespace Goals
 
 		bool operator==(const Composition & other) const override;
 		std::string toString() const override;
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		Composition & addNext(const AbstractGoal & goal);
 		Composition & addNext(TSubgoal goal);
 		Composition & addNextSequence(const TGoalVec & taskSequence);

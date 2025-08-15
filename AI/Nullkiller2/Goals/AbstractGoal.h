@@ -172,7 +172,7 @@ namespace Goals
 
 		///Visitor pattern
 		//TODO: make accept work for std::shared_ptr... somehow
-		virtual void accept(AIGateway * ai) = 0; //unhandled goal will report standard error
+		virtual void accept(AIGateway * aiGw) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
 		virtual const CGHeroInstance * getHero() const = 0;
 		virtual ~ITask() {}

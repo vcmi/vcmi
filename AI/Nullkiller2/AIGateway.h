@@ -30,7 +30,7 @@ namespace NK2AI
 
 class AIStatus
 {
-	AIGateway * gateway;
+	AIGateway * aiGw;
 	std::mutex mx;
 	std::condition_variable cv;
 
@@ -44,7 +44,7 @@ class AIStatus
 	bool havingTurn;
 
 public:
-	AIStatus(AIGateway * gateway);
+	AIStatus(AIGateway * aiGw);
 	~AIStatus();
 	void setBattle(BattleState BS);
 	void setMove(bool ongoing);

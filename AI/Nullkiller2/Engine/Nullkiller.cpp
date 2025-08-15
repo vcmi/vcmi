@@ -66,11 +66,11 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 	return !hasHumanInTeam;
 }
 
-void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * gateway)
+void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * aiGw)
 {
 	this->cbc = cb;
-	this->gateway = gateway;
-	this->playerID = gateway->playerID;
+	this->aiGw = aiGw;
+	this->playerID = aiGw->playerID;
 
 	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
 
@@ -562,7 +562,7 @@ bool Nullkiller::executeTask(Goals::TTask task)
 
 	try
 	{
-		task->accept(gateway);
+		task->accept(aiGw);
 		logAi->trace("Task %s completed in %lld", taskDescr, timeElapsed(start));
 	}
 	catch(goalFulfilledException &)

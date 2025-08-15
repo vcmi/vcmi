@@ -21,7 +21,7 @@ bool DismissHero::operator==(const DismissHero & other) const
 	return hero == other.hero;
 }
 
-void DismissHero::accept(AIGateway * ai)
+void DismissHero::accept(AIGateway * aiGw)
 {
 	if(!hero)
 		throw cannotFulfillGoalException("Invalid hero!");
