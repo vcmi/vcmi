@@ -246,7 +246,6 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 
 BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos, BattleHex defenderPos)
 {
-	int mask = 0;
 	BattleHexArray res;
 
 	if (!attackerPos.isValid())
@@ -254,43 +253,15 @@ BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const bat
 	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	BattleHex otherAttackerPos = attackerPos.toInt() + (attacker->unitSide() == BattleSide::ATTACKER ? -1 : 1);
-	BattleHex otherDefenderPos = defenderPos.toInt() + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+	BattleHexArray attackableHxs = attacker->doubleWide() ? attackerPos.getNeighbouringTilesDoubleWide(attacker->unitSide()) : attackerPos.getNeighbouringTiles();
 
-	if(BattleHex::mutualPosition(attackerPos, defenderPos) >= 0) //front <=> front
+	if (std::find(attackableHxs.begin(), attackableHxs.end(), defenderPos) != attackableHxs.end())
+		res.insert(defenderPos);
+	if (defender->doubleWide())
 	{
-		if((mask & 1) == 0)
-		{
-			mask |= 1;
-			res.insert(defenderPos);
-		}
-	}
-	if (attacker->doubleWide() //back <=> front
-		&& BattleHex::mutualPosition(otherAttackerPos, defenderPos) >= 0)
-	{
-		if((mask & 1) == 0)
-		{
-			mask |= 1;
-			res.insert(defenderPos);
-		}
-	}
-	if (defender->doubleWide()//front <=> back
-		&& BattleHex::mutualPosition(attackerPos, otherDefenderPos) >= 0)
-	{
-		if((mask & 2) == 0)
-		{
-			mask |= 2;
+		BattleHex otherDefenderPos = defenderPos.toInt() + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
+		if (std::find(attackableHxs.begin(), attackableHxs.end(), otherDefenderPos) != attackableHxs.end())
 			res.insert(otherDefenderPos);
-		}
-	}
-	if (defender->doubleWide() && attacker->doubleWide()//back <=> back
-		&& BattleHex::mutualPosition(otherAttackerPos, otherDefenderPos) >= 0)
-	{
-		if((mask & 2) == 0)
-		{
-			mask |= 2;
-			res.insert(otherDefenderPos);
-		}
 	}
 
 	return res;
