@@ -12,7 +12,7 @@
 
 #define NKAI_PATHFINDER_TRACE_LEVEL 0
 constexpr int NKAI_GRAPH_TRACE_LEVEL = 0; // To actually enable graph visualization, enter `/vslog graph` in game chat
-#define NKAI_TRACE_LEVEL 2
+#define NKAI_TRACE_LEVEL 0
 
 #include "../../../lib/pathfinder/CGPathNode.h"
 #include "../../../lib/pathfinder/INodeStorage.h"
