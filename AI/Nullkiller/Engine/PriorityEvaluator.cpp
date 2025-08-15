@@ -1552,10 +1552,10 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 9");
 						score *= 1 - evaluationContext.enemyHeroDangerRatio;
 					}
-					if(evaluationContext.armyLossPersentage > 0)
+					if(evaluationContext.armyLossRatio > 0)
 					{
 						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
-						score *= 1 - evaluationContext.armyLossPersentage;
+						score *= 1 - evaluationContext.armyLossRatio;
 					}
 				}
 				break;
