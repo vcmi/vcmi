@@ -23,7 +23,7 @@ bool AdventureSpellCast::operator==(const AdventureSpellCast & other) const
 	return hero == other.hero;
 }
 
-void AdventureSpellCast::accept(AIGateway * ai)
+void AdventureSpellCast::accept(AIGateway * aiGw)
 {
 	if(!hero)
 		throw cannotFulfillGoalException("Invalid hero!");
@@ -45,11 +45,11 @@ void AdventureSpellCast::accept(AIGateway * ai)
 
 	if(town && townPortalEffect)
 	{
-		ai->selectedObject = town->id;
+		aiGw->selectedObject = town->id;
 
-		if(town->getVisitingHero() && town->tempOwner == ai->playerID && !town->getUpperArmy()->stacksCount())
+		if(town->getVisitingHero() && town->tempOwner == aiGw->playerID && !town->getUpperArmy()->stacksCount())
 		{
-			ai->myCb->swapGarrisonHero(town);
+			aiGw->cbc->swapGarrisonHero(town);
 		}
 
 		if(town->getVisitingHero())
@@ -57,20 +57,20 @@ void AdventureSpellCast::accept(AIGateway * ai)
 	}
 
 	if (hero->isGarrisoned())
-		ai->myCb->swapGarrisonHero(hero->getVisitedTown());
+		aiGw->cbc->swapGarrisonHero(hero->getVisitedTown());
 
-	auto wait = cb->waitTillRealize;
+	auto wait = cbc->waitTillRealize;
 
-	cb->waitTillRealize = true;
-	cb->castSpell(hero, spellID, tile);
+	cbc->waitTillRealize = true;
+	cbc->castSpell(hero, spellID, tile);
 
 	if(town && townPortalEffect)
 	{
 		// visit town
-		ai->moveHeroToTile(town->visitablePos(), hero);
+		aiGw->moveHeroToTile(town->visitablePos(), hero);
 	}
 
-	cb->waitTillRealize = wait;
+	cbc->waitTillRealize = wait;
 
 	throw goalFulfilledException(sptr(*this));
 }

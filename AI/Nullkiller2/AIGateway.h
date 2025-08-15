@@ -74,7 +74,7 @@ public:
 
 	AIStatus status;
 	std::string battlename;
-	std::shared_ptr<CCallback> myCb;
+	std::shared_ptr<CCallback> cbc;
 	std::unique_ptr<AsyncRunner> asyncTasks;
 
 	ObjectInstanceID selectedObject;

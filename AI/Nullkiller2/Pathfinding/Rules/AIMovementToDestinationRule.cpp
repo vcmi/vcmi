@@ -49,7 +49,7 @@ namespace AIPathfinding
 					return;
 
 				// when actor represents moster graph node, we need to let him escape monster
-				if(cb->getGuardingCreaturePosition(source.coord) == actor->initialPosition)
+				if(cbc->getGuardingCreaturePosition(source.coord) == actor->initialPosition)
 					return;
 			}
 

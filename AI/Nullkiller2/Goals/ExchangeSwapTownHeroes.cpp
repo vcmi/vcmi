@@ -65,7 +65,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
-		cb->swapGarrisonHero(town);
+		cbc->swapGarrisonHero(town);
 
 		if(currentGarrisonHero != town->getVisitingHero())
 		{
@@ -81,7 +81,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 	}
 
 	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
-		cb->swapGarrisonHero(town);
+		cbc->swapGarrisonHero(town);
 
 	ai->makePossibleUpgrades(town);
 	ai->moveHeroToTile(town->visitablePos(), getGarrisonHero());
@@ -94,12 +94,12 @@ void ExchangeSwapTownHeroes::accept(AIGateway * ai)
 		{
 			while (upperArmy->stacksCount() != 0)
 			{
-				cb->dismissCreature(upperArmy, upperArmy->Slots().begin()->first);
+				cbc->dismissCreature(upperArmy, upperArmy->Slots().begin()->first);
 			}
 		}
 	}
 	
-	cb->swapGarrisonHero(town);
+	cbc->swapGarrisonHero(town);
 
 	if(lockingReason != HeroLockedReason::NOT_LOCKED)
 	{

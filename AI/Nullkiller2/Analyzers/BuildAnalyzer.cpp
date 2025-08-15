@@ -14,13 +14,14 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/IGameSettings.h"
+#include "AI/Nullkiller/AIUtility.h"
 
 namespace NK2AI
 {
 
 TResources BuildAnalyzer::getResourcesRequiredNow() const
 {
-	auto resourcesAvailable = ai->getFreeResources();
+	auto resourcesAvailable = aiNk->getFreeResources();
 	auto result = withoutGold(armyCost) + requiredResources - resourcesAvailable;
 	result.positive();
 	return result;
@@ -28,7 +29,7 @@ TResources BuildAnalyzer::getResourcesRequiredNow() const
 
 TResources BuildAnalyzer::getTotalResourcesRequired() const
 {
-	auto resourcesAvailable = ai->getFreeResources();
+	auto resourcesAvailable = aiNk->getFreeResources();
 	auto result = totalDevelopmentCost + withoutGold(armyCost) - resourcesAvailable;
 	result.positive();
 	return result;
@@ -36,7 +37,7 @@ TResources BuildAnalyzer::getTotalResourcesRequired() const
 
 bool BuildAnalyzer::isGoldPressureOverMax() const
 {
-	return goldPressure > ai->settings->getMaxGoldPressure();
+	return goldPressure > aiNk->settings->getMaxGoldPressure();
 }
 
 void BuildAnalyzer::update()
@@ -44,12 +45,12 @@ void BuildAnalyzer::update()
 	logAi->trace("Start BuildAnalyzer::update");
 	BuildingInfo bi;
 	reset();
-	auto towns = ai->cb->getTownsInfo();
+	auto towns = aiNk->cb->getTownsInfo();
 	float economyDevelopmentCost = 0;
 
 	for(const CGTownInstance* town : towns)
 	{
-		if(town->built >= cb->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+		if(town->built >= cbc->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 			continue; // Not much point in trying anything - can't built in this town anymore today
 
 #if NKAI_TRACE_LEVEL >= 1
@@ -59,8 +60,8 @@ void BuildAnalyzer::update()
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & tdi = developmentInfos.back();
 
-		updateTownDwellings(tdi, ai->armyManager, ai->cb);
-		updateOtherBuildings(tdi, ai->armyManager, ai->cb);
+		updateTownDwellings(tdi, aiNk->armyManager, aiNk->cb);
+		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cb);
 		requiredResources += tdi.requiredResources;
 		totalDevelopmentCost += tdi.townDevelopmentCost;
 
@@ -85,11 +86,11 @@ void BuildAnalyzer::update()
 		return val1 > val2;
 	});
 
-	dailyIncome = calculateDailyIncome(ai->cb->getMyObjects(), ai->cb->getTownsInfo());
-	goldPressure = calculateGoldPressure(ai->getLockedResources()[EGameResID::GOLD],
+	dailyIncome = calculateDailyIncome(aiNk->cb->getMyObjects(), aiNk->cb->getTownsInfo());
+	goldPressure = calculateGoldPressure(aiNk->getLockedResources()[EGameResID::GOLD],
 	                                     (float)armyCost[EGameResID::GOLD],
 	                                     economyDevelopmentCost,
-	                                     ai->getFreeGold(),
+	                                     aiNk->getFreeGold(),
 	                                     (float)dailyIncome[EGameResID::GOLD]);
 }
 

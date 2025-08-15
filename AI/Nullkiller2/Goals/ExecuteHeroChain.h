@@ -27,7 +27,7 @@ namespace Goals
 
 		ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj = nullptr);
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 		bool operator==(const ExecuteHeroChain & other) const override;
 		const AIPath & getPath() const { return chainPath; }

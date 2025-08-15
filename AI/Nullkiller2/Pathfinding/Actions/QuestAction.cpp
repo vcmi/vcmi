@@ -50,9 +50,9 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::CompleteQuest(questInfo));
 	}
 
-	void QuestAction::execute(AIGateway * ai, const CGHeroInstance * hero) const
+	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		ai->moveHeroToTile(questInfo.getObject(ai->myCb.get())->visitablePos(), hero);
+		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cbc.get())->visitablePos(), hero);
 	}
 
 	std::string QuestAction::toString() const

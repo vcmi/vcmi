@@ -34,7 +34,7 @@ namespace AIPathfinding
 
 		Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
 
-		void execute(AIGateway * ai, const CGHeroInstance * hero) const override;
+		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 
 		std::string toString() const override;
 	};

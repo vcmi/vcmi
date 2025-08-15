@@ -33,7 +33,7 @@ namespace Goals
 			return spellID.toSpell();
 		}
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 		bool operator==(const AdventureSpellCast & other) const override;
 	};

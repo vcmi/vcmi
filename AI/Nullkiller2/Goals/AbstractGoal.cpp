@@ -47,7 +47,7 @@ std::string AbstractGoal::toString() const
 		break;
 	case TRADE:
 	{
-		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
+		auto obj = cbc->getObjInstance(ObjectInstanceID(objid));
 		if (obj)
 			desc = (boost::format("TRADE %d of %s at %s") % value % GameConstants::RESOURCE_NAMES[resID] % obj->getObjectName()).str();
 	}

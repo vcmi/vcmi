@@ -22,7 +22,7 @@ using namespace Goals;
 
 bool isKeyMaster(const QuestInfo & q)
 {
-	auto object = q.getObject(cb);
+	auto object = q.getObject(cbc);
 	return object && (object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD);
 }
 
@@ -39,7 +39,7 @@ TGoalVec CompleteQuest::decompose(const Nullkiller * ai) const
 	}
 
 	logAi->debug("Trying to realize quest: %s", questToString());
-	auto quest = q.getQuest(cb);
+	auto quest = q.getQuest(cbc);
 
 	if(!quest->mission.artifacts.empty())
 		return missionArt(ai);
@@ -70,52 +70,52 @@ bool CompleteQuest::operator==(const CompleteQuest & other) const
 {
 	if(isKeyMaster(q))
 	{
-		return isKeyMaster(other.q) && q.getObject(cb)->subID == other.q.getObject(cb)->subID;
+		return isKeyMaster(other.q) && q.getObject(cbc)->subID == other.q.getObject(cbc)->subID;
 	}
 	else if(isKeyMaster(other.q))
 	{
 		return false;
 	}
 
-	return q.getQuest(cb) == other.q.getQuest(cb);
+	return q.getQuest(cbc) == other.q.getQuest(cbc);
 }
 
 uint64_t CompleteQuest::getHash() const
 {
 	if(isKeyMaster(q))
 	{
-		return q.getObject(cb)->subID;
+		return q.getObject(cbc)->subID;
 	}
 
-	return q.getObject(cb)->id.getNum();
+	return q.getObject(cbc)->id.getNum();
 }
 
 std::string CompleteQuest::questToString() const
 {
 	if(isKeyMaster(q))
 	{
-		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(cb)->subID] + " keymaster tent";
+		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(cbc)->subID] + " keymaster tent";
 	}
 
-	if(q.getQuest(cb)->questName == CQuest::missionName(EQuestMission::NONE))
+	if(q.getQuest(cbc)->questName == CQuest::missionName(EQuestMission::NONE))
 		return "inactive quest";
 
 	MetaString ms;
-	q.getQuest(cb)->getRolloverText(cb, ms, false);
+	q.getQuest(cbc)->getRolloverText(cbc, ms, false);
 
 	return ms.toString();
 }
 
 TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * ai) const
 {
-	auto paths = ai->pathfinder->getPathInfo(q.getObject(cb)->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		return !q.getQuest(cb)->checkQuest(path.targetHero);
+		return !q.getQuest(cbc)->checkQuest(path.targetHero);
 	});
 	
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cb));
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cbc));
 }
 
 TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
@@ -127,7 +127,7 @@ TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
 
 	CaptureObjectsBehavior findArts;
 
-	for(auto art : q.getQuest(cb)->mission.artifacts)
+	for(auto art : q.getQuest(cbc)->mission.artifacts)
 	{
 		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art.getNum())));
 	}
@@ -150,14 +150,14 @@ TGoalVec CompleteQuest::missionHero(const Nullkiller * ai) const
 
 TGoalVec CompleteQuest::missionArmy(const Nullkiller * ai) const
 {
-	auto paths = ai->pathfinder->getPathInfo(q.getObject(cb)->visitablePos());
+	auto paths = ai->pathfinder->getPathInfo(q.getObject(cbc)->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		return !CQuest::checkMissionArmy(q.getQuest(cb), path.heroArmy);
+		return !CQuest::checkMissionArmy(q.getQuest(cbc), path.heroArmy);
 	});
 
-	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cb));
+	return CaptureObjectsBehavior::getVisitGoals(paths, ai, q.getObject(cbc));
 }
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * ai) const
@@ -172,13 +172,13 @@ TGoalVec CompleteQuest::missionLevel(const Nullkiller * ai) const
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * ai) const
 {
-	if(isObjectPassable(ai, q.getObject(cb)))
+	if(isObjectPassable(ai, q.getObject(cbc)))
 	{
-		return CaptureObjectsBehavior(q.getObject(cb)).decompose(ai);
+		return CaptureObjectsBehavior(q.getObject(cbc)).decompose(ai);
 	}
 	else
 	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(cb)->subID).decompose(ai);
+		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(cbc)->subID).decompose(ai);
 	}
 }
 
@@ -190,10 +190,10 @@ TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
 
 TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * ai) const
 {
-	auto obj = ai->cb->getObj(q.getQuest(cb)->killTarget);
+	auto obj = ai->cb->getObj(q.getQuest(cbc)->killTarget);
 
 	if(!obj)
-		return CaptureObjectsBehavior(q.getObject(cb)).decompose(ai);
+		return CaptureObjectsBehavior(q.getObject(cbc)).decompose(ai);
 
 	auto relations = ai->cb->getPlayerRelations(ai->playerID, obj->tempOwner);
 

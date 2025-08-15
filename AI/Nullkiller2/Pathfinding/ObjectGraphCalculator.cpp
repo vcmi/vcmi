@@ -205,12 +205,12 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 			auto obj1 = actorObjectMap[path1.targetHero];
 			auto obj2 = actorObjectMap[path2.targetHero];
 
-			auto tile1 = cb->getTile(pos1);
-			auto tile2 = cb->getTile(pos2);
+			auto tile1 = cbc->getTile(pos1);
+			auto tile2 = cbc->getTile(pos2);
 
 			if(tile2->isWater() && !tile1->isWater())
 			{
-				if(!cb->getTile(pos)->isWater())
+				if(!cbc->getTile(pos)->isWater())
 					continue;
 
 				auto startingObjIsBoat = (obj1 && obj1->ID == Obj::BOAT) || target->isVirtualBoat(pos1);
@@ -295,7 +295,7 @@ void ObjectGraphCalculator::addObjectActor(const CGObjectInstance * obj)
 	objectActor->pos = objectActor->convertFromVisitablePos(visitablePos);
 	objectActor->initObj(randomizer);
 
-	if(cb->getTile(visitablePos)->isWater())
+	if(cbc->getTile(visitablePos)->isWater())
 	{
 		objectActor->setBoat(temporaryBoats.emplace_back(std::make_unique<CGBoat>(objectActor->cb)).get());
 	}

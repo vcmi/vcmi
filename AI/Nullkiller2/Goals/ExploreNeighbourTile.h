@@ -34,7 +34,7 @@ namespace Goals
 
 		bool operator==(const ExploreNeighbourTile & other) const override;
 
-		void accept(AIGateway * ai) override;
+		void accept(AIGateway * aiGw) override;
 		std::string toString() const override;
 
 	private:

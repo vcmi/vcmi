@@ -86,10 +86,10 @@ private:
 	TResources armyCost;
 	TResources dailyIncome;
 	float goldPressure;
-	Nullkiller * ai;
+	Nullkiller * aiNk;
 
 public:
-	BuildAnalyzer(Nullkiller * ai) : ai(ai) {}
+	BuildAnalyzer(Nullkiller * ai) : aiNk(ai) {}
 	void update();
 
 	TResources getResourcesRequiredNow() const;

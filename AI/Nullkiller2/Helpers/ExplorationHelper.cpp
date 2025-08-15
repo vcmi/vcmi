@@ -166,7 +166,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 
 		if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 		{
-			auto obj = cb->getTopObj(tile);
+			auto obj = cbc->getTopObj(tile);
 
 			// picking up resources does not yield any exploration at all.
 			// if it blocks the way to some explorable tile AIPathfinder will take care of it

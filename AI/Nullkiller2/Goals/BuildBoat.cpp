@@ -45,12 +45,12 @@ void BuildBoat::accept(AIGateway * ai)
 	TResources boatCost;
 	shipyard->getBoatCost(boatCost);
 
-	if(!cb->getResourceAmount().canAfford(boatCost))
+	if(!cbc->getResourceAmount().canAfford(boatCost))
 	{
 		throw cannotFulfillGoalException("Can not afford boat");
 	}
 
-	if(cb->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+	if(cbc->getPlayerRelations(ai->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 	{
 		throw cannotFulfillGoalException("Can not build boat in enemy shipyard");
 	}
@@ -65,7 +65,7 @@ void BuildBoat::accept(AIGateway * ai)
 		shipyard->getObject()->visitablePos().toString(),
 		shipyard->bestLocation().toString());
 
-	cb->buildBoat(shipyard);
+	cbc->buildBoat(shipyard);
 
 	throw goalFulfilledException(sptr(*this));
 }

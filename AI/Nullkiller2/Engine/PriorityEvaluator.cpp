@@ -595,7 +595,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 		return role == HeroRole::SCOUT ? 2 : 0;
 
 	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
-		|| static_cast<int>(hero->secSkills.size()) >= cb->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
+		|| static_cast<int>(hero->secSkills.size()) >= cbc->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
 		return 0;
 
 	auto score = ai->heroManager->evaluateSecSkill(skill, hero);

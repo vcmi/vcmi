@@ -24,18 +24,18 @@ bool ExploreNeighbourTile::operator==(const ExploreNeighbourTile & other) const
 	return false;
 }
 
-void ExploreNeighbourTile::accept(AIGateway * ai)
+void ExploreNeighbourTile::accept(AIGateway * aiGw)
 {
-	ExplorationHelper h(hero, ai->nullkiller.get(), true);
+	ExplorationHelper h(hero, aiGw->nullkiller.get(), true);
 
-	for(int i = 0; i < tilesToExplore && ai->myCb->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
+	for(int i = 0; i < tilesToExplore && aiGw->cbc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
 	{
 		int3 pos = hero->visitablePos();
 		float value = 0;
 		int3 target = int3(-1);
 		foreach_neighbour(pos, [&](int3 tile)
 			{
-				auto pathInfo = ai->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
+				auto pathInfo = aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
 
 				if(pathInfo->turns > 0)
 					return;
@@ -59,9 +59,9 @@ void ExploreNeighbourTile::accept(AIGateway * ai)
 			return;
 		}
 
-		auto danger = ai->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
+		auto danger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
 
-		if(danger > 0 || !ai->moveHeroToTile(target, hero))
+		if(danger > 0 || !aiGw->moveHeroToTile(target, hero))
 		{
 			return;
 		}

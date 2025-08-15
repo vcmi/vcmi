@@ -40,26 +40,26 @@ namespace NK2AI
 {
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
-thread_local CCallback * cb = nullptr;
-thread_local AIGateway * ai = nullptr;
+thread_local CCallback * cbc = nullptr;
+thread_local AIGateway * aiGw = nullptr;
 
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
-	SetGlobalState(AIGateway * AI)
+	SetGlobalState(AIGateway * gateway)
 	{
-		assert(!ai);
-		assert(!cb);
+		assert(!aiGw);
+		assert(!cbc);
 
-		ai = AI;
-		cb = AI->myCb.get();
+		aiGw = gateway;
+		cbc = gateway->cbc.get();
 	}
 	~SetGlobalState()
 	{
 		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
 		//TODO: to ensure that, make rm unique_ptr
-		ai = nullptr;
-		cb = nullptr;
+		aiGw = nullptr;
+		cbc = nullptr;
 	}
 };
 
@@ -97,7 +97,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	auto hero = cb->getHero(details.id);
+	auto hero = cbc->getHero(details.id);
 
 	if(!hero)
 		validateObject(details.id); //enemy hero may have left visible area
@@ -107,8 +107,8 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
-	const CGObjectInstance * o1 = vstd::frontOrNull(cb->getVisitableObjs(from, verbose));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cb->getVisitableObjs(to, verbose));
+	const CGObjectInstance * o1 = vstd::frontOrNull(cbc->getVisitableObjs(from, verbose));
+	const CGObjectInstance * o2 = vstd::frontOrNull(cbc->getVisitableObjs(to, verbose));
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
@@ -116,7 +116,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
 		{
-			if(cb->isTeleportChannelBidirectional(t1->channel))
+			if(cbc->isTeleportChannelBidirectional(t1->channel))
 			{
 				if(o1->ID == Obj::SUBTERRANEAN_GATE && o1->ID == o2->ID) // We need to only add subterranean gates in knownSubterraneanGates. Used for features not yet ported to use teleport channels
 				{
@@ -214,7 +214,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 		if(victoryLossCheckResult.victory())
 		{
 			logAi->debug("AIGateway: Player %d (%s) won. I won! Incredible!", player, player.toString());
-			logAi->debug("Turn nr %d", myCb->getDate());
+			logAi->debug("Turn nr %d", cbc->getDate());
 		}
 		else
 		{
@@ -274,7 +274,7 @@ void AIGateway::tileHidden(const FowTilesType & pos)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	nullkiller->memory->removeInvisibleObjects(myCb.get());
+	nullkiller->memory->removeInvisibleObjects(cbc.get());
 }
 
 void AIGateway::tileRevealed(const FowTilesType & pos)
@@ -283,7 +283,7 @@ void AIGateway::tileRevealed(const FowTilesType & pos)
 	NET_EVENT_HANDLER;
 	for(int3 tile : pos)
 	{
-		for(const CGObjectInstance * obj : myCb->getVisitableObjs(tile))
+		for(const CGObjectInstance * obj : cbc->getVisitableObjs(tile))
 			memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID);
 	}
 
@@ -296,8 +296,8 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	auto firstHero = cb->getHero(hero1);
-	auto secondHero = cb->getHero(hero2);
+	auto firstHero = cbc->getHero(hero1);
+	auto secondHero = cbc->getHero(hero2);
 
 	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTranslated() % firstHero->tempOwner % secondHero->getNameTranslated() % secondHero->tempOwner));
 
@@ -393,10 +393,10 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion
+		lostHero(cbc->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion
 	}
 
-	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
+	if(obj->ID == Obj::HERO && cbc->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
 		nullkiller->dangerHitMap->resetHitmap();
 
 	if(obj->ID == Obj::TOWN)
@@ -500,8 +500,8 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		auto relations = myCb->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>());
-		auto obj = myCb->getObj(sop->id, false);
+		auto relations = cbc->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>());
+		auto obj = cbc->getObj(sop->id, false);
 
 		if(!nullkiller) // crash protection
 			return;
@@ -565,7 +565,7 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 	double fightRatio = ourStrength / (double)battleState.getEnemyStrength();
 
 	// if we have no towns - things are already bad, so retreat is not an option.
-	if(cb->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
+	if(cbc->getTownsInfo().size() && ourStrength < nullkiller->settings->getRetreatThresholdAbsolute() && fightRatio < nullkiller->settings->getRetreatThresholdRelative() && battleState.canFlee)
 	{
 		return BattleAction::makeRetreat(battleState.ourSide);
 	}
@@ -577,17 +577,16 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB)
 {
 	LOG_TRACE(logAi);
-	myCb = CB;
 	cbc = CB;
 	this->env = env;
 
 	NET_EVENT_HANDLER;
-	playerID = *myCb->getPlayerID();
-	myCb->waitTillRealize = true;
+	playerID = *cbc->getPlayerID();
+	cbc->waitTillRealize = true;
 
 	nullkiller->init(CB, this);
 
-	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, myCb);
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -657,7 +656,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
-			auto objects = cb->getVisitableObjs(target);
+			auto objects = cbc->getVisitableObjs(target);
 
 			if(hero.validAndSet() && target.isValid() && objects.size())
 			{
@@ -677,9 +676,9 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
 
-				if(cb->getObj(goalObjectID, false))
+				if(cbc->getObj(goalObjectID, false))
 				{
-					logAi->trace("AI expected %s", cb->getObj(goalObjectID, false)->getObjectName());
+					logAi->trace("AI expected %s", cbc->getObj(goalObjectID, false)->getObjectName());
 				}
 
 				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
@@ -754,7 +753,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 		{
 			// TODO: Implement checking if visiting that teleport will uncovert any FoW
 			// So far this is the best option to handle decision about probing
-			auto obj = cb->getObj(exit.first, false);
+			auto obj = cbc->getObj(exit.first, false);
 			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first))
 			{
 				if(exit.first != destinationTeleport)
@@ -782,7 +781,7 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	executeActionAsync("showGarrisonDialog", [this, up, down, removableUnits, queryID]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cb->getStartInfo()->restrictedGarrisonsForAI())
+		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cbc->getStartInfo()->restrictedGarrisonsForAI())
 		{
 			pickBestCreatures(down, up);
 		}
@@ -812,7 +811,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 			UpgradeInfo upgradeInfo(s->getId());
 			do
 			{
-				myCb->fillUpgradeInfo(obj, SlotID(i), upgradeInfo);
+				cbc->fillUpgradeInfo(obj, SlotID(i), upgradeInfo);
 
 				if(upgradeInfo.hasUpgrades())
 				{
@@ -827,7 +826,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 					if(newValue > oldValue && nullkiller->getFreeResources().canAfford(upgradeInfo.getUpgradeCostsFor(upgID) * s->getCount()))
 					{
-						myCb->upgradeCreature(obj, SlotID(i), upgID);
+						cbc->upgradeCreature(obj, SlotID(i), upgID);
 						upgraded = true;
 						logAi->debug("Upgraded %d %s to %s", s->getCount(), upgradeInfo.oldID.toCreature()->getNamePluralTranslated(),
 							upgradeInfo.getUpgrade().toCreature()->getNamePluralTranslated());
@@ -847,13 +846,13 @@ void AIGateway::makeTurn()
 {
 	MAKING_TURN;
 
-	auto day = cb->getDate(Date::DAY);
+	auto day = cbc->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	std::shared_lock gsLock(CGameState::mutex);
 
 	cheatMapReveal(nullkiller);
-	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, myCb);
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 	memorizeRevisitableObjs(nullkiller->memory, playerID);
 
 	try
@@ -861,7 +860,7 @@ void AIGateway::makeTurn()
 		nullkiller->makeTurn();
 
 		// for debug purpose
-		for (const auto *h : cb->getHeroesInfo())
+		for (const auto *h : cbc->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())
 				logAi->info("Hero %s has %d MP left", h->getNameTranslated(), h->movementPointsRemaining());
@@ -906,7 +905,7 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
-					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
+					cbc->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 		}
 		break;
@@ -931,14 +930,14 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, myCb->getTile(source->visitablePos())->getTerrainID());
+	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, cbc->getTile(source->visitablePos())->getTerrainID());
 
 	for(auto army : armies)
 	{
 		// move first stack at first slot if empty to avoid can not take away last creature
 		if(!army->hasStackAtSlot(SlotID(0)) && army->stacksCount() > 0)
 		{
-			cb->mergeOrSwapStacks(
+			cbc->mergeOrSwapStacks(
 				army,
 				army,
 				SlotID(0),
@@ -959,12 +958,12 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 				if(targetSlot.validSlot())
 				{
 					// remove unwanted creatures
-					cb->mergeOrSwapStacks(destinationArmy, source, i, targetSlot);
+					cbc->mergeOrSwapStacks(destinationArmy, source, i, targetSlot);
 				}
 				else if(destinationArmy->getStack(i).getPower() < destinationArmy->getArmyStrength() / 100)
 				{
 					// dismiss creatures if the amount is small
-					cb->dismissCreature(destinationArmy, i);
+					cbc->dismissCreature(destinationArmy, i);
 				}
 			}
 
@@ -985,7 +984,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, myCb->getTile(source->visitablePos())->getTerrainID());
+						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, cbc->getTile(source->visitablePos())->getTerrainID());
 
 						if(weakest->creature == targetCreature)
 						{
@@ -993,7 +992,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 								break;
 
 							// move all except 1 of weakest creature from source to destination
-							cb->splitStack(
+							cbc->splitStack(
 								source,
 								destinationArmy,
 								j,
@@ -1005,7 +1004,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						else
 						{
 							// Source last stack is not weakest. Move 1 of weakest creature from destination to source
-							cb->splitStack(
+							cbc->splitStack(
 								destinationArmy,
 								source,
 								destinationArmy->getSlotFor(weakest->creature),
@@ -1014,7 +1013,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						}
 					}
 
-					cb->mergeOrSwapStacks(armyPtr, destinationArmy, j, i);
+					cbc->mergeOrSwapStacks(armyPtr, destinationArmy, j, i);
 				}
 			}
 		}
@@ -1045,7 +1044,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 				if(duplicatingSlot != stack.first)
 				{
-					cb->mergeStacks(recruiter, recruiter, stack.first, duplicatingSlot);
+					cbc->mergeStacks(recruiter, recruiter, stack.first, duplicatingSlot);
 					break;
 				}
 			}
@@ -1056,9 +1055,9 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 			}
 		}
 
-		vstd::amin(count, cb->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
+		vstd::amin(count, cbc->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
 		if(count > 0)
-			cb->recruitCreatures(d, recruiter, creID, count, i);
+			cbc->recruitCreatures(d, recruiter, creID, count, i);
 	}
 }
 
@@ -1067,7 +1066,7 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
-	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cb->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
+	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cbc->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTranslated() : "a army") % (presumedEnemy ? presumedEnemy->getObjectName() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
@@ -1077,14 +1076,14 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
-	bool won = br->winner == myCb->getBattle(battleID)->battleGetMySide();
+	bool won = br->winner == cbc->getBattle(battleID)->battleGetMySide();
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
 	CAdventureAI::battleEnd(battleID, br, queryID);
 
 	// gosolo
-	if(queryID != QueryID::NONE && myCb->getPlayerState(playerID)->isHuman())
+	if(queryID != QueryID::NONE && cbc->getPlayerState(playerID)->isHuman())
 	{
 		status.addQuery(queryID, "Confirm battle query");
 
@@ -1116,7 +1115,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	if(h->isGarrisoned() && h->getVisitedTown())
 	{
-		cb->swapGarrisonHero(h->getVisitedTown());
+		cbc->swapGarrisonHero(h->getVisitedTown());
 		moveCreaturesToHero(h->getVisitedTown());
 	}
 
@@ -1142,7 +1141,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(*h, h->convertFromVisitablePos(dst), false);
+		cbc->moveHero(*h, h->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1162,9 +1161,9 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			auto tile = cb->getTile(coord, false);
+			auto tile = cbc->getTile(coord, false);
 			assert(tile);
-			return cb->getObj(tile->topVisitableObj(ignoreHero), false);
+			return cbc->getObj(tile->topVisitableObj(ignoreHero), false);
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool
@@ -1195,12 +1194,12 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doMovement = [&](int3 dst, bool transit)
 		{
-			cb->moveHero(*h, h->convertFromVisitablePos(dst), transit);
+			cbc->moveHero(*h, h->convertFromVisitablePos(dst), transit);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
-			if(cb->getObj(exitId) && cb->getObj(exitId)->ID == Obj::WHIRLPOOL)
+			if(cbc->getObj(exitId) && cbc->getObj(exitId)->ID == Obj::WHIRLPOOL)
 			{
 				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*h);
 			}
@@ -1208,7 +1207,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			destinationTeleport = exitId;
 			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
-			cb->moveHero(*h, h->pos, false);
+			cbc->moveHero(*h, h->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
@@ -1312,7 +1311,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	}
 	if(h)
 	{
-		if(auto visitedObject = vstd::frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+		if(auto visitedObject = vstd::frontOrNull(cbc->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 		{
 			if(visitedObject != *h)
 			{
@@ -1338,8 +1337,8 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", ai->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
-	cb->buildBuilding(t, building); //just do this;
+	logAi->debug("Player %d will build %s in town of %s at %s", aiGw->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
+	cbc->buildBuilding(t, building); //just do this;
 }
 
 void AIGateway::tryRealize(Goals::DigAtTile & g)
@@ -1347,7 +1346,7 @@ void AIGateway::tryRealize(Goals::DigAtTile & g)
 	assert(g.hero->visitablePos() == g.tile); //surely we want to crash here?
 	if(g.hero->diggingStatus() == EDiggingStatus::CAN_DIG)
 	{
-		cb->dig(g.hero);
+		cbc->dig(g.hero);
 	}
 	else
 	{
@@ -1357,15 +1356,15 @@ void AIGateway::tryRealize(Goals::DigAtTile & g)
 
 void AIGateway::tryRealize(Goals::Trade & g) //trade
 {
-	if(cb->getResourceAmount(GameResID(g.resID)) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
+	if(cbc->getResourceAmount(GameResID(g.resID)) >= g.value) //goal is already fulfilled. Why we need this check, anyway?
 		throw goalFulfilledException(sptr(g));
 
 	int acquiredResources = 0;
-	if(const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(g.objid), false))
+	if(const CGObjectInstance * obj = cbc->getObj(ObjectInstanceID(g.objid), false))
 	{
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
-			auto freeRes = cb->getResourceAmount(); //trade only resources which are not reserved
+			auto freeRes = cbc->getResourceAmount(); //trade only resources which are not reserved
 			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
 			{
 				auto res = it->resType;
@@ -1379,11 +1378,11 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
-					cb->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
+					cbc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
 					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectName());
 				}
-				if (cb->getResourceAmount(GameResID(g.resID)))
+				if (cbc->getResourceAmount(GameResID(g.resID)))
 					throw goalFulfilledException(sptr(g)); //we traded all we needed
 			}
 
@@ -1408,9 +1407,9 @@ void AIGateway::endTurn()
 		logAi->error("Not having turn at the end of turn???");
 	}
 
-	logAi->debug("Resources at the end of turn: %s", cb->getResourceAmount().toString());
+	logAi->debug("Resources at the end of turn: %s", cbc->getResourceAmount().toString());
 
-	if(cb->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
+	if(cbc->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 	{
 		logAi->info("Ending turn is not needed because we already lost");
 		return;
@@ -1418,7 +1417,7 @@ void AIGateway::endTurn()
 
 	do
 	{
-		cb->endTurn();
+		cbc->endTurn();
 	}
 	while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
@@ -1469,7 +1468,7 @@ void AIGateway::answerQuery(QueryID queryID, int selection)
 	logAi->debug("I'll answer the query %d giving the choice %d", queryID, selection);
 	if(queryID != QueryID(-1))
 	{
-		cb->selectionMade(selection, queryID);
+		cbc->selectionMade(selection, queryID);
 	}
 	else
 	{
@@ -1680,11 +1679,11 @@ void AIGateway::invalidatePaths()
 
 void AIGateway::cheatMapReveal(const std::unique_ptr<Nullkiller> & nullkiller)
 {
-	if(cb->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
+	if(cbc->getDate(Date::DAY) == 1) // No need to execute every day, only the first time
 	{
 		if(nullkiller->isOpenMap())
 		{
-			cb->sendMessage("vcmieagles");
+			cbc->sendMessage("vcmieagles");
 		}
 	}
 }
@@ -1714,7 +1713,7 @@ void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
 
 	memory->addVisitableObject(obj);
 
-	if(obj->ID == Obj::HERO && cb->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
+	if(obj->ID == Obj::HERO && cbc->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
 	{
 		dangerHitMap->resetHitmap();
 	}
@@ -1722,7 +1721,7 @@ void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
 
 void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory, const PlayerColor & playerID)
 {
-	if(cb->getDate(Date::DAY_OF_WEEK) == 1)
+	if(cbc->getDate(Date::DAY_OF_WEEK) == 1)
 	{
 		for(const CGObjectInstance * obj : memory->visitableObjs)
 		{
@@ -1783,7 +1782,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 				if(location.slot == ArtifactPosition::MACH4) // don't attempt to move catapult
 					continue;
 
-				auto artHolder = cb->getHero(location.artHolder);
+				auto artHolder = cbc->getHero(location.artHolder);
 				auto s = artHolder->getSlot(location.slot);
 				if(!s || s->locked) //we can't move locks
 					continue;
@@ -1798,7 +1797,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 					if(target->isPositionFree(slot) && artifact->canBePutAt(target, slot, true)) //combined artifacts are not always allowed to move
 					{
 						ArtifactLocation destLocation(target->id, slot);
-						cb->swapArtifacts(location, destLocation); //just put into empty slot
+						cbc->swapArtifacts(location, destLocation); //just put into empty slot
 						emptySlotFound = true;
 						changeMade = true;
 						break;
@@ -1839,12 +1838,12 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 									ArtifactLocation destLocation(target->id, slot);
 									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
 
-									cb->swapArtifacts(destLocation, backpack);
-									cb->swapArtifacts(location, destLocation);
+									cbc->swapArtifacts(destLocation, backpack);
+									cbc->swapArtifacts(location, destLocation);
 								}
 								else
 								{
-									cb->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
+									cbc->swapArtifacts(location, ArtifactLocation(target->id, target->getArtPos(otherSlot->getArt())));
 								}
 
 								changeMade = true;
