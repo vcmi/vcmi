@@ -14,38 +14,16 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class JsonNode;
 
-#define BONUS_LIST										\
-	BONUS_NAME(NONE) 									\
-	BONUS_NAME(ARTIFACT_GROWING) \
-	BONUS_NAME(ARTIFACT_CHARGE) \
-	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
+#define BONUS_AFFECTING_CREATURE \
 	BONUS_NAME(MORALE) \
 	BONUS_NAME(LUCK) \
 	BONUS_NAME(PRIMARY_SKILL) /*uses subtype to pick skill; additional info if set: 1 - only melee, 2 - only distance*/  \
-	BONUS_NAME(SIGHT_RADIUS) \
-	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
-	BONUS_NAME(MANA_PERCENTAGE_REGENERATION) /*all mana points are replenished every day*/  \
 	BONUS_NAME(NONEVIL_ALIGNMENT_MIX) /*good and neutral creatures can be mixed without morale penalty*/  \
-	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
 	BONUS_NAME(STACKS_SPEED)  /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
-	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
-	BONUS_NAME(SPELL_DURATION) \
-	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
 	BONUS_NAME(NEGATE_ALL_NATURAL_IMMUNITIES) \
 	BONUS_NAME(STACK_HEALTH) \
-	BONUS_NAME(GENERATE_RESOURCE) /*daily value, uses subtype (resource type)*/  \
-	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if applicable*/  \
 	BONUS_NAME(WHIRLPOOL_PROTECTION) /*hero won't lose army when teleporting through whirlpool*/  \
-	BONUS_NAME(SPELL) /*hero knows spell, val - skill level (0 - 3), subtype - spell id*/  \
-	BONUS_NAME(SPELLS_OF_LEVEL) /*hero knows all spells of given level, val - skill level; subtype - level*/  \
-	BONUS_NAME(SPELLS_OF_SCHOOL) /*hero knows all spells of given school, subtype - spell school; 0 - air, 1 - fire, 2 - water, 3 - earth*/  \
-	BONUS_NAME(BATTLE_NO_FLEEING) /*for shackles of war*/ \
-	BONUS_NAME(MAGIC_SCHOOL_SKILL) /* //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level*/ \
 	BONUS_NAME(FREE_SHOOTING) /*stacks can shoot even if otherwise blocked (sharpshooter's bow effect)*/ \
-	BONUS_NAME(OPENING_BATTLE_SPELL) /*casts a spell at expert level at beginning of battle, val - spell power, subtype - spell id*/ \
-	BONUS_NAME(IMPROVED_NECROMANCY) /* raise more powerful creatures: subtype - creature type raised, addInfo - [required necromancy level, required stack level], val - necromancy level for this purpose */ \
-	BONUS_NAME(CREATURE_GROWTH_PERCENT) /*increases growth of all units in all towns, val - percentage*/ \
-	BONUS_NAME(FREE_SHIP_BOARDING) /*movement points preserved with ship boarding and landing*/  \
 	BONUS_NAME(FLYING)									\
 	BONUS_NAME(SHOOTER)									\
 	BONUS_NAME(CHARGE_IMMUNITY)							\
@@ -56,8 +34,6 @@ class JsonNode;
 	BONUS_NAME(HATE) /*eg. angels hate devils, subtype - ID of hated creature, val - damage bonus percent */ \
 	BONUS_NAME(KING) /* val - required slayer bonus val to affect */\
 	BONUS_NAME(MAGIC_RESISTANCE) /*in % (value)*/		\
-	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
-	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
 	BONUS_NAME(SPELL_AFTER_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only], addInfo[2] -> spell layer for multiple SPELL_AFTER_ATTACK bonuses (default none [-1]) */ \
 	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, addInfo[0] - level, addInfo[1] -> [0 - all attacks, 1 - shot only, 2 - melee only], addInfo[2] -> spell layer for multiple SPELL_BEFORE_ATTACK bonuses (default none [-1]) */ \
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
@@ -71,7 +47,6 @@ class JsonNode;
 	BONUS_NAME(RANDOM_SPELLCASTER) /*eg. master genie, val - level*/ \
 	BONUS_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	BONUS_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
-	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
 	BONUS_NAME(SPELL_LIKE_ATTACK) /*subtype - spell, value - spell level; range is taken from spell, but damage from creature; eg. magog*/ \
 	BONUS_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
 	BONUS_NAME(GENERAL_DAMAGE_PREMY)						\
@@ -94,6 +69,7 @@ class JsonNode;
 	BONUS_NAME(FEARFUL)									\
 	BONUS_NAME(LIVING)									\
 	BONUS_NAME(NO_DISTANCE_PENALTY)						\
+	BONUS_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
 	BONUS_NAME(ENCHANTER)/* for Enchanter spells, val - skill level, subtype - spell id, additionalInfo - cooldown */ \
 	BONUS_NAME(HEALER)									\
 	BONUS_NAME(SIEGE_WEAPON)							\
@@ -110,12 +86,6 @@ class JsonNode;
 	BONUS_NAME(NOT_ACTIVE) /* subtype - spell ID (paralyze, blind, stone gaze) for graphical effect*/ 								\
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
-	BONUS_NAME(DARKNESS) /*val = radius */ \
-	BONUS_NAME(SPECIAL_SPELL_LEV) /*subtype = id, val = value per level in percent*/\
-	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
-	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
-	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
-	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
 	BONUS_NAME(DRAGON_NATURE) \
 	BONUS_NAME(CREATURE_DAMAGE)/*subtype 0 = both, 1 = min, 2 = max*/\
 	BONUS_NAME(SHOTS)\
@@ -130,9 +100,6 @@ class JsonNode;
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
 	BONUS_NAME(ENCHANTED) /* permanently enchanted with spell subID of level = val, if val > 3 then spell is mass and has level of val-3*/ \
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
-	BONUS_NAME(DISGUISED) /* subtype - spell level */\
-	BONUS_NAME(VISIONS) /* subtype - spell level */\
-	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
 	BONUS_NAME(SOUL_STEAL) /*val - number of units gained per enemy killed, subtype = 0 - gained units survive after battle, 1 - they do not*/ \
 	BONUS_NAME(TRANSMUTATION) /*val - chance to trigger in %, subtype = 0 - resurrection based on HP, 1 - based on unit count, additional info - target creature ID (attacker default)*/\
 	BONUS_NAME(SUMMON_GUARDIANS) /*val - amount in % of stack count, subtype = creature ID*/\
@@ -144,6 +111,54 @@ class JsonNode;
 	BONUS_NAME(FIRST_STRIKE) /* first counterattack, then attack if possible */\
 	BONUS_NAME(VULNERABLE_FROM_BACK) /*bonus damage for attacks from behind*/\
 	BONUS_NAME(SHOOTS_ALL_ADJACENT) /* H4 Cyclops-like shoot (attacks all hexes neighbouring with target) without spell-like mechanics */\
+	BONUS_NAME(PERCENTAGE_DAMAGE_BOOST) /*skill-agnostic archery and offence, subtype is 0 for offence and 1 for archery*/\
+	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
+	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
+	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
+	BONUS_NAME(DISINTEGRATE) /* after death no corpse remains */ \
+	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
+	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
+	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_UNIT_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
+	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
+	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
+
+
+#define BONUS_LIST										\
+	BONUS_NAME(NONE) 									\
+	BONUS_NAME(ARTIFACT_GROWING) \
+	BONUS_NAME(ARTIFACT_CHARGE) \
+	BONUS_NAME(MOVEMENT) /*Subtype is 1 - land, 0 - sea*/ \
+	BONUS_NAME(SIGHT_RADIUS) \
+	BONUS_NAME(MANA_REGENERATION) /*points per turn*/  \
+	BONUS_NAME(MANA_PERCENTAGE_REGENERATION) /*all mana points are replenished every day*/  \
+	BONUS_NAME(SURRENDER_DISCOUNT) /*%*/  \
+	BONUS_NAME(FLYING_MOVEMENT) /*value - penalty percentage*/ \
+	BONUS_NAME(SPELL_DURATION) \
+	BONUS_NAME(WATER_WALKING) /*value - penalty percentage*/ \
+	BONUS_NAME(GENERATE_RESOURCE) /*daily value, uses subtype (resource type)*/  \
+	BONUS_NAME(CREATURE_GROWTH) /*for legion artifacts: value - week growth bonus, subtype - monster level if applicable*/  \
+	BONUS_NAME(SPELL) /*hero knows spell, val - skill level (0 - 3), subtype - spell id*/  \
+	BONUS_NAME(SPELLS_OF_LEVEL) /*hero knows all spells of given level, val - skill level; subtype - level*/  \
+	BONUS_NAME(SPELLS_OF_SCHOOL) /*hero knows all spells of given school, subtype - spell school; 0 - air, 1 - fire, 2 - water, 3 - earth*/  \
+	BONUS_NAME(BATTLE_NO_FLEEING) /*for shackles of war*/ \
+	BONUS_NAME(MAGIC_SCHOOL_SKILL) /* //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level*/ \
+	BONUS_NAME(OPENING_BATTLE_SPELL) /*casts a spell at expert level at beginning of battle, val - spell power, subtype - spell id*/ \
+	BONUS_NAME(IMPROVED_NECROMANCY) /* raise more powerful creatures: subtype - creature type raised, addInfo - [required necromancy level, required stack level], val - necromancy level for this purpose */ \
+	BONUS_NAME(CREATURE_GROWTH_PERCENT) /*increases growth of all units in all towns, val - percentage*/ \
+	BONUS_NAME(FREE_SHIP_BOARDING) /*movement points preserved with ship boarding and landing*/  \
+	BONUS_NAME(CHANGES_SPELL_COST_FOR_ALLY) /*in mana points (value) , eg. mage*/ \
+	BONUS_NAME(CHANGES_SPELL_COST_FOR_ENEMY) /*in mana points (value) , eg. pegasus */ \
+	BONUS_NAME(DARKNESS) /*val = radius */ \
+	BONUS_NAME(SPECIAL_SPELL_LEV) /*subtype = id, val = value per level in percent*/\
+	BONUS_NAME(SPELL_DAMAGE) /*val = value, now works for sorcery, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/\
+	BONUS_NAME(SPECIFIC_SPELL_DAMAGE) /*subtype = id of spell, val = value*/\
+	BONUS_NAME(SPECIAL_PECULIAR_ENCHANT) /*blesses and curses with id = val dependent on unit's level, subtype = 0 or 1 for Coronius*/\
+	BONUS_NAME(SPECIAL_UPGRADE) /*subtype = base, additionalInfo = target */\
+	BONUS_NAME(DISGUISED) /* subtype - spell level */\
+	BONUS_NAME(VISIONS) /* subtype - spell level */\
+	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
 	BONUS_NAME(BLOCK_MAGIC_BELOW) /*blocks casting spells of the level < value */ \
 	BONUS_NAME(DESTRUCTION) /*kills extra units after hit, subtype = 0 - kill percentage of units, 1 - kill amount, val = chance in percent to trigger, additional info - amount/percentage to kill*/ \
 	BONUS_NAME(SPECIAL_CRYSTAL_GENERATION) /*crystal dragon crystal generation*/ \
@@ -155,7 +170,6 @@ class JsonNode;
 	BONUS_NAME(LIMITED_SHOOTING_RANGE) /*limits range of shooting creatures, doesn't adjust any other mechanics (half vs full damage etc). val - range in hexes, additional info - optional new range for broken arrow mechanic */\
 	BONUS_NAME(LEARN_BATTLE_SPELL_CHANCE) /*skill-agnostic eagle eye chance. subtype = 0 - from enemy, 1 - TODO: from entire battlefield*/\
 	BONUS_NAME(LEARN_BATTLE_SPELL_LEVEL_LIMIT) /*skill-agnostic eagle eye limit, subtype - school (-1 for all), others TODO*/\
-	BONUS_NAME(PERCENTAGE_DAMAGE_BOOST) /*skill-agnostic archery and offence, subtype is 0 for offence and 1 for archery*/\
 	BONUS_NAME(LEARN_MEETING_SPELL_LIMIT) /*skill-agnostic scholar, subtype is -1 for all, TODO for others (> 0)*/\
 	BONUS_NAME(ROUGH_TERRAIN_DISCOUNT) /*skill-agnostic pathfinding*/\
 	BONUS_NAME(WANDERING_CREATURES_JOIN_BONUS) /*skill-agnostic diplomacy*/\
@@ -174,28 +188,16 @@ class JsonNode;
 	BONUS_NAME(UNLIMITED_MOVEMENT) /*cheat bonus*/ \
 	BONUS_NAME(MAX_MORALE) /*cheat bonus*/ \
 	BONUS_NAME(MAX_LUCK) /*cheat bonus*/ \
-	BONUS_NAME(FEROCITY) /*extra attacks, only if at least some creatures killed while attacking target unit, val = amount of additional attacks, additional info = amount of creatures killed to trigger (default 1)*/ \
-	BONUS_NAME(ENEMY_ATTACK_REDUCTION) /*in % (value) eg. Nix (HotA)*/ \
-	BONUS_NAME(REVENGE) /*additional damage based on how many units in stack died - formula: sqrt((number of creatures at battle start + 1) * creature health) / (total health now + 1 creature health) - 1) * 100% */ \
 	BONUS_NAME(RESOURCES_CONSTANT_BOOST) /*Bonus that does not account for propagation and gives extra resources per day. val - resource amount, subtype - resource type*/ \
 	BONUS_NAME(RESOURCES_TOWN_MULTIPLYING_BOOST) /*Bonus that does not account for propagation and gives extra resources per day with amount multiplied by number of owned towns. val - base resource amount to be multiplied times number of owned towns, subtype - resource type*/ \
-	BONUS_NAME(DISINTEGRATE) /* after death no corpse remains */ \
-	BONUS_NAME(INVINCIBLE) /* cannot be target of attacks or spells */ \
-	BONUS_NAME(MECHANICAL) /*eg. factory creatures, cannot be rised or healed, only neutral morale, repairable by engineer */ \
-	BONUS_NAME(PRISM_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(BASE_TILE_MOVEMENT_COST) /*minimal cost for moving offroad*/	\
 	BONUS_NAME(HERO_SPELL_CASTS_PER_COMBAT_TURN) /**/	\
-	BONUS_NAME(MULTIHEX_UNIT_ATTACK) /*eg. dragons*/	\
-	BONUS_NAME(MULTIHEX_ENEMY_ATTACK) /*eg. dragons*/	\
-	BONUS_NAME(MULTIHEX_ANIMATION) /*eg. dragons*/	\
 	BONUS_NAME(STACK_EXPERIENCE_GAIN_PERCENT) /*modifies all stack experience gains*/\
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
-	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
 	BONUS_NAME(COMBAT_MANA_BONUS) /* Additional mana per combat */ \
 	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
 	/* end of list */
-
 
 #define BONUS_SOURCE_LIST \
 	BONUS_SOURCE(ARTIFACT)\
@@ -232,6 +234,7 @@ enum class BonusType : uint16_t
 {
 #define BONUS_NAME(x) x,
     BONUS_LIST
+    BONUS_AFFECTING_CREATURE
 #undef BONUS_NAME
     BUILTIN_BONUSES_COUNT
 };
@@ -305,5 +308,6 @@ extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;
 extern DLL_LINKAGE const std::map<std::string, BonusDuration::Type> bonusDurationMap;
 extern DLL_LINKAGE const std::map<std::string, BonusLimitEffect> bonusLimitEffect;
+extern DLL_LINKAGE const std::vector<BonusType> bonusAffectingCreature;
 
 VCMI_LIB_NAMESPACE_END
