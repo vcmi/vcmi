@@ -11,7 +11,7 @@
 
 #include "CGoal.h"
 
-namespace Nullkiller
+namespace NK2AI
 {
 
 struct HeroPtr;

@@ -20,7 +20,7 @@
 #include "../../../lib/CPathfinder.h"
 #include "../../../lib/StringConstants.h"
 
-namespace Nullkiller
+namespace NK2AI
 {
 
 extern thread_local CCallback * cbc;
