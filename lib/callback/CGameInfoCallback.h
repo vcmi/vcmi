@@ -102,7 +102,7 @@ public:
 	bool isTeleportEntrancePassable(const CGTeleport * obj, PlayerColor player) const override;
 
 	//used for random spawns
-	void getFreeTiles(std::vector<int3> &tiles) const;
+	void getFreeTiles(std::vector<int3> &tiles, bool skipIfNearbyGuarded) const;
 	void getTilesInRange(FowTilesType & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player = std::optional<PlayerColor>(), int3::EDistanceFormula formula = int3::DIST_2D) const override;
 	void getAllTiles(FowTilesType &tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter) const override;
 

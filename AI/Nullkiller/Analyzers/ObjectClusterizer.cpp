@@ -425,7 +425,7 @@ void ObjectClusterizer::clusterizeObject(
 	for(auto & path : pathCache)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Checking path %s", path.toString());
+		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
 		if(ai->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)

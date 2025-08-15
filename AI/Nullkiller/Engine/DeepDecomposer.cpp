@@ -72,6 +72,8 @@ void DeepDecomposer::decompose(TGoalVec & result, TSubgoal behavior, int depthLi
 				// 0 - goals directly from behavior
 				Goals::TSubgoal task = depth >= 1 ? aggregateGoals(0, subgoal) : subgoal;
 
+				// Issue with CGameHandler::spawnWanderingMonsters, see getFreeTiles(tiles, true);
+				// danger not linked GraphPaths::addChainInfo, so spawning only with nearby unblocked
 #if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Found task %s", task->toString());
 #endif
