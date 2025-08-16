@@ -1,5 +1,0 @@
-include(apple)
-
-[settings]
-os=iOS
-os.sdk=iphoneos

@@ -10,3 +10,6 @@
 	path = launcher/lib/innoextract
 	url = https://github.com/vcmi/innoextract.git
 	branch = vcmi
+[submodule "dependencies"]
+	path = dependencies
+	url = https://github.com/vcmi/vcmi-dependencies.git

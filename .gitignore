@@ -56,8 +56,6 @@ fuzzylite.pc
 /client/RD
 /launcher/RD
 /lib/RD
-/lib/minizip/RD
-/lib/minizip/*/RD
 /scripting/erm/RD
 /scripting/erm/*/RD
 /server/RD
