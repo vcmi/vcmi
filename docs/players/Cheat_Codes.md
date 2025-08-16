@@ -8,84 +8,87 @@ To use cheat code, press `Tab` key or click/tap on status bar to open game chat 
 
 ### Spells
 
-`nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero. Also allows casting spell up to 100 times per combat round
+- `nwcthereisnospoon`, `nwcmidichlorians`, `nwctim`, `vcmiistari` or `vcmispells` - give a spell book, all spells and 999 mana to currently selected hero. Also allows casting spell up to 100 times per combat round
 
 ### Secondary Skills
 
-`vcmiskill <skillID> <mastery>` - give a secondary skill to currently selected hero
+- `vcmiskill <skillID> <mastery>` - give a secondary skill to currently selected hero
 
 Examples:
-`vcmiskill learning` - give expert level learning skill
-`vcmiskill leadership 2` - give advanced level leadership skill
-`vcmiskill wisdom 0` - remove wisdom skill
-`vcmiskill every` - give all skills on expert level
-`vcmiskill every 0` - remove all skills
+
+- `vcmiskill learning` - give expert level learning skill
+- `vcmiskill leadership 2` - give advanced level leadership skill
+- `vcmiskill wisdom 0` - remove wisdom skill
+- `vcmiskill every` - give all skills on expert level
+- `vcmiskill every 0` - remove all skills
 
 ### Army
 
-`nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  
-`nwcagents`, `nwcdarthmaul`, `nwcfleshwound` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot  
-`vcmiglaurung` or `vcmicrystal` - give 5000 crystal dragons in every empty slot  
-`vcmiazure` - give 5000 azure dragons in every empty slot  
-`vcmifaerie` - give 5000 faerie dragons in every empty slot  
+- `nwctrinity`, `nwcpadme`, `nwcavertingoureyes`, `vcmiainur` or `vcmiarchangel` - give 5 Archangels in every empty slot (to currently selected hero)  
+- `nwcagents`, `nwcdarthmaul`, `nwcfleshwound` or `vcmiangband` or `vcmiblackknight` - give 10 black knight in every empty slot  
+- `vcmiglaurung` or `vcmicrystal` - give 5000 crystal dragons in every empty slot  
+- `vcmiazure` - give 5000 azure dragons in every empty slot  
+- `vcmifaerie` - give 5000 faerie dragons in every empty slot  
 
-Alternative usage: `vcmiarmy <creatureID> <amount>`
+- Alternative usage: `vcmiarmy <creatureID> <amount>`
+
 Gives specific creature in every slot, with optional amount. Examples:
-`vcmiarmy imp` - give 5, 50, 500... 500k imps in every free slot
-`vcmiarmy grandElf 100` - gives 100 grand elves in every free slot
+
+- `vcmiarmy imp` - give 5, 50, 500... 500k imps in every free slot
+- `vcmiarmy grandElf 100` - gives 100 grand elves in every free slot
 
 ### Town buildings
 
-`nwczion`, `nwccoruscant`, `nwconlyamodel`, `vcmiarmenelos` or `vcmibuild` - build all buildings in currently selected town
+- `nwczion`, `nwccoruscant`, `nwconlyamodel`, `vcmiarmenelos` or `vcmibuild` - build all buildings in currently selected town
 
 ### Artifacts
 
-`nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
-`vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
-`vcmiscrolls` - give spell scrolls for every possible spells
+- `nwclotsofguns`, `nwcr2d2`, `nwcantioch`, `vcminoldor` or `vcmimachines` - give ballista, ammo cart and first aid tent  
+- `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
+- `vcmiscrolls` - give spell scrolls for every possible spells
 
 ### Movement points
 
-`nwcnebuchadnezzar`, `nwcpodracer`, `nwccoconuts`, `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
-Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
+- `nwcnebuchadnezzar`, `nwcpodracer`, `nwccoconuts`, `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
+- Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
 
 ### Resources
 
-`nwctheconstruct`, `nwcwatto`, `nwcshrubbery`, `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)  
-Alternative usage: `vcmiresources <amount>` - gives specified amount of all resources and x1000 of gold
+- `nwctheconstruct`, `nwcwatto`, `nwcshrubbery`, `vcmiformenos` or `vcmiresources` - give resources (100000 gold, 100 of wood, ore and rare resources)  
+- Alternative usage: `vcmiresources <amount>` - gives specified amount of all resources and x1000 of gold
 
 ### Fog of War
 
-`nwcwhatisthematrix`, `nwcrevealourselves`, `nwcgeneraldirection`, `vcmieagles` or `vcmimap` - reveal Fog of War  
-`nwcignoranceisbliss`,  `vcmiungoliant` or `vcmihidemap` - conceal Fog of War  
+- `nwcwhatisthematrix`, `nwcrevealourselves`, `nwcgeneraldirection`, `vcmieagles` or `vcmimap` - reveal Fog of War  
+- `nwcignoranceisbliss`,  `vcmiungoliant` or `vcmihidemap` - conceal Fog of War  
 
 ### Experience
 
-`nwcneo`, `nwcquigon`, `nwcigotbetter`, `vcmiglorfindel` or `vcmilevel` - advances currently selected hero to the next level
-Alternative usage: `vcmilevel <amount>` - advances hero by specified number of levels
+- `nwcneo`, `nwcquigon`, `nwcigotbetter`, `vcmiglorfindel` or `vcmilevel` - advances currently selected hero to the next level
+- Alternative usage: `vcmilevel <amount>` - advances hero by specified number of levels
 
 - `vcmiolorin` or `vcmiexp` - gives selected hero 10000 experience
-Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of experience
+- Alternative usage: `vcmiexp <amount>` - gives selected hero specified amount of experience
 
 ### Luck and morale
 
-`nwcfollowthewhiterabbit`, `nwccastleanthrax` or `vcmiluck` - the currently selected hero permanently gains maximum luck
-`nwcmorpheus`, `nwcmuchrejoicing` or `vcmimorale` - the currently selected hero permanently gains maximum morale
+- `nwcfollowthewhiterabbit`, `nwccastleanthrax` or `vcmiluck` - the currently selected hero permanently gains maximum luck
+- `nwcmorpheus`, `nwcmuchrejoicing` or `vcmimorale` - the currently selected hero permanently gains maximum morale
 
 ### Puzzle map
 
-`nwcoracle`, `nwcprophecy`, `nwcalreadygotone` or `vcmiobelisk` - reveals the puzzle map
+- `nwcoracle`, `nwcprophecy`, `nwcalreadygotone` or `vcmiobelisk` - reveals the puzzle map
 
 ### Finishing the game
 
-`nwcredpill`, `nwctrojanrabbit`, `vcmisilmaril` or `vcmiwin` - player wins
-`nwcbluepill`, `nwcsirrobin`, `vcmimelkor` or `vcmilose` - player loses
+- `nwcredpill`, `nwctrojanrabbit`, `vcmisilmaril` or `vcmiwin` - player wins
+- `nwcbluepill`, `nwcsirrobin`, `vcmimelkor` or `vcmilose` - player loses
 
 ### Misc
 
-`nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
-`nwcphisherprice` or `vcmicolor` - change game color palette to Heroes II like until game restart
-`vcmigray` - change game color palette to grayscale until game restart
+- `nwctheone` or `vcmigod` - reveals the whole map, gives 5 archangels in each empty slot, unlimited movement points and permanent flight
+- `nwcphisherprice` or `vcmicolor` - change game color palette to Heroes II like until game restart
+- `vcmigray` - change game color palette to grayscale until game restart
 
 ## Using cheat codes on other players
 
@@ -97,10 +100,10 @@ By default, all cheat codes apply to current player. Alternatively, it is possib
 
 ### Examples
 
-`vcmieagles blue` - reveal FoW only for blue player  
-`vcmieagles ai` - reveal FoW only for AI players  
-`vcmieagles all` - reveal FoW for all players on map  
-`vcminahar ai` - give 1000000 movement points to each hero of every AI player  
+- `vcmieagles blue` - reveal FoW only for blue player  
+- `vcmieagles ai` - reveal FoW only for AI players  
+- `vcmieagles all` - reveal FoW for all players on map  
+- `vcminahar ai` - give 1000000 movement points to each hero of every AI player  
 
 ## Multiplayer chat commands
 
@@ -116,10 +119,10 @@ Following commands can be used by any player in multiplayer:
 - `!help` - displays in-game list of available commands
 - `!cheaters` - lists players that have entered cheat at any point of the game
 - `!vote` - initiates voting to change one of the possible options:
-- - `!vote simturns allow X` - allow simultaneous turns for specified number of days, or until contact
-- - `!vote simturns force X` - force simultaneous turns for specified number of days, blocking player contacts
-- - `!vote simturns abort` - abort simultaneous turns once this turn ends
-- - `!vote timer prolong X` - prolong base timer for all players by specified number of seconds
+- `!vote simturns allow X` - allow simultaneous turns for specified number of days, or until contact
+- `!vote simturns force X` - force simultaneous turns for specified number of days, blocking player contacts
+- `!vote simturns abort` - abort simultaneous turns once this turn ends
+- `!vote timer prolong X` - prolong base timer for all players by specified number of seconds
 
 ## Client Commands
 
