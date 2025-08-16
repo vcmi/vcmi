@@ -61,7 +61,6 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-release
             conan_profile: msvc-x64
             conan_prebuilts: dependencies-windows-x64
@@ -75,7 +74,6 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-release-x86
             conan_profile: msvc-x86
             conan_prebuilts: dependencies-windows-x86
@@ -89,7 +87,6 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-release-arm64
             conan_profile: msvc-arm64
             conan_prebuilts: dependencies-windows-arm64
@@ -189,10 +186,20 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
 
-    # Workaround for gradle not discovering SDK that was installed via conan
+    # Workaround for gradle not discovering SDK that was installed via Сonan
     - name: Find Android NDK
       if: ${{ startsWith(matrix.platform, 'android') }}
-      run: sudo ln -s -T /home/runner/.conan/data/android-ndk/r25c/_/_/package/4db1be536558d833e52e862fd84d64d75c2b3656/bin /usr/local/lib/android/sdk/ndk/25.2.9519653
+      run: |
+        ndkPackage='android-ndk'
+        hexRegex='[[:xdigit:]]+'
+
+        ndkPackageRevision=$(conan list --format=compact "$ndkPackage/*:*" \
+          | egrep --only-matching "$ndkPackage/\\w+#$hexRegex:$hexRegex")
+        ndkPackagePath=$(conan cache path "$ndkPackageRevision")
+
+        # TODO: fetch NDK version from file
+        ndkVersion="25.2.9519653"
+        ln -s -T "$ndkPackagePath/bin" "/usr/local/lib/android/sdk/ndk/$ndkVersion"
 
     - name: Install Java
       uses: actions/setup-java@v4
@@ -202,6 +209,7 @@ jobs:
         java-version: '17'
 
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
+    # TODO: x86_64
     - name: Bump Android x64 build ID
       if: ${{ matrix.platform == 'android-64' }}
       run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
@@ -482,8 +490,8 @@ jobs:
         echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
         echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
 
-    - name: Install vcpkg Dependencies
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
+    - name: Download UCRT 
+      run: source '${{github.workspace}}/CI/wininstaller/download_ucrt.sh' '${{matrix.platform}}'
 
     - name: Build Number
       run: |
