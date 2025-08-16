@@ -9,8 +9,6 @@
 */
 #include <boost/range/algorithm/sort.hpp>
 
-#include "../StdInc.h"
-#include "../Engine/Nullkiller.h"
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/IGameSettings.h"
@@ -43,12 +41,11 @@ bool BuildAnalyzer::isGoldPressureOverMax() const
 void BuildAnalyzer::update()
 {
 	logAi->trace("Start BuildAnalyzer::update");
-	BuildingInfo bi;
 	reset();
-	auto towns = aiNk->cbc->getTownsInfo();
+	const auto towns = aiNk->cbc->getTownsInfo();
 	float economyDevelopmentCost = 0;
 
-	for(const CGTownInstance* town : towns)
+	for(const CGTownInstance * town : towns)
 	{
 		if(town->built >= cbcTl->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 			continue; // Not much point in trying anything - can't built in this town anymore today
@@ -60,7 +57,7 @@ void BuildAnalyzer::update()
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & tdi = developmentInfos.back();
 
-		updateTownDwellings(tdi, aiNk->armyManager, aiNk->cbc);
+		updateCreatureBuildings(tdi, aiNk->armyManager, aiNk->cbc);
 		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cbc);
 		requiredResources += tdi.requiredResources;
 		totalDevelopmentCost += tdi.townDevelopmentCost;
@@ -74,8 +71,8 @@ void BuildAnalyzer::update()
 		armyCost += tdi.armyCost;
 
 #if NKAI_TRACE_LEVEL >= 1
-		for(const auto & bi : tdi.toBuild)
-			logAi->trace("Building preferences %s", bi.toString());
+		for(const auto & biToBuild : tdi.toBuild)
+			logAi->trace("Building preferences %s", biToBuild.toString());
 #endif
 	}
 
@@ -88,10 +85,10 @@ void BuildAnalyzer::update()
 
 	dailyIncome = calculateDailyIncome(aiNk->cbc->getMyObjects(), aiNk->cbc->getTownsInfo());
 	goldPressure = calculateGoldPressure(aiNk->getLockedResources()[EGameResID::GOLD],
-	                                     (float)armyCost[EGameResID::GOLD],
+	                                     static_cast<float>(armyCost[EGameResID::GOLD]),
 	                                     economyDevelopmentCost,
 	                                     aiNk->getFreeGold(),
-	                                     (float)dailyIncome[EGameResID::GOLD]);
+	                                     static_cast<float>(dailyIncome[EGameResID::GOLD]));
 }
 
 void BuildAnalyzer::reset()
@@ -104,7 +101,7 @@ void BuildAnalyzer::reset()
 
 bool BuildAnalyzer::isBuilt(FactionID alignment, BuildingID bid) const
 {
-	for(auto tdi : developmentInfos)
+	for(const auto & tdi : developmentInfos)
 	{
 		if(tdi.town->getFactionID() == alignment && tdi.town->hasBuilt(bid))
 			return true;
@@ -113,43 +110,27 @@ bool BuildAnalyzer::isBuilt(FactionID alignment, BuildingID bid) const
 	return false;
 }
 
-void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & existingDwelling)
+void TownDevelopmentInfo::addExistingDwelling(const BuildingInfo & bi)
 {
-	existingDwellings.push_back(existingDwelling);
-
-	armyCost += existingDwelling.armyCost;
-	armyStrength += existingDwelling.armyStrength;
+	armyCost += bi.armyCost;
+	armyStrength += bi.armyStrength;
+	built.push_back(bi);
 }
 
-void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & nextToBuild)
+void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & bi)
 {
-	townDevelopmentCost += nextToBuild.buildCostWithPrerequisites;
-	townDevelopmentCost += BuildAnalyzer::withoutGold(nextToBuild.armyCost);
+	townDevelopmentCost += bi.buildCostWithPrerequisites;
+	townDevelopmentCost += BuildAnalyzer::withoutGold(bi.armyCost);
 
-	if(nextToBuild.canBuild)
+	if(!bi.isBuildable && bi.isMissingResources)
 	{
-		hasSomethingToBuild = true;
-		toBuild.push_back(nextToBuild);
+		requiredResources += bi.buildCost;
 	}
-	else if(nextToBuild.notEnoughRes)
-	{
-		requiredResources += nextToBuild.buildCost;
-		hasSomethingToBuild = true;
-		toBuild.push_back(nextToBuild);
-	}
+
+	toBuild.push_back(bi);
 }
 
-BuildingInfo::BuildingInfo()
-{
-	id = BuildingID::NONE;
-	creatureGrows = 0;
-	creatureID = CreatureID::NONE;
-	buildCost = 0;
-	buildCostWithPrerequisites = 0;
-	prerequisitesCount = 0;
-	name.clear();
-	armyStrength = 0;
-}
+BuildingInfo::BuildingInfo() {}
 
 BuildingInfo::BuildingInfo(
 	const CBuilding * building,
@@ -162,7 +143,7 @@ BuildingInfo::BuildingInfo(
 	buildCost = building->resources;
 	buildCostWithPrerequisites = building->resources;
 	dailyIncome = building->produce;
-	exists = town->hasBuilt(id);
+	isBuilt = town->hasBuilt(id);
 	prerequisitesCount = 1;
 	name = building->getNameTranslated();
 
@@ -170,11 +151,11 @@ BuildingInfo::BuildingInfo(
 	{
 		creatureGrows = creature->getGrowth();
 		creatureID = creature->getId();
+		baseCreatureID = baseCreature;
 		creatureCost = creature->getFullRecruitCost();
 		creatureLevel = creature->getLevel();
-		baseCreatureID = baseCreature;
 
-		if(exists)
+		if(isBuilt)
 		{
 			creatureGrows = town->creatureGrowth(creatureLevel - 1);
 		}
@@ -198,16 +179,6 @@ BuildingInfo::BuildingInfo(
 		armyStrength = armyManager->evaluateStackPower(creature, creatureGrows);
 		armyCost = creatureCost * creatureGrows;
 	}
-	else
-	{
-		creatureGrows = 0;
-		creatureID = CreatureID::NONE;
-		baseCreatureID = CreatureID::NONE;
-		creatureCost = TResources();
-		armyCost = TResources();
-		creatureLevel = 0;
-		armyStrength = 0;
-	}
 }
 
 std::string BuildingInfo::toString() const
@@ -229,13 +200,13 @@ float BuildAnalyzer::calculateGoldPressure(TResource lockedGold, float armyCostG
 	return pressure;
 }
 
-TResources BuildAnalyzer::calculateDailyIncome(std::vector<const CGObjectInstance *> objects, std::vector<const CGTownInstance *> townInfos)
+TResources BuildAnalyzer::calculateDailyIncome(const std::vector<const CGObjectInstance *> & objects, const std::vector<const CGTownInstance *> & townInfos)
 {
 	auto result = TResources();
 
 	for(const CGObjectInstance * obj : objects)
 	{
-		if(const CGMine * mine = dynamic_cast<const CGMine *>(obj))
+		if(const auto * mine = dynamic_cast<const CGMine *>(obj))
 			result += mine->dailyIncome();
 	}
 
@@ -247,7 +218,7 @@ TResources BuildAnalyzer::calculateDailyIncome(std::vector<const CGObjectInstanc
 	return result;
 }
 
-void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo, std::unique_ptr<ArmyManager> & armyManager, std::shared_ptr<CCallback> & cb)
+void BuildAnalyzer::updateCreatureBuildings(TownDevelopmentInfo & developmentInfo, std::unique_ptr<ArmyManager> & armyManager, std::shared_ptr<CCallback> & cb)
 {
 	for(int level = 0; level < developmentInfo.town->getTown()->creatures.size(); level++)
 	{
@@ -278,7 +249,7 @@ void BuildAnalyzer::updateTownDwellings(TownDevelopmentInfo & developmentInfo, s
 				continue;
 
 			const auto & info = getBuildingOrPrerequisite(developmentInfo.town, buildID, armyManager, cb);
-			if (info.canBuild || info.notEnoughRes)
+			if (info.isBuildable || info.isMissingResources)
 				developmentInfo.addBuildingToBuild(info);
 		}
 	}
@@ -295,7 +266,7 @@ void BuildAnalyzer::updateOtherBuildings(TownDevelopmentInfo & developmentInfo,
 		{BuildingID::MAGES_GUILD_3, BuildingID::MAGES_GUILD_5}
 	};
 
-	if(developmentInfo.existingDwellings.size() >= 2 && cb->getDate(Date::DAY_OF_WEEK) > 4)
+	if(developmentInfo.built.size() >= 2 && cb->getDate(Date::DAY_OF_WEEK) > 4)
 	{
 		otherBuildings.push_back({BuildingID::HORDE_1});
 		otherBuildings.push_back({BuildingID::HORDE_2});
@@ -330,7 +301,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	bool excludeDwellingDependencies)
 {
 	BuildingID building = toBuild;
-	auto townInfo = town->getTown();
+	const auto * townInfo = town->getTown();
 
 	const auto & buildPtr = townInfo->buildings.at(building);
 	const CCreature * creature = nullptr;
@@ -369,9 +340,9 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	//logAi->trace("checking %s buildInfo %s", info.name, info.toString());
 
 	int highestFort = 0;
-	for (auto ti : cb->getTownsInfo())
+	for (const auto * ti : cb->getTownsInfo())
 	{
-		highestFort = std::max(highestFort, (int)ti->fortLevel());
+		highestFort = std::max(highestFort, static_cast<int>(ti->fortLevel()));
 	}
 
 	if(!town->hasBuilt(building))
@@ -380,12 +351,12 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 		if(canBuild == EBuildingState::ALLOWED)
 		{
-			info.canBuild = true;
+			info.isBuildable = true;
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
 			//logAi->trace("cant build. Not enough resources. Need %s", info.buildCost.toString());
-			info.notEnoughRes = true;
+			info.isMissingResources = true;
 		}
 		else if(canBuild == EBuildingState::PREREQUIRES)
 		{
@@ -454,7 +425,7 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 #if NKAI_TRACE_LEVEL >= 1
 		logAi->trace("Dwelling %d exists", toBuild.getNum());
 #endif
-		info.exists = true;
+		info.isBuilt = true;
 	}
 
 	return info;
@@ -470,6 +441,7 @@ int32_t BuildAnalyzer::approximateInGold(const TResources & res)
 
 TResources BuildAnalyzer::withoutGold(TResources other)
 {
+	// TODO: Mircea: Potential issue modifying the input directly? To inspect
 	other[GameResID::GOLD] = 0;
 	return other;
 }

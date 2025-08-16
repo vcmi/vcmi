@@ -1256,7 +1256,7 @@ public:
 			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.goldReward * goldPressure / 3500.0f / bi.prerequisitesCount);
 		}
 
-		if(bi.notEnoughRes && bi.prerequisitesCount == 1)
+		if(bi.isMissingResources && bi.prerequisitesCount == 1)
 		{
 			evaluationContext.strategicalValue /= 3;
 			evaluationContext.movementCostByRole[evaluationContext.heroRole] += 5;

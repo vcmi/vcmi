@@ -64,7 +64,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 		{
 			for (auto& buildingInfo : developmentInfo.toBuild)
 			{
-				if ( !buildingInfo.notEnoughRes && (buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE))
+				if ( !buildingInfo.isMissingResources && (buildingInfo.id == BuildingID::CITADEL || buildingInfo.id == BuildingID::CASTLE))
 				{
 					tasks.push_back(sptr(BuildThis(buildingInfo, developmentInfo)));
 					emergencyDefense = true;
@@ -78,7 +78,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 			{
 				if (isGoldPressureLow || buildingInfo.dailyIncome[EGameResID::GOLD] > 0)
 				{
-					if (buildingInfo.notEnoughRes)
+					if (buildingInfo.isMissingResources)
 					{
 						if (aiNk->getLockedResources().canAfford(buildingInfo.buildCost))
 							continue;

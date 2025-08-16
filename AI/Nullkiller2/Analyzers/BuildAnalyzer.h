@@ -21,22 +21,22 @@ class Nullkiller;
 class DLL_EXPORT BuildingInfo
 {
 public:
-	BuildingID id;
+	BuildingID id = BuildingID::NONE;
 	TResources buildCost;
 	TResources buildCostWithPrerequisites;
-	int creatureGrows;
-	uint8_t creatureLevel;
+	int creatureGrows = 0;
+	uint8_t creatureLevel = 0;
 	TResources creatureCost;
-	CreatureID creatureID;
-	CreatureID baseCreatureID;
+	CreatureID creatureID = CreatureID::NONE;
+	CreatureID baseCreatureID = CreatureID::NONE;
 	TResources dailyIncome;
-	uint8_t prerequisitesCount;
-	uint64_t armyStrength;
+	uint8_t prerequisitesCount = 0;
+	uint64_t armyStrength = 0;
 	TResources armyCost;
 	std::string name;
-	bool exists = false;
-	bool canBuild = false;
-	bool notEnoughRes = false;
+	bool isBuilt = false;
+	bool isBuildable = false;
+	bool isMissingResources = false;
 
 	BuildingInfo();
 
@@ -55,41 +55,31 @@ class DLL_EXPORT TownDevelopmentInfo
 public:
 	const CGTownInstance* town;
 	std::vector<BuildingInfo> toBuild;
-	std::vector<BuildingInfo> existingDwellings;
+	std::vector<BuildingInfo> built;
 	TResources townDevelopmentCost;
 	TResources requiredResources;
 	TResources armyCost;
-	uint64_t armyStrength;
-	HeroRole townRole;
-	bool hasSomethingToBuild;
+	uint64_t armyStrength = 0;
 
-	TownDevelopmentInfo(const CGTownInstance * town):
-		town(town),
-		armyStrength(0),
-		townRole(HeroRole::SCOUT),
-		hasSomethingToBuild(false)
-	{
-	}
-
+	TownDevelopmentInfo(const CGTownInstance * town) : town(town) {}
 	TownDevelopmentInfo() : TownDevelopmentInfo(nullptr) {}
 
 	void addBuildingToBuild(const BuildingInfo & building);
-	void addExistingDwelling(const BuildingInfo & existingDwelling);
+	void addExistingDwelling(const BuildingInfo & bi);
 };
 
 class DLL_EXPORT BuildAnalyzer
 {
-private:
 	TResources requiredResources;
 	TResources totalDevelopmentCost;
 	std::vector<TownDevelopmentInfo> developmentInfos;
 	TResources armyCost;
 	TResources dailyIncome;
-	float goldPressure;
+	float goldPressure = 0;
 	Nullkiller * aiNk;
 
 public:
-	BuildAnalyzer(Nullkiller * ai) : aiNk(ai) {}
+	explicit BuildAnalyzer(Nullkiller * ai) : aiNk(ai) {}
 	void update();
 
 	TResources getResourcesRequiredNow() const;
@@ -103,8 +93,8 @@ public:
 	void reset();
 
 	static float calculateGoldPressure(TResource lockedGold, float armyCostGold, float economyDevelopmentCost, float freeGold, float dailyIncomeGold);
-	static TResources calculateDailyIncome(std::vector<const CGObjectInstance *> objects, std::vector<const CGTownInstance *> townInfos);
-	static void updateTownDwellings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
+	static TResources calculateDailyIncome(const std::vector<const CGObjectInstance *> & objects, const std::vector<const CGTownInstance *> & townInfos);
+	static void updateCreatureBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
 	static void updateOtherBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
 	static BuildingInfo getBuildingOrPrerequisite(
 		const CGTownInstance* town,
