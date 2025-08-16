@@ -976,8 +976,9 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	if (improvedNecromancy->empty())
 		return CStackBasicDescriptor();
 
+	bool hasRaisedUnitsBonus = hasBonusOfType(BonusType::UNDEAD_RAISE_PERCENTAGE);
 	int raisedUnitsPercentage = std::clamp(valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE), 0, 100);
-	if (raisedUnitsPercentage == 0)
+	if(raisedUnitsPercentage == 0 && !hasRaisedUnitsBonus)
 		return CStackBasicDescriptor();
 
 	const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
