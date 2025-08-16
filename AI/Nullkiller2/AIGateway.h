@@ -74,7 +74,8 @@ public:
 
 	AIStatus status;
 	std::string battlename;
-	std::shared_ptr<CCallback> cbc;
+	/// Same instance as in cbc. cbc is used to keep CAdventureAI simpler without unnecessary class requirements
+	std::shared_ptr<CCallback> cc;
 	std::unique_ptr<AsyncRunner> asyncTasks;
 
 	ObjectInstanceID selectedObject;
@@ -90,7 +91,7 @@ public:
 
 	std::string getBattleAIName() const override;
 
-	void initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> CB) override;
+	void initGameInterface(std::shared_ptr<Environment> env, std::shared_ptr<CCallback> callback) override;
 	void yourTurn(QueryID queryID) override;
 
 	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
@@ -183,12 +184,12 @@ public:
 
 	static void cheatMapReveal(const std::unique_ptr<Nullkiller>& nullkiller);
 	static void memorizeVisitableObj(const CGObjectInstance* obj, const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>&
-	                                 dangerHitMap, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cbc);
+	                                 dangerHitMap, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cc);
 	static void memorizeVisitableObjs(const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>& dangerHitMap, const PlayerColor&
-	                                  playerID, const std::shared_ptr<CCallback>& cbc);
-	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cbc);
+	                                  playerID, const std::shared_ptr<CCallback>& cc);
+	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cc);
 
-	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cbc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
+	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 };
 
 }

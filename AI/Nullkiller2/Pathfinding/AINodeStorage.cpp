@@ -103,7 +103,7 @@ int AINodeStorage::getBucketSize() const
 }
 
 AINodeStorage::AINodeStorage(const Nullkiller * aiNk, const int3 & Sizes)
-	: sizes(Sizes), aiNk(aiNk), cbc(aiNk->cbc.get()), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
+	: sizes(Sizes), aiNk(aiNk), cc(aiNk->cc.get()), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -1162,11 +1162,11 @@ void AINodeStorage::calculateTownPortal(
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
-	auto towns = cbc->getTownsInfo(false);
+	auto towns = cc->getTownsInfo(false);
 
 	vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 		{
-			return cbc->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
+			return cc->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
 		});
 
 	if(!towns.size())
@@ -1457,7 +1457,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		}
 
 		int fortLevel = 0;
-		auto visitableObjects = cbc->getVisitableObjs(pos);
+		auto visitableObjects = cc->getVisitableObjs(pos);
 		for (auto obj : visitableObjects)
 		{
 			if (objWithID<Obj::TOWN>(obj))

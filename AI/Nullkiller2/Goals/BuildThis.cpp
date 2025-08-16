@@ -52,11 +52,11 @@ void BuildThis::accept(AIGateway * aiGw)
 
 	if(town)
 	{
-		if(cbcTl->canBuildStructure(town, b) == EBuildingState::ALLOWED)
+		if(ccTl->canBuildStructure(town, b) == EBuildingState::ALLOWED)
 		{
 			logAi->debug("Player %d will build %s in town of %s at %s",
 				aiGw->playerID, town->getTown()->buildings.at(b)->getNameTranslated(), town->getNameTranslated(), town->anchorPos().toString());
-			cbcTl->buildBuilding(town, b);
+			ccTl->buildBuilding(town, b);
 
 			return;
 		}

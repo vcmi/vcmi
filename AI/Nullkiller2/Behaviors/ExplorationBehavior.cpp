@@ -51,11 +51,11 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			case Obj::WHIRLPOOL:
 			{
 				auto tObj = dynamic_cast<const CGTeleport*>(obj);
-				for (auto exit : cbcTl->getTeleportChannelExits(tObj->channel))
+				for (auto exit : ccTl->getTeleportChannelExits(tObj->channel))
 				{
 					if (exit != tObj->id)
 					{
-						if (!cbcTl->isVisible(cbcTl->getObjInstance(exit)))
+						if (!ccTl->isVisible(ccTl->getObjInstance(exit)))
 							tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
 					}
 				}
@@ -63,7 +63,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 		}
 	}
 
-	auto heroes = aiNk->cbc->getHeroesInfo();
+	auto heroes = aiNk->cc->getHeroesInfo();
 
 	for(const CGHeroInstance * hero : heroes)
 	{

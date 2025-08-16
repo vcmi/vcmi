@@ -54,11 +54,11 @@ namespace AIPathfinding
 	{
 	private:
 		const IShipyard * shipyard;
-		const CPlayerSpecificInfoCallback * cbc;
+		const CPlayerSpecificInfoCallback * cpsic;
 
 	public:
-		BuildBoatAction(const CPlayerSpecificInfoCallback * cbc, const IShipyard * shipyard)
-			: cbc(cbc), shipyard(shipyard)
+		BuildBoatAction(const CPlayerSpecificInfoCallback * cpsic, const IShipyard * shipyard)
+			: cpsic(cpsic), shipyard(shipyard)
 		{
 		}
 

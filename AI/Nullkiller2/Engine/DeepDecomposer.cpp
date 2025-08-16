@@ -146,8 +146,8 @@ bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
 
 	if(goal1->goalType == Goals::CAPTURE_OBJECT && goal2->goalType == Goals::CAPTURE_OBJECT)
 	{
-		auto o1 = cbcTl->getObj(ObjectInstanceID(goal1->objid));
-		auto o2 = cbcTl->getObj(ObjectInstanceID(goal2->objid));
+		auto o1 = ccTl->getObj(ObjectInstanceID(goal1->objid));
+		auto o2 = ccTl->getObj(ObjectInstanceID(goal2->objid));
 
 		return o1->ID == Obj::SHIPYARD && o1->ID == o2->ID;
 	}

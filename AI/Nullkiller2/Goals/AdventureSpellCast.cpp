@@ -49,7 +49,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 
 		if(town->getVisitingHero() && town->tempOwner == aiGw->playerID && !town->getUpperArmy()->stacksCount())
 		{
-			aiGw->cbc->swapGarrisonHero(town);
+			aiGw->cc->swapGarrisonHero(town);
 		}
 
 		if(town->getVisitingHero())
@@ -57,12 +57,12 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	}
 
 	if (hero->isGarrisoned())
-		aiGw->cbc->swapGarrisonHero(hero->getVisitedTown());
+		aiGw->cc->swapGarrisonHero(hero->getVisitedTown());
 
-	auto wait = cbcTl->waitTillRealize;
+	auto wait = ccTl->waitTillRealize;
 
-	cbcTl->waitTillRealize = true;
-	cbcTl->castSpell(hero, spellID, tile);
+	ccTl->waitTillRealize = true;
+	ccTl->castSpell(hero, spellID, tile);
 
 	if(town && townPortalEffect)
 	{
@@ -70,7 +70,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 		aiGw->moveHeroToTile(town->visitablePos(), hero);
 	}
 
-	cbcTl->waitTillRealize = wait;
+	ccTl->waitTillRealize = wait;
 
 	throw goalFulfilledException(sptr(*this));
 }

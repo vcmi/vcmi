@@ -290,7 +290,7 @@ const CGHeroInstance * HeroManager::findHeroWithGrail() const
 const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, const CGTownInstance* townToSpare) const
 {
 	const CGHeroInstance * weakestHero = nullptr;
-	auto myHeroes = aiNk->cbc->getHeroesInfo();
+	auto myHeroes = aiNk->cc->getHeroesInfo();
 
 	for(auto existingHero : myHeroes)
 	{

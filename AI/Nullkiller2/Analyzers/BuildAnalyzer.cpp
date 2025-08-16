@@ -42,12 +42,12 @@ void BuildAnalyzer::update()
 {
 	logAi->trace("Start BuildAnalyzer::update");
 	reset();
-	const auto towns = aiNk->cbc->getTownsInfo();
+	const auto towns = aiNk->cc->getTownsInfo();
 	float economyDevelopmentCost = 0;
 
 	for(const CGTownInstance * town : towns)
 	{
-		if(town->built >= cbcTl->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+		if(town->built >= ccTl->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 			continue; // Not much point in trying anything - can't built in this town anymore today
 
 #if NKAI_TRACE_LEVEL >= 1
@@ -57,8 +57,8 @@ void BuildAnalyzer::update()
 		developmentInfos.push_back(TownDevelopmentInfo(town));
 		TownDevelopmentInfo & tdi = developmentInfos.back();
 
-		updateCreatureBuildings(tdi, aiNk->armyManager, aiNk->cbc);
-		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cbc);
+		updateCreatureBuildings(tdi, aiNk->armyManager, aiNk->cc);
+		updateOtherBuildings(tdi, aiNk->armyManager, aiNk->cc);
 		requiredResources += tdi.requiredResources;
 		totalDevelopmentCost += tdi.townDevelopmentCost;
 
@@ -83,7 +83,7 @@ void BuildAnalyzer::update()
 		return val1 > val2;
 	});
 
-	dailyIncome = calculateDailyIncome(aiNk->cbc->getMyObjects(), aiNk->cbc->getTownsInfo());
+	dailyIncome = calculateDailyIncome(aiNk->cc->getMyObjects(), aiNk->cc->getTownsInfo());
 	goldPressure = calculateGoldPressure(aiNk->getLockedResources()[EGameResID::GOLD],
 	                                     static_cast<float>(armyCost[EGameResID::GOLD]),
 	                                     economyDevelopmentCost,

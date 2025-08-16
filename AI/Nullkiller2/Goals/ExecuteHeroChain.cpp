@@ -88,11 +88,11 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 	aiGw->nullkiller->setTargetObject(objid);
 	aiGw->nullkiller->objectClusterizer->reset();
 
-	auto targetObject = aiGw->cbc->getObj(static_cast<ObjectInstanceID>(objid), false);
+	auto targetObject = aiGw->cc->getObj(static_cast<ObjectInstanceID>(objid), false);
 
 	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
 	{
-		auto relations = aiGw->cbc->getPlayerRelations(aiGw->playerID, targetObject->getOwner());
+		auto relations = aiGw->cc->getPlayerRelations(aiGw->playerID, targetObject->getOwner());
 
 		if(relations == PlayerRelations::ENEMIES)
 		{
@@ -200,7 +200,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto findWhirlpool = [&aiGw](const int3 & pos) -> ObjectInstanceID
 				{
-					auto objs = aiGw->cbc->getVisitableObjs(pos);
+					auto objs = aiGw->cc->getVisitableObjs(pos);
 					auto whirlpool = std::find_if(objs.begin(), objs.end(), [](const CGObjectInstance * o)->bool
 						{
 							return o->ID == Obj::WHIRLPOOL;
@@ -296,7 +296,7 @@ std::string ExecuteHeroChain::toString() const
 
 bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
 {
-	if(tile == hero->visitablePos() && aiGw->cbc->getVisitableObjs(hero->visitablePos()).size() < 2)
+	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTranslated(), tile.toString());
 

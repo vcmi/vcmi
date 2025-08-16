@@ -38,7 +38,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 
 	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
 
-	auto heroes = cbcTl->getAvailableHeroes(t);
+	auto heroes = ccTl->getAvailableHeroes(t);
 
 	if(!heroes.size())
 	{
@@ -61,13 +61,13 @@ void RecruitHero::accept(AIGateway * aiGw)
 
 	if(t->getVisitingHero())
 	{
-		cbcTl->swapGarrisonHero(t);
+		ccTl->swapGarrisonHero(t);
 	}
 
 	if(t->getVisitingHero())
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
-	cbcTl->recruitHero(t, heroToHire);
+	ccTl->recruitHero(t, heroToHire);
 
 	{
 		std::unique_lock lockGuard(aiGw->nullkiller->aiStateMutex);

@@ -21,7 +21,7 @@ namespace NK2AI
 
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
-	auto cb = aiNk->cbc.get();
+	auto cb = aiNk->cc.get();
 	const TerrainTile * t = cb->getTile(tile, false);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH
@@ -109,7 +109,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 
 ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 {
-	auto cb = aiNk->cbc.get();
+	auto cb = aiNk->cc.get();
 
 	if(obj->tempOwner.isValidPlayer() && cb->getPlayerRelations(obj->tempOwner, aiNk->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;

@@ -27,7 +27,7 @@ std::string RecruitHeroBehavior::toString() const
 Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = aiNk->cbc->getTownsInfo();
+	auto towns = aiNk->cc->getTownsInfo();
 
 	auto ourHeroes = aiNk->heroManager->getHeroRoles();
 	auto minScoreToHireMain = std::numeric_limits<float>::max();
@@ -78,7 +78,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		}
 		if(aiNk->heroManager->canRecruitHero(town))
 		{
-			auto availableHeroes = aiNk->cbc->getAvailableHeroes(town);
+			auto availableHeroes = aiNk->cc->getAvailableHeroes(town);
 			
 			for (auto obj : aiNk->objectClusterizer->getNearbyObjects())
 			{
@@ -128,8 +128,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 	}
 	if (bestHeroToHire && bestTownToHireFrom)
 	{
-		if (aiNk->cbc->getHeroesInfo().size() == 0
-			|| treasureSourcesCount > aiNk->cbc->getHeroesInfo().size() * 5
+		if (aiNk->cc->getHeroesInfo().size() == 0
+			|| treasureSourcesCount > aiNk->cc->getHeroesInfo().size() * 5
 			|| (bestHeroToHire->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0 && (bestClosestThreat < 1 || !aiNk->buildAnalyzer->isGoldPressureOverMax()))
 			|| (aiNk->getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk->buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
 			|| (aiNk->getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk->buildAnalyzer->isGoldPressureOverMax()))

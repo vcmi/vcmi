@@ -28,7 +28,7 @@ private:
 	int3 bestTile;
 	int bestTilesDiscovered;
 	const Nullkiller * aiNk;
-	CCallback * cbc;
+	CCallback * cc;
 	const TeamState * ts;
 	int3 ourPos;
 	bool allowDeadEndCancellation;

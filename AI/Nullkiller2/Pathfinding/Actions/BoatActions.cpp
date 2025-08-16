@@ -29,7 +29,7 @@ namespace AIPathfinding
 
 	Goals::TSubgoal BuildBoatAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		if(cbc->getPlayerRelations(aiNk->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+		if(cpsic->getPlayerRelations(aiNk->playerID, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 			return Goals::sptr(Goals::CaptureObject(targetObject()));
 		}
@@ -39,7 +39,7 @@ namespace AIPathfinding
 
 	bool BuildBoatAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
-		if(cbc->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
+		if(cpsic->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Shipyard is enemy.");
@@ -51,7 +51,7 @@ namespace AIPathfinding
 
 		shipyard->getBoatCost(boatCost);
 
-		if(!cbc->getResourceAmount().canAfford(reservedResources + boatCost))
+		if(!cpsic->getResourceAmount().canAfford(reservedResources + boatCost))
 		{
 #if NKAI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Not enough resources.");
@@ -87,7 +87,7 @@ namespace AIPathfinding
 
 	std::shared_ptr<SpecialAction> BuildBoatActionFactory::create(const Nullkiller * aiNk)
 	{
-		return std::make_shared<BuildBoatAction>(aiNk->cbc.get(), dynamic_cast<const IShipyard * >(aiNk->cbc->getObj(shipyard)));
+		return std::make_shared<BuildBoatAction>(aiNk->cc.get(), dynamic_cast<const IShipyard * >(aiNk->cc->getObj(shipyard)));
 	}
 
 	void SummonBoatAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const

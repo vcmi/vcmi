@@ -30,17 +30,17 @@ namespace NK2AI
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
-	return cbcTl->getObj(id, false);
+	return ccTl->getObj(id, false);
 }
 
 ObjectIdRef::operator const CGObjectInstance *() const
 {
-	return cbcTl->getObj(id, false);
+	return ccTl->getObj(id, false);
 }
 
 ObjectIdRef::operator bool() const
 {
-	return cbcTl->getObj(id, false);
+	return ccTl->getObj(id, false);
 }
 
 ObjectIdRef::ObjectIdRef(ObjectInstanceID _id)
@@ -101,7 +101,7 @@ std::string HeroPtr::name() const
 
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
 {
-	return get(cbcTl, doWeExpectNull);
+	return get(ccTl, doWeExpectNull);
 }
 
 const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
@@ -203,7 +203,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 	}
 	else if(!fromWater) // do not try to board when in water sector
 	{
-		if(t->visitableObjects.size() == 1 && cbcTl->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
+		if(t->visitableObjects.size() == 1 && ccTl->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
 			return true;
 	}
 	return false;
@@ -211,7 +211,7 @@ bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
 
 bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 {
-	return isObjectPassable(obj, aiNk->playerID, aiNk->cbc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
+	return isObjectPassable(obj, aiNk->playerID, aiNk->cc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
 }
 
 // Pathfinder internal helper
@@ -234,7 +234,7 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 
 bool isBlockVisitObj(const int3 & pos)
 {
-	if(auto obj = cbcTl->getTopObj(pos))
+	if(auto obj = ccTl->getTopObj(pos))
 	{
 		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
@@ -646,7 +646,7 @@ int getDuplicatingSlots(const CArmedInstance * army)
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	auto relations = aiNk->cbc->getPlayerRelations(obj->tempOwner, h->tempOwner);
+	auto relations = aiNk->cc->getPlayerRelations(obj->tempOwner, h->tempOwner);
 
 	switch(obj->ID)
 	{
@@ -656,7 +656,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 
 	case Obj::BORDER_GATE:
 	{
-		for(auto q : aiNk->cbc->getMyQuests())
+		for(auto q : aiNk->cc->getMyQuests())
 		{
 			if(q.obj == obj->id)
 			{
@@ -669,11 +669,11 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 		return (dynamic_cast<const CGKeys *>(obj))->wasMyColorVisited(aiNk->playerID);
 	case Obj::SEER_HUT:
 	{
-		for(auto q : aiNk->cbc->getMyQuests())
+		for(auto q : aiNk->cc->getMyQuests())
 		{
 			if(q.obj == obj->id)
 			{
-				if(q.getQuest(aiNk->cbc.get())->checkQuest(h))
+				if(q.getQuest(aiNk->cc.get())->checkQuest(h))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest
@@ -698,7 +698,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 			{
 				if(level.first
 					&& (h->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
-					&& aiNk->cbc->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
+					&& aiNk->cc->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
 				}

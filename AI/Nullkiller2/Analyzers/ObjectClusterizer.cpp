@@ -69,12 +69,12 @@ std::vector<const CGObjectInstance *> ObjectCluster::getObjects(const CPlayerSpe
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getNearbyObjects() const
 {
-	return nearObjects.getObjects(aiNk->cbc.get());
+	return nearObjects.getObjects(aiNk->cc.get());
 }
 
 std::vector<const CGObjectInstance *> ObjectClusterizer::getFarObjects() const
 {
-	return farObjects.getObjects(aiNk->cbc.get());
+	return farObjects.getObjects(aiNk->cc.get());
 }
 
 std::vector<std::shared_ptr<ObjectCluster>> ObjectClusterizer::getLockedClusters() const
@@ -95,14 +95,14 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 
 	if(node.layer == EPathfindingLayer::LAND || node.layer == EPathfindingLayer::SAIL)
 	{
-		auto guardPos = aiNk->cbc->getGuardingCreaturePosition(node.coord);
+		auto guardPos = aiNk->cc->getGuardingCreaturePosition(node.coord);
 
-		if (aiNk->cbc->isVisible(node.coord))
-			blockers = aiNk->cbc->getVisitableObjs(node.coord);
+		if (aiNk->cc->isVisible(node.coord))
+			blockers = aiNk->cc->getVisitableObjs(node.coord);
 
-		if(guardPos.isValid() && aiNk->cbc->isVisible(guardPos))
+		if(guardPos.isValid() && aiNk->cc->isVisible(guardPos))
 		{
-			auto guard = aiNk->cbc->getTopObj(aiNk->cbc->getGuardingCreaturePosition(node.coord));
+			auto guard = aiNk->cc->getTopObj(aiNk->cc->getGuardingCreaturePosition(node.coord));
 
 			if(guard)
 			{
@@ -190,7 +190,7 @@ void ObjectClusterizer::validateObjects()
 	{
 		for(auto & pair : cluster.objects)
 		{
-			if(!aiNk->cbc->getObj(pair.first, false))
+			if(!aiNk->cc->getObj(pair.first, false))
 				toRemove.push_back(pair.first);
 		}
 	};
@@ -200,7 +200,7 @@ void ObjectClusterizer::validateObjects()
 
 	for(auto & pair : blockedObjects)
 	{
-		if(!aiNk->cbc->getObj(pair.first, false) || pair.second->objects.empty())
+		if(!aiNk->cc->getObj(pair.first, false) || pair.second->objects.empty())
 			toRemove.push_back(pair.first);
 		else
 			scanRemovedObjects(*pair.second);
@@ -248,7 +248,7 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 		return false;
 	}
 
-	auto playerRelations = aiNk->cbc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
+	auto playerRelations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
 	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(aiNk->playerID, obj))
 	{
@@ -258,12 +258,12 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 	//it may be hero visiting this obj
 	//we don't try visiting object on which allied or owned hero stands
 	// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-	const CGObjectInstance * topObj = aiNk->cbc->getTopObj(pos);
+	const CGObjectInstance * topObj = aiNk->cc->getTopObj(pos);
 
 	if(!topObj)
 		return false; // partly visible obj but its visitable pos is not visible.
 
-	if(topObj->ID == Obj::HERO && aiNk->cbc->getPlayerRelations(aiNk->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
+	if(topObj->ID == Obj::HERO && aiNk->cc->getPlayerRelations(aiNk->playerID, topObj->tempOwner) != PlayerRelations::ENEMIES)
 		return false;
 	else
 		return true; //all of the following is met
@@ -310,7 +310,7 @@ void ObjectClusterizer::clusterize()
 	{
 		for(auto id : invalidated)
 		{
-			auto obj = cbcTl->getObj(id, false);
+			auto obj = ccTl->getObj(id, false);
 
 			if(obj)
 			{
@@ -338,7 +338,7 @@ void ObjectClusterizer::clusterize()
 	tbb::blocked_range<size_t> r(0, objs.size());
 #endif
 		auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
-		auto heroes = aiNk->cbc->getHeroesInfo();
+		auto heroes = aiNk->cc->getHeroesInfo();
 		std::vector<AIPath> pathCache;
 
 		for(int i = r.begin(); i != r.end(); i++)
@@ -354,12 +354,12 @@ void ObjectClusterizer::clusterize()
 
 	for(auto pair : blockedObjects)
 	{
-		auto blocker = cbcTl->getObj(pair.first);
+		auto blocker = ccTl->getObj(pair.first);
 
 		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NKAI_TRACE_LEVEL >= 1
-		for(auto obj : pair.second->getObjects(aiNk->cbc.get()))
+		for(auto obj : pair.second->getObjects(aiNk->cc.get()))
 		{
 			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
 		}

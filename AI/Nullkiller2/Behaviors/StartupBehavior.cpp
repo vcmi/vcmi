@@ -97,21 +97,21 @@ bool needToRecruitHero(const Nullkiller * aiNk, const CGTownInstance * startupTo
 		}
 	}
 
-	auto basicCount = cbcTl->getTownsInfo().size() + 2;
+	auto basicCount = ccTl->getTownsInfo().size() + 2;
 	auto boost = std::min(
-		(int)std::floor(std::pow(1 + (cbcTl->getMapSize().x / 50), 2)),
+		(int)std::floor(std::pow(1 + (ccTl->getMapSize().x / 50), 2)),
 		treasureSourcesCount / 2);
 
 	logAi->trace("Treasure sources found %d", treasureSourcesCount);
 	logAi->trace("Startup allows %d+%d heroes", basicCount, boost);
 
-	return cbcTl->getHeroCount(aiNk->playerID, true) < basicCount + boost;
+	return ccTl->getHeroCount(aiNk->playerID, true) < basicCount + boost;
 }
 
 Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = aiNk->cbc->getTownsInfo();
+	auto towns = aiNk->cc->getTownsInfo();
 
 	if(!towns.size())
 		return tasks;
@@ -135,7 +135,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * aiNk) const
 	}
 
 	if(!startupTown->hasBuilt(BuildingID::TAVERN)
-		&& aiNk->cbc->canBuildStructure(startupTown, BuildingID::TAVERN) == EBuildingState::ALLOWED)
+		&& aiNk->cc->canBuildStructure(startupTown, BuildingID::TAVERN) == EBuildingState::ALLOWED)
 	{
 		tasks.push_back(Goals::sptr(Goals::BuildThis(BuildingID::TAVERN, startupTown).setpriority(100)));
 

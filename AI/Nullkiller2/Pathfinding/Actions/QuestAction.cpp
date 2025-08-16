@@ -31,8 +31,8 @@ namespace AIPathfinding
 
 	bool QuestAction::canAct(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		auto object = questInfo.getObject(aiNk->cbc.get());
-		auto quest = questInfo.getQuest(aiNk->cbc.get());
+		auto object = questInfo.getObject(aiNk->cc.get());
+		auto quest = questInfo.getQuest(aiNk->cc.get());
 		if(object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD)
 		{
 			return dynamic_cast<const IQuestObject *>(object)->checkQuest(hero);
@@ -52,7 +52,7 @@ namespace AIPathfinding
 
 	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cbc.get())->visitablePos(), hero);
+		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), hero);
 	}
 
 	std::string QuestAction::toString() const

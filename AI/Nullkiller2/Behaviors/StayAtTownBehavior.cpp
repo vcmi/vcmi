@@ -30,7 +30,7 @@ std::string StayAtTownBehavior::toString() const
 Goals::TGoalVec StayAtTownBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = aiNk->cbc->getTownsInfo();
+	auto towns = aiNk->cc->getTownsInfo();
 
 	if(!towns.size())
 		return tasks;

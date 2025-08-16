@@ -70,8 +70,8 @@ void DangerHitMapAnalyzer::updateHitMap()
 	hitMapUpToDate = true;
 	auto start = std::chrono::high_resolution_clock::now();
 
-	auto cb = aiNk->cbc.get();
-	auto mapSize = aiNk->cbc->getMapSize();
+	auto cb = aiNk->cc.get();
+	auto mapSize = aiNk->cc->getMapSize();
 	
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);
@@ -114,7 +114,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		if(!pair.first.isValidPlayer())
 			continue;
 
-		if(aiNk->cbc->getPlayerRelations(aiNk->playerID, pair.first) != PlayerRelations::ENEMIES)
+		if(aiNk->cc->getPlayerRelations(aiNk->playerID, pair.first) != PlayerRelations::ENEMIES)
 			continue;
 
 		PathfinderSettings ps;
@@ -203,8 +203,8 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	tileOwnersUpToDate = true;
 
-	auto cb = aiNk->cbc.get();
-	auto mapSize = aiNk->cbc->getMapSize();
+	auto cb = aiNk->cc.get();
+	auto mapSize = aiNk->cc->getMapSize();
 
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
 		hitMap.resize(boost::extents[mapSize.x][mapSize.y][mapSize.z]);

@@ -165,7 +165,7 @@ private:
 
 	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
 
-	const CPlayerSpecificInfoCallback * cbc;
+	const CPlayerSpecificInfoCallback * cc;
 	const Nullkiller * aiNk;
 	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;

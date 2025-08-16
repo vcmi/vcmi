@@ -25,9 +25,9 @@ namespace NK2AI
 using namespace Goals;
 
 ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * aiNk, bool useCPathfinderAccessibility)
-	:aiNk(aiNk), cbc(aiNk->cbc.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
+	:aiNk(aiNk), cc(aiNk->cc.get()), hero(hero), useCPathfinderAccessibility(useCPathfinderAccessibility)
 {
-	ts = cbc->getPlayerTeam(aiNk->playerID);
+	ts = cc->getPlayerTeam(aiNk->playerID);
 	sightRadius = hero->getSightRadius();
 	bestGoal = sptr(Goals::Invalid());
 	bestValue = 0;
@@ -55,7 +55,7 @@ bool ExplorationHelper::scanSector(int scanRadius)
 	{
 		for(tile.y = ourPos.y - scanRadius; tile.y <= ourPos.y + scanRadius; tile.y++)
 		{
-			if(cbc->isInTheMap(tile) && slice[tile.x][tile.y])
+			if(cc->isInTheMap(tile) && slice[tile.x][tile.y])
 			{
 				scanTile(tile);
 			}
@@ -67,7 +67,7 @@ bool ExplorationHelper::scanSector(int scanRadius)
 
 bool ExplorationHelper::scanMap()
 {
-	int3 mapSize = cbc->getMapSize();
+	int3 mapSize = cc->getMapSize();
 	int perimeter = 2 * sightRadius * (mapSize.x + mapSize.y);
 
 	std::vector<int3> edgeTiles;
@@ -79,7 +79,7 @@ bool ExplorationHelper::scanMap()
 			{
 				bool hasInvisibleNeighbor = false;
 
-				foreach_neighbour(cbc, pos, [&](CCallback * cbp, int3 neighbour)
+				foreach_neighbour(cc, pos, [&](CCallback * cbp, int3 neighbour)
 					{
 						if(!ts->fogOfWarMap[neighbour.z][neighbour.x][neighbour.y])
 						{
@@ -120,7 +120,7 @@ bool ExplorationHelper::scanMap()
 
 		for(const int3 & tile : tilesToExploreFrom)
 		{
-			foreach_neighbour(cbc, tile, [&](CCallback * cbp, int3 neighbour)
+			foreach_neighbour(cc, tile, [&](CCallback * cbp, int3 neighbour)
 			{
 				if(potentialTiles[neighbour.z][neighbour.x][neighbour.y])
 				{
@@ -143,7 +143,7 @@ bool ExplorationHelper::scanMap()
 void ExplorationHelper::scanTile(const int3 & tile)
 {
 	if(tile == ourPos
-		|| !aiNk->cbc->getTile(tile, false)
+		|| !aiNk->cc->getTile(tile, false)
 		|| !aiNk->pathfinder->isTileAccessible(hero, tile)) //shouldn't happen, but it does
 		return;
 
@@ -152,7 +152,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 		return;
 	
 	auto paths = aiNk->pathfinder->getPathInfo(tile);
-	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, aiNk->cbc->getTopObj(tile));
+	auto waysToVisit = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, aiNk->cc->getTopObj(tile));
 
 	for(int i = 0; i != paths.size(); i++)
 	{
@@ -166,7 +166,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 
 		if(ourValue > bestValue) //avoid costly checks of tiles that don't reveal much
 		{
-			auto obj = cbc->getTopObj(tile);
+			auto obj = cc->getTopObj(tile);
 
 			// picking up resources does not yield any exploration at all.
 			// if it blocks the way to some explorable tile AIPathfinder will take care of it
@@ -197,7 +197,7 @@ int ExplorationHelper::howManyTilesWillBeDiscovered(const int3 & pos) const
 	{
 		for(npos.y = pos.y - sightRadius; npos.y <= pos.y + sightRadius; npos.y++)
 		{
-			if(cbc->isInTheMap(npos)
+			if(cc->isInTheMap(npos)
 				&& pos.dist2d(npos) - 0.5 < sightRadius
 				&& !slice[npos.x][npos.y])
 			{
@@ -220,7 +220,7 @@ bool ExplorationHelper::hasReachableNeighbor(const int3 & pos) const
 	for(const int3 & dir : int3::getDirs())
 	{
 		int3 tile = pos + dir;
-		if(cbc->isInTheMap(tile))
+		if(cc->isInTheMap(tile))
 		{
 			auto isAccessible = useCPathfinderAccessibility
 				? aiNk->getPathsInfo(hero)->getPathInfo(tile)->reachable()

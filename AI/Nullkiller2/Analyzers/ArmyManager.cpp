@@ -77,7 +77,7 @@ std::vector<SlotInfo> ArmyManager::toSlotInfo(std::vector<creInfo> army) const
 
 uint64_t ArmyManager::howManyReinforcementsCanGet(const CGHeroInstance * hero, const CCreatureSet * source) const
 {
-	return howManyReinforcementsCanGet(hero, hero, source, aiNk->cbc->getTile(hero->visitablePos())->getTerrainID());
+	return howManyReinforcementsCanGet(hero, hero, source, aiNk->cc->getTile(hero->visitablePos())->getTerrainID());
 }
 
 std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, const CCreatureSet * source) const

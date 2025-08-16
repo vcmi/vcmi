@@ -260,7 +260,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 		if(actor->allowSpellCast || other->allowSpellCast)
 			return result;
 
-		TResources resources = aiNk->cbc->getResourceAmount();
+		TResources resources = aiNk->cc->getResourceAmount();
 
 		if(!resources.canAfford(actor->armyCost + other->armyCost))
 		{
@@ -367,7 +367,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 
 	if(upgrader->ID == Obj::TOWN)
 	{
-		auto buyArmy = aiNk->armyManager->getArmyAvailableToBuy(target, aiNk->cbc->getTown(upgrader->id), resources);
+		auto buyArmy = aiNk->armyManager->getArmyAvailableToBuy(target, aiNk->cc->getTown(upgrader->id), resources);
 
 		for(auto & creatureToBuy : buyArmy)
 		{
@@ -394,7 +394,7 @@ HeroExchangeArmy * HeroExchangeMap::tryUpgrade(
 HeroExchangeArmy * HeroExchangeMap::pickBestCreatures(const CCreatureSet * army1, const CCreatureSet * army2) const
 {
 	auto * target = new HeroExchangeArmy();
-	auto bestArmy = aiNk->armyManager->getBestArmy(actor->hero, army1, army2, aiNk->cbc->getTile(actor->hero->visitablePos())->getTerrainID());
+	auto bestArmy = aiNk->armyManager->getBestArmy(actor->hero, army1, army2, aiNk->cc->getTile(actor->hero->visitablePos())->getTerrainID());
 
 	for(auto & slotInfo : bestArmy)
 	{

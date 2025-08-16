@@ -38,7 +38,7 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 		
-	for(auto town : aiNk->cbc->getTownsInfo())
+	for(auto town : aiNk->cc->getTownsInfo())
 	{
 		evaluateDefence(tasks, town, aiNk);
 	}
@@ -48,7 +48,7 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * aiNk) const
 
 bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat, const Nullkiller * aiNk, const std::vector<AIPath> & paths)
 {
-	int dayOfWeek = aiNk->cbc->getDate(Date::DAY_OF_WEEK);
+	int dayOfWeek = aiNk->cc->getDate(Date::DAY_OF_WEEK);
 
 	for(const AIPath & path : paths)
 	{
@@ -121,7 +121,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 	if(!town->getVisitingHero())
 	{
-		if(aiNk->cbc->getHeroCount(aiNk->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
+		if(aiNk->cc->getHeroCount(aiNk->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
 		{
 			logAi->trace(
 				"Extracting hero %s from garrison of town %s",
@@ -429,9 +429,9 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 		return;
 	
 	if(town->hasBuilt(BuildingID::TAVERN)
-		&& aiNk->cbc->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
+		&& aiNk->cc->getResourceAmount(EGameResID::GOLD) > GameConstants::HERO_GOLD_COST)
 	{
-		auto heroesInTavern = aiNk->cbc->getAvailableHeroes(town);
+		auto heroesInTavern = aiNk->cc->getAvailableHeroes(town);
 
 		for(auto hero : heroesInTavern)
 		{
@@ -453,7 +453,7 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			if (heroAlreadyHiredInOtherTown)
 				continue;
 
-			auto myHeroes = aiNk->cbc->getHeroesInfo();
+			auto myHeroes = aiNk->cc->getHeroesInfo();
 
 #if NKAI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s can be recruited to defend %s", hero->getObjectName(), town->getObjectName());

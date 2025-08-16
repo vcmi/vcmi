@@ -34,7 +34,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	auto heroes = aiNk->cbc->getHeroesInfo();
+	auto heroes = aiNk->cc->getHeroesInfo();
 
 	if(heroes.empty())
 	{
@@ -49,7 +49,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * aiNk) const
 		}
 	}
 
-	auto towns = aiNk->cbc->getTownsInfo();
+	auto towns = aiNk->cc->getTownsInfo();
 
 	for(const CGTownInstance * town : towns)
 	{
@@ -314,7 +314,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 				&& aiNk->heroManager->canRecruitHero(upgrader)
 				&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 			{
-				for(auto hero : cbcTl->getAvailableHeroes(upgrader))
+				for(auto hero : ccTl->getAvailableHeroes(upgrader))
 				{
 					auto scoutReinforcement = aiNk->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 

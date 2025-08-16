@@ -227,7 +227,7 @@ uint64_t RewardEvaluator::getArmyReward(
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
 
-	auto relations = aiNk->cbc->getPlayerRelations(target->tempOwner, aiNk->playerID);
+	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID);
 
 	if(!target)
 		return 0;
@@ -235,12 +235,12 @@ uint64_t RewardEvaluator::getArmyReward(
 	switch(target->ID)
 	{
 	case Obj::HILL_FORT:
-		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cbc->getResourceAmount()).upgradeValue;
+		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cc->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyValue(aiNk->cbc.get(), target, checkGold);
+		return getDwellingArmyValue(aiNk->cc.get(), target, checkGold);
 	case Obj::SPELL_SCROLL:
 		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getScrollSpellID());
 	case Obj::ARTIFACT:
@@ -296,7 +296,7 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	if(!target)
 		return 0;
 
-	auto relations = aiNk->cbc->getPlayerRelations(target->tempOwner, hero->tempOwner);
+	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, hero->tempOwner);
 
 	if(relations != PlayerRelations::ENEMIES)
 		return 0;
@@ -308,7 +308,7 @@ uint64_t RewardEvaluator::getArmyGrowth(
 		auto town = dynamic_cast<const CGTownInstance *>(target);
 		auto fortLevel = town->fortLevel();
 		auto neutral = !town->getOwner().isValidPlayer();
-		auto booster = isAnotherAi(town, *aiNk->cbc) ||  neutral ? 1 : 2;
+		auto booster = isAnotherAi(town, *aiNk->cc) ||  neutral ? 1 : 2;
 
 		if(fortLevel < CGTownInstance::CITADEL)
 			return town->hasFort() ? booster * 500 : 0;
@@ -320,7 +320,7 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyGrowth(aiNk->cbc.get(), target, hero->getOwner());
+		return getDwellingArmyGrowth(aiNk->cc.get(), target, hero->getOwner());
 	case Obj::ARTIFACT:
 		// it is not supported now because hero will not sit in town on 7th day but later parts of legion may be counted as army growth as well.
 		return 0;
@@ -343,7 +343,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	switch(target->ID)
 	{
 	case Obj::HILL_FORT:
-		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cbc->getResourceAmount()).upgradeCost[EGameResID::GOLD];
+		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cc->getResourceAmount()).upgradeCost[EGameResID::GOLD];
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;
@@ -499,7 +499,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 		}
 
 		auto fortLevel = town->fortLevel();
-		auto booster = isAnotherAi(town, *aiNk->cbc) ? 0.4f : 1.0f;
+		auto booster = isAnotherAi(town, *aiNk->cc) ? 0.4f : 1.0f;
 
 		if(town->hasCapitol())
 			return booster * 1.5;
@@ -511,7 +511,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	}
 
 	case Obj::HERO:
-		return aiNk->cbc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
+		return aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance *>(target))
 			: 0;
 
@@ -575,7 +575,7 @@ float RewardEvaluator::getConquestValue(const CGObjectInstance* target) const
 	}
 
 	case Obj::HERO:
-		return aiNk->cbc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
+		return aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
 			? getEnemyHeroStrategicalValue(dynamic_cast<const CGHeroInstance*>(target))
 			: 0;
 
@@ -595,7 +595,7 @@ float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, 
 		return role == HeroRole::SCOUT ? 2 : 0;
 
 	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
-		|| static_cast<int>(hero->secSkills.size()) >= cbcTl->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
+		|| static_cast<int>(hero->secSkills.size()) >= ccTl->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
 		return 0;
 
 	auto score = aiNk->heroManager->evaluateSecSkill(skill, hero);
@@ -639,7 +639,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
 	case Obj::HERO:
-		return aiNk->cbc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
+		return aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
 			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
 			: 0;
 
@@ -719,7 +719,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	if(!target)
 		return 0;
 
-	auto relations = aiNk->cbc->getPlayerRelations(target->tempOwner, hero->tempOwner);
+	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, hero->tempOwner);
 
 	const int dailyIncomeMultiplier = 5;
 	const float enemyArmyEliminationGoldRewardRatio = 0.2f;
@@ -737,7 +737,7 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 	case Obj::WATER_WHEEL:
 		return 1000;
 	case Obj::TOWN:
-		return dailyIncomeMultiplier * estimateTownIncome(aiNk->cbc.get(), target, hero);
+		return dailyIncomeMultiplier * estimateTownIncome(aiNk->cc.get(), target, hero);
 	case Obj::MINE:
 	case Obj::ABANDONED_MINE:
 	{
@@ -824,7 +824,7 @@ public:
 		int tilesDiscovered = task->value;
 
 		evaluationContext.addNonCriticalStrategicalValue(0.03f * tilesDiscovered);
-		for (auto obj : evaluationContext.evaluator.aiNk->cbc->getVisitableObjs(task->tile))
+		for (auto obj : evaluationContext.evaluator.aiNk->cc->getVisitableObjs(task->tile))
 		{
 			switch (obj->ID.num)
 			{
@@ -839,7 +839,7 @@ public:
 				break;
 			}
 		}
-		if(evaluationContext.evaluator.aiNk->cbc->getTile(task->tile)->roadType != RoadId::NO_ROAD)
+		if(evaluationContext.evaluator.aiNk->cc->getTile(task->tile)->roadType != RoadId::NO_ROAD)
 			evaluationContext.explorePriority = 1;
 		if (evaluationContext.explorePriority == 0)
 			evaluationContext.explorePriority = 3;
@@ -910,7 +910,7 @@ public:
 		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
 			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
-			auto enemySpeed = threat.hero.get(evaluationContext.evaluator.aiNk->cbc.get())->movementPointsLimit(true);
+			auto enemySpeed = threat.hero.get(evaluationContext.evaluator.aiNk->cc.get())->movementPointsLimit(true);
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -986,7 +986,7 @@ public:
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
 
-		const CGObjectInstance * target = aiNk->cbc->getObj((ObjectInstanceID)task->objid, false);
+		const CGObjectInstance * target = aiNk->cc->getObj((ObjectInstanceID)task->objid, false);
 		auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(hero);
 
 		if(heroRole == HeroRole::MAIN)
@@ -1038,7 +1038,7 @@ public:
 			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
 			if (target->ID == Obj::HERO)
 				evaluationContext.isHero = true;
-			if (target->getOwner().isValidPlayer() && aiNk->cbc->getPlayerRelations(aiNk->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
+			if (target->getOwner().isValidPlayer() && aiNk->cc->getPlayerRelations(aiNk->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
 				evaluationContext.isEnemy = true;
 			if (target->ID == Obj::TOWN)
 				evaluationContext.defenseValue = dynamic_cast<const CGTownInstance*>(target)->fortLevel();
@@ -1081,7 +1081,7 @@ public:
 
 		for(auto & objInfo : objects)
 		{
-			auto target = evaluationContext.evaluator.aiNk->cbc->getObj(objInfo.first);
+			auto target = evaluationContext.evaluator.aiNk->cc->getObj(objInfo.first);
 			bool checkGold = objInfo.second.danger == 0;
 			auto army = hero;
 
@@ -1118,7 +1118,7 @@ public:
 		logAi->trace("buildEvaluationContext ExchangeSwapTownHeroesContextBuilder %s affected objects: %d", swapCommand.toString(), swapCommand.getAffectedObjects().size());
 		for (auto obj : swapCommand.getAffectedObjects())
 		{
-			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cbc->getObj(obj)->getObjectName());
+			logAi->trace("affected object: %s", evaluationContext.evaluator.aiNk->cc->getObj(obj)->getObjectName());
 		}
 		if (garrisonHero)
 			logAi->debug("with %s and %d", garrisonHero->getNameTranslated(), int(swapCommand.getLockingReason()));
@@ -1184,13 +1184,13 @@ public:
 
 		bool alreadyOwn = false;
 		int highestMageGuildPossible = BuildingID::MAGES_GUILD_3;
-		for (auto town : evaluationContext.evaluator.aiNk->cbc->getTownsInfo())
+		for (auto town : evaluationContext.evaluator.aiNk->cc->getTownsInfo())
 		{
 			if (town->hasBuilt(bi.id))
 				alreadyOwn = true;
-			if (evaluationContext.evaluator.aiNk->cbc->canBuildStructure(town, BuildingID::MAGES_GUILD_5) != EBuildingState::FORBIDDEN)
+			if (evaluationContext.evaluator.aiNk->cc->canBuildStructure(town, BuildingID::MAGES_GUILD_5) != EBuildingState::FORBIDDEN)
 				highestMageGuildPossible = BuildingID::MAGES_GUILD_5;
-			else if (evaluationContext.evaluator.aiNk->cbc->canBuildStructure(town, BuildingID::MAGES_GUILD_4) != EBuildingState::FORBIDDEN)
+			else if (evaluationContext.evaluator.aiNk->cc->canBuildStructure(town, BuildingID::MAGES_GUILD_4) != EBuildingState::FORBIDDEN)
 				highestMageGuildPossible = BuildingID::MAGES_GUILD_4;
 		}
 
@@ -1231,9 +1231,9 @@ public:
 		else if(bi.id >= BuildingID::MAGES_GUILD_1 && bi.id <= BuildingID::MAGES_GUILD_5)
 		{
 			evaluationContext.skillReward += 2 * bi.id.getMagesGuildLevel();
-			if (!alreadyOwn && evaluationContext.evaluator.aiNk->cbc->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
+			if (!alreadyOwn && evaluationContext.evaluator.aiNk->cc->canBuildStructure(buildThis.town, highestMageGuildPossible) != EBuildingState::FORBIDDEN)
 			{
-				for (auto hero : evaluationContext.evaluator.aiNk->cbc->getHeroesInfo())
+				for (auto hero : evaluationContext.evaluator.aiNk->cc->getHeroesInfo())
 				{
 					if(hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + hero->getPrimSkillLevel(PrimarySkill::KNOWLEDGE) > hero->getPrimSkillLevel(PrimarySkill::ATTACK) + hero->getPrimSkillLevel(PrimarySkill::DEFENSE)
 						&& hero->manaLimit() > 30)
@@ -1242,7 +1242,7 @@ public:
 			}
 		}
 		int sameTownBonus = 0;
-		for (auto town : evaluationContext.evaluator.aiNk->cbc->getTownsInfo())
+		for (auto town : evaluationContext.evaluator.aiNk->cc->getTownsInfo())
 		{
 			if (buildThis.town->getFaction() == town->getFaction())
 				sameTownBonus += town->getTownLevel();
@@ -1382,14 +1382,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 #endif
 			return 0;
 		}
-		const bool amIInDanger = aiNk->cbc->getTownsInfo().empty();
+		const bool amIInDanger = aiNk->cc->getTownsInfo().empty();
 		// Shouldn't it default to 0 instead of 1.0 in the end?
 		const float maxWillingToLose = amIInDanger ? 1 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
 		float dangerThreshold = 1;
 		dangerThreshold *= evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 
 		bool arriveNextWeek = false;
-		if (aiNk->cbc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7 && priorityTier < PriorityTier::FAR_KILL)
+		if (aiNk->cc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7 && priorityTier < PriorityTier::FAR_KILL)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
@@ -1435,7 +1435,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cbc->getTownsInfo().empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cc->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
@@ -1485,7 +1485,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cbc->getTownsInfo().empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !aiNk->cc->getTownsInfo().empty()))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
@@ -1607,7 +1607,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					if (!evaluationContext.isTradeBuilding && aiNk->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5 && aiNk->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
 					{
 						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
-						for (auto town : aiNk->cbc->getTownsInfo())
+						for (auto town : aiNk->cc->getTownsInfo())
 						{
 							if (!town->hasBuiltSomeTradeBuilding())
 								return 0;

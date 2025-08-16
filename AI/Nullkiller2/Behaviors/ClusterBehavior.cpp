@@ -41,7 +41,7 @@ Goals::TGoalVec ClusterBehavior::decompose(const Nullkiller * aiNk) const
 
 Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::shared_ptr<ObjectCluster> cluster) const
 {
-	auto center = cluster->calculateCenter(aiNk->cbc.get());
+	auto center = cluster->calculateCenter(aiNk->cc.get());
 	auto paths = aiNk->pathfinder->getPathInfo(center->visitablePos(), aiNk->isObjectGraphAllowed());
 
 	auto blockerPos = cluster->blocker->visitablePos();
@@ -83,7 +83,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 		{
 			clonedPath.nodes.insert(clonedPath.nodes.begin(), *node);
 
-			if(node->coord == blockerPos || aiNk->cbc->getGuardingCreaturePosition(node->coord) == blockerPos)
+			if(node->coord == blockerPos || aiNk->cc->getGuardingCreaturePosition(node->coord) == blockerPos)
 				break;
 		}
 

@@ -28,7 +28,7 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 {
 	ExplorationHelper h(hero, aiGw->nullkiller.get(), true);
 
-	for(int i = 0; i < tilesToExplore && aiGw->cbc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
+	for(int i = 0; i < tilesToExplore && aiGw->cc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
 	{
 		int3 pos = hero->visitablePos();
 		float value = 0;
