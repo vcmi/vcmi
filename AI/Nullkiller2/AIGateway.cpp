@@ -586,7 +586,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 
 	nullkiller->init(CB, this);
 
-	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, TODO);
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -1736,7 +1736,7 @@ void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory
 
 void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cbc, const CGHeroInstance * h, const CGHeroInstance * other)
 {
-	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
+	auto equipBest = [cbc](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{
 		bool changeMade = false;
 		std::set<std::pair<ArtifactInstanceID, ArtifactInstanceID> > swappedSet;
