@@ -134,7 +134,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		auto boat = dynamic_cast<const CGBoat *>(o1);
 		if(boat)
-			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID);
+			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 	}
 }
 
@@ -284,7 +284,7 @@ void AIGateway::tileRevealed(const FowTilesType & pos)
 	for(int3 tile : pos)
 	{
 		for(const CGObjectInstance * obj : cbc->getVisitableObjs(tile))
-			memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID);
+			memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 	}
 
 	if (nullkiller->settings->isUpdateHitmapOnTileReveal() && !pos.empty())
@@ -306,7 +306,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 		auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 		{
 			this->pickBestCreatures(h1, h2);
-			pickBestArtifacts(h1, h2);
+			pickBestArtifacts(cbc, h1, h2);
 		};
 
 		//Do not attempt army or artifacts exchange if we visited ally player
@@ -370,7 +370,7 @@ void AIGateway::newObject(const CGObjectInstance * obj)
 	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	if(obj->isVisitable())
-		memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID);
+		memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
 }
 
 //to prevent AI from accessing objects that got deleted while they became invisible (Cover of Darkness, enemy hero moved etc.) below code allows AI to know deletion of objects out of sight
@@ -586,7 +586,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 
 	nullkiller->init(CB, this);
 
-	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
+	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, TODO);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
@@ -853,7 +853,7 @@ void AIGateway::makeTurn()
 
 	cheatMapReveal(nullkiller);
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cbc);
-	memorizeRevisitableObjs(nullkiller->memory, playerID);
+	memorizeRevisitableObjs(nullkiller->memory, playerID, cbc);
 
 	try
 	{
@@ -1691,14 +1691,14 @@ void AIGateway::cheatMapReveal(const std::unique_ptr<Nullkiller> & nullkiller)
 void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
                                       const std::unique_ptr<DangerHitMapAnalyzer> & dangerHitMap,
                                       const PlayerColor & playerID,
-                                      const std::shared_ptr<CCallback> & myCb)
+                                      const std::shared_ptr<CCallback> & cbc)
 {
 	foreach_tile_pos([&](const int3 & pos)
 	{
 		// TODO: Inspect what not visible means when using verbose true
-		for(const CGObjectInstance * obj : myCb->getVisitableObjs(pos, false))
+		for(const CGObjectInstance * obj : cbc->getVisitableObjs(pos, false))
 		{
-			memorizeVisitableObj(obj, memory, dangerHitMap, playerID);
+			memorizeVisitableObj(obj, memory, dangerHitMap, playerID, cbc);
 		}
 	});
 }
@@ -1706,7 +1706,8 @@ void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
 void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
                                      const std::unique_ptr<AIMemory> & memory,
                                      const std::unique_ptr<DangerHitMapAnalyzer> & dangerHitMap,
-                                     const PlayerColor & playerID)
+                                     const PlayerColor & playerID,
+                                     const std::shared_ptr<CCallback> & cbc)
 {
 	if(obj->ID == Obj::EVENT)
 		return;
@@ -1719,7 +1720,7 @@ void AIGateway::memorizeVisitableObj(const CGObjectInstance * obj,
 	}
 }
 
-void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory, const PlayerColor & playerID)
+void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory, const PlayerColor & playerID, const std::shared_ptr<CCallback> & cbc)
 {
 	if(cbc->getDate(Date::DAY_OF_WEEK) == 1)
 	{
@@ -1733,7 +1734,7 @@ void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory
 	}
 }
 
-void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other)
+void AIGateway::pickBestArtifacts(const std::shared_ptr<CCallback> & cbc, const CGHeroInstance * h, const CGHeroInstance * other)
 {
 	auto equipBest = [](const CGHeroInstance * h, const CGHeroInstance * otherh, bool giveStuffToFirstHero) -> void
 	{

@@ -182,13 +182,13 @@ public:
 	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 
 	static void cheatMapReveal(const std::unique_ptr<Nullkiller>& nullkiller);
-	static void memorizeVisitableObj(const CGObjectInstance* obj, const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>& dangerHitMap, const
-	                                 PlayerColor& playerID);
+	static void memorizeVisitableObj(const CGObjectInstance* obj, const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>&
+	                                 dangerHitMap, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cbc);
 	static void memorizeVisitableObjs(const std::unique_ptr<AIMemory>& memory, const std::unique_ptr<DangerHitMapAnalyzer>& dangerHitMap, const PlayerColor&
-	                                  playerID, const std::shared_ptr<CCallback>& myCb);
-	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID);
+	                                  playerID, const std::shared_ptr<CCallback>& cbc);
+	static void memorizeRevisitableObjs(const std::unique_ptr<AIMemory>& memory, const PlayerColor& playerID, const std::shared_ptr<CCallback>& cbc);
 
-	static void pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
+	static void pickBestArtifacts(const std::shared_ptr<CCallback> & cbc, const CGHeroInstance * h, const CGHeroInstance * other = nullptr);
 };
 
 }
