@@ -196,9 +196,8 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 bool HeroManager::heroCapReached(bool includeGarrisoned) const
 {
 	int heroCount = cc->getHeroCount(aiNk->playerID, includeGarrisoned);
-	int maxAllowed = 1 + cc->howManyTowns() * aiNk->settings->getMaxRoamingHeroes();
 
-	return heroCount >= maxAllowed
+	return heroCount >= aiNk->settings->getMaxRoamingHeroes()
 		|| heroCount >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
 		|| heroCount >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
 }
