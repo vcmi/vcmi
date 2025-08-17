@@ -496,7 +496,7 @@
 		"heroes" :
 		{
 			// number of heroes that player can have active on map at the same time
-			"perPlayerOnMapCap" : 8,
+			"perPlayerOnMapCap" : 16,
 			// number of heroes that player can have in total, including garrisoned
 			"perPlayerTotalCap" : 9999,
 			// if enabled, hero that wins a battle without any non-summoned troops left will retreat and become available in tavern instead of being lost
@@ -530,9 +530,9 @@
 			"specialtyCreatureGrowth" : 5,
 
 			/// Maximum amount of skills that can be offered to hero on levelup
-			"levelupTotalSkillsAmount" : 2,
+			"levelupTotalSkillsAmount" : 9999,
 			/// Maximum amount of advanced or expert skills that can be offered to hero on levelup
-			"levelupUpgradedSkillsAmount" : 1
+			"levelupUpgradedSkillsAmount" : 9999
 		},
 
 		"towns":
@@ -675,7 +675,7 @@
 		"creatures":
 		{
 			// creatures on map will grow by specified percentage each week
-			"weeklyGrowthPercent" : 10,
+			"weeklyGrowthPercent" : 25,
 			// creatures on map will not grow if their quantity is greater than this value
 			"weeklyGrowthCap" : 4000,
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
@@ -694,9 +694,9 @@
 		"dwellings" :
 		{
 			// if enabled, neutral dwellings will accumulate creatures 
-			"accumulateWhenNeutral" : false,
+			"accumulateWhenNeutral" : true,
 			// if enabled, dwellings owned by players will accumulate creatures 
-			"accumulateWhenOwned" : false,
+			"accumulateWhenOwned" : true,
 			// if enabled, game will attempt to merge slots in army on recruit if all slots in hero army are in use
 			"mergeOnRecruit" : true
 		},
