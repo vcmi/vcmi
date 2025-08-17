@@ -272,11 +272,10 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
         OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
-        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.apk"
-        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
+        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
+        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
 
     - name: Upload Artifact
-      if: ${{ matrix.pack == 1 }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
