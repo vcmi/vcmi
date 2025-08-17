@@ -68,6 +68,7 @@ ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visit
 			auto armedObj = dynamic_cast<const CArmedInstance *>(dangerousObject);
 			if(armedObj)
 			{
+				// TODO: Mircea: Here is where advantages should be added to danger (shooters etc)
 				float tacticalAdvantage = tacticalAdvantageEngine.getTacticalAdvantage(visitor, armedObj);
 				objectDanger *= tacticalAdvantage; //this line tends to go infinite for allied towns (?)
 			}

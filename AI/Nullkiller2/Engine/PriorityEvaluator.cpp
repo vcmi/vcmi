@@ -1537,7 +1537,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				score += evaluationContext.skillReward * evaluationContext.armyInvolvement * (1 - evaluationContext.armyLossRatio) * 0.05;
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
-				// score -= evaluationContext.goldCost; // don't include School of Magic cost or others because those locations are benefficial
+				// score -= evaluationContext.goldCost; // don't include School of Magic cost or others because those locations are beneficial
 				score -= evaluationContext.armyInvolvement * evaluationContext.armyLossRatio * 0.1;
 				logAi->trace("case PriorityTier::FAR_HUNTER_GATHER score %f, strategicalValue %f, goldReward %f, skillRewardMultiplied %f, armyReward %f, armyGrowth %f, goldCost -%f, armyInvolvementMultiplied -%f, "
 				 "armyLossPersentage %f, movementCost %f, enemyHeroDangerRatio %f",
