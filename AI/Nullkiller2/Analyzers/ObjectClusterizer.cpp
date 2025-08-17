@@ -425,12 +425,15 @@ void ObjectClusterizer::clusterizeObject(
 	for(auto & path : pathCache)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Checking path %s", path.toString());
+		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
 		if(aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
 		{
-			if(path.movementCost() > 2.0f)
+			// TODO: Mircea: Shouldn't this be linked with scoutHeroTurnDistanceLimit?
+			// TODO: Mircea: Move to constant
+			// if(path.movementCost() > 2.0f)
+			if(path.movementCost() > aiNk->settings->getScoutHeroTurnDistanceLimit())
 			{
 #if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Path is too far %f", path.movementCost());
@@ -438,11 +441,12 @@ void ObjectClusterizer::clusterizeObject(
 				continue;
 			}
 		}
+		// TODO: Mircea: Move to constant
 		else if(path.movementCost() > 4.0f && obj->ID != Obj::TOWN)
 		{
 			auto strategicalValue = valueEvaluator.getStrategicalValue(obj);
 
-			if(strategicalValue < 0.3f)
+			if(strategicalValue < MINIMUM_STRATEGICAL_VALUE_NON_TOWN)
 			{
 #if NKAI_TRACE_LEVEL >= 2
 				logAi->trace("Object value is too low %f", strategicalValue);
@@ -454,7 +458,7 @@ void ObjectClusterizer::clusterizeObject(
 		if(!shouldVisit(aiNk, path.targetHero, obj))
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Hero %s does not need to visit %s", path.targetHero->getObjectName(), obj->getObjectName());
+			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getObjectName(), obj->getObjectName());
 #endif
 			continue;
 		}
@@ -484,7 +488,7 @@ void ObjectClusterizer::clusterizeObject(
 
 				if(aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 					continue;
-				else if (priority <= 0)
+				if (priority <= 0)
 					continue;
 
 				ClusterMap::accessor cluster;
@@ -510,9 +514,10 @@ void ObjectClusterizer::clusterizeObject(
 
 		if (aiNk->settings->isUseFuzzy() && priority < MIN_PRIORITY)
 			continue;
-		else if (priority <= 0)
+		if (priority <= 0)
 			continue;
 
+		// TODO: Mircea: Move to constant
 		bool interestingObject = path.turn() <= 2 || priority > (aiNk->settings->isUseFuzzy() ? 0.5f : 0);
 
 		if(interestingObject)

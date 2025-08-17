@@ -15,6 +15,8 @@
 namespace NK2AI
 {
 
+static constexpr float MINIMUM_STRATEGICAL_VALUE_NON_TOWN = 0.3f;
+
 struct ClusterObjectInfo
 {
 	float priority = 0.f;

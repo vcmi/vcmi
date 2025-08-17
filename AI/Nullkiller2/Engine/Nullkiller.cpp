@@ -295,7 +295,7 @@ void Nullkiller::updateState(bool partialUpdate)
 
 		if(scanDepth != ScanDepth::ALL_FULL || isObjectGraphAllowed())
 		{
-			cfg.scoutTurnDistanceLimit =settings->getScoutHeroTurnDistanceLimit();
+			cfg.scoutTurnDistanceLimit = settings->getScoutHeroTurnDistanceLimit();
 		}
 
 		makingTurnInterrupption.interruptionPoint();

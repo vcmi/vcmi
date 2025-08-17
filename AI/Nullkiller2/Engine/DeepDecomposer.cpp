@@ -68,10 +68,12 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 
 			if(subgoal->isElementar())
 			{
-				// need to get rid of priority control in behaviors like Startup to avoid this check.
+				// TODO: need to get rid of priority control in behaviors like Startup to avoid this check.
 				// 0 - goals directly from behavior
 				Goals::TSubgoal task = depth >= 1 ? aggregateGoals(0, subgoal) : subgoal;
 
+				// TODO: Mircea: Issue with CGameHandler::spawnWanderingMonsters, see getFreeTiles(tiles, true);
+				// danger not linked GraphPaths::addChainInfo, so spawning only with nearby unblocked
 #if NKAI_TRACE_LEVEL >= 1
 				logAi->trace("Found task %s", task->toString());
 #endif

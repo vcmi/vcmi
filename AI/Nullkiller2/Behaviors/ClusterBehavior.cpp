@@ -62,7 +62,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 	for(auto path = paths.begin(); path != paths.end();)
 	{
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("Checking path %s", path->toString());
+		logAi->trace("ClusterBehavior Checking path %s", path->toString());
 #endif
 
 		auto blocker = aiNk->objectClusterizer->getBlocker(*path);

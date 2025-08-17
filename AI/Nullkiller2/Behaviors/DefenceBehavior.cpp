@@ -425,6 +425,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitMapInfo & threat, const CGTownInstance * town, const Nullkiller * aiNk) const
 {
+	// TODO: Mircea: Shouldn't it be threat.turn < 1? How does the current one make sense?
 	if (threat.turn > 0 || town->getGarrisonHero() || town->getVisitingHero())
 		return;
 	
@@ -435,6 +436,8 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 
 		for(auto hero : heroesInTavern)
 		{
+			// TODO: Mircea: Investigate if this logic might be off, as the attacker will most probably be more powerful than a tavern hero
+			// A new hero improves the defence strength of town's army if it has defence > 0 in primary skills
 			if(hero->getTotalStrength() < threat.danger)
 				continue;
 
@@ -484,9 +487,11 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 				}
 
 				// avoid dismissing one weak hero in order to recruit another.
+				// TODO: Mircea: Move to constant
 				if(heroToDismiss && heroToDismiss->getArmyStrength() + 500 > hero->getArmyStrength())
 					continue;
 			}
+			// TODO: Mircea: Check if it immediately dismisses after losing a castle, though that implies losing a hero too if present in the castle
 			else if(aiNk->heroManager->heroCapReached())
 			{
 				heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(hero->getArmyStrength(), town);

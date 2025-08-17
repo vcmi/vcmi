@@ -292,6 +292,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 
 			path.armyLoss += loss;
 			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, !allowBattle);
+			// TODO: Mircea: This is similar same as 263, so what's happening here? Why strength is passed differently?
 			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			paths.push_back(path);

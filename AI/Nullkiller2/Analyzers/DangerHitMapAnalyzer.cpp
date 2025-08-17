@@ -140,7 +140,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 				newThreat.hero = path.targetHero;
 				newThreat.turn = path.turn();
 				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
-				// Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
+				// TODO: Mircea: Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
 				// shouldn't it use the path danger instead of hero strength?
 				newThreat.danger = path.getHeroStrength();
 				auto danger2 = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero);

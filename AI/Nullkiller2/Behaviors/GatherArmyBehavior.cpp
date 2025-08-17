@@ -290,9 +290,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		auto upgrade = aiNk->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
 		if(!upgrader->getGarrisonHero()
-			&& (
-				hasMainAround
-				|| aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
+		   && (hasMainAround || aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 
@@ -310,20 +308,19 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 			vstd::concatenate(upgrade.resultingArmy, armyToGetOrBuy.resultingArmy);
 
 			if(!upgrade.upgradeValue
-				&& armyToGetOrBuy.upgradeValue > 20000
+				&& armyToGetOrBuy.upgradeValue > 20000 // TODO: Mircea: Move to constant
 				&& aiNk->heroManager->canRecruitHero(upgrader)
-				&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
+				&& path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit()) // TODO: Mircea: Inspect what this does
 			{
 				for(auto hero : ccTl->getAvailableHeroes(upgrader))
 				{
 					auto scoutReinforcement = aiNk->armyManager->howManyReinforcementsCanGet(hero, upgrader);
 
 					if(scoutReinforcement >= armyToGetOrBuy.upgradeValue
-						&& aiNk->getFreeGold() >20000
+						&& aiNk->getFreeGold() > 20000 // TODO: Mircea: Move to constant
 						&& !aiNk->buildAnalyzer->isGoldPressureOverMax())
 					{
 						Composition recruitHero;
-
 						recruitHero.addNext(ArmyUpgrade(path.targetHero, town, armyToGetOrBuy)).addNext(RecruitHero(upgrader, hero));
 					}
 				}
@@ -332,6 +329,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 
 		auto armyValue = (float)upgrade.upgradeValue / path.getHeroStrength();
 
+		// TODO: Mircea: Move to constant
 		if((armyValue < 0.25f && upgrade.upgradeValue < 40000) || upgrade.upgradeValue < 2000) // avoid small upgrades
 		{
 #if NKAI_TRACE_LEVEL >= 2
@@ -341,7 +339,6 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		}
 
 		auto danger = path.getTotalDanger();
-
 		auto isSafe = isSafeToVisit(path.targetHero, path.heroArmy, danger, aiNk->settings->getSafeAttackRatio());
 
 #if NKAI_TRACE_LEVEL >= 2
