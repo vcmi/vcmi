@@ -603,7 +603,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	asyncTasks->run([this]()
 	{
-		ScopedThreadName guard("NKAI::AIGateway::makingTurn");
+		ScopedThreadName guard("NKAI::makingTurn");
 		makeTurn();
 	});
 }
@@ -845,6 +845,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
+	setThreadName("AIGateway::makeTurn");
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);
@@ -1627,7 +1628,7 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 
 	asyncTasks->run([this, description, whatToDo]()
 	{
-		ScopedThreadName guard("NKAI::AIGateway::" + description);
+		ScopedThreadName guard("NKAI::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
