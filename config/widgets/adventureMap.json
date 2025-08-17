@@ -145,6 +145,22 @@
 					]
 				},
 				{
+					"type": "adventureMapContainer",
+					"hideWhen" : "mapLayerOther",
+					"area": { "top" : 0, "left": 32, "width" : 32, "height" : 32 },
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "worldViewOther",
+							"image" : "adventureLayersButton",
+							"help" : "core.help.294",
+							"hotkey": "adventureToggleMapLevel",
+							"playerColored" : true,
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					]
+				},
+				{
 					"type": "adventureMapButton",
 					"name": "buttonQuestLog",
 					"image" : "IAM004.DEF",
@@ -538,6 +554,21 @@
 							"type": "adventureMapButton",
 							"name": "worldViewUnderground",
 							"image" : "IAM010.DEF",
+							"playerColored" : true,
+							"hotkey": "adventureToggleMapLevel",
+							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+						}
+					]
+				},
+				{
+					"type": "adventureMapContainer",
+					"hideWhen" : "mapLayerOther",
+					"area": { "top" : 343, "left": 79, "width" : 32, "height" : 32 },
+					"items" : [
+						{
+							"type": "adventureMapButton",
+							"name": "worldViewOther",
+							"image" : "adventureLayersButton",
 							"playerColored" : true,
 							"hotkey": "adventureToggleMapLevel",
 							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
