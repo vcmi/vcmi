@@ -133,7 +133,7 @@ private:
 	fl::InputVariable * mainTurnDistanceVariable;
 	fl::InputVariable * scoutTurnDistanceVariable;
 	fl::InputVariable * turnVariable;
-	fl::InputVariable * goldRewardVsMovementVariable;
+	fl::InputVariable * goldRewardVariable;
 	fl::InputVariable * armyRewardVariable;
 	fl::InputVariable * armyGrowthVariable;
 	fl::InputVariable * dangerVariable;

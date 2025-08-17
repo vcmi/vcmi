@@ -93,7 +93,7 @@ void PriorityEvaluator::initVisitTile()
 	turnVariable = engine->getInputVariable("turn");
 	mainTurnDistanceVariable = engine->getInputVariable("mainTurnDistance");
 	scoutTurnDistanceVariable = engine->getInputVariable("scoutTurnDistance");
-	goldRewardVsMovementVariable = engine->getInputVariable("goldReward");
+	goldRewardVariable = engine->getInputVariable("goldReward");
 	armyRewardVariable = engine->getInputVariable("armyReward");
 	skillRewardVariable = engine->getInputVariable("skillReward");
 	rewardTypeVariable = engine->getInputVariable("rewardType");
@@ -377,11 +377,6 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 	return std::min(1.5f, objectValue * 0.9f + (1.5f - (1.5f / (1 + enemy->level))));
 }
 
-/**
- * getNowResourceRequirementStrength
- * @param resType
- * @return between 0-1.0f
- */
 float RewardEvaluator::getResourceRequirementStrength(GameResID resType) const
 {
 	TResources requiredResources = ai->buildAnalyzer->getResourcesRequiredNow();
@@ -393,14 +388,11 @@ float RewardEvaluator::getResourceRequirementStrength(GameResID resType) const
 	if(dailyIncome[resType] == 0)
 		return 1.0f;
 
-	return 0.95f;
+	float ratio = (float)requiredResources[resType] / dailyIncome[resType] / 2;
+
+	return std::min(ratio, 1.0f);
 }
 
-/**
- *
- * @param resType
- * @return between 0-1.0f
- */
 float RewardEvaluator::getTotalResourceRequirementStrength(GameResID resType) const
 {
 	TResources requiredResources = ai->buildAnalyzer->getTotalResourcesRequired();
@@ -409,10 +401,11 @@ float RewardEvaluator::getTotalResourceRequirementStrength(GameResID resType) co
 	if(requiredResources[resType] == 0)
 		return 0;
 
-	if(dailyIncome[resType] == 0)
-		return 1.0f;
+	float ratio = dailyIncome[resType] == 0
+		? (float)requiredResources[resType] / 10.0f
+		: (float)requiredResources[resType] / dailyIncome[resType] / 20.0f;
 
-	return 0.95f;
+	return std::min(ratio, 2.0f);
 }
 
 uint64_t RewardEvaluator::townArmyGrowth(const CGTownInstance * town) const
@@ -436,22 +429,18 @@ float RewardEvaluator::getManaRecoveryArmyReward(const CGHeroInstance * hero) co
 	return ai->heroManager->getMagicStrength(hero) * 10000 * (1.0f - std::sqrt(static_cast<float>(hero->mana) / hero->manaLimit()));
 }
 
-/**
- * getCombinedResourceRequirementStrength
- * @param res
- * @return between 0-1.0f
- */
 float RewardEvaluator::getResourceRequirementStrength(const TResources & res) const
 {
 	float sum = 0.0f;
 
 	for(TResources::nziterator it(res); it.valid(); it++)
 	{
-		auto calculation = 0.6f * getResourceRequirementStrength(it->resType)
-			+ 0.4f * getTotalResourceRequirementStrength(it->resType);
-
-		// Even not required resources should be valuable because they shouldn't be left for the enemies to collect
-		sum += std::min(0.5f, calculation);
+		//Evaluate resources used for construction. Gold is evaluated separately.
+		if(it->resType != EGameResID::GOLD)
+		{
+			sum += 0.1f * it->resVal * getResourceRequirementStrength(it->resType)
+				+ 0.05f * it->resVal * getTotalResourceRequirementStrength(it->resType);
+		}
 	}
 
 	return sum;
@@ -467,11 +456,9 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	case Obj::MINE:
 	{
 		auto mine = dynamic_cast<const CGMine *>(target);
-		TResources res;
-		res[mine->producedResource] = mine->producedQuantity;
-
-		// Mines should have higher priority than resources
-		return 1.0f + getResourceRequirementStrength(res);
+		return mine->producedResource == EGameResID::GOLD
+			? 0.5f
+			: 0.4f * getTotalResourceRequirementStrength(mine->producedResource) + 0.1f * getResourceRequirementStrength(mine->producedResource);
 	}
 
 	case Obj::RESOURCE:
@@ -1329,7 +1316,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		+ (evaluationContext.skillReward > 0 ? 1 : 0)
 		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
 
-	float goldRewardVsMovement = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
+	float goldRewardPerTurn = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
 	
 	double result = 0;
 
@@ -1342,7 +1329,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			heroRoleVariable->setValue(evaluationContext.heroRole);
 			mainTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::MAIN]);
 			scoutTurnDistanceVariable->setValue(evaluationContext.movementCostByRole[HeroRole::SCOUT]);
-			goldRewardVsMovementVariable->setValue(goldRewardVsMovement);
+			goldRewardVariable->setValue(goldRewardPerTurn);
 			armyRewardVariable->setValue(evaluationContext.armyReward);
 			armyGrowthVariable->setValue(evaluationContext.armyGrowth);
 			skillRewardVariable->setValue(evaluationContext.skillReward);
@@ -1375,15 +1362,14 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			if (currentTileThreat.fastestDanger.turn < 1 && currentTileThreat.fastestDanger.danger > task->hero->getTotalStrength())
 				currentPositionThreatened = true;
 		}
-		if (priorityTier == PriorityTier::FAR_HUNTER_GATHER && currentPositionThreatened == true)
+		if (priorityTier == PriorityTier::FAR_HUNTER_GATHER && currentPositionThreatened == false)
 		{
 #if NKAI_TRACE_LEVEL >= 2
-			logAi->trace("Skip FAR_HUNTER_GATHER because hero would be threatened.");
+			logAi->trace("Skip FAR_HUNTER_GATHER because hero is not threatened.");
 #endif
 			return 0;
 		}
 		const bool amIInDanger = ai->cb->getTownsInfo().empty();
-		// Shouldn't it default to 0 instead of 1.0 in the end?
 		const float maxWillingToLose = amIInDanger ? 1 : ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? ai->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
 		float dangerThreshold = 1;
 		dangerThreshold *= evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
@@ -1393,7 +1379,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			arriveNextWeek = true;
 
 #if NKAI_TRACE_LEVEL >= 2
-		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, dangerThreshold: %f explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
+		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, army-involvement: %f, gold: %f, cost: %d, army gain: %f, army growth: %f skill: %f danger: %d, threatTurns: %d, threat: %d, role: %s, strategical value: %f, conquest value: %f cwr: %f, fear: %f, dangerThreshold: %f explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
 			priorityTier,
 			task->toString(),
 			evaluationContext.armyLossRatio,
@@ -1402,7 +1388,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			evaluationContext.movementCostByRole[HeroRole::MAIN],
 			evaluationContext.movementCostByRole[HeroRole::SCOUT],
 			evaluationContext.armyInvolvement,
-			goldRewardVsMovement,
+			goldRewardPerTurn,
 			evaluationContext.goldCost,
 			evaluationContext.armyReward,
 			evaluationContext.armyGrowth,
@@ -1512,11 +1498,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			case PriorityTier::HUNTER_GATHER: //Collect guarded stuff
 				//FALL_THROUGH
 			case PriorityTier::FAR_HUNTER_GATHER:
-			// FIXME: Should not go to something that gives army if no slots available in the hero, but probably not in the evaluator, but in the finder
-			// task.get()->hero->getSlotFor(creature, 7) == false (not sure I get to know which creature is there in Orc Tower building)
-			// /// so I can't know for sure if it fits my stacks or not, but at least we can avoid going there with all 7 stacks occupied by other units
-			// task.get()->hero->getFreeSlots(7) == 7
-			// getDuplicatingSlots(task.get()->hero) == false
 			{
 				if (evaluationContext.enemyHeroDangerRatio > dangerThreshold && !evaluationContext.isDefend && priorityTier != PriorityTier::FAR_HUNTER_GATHER)
 					return 0;
@@ -1543,20 +1524,9 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 				{
 					score = 1000;
 					if (evaluationContext.movementCost > 0)
-					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 8");
-						score -= evaluationContext.movementCost / 20 * score; // we expect movement won't be over 20 turns
-					}
-					if(evaluationContext.enemyHeroDangerRatio > 0) // This doesn't make sense at it always seems to be 0
-					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 9");
-						score *= 1 - evaluationContext.enemyHeroDangerRatio;
-					}
-					if(evaluationContext.armyLossRatio > 0)
-					{
-						logAi->trace("case PriorityTier::FAR_HUNTER_GATHER if 10");
-						score *= 1 - evaluationContext.armyLossRatio;
-					}
+						score /= evaluationContext.movementCost;
+					if(priorityTier == PriorityTier::FAR_HUNTER_GATHER && evaluationContext.enemyHeroDangerRatio > 0)
+						score /= evaluationContext.enemyHeroDangerRatio;
 				}
 				break;
 			}
@@ -1653,7 +1623,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		evaluationContext.movementCostByRole[HeroRole::MAIN],
 		evaluationContext.movementCostByRole[HeroRole::SCOUT],
 		evaluationContext.armyInvolvement,
-		goldRewardVsMovement,
+		goldRewardPerTurn,
 		evaluationContext.goldCost,
 		evaluationContext.armyReward,
 		evaluationContext.armyGrowth,
