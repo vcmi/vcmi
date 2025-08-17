@@ -529,8 +529,8 @@
 					"items" : [
 						{
 							"type": "adventureMapButton",
-							"name": "worldViewSurface",
-							"image" : "IAM003.DEF",
+							"name": "worldViewUnderground",
+							"image" : "IAM010.DEF",
 							"hotkey": "adventureToggleMapLevel",
 							"playerColored" : true,
 							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
@@ -552,8 +552,8 @@
 					"items" : [
 						{
 							"type": "adventureMapButton",
-							"name": "worldViewUnderground",
-							"image" : "IAM010.DEF",
+							"name": "worldViewSurface",
+							"image" : "IAM003.DEF",
 							"playerColored" : true,
 							"hotkey": "adventureToggleMapLevel",
 							"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
