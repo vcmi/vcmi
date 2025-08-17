@@ -495,7 +495,7 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 			ImagePath spriteName = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + ".png");
 			ImagePath spriteNameColor = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + "-" + color.toString() + ".png");
 
-			imageFiles[spriteNameColor] = [this, overlayCanvasImg, clearButtonImg, i](){
+			imageFiles[spriteNameColor] = [overlayCanvasImg, clearButtonImg, i](){
 				auto newImg = ENGINE->renderHandler().createImage(overlayCanvasImg->dimensions(), CanvasScalingPolicy::IGNORE);
 				auto canvas = newImg->getCanvas();
 				canvas.draw(clearButtonImg, Point(0, 0));
