@@ -1,4 +1,6 @@
 if(ENABLE_INNOEXTRACT)
+	# libiconv not required for our use case
+	set(WITH_CONV "builtin" CACHE STRING "" FORCE)
 	add_subdirectory("lib/innoextract")
 endif()
 
