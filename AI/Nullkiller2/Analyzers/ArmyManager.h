@@ -82,12 +82,12 @@ class StackUpgradeInfo;
 class DLL_EXPORT ArmyManager : public IArmyManager
 {
 private:
-	CPlayerSpecificInfoCallback * cb; //this is enough, but we downcast from CCallback
+	CPlayerSpecificInfoCallback * cpsic; //this is enough, but we downcast from CCallback
 	const Nullkiller * aiNk;
 	std::map<CreatureID, SlotInfo> totalArmy;
 
 public:
-	ArmyManager(CPlayerSpecificInfoCallback * CB, const Nullkiller * ai): cb(CB), aiNk(ai) {}
+	ArmyManager(CPlayerSpecificInfoCallback * cpsic, const Nullkiller * ai): cpsic(cpsic), aiNk(ai) {}
 	void update() override;
 
 	ui64 howManyReinforcementsCanBuy(const CCreatureSet * target, const CGDwelling * source) const override;

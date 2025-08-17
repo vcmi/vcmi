@@ -52,8 +52,8 @@ public:
 	{
 	}
 
-	std::vector<const CGObjectInstance *> getObjects(const CPlayerSpecificInfoCallback * cb) const;
-	const CGObjectInstance * calculateCenter(const CPlayerSpecificInfoCallback * cb) const;
+	std::vector<const CGObjectInstance *> getObjects(const CPlayerSpecificInfoCallback * cpsic) const;
+	const CGObjectInstance * calculateCenter(const CPlayerSpecificInfoCallback * cpsic) const;
 };
 
 using ClusterMap = tbb::concurrent_hash_map<ObjectInstanceID, std::shared_ptr<ObjectCluster>, ObjectInstanceIDHash>;

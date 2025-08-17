@@ -119,13 +119,13 @@ std::vector<SlotInfo>::iterator ArmyManager::getBestUnitForScout(std::vector<Slo
 	for (const auto & unit : army)
 		totalPower += unit.power;
 
-	int baseMovementCost = cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
+	int baseMovementCost = cpsic->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
 	bool terrainHasPenalty = armyTerrain.hasValue() && armyTerrain.toEntity(LIBRARY)->moveCost != baseMovementCost;
 
 	// arbitrary threshold - don't give scout more than specified part of total AI value of our army
 	uint64_t maxUnitValue = totalPower / 100;
 
-	const auto & movementPointsLimits = cb->getSettings().getVector(EGameSettings::HEROES_MOVEMENT_POINTS_LAND);
+	const auto & movementPointsLimits = cpsic->getSettings().getVector(EGameSettings::HEROES_MOVEMENT_POINTS_LAND);
 
 	auto fastest = boost::min_element(army, [&](const SlotInfo & left, const SlotInfo & right) -> bool
 	{
@@ -231,9 +231,9 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 			auto morale = slot.second->moraleVal();
 			auto multiplier = 1.0f;
 
-			const auto & badMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
-			const auto & highMoraleChance = cb->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
-			int moraleDiceSize = cb->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
+			const auto & badMoraleChance = cpsic->getSettings().getVector(EGameSettings::COMBAT_BAD_MORALE_CHANCE);
+			const auto & highMoraleChance = cpsic->getSettings().getVector(EGameSettings::COMBAT_GOOD_MORALE_CHANCE);
+			int moraleDiceSize = cpsic->getSettings().getInteger(EGameSettings::COMBAT_MORALE_DICE_SIZE);
 
 			if(morale < 0 && !badMoraleChance.empty())
 			{
@@ -347,7 +347,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 {
 	std::vector<creInfo> creaturesInDwellings;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - hero->stacksCount();
-	bool countGrowth = (cb->getDate(Date::DAY_OF_WEEK) + turn) > 7;
+	bool countGrowth = (cpsic->getDate(Date::DAY_OF_WEEK) + turn) > 7;
 
 	const CGTownInstance * town = dwelling->ID == Obj::TOWN
 		? dynamic_cast<const CGTownInstance *>(dwelling)
@@ -478,8 +478,8 @@ void ArmyManager::update()
 	logAi->trace("Start analysing army");
 
 	std::vector<const CCreatureSet *> total;
-	auto heroes = cb->getHeroesInfo();
-	auto towns = cb->getTownsInfo();
+	auto heroes = cpsic->getHeroesInfo();
+	auto towns = cpsic->getTownsInfo();
 
 	std::copy(heroes.begin(), heroes.end(), std::back_inserter(total));
 	std::copy(towns.begin(), towns.end(), std::back_inserter(total));

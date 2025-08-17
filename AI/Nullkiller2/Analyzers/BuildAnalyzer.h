@@ -24,15 +24,15 @@ public:
 	BuildingID id = BuildingID::NONE;
 	TResources buildCost;
 	TResources buildCostWithPrerequisites;
-	int creatureGrows = 0;
-	uint8_t creatureLevel = 0;
-	TResources creatureCost;
+	int creatureGrowth = 0;
+	uint8_t creatureLevel = 0; /// @link CCreature::level
+	TResources creatureUnitCost;
 	CreatureID creatureID = CreatureID::NONE;
 	CreatureID baseCreatureID = CreatureID::NONE;
 	TResources dailyIncome;
 	uint8_t prerequisitesCount = 0;
 	uint64_t armyStrength = 0;
-	TResources armyCost;
+	TResources armyCost; // creatureCost * creatureGrows
 	std::string name;
 	bool isBuilt = false;
 	bool isBuildable = false;
@@ -64,8 +64,8 @@ public:
 	TownDevelopmentInfo(const CGTownInstance * town) : town(town) {}
 	TownDevelopmentInfo() : TownDevelopmentInfo(nullptr) {}
 
-	void addBuildingToBuild(const BuildingInfo & building);
-	void addExistingDwelling(const BuildingInfo & bi);
+	void addBuildingToBuild(const BuildingInfo & bi);
+	void addBuildingBuilt(const BuildingInfo & bi);
 };
 
 class DLL_EXPORT BuildAnalyzer
@@ -94,13 +94,13 @@ public:
 
 	static float calculateGoldPressure(TResource lockedGold, float armyCostGold, float economyDevelopmentCost, float freeGold, float dailyIncomeGold);
 	static TResources calculateDailyIncome(const std::vector<const CGObjectInstance *> & objects, const std::vector<const CGTownInstance *> & townInfos);
-	static void updateCreatureBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
-	static void updateOtherBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cb);
+	static void updateDwellings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cc);
+	static void updateOtherBuildings(TownDevelopmentInfo& developmentInfo, std::unique_ptr<ArmyManager>& armyManager, std::shared_ptr<CCallback>& cc);
 	static BuildingInfo getBuildingOrPrerequisite(
 		const CGTownInstance* town,
-		BuildingID toBuild,
+		BuildingID b,
 		std::unique_ptr<ArmyManager> & armyManager,
-		std::shared_ptr<CCallback> & cb,
+		std::shared_ptr<CCallback> & cc,
 		bool excludeDwellingDependencies = true);
 	static int32_t approximateInGold(const TResources & res);
 	static TResources withoutGold(TResources other);

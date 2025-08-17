@@ -70,7 +70,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 	hitMapUpToDate = true;
 	auto start = std::chrono::high_resolution_clock::now();
 
-	auto cb = aiNk->cc.get();
+	auto cc = aiNk->cc.get();
 	auto mapSize = aiNk->cc->getMapSize();
 	
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
@@ -98,7 +98,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		}
 	}
 
-	auto ourTowns = cb->getTownsInfo();
+	auto ourTowns = cc->getTownsInfo();
 
 	for(auto town : ourTowns)
 	{
@@ -158,7 +158,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 					node.fastestDanger = newThreat;
 				}
 
-				auto objects = cb->getVisitableObjs(pos, false);
+				auto objects = cc->getVisitableObjs(pos, false);
 
 				for(auto obj : objects)
 				{
@@ -183,7 +183,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 						if(newThreat.turn == 0)
 						{
-							if(cb->getPlayerRelations(obj->tempOwner, aiNk->playerID) != PlayerRelations::ENEMIES)
+							if(cc->getPlayerRelations(obj->tempOwner, aiNk->playerID) != PlayerRelations::ENEMIES)
 								enemyHeroAccessibleObjects.emplace_back(path.targetHero, obj);
 						}
 					}
@@ -203,7 +203,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	tileOwnersUpToDate = true;
 
-	auto cb = aiNk->cc.get();
+	auto * cc = aiNk->cc.get();
 	auto mapSize = aiNk->cc->getMapSize();
 
 	if(hitMap.shape()[0] != mapSize.x || hitMap.shape()[1] != mapSize.y || hitMap.shape()[2] != mapSize.z)
@@ -215,7 +215,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	auto addTownHero = [&](const CGTownInstance * town)
 	{
-			auto townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
+			auto *townHero = temporaryHeroes.emplace_back(std::make_unique<CGHeroInstance>(town->cb)).get();
 			GameRandomizer randomizer(*town->cb);
 			auto visitablePos = town->visitablePos();
 			
@@ -229,7 +229,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			townHeroes[townHero] = HeroRole::MAIN;
 	};
 
-	for(auto obj : aiNk->memory->visitableObjs)
+	for(const auto *obj : aiNk->memory->visitableObjs)
 	{
 		if(obj && obj->ID == Obj::TOWN)
 		{
@@ -237,7 +237,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 		}
 	}
 
-	for(auto town : cb->getTownsInfo())
+	for(const auto *town : cc->getTownsInfo())
 	{
 		addTownHero(town);
 	}
@@ -259,7 +259,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 				if(!path.targetHero || path.getFirstBlockedAction())
 					continue;
 
-				auto town = heroTownMap[path.targetHero];
+				const auto *town = heroTownMap[path.targetHero];
 
 				if(town->getOwner() == aiNk->playerID)
 				{
@@ -305,7 +305,7 @@ const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownThreats(const CGTow
 
 PlayerColor DangerHitMapAnalyzer::getTileOwner(const int3 & tile) const
 {
-	auto town = hitMap[tile.x][tile.y][tile.z].closestTown;
+	const auto *town = hitMap[tile.x][tile.y][tile.z].closestTown;
 
 	return town ? town->getOwner() : PlayerColor::NEUTRAL;
 }
@@ -342,7 +342,7 @@ std::set<const CGObjectInstance *> DangerHitMapAnalyzer::getOneTurnAccessibleObj
 {
 	std::set<const CGObjectInstance *> result;
 
-	for(auto & obj : enemyHeroAccessibleObjects)
+	for(const auto & obj : enemyHeroAccessibleObjects)
 	{
 		if(obj.hero == enemy)
 			result.insert(obj.obj);

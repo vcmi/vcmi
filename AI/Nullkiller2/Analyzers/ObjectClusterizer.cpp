@@ -31,14 +31,14 @@ void ObjectCluster::addObject(const CGObjectInstance * obj, const AIPath & path,
 	}
 }
 
-const CGObjectInstance * ObjectCluster::calculateCenter(const CPlayerSpecificInfoCallback * cb) const
+const CGObjectInstance * ObjectCluster::calculateCenter(const CPlayerSpecificInfoCallback * cpsic) const
 {
 	auto tile = int3(0);
 	float priority = 0;
 
 	for(auto & pair : objects)
 	{
-		auto newPoint = cb->getObj(pair.first)->visitablePos();
+		auto newPoint = cpsic->getObj(pair.first)->visitablePos();
 		float newPriority = std::pow(pair.second.priority, 4); // lets make high priority targets more weghtful
 		int3 direction = newPoint - tile;
 		float priorityRatio = newPriority / (priority + newPriority);
@@ -49,19 +49,19 @@ const CGObjectInstance * ObjectCluster::calculateCenter(const CPlayerSpecificInf
 
 	auto closestPair = *vstd::minElementByFun(objects, [&](const std::pair<ObjectInstanceID, ClusterObjectInfo> & pair) -> int
 	{
-		return cb->getObj(pair.first)->visitablePos().dist2dSQ(tile);
+		return cpsic->getObj(pair.first)->visitablePos().dist2dSQ(tile);
 	});
 
-	return cb->getObj(closestPair.first);
+	return cpsic->getObj(closestPair.first);
 }
 
-std::vector<const CGObjectInstance *> ObjectCluster::getObjects(const CPlayerSpecificInfoCallback * cb) const
+std::vector<const CGObjectInstance *> ObjectCluster::getObjects(const CPlayerSpecificInfoCallback * cpsic) const
 {
 	std::vector<const CGObjectInstance *> result;
 
 	for(auto & pair : objects)
 	{
-		result.push_back(cb->getObj(pair.first));
+		result.push_back(cpsic->getObj(pair.first));
 	}
 
 	return result;

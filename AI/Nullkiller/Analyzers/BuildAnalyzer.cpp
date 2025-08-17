@@ -211,8 +211,8 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	if(toBuild.isDwelling())
 	{
-		creatureLevel = BuildingID::getLevelFromDwelling(toBuild);
-		creatureUpgrade = BuildingID::getUpgradedFromDwelling(toBuild);
+		creatureLevel = BuildingID::getLevelIndexFromDwelling(toBuild);
+		creatureUpgrade = BuildingID::getUpgradeNoFromDwelling(toBuild);
 	}
 	else if(toBuild == BuildingID::HORDE_1 || toBuild == BuildingID::HORDE_1_UPGR)
 	{

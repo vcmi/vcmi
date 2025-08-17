@@ -105,7 +105,7 @@ void HeroManager::update()
 	logAi->trace("Start analysing our heroes");
 
 	std::map<const CGHeroInstance *, float> scores;
-	auto myHeroes = cb->getHeroesInfo();
+	auto myHeroes = cc->getHeroesInfo();
 
 	for(auto & hero : myHeroes)
 	{
@@ -118,10 +118,10 @@ void HeroManager::update()
 		return scores.at(h1) > scores.at(h2);
 	};
 
-	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cb->getMapSize().x / 50 + 1);
+	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cc->getMapSize().x / 50 + 1);
 
 	//vstd::amin(globalMainCount, 1 + (cb->getTownsInfo().size() / 3));
-	if(cb->getTownsInfo().size() < 4 && globalMainCount > 2)
+	if(cc->getTownsInfo().size() < 4 && globalMainCount > 2)
 	{
 		globalMainCount = 2;
 	}
@@ -195,11 +195,12 @@ float HeroManager::evaluateHero(const CGHeroInstance * hero) const
 
 bool HeroManager::heroCapReached(bool includeGarrisoned) const
 {
-	int heroCount = cb->getHeroCount(ai->playerID, includeGarrisoned);
+	int heroCount = cc->getHeroCount(aiNk->playerID, includeGarrisoned);
+	int maxAllowed = 1 + cc->howManyTowns() * aiNk->settings->getMaxRoamingHeroes();
 
-	return heroCount >= ai->settings->getMaxRoamingHeroes()
-		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
-		|| heroCount >= cb->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
+	return heroCount >= maxAllowed
+		|| heroCount >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP)
+		|| heroCount >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP);
 }
 
 float HeroManager::getFightingStrengthCached(const CGHeroInstance * hero) const
@@ -256,13 +257,13 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 	if(!town || !townHasFreeTavern(town))
 		return false;
 
-	if(cb->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+	if(cc->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
 		return false;
 
 	if(heroCapReached())
 		return false;
 
-	if(!cb->getAvailableHeroes(town).size())
+	if(!cc->getAvailableHeroes(town).size())
 		return false;
 
 	return true;
@@ -270,7 +271,7 @@ bool HeroManager::canRecruitHero(const CGTownInstance * town) const
 
 const CGTownInstance * HeroManager::findTownWithTavern() const
 {
-	for(const CGTownInstance * t : cb->getTownsInfo())
+	for(const CGTownInstance * t : cc->getTownsInfo())
 		if(townHasFreeTavern(t))
 			return t;
 
@@ -279,7 +280,7 @@ const CGTownInstance * HeroManager::findTownWithTavern() const
 
 const CGHeroInstance * HeroManager::findHeroWithGrail() const
 {
-	for(const CGHeroInstance * h : cb->getHeroesInfo())
+	for(const CGHeroInstance * h : cc->getHeroesInfo())
 	{
 		if(h->hasArt(ArtifactID::GRAIL))
 			return h;

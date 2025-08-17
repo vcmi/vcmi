@@ -1216,9 +1216,9 @@ public:
 
 				evaluationContext.addNonCriticalStrategicalValue(potentialUpgradeValue / 10000.0f / (float)bi.prerequisitesCount);
 				if(bi.id.isDwelling())
-					evaluationContext.armyReward += bi.armyStrength - evaluationContext.evaluator.aiNk->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);
+					evaluationContext.armyReward += bi.armyStrength - evaluationContext.evaluator.aiNk->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrowth);
 				else //This is for prerequisite-buildings
-					evaluationContext.armyReward += evaluationContext.evaluator.aiNk->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrows);
+					evaluationContext.armyReward += evaluationContext.evaluator.aiNk->armyManager->evaluateStackPower(bi.baseCreatureID.toCreature(), bi.creatureGrowth);
 				if(alreadyOwn)
 					evaluationContext.armyReward /= bi.buildCostWithPrerequisites.marketValue();
 			}
