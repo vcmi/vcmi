@@ -333,6 +333,9 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 			img = img->drawShadow((*locator.generateShadow) == SharedImageLocator::ShadowMode::SHADOW_SHEAR);
 		if(isOverlay && generateOverlay && (*locator.generateOverlay) == SharedImageLocator::OverlayMode::OVERLAY_OUTLINE)
 			img = img->drawOutline(Colors::WHITE, 1);
+
+		if(locator.scalingFactor == 1)
+			img->setAsyncUpscale(false); // no base image, needs to be done in sync
 	}
 
 	return img;
