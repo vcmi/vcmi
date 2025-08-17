@@ -23,8 +23,9 @@
 
 namespace NK2AI
 {
-	Settings::Settings(int difficultyLevel)
-		: maxRoamingHeroes(8),
+	Settings::Settings(int difficultyLevel):
+		maxRoamingHeroes(8),
+		maxRoamingHeroesPerTown(0),
 		mainHeroTurnDistanceLimit(10),
 		scoutHeroTurnDistanceLimit(5),
 		threatTurnDistanceLimit(5),
@@ -48,6 +49,7 @@ namespace NK2AI
 		const JsonNode & node = rootNode[difficultyName];
 
 		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
+		maxRoamingHeroesPerTown = node["maxRoamingHeroesPerTown"].Integer();
 		mainHeroTurnDistanceLimit = node["mainHeroTurnDistanceLimit"].Integer();
 		scoutHeroTurnDistanceLimit = node["scoutHeroTurnDistanceLimit"].Integer();
 		maxPass = node["maxPass"].Integer();

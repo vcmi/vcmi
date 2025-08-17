@@ -20,8 +20,8 @@ namespace NK2AI
 {
 	class Settings
 	{
-	private:
 		int maxRoamingHeroes;
+		int maxRoamingHeroesPerTown; // added on top of @link maxRoamingHeroes
 		int mainHeroTurnDistanceLimit;
 		int scoutHeroTurnDistanceLimit;
 		int threatTurnDistanceLimit;
@@ -52,6 +52,7 @@ namespace NK2AI
 		float getSafeAttackRatio() const { return safeAttackRatio; }
 		float getMaxArmyLossTarget() const { return maxArmyLossTarget; }
 		int getMaxRoamingHeroes() const { return maxRoamingHeroes; }
+		int getMaxRoamingHeroesPerTown() const { return maxRoamingHeroesPerTown; }
 		int getMainHeroTurnDistanceLimit() const { return mainHeroTurnDistanceLimit; }
 		int getScoutHeroTurnDistanceLimit() const { return scoutHeroTurnDistanceLimit; }
 		int getThreatTurnDistanceLimit() const { return threatTurnDistanceLimit; }
