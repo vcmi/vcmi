@@ -447,52 +447,96 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
 		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
+
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		// TODO: unify logic with AI?
-		// Find best target using logic similar to H3 AI
-
-		const auto & isBetterTarget = [&battle](const battle::Unit * candidate, const battle::Unit * current)
+		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			bool candidateInsideWalls = battle.battleIsInsideWalls(candidate->getPosition());
-			bool currentInsideWalls = battle.battleIsInsideWalls(current->getPosition());
+			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+		});
 
-			if (candidateInsideWalls != currentInsideWalls)
-				return candidateInsideWalls > currentInsideWalls;
-
-			// also check for war machines - shooters are more dangerous than war machines, ballista or catapult
-			bool candidateCanShoot = candidate->canShoot() && candidate->unitType()->warMachine == ArtifactID::NONE;
-			bool currentCanShoot = current->canShoot() && current->unitType()->warMachine == ArtifactID::NONE;
-
-			if (candidateCanShoot != currentCanShoot)
-				return candidateCanShoot > currentCanShoot;
-
-			int64_t candidateTargetValue = static_cast<int64_t>(candidate->unitType()->getAIValue() * candidate->getCount());
-			int64_t currentTargetValue = static_cast<int64_t>(current->unitType()->getAIValue() * current->getCount());
-
-			return candidateTargetValue > currentTargetValue;
+		struct TargetInfo
+		{
+			bool insideTheWalls;
+			bool canAttackNextTurn;
+			bool isParalyzed;
+			bool isMachine;
+			float towerAttackValue;
+			const CStack * stack;
 		};
 
-		const battle::Unit * target = nullptr;
-
-		for(auto & elem : battle.battleGetAllStacks(true))
+		const auto & getCanAttackNextTurn = [&battle] (const battle::Unit * unit)
 		{
-			if (elem->unitOwner() == next->unitOwner())
-				continue;
+			if (battle.battleCanShoot(unit))
+				return true;
 
-			if (!elem->isValidTarget())
-				continue;
+			BattleHexArray attackableHexes;
+			battle.battleGetAvailableHexes(unit, true, false, &attackableHexes);
+			return !attackableHexes.empty();
+		};
 
-			if (!battle.battleCanShoot(next, elem->getPosition()))
-				continue;
+		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)
+		{
+			float unitValue = static_cast<float>(unit->unitType()->getAIValue());
+			float singleHpValue = unitValue / static_cast<float>(unit->getMaxHealth());
+			float fullHp = static_cast<float>(unit->getTotalHealth());
 
-			if (target && !isBetterTarget(elem, target))
-				continue;
+			int distance = BattleHex::getDistance(next->getPosition(), unit->getPosition());
+			BattleAttackInfo attackInfo(next, unit, distance, true);
+			DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
+			float avgDmg = (static_cast<float>(estimation.damage.max) + static_cast<float>(estimation.damage.min)) / 2;
+			float realAvgDmg = avgDmg > fullHp ? fullHp : avgDmg;
+			float avgUnitKilled = (static_cast<float>(estimation.kills.max) + static_cast<float>(estimation.kills.min)) / 2;
+			float dmgValue = realAvgDmg * singleHpValue;
+			float killValue = avgUnitKilled * unitValue;
 
-			target = elem;
+			return dmgValue + killValue;
+		};
+
+		std::vector<TargetInfo>targetsInfo;
+
+		for (const CStack * possibleTarget : possibleTargets)
+		{
+			bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
+			const TargetInfo targetInfo =
+			{
+				battle.battleIsInsideWalls(possibleTarget->getPosition()),
+				getCanAttackNextTurn(possibleTarget),
+				isParalyzed,
+				isMachine,
+				getTowerAttackValue(possibleTarget),
+				possibleTarget
+			};
+			targetsInfo.push_back(targetInfo);
+		}
+
+		const auto & isBetterTarget = [](const TargetInfo & candidate, const TargetInfo & current)
+		{
+			if (candidate.isParalyzed != current.isParalyzed)
+				return candidate.isParalyzed < current.isParalyzed;
+
+			if (candidate.isMachine != current.isMachine)
+				return candidate.isMachine < current.isMachine;
+
+			if (candidate.canAttackNextTurn != current.canAttackNextTurn)
+				return candidate.canAttackNextTurn > current.canAttackNextTurn;
+
+			if (candidate.insideTheWalls != current.insideTheWalls)
+				return candidate.insideTheWalls > current.insideTheWalls;
+
+			return candidate.towerAttackValue > current.towerAttackValue;
+		};
+
+		const TargetInfo * target = nullptr;
+
+		for(const auto & elem : targetsInfo)
+		{
+			if (target == nullptr || isBetterTarget(elem, *target))
+				target = &elem;
 		}
 
 		if(target == nullptr)
@@ -501,7 +545,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 		}
 		else
 		{
-			attack.aimToUnit(target);
+			attack.aimToUnit(target->stack);
 			makeAutomaticAction(battle, next, attack);
 		}
 		return true;
