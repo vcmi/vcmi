@@ -976,7 +976,7 @@ void CModListView::installFiles(QStringList files)
 		logGlobal->info("Installing chronicles: started");
 		ui->progressBar->setFormat(tr("Installing Heroes Chronicles"));
 		ui->progressWidget->setVisible(true);
-		ui->pushButton->setEnabled(false);
+		ui->abortButton->setEnabled(false);
 
 		float prog = 0.0;
 
@@ -996,7 +996,7 @@ void CModListView::installFiles(QStringList files)
 		if(futureExtract.get())
 		{
 			hideProgressBar();
-			ui->pushButton->setEnabled(true);
+			ui->abortButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
 			//update
 			reload("chronicles");
@@ -1228,7 +1228,7 @@ void CModListView::on_refreshButton_clicked()
 	loadRepositories();
 }
 
-void CModListView::on_pushButton_clicked()
+void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
