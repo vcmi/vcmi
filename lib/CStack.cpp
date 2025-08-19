@@ -253,15 +253,24 @@ BattleHexArray CStack::meleeAttackHexes(const battle::Unit * attacker, const bat
 	if (!defenderPos.isValid())
 		defenderPos = defender->getPosition();
 
-	BattleHexArray attackableHxs = attacker->doubleWide() ? attackerPos.getNeighbouringTilesDoubleWide(attacker->unitSide()) : attackerPos.getNeighbouringTiles();
+	BattleHexArray defenderHexes = defender->getHexes(defenderPos);
+	BattleHexArray attackerHexes = attacker->getHexes(attackerPos);
 
-	if (std::find(attackableHxs.begin(), attackableHxs.end(), defenderPos) != attackableHxs.end())
-		res.insert(defenderPos);
-	if (defender->doubleWide())
+	for (BattleHex defenderHex : defenderHexes)
 	{
-		BattleHex otherDefenderPos = defenderPos.toInt() + (defender->unitSide() == BattleSide::ATTACKER ? -1 : 1);
-		if (std::find(attackableHxs.begin(), attackableHxs.end(), otherDefenderPos) != attackableHxs.end())
-			res.insert(otherDefenderPos);
+		if (attackerHexes.contains(defenderHex))
+		{
+			logGlobal->debug("CStack::meleeAttackHexes: defender and attacker positions overlap");
+			return res;
+		}
+	}
+
+	const BattleHexArray attackableHxs = attacker->getSurroundingHexes(attackerPos);
+
+	for (BattleHex defenderHex : defenderHexes)
+	{
+		if (attackableHxs.contains(defenderHex))
+			res.insert(defenderHex);
 	}
 
 	return res;
