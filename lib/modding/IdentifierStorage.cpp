@@ -418,7 +418,8 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	}
 
 	std::string fullID = request.type + '.' + request.name;
-	std::string fullIDCaseCorrected = request.caseSensitive ? fullID : registeredObjectsCaseLookup.at(boost::algorithm::to_lower_copy(fullID));
+	std::string fullLowerID = boost::algorithm::to_lower_copy(fullID);
+	std::string fullIDCaseCorrected = (request.caseSensitive || !registeredObjectsCaseLookup.count(fullLowerID)) ? fullID : registeredObjectsCaseLookup.at(fullLowerID);
 
 	auto entries = registeredObjects.equal_range(fullIDCaseCorrected);
 
