@@ -385,10 +385,14 @@ void Nullkiller::makeTurn()
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
+#if NKAI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
+#endif
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
+#if NKAI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
+#endif
 			selectedTasks = buildPlan(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;
@@ -512,7 +516,7 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 			if(!executeTask(bestPrioPassTask))
 				return false;
 
-			// TODO: Inspect why it's ok to do a partial update if condition is true
+			// TODO: Mircea: Inspect why it's ok to do a partial update if condition is true
 			updateState(bestPrioPassTask->getHero() == nullptr);
 		}
 		else
