@@ -128,14 +128,31 @@ if(ENABLE_COLORIZED_COMPILER_OUTPUT)
 	endif()
 endif()
 
+# Prefer sccache on Windows/MSVC; fall back to ccache elsewhere
 if(ENABLE_CCACHE)
-	find_program(CCACHE ccache REQUIRED)
-endif()
-
-# The XCode and MSVC builds each require some more configuration further down.
-if(ENABLE_CCACHE)
-	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
-	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
+    if(MSVC)
+        find_program(SCCACHE sccache)
+        if(SCCACHE)
+            message(STATUS "Enabling compiler launcher: sccache")
+            set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE}")
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE}")
+        else()
+            # Optional fallback (only if ccache is present)
+            find_program(CCACHE ccache)
+            if(CCACHE)
+                message(STATUS "Enabling compiler launcher: ccache (fallback)")
+                set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
+                set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+            endif()
+        endif()
+    else()
+        find_program(CCACHE ccache)
+        if(CCACHE)
+            message(STATUS "Enabling compiler launcher: ccache")
+            set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+        endif()
+    endif()
 endif()
 
 if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
@@ -302,18 +319,20 @@ if(MINGW OR MSVC)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MSVC)
-		if(ENABLE_CCACHE)
-			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			file(COPY_FILE
-				${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
-				ONLY_IF_DIFFERENT)
-
-			set(CMAKE_VS_GLOBALS
-				"CLToolExe=cl.exe"
-				"CLToolPath=${CMAKE_BINARY_DIR}"
-				"TrackFileAccess=false"
-				"UseMultiToolTask=true"
-			)
+		if(ENABLE_CCACHE AND (CMAKE_GENERATOR MATCHES "Visual Studio"))
+		    # Wrapper hack only for VS generator; NOT used with Ninja+sccache
+		    if(CCACHE)
+		        file(COPY_FILE
+		            ${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
+		            ONLY_IF_DIFFERENT)
+		
+		        set(CMAKE_VS_GLOBALS
+		            "CLToolExe=cl.exe"
+		            "CLToolPath=${CMAKE_BINARY_DIR}"
+		            "TrackFileAccess=false"
+		            "UseMultiToolTask=true"
+		        )
+		    endif()
 		endif()
 
 		add_definitions(-DBOOST_ALL_NO_LIB)
