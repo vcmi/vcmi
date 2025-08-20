@@ -203,8 +203,45 @@
             "inherits": "windows-msvc-release",
             "cacheVariables": {
                 "ENABLE_CCACHE": "ON"
-
             }
+        },
+        {
+          "name": "windows-msvc-ninja-release",
+          "displayName": "Windows x64 RelWithDebInfo (Ninja)",
+          "description": "VCMI RelWithDebInfo build using Ninja + sccache",
+          "inherits": "default-release",
+          "generator": "Ninja",
+          "cacheVariables": {
+            "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+            "FORCE_BUNDLED_MINIZIP": "ON",
+            "ENABLE_CCACHE": "ON",
+            "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+            "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
+            "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+            "ENABLE_MULTI_PROCESS_BUILDS": "OFF",
+            "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+            "CMAKE_C_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
+            "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7"
+          }
+        },
+        {
+          "name": "windows-msvc-ninja-release-x86",
+          "displayName": "Windows x86 RelWithDebInfo (Ninja)",
+          "description": "VCMI RelWithDebInfo build using Ninja + sccache (x86)",
+          "inherits": "windows-msvc-ninja-release",
+          "cacheVariables": {
+            "VCPKG_TARGET_TRIPLET": "x86-windows"
+          }
+        },
+        {
+          "name": "windows-msvc-ninja-release-arm64",
+          "displayName": "Windows ARM64 RelWithDebInfo (Ninja)",
+          "description": "VCMI RelWithDebInfo build using Ninja + sccache (ARM64)",
+          "inherits": "windows-msvc-ninja-release",
+          "cacheVariables": {
+            "VCPKG_TARGET_TRIPLET": "arm64-windows"
+          }
         },
         {
             "name": "windows-mingw-conan-linux",
@@ -469,6 +506,21 @@
             "name": "windows-msvc-relwithdebinfo",
             "configurePreset": "windows-msvc-release",
             "inherits": "default-release"
+        },
+        {
+        	"name": "windows-msvc-ninja-release",
+        	"configurePreset": "windows-msvc-ninja-release",
+        	"inherits": "default-release"
+        },
+        {
+        	"name": "windows-msvc-ninja-release-x86",
+        	"configurePreset": "windows-msvc-ninja-release-x86",
+        	"inherits": "default-release"
+        },
+        {
+        	"name": "windows-msvc-ninja-release-arm64",
+        	"configurePreset": "windows-msvc-ninja-release-arm64",
+        	"inherits": "default-release"
         },
         {
             "name": "windows-mingw-conan-linux",
