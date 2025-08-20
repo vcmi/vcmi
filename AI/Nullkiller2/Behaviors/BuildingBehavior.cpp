@@ -49,7 +49,8 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 	auto & developmentInfos = aiNk->buildAnalyzer->getDevelopmentInfo();
 	auto isGoldPressureLow = !aiNk->buildAnalyzer->isGoldPressureOverMax();
 
-	aiNk->dangerHitMap->updateHitMap();
+	// Simplification: Moved this call before getting into the decomposer
+	// aiNk->dangerHitMap->updateHitMap();
 
 	for(auto & developmentInfo : developmentInfos)
 	{

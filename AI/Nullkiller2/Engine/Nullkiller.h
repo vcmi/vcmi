@@ -142,7 +142,7 @@ public:
 
 private:
 	void resetState();
-	void updateState(bool partialUpdate = false);
+	void updateState();
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier) const;

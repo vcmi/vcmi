@@ -46,13 +46,13 @@ thread_local AIGateway * aiGwTl = nullptr;
 //helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
-	SetGlobalState(AIGateway * gateway)
+	SetGlobalState(AIGateway * aiGw)
 	{
 		assert(!aiGwTl);
 		assert(!ccTl);
 
-		aiGwTl = gateway;
-		ccTl = gateway->cc.get();
+		aiGwTl = aiGw;
+		ccTl = aiGw->cc.get();
 	}
 	~SetGlobalState()
 	{
@@ -64,7 +64,7 @@ struct SetGlobalState
 };
 
 
-#define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai)
+#define SET_GLOBAL_STATE(aiGw) SetGlobalState _hlpSetState(aiGw)
 
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 #define MAKING_TURN SET_GLOBAL_STATE(this)

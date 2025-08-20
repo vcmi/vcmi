@@ -33,7 +33,7 @@ private:
 	const Nullkiller * ai;
 
 public:
-	DeepDecomposer(const Nullkiller * ai);
+	DeepDecomposer(const Nullkiller * aiNk);
 	void reset();
 	void decompose(Goals::TGoalVec & results, Goals::TSubgoal behavior, int depthLimit);
 

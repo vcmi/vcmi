@@ -26,8 +26,8 @@ namespace NK2AI
 
 using namespace Goals;
 
-DeepDecomposer::DeepDecomposer(const Nullkiller * ai)
-	:ai(ai), depth(0)
+DeepDecomposer::DeepDecomposer(const Nullkiller * aiNk)
+	:ai(aiNk), depth(0)
 {
 }
 

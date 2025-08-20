@@ -217,7 +217,7 @@ void Nullkiller::decompose(Goals::TGoalVec & results, const Goals::TSubgoal& beh
 {
 	makingTurnInterrupption.interruptionPoint();
 	logAi->debug("Decomposing behavior %s", behavior->toString());
-	auto start = std::chrono::high_resolution_clock::now();
+	const auto start = std::chrono::high_resolution_clock::now();
 	decomposer->decompose(results, behavior, decompositionMaxDepth);
 
 	makingTurnInterrupption.interruptionPoint();
@@ -247,7 +247,7 @@ void Nullkiller::invalidatePathfinderData()
 	pathfinderInvalidated = true;
 }
 
-void Nullkiller::updateState(bool partialUpdate)
+void Nullkiller::updateState()
 {
 	makingTurnInterrupption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
@@ -261,8 +261,7 @@ void Nullkiller::updateState(bool partialUpdate)
 
 	if (!pathfinderInvalidated)
 		logAi->trace("Skipping paths regeneration - up to date");
-
-	if(!partialUpdate && pathfinderInvalidated)
+	else
 	{
 		memory->removeInvisibleObjects(cc.get());
 
@@ -502,6 +501,9 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 	{
 		tempResults.clear();
 
+		// Call updateHitMap here instead of inside each of the 3 behaviors
+		dangerHitMap->updateHitMap();
+
 		decompose(tempResults, sptr(RecruitHeroBehavior()), 1);
 		decompose(tempResults, sptr(BuyArmyBehavior()), 1);
 		decompose(tempResults, sptr(BuildingBehavior()), 1);
@@ -516,8 +518,7 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 			if(!executeTask(bestPrioPassTask))
 				return false;
 
-			// TODO: Mircea: Inspect why it's ok to do a partial update if condition is true
-			updateState(bestPrioPassTask->getHero() == nullptr);
+			updateState();
 		}
 		else
 		{

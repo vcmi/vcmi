@@ -27,19 +27,18 @@ std::string RecruitHeroBehavior::toString() const
 Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-	auto towns = aiNk->cc->getTownsInfo();
-
-	auto ourHeroes = aiNk->heroManager->getHeroRoles();
+	const auto ourTowns = aiNk->cc->getTownsInfo();
+	const auto ourHeroes = aiNk->heroManager->getHeroRoles();
 	auto minScoreToHireMain = std::numeric_limits<float>::max();
 	int currentArmyValue = 0;
 
-	for(auto hero : ourHeroes)
+	for(const auto & hero : ourHeroes)
 	{
 		currentArmyValue += hero.first->getArmyCost();
 		if(hero.second != HeroRole::MAIN)
 			continue;
 
-		auto newScore = aiNk->heroManager->evaluateHero(hero.first.get());
+		const auto newScore = aiNk->heroManager->evaluateHero(hero.first.get());
 
 		if(minScoreToHireMain > newScore)
 		{
@@ -47,7 +46,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 			minScoreToHireMain = newScore;
 		}
 	}
-	// If we don't have any heros we might want to lower our expectations.
+
+	// If we don't have any heroes, lower our expectations.
 	if (ourHeroes.empty())
 		minScoreToHireMain = 0;
 
@@ -56,76 +56,83 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 	float bestScore = 0;
 	bool haveCapitol = false;
 
-	aiNk->dangerHitMap->updateHitMap();
+	// Simplification: Moved this call before getting into the decomposer
+	// aiNk->dangerHitMap->updateHitMap();
+
 	int treasureSourcesCount = 0;
 	int bestClosestThreat = UINT8_MAX;
 	
-	for(auto town : towns)
+	for(const auto * town : ourTowns)
 	{
 		uint8_t closestThreat = UINT8_MAX;
-		for (auto threat : aiNk->dangerHitMap->getTownThreats(town))
+		for (const auto & threat : aiNk->dangerHitMap->getTownThreats(town))
 		{
 			closestThreat = std::min(closestThreat, threat.turn);
 		}
-		//Don't hire a hero where there already is one present
+
 		if (town->getVisitingHero() && town->getGarrisonHero())
 			continue;
+
 		float visitability = 0;
-		for (auto checkHero : ourHeroes)
+		for (const auto & hero : ourHeroes)
 		{
-			if (aiNk->dangerHitMap->getClosestTown(checkHero.first.get()->visitablePos()) == town)
+			if (aiNk->dangerHitMap->getClosestTown(hero.first.get()->visitablePos()) == town)
 				visitability++;
 		}
+
 		if(aiNk->heroManager->canRecruitHero(town))
 		{
 			auto availableHeroes = aiNk->cc->getAvailableHeroes(town);
 			
-			for (auto obj : aiNk->objectClusterizer->getNearbyObjects())
+			for (const auto * obj : aiNk->objectClusterizer->getNearbyObjects())
 			{
-				if ((obj->ID == Obj::RESOURCE)
+				if (obj->ID == Obj::RESOURCE
 					|| obj->ID == Obj::TREASURE_CHEST
 					|| obj->ID == Obj::CAMPFIRE
 					|| isWeeklyRevisitable(aiNk->playerID, obj)
 					|| obj->ID == Obj::ARTIFACT)
 				{
 					auto tile = obj->visitablePos();
-					auto closestTown = aiNk->dangerHitMap->getClosestTown(tile);
-
-					if (town == closestTown)
-						treasureSourcesCount++;
+					if (town == aiNk->dangerHitMap->getClosestTown(tile))
+						treasureSourcesCount++; // TODO: Mircea: Shouldn't it be used to determine the best town?
 				}
 			}
 
-			for(auto hero : availableHeroes)
+			for(const auto hero : availableHeroes)
 			{
 				if ((town->getVisitingHero() || town->getGarrisonHero()) 
 					&& closestThreat < 1
 					&& hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
 					continue;
+
 				auto score = aiNk->heroManager->evaluateHero(hero);
 				if(score > minScoreToHireMain)
 				{
 					score *= score / minScoreToHireMain;
 				}
-				score *= (hero->getArmyCost() + currentArmyValue);
+				score *= hero->getArmyCost() + currentArmyValue;
+
 				if (hero->getFactionID() == town->getFactionID())
 					score *= 1.5;
 				if (vstd::isAlmostZero(visitability))
 					score *= 30 * town->getTownLevel();
 				else
 					score *= town->getTownLevel() / visitability;
+
 				if (score > bestScore)
 				{
 					bestScore = score;
 					bestHeroToHire = hero;
-					bestTownToHireFrom = town;
+					bestTownToHireFrom = town; // TODO: Mircea: Seems to be no logic to choose the right town?
 					bestClosestThreat = closestThreat;
 				}
 			}
 		}
+
 		if (town->hasCapitol())
 			haveCapitol = true;
 	}
+
 	if (bestHeroToHire && bestTownToHireFrom)
 	{
 		if (aiNk->cc->getHeroesInfo().size() == 0

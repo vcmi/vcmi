@@ -35,7 +35,8 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 		return tasks;
 	}
 
-	aiNk->dangerHitMap->updateHitMap();
+	// Simplification: Moved this call before getting into the decomposer
+	// aiNk->dangerHitMap->updateHitMap();
 
 	for(auto town : ccTl->getTownsInfo())
 	{
