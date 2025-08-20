@@ -61,7 +61,7 @@ jobs:
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
-            preset: windows-msvc-release
+            preset: windows-msvc-ninja-release
             artifact_platform: x64
 
           - platform: msvc-x86
@@ -72,7 +72,7 @@ jobs:
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
-            preset: windows-msvc-release-x86
+            preset: windows-msvc-ninja-release-x86
             artifact_platform: x86
 
           - platform: msvc-arm64
@@ -83,7 +83,7 @@ jobs:
             pack_type: RelWithDebInfo
             extension: zip
             before_install: msvc.sh
-            preset: windows-msvc-release-arm64
+            preset: windows-msvc-ninja-release-arm64
             artifact_platform: arm64
 
           - platform: mingw_x86_64
@@ -150,6 +150,35 @@ jobs:
     - name: Install vcpkg Dependencies
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
+
+    - name: Setup Ninja (Windows)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      uses: seanmiddleditch/gha-setup-ninja@v5
+
+    - name: Setup MSVC Developer Command Prompt
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+
+    - name: Setup sccache (Windows/MSVC)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        variant: sccache
+        key: sccache-${{ matrix.platform }}-${{ github.ref_name }}
+        restore-keys: |
+          sccache-${{ matrix.platform }}-${{ github.ref_name }}
+          sccache-${{ matrix.platform }}
+        max-size: 10G
+        verbose: 2
+        job-summary: Sccache Statistics
+        append-timestamp: true
+
+    - name: sccache stats (pre-build)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: sccache --show-stats || true
+      shell: bash
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
@@ -229,14 +258,26 @@ jobs:
 
     - name: Configure
       run: |
-        if [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
-        elif ${{startsWith(matrix.platform, 'msvc') }}
-        then
+        if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/master') ]]; then
+          cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
+        elif ${{ startsWith(matrix.platform, 'msvc') }}; then
+          if [[ "${{ matrix.arch }}" == "x86" ]]; then
+            CC="$VCToolsInstallDir/bin/Hostx64/x86/cl.exe"
+            cmake \
+              -D CMAKE_C_COMPILER:FILEPATH="$CC" \
+              -D CMAKE_CXX_COMPILER:FILEPATH="$CC" \
+              --preset ${{ matrix.preset }}
+          elif [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            CC="$VCToolsInstallDir/bin/HostARM64/ARM64/cl.exe"
+            cmake \
+              -D CMAKE_C_COMPILER:FILEPATH="$CC" \
+              -D CMAKE_CXX_COMPILER:FILEPATH="$CC" \
+              --preset ${{ matrix.preset }}
+          else
             cmake --preset ${{ matrix.preset }}
+          fi
         else
-            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+          cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
         fi
 
     - name: Build
@@ -245,6 +286,11 @@ jobs:
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+    - name: sccache stats (post-build)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: sccache --show-stats || true
+      shell: bash
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
