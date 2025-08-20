@@ -655,7 +655,7 @@
 				"creatureBankNarrow" : {
 					"tacticsAllowed" : false,
 					"obstaclesAllowed" : false,
-					"attackerCommander" : 95,
+					"attackerCommander" : 94,
 					"defenderCommander" : 8,
 					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
 					"defenderUnits": [ 15, 185, 172, 2, 100, 87, 8 ]
@@ -664,7 +664,7 @@
 				"creatureBankWide" : {
 					"tacticsAllowed" : false,
 					"obstaclesAllowed" : false,
-					"attackerCommander" : 95,
+					"attackerCommander" : 94,
 					"defenderCommander" : 8,
 					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
 					"defenderUnits": [ 15, 185, 171, 1, 100, 86, 8 ]
