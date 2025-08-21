@@ -272,7 +272,7 @@
 			{ "a" : "4", "b" : "23", "guard" : 3000, "road" : "false" },
 			{ "a" : "4", "b" : "25", "guard" : 3000, "road" : "true" },
 
-			{ "a" : "5", "b" : "13", "guard" : 6000, "road" : "random " },
+			{ "a" : "5", "b" : "13", "guard" : 6000, "road" : "random" },
 			{ "a" : "5", "b" : "24", "guard" : 3000, "road" : "random" },
 			{ "a" : "5", "b" : "24", "guard" : 3000, "road" : "random" },
 
