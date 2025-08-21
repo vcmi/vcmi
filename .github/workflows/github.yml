@@ -203,7 +203,7 @@ jobs:
       run: sudo ln -s -T /home/runner/.conan/data/android-ndk/r25c/_/_/package/4db1be536558d833e52e862fd84d64d75c2b3656/bin /usr/local/lib/android/sdk/ndk/25.2.9519653
 
     - name: Install Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       if: ${{ startsWith(matrix.platform, 'android') }}
       with:
         distribution: 'temurin'
