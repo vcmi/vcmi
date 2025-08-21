@@ -142,6 +142,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
 	dest.creatureNature = source["creatureNature"].Bool(); //Null -> false
+	dest.propagateDescription = source["propagateDescription"].isNull() ? true : source["propagateDescription"].Bool(); //Null -> true
 
 	if (!dest.hidden)
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
@@ -195,6 +196,12 @@ bool CBonusTypeHandler::isCreatureNatureBonus(BonusType bonus) const
 {
 	return bonusTypes.at(static_cast<int>(bonus))->creatureNature;
 }
+
+bool CBonusTypeHandler::shouldPropagateDescription(BonusType bonus) const
+{
+	return bonusTypes.at(static_cast<int>(bonus))->propagateDescription;
+}
+
 
 std::vector<BonusType> CBonusTypeHandler::getAllObjets() const
 {

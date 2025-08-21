@@ -1,4 +1,14 @@
 {
+	"ARTIFACT_GROWING":
+	{
+		"propagateDescription": false
+	},
+	
+	"ARTIFACT_CHARGE":
+	{
+		"propagateDescription": false
+	},
+	
 	"ADDITIONAL_ATTACK":
 	{
 	},
@@ -9,6 +19,31 @@
 
 	"ATTACKS_ALL_ADJACENT":
 	{
+	},
+	
+	"BASE_TILE_MOVEMENT_COST":
+	{
+		"propagateDescription": false
+	},
+
+	"BATTLE_NO_FLEEING":
+	{
+		"propagateDescription": false
+	},
+
+	"BEFORE_BATTLE_REPOSITION":
+	{
+		"propagateDescription": false
+	},
+
+	"BEFORE_BATTLE_REPOSITION_BLOCK":
+	{
+		"propagateDescription": false
+	},
+
+	"BIND_EFFECT":
+	{
+		"propagateDescription": false
 	},
 
 	"BLOCKS_RANGED_RETALIATION":
@@ -39,10 +74,31 @@
 	"CHARGE_IMMUNITY":
 	{
 	},
+	
+	"COMBAT_MANA_BONUS":
+	{
+		"propagateDescription": false
+	},
+
+	"CREATURE_GROWTH":
+	{
+		"propagateDescription": false
+	},
+
+	"CREATURE_GROWTH_PERCENT":
+	{
+		"propagateDescription": false
+	},
 
 	"DARKNESS":
 	{
 		"hidden": true
+	},
+	
+	"DISGUISED":
+	{
+		"hidden": true,
+		"propagateDescription": false
 	},
 
 	"DEATH_STARE":
@@ -63,11 +119,6 @@
 
 	"DRAGON_NATURE":
 	{
-	},
-
-	"DISGUISED":
-	{
-		"hidden": true
 	},
 
 	"ENCHANTER":
@@ -112,6 +163,17 @@
 			"bonusSubtype.movementTeleporting" : null,
 		}
 	},
+	
+	"FLYING_MOVEMENT":
+	{
+		"propagateDescription": false
+	},
+
+	"FREE_SHIP_BOARDING":
+	{
+		"propagateDescription": false
+	},
+	
 
 	"FREE_SHOOTING":
 	{
@@ -119,10 +181,12 @@
 	
 	"FULL_MAP_DARKNESS":
 	{
+		"propagateDescription": false
 	},
-	
+
 	"FULL_MAP_SCOUTING":
 	{
+		"propagateDescription": false
 	},
 
 	"GARGOYLE":
@@ -137,6 +201,11 @@
 			"bonusSubtype.damageTypeMelee" : null,
 		}
 	},
+	
+	"GENERATE_RESOURCE":
+	{
+		"propagateDescription": false
+	},
 
 	"HATE":
 	{
@@ -148,6 +217,21 @@
 
 	"HP_REGENERATION":
 	{
+	},
+	
+	"HERO_EXPERIENCE_GAIN_PERCENT":
+	{
+		"propagateDescription": false
+	},
+
+	"HERO_SPELL_CASTS_PER_COMBAT_TURN":
+	{
+		"propagateDescription": false
+	},
+	
+	"IMPROVED_NECROMANCY":
+	{
+		"propagateDescription": false
 	},
 	
 	"JOUSTING":
@@ -164,12 +248,19 @@
 
 	"LEARN_BATTLE_SPELL_CHANCE":
 	{
-		"hidden": true
+		"hidden": true,
+		"propagateDescription": false
 	},
 
 	"LEARN_BATTLE_SPELL_LEVEL_LIMIT":
 	{
-		"hidden": true
+		"hidden": true,
+		"propagateDescription": false
+	},
+	
+	"LEARN_MEETING_SPELL_LIMIT":
+	{
+		"propagateDescription": false
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
@@ -188,6 +279,11 @@
 	{
 		"creatureNature" : true
 	},
+	
+	"LUCK":
+	{
+		"propagateDescription": false
+	},
 
 	"MANA_CHANNELING":
 	{
@@ -205,6 +301,26 @@
 	{
 	},
 	
+	"MAGIC_SCHOOL_SKILL":
+	{
+		"propagateDescription": false
+	},
+
+	"MANA_PERCENTAGE_REGENERATION":
+	{
+		"propagateDescription": false
+	},
+
+	"MANA_PER_KNOWLEDGE_PERCENTAGE":
+	{
+		"propagateDescription": false
+	},
+
+	"MAX_LEARNABLE_SPELL_LEVEL":
+	{
+		"propagateDescription": false
+	},
+	
 	"MECHANICAL":
 	{
 		"creatureNature" : true
@@ -212,6 +328,16 @@
 
 	"MIND_IMMUNITY":
 	{
+	},
+	
+	"MORALE":
+	{
+		"propagateDescription": false
+	},
+	
+	"MOVEMENT":
+	{
+		"propagateDescription": false
 	},
 	
 	"NEGATIVE_EFFECTS_IMMUNITY" :
@@ -241,7 +367,8 @@
 
 	"NO_TERRAIN_PENALTY":
 	{
-		"hidden": true
+		"hidden": true,
+		"propagateDescription": false
 	},
 
 	"NON_LIVING":
@@ -270,8 +397,23 @@
 	{
 	},
 	
+	"PRIMARY_SKILL":
+	{
+		"propagateDescription": false
+	},
+	
 	"REBIRTH":
 	{
+	},
+	
+	"RESOURCES_CONSTANT_BOOST":
+	{
+		"propagateDescription": false
+	},
+
+	"RESOURCES_TOWN_MULTIPLYING_BOOST":
+	{
+		"propagateDescription": false
 	},
 
 	"RETURN_AFTER_STRIKE":
@@ -282,6 +424,11 @@
 	{
 	},
 	
+	"ROUGH_TERRAIN_DISCOUNT":
+	{
+		"propagateDescription": false
+	},
+
 	"SIEGE_WEAPON":
 	{
 		"creatureNature" : true
@@ -297,6 +444,11 @@
 
 	"SHOOTS_ALL_ADJACENT":
 	{
+	},
+	
+	"SIGHT_RADIUS":
+	{
+		"propagateDescription": false
 	},
 	
 	"SOUL_STEAL":
@@ -350,6 +502,11 @@
 	"SUMMON_GUARDIANS":
 	{
 	},
+	
+	"SURRENDER_DISCOUNT":
+	{
+		"propagateDescription": false
+	},
 
 	"TWO_HEX_ATTACK_BREATH":
 	{
@@ -370,10 +527,20 @@
 	"TRANSMUTATION_IMMUNITY":
 	{
 	},
+	
+	"THIEVES_GUILD_ACCESS":
+	{
+		"propagateDescription": false
+	},
 
 	"UNDEAD":
 	{
 		"creatureNature" : true,
+	},
+	
+	"UNDEAD_RAISE_PERCENTAGE":
+	{
+		"propagateDescription": false
 	},
 	
 	"UNLIMITED_RETALIATIONS":
@@ -382,11 +549,22 @@
 
 	"VISIONS":
 	{
-		"hidden": true
+		"hidden": true,
+		"propagateDescription": false
 	},
 	
 	"VULNERABLE_FROM_BACK":
 	{
+	},
+	
+	"WANDERING_CREATURES_JOIN_BONUS":
+	{
+		"propagateDescription": false
+	},
+	
+	"WATER_WALKING":
+	{
+		"propagateDescription": false
 	},
 	
 	"WIDE_BREATH":
