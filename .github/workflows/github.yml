@@ -13,6 +13,7 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: mac-intel
@@ -63,6 +64,7 @@ jobs:
             before_install: msvc.sh
             preset: windows-msvc-ninja-release
             artifact_platform: x64
+            cl: Hostx64/x64/cl.exe
 
           - platform: msvc-x86
             arch: x86
@@ -74,6 +76,7 @@ jobs:
             before_install: msvc.sh
             preset: windows-msvc-ninja-release-x86
             artifact_platform: x86
+            cl: Hostx64/x86/cl.exe
 
           - platform: msvc-arm64
             arch: arm64
@@ -85,8 +88,10 @@ jobs:
             before_install: msvc.sh
             preset: windows-msvc-ninja-release-arm64
             artifact_platform: arm64
+            cl: HostARM64/ARM64/cl.exe
 
           - platform: mingw_x86_64
+            arch: x86_64
             os: ubuntu-24.04
             pack: 1
             pack_type: Release
@@ -98,6 +103,7 @@ jobs:
             conan_prebuilts: dependencies-mingw-x86-64
 
           - platform: mingw_x86
+            arch: x86
             os: ubuntu-24.04
             pack: 1
             pack_type: Release
@@ -138,10 +144,34 @@ jobs:
       uses: actions/checkout@v5
       with:
         submodules: recursive
+    
+    # User-owned staging dir
+    - name: Prepare APT staging dir
+      if: contains(matrix.os, 'ubuntu')
+      run: mkdir -p "$RUNNER_TEMP/apt-cache"
+    
+    # RESTORE (with unique key per matrix.platform)
+    - name: APT cache restore
+      if: contains(matrix.os, 'ubuntu')
+      id: aptcache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ matrix.platform }}-apt-${{ matrix.os }}
+        restore-keys: |
+          ${{ matrix.platform }}-apt-${{ matrix.os }}
 
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+    
+    # SAVE only if we didn't hit an existing cache
+    - name: APT cache save
+      if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ steps.aptcache.outputs.cache-primary-key }}
 
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
@@ -149,11 +179,7 @@ jobs:
 
     - name: Install vcpkg Dependencies
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
-
-    - name: Setup Ninja (Windows)
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: seanmiddleditch/gha-setup-ninja@v5
+      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}' 'vcpkg'
 
     - name: Setup MSVC Developer Command Prompt
       if: ${{ startsWith(matrix.platform, 'msvc') }}
@@ -161,47 +187,46 @@ jobs:
       with:
         arch: ${{ matrix.arch }}
 
-    - name: Setup sccache (Windows/MSVC)
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: hendrikmuhs/ccache-action@v1.2
-      with:
-        variant: sccache
-        key: sccache-${{ matrix.platform }}-${{ github.ref_name }}
-        restore-keys: |
-          sccache-${{ matrix.platform }}-${{ github.ref_name }}
-          sccache-${{ matrix.platform }}
-        max-size: 10G
-        verbose: 2
-        job-summary: Sccache Statistics
-        append-timestamp: true
+    # ensure the cache for each PR is separate so they don't interfere with each other
+    # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
 
-    - name: sccache stats (pre-build)
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: sccache --show-stats || true
-      shell: bash
-
-    # ensure the ccache for each PR is separate so they don't interfere with each other
-    # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
-    - name: Install ccache for PRs
+    - name: Setup compiler cache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ github.event.number != '' && !startsWith(matrix.platform, 'msvc') }}
+      if: ${{ github.event.number != '' }}
       with:
+        variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
         key: ${{ matrix.platform }}-PR-${{ github.event.number }}
         restore-keys: |
           ${{ matrix.platform }}-PR-${{ github.event.number }}
           ${{ matrix.platform }}-branch-${{ github.base_ref }}
-        max-size: "5G"
+          ${{ matrix.platform }}-
+        create-symlink: ${{ !startsWith(matrix.platform, 'msvc') }}
+        max-size: '5G'
         verbose: 2
-
-    - name: Install ccache for branch builds
+        job-summary: ""           # <-- disable built-in summary to avoid duplicate block
+        
+    - name: Setup compiler cache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ github.event.number == '' && !startsWith(matrix.platform, 'msvc')}}
+      if: ${{ github.event.number == '' }}
       with:
-        key: ${{ matrix.platform }}-${{ github.ref_name }}
+        variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
+        key: ${{ matrix.platform }}-branch-${{ github.ref_name }}
         restore-keys: |
           ${{ matrix.platform }}-branch-${{ github.ref_name }}
-        max-size: "5G"
+          ${{ matrix.platform }}-
+        create-symlink: ${{ !startsWith(matrix.platform, 'msvc') }}
+        max-size: '5G'
         verbose: 2
+        job-summary: ""           # <-- disable built-in summary to avoid duplicate block
+        
+    - name: CCache tuning (Android)
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: |
+        echo "/usr/lib/ccache" >> $GITHUB_PATH
+        ccache --set-config=compiler_check=content
+        ccache --set-config=base_dir="${GITHUB_WORKSPACE}"
+        ccache --set-config=hash_dir=true
+        ccache --set-config=sloppiness=time_macros
 
     - name: Install Conan
       if: "${{ matrix.conan_profile != '' }}"
@@ -259,23 +284,17 @@ jobs:
     - name: Configure
       run: |
         if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/master') ]]; then
-          cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
+          cmake -DENABLE_CCACHE:BOOL=ON \
+                -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+                -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" \
+                --preset ${{ matrix.preset }}
         elif ${{ startsWith(matrix.platform, 'msvc') }}; then
-          if [[ "${{ matrix.arch }}" == "x86" ]]; then
-            CC="$VCToolsInstallDir/bin/Hostx64/x86/cl.exe"
+            CL="$VCToolsInstallDir/bin/${{ matrix.cl }}"
             cmake \
-              -D CMAKE_C_COMPILER:FILEPATH="$CC" \
-              -D CMAKE_CXX_COMPILER:FILEPATH="$CC" \
+              -D CMAKE_C_COMPILER:FILEPATH="$CL" \
+              -D CMAKE_CXX_COMPILER:FILEPATH="$CL" \
               --preset ${{ matrix.preset }}
-          elif [[ "${{ matrix.arch }}" == "arm64" ]]; then
-            CC="$VCToolsInstallDir/bin/HostARM64/ARM64/cl.exe"
-            cmake \
-              -D CMAKE_C_COMPILER:FILEPATH="$CC" \
-              -D CMAKE_CXX_COMPILER:FILEPATH="$CC" \
-              --preset ${{ matrix.preset }}
-          else
-            cmake --preset ${{ matrix.preset }}
-          fi
         else
           cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
         fi
@@ -286,11 +305,6 @@ jobs:
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: sccache stats (post-build)
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: sccache --show-stats || true
-      shell: bash
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
@@ -322,6 +336,7 @@ jobs:
         mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
 
     - name: Upload Artifact
+      id: upload_artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
@@ -330,6 +345,7 @@ jobs:
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload AAB Artifact
+      id: upload_aab
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
       uses: actions/upload-artifact@v4
       with:
@@ -339,6 +355,7 @@ jobs:
           ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
     - name: Upload debug symbols
+      id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       uses: actions/upload-artifact@v4
       with:
@@ -357,6 +374,92 @@ jobs:
       env:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
+
+    - name: Prepare partial JSON with build informations
+      id: make_partial_json
+      shell: bash
+      run: |
+        # Decide cache tool and family
+        if [[ "${{ startsWith(matrix.platform, 'msvc') }}" == "true" ]]; then
+          TOOL="sccache";  CMD="sccache --show-stats"; FAMILY="windows-msvc"
+        elif [[ "${{ startsWith(matrix.platform, 'mingw_') }}" == "true" ]]; then
+          TOOL="ccache";   CMD="ccache -s";            FAMILY="windows-mingw"
+        elif [[ "${{ startsWith(matrix.platform, 'mac') }}" == "true" ]]; then
+          TOOL="ccache";   CMD="ccache -s";            FAMILY="macos"
+        elif [[ "${{ matrix.platform }}" == "ios" ]]; then
+          TOOL="ccache";   CMD="ccache -s";            FAMILY="ios"
+        elif [[ "${{ startsWith(matrix.platform, 'android') }}" == "true" ]]; then
+          TOOL="ccache";   CMD="ccache -s";            FAMILY="android"
+        else
+          TOOL="ccache";   CMD="ccache -s";            FAMILY="other"
+        fi
+        
+        # Raw stats (never fail)
+        STATS="$($CMD || true)"
+        
+        # Parse hits/misses
+        if [[ "$TOOL" == "sccache" ]]; then
+          HITS="$(printf '%s\n' "$STATS" | awk '/^Cache hits/   {print $NF; exit}')"
+          MISS="$(printf '%s\n' "$STATS" | awk '/^Cache misses/ {print $NF; exit}')"
+        else
+          HITS="$(printf '%s\n' "$STATS" | awk '/^[[:space:]]*Hits:/   {print $2; exit}')"
+          MISS="$(printf '%s\n' "$STATS" | awk '/^[[:space:]]*Misses:/ {print $2; exit}')"
+        fi
+        [[ "$HITS" =~ ^[0-9]+$ ]] || HITS=0
+        [[ "$MISS" =~ ^[0-9]+$ ]] || MISS=0
+        TOTAL=$((HITS+MISS))
+        # Two-decimal percent, e.g. 99.36%
+        RATE=$(awk -v h="$HITS" -v t="$TOTAL" 'BEGIN{ if(t>0) printf("%.2f%%",(100.0*h)/t); else print "n/a" }')
+        
+        # Artifact URLs
+        MAIN_URL='${{ steps.upload_artifact.outputs.artifact-url }}'
+        DEBUG_URL='${{ steps.upload_symbols.outputs.artifact-url }}'
+        AAB_URL='${{ steps.upload_aab.outputs.artifact-url }}'
+        
+        # Arch label
+        ARCH="${{ matrix.arch }}"
+        if [[ -z "$ARCH" ]]; then
+          case "${{ matrix.platform }}" in
+            mac-intel)     ARCH="Intel";;
+            mac-arm)       ARCH="ARM";;
+            ios)           ARCH="ARM64";;
+            mingw_x86)     ARCH="x86";;
+            mingw_x86_64)  ARCH="x86_64";;
+            android-32)    ARCH="ARMv7";;
+            android-64)    ARCH="ARM64";;
+            *)             ARCH="${{ matrix.platform }}";;
+          esac
+        fi
+        
+        # Pick Python (works on all runners)
+        PY=python3; command -v "$PY" >/dev/null 2>&1 || PY=python
+        # JSON-escape the raw stats
+        STATS_ESC=$("$PY" -c 'import json,sys; print(json.dumps(sys.stdin.read()))' <<<"$STATS")
+        
+        mkdir -p .summary
+        cat > .summary/${{ matrix.platform }}.json <<EOF
+        {
+          "platform": "${{ matrix.platform }}",
+          "family": "$FAMILY",
+          "arch": "$ARCH",
+          "tool": "$TOOL",
+          "hits": $HITS,
+          "misses": $MISS,
+          "total": $TOTAL,
+          "rate": "$RATE",
+          "artifact_url": "$MAIN_URL",
+          "debug_symbols_url": "$DEBUG_URL",
+          "aab_url": "$AAB_URL",
+          "stats_cmd": "$CMD",
+          "stats_raw": $STATS_ESC
+        }
+        EOF
+
+    - name: Upload partial JSON with build informations
+      uses: actions/upload-artifact@v4
+      with:
+        name: partial-json-${{ matrix.platform }}
+        path: .summary/${{ matrix.platform }}.json
 
   upload-source-package:
     name: Upload Source Code Package
@@ -383,6 +486,7 @@ jobs:
             gzip release.tar
             
         - name: Upload source code archive
+          id: upload_source
           uses: actions/upload-artifact@v4
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
@@ -390,10 +494,27 @@ jobs:
             path: |
               ./release.tar.gz
 
+        - name: Partial JSON (source)
+          shell: bash
+          run: |
+            mkdir -p .summary
+            cat > .summary/source.json <<JSON
+            {"source_url": "${{ steps.upload_source.outputs.artifact-url }}"}
+            JSON
+    
+        - name: Upload partial JSON (source)
+          uses: actions/upload-artifact@v4
+          with:
+            name: partial-json-source
+            path: .summary/source.json
+
   test:
     continue-on-error: true
     name: Test (${{ matrix.platform }})
+    env:
+      HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: gcc-latest-release
@@ -434,11 +555,35 @@ jobs:
       uses: actions/checkout@v5
       with:
         submodules: recursive
+    
+    # User-owned staging dir
+    - name: Prepare APT staging dir
+      if: contains(matrix.os, 'ubuntu')
+      run: mkdir -p "$RUNNER_TEMP/apt-cache"
+    
+    # RESTORE (with unique key per matrix.platform)
+    - name: APT cache restore
+      if: contains(matrix.os, 'ubuntu')
+      id: aptcache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ matrix.platform }}-apt-${{ matrix.os }}
+        restore-keys: |
+          ${{ matrix.platform }}-apt-${{ matrix.os }}
 
     - name: Prepare CI
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
+    
+    # SAVE only if we didn't hit an existing cache
+    - name: APT cache save
+      if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ steps.aptcache.outputs.cache-primary-key }}
 
-    - name: Install ccache for PRs
+    - name: Setup compiler cache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' }}
       with:
@@ -446,22 +591,22 @@ jobs:
         restore-keys: |
           ${{ matrix.platform }}-PR-${{ github.event.number }}
           ${{ matrix.platform }}-branch-${{ github.base_ref }}
-        max-size: "5G"
+          ${{ matrix.platform }}-
+        max-size: '5G'
         verbose: 2
 
-    - name: Install ccache for branch builds
+    - name: Setup compiler cache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number == '' }}
       with:
-        key: ${{ matrix.platform }}-${{ github.ref_name }}
+        key: ${{ matrix.platform }}-branch-${{ github.ref_name }}
         restore-keys: |
           ${{ matrix.platform }}-branch-${{ github.ref_name }}
-        max-size: "5G"
+          ${{ matrix.platform }}-
+        max-size: '5G'
         verbose: 2
 
     - name: Prepare Heroes 3 data
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
       run: |
         if [[ ${{github.repository_owner}} == vcmi ]]
@@ -477,15 +622,13 @@ jobs:
   
     - name: Configure
       run: |
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
+        cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
 
     - name: Build
       run: |
         cmake --build --preset ${{matrix.preset}}
 
     - name: Test
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
       if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
       run: |
         ctest --preset ${{matrix.preset}}
@@ -535,8 +678,8 @@ jobs:
         echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
         echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
 
-    - name: Install vcpkg Dependencies
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
+    - name: Install ucrt Dependencies
+      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}' 'ucrt'
 
     - name: Build Number
       run: |
@@ -581,6 +724,7 @@ jobs:
       shell: cmd
 
     - name: Upload VCMI Installer Artifacts
+      id: upload_installer
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
@@ -597,6 +741,23 @@ jobs:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: exe
 
+    - name: Prepare partial JSON with build informations
+      shell: bash
+      run: |
+        mkdir -p .summary
+        cat > .summary/installer-${{ matrix.platform }}.json <<JSON
+        {
+          "platform": "${{ matrix.platform }}",
+          "installer_url": "${{ steps.upload_installer.outputs.artifact-url }}"
+        }
+        JSON
+
+    - name: Upload partial JSON with build informations
+      uses: actions/upload-artifact@v4
+      with:
+        name: partial-json-${{ matrix.platform }}-installer
+        path: .summary/installer-${{ matrix.platform }}.json
+
   validate-code:
     name: Validate Code
     if: always()
@@ -606,7 +767,6 @@ jobs:
         shell: bash
     steps:
         - uses: actions/checkout@v5
-
         - name: Ensure LF line endings
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
@@ -624,3 +784,340 @@ jobs:
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
+
+  final-summary:
+    name: Build report
+    if: always()
+    needs: [build, windows-installer, validate-code, test, upload-source-package]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: write   # <-- needed to delete artifacts
+    steps:
+      - name: Download all partial JSON artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v5
+        with:
+          pattern: partial-json-*
+          merge-multiple: true
+          path: partials
+
+      - name: Collect validation & test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const run_id = context.runId;
+            const r = await github.rest.actions.listJobsForWorkflowRun({owner, repo, run_id, per_page: 100});
+            const jobs = r.data.jobs || [];
+
+            const hms = (ms) => {
+              const s = Math.max(0, Math.round(ms/1000));
+              const hh = String(Math.floor(s/3600)).padStart(2,'0');
+              const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+              const ss = String(s%60).padStart(2,'0');
+              return `${hh}:${mm}:${ss}`;
+            };
+
+            const rows = [];
+            for (const j of jobs) {
+              const dur = (j.started_at && j.completed_at)
+                ? hms(new Date(j.completed_at) - new Date(j.started_at))
+                : '';
+
+              // Build matrix (semafor)
+              if (j.name.startsWith('Build ')) {
+                const pretty = j.name.replace(/^Build \((.*)\)$/, '$1');
+                rows.push({
+                  group: 'builds',
+                  name: pretty,
+                  status: j.conclusion || 'neutral',
+                  duration: dur,
+                  url: j.html_url
+                });
+              }
+
+              // Code validation
+              if (j.name === 'Validate Code') {
+                const map = {
+                  'Validate JSON': 'JSON',
+                  'Validate Markdown': 'Markdown',
+                  'Ensure LF line endings': 'LF line endings'
+                };
+                for (const st of (j.steps || [])) {
+                  if (map[st.name]) {
+                    rows.push({
+                      group: 'validation',
+                      name: map[st.name],
+                      status: st.conclusion || 'skipped',
+                      duration: dur,
+                      url: j.html_url
+                    });
+                  }
+                }
+              }
+
+              // Tests matrix
+              if (j.name.startsWith('Test ')) {
+                let pretty = j.name.replace(/^Test \((.*)\)$/, '$1');
+                if (/gcc-latest/i.test(pretty))  pretty = 'GCC Latest';
+                else if (/gcc-oldest/i.test(pretty)) pretty = 'GCC Oldest';
+                else if (/clang-latest/i.test(pretty)) pretty = 'Clang Latest';
+                else if (/clang-oldest/i.test(pretty)) pretty = 'Clang Oldest';
+
+                const testStep = (j.steps || []).find(s => s.name === 'Test');
+                const status = (testStep && testStep.conclusion) || j.conclusion || 'neutral';
+
+                rows.push({
+                  group: 'tests',
+                  name: pretty,
+                  status,
+                  duration: dur,
+                  url: j.html_url
+                });
+              }
+            }
+
+            const fs = require('fs');
+            fs.mkdirSync('partials', { recursive: true });
+            fs.writeFileSync('partials/validation.json', JSON.stringify(rows, null, 2));
+
+      - name: Compose Summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          # Platforms icons
+          ICON_WIN="https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/WIN.png"
+          ICON_MAC="https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/MAC.png"
+          ICON_IOS="https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/IOS.png"
+          ICON_AND="https://raw.githubusercontent.com/EgoistDeveloper/operating-system-logos/master/src/32x32/AND.png"
+          ICON_CPP="https://raw.githubusercontent.com/isocpp/logos/master/cpp_logo.png"
+          # For future use
+          ICON_PM="https://avatars.githubusercontent.com/u/96267164?s=32"
+         
+
+          # -- Source code section ----------------------------------------------------
+          SRC_JSON="partials/source.json"
+          if [[ -f "$SRC_JSON" ]]; then
+            src=$(jq -r '.source_url // empty' "$SRC_JSON")
+            if [[ -n "$src" ]]; then
+              echo >> "$GITHUB_STEP_SUMMARY"
+              echo >> "$GITHUB_STEP_SUMMARY"
+              echo "### <img src=\"$ICON_CPP\" width=\"20\"/> Source code - [Download]($src)" >> "$GITHUB_STEP_SUMMARY"
+              echo >> "$GITHUB_STEP_SUMMARY"
+              echo >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          
+          # 1) Primary JSONs (build stats)
+          tmpdir=$(mktemp -d)
+          list="$tmpdir/list.json"
+          
+          files=$(find partials -type f -name '*.json' \
+                   ! -name 'installer-*.json' \
+                   ! -name 'validation.json' \
+                   ! -name 'source.json' || true)
+          
+          if [[ -z "${files:-}" ]]; then
+            echo '[]' > "$list"
+          else
+            jq -s '[ .[] | objects | select(has("family")) ]' $files > "$list"
+          fi
+          
+          # 2) Installer map
+          inst_map="$tmpdir/installer-map.json"
+          inst_files=$(find partials -type f \( -name 'installer-*.json' \) || true)
+          if [[ -z "${inst_files:-}" ]]; then
+            echo '{}' > "$inst_map"
+          else
+            jq -s 'map(select(.platform != null and .installer_url != null)
+                  | {key:.platform, value:.installer_url}) | from_entries' \
+               $inst_files > "$inst_map"
+          fi
+
+          dur_map="$tmpdir/dur_map.json"
+          if [[ -f "partials/validation.json" ]]; then
+            jq '
+              [ .[] | select(.group=="builds") ]
+              | map({key:.name, value:.duration})
+              | from_entries
+            ' "partials/validation.json" > "$dur_map"
+          else
+            echo '{}' > "$dur_map"
+          fi
+
+          # 3) Render family tables
+          families=('windows-msvc' 'windows-mingw' 'macos' 'ios' 'android')
+          for fam in "${families[@]}"; do
+            case "$fam" in
+              windows-msvc) TITLE="Windows (MSVC)"; ICON="$ICON_WIN";;
+              windows-mingw) TITLE="Windows (MinGW)"; ICON="$ICON_WIN";;
+              macos)        TITLE="macOS";          ICON="$ICON_MAC";;
+              ios)          TITLE="iOS";            ICON="$ICON_IOS";;
+              android)      TITLE="Android";        ICON="$ICON_AND";;
+            esac
+          
+            rows=$(jq --arg F "$fam" '[ .[] | select(.family==$F) ]' "$list")
+            count=$(printf '%s' "$rows" | jq 'length')
+            [[ $count -gt 0 ]] || continue
+          
+            echo "### <img src=\"$ICON\" width=\"22\"/> $TITLE" >> "$GITHUB_STEP_SUMMARY"
+            echo >> "$GITHUB_STEP_SUMMARY"
+          
+            ARCH="| Architecture |"
+            STATS="| Cache statistic |"
+            TIME="| Build time |"
+            DOWN="| Download |"
+            #DETL="| Detail |"
+          
+            for idx in $(seq 0 $((count-1))); do
+              item=$(printf '%s' "$rows" | jq ".[$idx]")
+              plat=$(printf '%s' "$item" | jq -r '.platform')
+              arch=$(printf '%s' "$item" | jq -r '.arch')
+              hits=$(printf '%s' "$item" | jq -r '.hits')
+              total=$(printf '%s' "$item" | jq -r '.total')
+              rate=$(printf '%s' "$item" | jq -r '.rate')
+              hms=$(jq -r --arg p "$plat" '.[$p] // "-"' "$dur_map")
+          
+              main=$(printf '%s' "$item" | jq -r '.artifact_url // empty')
+              dbg=$(printf '%s' "$item" | jq -r '.debug_symbols_url // empty')
+              aab=$(printf '%s' "$item" | jq -r '.aab_url // empty')
+              cmd=$(printf '%s' "$item" | jq -r '.stats_cmd // empty')
+              raw=$(printf '%s' "$item" | jq -r '.stats_raw // empty')
+          
+              # Installer URL via JSON map (robust)
+              inst=$(jq -r --arg p "$plat" '.[$p] // empty' "$inst_map")
+          
+              ARCH+=" $arch |"
+              STATS+=" $rate ($hits / $total) |"
+              TIME+=" $hms |"
+          
+              # Download cell
+              dl=""
+              [[ -n "$inst" ]] && dl+="[Installer]($inst)"
+              [[ -n "$dbg"  ]] && { [[ -n "$dl" ]] && dl+="<br/>"; dl+="[Debug symbols]($dbg)"; }
+              [[ -n "$main" ]] && { [[ -n "$dl" ]] && dl+="<br/>"; dl+="[Archive]($main)"; }
+              [[ -n "$aab"  ]] && dl+="[AAB]($aab)"
+              [[ -z "$dl"   ]] && dl="—"
+              DOWN+=" $dl |"
+          
+              # Detail cell: collapsible raw stats in ONE cell (escape &, <, >, |)
+              # esc=$(printf '%s' "$raw" | sed -e 's/&/&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/|/\&#124;/g')
+              # det="<details><summary><strong>Full</strong> <code>$cmd</code></summary><samp style=\"white-space:pre;display:block;max-height:280px;overflow:auto;margin:0\">$esc</samp></details>"
+              # DETL+=" $det |"
+            done
+          
+            ALIGN="|:--|"; for _ in $(seq 1 "$count"); do ALIGN+=":--:|"; done
+            {
+              echo "$ARCH"
+              echo "$ALIGN"
+              echo "$STATS"
+              echo "$TIME"
+              echo "$DOWN"
+              # echo "$DETL"
+              echo
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+
+          # -- Validation ---------------------------------------------------------
+          VAL_JSON="partials/validation.json"
+          if [[ -f "$VAL_JSON" ]]; then
+            echo "### 🔍 Validation" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Check | Status | Time | Logs |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|:--|:--:|:--:|:--:|" >> "$GITHUB_STEP_SUMMARY"
+
+            jq -c --argjson order '{"LF line endings":0,"JSON":1,"Markdown":2}' '
+              [ .[] | select(.group=="validation") ]
+              | sort_by([ ($order[.name] // 999), .name ])
+              | .[]
+            ' "$VAL_JSON" | while read -r row; do
+              name=$(jq -r '.name' <<<"$row")
+              status=$(jq -r '.status' <<<"$row")
+              dur=$(jq -r '.duration // "-" ' <<<"$row")
+              url=$(jq -r '.url // empty' <<<"$row")
+              case "$status" in
+                success) icon="✅";; failure) icon="❌";; cancelled) icon="🚫";;
+                timed_out) icon="⌛";; skipped) icon="⏭";; neutral|action_required) icon="⚠️";;
+                *) icon="❓";;
+              esac
+              logs="—"; [[ -n "$url" ]] && logs="[Logs]($url)"
+              echo "| $name | $icon | $dur | $logs |" >> "$GITHUB_STEP_SUMMARY"
+            done
+            echo >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # -- Tests --------------------------------------------------------------
+          if [[ -f "$VAL_JSON" ]]; then
+            echo "### 🧪 Tests" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Matrix | Status | Time | Logs |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|:--|:--:|:--:|:--:|" >> "$GITHUB_STEP_SUMMARY"
+
+            jq -c --argjson order '{"Clang Latest":0,"GCC Latest":1,"Clang Oldest":2,"GCC Oldest":3}' '
+              [ .[] | select(.group=="tests") ]
+              | sort_by([ ($order[.name] // 999), .name ])
+              | .[]
+            ' "$VAL_JSON" | while read -r row; do
+              name=$(jq -r '.name' <<<"$row")
+              status=$(jq -r '.status' <<<"$row")
+              dur=$(jq -r '.duration // "-" ' <<<"$row")
+              url=$(jq -r '.url // empty' <<<"$row")
+              case "$status" in
+                success) icon="✅";; failure) icon="❌";; cancelled) icon="🚫";;
+                timed_out) icon="⌛";; skipped) icon="⏭";; neutral|action_required) icon="⚠️";;
+                *) icon="❓";;
+              esac
+              logs="—"; [[ -n "$url" ]] && logs="[Logs]($url)"
+              echo "| $name | $icon | $dur | $logs |" >> "$GITHUB_STEP_SUMMARY"
+            done
+            echo >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # -- Build matrix (semafor) ------------------------------------------------
+          VAL_JSON="partials/validation.json"
+          if [[ -f "$VAL_JSON" ]]; then
+            echo "### 🚦 Build matrix" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Platform | Status | Time | Logs |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|:--|:--:|:--:|:--:|" >> "$GITHUB_STEP_SUMMARY"
+          
+            jq -c '
+              [ .[] | select(.group=="builds") ]
+              | sort_by(.name)
+              | .[]
+            ' "$VAL_JSON" | while read -r row; do
+              name=$(jq -r '.name' <<<"$row")
+              status=$(jq -r '.status' <<<"$row")
+              dur=$(jq -r '.duration // "-" ' <<<"$row")
+              url=$(jq -r '.url // empty' <<<"$row")
+              case "$status" in
+                success) icon="✅";;
+                failure) icon="❌";;
+                cancelled) icon="🚫";;
+                timed_out) icon="⌛";;
+                skipped) icon="⏭";;
+                neutral|action_required) icon="⚠️";;
+                *) icon="❓";;
+              esac
+              logs="—"; [[ -n "$url" ]] && logs="[Logs]($url)"
+              echo "| $name | $icon | $dur | $logs |" >> "$GITHUB_STEP_SUMMARY"
+            done
+            echo >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Delete partial JSON artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run_id = context.runId;
+            const res = await github.rest.actions.listWorkflowRunArtifacts({
+              owner, repo, run_id, per_page: 100
+            });
+            for (const a of res.data.artifacts) {
+              if (a.name.startsWith('partial-json-')) {
+                core.info(`Deleting ${a.name} (id=${a.id})`);
+                await github.rest.actions.deleteArtifact({
+                  owner, repo, artifact_id: a.id
+                });
+              }
+            }
