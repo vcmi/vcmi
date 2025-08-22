@@ -186,10 +186,9 @@
 	},
 	
 	"additionalProperties" : false,
+	"required" : ["zones", "connections", "minSize", "maxSize", "players"],
 	"properties" :
 	{
-		"required" : ["zones", "connections", "minSize", "maxSize", "players"],
-		
 		"players" : {
 			"description" : "Number of players that will be present on map (human or AI)",
 			"type": "string"
