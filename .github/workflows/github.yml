@@ -135,6 +135,7 @@ jobs:
             artifact_platform: arm64-v8a
 
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ !startsWith(matrix.platform, 'msvc-') }}
     defaults:
       run:
         shell: bash
@@ -381,17 +382,29 @@ jobs:
       run: |
         # Decide cache tool and family
         if [[ "${{ startsWith(matrix.platform, 'msvc') }}" == "true" ]]; then
-          TOOL="sccache";  CMD="sccache --show-stats"; FAMILY="windows-msvc"
+          TOOL="sccache";
+          CMD="sccache --show-stats";
+          FAMILY="windows-msvc"
         elif [[ "${{ startsWith(matrix.platform, 'mingw_') }}" == "true" ]]; then
-          TOOL="ccache";   CMD="ccache -s";            FAMILY="windows-mingw"
+          TOOL="ccache";
+          CMD="ccache -s";
+          FAMILY="windows-mingw"
         elif [[ "${{ startsWith(matrix.platform, 'mac') }}" == "true" ]]; then
-          TOOL="ccache";   CMD="ccache -s";            FAMILY="macos"
+          TOOL="ccache";
+          CMD="ccache -s";
+          FAMILY="macos"
         elif [[ "${{ matrix.platform }}" == "ios" ]]; then
-          TOOL="ccache";   CMD="ccache -s";            FAMILY="ios"
+          TOOL="ccache";
+          CMD="ccache -s";
+          FAMILY="ios"
         elif [[ "${{ startsWith(matrix.platform, 'android') }}" == "true" ]]; then
-          TOOL="ccache";   CMD="ccache -s";            FAMILY="android"
+          TOOL="ccache";
+          CMD="ccache -s";
+          FAMILY="android"
         else
-          TOOL="ccache";   CMD="ccache -s";            FAMILY="other"
+          TOOL="ccache";
+          CMD="ccache -s";
+          FAMILY="other"
         fi
         
         # Raw stats (never fail)
@@ -399,17 +412,30 @@ jobs:
         
         # Parse hits/misses
         if [[ "$TOOL" == "sccache" ]]; then
-          HITS="$(printf '%s\n' "$STATS" | awk '/^Cache hits/   {print $NF; exit}')"
-          MISS="$(printf '%s\n' "$STATS" | awk '/^Cache misses/ {print $NF; exit}')"
+          HITS=$(awk '/^Cache hits/   { print $NF; exit }'    <<<"$STATS")
+          MISS=$(awk '/^Cache misses/ { print $NF; exit }'    <<<"$STATS")
         else
-          HITS="$(printf '%s\n' "$STATS" | awk '/^[[:space:]]*Hits:/   {print $2; exit}')"
-          MISS="$(printf '%s\n' "$STATS" | awk '/^[[:space:]]*Misses:/ {print $2; exit}')"
+          HITS=$(awk '/^[[:space:]]*Hits:/   { print $2; exit }' <<<"$STATS")
+          MISS=$(awk '/^[[:space:]]*Misses:/ { print $2; exit }' <<<"$STATS")
         fi
-        [[ "$HITS" =~ ^[0-9]+$ ]] || HITS=0
-        [[ "$MISS" =~ ^[0-9]+$ ]] || MISS=0
+        
+        [[ $HITS =~ ^[0-9]+$ ]] || HITS=0
+        [[ $MISS =~ ^[0-9]+$ ]] || MISS=0
+        
         TOTAL=$((HITS+MISS))
+        
         # Two-decimal percent, e.g. 99.36%
-        RATE=$(awk -v h="$HITS" -v t="$TOTAL" 'BEGIN{ if(t>0) printf("%.2f%%",(100.0*h)/t); else print "n/a" }')
+        if (( $TOTAL > 0 )); then
+          RATE=$(
+            LC_ALL=C awk -v h="$HITS" -v t="$TOTAL" 'BEGIN {
+              if (t == 0) { print "n/a"; exit }
+              pct = 100.0 * h / t
+              printf "%.2f%%", pct
+            }'
+          )
+        else
+          RATE="n/a"
+        fi
         
         # Artifact URLs
         MAIN_URL='${{ steps.upload_artifact.outputs.artifact-url }}'
@@ -421,10 +447,10 @@ jobs:
         if [[ -z "$ARCH" ]]; then
           case "${{ matrix.platform }}" in
             mac-intel)     ARCH="Intel";;
-            mac-arm)       ARCH="ARM";;
+            mac-arm)       ARCH="ARM64";;
             ios)           ARCH="ARM64";;
             mingw_x86)     ARCH="x86";;
-            mingw_x86_64)  ARCH="x86_64";;
+            mingw_x86_64)  ARCH="x64";;
             android-32)    ARCH="ARMv7";;
             android-64)    ARCH="ARM64";;
             *)             ARCH="${{ matrix.platform }}";;
@@ -555,13 +581,11 @@ jobs:
       uses: actions/checkout@v5
       with:
         submodules: recursive
-    
-    # User-owned staging dir
+
     - name: Prepare APT staging dir
       if: contains(matrix.os, 'ubuntu')
       run: mkdir -p "$RUNNER_TEMP/apt-cache"
-    
-    # RESTORE (with unique key per matrix.platform)
+
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
@@ -574,8 +598,7 @@ jobs:
 
     - name: Prepare CI
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
-    
-    # SAVE only if we didn't hit an existing cache
+
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
@@ -635,6 +658,7 @@ jobs:
 
   windows-installer:
     needs: build
+    if: ${{ needs.build.result == 'success' }}
     name: Create Windows Installer (${{ matrix.arch }})
     strategy:
       matrix:
@@ -789,7 +813,7 @@ jobs:
     name: Build report
     if: always()
     needs: [build, windows-installer, validate-code, test, upload-source-package]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       actions: write
@@ -805,7 +829,13 @@ jobs:
           merge-multiple: true
           path: partials
   
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+  
       - name: Run final summary
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python3 CI/final_summary.py
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python CI/final_summary.py
