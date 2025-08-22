@@ -138,7 +138,7 @@ if(ENABLE_CCACHE)
             set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE}")
         else()
             # Optional fallback (only if ccache is present)
-            find_program(CCACHE ccache)
+            find_program(CCACHE ccache REQUIRED)
             if(CCACHE)
                 message(STATUS "Enabling compiler launcher: ccache (fallback)")
                 set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
@@ -146,7 +146,7 @@ if(ENABLE_CCACHE)
             endif()
         endif()
     else()
-        find_program(CCACHE ccache)
+        find_program(CCACHE ccache REQUIRED)
         if(CCACHE)
             message(STATUS "Enabling compiler launcher: ccache")
             set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
@@ -829,6 +829,7 @@ endif(WIN32)
 #       Packaging section             #
 #######################################
 
+# This needs to be removed in future
 if(MSVC)
 	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${BIN_DIR})
 	Include(InstallRequiredSystemLibraries)
@@ -857,6 +858,7 @@ endif()
 set(CPACK_PACKAGE_VENDOR "VCMI team")
 
 if(WIN32)
+	# This needs to be removed in future
 	# Note: due to NSI script generation process all of the backward slashes here are useful
 	set(CPACK_GENERATOR ZIP)
 	set(CPACK_MONOLITHIC_INSTALL 1)
