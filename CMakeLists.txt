@@ -321,7 +321,7 @@ if(MINGW OR MSVC)
 	if(MSVC)
 		# Use ccache with MSVC + Visual Studio generator by shimming cl.exe.
 		if(ENABLE_CCACHE AND (CMAKE_GENERATOR MATCHES "Visual Studio"))
-			# Wrapper only for VS generator; Ninja řešíme přes *CMAKE_*_LAUNCHER
+			# Wrapper only for VS generator
 			if(CCACHE)
 				set(_shim "${CMAKE_BINARY_DIR}/cl.exe")
 				# Prefer a symlink; if it fails (e.g. Windows without Developer Mode),
