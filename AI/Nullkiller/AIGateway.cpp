@@ -1294,7 +1294,8 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	if(h->isGarrisoned() && h->getVisitedTown())
 	{
 		cb->swapGarrisonHero(h->getVisitedTown());
-		moveCreaturesToHero(h->getVisitedTown());
+		if(h->getVisitedTown())
+			moveCreaturesToHero(h->getVisitedTown());
 	}
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
