@@ -52,9 +52,9 @@ int EditorCallback::getDate(Date mode) const
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-const TerrainTile * EditorCallback::getTile(int3, bool) const
+const TerrainTile * EditorCallback::getTile(int3 tile, bool) const
 {
-	THROW_EDITOR_UNSUPPORTED;
+	return &map->getTile(tile);
 }
 
 const TerrainTile * EditorCallback::getTileUnchecked(int3) const
