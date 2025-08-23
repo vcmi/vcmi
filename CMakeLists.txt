@@ -128,14 +128,31 @@ if(ENABLE_COLORIZED_COMPILER_OUTPUT)
 	endif()
 endif()
 
+# Prefer sccache on Windows/MSVC; fall back to ccache elsewhere
 if(ENABLE_CCACHE)
-	find_program(CCACHE ccache REQUIRED)
-endif()
-
-# The XCode and MSVC builds each require some more configuration further down.
-if(ENABLE_CCACHE)
-	set(CMAKE_C_COMPILER_LAUNCHER "ccache")
-	set(CMAKE_CXX_COMPILER_LAUNCHER "ccache")
+    if(MSVC)
+        find_program(SCCACHE sccache)
+        if(SCCACHE)
+            message(STATUS "Enabling compiler launcher: sccache")
+            set(CMAKE_C_COMPILER_LAUNCHER "${SCCACHE}")
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE}")
+        else()
+            # Optional fallback (only if ccache is present)
+            find_program(CCACHE ccache REQUIRED)
+            if(CCACHE)
+                message(STATUS "Enabling compiler launcher: ccache (fallback)")
+                set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
+                set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+            endif()
+        endif()
+    else()
+        find_program(CCACHE ccache REQUIRED)
+        if(CCACHE)
+            message(STATUS "Enabling compiler launcher: ccache")
+            set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE}")
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE}")
+        endif()
+    endif()
 endif()
 
 if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
@@ -302,18 +319,22 @@ if(MINGW OR MSVC)
 	set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
 	if(MSVC)
-		if(ENABLE_CCACHE)
-			# https://github.com/ccache/ccache/discussions/1154#discussioncomment-3611387
-			file(COPY_FILE
-				${CCACHE} ${CMAKE_BINARY_DIR}/cl.exe
-				ONLY_IF_DIFFERENT)
+		# Use ccache with MSVC + Visual Studio generator by shimming cl.exe.
+		if(ENABLE_CCACHE AND (CMAKE_GENERATOR MATCHES "Visual Studio"))
+			# Wrapper only for VS generator; Ninja řešíme přes *CMAKE_*_LAUNCHER
+			if(CCACHE)
+				set(_shim "${CMAKE_BINARY_DIR}/cl.exe")
+				# Prefer a symlink; if it fails (e.g. Windows without Developer Mode),
+				# CMake will fallback to copying the file.
+				file(CREATE_LINK "${CCACHE}" "${_shim}" SYMBOLIC COPY_ON_ERROR)
 
-			set(CMAKE_VS_GLOBALS
-				"CLToolExe=cl.exe"
-				"CLToolPath=${CMAKE_BINARY_DIR}"
-				"TrackFileAccess=false"
-				"UseMultiToolTask=true"
-			)
+				set(CMAKE_VS_GLOBALS
+					"CLToolExe=cl.exe"
+					"CLToolPath=${CMAKE_BINARY_DIR}"
+					"TrackFileAccess=false"
+					"UseMultiToolTask=true"
+				)
+			endif()
 		endif()
 
 		add_definitions(-DBOOST_ALL_NO_LIB)
@@ -810,6 +831,7 @@ endif(WIN32)
 #       Packaging section             #
 #######################################
 
+# This needs to be removed in future when successfully set OpenSign CI step for binaries signing to avoid resigning MS Redist / UCRT
 if(MSVC)
 	SET(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${BIN_DIR})
 	Include(InstallRequiredSystemLibraries)
@@ -838,6 +860,7 @@ endif()
 set(CPACK_PACKAGE_VENDOR "VCMI team")
 
 if(WIN32)
+	# This needs to be removed in future as we already migrated to Inno Setup and artifacts in CI are always packed to ZIP
 	# Note: due to NSI script generation process all of the backward slashes here are useful
 	set(CPACK_GENERATOR ZIP)
 	set(CPACK_MONOLITHIC_INSTALL 1)
