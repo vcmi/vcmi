@@ -952,6 +952,11 @@
 	"creatures.core.marksman.bonus.extraAttack" : "{Shoots twice}\nThis unit can shoot twice",
 	"creatures.core.azureDragon.bonus.fearful" : "{Fear}\nEnemy units have a 10% chance of freezing in fear",
 	"creatures.core.azureDragon.bonus.fearless" : "{Fearless}\nImmune to Fear ability",
+	"creatures.core.halfling.bonus.lucky" : "{Lucky}\nHalfling's luck cannot be decreased below +1",
+	"creatures.core.nomad.bonus.sandWalker" : "{Sand walker}\nHero ignores terrain penalty on sand",
+	"creatures.core.rogue.bonus.visionsMonsters" : "{Visions Monsters}\nHero can see detailed informations about neutral monsters",
+	"creatures.core.rogue.bonus.visionsHeroes" : "{Visions Heroes}\nHero can see detailed informations about enemy heroes",
+	"creatures.core.rogue.bonus.visionsTowns" : "{Visions Towns}\nHero can see detailed informations about enemy towns",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
