@@ -238,6 +238,7 @@ private:
 	friend class IGameInfoCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
+	friend class CMapLoaderH3M;
 };
 
 VCMI_LIB_NAMESPACE_END

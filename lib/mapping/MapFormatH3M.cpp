@@ -44,6 +44,7 @@
 #include "../spells/CSpellHandler.h"
 #include "../texts/TextOperations.h"
 #include "entities/hero/CHeroClass.h"
+#include "../gameState/CGameState.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -65,7 +66,17 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap(IGameInfoCallback * cb)
 	// Init map object by parsing the input buffer
 	map = new CMap(cb);
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
-	init();
+	if(dynamic_cast<CGameState *>(cb))
+	{
+		cb->gameState().map.reset(map);
+		init();
+		cb->gameState().map.release();
+		cb->gameState().map.reset(nullptr);
+	}
+	else
+	{
+		init();
+	}
 
 	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
 }
