@@ -661,7 +661,9 @@ void CCreatureSet::serializeJson(JsonSerializeFormat & handler, const std::strin
 			{
 				auto newStack = std::make_unique<CStackInstance>(getArmy()->cb);
 				newStack->serializeJson(handler);
-				putStack(SlotID(static_cast<si32>(idx)), std::move(newStack));
+				SlotID slot(static_cast<si32>(idx));
+				stacks[slot] = std::move(newStack);
+				stacks[slot]->setArmy(getArmy());
 			}
 		}
 	}

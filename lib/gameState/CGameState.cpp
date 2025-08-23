@@ -607,6 +607,7 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 			continue;
 		}
 		hero->initHero(gameRandomizer);
+		hero->armyChanged();
 	}
 
 	// generate boats for all heroes on water
