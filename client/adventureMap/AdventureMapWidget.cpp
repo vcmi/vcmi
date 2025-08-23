@@ -30,7 +30,9 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
@@ -402,6 +404,8 @@ void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 	{
 		auto container = dynamic_cast<CAdventureMapContainerWidget *>(entry);
 
+		int mapLevels = GAME->interface()->cb->getMapHeader()->mapLevels;
+
 		if (container)
 		{
 			if (container->disableCondition == "heroAwake")
@@ -410,11 +414,14 @@ void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "heroSleeping")
 				container->setEnabled(shortcuts->optionHeroSleeping());
 
-			if (container->disableCondition == "mapLayerSurface") // TODO: multilevel support
-				container->setEnabled(shortcuts->optionMapLevelSurface());
+			if (container->disableCondition == "mapLayerSurface")
+				container->setEnabled(shortcuts->optionMapLevel() == 0);
 
 			if (container->disableCondition == "mapLayerUnderground")
-				container->setEnabled(!shortcuts->optionMapLevelSurface());
+				container->setEnabled(shortcuts->optionMapLevel() == mapLevels - 1);
+
+			if (container->disableCondition == "mapLayerOther")
+				container->setEnabled(shortcuts->optionMapLevel() > 0 && shortcuts->optionMapLevel() < mapLevels - 1);
 
 			if (container->disableCondition == "mapViewMode")
 				container->setEnabled(shortcuts->optionInWorldView());
