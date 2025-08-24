@@ -1,4 +1,4 @@
-set(Nullkiller_SRCS
+set(Nullkiller2_SRCS
 		Pathfinding/AIPathfinderConfig.cpp
 		Pathfinding/AIPathfinder.cpp
 		Pathfinding/AINodeStorage.cpp
@@ -68,7 +68,7 @@ set(Nullkiller_SRCS
 		AIGateway.cpp
 )
 
-set(Nullkiller_HEADERS
+set(Nullkiller2_HEADERS
 		StdInc.h
 		
 		Pathfinding/AIPathfinderConfig.h
@@ -145,14 +145,14 @@ set(Nullkiller_HEADERS
 )
 
 if(NOT ENABLE_STATIC_LIBS)
-	list(APPEND Nullkiller_SRCS main.cpp StdInc.cpp)
+	list(APPEND Nullkiller2_SRCS main.cpp StdInc.cpp)
 endif()
-assign_source_group(${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+assign_source_group(${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 
 if(ENABLE_STATIC_LIBS)
-	add_library(Nullkiller2 STATIC ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+	add_library(Nullkiller2 STATIC ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 else()
-	add_library(Nullkiller2 SHARED ${Nullkiller_SRCS} ${Nullkiller_HEADERS})
+	add_library(Nullkiller2 SHARED ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 	install(TARGETS Nullkiller2 RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
 endif()
 

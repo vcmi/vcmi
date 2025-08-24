@@ -141,7 +141,12 @@ if(ENABLE_ERM)
 endif()
 
 if(ENABLE_NULLKILLER_AI)
+	# Just linking the library below is not enough, we need the .cpp files as well
+	file(GLOB_RECURSE NULLKILLER2_TEST_SRCS "../AI/Nullkiller2/*.cpp")
+	list(FILTER NULLKILLER2_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
+
 	list(APPEND test_SRCS
+		${NULLKILLER2_TEST_SRCS}
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 	)
 
