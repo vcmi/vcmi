@@ -38,7 +38,7 @@ namespace AIPathfinding
 			AIPathNode * dstMode,
 			const AIPathNode * srcNode) const override;
 
-		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * aiNk, const AIPathNode * source) const override;
 
 		std::string toString() const override;
 	};

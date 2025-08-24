@@ -112,10 +112,12 @@ namespace Goals
 		const CGHeroInstance * hero; SETTER(CGHeroInstance *, hero)
 		const CGTownInstance *town; SETTER(CGTownInstance *, town)
 		int bid; SETTER(int, bid)
+		EGoals goalType;
 
-		AbstractGoal(EGoals goal = EGoals::INVALID): goalType(goal)
+		explicit AbstractGoal(EGoals goal = EGoals::INVALID): goalType(goal)
 		{
-			isAbstract = false;
+			// isAbstract = false;
+			isAbstract = true;
 			value = 0;
 			aid = -1;
 			resID = -1;
@@ -126,25 +128,31 @@ namespace Goals
 			bid = -1;
 			goldCost = 0;
 		}
-		virtual ~AbstractGoal() {}
+
+		virtual ~AbstractGoal() = default;
 		//FIXME: abstract goal should be abstract, but serializer fails to instantiate subgoals in such case
 		virtual AbstractGoal * clone() const
 		{
 			return const_cast<AbstractGoal *>(this);
+			// auto * copy = new AbstractGoal(*this);
+			// return copy;
 		}
 
-		virtual TGoalVec decompose(const Nullkiller * ai) const
+		virtual TGoalVec decompose(const Nullkiller * aiNk) const
 		{
 			return TGoalVec();
 		}
 
-		EGoals goalType;
-
 		virtual std::string toString() const;
 
-		bool invalid() const;
+		// virtual bool invalid() const;
+		virtual bool invalid() const
+		{
+			return goalType == EGoals::INVALID;
+		}
 		
-		virtual bool operator==(const AbstractGoal & g) const;
+		// virtual bool operator==(const AbstractGoal & g) const;
+		virtual bool operator==(const AbstractGoal & g) const { return false; }
 
 		virtual bool isElementar() const { return false; }
 
@@ -175,7 +183,7 @@ namespace Goals
 		virtual void accept(AIGateway * aiGw) = 0; //unhandled goal will report standard error
 		virtual std::string toString() const = 0;
 		virtual const CGHeroInstance * getHero() const = 0;
-		virtual ~ITask() {}
+		virtual ~ITask() = default;
 		virtual int getHeroExchangeCount() const = 0;
 		virtual bool isObjectAffected(ObjectInstanceID h) const = 0;
 		virtual std::vector<ObjectInstanceID> getAffectedObjects() const = 0;

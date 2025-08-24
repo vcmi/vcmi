@@ -28,7 +28,7 @@ namespace Goals
 		{
 		}
 
-		Goals::TGoalVec decompose(const Nullkiller * ai) const override;
+		Goals::TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;
 		bool hasHash() const override { return true; }
 		uint64_t getHash() const override;
@@ -37,14 +37,14 @@ namespace Goals
 
 	private:
 		TGoalVec tryCompleteQuest(const Nullkiller * aiNk) const;
-		TGoalVec missionArt(const Nullkiller * ai) const;
-		TGoalVec missionHero(const Nullkiller * ai) const;
+		TGoalVec missionArt(const Nullkiller * aiNk) const;
+		TGoalVec missionHero(const Nullkiller * aiNk) const;
 		TGoalVec missionArmy(const Nullkiller * aiNk) const;
-		TGoalVec missionResources(const Nullkiller * ai) const;
+		TGoalVec missionResources(const Nullkiller * aiNk) const;
 		TGoalVec missionDestroyObj(const Nullkiller * aiNk) const;
-		TGoalVec missionIncreasePrimaryStat(const Nullkiller * ai) const;
-		TGoalVec missionLevel(const Nullkiller * ai) const;
-		TGoalVec missionKeymaster(const Nullkiller * ai) const;
+		TGoalVec missionIncreasePrimaryStat(const Nullkiller * aiNk) const;
+		TGoalVec missionLevel(const Nullkiller * aiNk) const;
+		TGoalVec missionKeymaster(const Nullkiller * aiNk) const;
 		std::string questToString() const;
 	};
 }

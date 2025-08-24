@@ -27,7 +27,7 @@ namespace NK2AI
 using namespace Goals;
 
 DeepDecomposer::DeepDecomposer(const Nullkiller * aiNk)
-	:ai(aiNk), depth(0)
+	:aiNk(aiNk), depth(0)
 {
 }
 
@@ -139,7 +139,7 @@ Goals::TSubgoal DeepDecomposer::aggregateGoals(int startDepth, TSubgoal last)
 
 Goals::TSubgoal DeepDecomposer::unwrapComposition(Goals::TSubgoal goal)
 {
-	return goal->goalType == Goals::COMPOSITION ? goal->decompose(ai).back() : goal;
+	return goal->goalType == Goals::COMPOSITION ? goal->decompose(aiNk).back() : goal;
 }
 
 bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
@@ -159,7 +159,7 @@ bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
 
 bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 {
-	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose(ai) : TGoalVec{goal};
+	auto goalsToTest = goal->goalType == Goals::COMPOSITION ? goal->decompose(aiNk) : TGoalVec{goal};
 
 	for(auto goalToTest : goalsToTest)
 	{
@@ -209,7 +209,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 
 	fromCache = false;
 
-	return goal->decompose(ai);
+	return goal->decompose(aiNk);
 }
 
 void DeepDecomposer::addToCache(TSubgoal goal)

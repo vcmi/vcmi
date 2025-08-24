@@ -97,6 +97,7 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 
 float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 {
+	// TODO: Mircea: Shouldn't we count bonuses from artifacts when generating the fighting strength? That could make a huge difference
 	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK) + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER) + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
 }
 
@@ -127,37 +128,37 @@ void HeroManager::update()
 	}
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
-	heroRoles.clear();
+	heroToRoleMap.clear();
 
 	for(auto hero : myHeroes)
 	{
 		if(hero->patrol.patrolling)
 		{
-			heroRoles[hero] = HeroRole::MAIN;
+			heroToRoleMap[hero] = HeroRole::MAIN;
 		}
 		else
 		{
-			heroRoles[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+			heroToRoleMap[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
 		}
 	}
 
 	for(auto hero : myHeroes)
 	{
-		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroRoles[hero] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[hero] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 
 HeroRole HeroManager::getHeroRole(const HeroPtr & hero) const
 {
-	if (heroRoles.find(hero) != heroRoles.end())
-		return heroRoles.at(hero);
+	if (heroToRoleMap.find(hero) != heroToRoleMap.end())
+		return heroToRoleMap.at(hero);
 	else
 		return HeroRole::SCOUT;
 }
 
-const std::map<HeroPtr, HeroRole> & HeroManager::getHeroRoles() const
+const std::map<HeroPtr, HeroRole> & HeroManager::getHeroToRoleMap() const
 {
-	return heroRoles;
+	return heroToRoleMap;
 }
 
 int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const

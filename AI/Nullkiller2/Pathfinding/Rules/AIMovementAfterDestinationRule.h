@@ -29,7 +29,7 @@ namespace AIPathfinding
 
 	public:
 		AIMovementAfterDestinationRule(
-			const Nullkiller * ai,
+			const Nullkiller * aiNk,
 			CPlayerSpecificInfoCallback * cb,
 			std::shared_ptr<AINodeStorage> nodeStorage,
 			bool allowBypassObjects);

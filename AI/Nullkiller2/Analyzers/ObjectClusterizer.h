@@ -81,7 +81,7 @@ public:
 	const CGObjectInstance * getBlocker(const AIPath & path) const;
 	std::optional<const CGObjectInstance *> getBlocker(const AIPathNodeInfo & node) const;
 
-	ObjectClusterizer(const Nullkiller * ai): aiNk(ai), valueEvaluator(ai), isUpToDate(false){}
+	ObjectClusterizer(const Nullkiller * aiNk): aiNk(aiNk), valueEvaluator(aiNk), isUpToDate(false){}
 
 	void validateObjects();
 	void onObjectRemoved(ObjectInstanceID id);

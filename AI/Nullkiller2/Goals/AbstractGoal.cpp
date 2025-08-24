@@ -71,20 +71,15 @@ std::string AbstractGoal::toString() const
 	return desc;
 }
 
-bool AbstractGoal::operator==(const AbstractGoal & g) const
-{
-	return false;
-}
-
 //TODO: find out why the following are not generated automatically on MVS?
 bool TSubgoal::operator==(const TSubgoal & rhs) const
 {
 	return *get() == *rhs.get(); //comparison for Goals is overloaded, so they don't need to be identical to match
 }
 
-bool AbstractGoal::invalid() const
+bool TSubgoal::operator<(const TSubgoal & rhs) const
 {
-	return goalType == EGoals::INVALID;
+	return false;
 }
 
 }

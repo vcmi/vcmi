@@ -107,14 +107,15 @@ public:
 	std::unique_ptr<Settings> settings;
 	/// Same value as AIGateway->playerID
 	PlayerColor playerID;
+	/// Same value as AIGateway->cc
 	std::shared_ptr<CCallback> cc;
 	std::mutex aiStateMutex;
 	mutable ThreadInterruption makingTurnInterrupption;
 
 	Nullkiller();
-	~Nullkiller();
+	virtual ~Nullkiller();
 	void init(std::shared_ptr<CCallback> cb, AIGateway * aiGw);
-	void makeTurn();
+	virtual void makeTurn();
 	bool makeTurnHelperPriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;

@@ -79,7 +79,7 @@ class DLL_EXPORT BuildAnalyzer
 	Nullkiller * aiNk;
 
 public:
-	explicit BuildAnalyzer(Nullkiller * ai) : aiNk(ai) {}
+	explicit BuildAnalyzer(Nullkiller * aiNk) : aiNk(aiNk) {}
 	void update();
 
 	TResources getResourcesRequiredNow() const;

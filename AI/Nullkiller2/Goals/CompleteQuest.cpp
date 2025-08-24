@@ -31,37 +31,37 @@ std::string CompleteQuest::toString() const
 	return "Complete quest " + questToString();
 }
 
-TGoalVec CompleteQuest::decompose(const Nullkiller * ai) const
+TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 {
 	if(isKeyMaster(q))
 	{
-		return missionKeymaster(ai);
+		return missionKeymaster(aiNk);
 	}
 
 	logAi->debug("Trying to realize quest: %s", questToString());
 	auto quest = q.getQuest(ccTl);
 
 	if(!quest->mission.artifacts.empty())
-		return missionArt(ai);
+		return missionArt(aiNk);
 
 	if(!quest->mission.heroes.empty())
-		return missionHero(ai);
+		return missionHero(aiNk);
 
 	if(!quest->mission.creatures.empty())
-		return missionArmy(ai);
+		return missionArmy(aiNk);
 
 	if(quest->mission.resources.nonZero())
-		return missionResources(ai);
+		return missionResources(aiNk);
 
 	if(quest->killTarget != ObjectInstanceID::NONE)
-		return missionDestroyObj(ai);
+		return missionDestroyObj(aiNk);
 
 	for(auto & s : quest->mission.primary)
 		if(s)
-			return missionIncreasePrimaryStat(ai);
+			return missionIncreasePrimaryStat(aiNk);
 
 	if(quest->mission.heroLevel > 0)
-		return missionLevel(ai);
+		return missionLevel(aiNk);
 
 	return TGoalVec();
 }
@@ -118,9 +118,9 @@ TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const
 	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(ccTl));
 }
 
-TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionArt(const Nullkiller * aiNk) const
 {
-	TGoalVec solutions = tryCompleteQuest(ai);
+	TGoalVec solutions = tryCompleteQuest(aiNk);
 
 	if(!solutions.empty())
 		return solutions;
@@ -135,9 +135,9 @@ TGoalVec CompleteQuest::missionArt(const Nullkiller * ai) const
 	return solutions;
 }
 
-TGoalVec CompleteQuest::missionHero(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionHero(const Nullkiller * aiNk) const
 {
-	TGoalVec solutions = tryCompleteQuest(ai);
+	TGoalVec solutions = tryCompleteQuest(aiNk);
 
 	if(solutions.empty())
 	{
@@ -160,31 +160,31 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(ccTl));
 }
 
-TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * aiNk) const
 {
-	return tryCompleteQuest(ai);
+	return tryCompleteQuest(aiNk);
 }
 
-TGoalVec CompleteQuest::missionLevel(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionLevel(const Nullkiller * aiNk) const
 {
-	return tryCompleteQuest(ai);
+	return tryCompleteQuest(aiNk);
 }
 
-TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
 {
-	if(isObjectPassable(ai, q.getObject(ccTl)))
+	if(isObjectPassable(aiNk, q.getObject(ccTl)))
 	{
-		return CaptureObjectsBehavior(q.getObject(ccTl)).decompose(ai);
+		return CaptureObjectsBehavior(q.getObject(ccTl)).decompose(aiNk);
 	}
 	else
 	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(ccTl)->subID).decompose(ai);
+		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(ccTl)->subID).decompose(aiNk);
 	}
 }
 
-TGoalVec CompleteQuest::missionResources(const Nullkiller * ai) const
+TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
 {
-	TGoalVec solutions = tryCompleteQuest(ai);
+	TGoalVec solutions = tryCompleteQuest(aiNk);
 	return solutions;
 }
 

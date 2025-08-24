@@ -24,7 +24,7 @@ namespace Goals
 		std::string toString() const override;
 		bool operator==(const BuyArmyBehavior & other) const override
 		{
-			return true;
+			return true; // TODO: Mircea: how does this make sense?
 		}
 	};
 }

@@ -30,17 +30,17 @@ class SpecialAction
 public:
 	virtual ~SpecialAction() = default;
 
-	virtual bool canAct(const Nullkiller * ai, const AIPathNode * source) const
+	virtual bool canAct(const Nullkiller * aiNk, const AIPathNode * source) const
 	{
 		return true;
 	}
 
-	virtual bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const
+	virtual bool canAct(const Nullkiller * aiNk, const AIPathNodeInfo & source) const
 	{
 		return true;
 	}
 
-	virtual Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const;
+	virtual Goals::TSubgoal decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const;
 
 	virtual void execute(AIGateway * aiGw, const CGHeroInstance * hero) const;
 
@@ -76,11 +76,11 @@ private:
 public:
 	CompositeAction(std::vector<std::shared_ptr<const SpecialAction>> parts) : parts(parts) {}
 
-	bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
+	bool canAct(const Nullkiller * aiNk, const AIPathNode * source) const override;
 	void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 	std::string toString() const override;
 	const CGObjectInstance * targetObject() const override;
-	Goals::TSubgoal decompose(const Nullkiller * ai, const CGHeroInstance * hero) const override;
+	Goals::TSubgoal decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const override;
 
 	std::vector<std::shared_ptr<const SpecialAction>> getParts() const override
 	{
@@ -98,7 +98,7 @@ public:
 class ISpecialActionFactory
 {
 public:
-	virtual std::shared_ptr<SpecialAction> create(const Nullkiller * ai) = 0;
+	virtual std::shared_ptr<SpecialAction> create(const Nullkiller * aiNk) = 0;
 	virtual ~ISpecialActionFactory() = default;
 };
 

@@ -22,7 +22,7 @@ private:
 	TacticalAdvantageEngine tacticalAdvantageEngine;
 
 public:
-	FuzzyHelper(const Nullkiller * ai): aiNk(ai) {}
+	FuzzyHelper(const Nullkiller * aiNk): aiNk(aiNk) {}
 
 	ui64 evaluateDanger(const CGObjectInstance * obj);
 	ui64 evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards = true);

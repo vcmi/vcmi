@@ -37,7 +37,7 @@ namespace NK2AI
 
 constexpr float MAX_CRITICAL_VALUE = 2.0f;
 
-EvaluationContext::EvaluationContext(const Nullkiller* ai)
+EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	: movementCost(0.0),
 	manaCost(0),
 	danger(0),
@@ -52,7 +52,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* ai)
 	turn(0),
 	strategicalValue(0),
 	conquestValue(0),
-	evaluator(ai),
+	evaluator(aiNk),
 	enemyHeroDangerRatio(0),
 	threat(0),
 	armyGrowth(0),
@@ -929,7 +929,7 @@ private:
 	const Nullkiller * aiNk;
 
 public:
-	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * ai) : aiNk(ai) {}
+	ExecuteHeroChainEvaluationContextBuilder(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1045,7 +1045,7 @@ public:
 class ClusterEvaluationContextBuilder : public IEvaluationContextBuilder
 {
 public:
-	ClusterEvaluationContextBuilder(const Nullkiller * ai) {}
+	ClusterEvaluationContextBuilder(const Nullkiller * aiNk) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1132,7 +1132,7 @@ private:
 	const Nullkiller * aiNk;
 
 public:
-	DismissHeroContextBuilder(const Nullkiller * ai) : aiNk(ai) {}
+	DismissHeroContextBuilder(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
@@ -1264,18 +1264,18 @@ uint64_t RewardEvaluator::getUpgradeArmyReward(const CGTownInstance * town, cons
 	return upgradedPower - creaturesToUpgrade.power;
 }
 
-PriorityEvaluator::PriorityEvaluator(const Nullkiller * ai)
-	:aiNk(ai)
+PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk)
+	:aiNk(aiNk)
 {
 	initVisitTile();
-	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(ai));
+	evaluationContextBuilders.push_back(std::make_shared<ExecuteHeroChainEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
-	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(ai));
+	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
-	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(ai));
+	evaluationContextBuilders.push_back(std::make_shared<DismissHeroContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
 }

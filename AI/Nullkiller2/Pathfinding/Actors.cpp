@@ -97,10 +97,10 @@ std::string ObjectActor::toString() const
 	return object->getObjectName() + " at " + object->visitablePos().toString();
 }
 
-HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * ai)
+HeroActor::HeroActor(const CGHeroInstance * hero, HeroRole heroRole, uint64_t chainMask, const Nullkiller * aiNk)
 	:ChainActor(hero, heroRole, chainMask)
 {
-	exchangeMap.reset(new HeroExchangeMap(this, ai));
+	exchangeMap.reset(new HeroExchangeMap(this, aiNk));
 	setupSpecialActors();
 }
 
@@ -108,10 +108,10 @@ HeroActor::HeroActor(
 	const ChainActor * carrier,
 	const ChainActor * other,
 	const HeroExchangeArmy * army,
-	const Nullkiller * ai)
+	const Nullkiller * aiNk)
 	:ChainActor(carrier, other, army)
 {
-	exchangeMap.reset(new HeroExchangeMap(this, ai));
+	exchangeMap.reset(new HeroExchangeMap(this, aiNk));
 	armyCost += army->armyCost;
 	actorAction = army->getActorAction();
 	setupSpecialActors();
@@ -185,8 +185,8 @@ ExchangeResult HeroActor::tryExchangeNoLock(const ChainActor * specialActor, con
 	return result;
 }
 
-HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * ai)
-	:actor(actor), aiNk(ai), sync()
+HeroExchangeMap::HeroExchangeMap(const HeroActor * actor, const Nullkiller * aiNk)
+	:actor(actor), aiNk(aiNk), sync()
 {
 }
 

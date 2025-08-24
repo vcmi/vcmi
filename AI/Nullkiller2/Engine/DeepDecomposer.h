@@ -30,7 +30,7 @@ private:
 	std::vector<Goals::TGoalVec> goals;
 	std::vector<TGoalHashSet> decompositionCache;
 	int depth;
-	const Nullkiller * ai;
+	const Nullkiller * aiNk;
 
 public:
 	DeepDecomposer(const Nullkiller * aiNk);

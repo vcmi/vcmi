@@ -27,7 +27,7 @@ namespace Goals
 		{
 			priority = -1;
 		}
-		TGoalVec decompose(const Nullkiller * ai) const override
+		TGoalVec decompose(const Nullkiller * aiNk) const override
 		{
 			return TGoalVec();
 		}

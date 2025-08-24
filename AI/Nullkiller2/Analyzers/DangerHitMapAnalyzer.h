@@ -79,7 +79,7 @@ private:
 	std::map<ObjectInstanceID, std::vector<HitMapInfo>> townThreats;
 
 public:
-	DangerHitMapAnalyzer(const Nullkiller * ai) :aiNk(ai) {}
+	DangerHitMapAnalyzer(const Nullkiller * aiNk) :aiNk(aiNk) {}
 
 	void updateHitMap();
 	void calculateTileOwners();

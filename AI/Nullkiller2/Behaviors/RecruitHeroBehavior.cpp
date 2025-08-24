@@ -9,6 +9,8 @@
 */
 #include "StdInc.h"
 #include "RecruitHeroBehavior.h"
+
+#include <algorithm>
 #include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../Goals/RecruitHero.h"
@@ -28,124 +30,119 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 	const auto ourTowns = aiNk->cc->getTownsInfo();
-	const auto ourHeroes = aiNk->heroManager->getHeroRoles();
-	auto minScoreToHireMain = std::numeric_limits<float>::max();
-	int currentArmyValue = 0;
-
-	for(const auto & hero : ourHeroes)
-	{
-		currentArmyValue += hero.first->getArmyCost();
-		if(hero.second != HeroRole::MAIN)
-			continue;
-
-		const auto newScore = aiNk->heroManager->evaluateHero(hero.first.get());
-
-		if(minScoreToHireMain > newScore)
-		{
-			// weakest main hero score
-			minScoreToHireMain = newScore;
-		}
-	}
-
-	// If we don't have any heroes, lower our expectations.
-	if (ourHeroes.empty())
-		minScoreToHireMain = 0;
-
-	const CGHeroInstance* bestHeroToHire = nullptr;
-	const CGTownInstance* bestTownToHireFrom = nullptr;
-	float bestScore = 0;
+	const auto ourHeroes = aiNk->heroManager->getHeroToRoleMap();
+	RecruitHeroChoice bestChoice;
 	bool haveCapitol = false;
+	int treasureSourcesCount = 0;
 
 	// Simplification: Moved this call before getting into the decomposer
 	// aiNk->dangerHitMap->updateHitMap();
 
-	int treasureSourcesCount = 0;
-	int bestClosestThreat = UINT8_MAX;
-	
 	for(const auto * town : ourTowns)
 	{
-		uint8_t closestThreat = UINT8_MAX;
-		for (const auto & threat : aiNk->dangerHitMap->getTownThreats(town))
-		{
-			closestThreat = std::min(closestThreat, threat.turn);
-		}
-
-		if (town->getVisitingHero() && town->getGarrisonHero())
+		if(town->getVisitingHero() && town->getGarrisonHero())
 			continue;
 
-		float visitability = 0;
-		for (const auto & hero : ourHeroes)
+		uint8_t closestThreatTurn = UINT8_MAX;
+		for(const auto & threat : aiNk->dangerHitMap->getTownThreats(town))
 		{
-			if (aiNk->dangerHitMap->getClosestTown(hero.first.get()->visitablePos()) == town)
-				visitability++;
+			closestThreatTurn = std::min(closestThreatTurn, threat.turn);
+		}
+
+		float visitabilityRatio = 0;
+		for(const auto & [hero, role] : ourHeroes)
+		{
+			if(aiNk->dangerHitMap->getClosestTown(hero.get()->visitablePos()) == town)
+				visitabilityRatio += 1.0f / ourHeroes.size();
 		}
 
 		if(aiNk->heroManager->canRecruitHero(town))
 		{
-			auto availableHeroes = aiNk->cc->getAvailableHeroes(town);
-			
-			for (const auto * obj : aiNk->objectClusterizer->getNearbyObjects())
-			{
-				if (obj->ID == Obj::RESOURCE
-					|| obj->ID == Obj::TREASURE_CHEST
-					|| obj->ID == Obj::CAMPFIRE
-					|| isWeeklyRevisitable(aiNk->playerID, obj)
-					|| obj->ID == Obj::ARTIFACT)
-				{
-					auto tile = obj->visitablePos();
-					if (town == aiNk->dangerHitMap->getClosestTown(tile))
-						treasureSourcesCount++; // TODO: Mircea: Shouldn't it be used to determine the best town?
-				}
-			}
-
-			for(const auto hero : availableHeroes)
-			{
-				if ((town->getVisitingHero() || town->getGarrisonHero()) 
-					&& closestThreat < 1
-					&& hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
-					continue;
-
-				auto score = aiNk->heroManager->evaluateHero(hero);
-				if(score > minScoreToHireMain)
-				{
-					score *= score / minScoreToHireMain;
-				}
-				score *= hero->getArmyCost() + currentArmyValue;
-
-				if (hero->getFactionID() == town->getFactionID())
-					score *= 1.5;
-				if (vstd::isAlmostZero(visitability))
-					score *= 30 * town->getTownLevel();
-				else
-					score *= town->getTownLevel() / visitability;
-
-				if (score > bestScore)
-				{
-					bestScore = score;
-					bestHeroToHire = hero;
-					bestTownToHireFrom = town; // TODO: Mircea: Seems to be no logic to choose the right town?
-					bestClosestThreat = closestThreat;
-				}
-			}
+			calculateTreasureSources(aiNk->objectClusterizer->getNearbyObjects(), aiNk->playerID, *aiNk->dangerHitMap, treasureSourcesCount, town);
+			calculateBestHero(aiNk->cc->getAvailableHeroes(town),
+			                  *aiNk->heroManager,
+			                  bestChoice,
+			                  town,
+			                  closestThreatTurn,
+			                  visitabilityRatio);
 		}
 
-		if (town->hasCapitol())
+		if(town->hasCapitol())
 			haveCapitol = true;
 	}
 
-	if (bestHeroToHire && bestTownToHireFrom)
+	if(!vstd::isAlmostZero(bestChoice.score))
 	{
-		if (aiNk->cc->getHeroesInfo().size() == 0
-			|| treasureSourcesCount > aiNk->cc->getHeroesInfo().size() * 5
-			|| (bestHeroToHire->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0 && (bestClosestThreat < 1 || !aiNk->buildAnalyzer->isGoldPressureOverMax()))
-			|| (aiNk->getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk->buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
-			|| (aiNk->getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk->buildAnalyzer->isGoldPressureOverMax()))
+		if(ourHeroes.empty()
+		   || treasureSourcesCount > ourHeroes.size() * 5
+		   // TODO: Mircea: The next condition should always consider a hero if under attack especially if it has towers
+		   || (bestChoice.hero->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0 && (
+			       bestChoice.closestThreat < 1 || !aiNk->buildAnalyzer->isGoldPressureOverMax()))
+		   || (aiNk->getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk->buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
+		   || (aiNk->getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk->buildAnalyzer->isGoldPressureOverMax()))
 		{
-			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestTownToHireFrom, bestHeroToHire).setpriority((float)3 / (ourHeroes.size() + 1))));
+			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero).setpriority((float)3 / (ourHeroes.size() + 1))));
 		}
 	}
 
 	return tasks;
+}
+
+void RecruitHeroBehavior::calculateTreasureSources(const std::vector<const CGObjectInstance *> & nearbyObjects,
+                                                   const PlayerColor & playerID,
+                                                   const DangerHitMapAnalyzer & dangerHitMap,
+                                                   int & treasureSourcesCount,
+                                                   const CGTownInstance * town)
+{
+	for(const auto * obj : nearbyObjects)
+	{
+		if(obj->ID == Obj::RESOURCE
+		   || obj->ID == Obj::TREASURE_CHEST
+		   || obj->ID == Obj::CAMPFIRE
+		   || isWeeklyRevisitable(playerID, obj)
+		   || obj->ID == Obj::ARTIFACT)
+		{
+			if(town == dangerHitMap.getClosestTown(obj->visitablePos()))
+				treasureSourcesCount++; // TODO: Mircea: Shouldn't it be used to determine the best town?
+		}
+	}
+}
+
+void RecruitHeroBehavior::calculateBestHero(const std::vector<const CGHeroInstance *> & availableHeroes,
+                                            const HeroManager & heroManager,
+                                            const RecruitHeroChoice & bestChoice,
+                                            const CGTownInstance * town,
+                                            const uint8_t closestThreatTurn,
+                                            const float visitabilityRatio)
+{
+
+	for(const auto * const hero : availableHeroes)
+	{
+		if((town->getVisitingHero() || town->getGarrisonHero())
+		   && closestThreatTurn < 1
+		   && hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
+			continue;
+
+		const float heroScore = heroManager.evaluateHero(hero);
+		float totalScore = heroScore + hero->getArmyCost();
+
+		// TODO: Mircea: Score higher if ballista/tent/ammo cart by the cost in gold? Or should that be covered in evaluateHero?
+		// getArtifactScoreForHero(hero, ...) ArtifactID::BALLISTA
+
+		if(hero->getFactionID() == town->getFactionID())
+			totalScore += heroScore * 1.5;
+
+		// prioritize a more developed town especially if no heroes can visit it (smaller ratio, bigger score)
+		totalScore += heroScore * town->getTownLevel() * (1 - visitabilityRatio);
+
+		if(totalScore > bestChoice.score)
+		{
+			bestChoice.score = totalScore;
+			bestChoice.hero = hero;
+			bestChoice.town = town;
+			bestChoice.closestThreat = closestThreatTurn;
+		}
+	}
 }
 
 }

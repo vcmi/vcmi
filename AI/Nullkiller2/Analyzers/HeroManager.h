@@ -44,12 +44,12 @@ private:
 
 	CCallback * cc; //this is enough, but we downcast from CCallback
 	const Nullkiller * aiNk;
-	std::map<HeroPtr, HeroRole> heroRoles;
+	std::map<HeroPtr, HeroRole> heroToRoleMap;
 	std::map<ObjectInstanceID, float> knownFightingStrength;
 
 public:
-	HeroManager(CCallback * cc, const Nullkiller * ai) : cc(cc), aiNk(ai) {}
-	const std::map<HeroPtr, HeroRole> & getHeroRoles() const;
+	HeroManager(CCallback * cc, const Nullkiller * aiNk) : cc(cc), aiNk(aiNk) {}
+	const std::map<HeroPtr, HeroRole> & getHeroToRoleMap() const;
 	HeroRole getHeroRole(const HeroPtr & hero) const;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const;
 	void update();

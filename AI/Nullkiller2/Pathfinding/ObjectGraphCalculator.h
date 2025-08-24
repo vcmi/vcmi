@@ -37,7 +37,7 @@ private:
 	std::vector<std::unique_ptr<CGHeroInstance>> temporaryActorHeroes;
 
 public:
-	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai);
+	ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * aiNk);
 	void setGraphObjects();
 	void calculateConnections();
 	float getNeighborConnectionsCost(const int3 & pos, std::vector<AIPath> & pathCache);

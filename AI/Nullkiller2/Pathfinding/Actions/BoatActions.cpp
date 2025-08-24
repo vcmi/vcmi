@@ -37,7 +37,7 @@ namespace AIPathfinding
 		return Goals::sptr(Goals::Invalid());
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const
+	bool BuildBoatAction::canAct(const Nullkiller * aiNk, const CGHeroInstance * hero, const TResources & reservedResources) const
 	{
 		if(cpsic->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
@@ -63,16 +63,16 @@ namespace AIPathfinding
 		return true;
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
+	bool BuildBoatAction::canAct(const Nullkiller * aiNk, const AIPathNode * source) const
 	{
-		return canAct(ai, source->actor->hero, source->actor->armyCost);
+		return canAct(aiNk, source->actor->hero, source->actor->armyCost);
 	}
 
-	bool BuildBoatAction::canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const
+	bool BuildBoatAction::canAct(const Nullkiller * aiNk, const AIPathNodeInfo & source) const
 	{
 		TResources res;
 
-		return canAct(ai, source.targetHero, res);
+		return canAct(aiNk, source.targetHero, res);
 	}
 
 	const CGObjectInstance * BuildBoatAction::targetObject() const

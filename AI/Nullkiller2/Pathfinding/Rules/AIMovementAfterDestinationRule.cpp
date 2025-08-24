@@ -23,11 +23,11 @@ namespace NK2AI
 namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
-		const Nullkiller * ai,
+		const Nullkiller * aiNk,
 		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:aiNk(ai), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+		:aiNk(aiNk), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 

@@ -33,14 +33,14 @@ GraphPaths::GraphPaths()
 }
 
 std::shared_ptr<SpecialAction> getCompositeAction(
-	const Nullkiller * ai,
+	const Nullkiller * aiNk,
 	std::shared_ptr<ISpecialActionFactory> linkActionFactory,
 	std::shared_ptr<SpecialAction> transitionAction)
 {
 	if(!linkActionFactory)
 		return transitionAction;
 
-	auto linkAction = linkActionFactory->create(ai);
+	auto linkAction = linkActionFactory->create(aiNk);
 
 	if(!transitionAction)
 		return linkAction;

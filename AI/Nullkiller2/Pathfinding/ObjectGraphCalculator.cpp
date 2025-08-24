@@ -20,8 +20,8 @@
 namespace NK2AI
 {
 
-ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * ai)
-	:aiNk(ai), target(target), syncLock()
+ObjectGraphCalculator::ObjectGraphCalculator(ObjectGraph * target, const Nullkiller * aiNk)
+	:aiNk(aiNk), target(target), syncLock()
 {
 }
 

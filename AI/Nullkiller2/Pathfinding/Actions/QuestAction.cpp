@@ -19,14 +19,14 @@ namespace NK2AI
 
 namespace AIPathfinding
 {
-	bool QuestAction::canAct(const Nullkiller * ai, const AIPathNode * node) const
+	bool QuestAction::canAct(const Nullkiller * aiNk, const AIPathNode * node) const
 	{
-		return canAct(ai, node->actor->hero);
+		return canAct(aiNk, node->actor->hero);
 	}
 
-	bool QuestAction::canAct(const Nullkiller * ai, const AIPathNodeInfo & node) const
+	bool QuestAction::canAct(const Nullkiller * aiNk, const AIPathNodeInfo & node) const
 	{
-		return canAct(ai, node.targetHero);
+		return canAct(aiNk, node.targetHero);
 	}
 
 	bool QuestAction::canAct(const Nullkiller * aiNk, const CGHeroInstance * hero) const
@@ -45,7 +45,7 @@ namespace AIPathfinding
 			|| quest->checkQuest(hero);
 	}
 
-	Goals::TSubgoal QuestAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
+	Goals::TSubgoal QuestAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::CompleteQuest(questInfo));
 	}

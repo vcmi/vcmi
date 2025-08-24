@@ -22,16 +22,18 @@ namespace Goals
 	class DLL_EXPORT CGoal : public AbstractGoal
 	{
 	public:
-		CGoal(EGoals goal = INVALID) : AbstractGoal(goal)
+		explicit CGoal(EGoals goal = INVALID) : AbstractGoal(goal)
 		{
-			isAbstract = true;
-			value = 0;
-			aid = -1;
-			objid = -1;
-			resID = -1;
-			tile = int3(-1, -1, -1);
-			town = nullptr;
+			// isAbstract = true;
+			// value = 0;
+			// aid = -1;
+			// objid = -1;
+			// resID = -1;
+			// tile = int3(-1, -1, -1);
+			// town = nullptr;
 		}
+
+		~CGoal() override = default;
 
 		CGoal * clone() const override
 		{
@@ -48,9 +50,9 @@ namespace Goals
 
 		virtual bool operator==(const T & other) const = 0;
 
-		TGoalVec decompose(const Nullkiller * ai) const override
+		TGoalVec decompose(const Nullkiller * aiNk) const override
 		{
-			TSubgoal single = decomposeSingle(ai);
+			TSubgoal single = decomposeSingle(aiNk);
 
 			if(!single || single->invalid())
 				return {};
@@ -59,7 +61,7 @@ namespace Goals
 		}
 
 	protected:
-		virtual TSubgoal decomposeSingle(const Nullkiller * ai) const
+		virtual TSubgoal decomposeSingle(const Nullkiller * aiNk) const
 		{
 			return TSubgoal();
 		}

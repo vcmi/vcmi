@@ -18,8 +18,8 @@ namespace NK2AI
 
 std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  AIPathfinder::heroGraphs;
 
-AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * ai)
-	:cb(cb), aiNk(ai)
+AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * aiNk)
+	:cb(cb), aiNk(aiNk)
 {
 }
 

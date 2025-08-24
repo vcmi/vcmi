@@ -35,7 +35,7 @@ namespace AIPathfinding
 	public:
 		AILayerTransitionRule(
 			CPlayerSpecificInfoCallback * cb,
-			Nullkiller * ai,
+			Nullkiller * aiNk,
 			std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual void process(

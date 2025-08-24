@@ -32,7 +32,7 @@ class RewardEvaluator
 public:
 	const Nullkiller * aiNk;
 
-	RewardEvaluator(const Nullkiller * ai) : aiNk(ai) {}
+	RewardEvaluator(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
 	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
 	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
@@ -86,7 +86,7 @@ struct DLL_EXPORT EvaluationContext
 	int explorePriority;
 	float powerRatio;
 
-	EvaluationContext(const Nullkiller * ai);
+	EvaluationContext(const Nullkiller * aiNk);
 
 	void addNonCriticalStrategicalValue(float value);
 };
@@ -103,7 +103,7 @@ class Nullkiller;
 class PriorityEvaluator
 {
 public:
-	PriorityEvaluator(const Nullkiller * ai);
+	PriorityEvaluator(const Nullkiller * aiNk);
 	~PriorityEvaluator();
 	void initVisitTile();
 

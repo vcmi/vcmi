@@ -17,7 +17,7 @@
 namespace NK2AI
 {
 
-Goals::TSubgoal SpecialAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
+Goals::TSubgoal SpecialAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 {
 	return Goals::sptr(Goals::Invalid());
 }
@@ -27,26 +27,26 @@ void SpecialAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	throw cannotFulfillGoalException("Can not execute " + toString());
 }
 
-bool CompositeAction::canAct(const Nullkiller * ai, const AIPathNode * source) const
+bool CompositeAction::canAct(const Nullkiller * aiNk, const AIPathNode * source) const
 {
 	for(auto part : parts)
 	{
-		if(!part->canAct(ai, source)) return false;
+		if(!part->canAct(aiNk, source)) return false;
 	}
 
 	return true;
 }
 
-Goals::TSubgoal CompositeAction::decompose(const Nullkiller * ai, const CGHeroInstance * hero) const
+Goals::TSubgoal CompositeAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 {
 	for(auto part : parts)
 	{
-		auto goal = part->decompose(ai, hero);
+		auto goal = part->decompose(aiNk, hero);
 
 		if(!goal->invalid()) return goal;
 	}
 
-	return SpecialAction::decompose(ai, hero);
+	return SpecialAction::decompose(aiNk, hero);
 }
 
 void CompositeAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const

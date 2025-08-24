@@ -62,9 +62,9 @@ namespace AIPathfinding
 		{
 		}
 
-		bool canAct(const Nullkiller * ai, const AIPathNode * source) const override;
-		bool canAct(const Nullkiller * ai, const AIPathNodeInfo & source) const override;
-		bool canAct(const Nullkiller * ai, const CGHeroInstance * hero, const TResources & reservedResources) const;
+		bool canAct(const Nullkiller * aiNk, const AIPathNode * source) const override;
+		bool canAct(const Nullkiller * aiNk, const AIPathNodeInfo & source) const override;
+		bool canAct(const Nullkiller * aiNk, const CGHeroInstance * hero, const TResources & reservedResources) const;
 
 		void execute(AIGateway * aiGw, const CGHeroInstance * hero) const override;
 

@@ -21,9 +21,9 @@ namespace AIPathfinding
 {
 	AILayerTransitionRule::AILayerTransitionRule(
 		CPlayerSpecificInfoCallback * cb,
-		Nullkiller * ai,
+		Nullkiller * aiNk,
 		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), aiNk(ai), nodeStorage(nodeStorage)
+		:cb(cb), aiNk(aiNk), nodeStorage(nodeStorage)
 	{
 		setup();
 	}
