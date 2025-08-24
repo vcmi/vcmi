@@ -59,7 +59,7 @@ float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::v
 {
 	float neighborCost = std::numeric_limits<float>::max();
 
-	if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+	if(NK2AI_GRAPH_TRACE_LEVEL >= 2)
 	{
 		logAi->trace("Checking junction %s", pos.toString());
 	}
@@ -77,7 +77,7 @@ float ObjectGraphCalculator::getNeighborConnectionsCost(const int3 & pos, std::v
 			{
 				neighborCost = costTotal.avg;
 
-				if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+				if(NK2AI_GRAPH_TRACE_LEVEL >= 2)
 				{
 					logAi->trace("Better node found at %s", neighbor.toString());
 				}
@@ -170,7 +170,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 					path.movementCost(),
 					danger);
 
-				if(NKAI_GRAPH_TRACE_LEVEL >= 2 && updated)
+				if(NK2AI_GRAPH_TRACE_LEVEL >= 2 && updated)
 				{
 					logAi->trace(
 						"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
@@ -227,7 +227,7 @@ void ObjectGraphCalculator::calculateConnections(const int3 & pos, std::vector<A
 				path1.movementCost() + path2.movementCost(),
 				danger);
 
-			if(NKAI_GRAPH_TRACE_LEVEL >= 2 && updated)
+			if(NK2AI_GRAPH_TRACE_LEVEL >= 2 && updated)
 			{
 				logAi->trace(
 					"Connected %s[%s] -> %s[%s] through [%s], cost %2f",
@@ -276,7 +276,7 @@ void ObjectGraphCalculator::removeExtraConnections()
 	{
 		target->removeConnection(c.first, c.second);
 
-		if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+		if(NK2AI_GRAPH_TRACE_LEVEL >= 2)
 		{
 			logAi->trace("Remove ineffective connection %s->%s", c.first.toString(), c.second.toString());
 		}

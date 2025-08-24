@@ -153,7 +153,7 @@ void GraphPaths::dumpToLog() const
 					if(!node.previous.valid())
 						continue;
 
-					if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+					if(NK2AI_GRAPH_TRACE_LEVEL >= 2)
 					{
 						logAi->trace(
 							"%s -> %s: %f !%d",

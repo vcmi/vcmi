@@ -53,7 +53,7 @@ void ObjectGraph::updateGraph(const Nullkiller * aiNk)
 	calculator.addMinimalDistanceJunctions();
 	calculator.calculateConnections();
 
-	if(NKAI_GRAPH_TRACE_LEVEL >= 1)
+	if(NK2AI_GRAPH_TRACE_LEVEL >= 1)
 		dumpToLog("graph");
 }
 
@@ -134,7 +134,7 @@ void ObjectGraph::dumpToLog(std::string visualKey) const
 			{
 				for(auto & node : tile.second.connections)
 				{
-					if(NKAI_GRAPH_TRACE_LEVEL >= 2)
+					if(NK2AI_GRAPH_TRACE_LEVEL >= 2)
 					{
 						logAi->trace(
 							"%s -> %s: %f !%d",

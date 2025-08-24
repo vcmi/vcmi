@@ -173,7 +173,7 @@ void AIPathfinder::updateGraphs(
 			}
 		});
 
-	if(NKAI_GRAPH_TRACE_LEVEL >= 1)
+	if(NK2AI_GRAPH_TRACE_LEVEL >= 1)
 	{
 		for(auto hero : heroes)
 		{
