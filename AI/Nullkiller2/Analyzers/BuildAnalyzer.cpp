@@ -13,7 +13,7 @@
 #include "../Engine/Nullkiller.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/IGameSettings.h"
-#include "AI/Nullkiller/AIUtility.h"
+#include "../AIUtility.h"
 
 namespace NK2AI
 {
