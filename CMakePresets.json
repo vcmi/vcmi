@@ -10,8 +10,7 @@
             "name": "build-with-conan",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
-                "FORCE_BUNDLED_MINIZIP": "OFF"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake"
             }
         },
         {
@@ -155,28 +154,30 @@
             "name": "windows-msvc-release",
             "displayName": "Windows x64 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "architecture": {
                 "value": "x64",
                 "strategy": "set"
             },
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
             "name": "windows-msvc-release-x86",
             "displayName": "Windows x86 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "CMAKE_GENERATOR_PLATFORM": "WIN32"
             }
         },
@@ -184,16 +185,17 @@
             "name": "windows-msvc-release-arm64",
             "displayName": "Windows ARM64 RelWithDebInfo",
             "description": "VCMI Windows ARM64 build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "architecture": {
                 "value": "ARM64",
                 "strategy": "set"
             },
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
@@ -204,20 +206,6 @@
             "cacheVariables": {
                 "ENABLE_CCACHE": "ON"
 
-            }
-        },
-        {
-            "name": "windows-mingw-conan-linux",
-            "displayName": "Ninja+Conan release",
-            "description": "VCMI Windows Ninja using Conan on Linux",
-            "inherits": [
-                "build-with-conan",
-                "default-release"
-            ],
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "FORCE_BUNDLED_FL": "ON",
-                "ENABLE_TEMPLATE_EDITOR": "OFF"
             }
         },
         {
@@ -261,7 +249,6 @@
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "iOS",
                 "FORCE_BUNDLED_FL": "ON",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "ENABLE_EDITOR" : "OFF"
             }
         },
@@ -471,12 +458,6 @@
             "inherits": "default-release"
         },
         {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
-            "inherits": "default-release",
-            "configuration": "Release"
-        },
-        {
             "name": "ios-release-conan",
             "configurePreset": "ios-release-conan",
             "inherits": "default-release",
@@ -560,11 +541,6 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
-            "inherits": "default-release"
-        },
-        {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]
