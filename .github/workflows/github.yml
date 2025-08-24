@@ -59,7 +59,7 @@ jobs:
             os: windows-2025
             pack: 1
             upload: 0
-            pack_type: RelWithDebInfo
+            pack_type: Release
             extension: zip
             before_install: msvc.sh
             preset: windows-msvc-ninja-release
@@ -71,7 +71,7 @@ jobs:
             os: windows-2025
             pack: 1
             upload: 0
-            pack_type: RelWithDebInfo
+            pack_type: Release
             extension: zip
             before_install: msvc.sh
             preset: windows-msvc-ninja-release-x86
@@ -83,7 +83,7 @@ jobs:
             os: windows-11-arm
             pack: 1
             upload: 0
-            pack_type: RelWithDebInfo
+            pack_type: Release
             extension: zip
             before_install: msvc.sh
             preset: windows-msvc-ninja-release-arm64
