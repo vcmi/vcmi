@@ -331,7 +331,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	//MODS COMPATIBILITY FOR pre-1.6
 	if(ret->produce.empty() && ret->bid == BuildingID::RESOURCE_SILO)
 	{
-		logGlobal->warn("Resource silo in town '%s' does not produces any resources!", ret->town->faction->getJsonKey());
+		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
 		switch (ret->town->primaryRes.toEnum())
 		{
 			case EGameResID::GOLD:

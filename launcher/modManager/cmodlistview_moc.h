@@ -147,7 +147,7 @@ private slots:
 	void on_updateButton_clicked();
 	void on_uninstallButton_clicked();
 	void on_installButton_clicked();
-	void on_pushButton_clicked();
+	void on_abortButton_clicked();
 	void on_refreshButton_clicked();
 	void on_allModsView_activated(const QModelIndex & index);
 	void on_tabWidget_currentChanged(int index);

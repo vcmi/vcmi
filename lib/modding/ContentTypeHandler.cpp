@@ -154,7 +154,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 		{
 			// normal new object
 			logMod->trace("no index in loadMod(%s)", name);
-			performValidate(data,name);
+			performValidate(data, name);
 			handler->loadObject(modName, name, data);
 		}
 	}

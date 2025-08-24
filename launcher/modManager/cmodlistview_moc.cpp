@@ -97,7 +97,7 @@ void CModListView::setupModsView()
 	ui->allModsView->setUniformRowHeights(true);
 
 	ui->allModsView->setContextMenuPolicy(Qt::CustomContextMenu);
-	
+
 	connect(ui->allModsView, SIGNAL(customContextMenuRequested(const QPoint &)),
 		this, SLOT(onCustomContextMenu(const QPoint &)));
 
@@ -332,7 +332,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	if((!mod.isInstalled() || mod.isUpdateAvailable()) && !mod.getDownloadSizeFormatted().isEmpty())
 		result += replaceIfNotEmpty(mod.getDownloadSizeFormatted(), lineTemplate.arg(tr("Download size")));
-	
+
 	result += replaceIfNotEmpty(mod.getAuthors(), lineTemplate.arg(tr("Authors")));
 
 	if(!mod.getLicenseName().isEmpty())
@@ -750,7 +750,7 @@ void CModListView::on_uninstallButton_clicked()
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	doUninstallMod(modName);
-	
+
 	checkManagerErrors();
 }
 
@@ -845,13 +845,13 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	enqueuedModDownloads.clear();
 	dlManager->deleteLater();
 	dlManager = nullptr;
-	
+
 	ui->progressBar->setMaximum(0);
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
 		installFiles(savedFiles);
-	
+
 	hideProgressBar();
 }
 
@@ -976,7 +976,7 @@ void CModListView::installFiles(QStringList files)
 		logGlobal->info("Installing chronicles: started");
 		ui->progressBar->setFormat(tr("Installing Heroes Chronicles"));
 		ui->progressWidget->setVisible(true);
-		ui->pushButton->setEnabled(false);
+		ui->abortButton->setEnabled(false);
 
 		float prog = 0.0;
 
@@ -986,17 +986,17 @@ void CModListView::installFiles(QStringList files)
 			ce.installChronicles(exe);
 			return true;
 		});
-		
+
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
 			extractionProgress(static_cast<int>(prog * 1000.f), 1000);
 			qApp->processEvents();
 		}
-		
+
 		if(futureExtract.get())
 		{
 			hideProgressBar();
-			ui->pushButton->setEnabled(true);
+			ui->abortButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
 			//update
 			reload("chronicles");
@@ -1062,7 +1062,7 @@ void CModListView::installMods(QStringList archives)
 	}
 
 
-	reload(lastInstalled);	
+	reload(lastInstalled);
 
 	if (!modsToEnable.empty())
 	{
@@ -1228,7 +1228,7 @@ void CModListView::on_refreshButton_clicked()
 	loadRepositories();
 }
 
-void CModListView::on_pushButton_clicked()
+void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
@@ -1266,7 +1266,7 @@ void CModListView::loadScreenshots()
 
 	if (!ui->allModsView->currentIndex().isValid())
 		return;
-		
+
 	ui->screenshotsList->clear();
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 	assert(modStateModel->isModExists(modName)); //should be filtered out by check above
@@ -1404,10 +1404,10 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 {
 	if(!index.isValid())
 		return;
-	
+
 	auto modName = index.data(ModRoles::ModNameRole).toString();
 	auto mod = modStateModel->getMod(modName);
-	
+
 	QStringList notInstalledDependencies = this->getModsToInstall(mod.getID());
 	QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
 
@@ -1422,14 +1422,14 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		on_updateButton_clicked();
 		return;
 	}
-	
+
 	if(index.column() == ModFields::NAME)
 	{
 		if(ui->allModsView->isExpanded(index))
 			ui->allModsView->collapse(index);
 		else
 			ui->allModsView->expand(index);
-		
+
 		return;
 	}
 
