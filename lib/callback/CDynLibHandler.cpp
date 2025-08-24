@@ -17,6 +17,7 @@
 #ifdef STATIC_AI
 # include "../../AI/VCAI/VCAI.h"
 # include "../../AI/Nullkiller/AIGateway.h"
+# include "../../AI/Nullkiller2/AIGateway.h"
 # include "../../AI/BattleAI/BattleAI.h"
 # include "../../AI/StupidAI/StupidAI.h"
 # include "../../AI/EmptyAI/CEmptyAI.h"
