@@ -106,7 +106,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	if(libpath.stem() == "libNullkiller") {
+	if(libpath.stem() == "libNullkiller2") {
+		return std::make_shared<NK2AI::AIGateway>();
+	}
+	else if(libpath.stem() == "libNullkiller") {
 		return std::make_shared<NKAI::AIGateway>();
 	}
 	else{
