@@ -331,7 +331,7 @@ void AINodeStorage::commit(
 	destination->theNodeBefore = source->theNodeBefore;
 	destination->chainOther = nullptr;
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 	logAi->trace(
 		"Committed %s -> %s, layer: %d, cost: %f, turn: %s, mp: %d, hero: %s, mask: %x, army: %lld",
 		source->coord.toString(),
@@ -374,7 +374,7 @@ void AINodeStorage::calculateNeighbours(
 	{
 		if(getAccessibility(neighbour, layer) == EPathAccessibility::NOT_SET)
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Node %s rejected for %s, layer %d because of inaccessibility",
 				neighbour.toString(),
@@ -388,7 +388,7 @@ void AINodeStorage::calculateNeighbours(
 
 		if(!nextNode)
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Failed to allocate node at %s[%d]",
 				neighbour.toString(),
@@ -397,7 +397,7 @@ void AINodeStorage::calculateNeighbours(
 			continue;
 		}
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Node %s added to neighbors of %s, layer %d",
 			neighbour.toString(),
@@ -679,7 +679,7 @@ void HeroChainCalculationTask::cleanupInefectiveChains(std::vector<ExchangeCandi
 		auto isNotEffective = storage.hasBetterChain(chainInfo.carrierParent, chainInfo)
 			|| storage.hasBetterChain(chainInfo.carrierParent, chainInfo, result);
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		if(isNotEffective)
 		{
 			logAi->trace(
@@ -725,7 +725,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 			|| (node->action == EPathNodeAction::UNKNOWN && node->actor->hero)
 			|| (node->actor->chainMask & srcNode->actor->chainMask) != 0)
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Skip exchange %s[%x] -> %s[%x] at %s because of %s",
 				node->actor->toString(),
@@ -742,7 +742,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 			continue;
 		}
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Thy exchange %s[%x] -> %s[%x] at %s",
 			node->actor->toString(),
@@ -766,7 +766,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 		&& carrier->action != EPathNodeAction::BLOCKING_VISIT
 		&& (other->armyLoss == 0 || other->armyLoss < other->actor->armyValue))
 	{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Exchange allowed %s[%x] -> %s[%x] at %s",
 			other->actor->toString(),
@@ -783,7 +783,7 @@ void HeroChainCalculationTask::calculateHeroChain(
 
 			if(hasLessMp && hasLessExperience)
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Exchange at %s is inefficient. Blocked.", carrier->coord.toString());
 #endif
 				return;
@@ -808,7 +808,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 
 		if(!chainNodeOptional)
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace("Exchange at %s can not allocate node. Blocked.", carrier->coord.toString());
 #endif
 			continue;
@@ -818,7 +818,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 
 		if(exchangeNode->action != EPathNodeAction::UNKNOWN)
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Skip exchange %s[%x] -> %s[%x] at %s because node is in use",
 				other->actor->toString(),
@@ -832,7 +832,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 		
 		if(exchangeNode->turns != 0xFF && exchangeNode->getCost() < chainInfo.getCost())
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Skip exchange %s[%x] -> %s[%x] at %s because not effective enough. %f < %f",
 				other->actor->toString(),
@@ -870,7 +870,7 @@ void HeroChainCalculationTask::addHeroChain(const std::vector<ExchangeCandidate>
 		exchangeNode->chainOther = other;
 		exchangeNode->armyLoss = chainInfo.armyLoss;
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Chain accepted at %s %s -> %s, mask %x, cost %f, turn: %s, mp: %d, army %i", 
 			exchangeNode->coord.toString(), 
@@ -1211,7 +1211,7 @@ void AINodeStorage::calculateTownPortal(
 
 			if(nodeOptional)
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Adding town portal node at %s", targetTown->getObjectName());
 #endif
 				output.push_back(nodeOptional.value());
@@ -1321,7 +1321,7 @@ bool AINodeStorage::isOtherChainBetter(
 	{
 		if(other.getCost() < candidateNode.getCost())
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Block inefficient battle move %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 				source->coord.toString(),
@@ -1345,7 +1345,7 @@ bool AINodeStorage::isOtherChainBetter(
 	if(nodeArmyValue > candidateArmyValue
 		&& other.getCost() <= candidateNode.getCost())
 	{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Block inefficient move because of stronger army %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 			source->coord.toString(),
@@ -1371,7 +1371,7 @@ bool AINodeStorage::isOtherChainBetter(
 				return false;
 			}
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Block inefficient move because of stronger hero %s->%s, hero: %s[%X], army %lld, mp diff: %i",
 				source->coord.toString(),

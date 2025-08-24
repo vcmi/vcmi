@@ -64,13 +64,13 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 	{
 		tasks.push_back(sptr(Goals::Invalid()));
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Path found %s", path.toString());
 #endif
 
 		if(objToVisit && !force && !shouldVisit(nullkiller, path.targetHero, objToVisit))
 		{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Hero %s should not visit obj %s", path.targetHero->getNameTranslated(), objToVisit->getObjectName());
 #endif
 			continue;
@@ -86,7 +86,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
 			&& path.exchangeCount > 1)
 		{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Hero %s is SCOUT, chain used and no danger", path.targetHero->getNameTranslated());
 #endif
 			continue;
@@ -97,7 +97,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		{
 			auto subGoal = firstBlockedAction->decompose(nullkiller, path.targetHero);
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
@@ -116,7 +116,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 		auto isSafe = isSafeToVisit(hero, path.heroArmy, danger, nullkiller->settings->getSafeAttackRatio());
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace(
 			"It is %s to visit %s by %s with army %lld, danger %lld and army loss %lld",
 			isSafe ? "safe" : "not safe",
@@ -195,13 +195,13 @@ void CaptureObjectsBehavior::decomposeObjects(
 				if(!objectMatchesFilter(objToVisit))
 					continue;
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
 				nullkiller->pathfinder->calculatePathInfo(paths, objToVisit->visitablePos(), nullkiller->isObjectGraphAllowed());
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Found %d paths", paths.size());
 #endif
 				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));

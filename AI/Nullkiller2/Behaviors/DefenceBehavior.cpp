@@ -61,7 +61,7 @@ bool isThreatUnderControl(const CGTownInstance * town, const HitMapInfo & threat
 				|| path.turn() < threat.turn - 1
 				|| (path.turn() < threat.turn && threat.turn >= 2))
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace(
 					"Hero %s can eliminate danger for town %s using path %s.",
 					path.targetHero->getObjectName(),
@@ -151,7 +151,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInstance * town, const Nullkiller * aiNk) const
 {
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 	logAi->trace("Evaluating defence for %s", town->getNameTranslated());
 #endif
 
@@ -166,7 +166,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	}
 	if(!threatNode.fastestDanger.hero)
 	{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
 #endif
 		return;
@@ -176,7 +176,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	if(reinforcement)
 	{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("Town %s can buy defence army %lld", town->getNameTranslated(), reinforcement);
 #endif
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
@@ -186,7 +186,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	for(auto & threat : threats)
 	{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace(
 			"Town %s has threat %lld in %s turns, hero: %s",
 			town->getNameTranslated(),
@@ -205,7 +205,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 		if(paths.empty())
 		{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->trace("No ways to defend town %s", town->getNameTranslated());
 #endif
 
@@ -223,7 +223,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			if (!closestWay || path.movementCost() < closestWay->movementCost())
 				closestWay = &path;
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Hero %s can defend town with force %lld in %s turns, cost: %f, path: %s",
 				path.targetHero->getObjectName(),
@@ -250,7 +250,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 			if(path.turn() <= threat.turn - 2)
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Defer defence of %s by %s because he has enough time to reach the town next turn",
 					town->getObjectName(),
 					path.targetHero->getObjectName());
@@ -263,7 +263,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 			if (!path.targetHero->canBeMergedWith(*town))
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Can't merge armies of hero %s and town %s",
 					path.targetHero->getObjectName(),
 					town->getObjectName());
@@ -273,7 +273,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 			if(path.targetHero == town->getVisitingHero() && path.exchangeCount == 1)
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Put %s to garrison of town %s",
 					path.targetHero->getObjectName(),
 					town->getObjectName());
@@ -318,7 +318,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(aiNk->arePathHeroesLocked(path))
 				{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 					logAi->trace("Can not move %s to defend town %s. Path is locked.",
 						path.targetHero->getObjectName(),
 						town->getObjectName());
@@ -355,7 +355,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				composition.addNext(ExchangeSwapTownHeroes(town, town->getGarrisonHero(), HeroLockedReason::DEFENCE));
 				tasks.push_back(Goals::sptr(composition));
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Locking hero %s in garrison of %s",
 					town->getGarrisonHero()->getObjectName(),
 					town->getObjectName());
@@ -367,7 +367,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				if(town->getGarrisonHero() && town->getGarrisonHero() != path.targetHero)
 				{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 					logAi->trace("Cancel moving %s to defend town %s as the town has garrison hero",
 						path.targetHero->getObjectName(),
 						town->getObjectName());
@@ -380,7 +380,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 				}
 			}
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Move %s to defend town %s",
 					path.targetHero->getObjectName(),
 					town->getObjectName());
@@ -401,13 +401,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			{
 				auto subGoal = firstBlockedAction->decompose(aiNk, path.targetHero);
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
 				if(subGoal->invalid())
 				{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 					logAi->trace("Path is invalid. Skipping");
 #endif
 					continue;
@@ -458,7 +458,7 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 
 			auto myHeroes = aiNk->cc->getHeroesInfo();
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s can be recruited to defend %s", hero->getObjectName(), town->getObjectName());
 #endif
 			bool needSwap = false;

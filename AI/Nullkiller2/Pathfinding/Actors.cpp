@@ -69,7 +69,7 @@ ChainActor::ChainActor(const CGObjectInstance * obj, const CCreatureSet * creatu
 
 int ChainActor::maxMovePoints(CGPathNode::ELayer layer)
 {
-#if NKAI_TRACE_LEVEL > 0
+#if NK2AI_TRACE_LEVEL > 0
 	if(!hero)
 		throw std::logic_error("Asking movement points for static actor");
 #endif
@@ -264,7 +264,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		if(!resources.canAfford(actor->armyCost + other->armyCost))
 		{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
 				"Can not afford exchange because of total cost %s but we have %s",
 				(actor->armyCost + other->armyCost).toString(),
@@ -309,7 +309,7 @@ ExchangeResult HeroExchangeMap::tryExchangeNoLock(const ChainActor * other)
 
 		auto reinforcement = newArmyStrength - oldArmyStrength;
 
-	#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+	#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace(
 			"Exchange %s->%s reinforcement: %d, %f%%",
 			actor->toString(),

@@ -332,7 +332,7 @@ void ObjectClusterizer::clusterize()
 			aiNk->memory->visitableObjs.end());
 	}
 
-#if NKAI_TRACE_LEVEL == 0
+#if NK2AI_TRACE_LEVEL == 0
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, objs.size()), [&](const tbb::blocked_range<size_t> & r) {
 #else
 	tbb::blocked_range<size_t> r(0, objs.size());
@@ -345,7 +345,7 @@ void ObjectClusterizer::clusterize()
 		{
 			clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes);
 		}
-#if NKAI_TRACE_LEVEL == 0
+#if NK2AI_TRACE_LEVEL == 0
 	});
 #endif
 
@@ -358,7 +358,7 @@ void ObjectClusterizer::clusterize()
 
 		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		for(auto obj : pair.second->getObjects(aiNk->cc.get()))
 		{
 			logAi->trace("Object %s %s", obj->getObjectName(), obj->visitablePos().toString());
@@ -379,13 +379,13 @@ void ObjectClusterizer::clusterizeObject(
 {
 	if(!shouldVisitObject(obj))
 	{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Skip object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 		return;
 	}
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace("Check object %s%s.", obj->getObjectName(), obj->visitablePos().toString());
 #endif
 
@@ -398,7 +398,7 @@ void ObjectClusterizer::clusterizeObject(
 
 	if(pathCache.empty())
 	{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("No paths found.");
 #endif
 		return;
@@ -413,7 +413,7 @@ void ObjectClusterizer::clusterizeObject(
 	{
 		farObjects.addObject(obj, pathCache.front(), 0);
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Object ignored. Moved to far objects with path %s", pathCache.front().toString());
 #endif
 
@@ -424,7 +424,7 @@ void ObjectClusterizer::clusterizeObject(
 
 	for(auto & path : pathCache)
 	{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
@@ -435,7 +435,7 @@ void ObjectClusterizer::clusterizeObject(
 			// if(path.movementCost() > 2.0f)
 			if(path.movementCost() > aiNk->settings->getScoutHeroTurnDistanceLimit())
 			{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->trace("Path is too far %f", path.movementCost());
 #endif
 				continue;
@@ -448,7 +448,7 @@ void ObjectClusterizer::clusterizeObject(
 
 			if(strategicalValue < MINIMUM_STRATEGICAL_VALUE_NON_TOWN)
 			{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->trace("Object value is too low %f", strategicalValue);
 #endif
 				continue;
@@ -457,7 +457,7 @@ void ObjectClusterizer::clusterizeObject(
 
 		if(!shouldVisit(aiNk, path.targetHero, obj))
 		{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getObjectName(), obj->getObjectName());
 #endif
 			continue;
@@ -473,7 +473,7 @@ void ObjectClusterizer::clusterizeObject(
 			{
 				if(vstd::contains(heroesProcessed, path.targetHero))
 				{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 					logAi->trace("Hero %s is already processed.", path.targetHero->getObjectName());
 #endif
 					continue;
@@ -498,7 +498,7 @@ void ObjectClusterizer::clusterizeObject(
 
 				cluster->second->addObject(obj, path, priority);
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->trace("Path added to cluster %s%s", blocker->getObjectName(), blocker->visitablePos().toString());
 #endif
 				continue;
@@ -529,7 +529,7 @@ void ObjectClusterizer::clusterizeObject(
 			farObjects.addObject(obj, path, priority);
 		}
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Path %s added to %s objects. Turn: %d, priority: %f",
 			path.toString(),
 			interestingObject ? "near" : "far",

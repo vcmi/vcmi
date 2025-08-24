@@ -1185,7 +1185,7 @@ public:
 		if (bi.id == BuildingID::MARKETPLACE || bi.dailyIncome[EGameResID::WOOD] > 0)
 			evaluationContext.isTradeBuilding = true;
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("Building costs for %s : %s MarketValue: %d",bi.toString(), evaluationContext.buildingCost.toString(), evaluationContext.buildingCost.marketValue());
 #endif
 
@@ -1365,7 +1365,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		}
 		if (priorityTier == PriorityTier::FAR_HUNTER_GATHER && currentPositionThreatened == true)
 		{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Skip FAR_HUNTER_GATHER because hero would be threatened.");
 #endif
 			return 0;
@@ -1380,7 +1380,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		if (aiNk->cc->getDate(Date::DAY_OF_WEEK) + evaluationContext.turn > 7 && priorityTier < PriorityTier::FAR_KILL)
 			arriveNextWeek = true;
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("BEFORE: priorityTier %d, Evaluated %s, loss: %f, maxWillingToLose: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, dangerThreshold: %f explorePriority: %d isDefend: %d isEnemy: %d arriveNextWeek: %d powerRatio: %f",
 			priorityTier,
 			task->toString(),
@@ -1664,7 +1664,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 			return 0;
 	}
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace("priorityTier %d, Evaluated %s, loss: %f, turn: %d, turns main: %f, scout: %f, armyInvolvement: %f, goldRewardVsMovement: %f, cost: %d, armyReward: %f, armyGrowth: %f skillReward: %f danger: %d, threatTurns: %d, threat: %d, heroRole: %s, strategicalValue: %f, conquestValue: %f closestWayRatio: %f, enemyHeroDangerRatio: %f, result %f",
 		priorityTier,
 		task->toString(),

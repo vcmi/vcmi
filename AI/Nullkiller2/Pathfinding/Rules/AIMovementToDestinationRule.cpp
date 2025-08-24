@@ -55,7 +55,7 @@ namespace AIPathfinding
 
 			if(actor->allowBattle)
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace(
 					"Bypass src guard while moving from %s to %s",
 					source.coord.toString(),

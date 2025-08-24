@@ -52,7 +52,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 		TSubgoal current = goals[depth].back();
 		TGoalVec subgoals = decomposeCached(unwrapComposition(current), fromCache);
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("Decomposition level %d returned %d goals", depth, subgoals.size());
 #endif
 
@@ -74,7 +74,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 
 				// TODO: Mircea: Issue with CGameHandler::spawnWanderingMonsters, see getFreeTiles(tiles, true);
 				// danger not linked GraphPaths::addChainInfo, so spawning only with nearby unblocked
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Found task %s", task->toString());
 #endif
 				if(!isCompositionLoop(subgoal))
@@ -89,7 +89,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 			}
 			else if(depth < depthLimit - 1)
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Found abstract goal %s", subgoal->toString());
 #endif
 				if(!isCompositionLoop(subgoal))
@@ -179,7 +179,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 
 TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 {
-#if NKAI_TRACE_LEVEL >= 1	
+#if NK2AI_TRACE_LEVEL >= 1
 	logAi->trace("Decomposing %s, level %s", goal->toString(), depth);
 #endif
 
@@ -191,7 +191,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 
 			if(cached != decompositionCache[i].end())
 			{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Use decomposition cache for %s, level: %d", goal->toString(), depth);
 #endif
 				fromCache = true;
@@ -203,7 +203,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 		decompositionCache[depth][goal] = {}; // if goal decomposition yields no goals we still need it in cache to not decompose again
 	}
 
-#if NKAI_TRACE_LEVEL >= 2	
+#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace("Calling decompose on %s, level %s", goal->toString(), depth);
 #endif
 
@@ -224,7 +224,7 @@ void DeepDecomposer::addToCache(TSubgoal goal)
 		{
 			auto solution = parentDepth < depth ? aggregateGoals(parentDepth + 1, goal) : goal;
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 			logAi->trace("Adding %s to decomosition cache of %s at level %d", solution->toString(), parent->toString(), parentDepth);
 #endif
 

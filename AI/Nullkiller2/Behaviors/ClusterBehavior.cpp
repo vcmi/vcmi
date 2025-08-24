@@ -51,7 +51,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 
 	TGoalVec goals;
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace(
 		"Checking cluster %s %s, found %d paths",
 		cluster->blocker->getObjectName(),
@@ -61,7 +61,7 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 
 	for(auto path = paths.begin(); path != paths.end();)
 	{
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("ClusterBehavior Checking path %s", path->toString());
 #endif
 
@@ -90,13 +90,13 @@ Goals::TGoalVec ClusterBehavior::decomposeCluster(const Nullkiller * aiNk, std::
 		for(auto & node : clonedPath.nodes)
 			node.parentIndex -= path->nodes.size() - clonedPath.nodes.size();
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace("Unlock path found %s", blockerPaths.back().toString());
 #endif
 		path++;
 	}
 
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace("Decompose unlock paths");
 #endif
 

@@ -39,7 +39,7 @@ namespace AIPathfinding
 			// we can not directly bypass objects, we need to interact with them first
 			destination.node->theNodeBefore = source.node;
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
 				"Link src node %s to destination node %s while bypassing visitable obj",
 				source.coord.toString(),

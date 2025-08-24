@@ -41,7 +41,7 @@ namespace AIPathfinding
 	{
 		if(cpsic->getPlayerRelations(hero->tempOwner, shipyard->getObject()->getOwner()) == PlayerRelations::ENEMIES)
 		{
-#if NKAI_TRACE_LEVEL > 1
+#if NK2AI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Shipyard is enemy.");
 #endif
 			return false;
@@ -53,7 +53,7 @@ namespace AIPathfinding
 
 		if(!cpsic->getResourceAmount().canAfford(reservedResources + boatCost))
 		{
-#if NKAI_TRACE_LEVEL > 1
+#if NK2AI_TRACE_LEVEL > 1
 			logAi->trace("Can not build a boat. Not enough resources.");
 #endif
 

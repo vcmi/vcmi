@@ -36,7 +36,7 @@ namespace AIPathfinding
 	{
 		LayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
 
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 		logAi->trace("Layer transitioning %s -> %s, action: %d, blocked: %s",
 			source.coord.toString(),
 			destination.coord.toString(),
@@ -66,7 +66,7 @@ namespace AIPathfinding
 
 			if(virtualBoat && tryUseSpecialAction(destination, source, virtualBoat, EPathNodeAction::EMBARK))
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 				logAi->trace("Embarking to virtual boat while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
@@ -84,7 +84,7 @@ namespace AIPathfinding
 
 			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Casting water walk while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
@@ -102,7 +102,7 @@ namespace AIPathfinding
 
 			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
 			{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 2
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Casting fly while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
 #endif
 			}
@@ -236,7 +236,7 @@ namespace AIPathfinding
 					}
 					else
 					{
-#if NKAI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 						logAi->trace(
 							"Special transition node already allocated. Blocked moving %s -> %s",
 							source.coord.toString(),

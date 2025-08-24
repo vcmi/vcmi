@@ -27,7 +27,7 @@ double HitMapInfo::value() const
 
 void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 {
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 	logVisual->updateWithLock(playerID.toString() + ".danger.max", [&data](IVisualLogBuilder & b)
 		{
 			foreach_tile_pos([&b, &data](const int3 & pos)

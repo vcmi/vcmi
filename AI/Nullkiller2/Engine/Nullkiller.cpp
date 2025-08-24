@@ -330,7 +330,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 {
 	if(getHeroLockedReason(path.targetHero) == HeroLockedReason::STARTUP)
 	{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("Hero %s is locked by STARTUP. Discarding %s", path.targetHero->getObjectName(), path.toString());
 #endif
 		return true;
@@ -342,7 +342,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 
 		if(lockReason != HeroLockedReason::NOT_LOCKED)
 		{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->trace("Hero %s is locked by %d. Discarding %s", path.targetHero->getObjectName(), (int)lockReason,  path.toString());
 #endif
 			return true;
@@ -384,12 +384,12 @@ void Nullkiller::makeTurn()
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
 #endif
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
 #endif
 			selectedTasks = buildPlan(tasks, prio);
@@ -463,7 +463,7 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
 #endif
 
@@ -511,7 +511,7 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 		bestPrioPassTask = choseBestTask(tempResults);
 		if(bestPrioPassTask->priority > 0)
 		{
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
 #endif
 
@@ -623,7 +623,7 @@ bool Nullkiller::handleTrading()
 				TResources required = buildAnalyzer->getTotalResourcesRequired();
 				TResources income = buildAnalyzer->getDailyIncome();
 				TResources available = cc->getResourceAmount();
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->debug("Available %s", available.toString());
 				logAi->debug("Required  %s", required.toString());
 #endif
@@ -670,7 +670,7 @@ bool Nullkiller::handleTrading()
 						mostExpendable = i;
 					}
 				}
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 				logAi->debug("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
 #endif
 				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
@@ -684,7 +684,7 @@ bool Nullkiller::handleTrading()
 				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
 				{
 					cc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-#if NKAI_TRACE_LEVEL >= 2
+#if NK2AI_TRACE_LEVEL >= 2
 					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
 #endif
 					haveTraded = true;
@@ -708,7 +708,7 @@ void Nullkiller::invalidatePaths()
 
 void Nullkiller::tracePlayerStatus(bool beginning) const
 {
-#if NKAI_TRACE_LEVEL >= 1
+#if NK2AI_TRACE_LEVEL >= 1
 	float totalHeroesStrength = 0;
 	int totalTownsLevel = 0;
 	for (const auto *heroInfo : cc->getHeroesInfo())
