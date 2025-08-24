@@ -8,8 +8,11 @@
  *
  */
 
-#include "AI/Nullkiller2/Behaviors/RecruitHeroBehavior.h"
-#include "AI/Nullkiller2/Engine/Nullkiller.h"
+#include <Global.h>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <Behaviors/RecruitHeroBehavior.h>
+#include <Engine/Nullkiller.h>
 
 class MockNullkiller : public NK2AI::Nullkiller
 {
