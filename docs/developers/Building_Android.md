@@ -1,15 +1,15 @@
 # Building Android
 
-The following instructions apply to **v1.2 and later**. For earlier versions the best documentation is <https://github.com/vcmi/vcmi-android/blob/master/building.txt> (and reading scripts in that repo), however very limited to no support will be provided from our side if you wish to go down that rabbit hole.
+The following instructions apply to **v1.7 and later**. For earlier versions see older Git revision, e.g. from [1.6.8 release](https://github.com/vcmi/vcmi/blob/1.6.8/docs/developers/Building_Android.md).
 
 *Note*: building has been tested only on Linux and macOS. It may or may not work on Windows out of the box.
 
 ## Requirements
 
-1. CMake 3.20+: download from your package manager or from <https://cmake.org/download/>
-2. JDK 11, not necessarily from Oracle
+1. CMake 3.24+: download from your package manager or from <https://cmake.org/download/>
+2. JDK 17, not necessarily from Oracle
 3. Android command line tools or Android Studio for your OS: <https://developer.android.com/studio/>
-4. Android NDK version **r25c (25.2.9519653)**, there're multiple ways to obtain it:
+4. Android NDK version **r25c (25.2.9519653)** (later version would also probably work), there're multiple ways to obtain it:
     - install with Android Studio
     - install with `sdkmanager` command line tool
     - download from <https://developer.android.com/ndk/downloads>
@@ -47,6 +47,13 @@ conan install -c tools.android:ndk_path=/path/to/ndk ...
 ```
 
 ## Build process
+
+Before starting the build, local Gradle configuration must be created (it's a requirement for Qt 5):
+
+```sh
+mkdir ~/.gradle
+echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
+```
 
 Building for Android is a 2-step process. First, native C++ code is compiled to a shared library (unlike an executable on other platforms), then Java code is compiled to an actual executable which will be loading the native shared library at runtime.
 

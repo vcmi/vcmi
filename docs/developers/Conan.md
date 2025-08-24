@@ -6,15 +6,23 @@
 
 The following platforms are supported and known to work, others might require changes to our [conanfile.py](../../conanfile.py) or upstream recipes.
 
-- **macOS**: x86_64 (Intel) - target 10.13 (High Sierra), arm64 (Apple Silicon) - target 11.0 (Big Sur)
+- **macOS**:
+    - x86_64 (Intel) - target 10.13 (High Sierra)
+    - arm64 (Apple Silicon) - target 11.0 (Big Sur)
 - **iOS**: arm64 - target 12.0
-- **Windows**: x86_64 and x86 fully supported with building from Linux
-- **Android**: armeabi-v7a (32-bit ARM) - target 4.4 (API level 19), aarch64-v8a (64-bit ARM) - target 5.0 (API level 21)
+- **Windows** using MSVC compiler:
+    - x86_64 (x64) - target Windows 7
+    - x86 - target Windows 7
+    - arm64 - target Windows 11
+- **Android**:
+    - arvm7 / armeabi-v7a (32-bit ARM) - target 4.4 (API level 19)
+    - arm64 / aarch64-v8a (64-bit ARM) - target 5.0 (API level 21)
+    - x86_64 (64-bit Intel) - target 5.0 (API level 21)
 
 ## Getting started
 
-1. [Install Conan](https://docs.conan.io/1/installation.html). Currently we support only Conan v1, you can install it with `pip` like this: `pip3 install 'conan<2.0'`
-2. Execute in terminal: `conan profile new default --detect`
+1. [Install Conan](https://docs.conan.io/2/installation.html). For example: `pip3 install conan`
+2. Execute in terminal: `conan profile detect`. It will create _build profile_ for your machine.
 
 ## Download dependencies
 
@@ -22,63 +30,70 @@ The following platforms are supported and known to work, others might require ch
 
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
 
-    - **macOS**: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode / Xcode CLT 14.x and later (older library versions are also available for Xcode 13, see Releases in the respective repo)
-    - **iOS**: libraries are built with Apple clang 14 (Xcode 14.2), should be consumable by Xcode 14.x and later (older library versions are also available for Xcode 13, see Releases in the respective repo)
-    - **Windows**: libraries are built with x86_64-mingw-w64-gcc version 10 (which is available in repositories of Ubuntu 22.04)
+    - **macOS**: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode / Xcode CLT 14.x and later
+    - **iOS**: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode 14.x and later
+    - **Windows**: libraries are built with MSVC 19.4x (v143 toolset)
     - **Android**: libraries are built with NDK r25c (25.2.9519653)
 
-2. Download the binaries archive and unpack it to `~/.conan` directory from <https://github.com/vcmi/vcmi-dependencies/releases/latest>
+2. Download the binaries archive from <https://github.com/vcmi/vcmi-dependencies/releases> (pre-release is for development version and the latest release is for respective VCMI release) and use `conan cache restore <path to archive>` command to unpack them.
 
-    - macOS: pick **dependencies-mac-intel.txz** if you have Intel Mac, otherwise - **dependencies-mac-arm.txz**
-    - iOS: pick ***dependencies-ios.txz***
-    - Windows: currently only mingw is supported. Pick **dependencies-mingw.tgz** if you want x86_64, otherwise pick **dependencies-mingw-32.tgz**
-    - Android: current limitation is that building works only on a macOS host due to Qt 5 for Android being compiled on macOS. Simply delete directory `~/.conan/data/qt/5.15.x/_/_/package` (`5.15.x` is a placeholder) after unpacking the archive and build Qt from source. Alternatively, if you have (or are [willing to build](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs)) Qt host tools for your platform, then simply replace those in the archive with yours and most probably it would work.
+    - macOS: pick **dependencies-mac-intel.tgz** if you have Intel Mac, otherwise - **dependencies-mac-arm.tgz**
+    - iOS: pick **dependencies-ios.tgz**
+    - Windows: pick **dependencies-windows-x64.tgz** for Windows x64, **dependencies-windows-arm64.tgz** for Windows ARM64 or **dependencies-windows-x86.tgz** for Windows x86
+    - Android: pick **dependencies-android-arm64-v8a.tgz** for arm64 (ARM 64-bit), **dependencies-android-armeabi-v7a.tgz** for armv7 (ARM 32-bit) or **dependencies-android-x64.tgz** for x86_64 (Intel 64-bit). Current limitation is that building works only on a Linux machine out of the box due to Qt 5 for Android being compiled on CI running Ubuntu Linux. But there's an easy workaround for Windows and macOS, see below. TODO
 
-3. Only if you have Apple Silicon Mac and trying to build for macOS or iOS:
+### Platform-specific preparation
 
-    1. Open file `~/.conan/data/qt/5.15.x/_/_/export/conanfile.py` (`5.15.x` is a placeholder), search for string `Designer` (there should be only one match), comment this line and the one above it by inserting `#` in the beginning, and save the file.
-    2. (optional) If you don't want to use Rosetta, follow [instructions how to build Qt host tools for Apple Silicon](https://github.com/vcmi/vcmi-ios-deps#note-for-arm-macs), on step 3 copy them to `~/.conan/data/qt/5.15.x/_/_/package/SOME_HASH/bin` (`5.15.x` and `SOME_HASH` are placeholders). Make sure **not** to copy `qt.conf`!
+Follow this subsection only if any of the following applies to you, otherwise skip to the [next section](#generate-cmake-integration) directly.
+
+- you're trying to build for Android and your OS is Windows or macOS or Linux aarch64
+- you're trying to build for iOS and you have Intel Mac
+
+Qt 5 has some utilities required for the build process (moc, uic etc.) that are built for your desktop OS. Our CI (GitHub Actions) makes Android builds on Ubuntu Linux amd64 and iOS builds on an Apple Silicon Mac, therefore those Qt utilities are built for Linux amd64 and macOS arm64 respectively and can't be used/run on other OS. To solve that, you must add/replace those utilities built for your desktop OS.
+
+The easiest way would be downloading prebuilt dependencies for your platform (Windows / macOS), unpacking the archive (no need to use `conan cache restore`, unpack as an ordinary archive) and copying executable files from `<unpacked dir>/b/qt<some hash>/p/bin` directory. We don't provide prebuilts for Linux - simply install Qt development package from your package manager and copy executables from its `bin` directory.
 
 ## Generate CMake integration
 
-Conan needs to generate CMake toolchain file to make dependencies available to CMake. See `CMakeDeps` and `CMakeToolchain` [in the official documentation](https://docs.conan.io/1/reference/conanfile/tools/cmake.html) for details.
+Conan needs to generate CMake toolchain file to make dependencies available to CMake. See `CMakeDeps` and `CMakeToolchain` [in the official documentation](https://docs.conan.io/2/reference/tools/cmake.html) for details.
 
-In terminal `cd` to the VCMI source directory and run the following command. Also check subsections for additional requirements on consuming prebuilt binaries.
+Make sure that you've cloned VCMI repository with submodules! (or initialized them afterwards)
+
+In terminal `cd` to the VCMI source directory and run the following command (it's written in Bash syntax, for other shells like Cmd or Powershell use appropriate line continuation character instead of `\`). Also check subsections for additional requirements on consuming prebuilt binaries.
+
+*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then run the below command twice appending `-c tools.env.virtualenv:powershell=powershell.exe` on the second run.
 
 <pre>
 conan install . \
-  --install-folder=<b><i>conan-generated</i></b> \
-  --no-imports \
+  --output-folder=<b><i>conan-generated</i></b> \
   --build=<b><i>never</i></b> \
-  --profile:build=default \
-  --profile:host=<b><i>CI/conan/PROFILE</i></b>
+  --profile=<b><i>dependencies/conan_profiles/PROFILE</i></b> \
+  <b><i>EXTRA PARAMS</i></b>
 </pre>
 
 The highlighted parts can be adjusted:
 
 - ***conan-generated***: directory (absolute or relative) where the generated files will appear. This value is used in CMake presets from VCMI, but you can actually use any directory and override it in your local CMake presets.
-- ***never***: use this value to avoid building any dependency from source. You can also use `missing` to build recipes, that are not present in your local cache, from source.
-- ***CI/conan/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../../CI/conan) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile).
-- ***note for Windows x86***: use profile mingw32-linux.jinja for building instead of mingw64-linux.jinja
+- ***never***: use this value to avoid building any dependency from source. You can also use `missing` to build binary packages, that are not present in your local cache, from source. There're also other values, see `conan install -h` or the full documentation linked below.
+- ***dependencies/conan_profiles/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../../dependencies/conan_profiles) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile, will build for your desktop OS) or create your own profile for the desired platform.
+- ***EXTRA PARAMS***: additional params to the `conan install` command, you can specify multiple:
+    - if you want to consume our prebuilt binaries for Apple platforms (macOS / iOS), pass `--profile=dependencies/conan_profiles/base/apple-system`
+    - if you want to consume our prebuilt binaries for Android, pass `--profile=dependencies/conan_profiles/base/android-system`
+    - if your intention is to make a Debug build, pass `-s "&:build_type=RelWithDebInfo"` for Windows MSVC and `-s "&:build_type=Debug"` for other platforms
+    - if you're building on Windows 11 ARM64, pass `-o "&:lua_lib=lua"`
+    - if you're building on (or for) Windows < 10, pass `-o "&:target_pre_windows10=True"`
 
 If you use `--build=never` and this command fails, then it means that you can't use prebuilt binaries out of the box. For example, try using `--build=missing` instead.
 
-VCMI "recipe" also has some options that you can specify. For example, if you don't care about game videos, you can disable FFmpeg dependency by passing `-o with_ffmpeg=False`. If you only want to make release build, you can use `GENERATE_ONLY_BUILT_CONFIG=1` environment variable to skip generating files for other configurations (our CI does this).
+VCMI "recipe" also has some options that you can specify. For example, if you don't care about game videos, you can disable FFmpeg dependency by passing `-o with_ffmpeg=False`. Check [the recipe](../../dependencies/conanfile.py) for details.
 
-*Note*: you can find full reference of this command [in the official documentation](https://docs.conan.io/1/reference/commands/consumer/install.html) or by executing `conan help install`.
-
-### Using our prebuilt binaries for macOS/iOS
-
-We use custom recipes for some libraries that are provided by the OS. You must additionally pass `-o with_apple_system_libs=True` for `conan install` to use them.
+*Note*: you can find full reference of this command [in the official documentation](https://docs.conan.io/2/reference/commands/install.html) or by executing `conan help install`.
 
 ### Using prebuilt binaries from ConanCenter
 
 First, check if binaries for [your platform](https://github.com/conan-io/conan-center-index/blob/master/docs/supported_platforms_and_configurations.md) are produced.
 
-You must adjust the above `conan install` command:
-
-1. Replace ***CI/conan/PROFILE*** with `default`.
-2. Additionally pass `-o default_options_of_requirements=True`: this disables all custom options of our `conanfile.py` to match ConanCenter builds.
+You must adjust the above `conan install` command by replacing ***dependencies/conan_profiles/PROFILE*** with `default`.
 
 ### Building dependencies from source
 
@@ -195,31 +210,4 @@ cmake --preset ios-conan
 }
 ```
 
-### Build VCMI with all deps for 32-bit windows in Ubuntu 22.04 WSL
-
-```powershell
-wsl --install
-wsl --install -d Ubuntu
-ubuntu
-```
-
-Next steps are identical both in WSL and in real Ubuntu 22.04
-
-```sh
-sudo pip3 install conan
-sudo apt install cmake build-essential
-sed -i 's/x86_64-w64-mingw32/i686-w64-mingw32/g' CI/mingw-ubuntu/before-install.sh
-sed -i 's/x86-64/i686/g' CI/mingw-ubuntu/before-install.sh
-sudo ./CI/mingw-ubuntu/before-install.sh
-conan install . \
-  --install-folder=conan-generated \
-  --no-imports \
-  --build=missing \
-  --profile:build=default \
-  --profile:host=CI/conan/mingw32-linux \
-  -c tools.cmake.cmaketoolchain.presets:max_schema_version=2
-cmake --preset windows-mingw-conan-linux
-cmake --build --preset windows-mingw-conan-linux --target package
-```
-
-After that, you will have functional VCMI installer for 32-bit windows.
+### 
