@@ -45,7 +45,7 @@ namespace NK2AI
 		useFuzzy(false)
 	{
 		const std::string & difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyLevel];
-		const JsonNode & rootNode = JsonUtils::assembleFromFiles("config/ai/nk2ai/nkai-settings");
+		const JsonNode & rootNode = JsonUtils::assembleFromFiles("config/ai/nk2ai/nk2ai-settings");
 		const JsonNode & node = rootNode[difficultyName];
 
 		maxRoamingHeroes = node["maxRoamingHeroes"].Integer();
