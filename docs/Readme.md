@@ -69,24 +69,33 @@ See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md
 
 ## Documentation and guidelines for developers
 
-Development environment setup instructions:
+### Development Environment Setup
 
+- [Developer Quickstart Guide](developers/Developer_Quickstart.md) - Quick setup and first steps
 - [Building VCMI for Android](developers/Building_Android.md)
 - [Building VCMI for iOS](developers/Building_iOS.md)
 - [Building VCMI for Linux](developers/Building_Linux.md)
 - [Building VCMI for macOS](developers/Building_macOS.md)
 - [Building VCMI for Windows](developers/Building_Windows.md)
-- [Conan](developers/Conan.md)
+- [Conan Package Management](developers/Conan.md)
 
-Engine documentation: (NOTE: may be outdated)
+### Engine Documentation
+
+- [Engine Architecture](developers/Engine_Architecture.md) - High-level architecture overview
+- [API Reference](developers/API_Reference.md) - Comprehensive engine API documentation
+- [Code Structure](developers/Code_Structure.md) - Detailed code organization
+- [Coding Guidelines](developers/Coding_Guidelines.md) - Code style and best practices
+- [Contributing Guidelines](developers/Contributing_Guidelines.md) - How to contribute effectively
+- [Testing and Debugging](developers/Testing_and_Debugging.md) - Testing strategies and debugging techniques
+
+### Specialized Topics
 
 - [Development with Qt Creator](developers/Development_with_Qt_Creator.md)
-- [Coding Guidelines](developers/Coding_Guidelines.md)
-- [Bonus System](developers/Bonus_System.md)
-- [Code Structure](developers/Code_Structure.md)
-- [Logging API](developers/Logging_API.md)
-- [Lua Scripting System](developers/Lua_Scripting_System.md)
-- [Serialization](developers/Serialization.md)
+- [Bonus System](developers/Bonus_System.md) - Core gameplay mechanic system
+- [Serialization](developers/Serialization.md) - Save/load and networking system
+- [Networking](developers/Networking.md) - Network protocol documentation
+- [Logging API](developers/Logging_API.md) - Logging system usage
+- [Lua Scripting System](developers/Lua_Scripting_System.md) - Scripting API reference
 
 ## Documentation and guidelines for maintainers
 
