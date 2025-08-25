@@ -11,7 +11,7 @@
 #include "../../lib/battle/CUnitState.h"
 #include "StackWithBonuses.h"
 
-#define BATTLE_TRACE_LEVEL 0
+#define BATTLE_TRACE_LEVEL 2
 
 class DamageCache
 {
