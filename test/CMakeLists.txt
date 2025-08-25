@@ -72,7 +72,7 @@ set(test_SRCS
 		spells/targetConditions/ResistanceConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
-		
+
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
@@ -116,8 +116,8 @@ if(ENABLE_LUA)
 	)
 endif()
 
-if(ENABLE_ERM) 
-	list(APPEND test_SRCS 
+if(ENABLE_ERM)
+	list(APPEND test_SRCS
 		erm/ERM_BM.cpp
 		erm/ERM_BU.cpp
 		erm/ERM_FU.cpp
@@ -137,6 +137,20 @@ if(ENABLE_ERM)
 
 	list(APPEND test_HEADERS
 		erm/interpretter/ErmRunner.h
+	)
+endif()
+
+if(ENABLE_NULLKILLER_AI)
+	# Just linking the library below is not enough, we need the .cpp files as well
+	file(GLOB_RECURSE NULLKILLER2_TEST_SRCS "../AI/Nullkiller2/*.cpp")
+	list(FILTER NULLKILLER2_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
+
+	list(APPEND test_SRCS
+		${NULLKILLER2_TEST_SRCS}
+		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+	)
+
+	list(APPEND test_HEADERS
 	)
 endif()
 
@@ -181,6 +195,12 @@ add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
 if(ENABLE_LUA)
 	target_link_libraries(vcmitest PRIVATE vcmiLua)
+endif()
+if(ENABLE_NULLKILLER_AI)
+	target_link_libraries(vcmitest PUBLIC Nullkiller2)
+#	target_link_libraries(vcmitest PRIVATE fuzzylite::fuzzylite TBB::tbb)
+	# TODO: Mircea: fix code to eliminate all linking issues, then remove the options below
+	target_link_options(vcmitest PRIVATE -Wl,--warn-unresolved-symbols)
 endif()
 
 target_include_directories(vcmitest

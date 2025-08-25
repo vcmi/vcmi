@@ -289,7 +289,7 @@ public:
 class BuildingIDBase : public IdentifierBase
 {
 public:
-	//Quite useful as long as most of building mechanics hardcoded
+	// Quite useful as long as most of building mechanics hardcoded
 	// NOTE: all building with completely configurable mechanics will be removed from list
 	enum Type
 	{
@@ -369,11 +369,11 @@ public:
 		throw std::runtime_error("Call to getMageGuildLevel with building '" + std::to_string(getNum()) +"' that is not mages guild!");
 	}
 
-	static BuildingID getDwellingFromLevel(int level, int upgradeIndex)
+	static BuildingID getDwellingFromLevel(int levelIndex, int upgradeIndex)
 	{
 		try
 		{
-			return getDwellings().at(upgradeIndex).at(level);
+			return getDwellings().at(upgradeIndex).at(levelIndex);
 		}
 		catch (const std::out_of_range &)
 		{
@@ -381,7 +381,8 @@ public:
 		}
 	}
 
-	static int getLevelFromDwelling(BuildingID dwelling)
+	/// @return 0 for the first one, going up to the supported no. of dwellings - 1
+	static int getLevelIndexFromDwelling(BuildingID dwelling)
 	{
 		for (const auto & level : getDwellings())
 		{
@@ -393,7 +394,8 @@ public:
 		throw std::runtime_error("Call to getLevelFromDwelling with building '" + std::to_string(dwelling.num) +"' that is not dwelling!");
 	}
 
-	static int getUpgradedFromDwelling(BuildingID dwelling)
+	/// @return 0 for no upgrade, 1 for the first one, going up to the supported no. of upgrades
+	static int getUpgradeNoFromDwelling(BuildingID dwelling)
 	{
 		const auto & dwellings = getDwellings();
 
@@ -408,10 +410,9 @@ public:
 
 	static void advanceDwelling(BuildingID & dwelling)
 	{
-		int level =	getLevelFromDwelling(dwelling);
-		int upgrade = getUpgradedFromDwelling(dwelling);
-
-		dwelling = getDwellingFromLevel(level, upgrade + 1);
+		int levelIndex = getLevelIndexFromDwelling(dwelling);
+		int upgradeNo = getUpgradeNoFromDwelling(dwelling);
+		dwelling = getDwellingFromLevel(levelIndex, upgradeNo + 1);
 	}
 
 	bool isDwelling() const
