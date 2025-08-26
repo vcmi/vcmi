@@ -121,7 +121,8 @@ struct DLL_LINKAGE BattleResult : public Query
 {
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
-	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
+	BattleSide winner = BattleSide::NONE; //0 - attacker, 1 - defender, 2 - draw
+	PlayerColor attacker; //used in case of a draw
 	BattleSideArray<std::map<CreatureID, si32>> casualties; //first => casualties of attackers - map crid => number
 	BattleSideArray<TExpType> exp{0,0}; //exp for attacker and defender
 
