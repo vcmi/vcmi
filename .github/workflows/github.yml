@@ -136,7 +136,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     # Allow non-MSVC builds to fail without failing whole job
-    # This keeps pipeline moving co Windows Installer job can still run
+    # This keeps pipeline moving so Windows Installer job can still run
     # MSVC builds must success to continue to Windows Installer job
     continue-on-error: ${{ !startsWith(matrix.platform, 'msvc') }}
     defaults:
