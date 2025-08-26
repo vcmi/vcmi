@@ -8,26 +8,23 @@ on:
 permissions:
   contents: write
 
-env:
-  CURRENT_BRANCH: ${{ github.ref_name }}
-
 jobs:
   refresh:
     name: Qt translations refresh
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.CURRENT_BRANCH }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
+          submodules: false
 
       - name: Install Qt tools (lupdate)
         run: |
           sudo apt install -y --no-install-recommends qttools5-dev-tools
 
-        # Update all TS files; remove obsolete entries
       - name: Update TS files (Launcher)
         working-directory: launcher
         run: |
@@ -38,40 +35,10 @@ jobs:
         run: |
           lupdate -no-obsolete . -ts translation/*.ts
 
-      - name: Show changed files
-        run: |
-          echo "Changed files (working tree):"
-          git status --porcelain || true
-          echo
-          echo "Diff names (unstaged):"
-          git diff --name-only || true
-
-      - name: Stage translation changes explicitly
-        run: |
-          git add -A launcher/translation mapeditor/translation || true
-          echo "Staged for commit:"
-          git diff --cached --name-only || true
-
-      - name: Detect staged changes
-        id: staged
-        run: |
-          COUNT=$(git diff --cached --name-only | wc -l)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          if [ "$COUNT" -eq 0 ]; then
-            echo "No staged translation changes."
-          else
-            echo "Staged $COUNT file(s)."
-          fi
-
-      - name: Commit and push changes
-        if: ${{ steps.staged.outputs.count != '0' }}
+      - name: Commit and push translation updates
         uses: EndBug/add-and-commit@v9
         with:
           add: "launcher/translation mapeditor/translation"
           default_author: github_actions
           message: "Auto-update VCMI Qt translation files"
           push: true
-
-      - name: No-op summary
-        if: ${{ steps.staged.outputs.count == '0' }}
-        run: echo "No translation changes detected; nothing to commit."
