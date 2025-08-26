@@ -522,7 +522,7 @@ void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 	else if(result.winner == BattleSide::NONE) // draw
 	{
 		// guarded reward is lost forever on draw
-		gameEvents.removeObject(this, hero->getOwner());
+		gameEvents.removeObject(this, result.attacker);
 	}
 	else
 	{
