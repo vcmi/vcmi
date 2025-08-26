@@ -13,7 +13,7 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
-      fail-fast: false
+      fail-fast: false      # Do not cancel whole matrix when one build fails
       matrix:
         include:
           - platform: mac-intel
@@ -135,7 +135,10 @@ jobs:
             artifact_platform: arm64-v8a
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ !startsWith(matrix.platform, 'msvc-') }}
+    # Allow non-MSVC builds to fail without failing whole job
+    # This keeps pipeline moving co Windows Installer job can still run
+    # MSVC builds must success to continue to Windows Installer job
+    continue-on-error: ${{ !startsWith(matrix.platform, 'msvc') }}
     defaults:
       run:
         shell: bash
@@ -164,7 +167,7 @@ jobs:
       if: "${{ matrix.before_install != '' }}"
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
     
-    # SAVE only if we didn't hit an existing cache
+    # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
@@ -693,6 +696,7 @@ jobs:
     defaults:
       run:
         shell: bash
+
     steps:
         - uses: actions/checkout@v5
         - name: Ensure LF line endings
