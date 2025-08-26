@@ -18,10 +18,9 @@ git clone --recurse-submodules https://github.com/vcmi/vcmi.git
 
 ## Obtaining dependencies
 
-There are 2 ways to get prebuilt dependencies:
+The primary and officially supported way is [Conan package manager](./Conan.md). Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Conan.md).
 
-- [Conan package manager](./Conan.md) - recommended. Note that the link points to the state of the current branch, for the latest release check the same document in the [master branch](https://github.com/vcmi/vcmi/blob/master/docs/developers/Conan.md).
-- [legacy manually built libraries](https://github.com/vcmi/vcmi-ios-deps) - can be used if you have Xcode 11/12 or to build for simulator / armv7 device
+There are also [legacy manually built libraries](https://github.com/vcmi/vcmi-ios-deps) which can be used if you have Xcode 11/12 or to build for simulator / armv7 device, but this way is no longer supported. Using Conan will also let you build with any Xcode version and for any architecture / SDK.
 
 ## Configuring project
 
@@ -30,9 +29,8 @@ Only Xcode generator (`-G Xcode`) is supported!
 As a minimum, you must pass the following variables to CMake:
 
 - `BUNDLE_IDENTIFIER_PREFIX`: unique bundle identifier prefix, something like `com.MY-NAME`
-- (if using legacy dependencies) `CMAKE_PREFIX_PATH`: path to the downloaded dependencies, e.g. `~/Downloads/vcmi-ios-depends/build/iphoneos`
 
-There're a few [CMake presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html): for device (Conan and legacy dependencies) and for simulator, named `ios-device-conan`, `ios-device` and `ios-simulator` respectively. You can also create your local "user preset" to avoid typing variables each time, see example [here](https://gist.github.com/kambala-decapitator/59438030c34b53aed7d3895aaa48b718).
+There's a [CMake preset](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html) for device named `ios-device-conan`. You can also create your local "user preset" to avoid typing variables each time, see example [here](https://gist.github.com/kambala-decapitator/59438030c34b53aed7d3895aaa48b718).
 
 Open terminal and `cd` to the directory with source code. Configuration example for device with Conan:
 
@@ -76,4 +74,4 @@ Invoke `cpack` after building:
 
 `cpack -C Release`
 
-This will generate file with extension **ipa** if you use CMake 3.25+and **zip** otherwise (simply change extension to ipa).
+This will generate file with extension **ipa** if you use CMake 3.25+ and **zip** otherwise (simply change extension to ipa).
