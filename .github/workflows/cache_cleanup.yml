@@ -10,12 +10,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - name: Install cache extension
-        run: gh extension install actions/gh-actions-cache
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Delete caches for this PR
+      - name: Delete caches for closed PR
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
