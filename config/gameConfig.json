@@ -677,7 +677,7 @@
 			// creatures on map will grow by specified percentage each week
 			"weeklyGrowthPercent" : 25,
 			// creatures on map will not grow if their quantity is greater than this value
-			"weeklyGrowthCap" : 4000,
+			"weeklyGrowthCap" : 9999,
 			// if stack experience is on, creatures on map will get specified amount of experience daily 
 			"dailyStackExperience" : 100,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire" 
