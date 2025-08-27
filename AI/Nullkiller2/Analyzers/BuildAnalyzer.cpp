@@ -121,12 +121,15 @@ void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & bi)
 	townDevelopmentCost += bi.buildCostWithPrerequisites;
 	townDevelopmentCost += BuildAnalyzer::withoutGold(bi.armyCost);
 
-	if(!bi.isBuildable && bi.isMissingResources)
+	if (bi.isBuildable)
+	{
+		toBuild.push_back(bi);
+	}
+	else if (bi.isMissingResources)
 	{
 		requiredResources += bi.buildCost;
+		toBuild.push_back(bi);
 	}
-
-	toBuild.push_back(bi);
 }
 
 BuildingInfo::BuildingInfo() {}
