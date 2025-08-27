@@ -585,12 +585,12 @@
             "inherits": "default-release"
         },
         {
-            "name": "linux-clang-test",
+            "name": "linux-clang-debug",
             "configurePreset": "linux-clang-test",
             "inherits": "default-release"
         },
         {
-            "name": "linux-gcc-test",
+            "name": "linux-gcc-debug",
             "configurePreset": "linux-gcc-test",
             "inherits": "default-release"
         },
