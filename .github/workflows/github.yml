@@ -727,7 +727,7 @@ jobs:
       actions: write                   # Partial JSON artifacts can't be deleted in PRs
     steps:
       - name: Checkout (for script path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
   
       - name: Download all partial JSON artifacts
         continue-on-error: true
