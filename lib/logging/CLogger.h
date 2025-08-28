@@ -49,7 +49,7 @@ private:
 class DLL_LINKAGE CLogger final: public vstd::CLoggerBase
 {
 public:
-	ELogLevel::ELogLevel getLevel() const override;
+	ELogLevel::ELogLevel getLevel() const;
 	void setLevel(ELogLevel::ELogLevel level);
 	const CLoggerDomain & getDomain() const;
 

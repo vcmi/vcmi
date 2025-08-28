@@ -206,6 +206,14 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Checkout MMAI dependency (executorch)
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        repository: pytorch/executorch
+        ref: v0.7.0
+        path: AI/MMAI/executorch
+
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
@@ -216,9 +224,9 @@ jobs:
       if: "${{ matrix.conan_prebuilts != '' }}"
       run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
 
-    - name: Install MMAI dependencies
-      if: "${{ matrix.mmai_deps != '' }}"
-      run: source '${{github.workspace}}/CI/install_mmai_dependencies.sh' '${{matrix.mmai_deps}}'
+    - name: Install vcpkg Dependencies
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
 
     # ensure the ccache for each PR is separate so they don't interfere with each other
     # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
@@ -279,6 +287,11 @@ jobs:
       env:
         GENERATE_ONLY_BUILT_CONFIG: 1
 
+    # TODO: install MMAI dependencies
+    # - call executorch's ./install_dependencies.py
+    # - android & ios:
+    #   https://docs.pytorch.org/executorch/0.7/using-executorch-building-from-source.html#cross-compilation
+
     # Workaround for gradle not discovering SDK that was installed via conan
     - name: Find Android NDK
       if: ${{ startsWith(matrix.platform, 'android') }}
@@ -315,7 +328,7 @@ jobs:
       run: |
         if [ '${{matrix.mmai_deps}}' ]
         then
-          MMAI_FLAGS="-DENABLE_MMAI=ON"
+          MMAI_FLAGS="-DENABLE_MMAI=ON -DMMAI_EXECUTORCH_PATH=AI/MMAI/executorch"
         else
           MMAI_FLAGS=""
         fi
@@ -323,14 +336,18 @@ jobs:
         if [[ ${{matrix.preset}} == linux-gcc-test ]]
         then
             cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 $MMAI_FLAGS --preset ${{ matrix.preset }}
+        elif [[ ${{matrix.preset}} == linux-gcc-debug ]]
+        then
+            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 $MMAI_FLAGS --preset ${{ matrix.preset }}
         elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
         then
-            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily" $MMAI_FLAGS --preset ${{ matrix.preset }}
-        elif [[ ${{matrix.platform}} != msvc ]]
+            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" $MMAI_FLAGS --preset ${{ matrix.preset }}
+        elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
+        then
+            cmake $MMAI_FLAGS --preset ${{ matrix.preset }}
+        else
         then
             cmake -DENABLE_CCACHE:BOOL=ON $MMAI_FLAGS --preset ${{ matrix.preset }}
-        else
-            cmake $MMAI_FLAGS --preset ${{ matrix.preset }}
         fi
 
     - name: Build
@@ -473,7 +490,7 @@ jobs:
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
             -o -path ./osx  -prune -o -type f \
-            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.pt' -print0 | \
+            -not -name '*.png' -and -not -name '*.ttf' -and -not -name '*.wav' -and -not -name '*.webm' -and -not -name '*.ico' -and -not -name '*.bat' -and -not -name '*.pte' -print0 | \
             { ! xargs -0 grep -l -z -P '\r\n'; }
 
         - name: Validate JSON

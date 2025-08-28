@@ -41,3 +41,4 @@ public:
 	bool isTraceEnabled() const override {return true;}
 	ELogLevel::ELogLevel getEffectiveLevel() const override {return ELogLevel::TRACE;}
 };
+
