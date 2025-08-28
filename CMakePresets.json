@@ -273,9 +273,12 @@
             "generator": "Xcode"
         },
         {
-            "name": "ios-device",
-            "displayName": "Base iOS device",
-            "description": "Base VCMI preset for iOS device",
+            "name": "ios-device-conan",
+            "displayName": "Base iOS device using Conan",
+            "description": "Base VCMI preset for iOS device using Conan",
+            "inherits": [
+                "build-with-conan"
+            ],
             "generator": "Xcode",
             "binaryDir": "../build-${presetName}",
             "cacheVariables": {
@@ -283,24 +286,6 @@
                 "FORCE_BUNDLED_FL": "ON",
                 "ENABLE_EDITOR" : "OFF"
             }
-        },
-        {
-            "name": "ios-simulator",
-            "displayName": "Base iOS simulator",
-            "description": "Base VCMI preset for iOS simulator",
-            "inherits": "ios-device",
-            "cacheVariables": {
-                "CMAKE_OSX_SYSROOT": "iphonesimulator"
-            }
-        },
-        {
-            "name": "ios-device-conan",
-            "displayName": "Base iOS device using Conan",
-            "description": "Base VCMI preset for iOS device using Conan",
-            "inherits": [
-                "build-with-conan",
-                "ios-device"
-            ]
         },
         {
             "name": "base-ios-release",
@@ -332,18 +317,6 @@
             "cacheVariables": {
                 "ENABLE_PCH" : "OFF",
                 "ENABLE_CCACHE": "ON"
-            }
-        },
-        {
-            "name": "ios-release-legacy",
-            "displayName": "iOS release using legacy dependencies",
-            "description": "VCMI iOS release using legacy dependencies",
-            "inherits": [
-                "base-ios-release",
-                "ios-device"
-            ],
-            "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
         },
         {
@@ -517,11 +490,6 @@
         {
             "name": "ios-release-conan-ccache",
             "configurePreset": "ios-release-conan-ccache",
-            "inherits": "ios-release-conan"
-        },
-        {
-            "name": "ios-release-legacy",
-            "configurePreset": "ios-release-legacy",
             "inherits": "ios-release-conan"
         },
         {
