@@ -53,7 +53,7 @@ struct DLL_LINKAGE BattleClientInterfaceData
 };
 
 struct ForcedAction {
-	EActionType type;
+	EActionType type = EActionType::NO_ACTION;
 	BattleHex position;
 	const battle::Unit * target;
 };
