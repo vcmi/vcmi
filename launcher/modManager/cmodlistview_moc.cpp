@@ -1040,6 +1040,7 @@ void CModListView::installMods(QStringList archives)
 				modsToEnable.push_back(mod);
 
 			manager->uninstallMod(mod);
+			reload(mod);
 		}
 		else
 		{
@@ -1323,7 +1324,7 @@ void CModListView::doUninstallMod(const QString & modName)
 		if(modStateModel->isModEnabled(modName))
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
-		reload();
+		reload(modName);
 	}
 }
 
