@@ -330,7 +330,7 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	{
 		return pr.second->getType() == ETemplateZoneType::WATER;
 	});
-	bool mapLevels = map.getMapGenOptions().getLevels();
+	int mapLevels = map.getMapGenOptions().getLevels();
 
 	findPathsBetweenZones();
 	placeOnGrid(rand);
