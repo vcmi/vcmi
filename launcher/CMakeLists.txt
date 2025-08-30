@@ -27,7 +27,7 @@ set(launcher_SRCS
 		updatedialog_moc.cpp
 		prepare.cpp
 )
-if(APPLE_IOS)
+if(IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
 		ios/revealdirectoryinfiles.h
@@ -225,7 +225,7 @@ endif()
 
 if(ANDROID)
 	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
-elseif(NOT APPLE_IOS)
+elseif(NOT IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
@@ -245,7 +245,7 @@ if(ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils
 		"-framework UniformTypeIdentifiers"

@@ -1,6 +1,6 @@
 # We need to keep this code into separate directory so CMake will execute it after all other subdirectories install code
 # Otherwise we can't fix Mac bundle dependencies since binaries wouldn't be there when this code executed
-if(APPLE_MACOS)
+if(MACOS)
 	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
 	set(bundleContentsDir "${bundleDir}/Contents")
 

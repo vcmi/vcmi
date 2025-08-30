@@ -846,11 +846,11 @@ endif()
 
 # no longer necessary, but might be useful to keep in future
 # unfortunately at the moment tests do not support namespaced build, so enable only on some systems
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	target_compile_definitions(vcmi PUBLIC VCMI_LIB_NAMESPACE=VCMI)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	target_link_libraries(vcmi PUBLIC iOS_utils)
 endif()
 
@@ -901,7 +901,7 @@ if(NOT ENABLE_STATIC_LIBS)
 	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()
 
-if(APPLE_IOS AND NOT USING_CONAN)
+if(IOS AND NOT USING_CONAN)
 	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
 
 	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)

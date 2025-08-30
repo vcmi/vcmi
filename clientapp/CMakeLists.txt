@@ -7,7 +7,7 @@ set(clientapp_HEADERS
 		StdInc.h
 )
 
-if(APPLE_IOS)
+if(IOS)
 	set(clientapp_SRCS ${clientapp_SRCS}
 		CFocusableHelper.cpp
 		ios/GameChatKeyboardHandler.m
@@ -56,7 +56,7 @@ if(WIN32)
 		target_link_libraries(vcmiclient SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclient PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-elseif(APPLE_IOS)
+elseif(IOS)
 	set_target_properties(vcmiclient PROPERTIES
 		MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/ios/Info.plist"
 		XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/Frameworks"
@@ -81,7 +81,7 @@ endif()
 vcmi_set_output_dir(vcmiclient "")
 enable_pch(vcmiclient)
 
-if(APPLE_IOS)
+if(IOS)
 	add_custom_command(TARGET vcmiclient POST_BUILD
 		COMMAND ios/set_build_version.sh "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
 		COMMAND ${CMAKE_COMMAND} --install "${CMAKE_BINARY_DIR}" --component "${CMAKE_INSTALL_DEFAULT_COMPONENT_NAME}" --config "$<CONFIG>" --prefix "$<TARGET_BUNDLE_CONTENT_DIR:vcmiclient>"
