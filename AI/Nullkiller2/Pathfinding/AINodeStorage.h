@@ -290,11 +290,6 @@ public:
 		(*this->accessibility)[tile.z][tile.x][tile.y][layer.getNum()] = tileAccessibility;
 	}
 
-	inline int getBucket(const ChainActor * actor) const
-	{
-		return ((uintptr_t)actor * 395) % getBucketCount();
-	}
-
 	void calculateTownPortalTeleportations(std::vector<CGPathNode *> & neighbours);
 	void fillChainInfo(const AIPathNode * node, AIPath & path, int parentIndex) const;
 
