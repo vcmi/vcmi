@@ -15,6 +15,11 @@
 			"type" : "boolean",
 			"description" : "If set to true, this bonus will be considered 'creature nature' bonus, and such creature won't be automatically granted LIVING bonus"
 		},
+		
+		"blockDescriptionPropagation" : {
+			"type" : "boolean",
+			"description" : "If set to true, this ability description will not be displayed if a creature receives it by propagation"
+		},
 
 		"description" : {
 			"type" : "string"
