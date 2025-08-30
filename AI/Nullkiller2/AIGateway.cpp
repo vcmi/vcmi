@@ -39,6 +39,9 @@
 namespace NK2AI
 {
 
+// one thread may be turn of AI and another will be handling a side effect for AI2
+thread_local CCallback * ccTl = nullptr;
+thread_local AIGateway * aiGwTl = nullptr;
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 
 AIGateway::AIGateway()

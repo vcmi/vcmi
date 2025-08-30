@@ -28,9 +28,8 @@ VCMI_LIB_NAMESPACE_END
 namespace NK2AI
 {
 
-// one thread may be turn of AI and another will be handling a side effect for AI2
-inline thread_local CCallback * ccTl = nullptr;
-inline thread_local AIGateway * aiGwTl = nullptr;
+extern thread_local CCallback * ccTl;
+extern thread_local AIGateway * aiGwTl;
 
 // helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
