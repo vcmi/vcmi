@@ -29,19 +29,16 @@ namespace NK2AI
 {
 
 extern thread_local CCallback * ccTl;
-extern thread_local AIGateway * aiGwTl;
 
 // helper RAII to manage global ai/cb ptrs
 struct SetGlobalState
 {
-	AIGateway * previousAiGw;
 	CCallback * previousCc;
 	bool wasAlreadySet;
 
 	SetGlobalState(AIGateway * aiGw, CCallback * cc)
-		: previousAiGw(aiGwTl), previousCc(ccTl), wasAlreadySet(aiGwTl != nullptr)
+		: previousCc(ccTl), wasAlreadySet(ccTl != nullptr)
 	{
-		aiGwTl = aiGw;
 		ccTl = cc;
 // #if NK2AI_TRACE_LEVEL >= 2
 // 		if(wasAlreadySet)
@@ -58,7 +55,6 @@ struct SetGlobalState
 	~SetGlobalState()
 	{
 		// Restore previous values instead of always setting to nullptr
-		aiGwTl = previousAiGw;
 		ccTl = previousCc;
 // #if NK2AI_TRACE_LEVEL >= 2
 // 		logAi->trace("SetGlobalState destroyed");

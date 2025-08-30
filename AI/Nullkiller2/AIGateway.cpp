@@ -39,9 +39,7 @@
 namespace NK2AI
 {
 
-// one thread may be turn of AI and another will be handling a side effect for AI2
 thread_local CCallback * ccTl = nullptr;
-thread_local AIGateway * aiGwTl = nullptr;
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
 
 AIGateway::AIGateway()
@@ -1313,7 +1311,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
 {
 	auto name = t->getTown()->buildings.at(building)->getNameTranslated();
-	logAi->debug("Player %d will build %s in town of %s at %s", aiGwTl->playerID, name, t->getNameTranslated(), t->anchorPos().toString());
+	logAi->debug("Player %d will build %s in town of %s at %s", playerID, name, t->getNameTranslated(), t->anchorPos().toString());
 	cc->buildBuilding(t, building); //just do this;
 }
 
