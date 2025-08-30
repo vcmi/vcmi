@@ -1406,7 +1406,7 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, con
 			&& node.layer == layer
 			&& node.action != EPathNodeAction::UNKNOWN 
 			&& node.actor
-			&& node.actor->hero == hero.h)
+			&& node.actor->hero == hero.hero)
 		{
 			return true;
 		}

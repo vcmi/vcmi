@@ -50,7 +50,7 @@ private:
 public:
 	HeroManager(CCallback * cc, const Nullkiller * aiNk) : cc(cc), aiNk(aiNk) {}
 	const std::map<HeroPtr, HeroRole> & getHeroToRoleMap() const;
-	HeroRole getHeroRole(const HeroPtr & hero) const;
+	HeroRole getHeroRole(const HeroPtr & hPtr) const;
 	int selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const;
 	void update();
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const;

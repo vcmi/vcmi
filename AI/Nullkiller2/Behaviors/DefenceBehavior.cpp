@@ -84,12 +84,12 @@ void handleCounterAttack(
 	const Nullkiller * aiNk,
 	Goals::TGoalVec & tasks)
 {
-	if(threat.hero.validAndSet()
+	if(threat.heroPtr.isValid()
 		&& threat.turn <= 1
 		&& (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
-		auto heroCapturingPaths = aiNk->pathfinder->getPathInfo(threat.hero->visitablePos());
-		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, aiNk, threat.hero.get());
+		auto heroCapturingPaths = aiNk->pathfinder->getPathInfo(threat.heroPtr->visitablePos());
+		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, aiNk, threat.heroPtr.get(aiNk->cc.get()));
 
 		for(int i = 0; i < heroCapturingPaths.size(); i++)
 		{
@@ -132,7 +132,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			return false;
 		}
-		else if(aiNk->heroManager->getHeroRole(town->getGarrisonHero()) == HeroRole::MAIN)
+		else if(aiNk->heroManager->getHeroRole(HeroPtr(town->getGarrisonHero())) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
 			auto heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(armyDismissLimit);
@@ -164,7 +164,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		return;
 	}
-	if(!threatNode.fastestDanger.hero)
+	if(!threatNode.fastestDanger.heroPtr)
 	{
 #if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
@@ -192,7 +192,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			town->getNameTranslated(),
 			threat.danger,
 			std::to_string(threat.turn),
-			threat.hero ? threat.hero->getNameTranslated() : std::string("<no hero>"));
+			threat.heroPtr ? threat.heroPtr->getNameTranslated() : std::string("<no hero>"));
 #endif
 		handleCounterAttack(town, threat, threatNode.maximumDanger, aiNk, tasks);
 

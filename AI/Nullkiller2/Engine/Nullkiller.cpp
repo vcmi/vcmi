@@ -281,7 +281,7 @@ void Nullkiller::updateState()
 			if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
 				continue;
 
-			activeHeroes[hero] = heroManager->getHeroRole(hero);
+			activeHeroes[hero] = heroManager->getHeroRole(HeroPtr(hero));
 		}
 
 		PathfinderSettings cfg;
@@ -549,11 +549,11 @@ bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
 
 HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
 {
-	HeroPtr hero = task->getHero();
+	HeroPtr heroPtr(task->getHero());
 	HeroRole heroRole = HeroRole::MAIN;
 
-	if(hero.validAndSet())
-		heroRole = heroManager->getHeroRole(hero);
+	if(heroPtr.isValid())
+		heroRole = heroManager->getHeroRole(heroPtr);
 
 	return heroRole;
 }

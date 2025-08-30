@@ -35,10 +35,10 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					auto & threat = data.getTileThreat(pos).maximumDanger;
 					b.addText(pos, std::to_string(threat.danger));
 
-					if(threat.hero.validAndSet())
+					if(threat.heroPtr.isValid())
 					{
 						b.addText(pos, std::to_string(threat.turn));
-						b.addText(pos, threat.hero->getNameTranslated());
+						b.addText(pos, threat.heroPtr->getNameTranslated());
 					}
 				});
 		});
@@ -50,10 +50,10 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					auto & threat = data.getTileThreat(pos).fastestDanger;
 					b.addText(pos, std::to_string(threat.danger));
 
-					if(threat.hero.validAndSet())
+					if(threat.heroPtr.isValid())
 					{
 						b.addText(pos, std::to_string(threat.turn));
-						b.addText(pos, threat.hero->getNameTranslated());
+						b.addText(pos, threat.heroPtr->getNameTranslated());
 					}
 				});
 		});
@@ -137,7 +137,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				HitMapInfo newThreat;
 
-				newThreat.hero = path.targetHero;
+				newThreat.heroPtr = HeroPtr(path.targetHero);
 				newThreat.turn = path.turn();
 				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
 				// TODO: Mircea: Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
@@ -167,7 +167,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 						auto & threats = townThreats[obj->id];
 						auto threat = std::find_if(threats.begin(), threats.end(), [&](const HitMapInfo & i) -> bool
 							{
-								return i.hero.hid == path.targetHero->id;
+								return i.heroPtr.heroId == path.targetHero->id;
 							});
 
 						if(threat == threats.end())

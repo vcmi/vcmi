@@ -204,7 +204,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, HeroPtr h);
+	bool moveHeroToTile(int3 dst, HeroPtr hPtr);
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)

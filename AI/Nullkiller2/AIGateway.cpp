@@ -366,7 +366,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		lostHero(cc->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion
+		lostHero(HeroPtr(cc->getHero(obj->id))); //we can promote, since objectRemoved is called just before actual deletion
 	}
 
 	if(obj->ID == Obj::HERO && cc->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
@@ -587,13 +587,13 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
-	HeroPtr hPtr = hero;
+	HeroPtr hPtr(hero);
 
 	executeActionAsync("heroGotLevel", [this, hPtr, skills, queryID]()
 	{
 		int sel = 0;
 
-		if(hPtr.validAndSet())
+		if(hPtr.isValid())
 		{
 			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
@@ -621,24 +621,24 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
 
-	auto hero = nullkiller->getActiveHero();
+	auto heroPtr = nullkiller->getActiveHero();
 	auto target = nullkiller->getTargetTile();
 
 	if(!selection && cancel)
 	{
-		executeActionAsync("showBlockingDialog", [this, hero, target, askID]()
+		executeActionAsync("showBlockingDialog", [this, heroPtr, target, askID]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
 			auto objects = cc->getVisitableObjs(target);
 
-			if(hero.validAndSet() && target.isValid() && objects.size())
+			if(heroPtr.isValid() && target.isValid() && objects.size())
 			{
-				auto topObj = objects.front()->id == hero->id ? objects.back() : objects.front();
+				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
-				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, hero.get());
-				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
+				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get(cc.get()));
+				auto ratio = static_cast<float>(danger) / heroPtr->getTotalStrength();
 
 				answer = true;
 
@@ -648,7 +648,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					answer = false;
 				}
 
-				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
+				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), heroPtr.name(), ratio);
 
 				if(cc->getObj(goalObjectID, false))
 				{
@@ -674,7 +674,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		return;
 	}
 
-	executeActionAsync("showBlockingDialog", [this, selection, components, hero, askID]()
+	executeActionAsync("showBlockingDialog", [this, selection, components, heroPtr, askID]()
 	{
 		int sel = 0;
 
@@ -685,10 +685,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				std::unique_lock mxLock(nullkiller->aiStateMutex);
 
 				// TODO: Find better way to understand it is Chest of Treasures
-				if(hero.validAndSet()
+				if(heroPtr.isValid()
 					&& components.size() == 2
 					&& components.front().type == ComponentType::RESOURCE
-					&& (nullkiller->heroManager->getHeroRole(hero) != HeroRole::MAIN
+					&& (nullkiller->heroManager->getHeroRole(heroPtr) != HeroRole::MAIN
 						|| nullkiller->buildAnalyzer->isGoldPressureOverMax()))
 				{
 					sel = 1;
@@ -868,7 +868,7 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 	case Obj::TOWN:
 		if(h->getVisitedTown()) //we are inside, not just attacking
 		{
-			makePossibleUpgrades(h.get());
+			makePossibleUpgrades(h.get(cc.get()));
 
 			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 
@@ -879,12 +879,12 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(h->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
-					cc->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
+					cc->buyArtifact(h.get(cc.get()), ArtifactID::SPELLBOOK);
 			}
 		}
 		break;
 	case Obj::HILL_FORT:
-		makePossibleUpgrades(h.get());
+		makePossibleUpgrades(h.get(cc.get()));
 		break;
 	}
 }
@@ -1085,12 +1085,12 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 	return ret;
 }
 
-bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
+bool AIGateway::moveHeroToTile(int3 dst, HeroPtr hPtr)
 {
-	if(h->isGarrisoned() && h->getVisitedTown())
+	if(hPtr->isGarrisoned() && hPtr->getVisitedTown())
 	{
-		cc->swapGarrisonHero(h->getVisitedTown());
-		moveCreaturesToHero(h->getVisitedTown());
+		cc->swapGarrisonHero(hPtr->getVisitedTown());
+		moveCreaturesToHero(hPtr->getVisitedTown());
 	}
 
 	//TODO: consider if blockVisit objects change something in our checks: AIUtility::isBlockVisitObj()
@@ -1098,9 +1098,9 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	auto afterMovementCheck = [&]() -> void
 	{
 		waitTillFree(); //movement may cause battle or blocking dialog
-		if(!h)
+		if(!hPtr)
 		{
-			lostHero(h);
+			lostHero(hPtr);
 			teleportChannelProbingList.clear();
 			if(status.channelProbing()) // if hero lost during channel probing we need to switch this mode off
 				status.setChannelProbing(false);
@@ -1108,14 +1108,14 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 	};
 
-	logAi->debug("Moving hero %s to tile %s", h->getNameTranslated(), dst.toString());
-	int3 startHpos = h->visitablePos();
+	logAi->debug("Moving hero %s to tile %s", hPtr->getNameTranslated(), dst.toString());
+	int3 startHpos = hPtr->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cc->moveHero(*h, h->convertFromVisitablePos(dst), false);
+		cc->moveHero(*hPtr, hPtr->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
@@ -1125,10 +1125,10 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 	else
 	{
 		CGPath path;
-		nullkiller->getPathsInfo(h.get())->getPath(path, dst);
+		nullkiller->getPathsInfo(hPtr.get(cc.get()))->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", h->getNameTranslated(), dst.toString());
+			logAi->error("Hero %s cannot reach %s.", hPtr->getNameTranslated(), dst.toString());
 			return true;
 		}
 		int i = (int)path.nodes.size() - 1;
@@ -1168,20 +1168,20 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doMovement = [&](int3 dst, bool transit)
 		{
-			cc->moveHero(*h, h->convertFromVisitablePos(dst), transit);
+			cc->moveHero(*hPtr, hPtr->convertFromVisitablePos(dst), transit);
 		};
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
 			if(cc->getObj(exitId) && cc->getObj(exitId)->ID == Obj::WHIRLPOOL)
 			{
-				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*h);
+				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*hPtr);
 			}
 
 			destinationTeleport = exitId;
 			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
-			cc->moveHero(*h, h->pos, false);
+			cc->moveHero(*hPtr, hPtr->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
@@ -1189,7 +1189,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 
 		auto doChannelProbing = [&]() -> void
 		{
-			auto currentPos = h->visitablePos();
+			auto currentPos = hPtr->visitablePos();
 			auto currentTeleport = getObj(currentPos, true);
 
 			if(currentTeleport)
@@ -1222,7 +1222,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			int3 currentCoord = path.nodes[i].coord;
 			int3 nextCoord = path.nodes[i - 1].coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == h->visitablePos());
+			auto currentObject = getObj(currentCoord, currentCoord == hPtr->visitablePos());
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
@@ -1245,7 +1245,7 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 			}
 
 			int3 endpos = path.nodes[i - 1].coord;
-			if(endpos == h->visitablePos())
+			if(endpos == hPtr->visitablePos())
 				continue;
 
 			bool isConnected = false;
@@ -1280,30 +1280,30 @@ bool AIGateway::moveHeroToTile(int3 dst, HeroPtr h)
 		{
 			// when we take resource we do not reach its position. We even might not move
 			// also guarded town is not get visited automatically after capturing
-			ret = h && i == 0;
+			ret = hPtr && i == 0;
 		}
 	}
-	if(h)
+	if(hPtr)
 	{
-		if(auto visitedObject = vstd::frontOrNull(cc->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
+		if(auto visitedObject = vstd::frontOrNull(cc->getVisitableObjs(hPtr->visitablePos()))) //we stand on something interesting
 		{
-			if(visitedObject != *h)
+			if(visitedObject != *hPtr)
 			{
-				performObjectInteraction(visitedObject, h);
+				performObjectInteraction(visitedObject, hPtr);
 				ret = true;
 			}
 		}
 	}
-	if(h) //we could have lost hero after last move
+	if(hPtr) //we could have lost hero after last move
 	{
-		ret = ret || (dst == h->visitablePos());
+		ret = ret || (dst == hPtr->visitablePos());
 
-		if(startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
+		if(startHpos == hPtr->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 
-		logAi->debug("Hero %s moved from %s to %s. Returning %d.", h->getNameTranslated(), startHpos.toString(), h->visitablePos().toString(), ret);
+		logAi->debug("Hero %s moved from %s to %s. Returning %d.", hPtr->getNameTranslated(), startHpos.toString(), hPtr->visitablePos().toString(), ret);
 	}
 	return ret;
 }

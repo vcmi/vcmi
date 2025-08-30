@@ -82,7 +82,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		if (hero->getOwner() != nullkiller->playerID)
 			continue;
 
-		if(nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
+		if(nullkiller->heroManager->getHeroRole(HeroPtr(hero)) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
 			&& path.exchangeCount > 1)
 		{
@@ -135,7 +135,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 			sharedPtr.reset(newWay);
 
-			auto heroRole = nullkiller->heroManager->getHeroRole(path.targetHero);
+			auto heroRole = nullkiller->heroManager->getHeroRole(HeroPtr(path.targetHero));
 
 			auto & closestWay = closestWaysByRole[heroRole];
 
@@ -154,7 +154,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 	for(auto way : waysToVisitObj)
 	{
-		auto heroRole = nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
+		auto heroRole = nullkiller->heroManager->getHeroRole(HeroPtr(way->getPath().targetHero));
 		auto closestWay = closestWaysByRole[heroRole];
 
 		if(closestWay)

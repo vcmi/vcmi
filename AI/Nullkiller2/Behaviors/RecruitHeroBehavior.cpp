@@ -52,7 +52,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		float visitabilityRatio = 0;
 		for(const auto & [hero, role] : ourHeroes)
 		{
-			if(aiNk->dangerHitMap->getClosestTown(hero.get()->visitablePos()) == town)
+			if(aiNk->dangerHitMap->getClosestTown(hero.get(aiNk->cc.get())->visitablePos()) == town)
 				visitabilityRatio += 1.0f / ourHeroes.size();
 		}
 

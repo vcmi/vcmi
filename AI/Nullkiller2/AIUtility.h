@@ -76,19 +76,19 @@ enum HeroRole
 
 struct DLL_EXPORT HeroPtr
 {
-	const CGHeroInstance * h;
-	ObjectInstanceID hid;
+	const CGHeroInstance * hero;
+	ObjectInstanceID heroId;
 
 public:
 	std::string name() const;
 
-	HeroPtr();
-	HeroPtr(const CGHeroInstance * H);
+	explicit HeroPtr();
+	explicit HeroPtr(const CGHeroInstance * H);
 	~HeroPtr();
 
-	operator bool() const
+	explicit operator bool() const
 	{
-		return validAndSet();
+		return isValid();
 	}
 
 	bool operator<(const HeroPtr & rhs) const;
@@ -100,9 +100,8 @@ public:
 		return !(*this == rhs);
 	}
 
-	const CGHeroInstance * get(bool doWeExpectNull = false) const;
-	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull = false) const;
-	bool validAndSet() const;
+	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cpsic, bool doWeExpectNull = false) const;
+	bool isValid() const;
 };
 
 enum BattleState
@@ -222,7 +221,7 @@ uint64_t getHeroArmyStrengthWithCommander(const CGHeroInstance * hero, const CCr
 uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock> start);
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObjectInstance * obj);
+bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
 
 template <class T>

@@ -69,15 +69,15 @@ HeroPtr::HeroPtr(const CGHeroInstance * H)
 		return;
 	}
 
-	h = H;
-	hid = H->id;
+	hero = H;
+	heroId = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
 
 HeroPtr::HeroPtr()
 {
-	h = nullptr;
-	hid = ObjectInstanceID();
+	hero = nullptr;
+	heroId = ObjectInstanceID();
 }
 
 HeroPtr::~HeroPtr()
@@ -88,32 +88,27 @@ HeroPtr::~HeroPtr()
 
 bool HeroPtr::operator<(const HeroPtr & rhs) const
 {
-	return hid < rhs.hid;
+	return heroId < rhs.heroId;
 }
 
 std::string HeroPtr::name() const
 {
-	if (h)
-		return h->getNameTextID();
+	if (hero)
+		return hero->getNameTextID();
 	else
 		return "<NO HERO>";
 }
 
-const CGHeroInstance * HeroPtr::get(bool doWeExpectNull) const
-{
-	return get(ccTl, doWeExpectNull);
-}
-
-const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool doWeExpectNull) const
+const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cpsic, bool doWeExpectNull) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//
 	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || h);
+	assert(doWeExpectNull || hero);
 
-	if(h)
+	if(hero)
 	{
-		auto obj = cb->getObj(hid);
+		const auto *obj = cpsic->getObj(heroId);
 		//const bool owned = obj && obj->tempOwner == ai->playerID;
 
 		if(doWeExpectNull && !obj)
@@ -127,27 +122,31 @@ const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cb, bool
 		}
 	}
 
-	return h;
+	return hero;
 }
 
 const CGHeroInstance * HeroPtr::operator->() const
 {
-	return get();
+	// return get();
+	return nullptr;
 }
 
-bool HeroPtr::validAndSet() const
+bool HeroPtr::isValid() const
 {
-	return get(true);
+	// return get(true);
+	return false;
 }
 
 const CGHeroInstance * HeroPtr::operator*() const
 {
-	return get();
+	// return get();
+	return nullptr;
 }
 
 bool HeroPtr::operator==(const HeroPtr & rhs) const
 {
-	return h == rhs.get(true);
+	// return hero == rhs.get(true);
+	return false;
 }
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
@@ -644,9 +643,9 @@ int getDuplicatingSlots(const CArmedInstance * army)
 }
 
 // todo: move to obj manager
-bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObjectInstance * obj)
+bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj)
 {
-	auto relations = aiNk->cc->getPlayerRelations(obj->tempOwner, h->tempOwner);
+	auto relations = aiNk->cc->getPlayerRelations(obj->tempOwner, hero->tempOwner);
 
 	switch(obj->ID)
 	{
@@ -673,7 +672,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 		{
 			if(q.obj == obj->id)
 			{
-				if(q.getQuest(aiNk->cc.get())->checkQuest(h))
+				if(q.getQuest(aiNk->cc.get())->checkQuest(hero))
 					return true; //we completed the quest
 				else
 					return false; //we can't complete this quest
@@ -690,14 +689,14 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 			return false;
 
 		const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
-		auto duplicatingSlotsCount = getDuplicatingSlots(h);
+		auto duplicatingSlotsCount = getDuplicatingSlots(hero);
 
 		for(auto level : d->creatures)
 		{
 			for(auto c : level.second)
 			{
 				if(level.first
-					&& (h->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
+					&& (hero->getSlotFor(CreatureID(c)) != SlotID() || duplicatingSlotsCount > 0)
 					&& aiNk->cc->getResourceAmount().canAfford(c.toCreature()->getFullRecruitCost()))
 				{
 					return true;
@@ -709,7 +708,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 	}
 	case Obj::HILL_FORT:
 	{
-		for(const auto & slot : h->Slots())
+		for(const auto & slot : hero->Slots())
 		{
 			if(slot.second->getType()->hasUpgrades())
 				return true; //TODO: check price?
@@ -729,12 +728,12 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 		break;
 	}
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
-		if(h->level < 10)
+		if(hero->level < 10)
 			return false;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		if(aiNk->heroManager->getHeroRole(h) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRole(HeroPtr(hero)) == HeroRole::SCOUT)
 			return false;
 
 		TResources myRes = aiNk->getFreeResources();
@@ -743,7 +742,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 		break;
 	}
 	case Obj::MAGIC_WELL:
-		return h->mana < h->manaLimit();
+		return hero->mana < hero->manaLimit();
 	case Obj::PRISON:
 		return !aiNk->heroManager->heroCapReached();
 	case Obj::TAVERN:
@@ -753,12 +752,12 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * h, const CGObje
 		return false;
 	}
 
-	if(obj->wasVisited(h))
+	if(obj->wasVisited(hero))
 		return false;
 
 	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
 
-	if(rewardable && rewardable->getAvailableRewards(h, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
+	if(rewardable && rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
 	{
 		return false;
 	}

@@ -62,7 +62,7 @@ const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEv
 
 float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
 {
-	auto role = getHeroRole(hero);
+	auto role = getHeroRole(HeroPtr(hero));
 
 	if(role == HeroRole::MAIN)
 		return wariorSkillsScores.evaluateSecSkill(hero, skill);
@@ -134,24 +134,24 @@ void HeroManager::update()
 	{
 		if(hero->patrol.patrolling)
 		{
-			heroToRoleMap[hero] = HeroRole::MAIN;
+			heroToRoleMap[HeroPtr(hero)] = HeroRole::MAIN;
 		}
 		else
 		{
-			heroToRoleMap[hero] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+			heroToRoleMap[HeroPtr(hero)] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
 		}
 	}
 
 	for(auto hero : myHeroes)
 	{
-		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[hero] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[HeroPtr(hero)] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 
-HeroRole HeroManager::getHeroRole(const HeroPtr & hero) const
+HeroRole HeroManager::getHeroRole(const HeroPtr & hPtr) const
 {
-	if (heroToRoleMap.find(hero) != heroToRoleMap.end())
-		return heroToRoleMap.at(hero);
+	if (heroToRoleMap.find(hPtr) != heroToRoleMap.end())
+		return heroToRoleMap.at(hPtr);
 	else
 		return HeroRole::SCOUT;
 }
@@ -171,7 +171,7 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 
 	for(int i = 0; i < skills.size(); i++)
 	{
-		auto score = evaluator.evaluateSecSkill(hero.get(), skills[i]);
+		auto score = evaluator.evaluateSecSkill(hero.get(aiNk->cc.get()), skills[i]);
 
 		if(score > resultScore)
 		{
@@ -302,7 +302,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
 			|| existingHero->getArmyStrength() >armyLimit
-			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| getHeroRole(HeroPtr(existingHero)) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)
 			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))

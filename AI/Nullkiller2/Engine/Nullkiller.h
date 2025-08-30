@@ -119,7 +119,7 @@ public:
 	bool makeTurnHelperPriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
-	HeroPtr getActiveHero() { return activeHero; }
+	HeroPtr getActiveHero() { return HeroPtr(activeHero); }
 	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const;
 	int3 getTargetTile() const { return targetTile; }
 	ObjectInstanceID getTargetObject() const { return targetObject; }

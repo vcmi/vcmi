@@ -778,7 +778,7 @@ public:
 
 		evaluationContext.addNonCriticalStrategicalValue(2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength());
 		evaluationContext.conquestValue += 2.0f * armyStrength / (float)heroExchange.hero->getArmyStrength();
-		evaluationContext.heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(heroExchange.hero);
+		evaluationContext.heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(HeroPtr(heroExchange.hero));
 		evaluationContext.isExchange = true;
 	}
 };
@@ -898,7 +898,7 @@ public:
 		if(defendTown.getTurn() > 0 && defendTown.isCounterAttack())
 		{
 			auto ourSpeed = defendTown.hero->movementPointsLimit(true);
-			auto enemySpeed = threat.hero.get(evaluationContext.evaluator.aiNk->cc.get())->movementPointsLimit(true);
+			auto enemySpeed = threat.heroPtr.get(evaluationContext.evaluator.aiNk->cc.get())->movementPointsLimit(true);
 
 			if(enemySpeed > ourSpeed) multiplier *= 0.7f;
 		}
@@ -958,7 +958,7 @@ public:
 		float highestCostForSingleHero = 0;
 		for(auto pair : costsPerHero)
 		{
-			auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(pair.first);
+			auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(HeroPtr(pair.first));
 			evaluationContext.movementCostByRole[role] += pair.second;
 			if (pair.second > highestCostForSingleHero)
 				highestCostForSingleHero = pair.second;
@@ -975,7 +975,7 @@ public:
 		auto army = path.heroArmy;
 
 		const CGObjectInstance * target = aiNk->cc->getObj((ObjectInstanceID)task->objid, false);
-		auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(hero);
+		auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(HeroPtr(hero));
 
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
@@ -1056,7 +1056,7 @@ public:
 		std::shared_ptr<ObjectCluster> cluster = clusterGoal.getCluster();
 
 		auto hero = clusterGoal.hero;
-		auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(hero);
+		auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(HeroPtr(hero));
 
 		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
 
@@ -1113,7 +1113,7 @@ public:
 
 		if(garrisonHero && swapCommand.getLockingReason() == HeroLockedReason::DEFENCE)
 		{
-			auto defenderRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(garrisonHero);
+			auto defenderRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRole(HeroPtr(garrisonHero));
 			auto mpLeft = garrisonHero->movementPointsRemaining() / (float)garrisonHero->movementPointsLimit(true);
 
 			evaluationContext.movementCost += mpLeft;
@@ -1142,7 +1142,7 @@ public:
 		Goals::DismissHero & dismissCommand = dynamic_cast<Goals::DismissHero &>(*task);
 		const CGHeroInstance * dismissedHero = dismissCommand.getHero();
 
-		auto role = aiNk->heroManager->getHeroRole(dismissedHero);
+		auto role = aiNk->heroManager->getHeroRole(HeroPtr(dismissedHero));
 		auto mpLeft = dismissedHero->movementPointsRemaining();
 
 		evaluationContext.movementCost += mpLeft;

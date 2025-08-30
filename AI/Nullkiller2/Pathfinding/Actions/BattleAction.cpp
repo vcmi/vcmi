@@ -20,7 +20,7 @@ namespace AIPathfinding
 {
 	void BattleAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(targetTile, hero);
+		aiGw->moveHeroToTile(targetTile, HeroPtr(hero));
 	}
 
 	std::string BattleAction::toString() const

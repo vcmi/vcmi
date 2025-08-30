@@ -23,7 +23,7 @@ struct HitMapInfo
 	uint64_t danger;
 	uint8_t turn;
 	float threat;
-	HeroPtr hero;
+	HeroPtr heroPtr;
 
 	HitMapInfo()
 	{
@@ -35,7 +35,7 @@ struct HitMapInfo
 		danger = 0;
 		turn = 255;
 		threat = 0;
-		hero = HeroPtr();
+		heroPtr = HeroPtr();
 	}
 
 	double value() const;
