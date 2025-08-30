@@ -369,16 +369,12 @@ public:
 		throw std::runtime_error("Call to getMageGuildLevel with building '" + std::to_string(getNum()) +"' that is not mages guild!");
 	}
 
-	static BuildingID getDwellingFromLevel(int levelIndex, int upgradeIndex)
+	static BuildingID getDwellingFromLevel(const int levelIndex, const int upgradeIndex)
 	{
-		try
-		{
-			return getDwellings().at(upgradeIndex).at(levelIndex);
-		}
-		catch (const std::out_of_range &)
-		{
+		if (upgradeIndex >= getDwellings().size() || levelIndex >= getDwellings()[upgradeIndex].size())
 			return Type::NONE;
-		}
+
+		return getDwellings().at(upgradeIndex).at(levelIndex);
 	}
 
 	/// @return 0 for the first one, going up to the supported no. of dwellings - 1
