@@ -42,7 +42,7 @@ Zone::~Zone() = default;
 
 bool Zone::isUnderground() const
 {
-	return getPos().z;
+	return getPos().z == 1; // TODO: multilevel support
 }
 
 void Zone::setOptions(const ZoneOptions& options)
