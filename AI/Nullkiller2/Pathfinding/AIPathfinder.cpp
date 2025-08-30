@@ -9,9 +9,11 @@
 */
 #include "StdInc.h"
 #include "AIPathfinder.h"
-#include "AIPathfinderConfig.h"
+
 #include "../../../lib/mapping/CMap.h"
 #include "../Engine/Nullkiller.h"
+#include "../AIGateway.h"
+#include "AIPathfinderConfig.h"
 
 namespace NK2AI
 {
@@ -164,6 +166,8 @@ void AIPathfinder::updateGraphs(
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, heroesVector.size()), [this, &heroesVector, &heroes, mainScanDepth, scoutScanDepth](const tbb::blocked_range<size_t> & r)
 		{
+			SET_GLOBAL_STATE_TBB(aiNk->aiGw);
+
 			for(auto i = r.begin(); i != r.end(); i++)
 			{
 				auto role = heroes.at(heroesVector[i]);

@@ -9,18 +9,20 @@
 */
 #include "StdInc.h"
 #include "AINodeStorage.h"
-#include "Actions/TownPortalAction.h"
-#include "Actions/WhirlpoolAction.h"
-#include "../Engine/Nullkiller.h"
+
+#include "../../../lib/CPlayerState.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
 #include "../../../lib/mapping/CMap.h"
 #include "../../../lib/pathfinder/CPathfinder.h"
-#include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/adventure/TownPortalEffect.h"
-#include "../../../lib/IGameSettings.h"
-#include "../../../lib/CPlayerState.h"
+#include "../Engine/Nullkiller.h"
+#include "../AIGateway.h"
+#include "Actions/TownPortalAction.h"
+#include "Actions/WhirlpoolAction.h"
 
 namespace NK2AI
 {
@@ -127,6 +129,7 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, sizes.x), [&](const tbb::blocked_range<size_t>& r)
 	{
+		SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 		int3 pos;
 
 		for(pos.z = 0; pos.z < sizes.z; ++pos.z)
@@ -594,6 +597,7 @@ bool AINodeStorage::calculateHeroChain()
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
 	{
+		SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
 
 		int ourThread = tbb::this_task_arena::current_thread_index();
@@ -1252,6 +1256,7 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 	{
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, actorsVector.size()), [&](const tbb::blocked_range<size_t> & r)
 			{
+				SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 				for(int i = r.begin(); i != r.end(); i++)
 				{
 					calculateTownPortal(actorsVector[i], maskMap, initialNodes, output);

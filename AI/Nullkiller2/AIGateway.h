@@ -28,6 +28,48 @@ VCMI_LIB_NAMESPACE_END
 namespace NK2AI
 {
 
+// one thread may be turn of AI and another will be handling a side effect for AI2
+inline thread_local CCallback * ccTl = nullptr;
+inline thread_local AIGateway * aiGwTl = nullptr;
+
+// helper RAII to manage global ai/cb ptrs
+struct SetGlobalState
+{
+	AIGateway * previousAiGw;
+	CCallback * previousCc;
+	bool wasAlreadySet;
+
+	SetGlobalState(AIGateway * aiGw, CCallback * cc)
+		: previousAiGw(aiGwTl), previousCc(ccTl), wasAlreadySet(aiGwTl != nullptr)
+	{
+		aiGwTl = aiGw;
+		ccTl = cc;
+#if NK2AI_TRACE_LEVEL >= 2
+		if(wasAlreadySet)
+		{
+			logAi->trace("SetGlobalState constructed (was already set)");
+		}
+		else
+		{
+			logAi->trace("SetGlobalState constructed");
+		}
+#endif
+	}
+
+	~SetGlobalState()
+	{
+		// Restore previous values instead of always setting to nullptr
+		aiGwTl = previousAiGw;
+		ccTl = previousCc;
+#if NK2AI_TRACE_LEVEL >= 2
+		logAi->trace("SetGlobalState destroyed");
+#endif
+	}
+};
+
+#define SET_GLOBAL_STATE(aiGw) SetGlobalState _hlpSetState(aiGw, aiGw->cc.get())
+#define SET_GLOBAL_STATE_TBB(aiGw) SET_GLOBAL_STATE(aiGw)
+
 class AIStatus
 {
 	AIGateway * aiGw;

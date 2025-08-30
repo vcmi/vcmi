@@ -39,35 +39,7 @@
 namespace NK2AI
 {
 
-//one thread may be turn of AI and another will be handling a side effect for AI2
-thread_local CCallback * ccTl = nullptr;
-thread_local AIGateway * aiGwTl = nullptr;
-
-//helper RAII to manage global ai/cb ptrs
-struct SetGlobalState
-{
-	SetGlobalState(AIGateway * aiGw)
-	{
-		assert(!aiGwTl);
-		assert(!ccTl);
-
-		aiGwTl = aiGw;
-		ccTl = aiGw->cc.get();
-	}
-	~SetGlobalState()
-	{
-		//TODO: how to handle rm? shouldn't be called after ai is destroyed, hopefully
-		//TODO: to ensure that, make rm unique_ptr
-		aiGwTl = nullptr;
-		ccTl = nullptr;
-	}
-};
-
-
-#define SET_GLOBAL_STATE(aiGw) SetGlobalState _hlpSetState(aiGw)
-
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
-#define MAKING_TURN SET_GLOBAL_STATE(this)
 
 AIGateway::AIGateway()
 	:status(this)
@@ -845,7 +817,7 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
-	MAKING_TURN;
+	SET_GLOBAL_STATE(this);
 
 	auto day = cc->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);

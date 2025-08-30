@@ -32,6 +32,9 @@
 namespace NK2AI
 {
 
+// extern thread_local CCallback * ccTl;
+// extern thread_local AIGateway * aiGwTl;
+
 using namespace Goals;
 
 // while we play vcmieagles graph can be shared
@@ -189,16 +192,17 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 	TaskPlan taskPlan;
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
-		{
-			auto evaluator = this->priorityEvaluators->acquire();
+	{
+		SET_GLOBAL_STATE_TBB(this->aiGw);
+		auto evaluator = this->priorityEvaluators->acquire();
 
-			for(size_t i = r.begin(); i != r.end(); i++)
-			{
-				const auto & task = tasks[i];
-				if (task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
-					task->asTask()->priority = evaluator->evaluate(task, priorityTier);
-			}
-		});
+		for(size_t i = r.begin(); i != r.end(); i++)
+		{
+			const auto & task = tasks[i];
+			if(task->asTask()->priority <= 0 || priorityTier != PriorityEvaluator::PriorityTier::BUILDINGS)
+				task->asTask()->priority = evaluator->evaluate(task, priorityTier);
+		}
+	});
 
 	boost::range::sort(tasks, [](const TSubgoal& g1, const TSubgoal& g2) -> bool
 		{

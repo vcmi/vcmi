@@ -332,22 +332,21 @@ void ObjectClusterizer::clusterize()
 			aiNk->memory->visitableObjs.end());
 	}
 
-#if NK2AI_TRACE_LEVEL == 0
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, objs.size()), [&](const tbb::blocked_range<size_t> & r) {
-#else
-	tbb::blocked_range<size_t> r(0, objs.size());
-#endif
-		auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
-		auto heroes = aiNk->cc->getHeroesInfo();
-		std::vector<AIPath> pathCache;
-
-		for(int i = r.begin(); i != r.end(); i++)
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, objs.size()),
+		[&](const tbb::blocked_range<size_t> & r)
 		{
-			clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes);
+			SET_GLOBAL_STATE_TBB(aiNk->aiGw);
+			auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
+			auto heroes = aiNk->cc->getHeroesInfo();
+			std::vector<AIPath> pathCache;
+
+			for(int i = r.begin(); i != r.end(); i++)
+			{
+				clusterizeObject(objs[i], priorityEvaluator.get(), pathCache, heroes);
+			}
 		}
-#if NK2AI_TRACE_LEVEL == 0
-	});
-#endif
+	);
 
 	logAi->trace("Near objects count: %i", nearObjects.objects.size());
 	logAi->trace("Far objects count: %i", farObjects.objects.size());

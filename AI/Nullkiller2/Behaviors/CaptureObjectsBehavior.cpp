@@ -182,11 +182,11 @@ void CaptureObjectsBehavior::decomposeObjects(
 
 	logAi->debug("Scanning objects, count %d", objs.size());
 
-	// tbb::blocked_range<size_t> r(0, objs.size());
 	tbb::parallel_for(
 		tbb::blocked_range<size_t>(0, objs.size()),
 		[this, &objs, &sync, &result, nullkiller](const tbb::blocked_range<size_t> & r)
 		{
+			SET_GLOBAL_STATE_TBB(nullkiller->aiGw);
 			std::vector<AIPath> paths;
 			Goals::TGoalVec tasksLocal;
 
@@ -211,7 +211,8 @@ void CaptureObjectsBehavior::decomposeObjects(
 
 			std::lock_guard lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead
 			vstd::concatenate(result, tasksLocal);
-		});
+		}
+	);
 }
 
 Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * aiNk) const

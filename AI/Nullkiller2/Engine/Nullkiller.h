@@ -84,7 +84,6 @@ private:
 	ScanDepth scanDepth;
 	TResources lockedResources;
 	bool useHeroChain;
-	AIGateway * aiGw;
 	bool openMap;
 	bool useObjectGraph;
 	bool pathfinderInvalidated;
@@ -107,6 +106,7 @@ public:
 	std::unique_ptr<Settings> settings;
 	/// Same value as AIGateway->playerID
 	PlayerColor playerID;
+	AIGateway * aiGw;
 	/// Same value as AIGateway->cc
 	std::shared_ptr<CCallback> cc;
 	std::mutex aiStateMutex;
