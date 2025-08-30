@@ -23,7 +23,7 @@ PotentialTargets::PotentialTargets(
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool isBerserk = attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
-	ForcedAction forcedAction;
+	ForcedAction forcedAction = {};
 
 	if(isBerserk)
 		forcedAction = state->getBerserkForcedAction(attackerInfo);

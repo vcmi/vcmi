@@ -331,12 +331,14 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
-		int3 size( opts->getWidth(), opts->getWidth(), 2);
-
-		bool undergoundAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-
+		int possibleLevelCount = 2;
+		if(mapGenOptions->getMapTemplate())
+		{
+			auto sizes = mapGenOptions->getMapTemplate()->getMapSizes();
+			possibleLevelCount = sizes.second.z - sizes.first.z + 1;
+		}
 		w->setSelected(opts->getLevels() == 2); // TODO: multilevel support
-		w->block(!undergoundAllowed);
+		w->block(possibleLevelCount < 2);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{

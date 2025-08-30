@@ -612,8 +612,8 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		
 	icons = std::make_shared<CPicture>(ImagePath::builtin("stackWindow/icons"), 117, 32);
 
-	morale = std::make_shared<MoraleLuckBox>(true, Rect(Point(321, 110), Point(42, 42) ));
-	luck = std::make_shared<MoraleLuckBox>(false,  Rect(Point(375, 110), Point(42, 42) ));
+	morale = std::make_shared<MoraleLuckBox>(true, Rect(Point(321, 32), Point(42, 42) ));
+	luck = std::make_shared<MoraleLuckBox>(false,  Rect(Point(375, 32), Point(42, 42) ));
 
 	if(battleStack != nullptr) // in battle
 	{
@@ -655,7 +655,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 	if(showExp)
 	{
 		const CStackInstance * stack = parent->info->stackNode;
-		Point pos = showArt ? Point(321, 32) : Point(347, 32);
+		Point pos = showArt ? Point(321, 111) : Point(349, 111);
 		if(parent->info->commander)
 		{
 			const CCommanderInstance * commander = parent->info->commander;
@@ -671,7 +671,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 		}
 		else
 		{
-			expRankIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/levels"), stack->getExpRank(), 0, pos.x, pos.y);
+			expRankIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/levels"), stack->getExpRank(), 0, pos.x, pos.y - 2);
 			expArea = std::make_shared<LRClickableAreaWText>(Rect(pos.x, pos.y, 44, 44));
 			expArea->text = parent->generateStackExpDescription();
 		}
@@ -682,7 +682,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 
 	if(showArt)
 	{
-		Point pos = showExp ? Point(375, 32) : Point(347, 32);
+		Point pos = showExp ? Point(373, 109) : Point(347, 109);
 		// ALARMA: do not refactor this into a separate function
 		// otherwise, artifact icon is drawn near the hero's portrait
 		// this is really strange
@@ -697,7 +697,7 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			if(parent->info->owner)
 			{
 				parent->stackArtifactButton = std::make_shared<CButton>(
-						Point(pos.x - 2 , pos.y + 46), AnimationPath::builtin("stackWindow/cancelButton"),
+						Point(pos.x , pos.y + 47), AnimationPath::builtin("stackWindow/cancelButton"),
 						CButton::tooltipLocalized("vcmi.creatureWindow.returnArtifact"),	[this]()
 				{
 					parent->removeStackArtifact(ArtifactPosition::CREATURE_SLOT);
