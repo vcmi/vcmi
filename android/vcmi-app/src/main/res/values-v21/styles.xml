@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+		<!-- for Android 15 + SDK 35 -->
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+</resources>
