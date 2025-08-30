@@ -1,12 +1,12 @@
 {
 	"ARTIFACT_GROWING":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"ARTIFACT_CHARGE":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"ADDITIONAL_ATTACK":
@@ -23,27 +23,27 @@
 	
 	"BASE_TILE_MOVEMENT_COST":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"BATTLE_NO_FLEEING":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"BEFORE_BATTLE_REPOSITION":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"BEFORE_BATTLE_REPOSITION_BLOCK":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"BIND_EFFECT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"BLOCKS_RANGED_RETALIATION":
@@ -77,17 +77,17 @@
 	
 	"COMBAT_MANA_BONUS":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"CREATURE_GROWTH":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"CREATURE_GROWTH_PERCENT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"DARKNESS":
@@ -98,7 +98,7 @@
 	"DISGUISED":
 	{
 		"hidden": true,
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"DEATH_STARE":
@@ -166,12 +166,12 @@
 	
 	"FLYING_MOVEMENT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"FREE_SHIP_BOARDING":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 
@@ -181,12 +181,12 @@
 	
 	"FULL_MAP_DARKNESS":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"FULL_MAP_SCOUTING":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"GARGOYLE":
@@ -204,7 +204,7 @@
 	
 	"GENERATE_RESOURCE":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"HATE":
@@ -221,17 +221,17 @@
 	
 	"HERO_EXPERIENCE_GAIN_PERCENT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"HERO_SPELL_CASTS_PER_COMBAT_TURN":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"IMPROVED_NECROMANCY":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"JOUSTING":
@@ -249,18 +249,18 @@
 	"LEARN_BATTLE_SPELL_CHANCE":
 	{
 		"hidden": true,
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"LEARN_BATTLE_SPELL_LEVEL_LIMIT":
 	{
 		"hidden": true,
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"LEARN_MEETING_SPELL_LIMIT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"LEVEL_SPELL_IMMUNITY":
@@ -282,7 +282,7 @@
 	
 	"LUCK":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"MANA_CHANNELING":
@@ -303,22 +303,22 @@
 	
 	"MAGIC_SCHOOL_SKILL":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"MANA_PERCENTAGE_REGENERATION":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"MANA_PER_KNOWLEDGE_PERCENTAGE":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"MAX_LEARNABLE_SPELL_LEVEL":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"MECHANICAL":
@@ -332,12 +332,12 @@
 	
 	"MORALE":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"MOVEMENT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"NEGATIVE_EFFECTS_IMMUNITY" :
@@ -368,7 +368,7 @@
 	"NO_TERRAIN_PENALTY":
 	{
 		"hidden": true,
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"NON_LIVING":
@@ -399,7 +399,7 @@
 	
 	"PRIMARY_SKILL":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"REBIRTH":
@@ -408,12 +408,12 @@
 	
 	"RESOURCES_CONSTANT_BOOST":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"RESOURCES_TOWN_MULTIPLYING_BOOST":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"RETURN_AFTER_STRIKE":
@@ -426,7 +426,7 @@
 	
 	"ROUGH_TERRAIN_DISCOUNT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"SIEGE_WEAPON":
@@ -448,7 +448,7 @@
 	
 	"SIGHT_RADIUS":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"SOUL_STEAL":
@@ -505,7 +505,7 @@
 	
 	"SURRENDER_DISCOUNT":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"TWO_HEX_ATTACK_BREATH":
@@ -530,7 +530,7 @@
 	
 	"THIEVES_GUILD_ACCESS":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 
 	"UNDEAD":
@@ -540,7 +540,7 @@
 	
 	"UNDEAD_RAISE_PERCENTAGE":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"UNLIMITED_RETALIATIONS":
@@ -550,7 +550,7 @@
 	"VISIONS":
 	{
 		"hidden": true,
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"VULNERABLE_FROM_BACK":
@@ -559,12 +559,12 @@
 	
 	"WANDERING_CREATURES_JOIN_BONUS":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"WATER_WALKING":
 	{
-		"propagateDescription": false
+		"blockDescriptionPropagation": true
 	},
 	
 	"WIDE_BREATH":

@@ -38,7 +38,7 @@ private:
 
 	bool creatureNature = false;
 	bool hidden = true;
-	bool propagateDescription = true;
+	bool blockDescriptionPropagation = false;
 };
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
