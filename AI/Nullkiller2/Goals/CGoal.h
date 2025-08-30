@@ -14,8 +14,6 @@
 namespace NK2AI
 {
 
-class AIGateway;
-
 namespace Goals
 {
 	template<typename T>
