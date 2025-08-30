@@ -98,9 +98,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			auto subGoal = firstBlockedAction->decompose(nullkiller, path.targetHero);
 
 #if NK2AI_TRACE_LEVEL >= 2
-			// Deactivating because sometimes it ends up with cb null in QuestInfo::getObject(IGameInfoCallback *cb)
-			// logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
-			logAi->trace("Decomposing special action %s", firstBlockedAction->toString());
+			// subGoal->toString() was crashing sometims before thread local fix with SET_GLOBAL_STATE_TBB
+			logAi->trace("Decomposing special action %s returns %s", firstBlockedAction->toString(), subGoal->toString());
 #endif
 
 			if(!subGoal->invalid())
