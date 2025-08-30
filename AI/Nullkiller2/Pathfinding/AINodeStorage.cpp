@@ -182,6 +182,9 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	const EPathfindingLayer layer, 
 	const ChainActor * actor)
 {
+	// TODO: Mircea: This might even be a bug because in other places it's just saying nodes.get(pos)
+	// It's probably just trying to limit storage per actor, but memory usage is the same and we might waste some if
+	// some actors have few chains
 	int bucketIndex = ((uintptr_t)actor + layer.getNum()) % aiNk->settings->getPathfinderBucketsCount();
 	int bucketOffset = bucketIndex * aiNk->settings->getPathfinderBucketSize();
 	auto chains = nodes.get(pos);
