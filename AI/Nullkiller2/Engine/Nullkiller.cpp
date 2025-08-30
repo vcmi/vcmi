@@ -32,9 +32,6 @@
 namespace NK2AI
 {
 
-// extern thread_local CCallback * ccTl;
-// extern thread_local AIGateway * aiGwTl;
-
 using namespace Goals;
 
 // while we play vcmieagles graph can be shared
