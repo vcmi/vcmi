@@ -83,7 +83,7 @@ def arch_label(platform: str, arch_env: Optional[str]) -> str:
         return arch_env
     mapping = {
         "mac-intel": "Intel",
-        "mac-arm": "ARM64",
+        "mac-arm": "Apple Silicon",
         "ios": "ARM64",
         "msvc-x64": "x64",
         "msvc-x86": "x86",
@@ -92,6 +92,7 @@ def arch_label(platform: str, arch_env: Optional[str]) -> str:
         "mingw_x86_64": "x64",
         "android-32": "ARMv7",
         "android-64": "ARM64",
+        "android-64-intel": "x86_64",
     }
     return mapping.get(platform, platform)
 

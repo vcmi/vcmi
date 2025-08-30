@@ -258,6 +258,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmieditor OBJECT ${editor_QM})
 else()
 	add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+	vcmi_create_exe_shim(vcmieditor)
 endif()
 
 if(ENABLE_TRANSLATIONS)
