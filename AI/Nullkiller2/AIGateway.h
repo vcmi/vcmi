@@ -43,16 +43,16 @@ struct SetGlobalState
 	{
 		aiGwTl = aiGw;
 		ccTl = cc;
-#if NK2AI_TRACE_LEVEL >= 2
-		if(wasAlreadySet)
-		{
-			logAi->trace("SetGlobalState constructed (was already set)");
-		}
-		else
-		{
-			logAi->trace("SetGlobalState constructed");
-		}
-#endif
+// #if NK2AI_TRACE_LEVEL >= 2
+// 		if(wasAlreadySet)
+// 		{
+// 			logAi->trace("SetGlobalState constructed (was already set)");
+// 		}
+// 		else
+// 		{
+// 			logAi->trace("SetGlobalState constructed");
+// 		}
+// #endif
 	}
 
 	~SetGlobalState()
@@ -60,9 +60,9 @@ struct SetGlobalState
 		// Restore previous values instead of always setting to nullptr
 		aiGwTl = previousAiGw;
 		ccTl = previousCc;
-#if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("SetGlobalState destroyed");
-#endif
+// #if NK2AI_TRACE_LEVEL >= 2
+// 		logAi->trace("SetGlobalState destroyed");
+// #endif
 	}
 };
 
