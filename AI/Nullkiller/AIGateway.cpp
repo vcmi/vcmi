@@ -586,7 +586,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	myCb->waitTillRealize = true;
 
 	nullkiller->init(CB, this);
-	
+
 	retrieveVisitableObjs();
 }
 
@@ -603,7 +603,7 @@ void AIGateway::yourTurn(QueryID queryID)
 
 	asyncTasks->run([this]()
 	{
-		ScopedThreadName guard("NKAI::makingTurn");
+		ScopedThreadName guard("NKAI::AIGateway::makingTurn");
 		makeTurn();
 	});
 }
@@ -617,7 +617,7 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	HeroPtr hPtr = hero;
 
 	executeActionAsync("heroGotLevel", [this, hPtr, skills, queryID]()
-	{ 
+	{
 		int sel = 0;
 
 		if(hPtr.validAndSet())
@@ -668,13 +668,13 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto ratio = static_cast<float>(danger) / hero->getTotalStrength();
 
 				answer = true;
-				
+
 				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
 				{
 					// no if we do not aim to visit this object
 					answer = false;
 				}
-				
+
 				logAi->trace("Query hook: %s(%s) by %s danger ratio %f", target.toString(), topObj->getObjectName(), hero.name(), ratio);
 
 				if(cb->getObj(goalObjectID, false))
@@ -845,7 +845,6 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
-	setThreadName("AIGateway::makeTurn");
 	MAKING_TURN;
 
 	auto day = cb->getDate(Date::DAY);
@@ -1006,7 +1005,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
 						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, myCb->getTile(source->visitablePos())->getTerrainID());
-						
+
 						if(weakest->creature == targetCreature)
 						{
 							if(1 == source->getStackCount(j))
@@ -1147,7 +1146,7 @@ void AIGateway::pickBestArtifacts(const CGHeroInstance * h, const CGHeroInstance
 								{
 									ArtifactLocation destLocation(target->id, slot);
 									ArtifactLocation backpack(artHolder->id, ArtifactPosition::BACKPACK_START);
-									
+
 									cb->swapArtifacts(destLocation, backpack);
 									cb->swapArtifacts(location, destLocation);
 								}
@@ -1193,7 +1192,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 			{
 				if(!stack.second->getType())
 					continue;
-				
+
 				auto duplicatingSlot = recruiter->getSlotFor(stack.second->getCreature());
 
 				if(duplicatingSlot != stack.first)
@@ -1628,7 +1627,7 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 
 	asyncTasks->run([this, description, whatToDo]()
 	{
-		ScopedThreadName guard("NKAI::" + description);
+		ScopedThreadName guard("NKAI::AIGateway::" + description);
 		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();

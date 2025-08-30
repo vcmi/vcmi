@@ -487,7 +487,7 @@ const TerrainTile * CGameInfoCallback::getTile(int3 tile, bool verbose) const
 		return &gameState().getMap().getTile(tile);
 
 	if(verbose)
-		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
+		logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
 	return nullptr;
 }
 

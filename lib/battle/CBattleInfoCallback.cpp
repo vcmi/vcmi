@@ -1408,7 +1408,17 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 		attackOriginHex = attacker->occupiedHex(attackOriginHex);
 
 	if (!vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
-		throw std::runtime_error("Atempt to attack from invalid position!");
+	{
+		// TODO: GrafDeVan/Mircea/Ivan/Dydzio added this quick fix, but the core issue should be fixed
+		logGlobal->error(
+			"Attempt to attack from invalid position! defenderPos (%d, %d) attackOriginHex (%d, %d)",
+			defenderPos.getX(),
+			defenderPos.getY(),
+			attackOriginHex.getX(),
+			attackOriginHex.getY()
+		);
+		return AttackableTiles();
+	}
 
 	auto attackDirection = BattleHex::mutualPosition(attackOriginHex, defenderPos);
 

@@ -686,7 +686,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		for (const auto & tile : fowRevealed)
 			fow += tile.toString() + ", ";
 
-		logGlobal->info("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
+		logGlobal->trace("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
 	}
 };
 

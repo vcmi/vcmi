@@ -841,6 +841,7 @@ if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller)
+		target_link_libraries(vcmi PRIVATE Nullkiller2)
 	endif()
 endif()
 

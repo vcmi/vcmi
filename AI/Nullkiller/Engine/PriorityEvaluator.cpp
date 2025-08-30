@@ -457,7 +457,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	{
 		auto mine = dynamic_cast<const CGMine *>(target);
 		return mine->producedResource == EGameResID::GOLD
-			? 0.5f 
+			? 0.5f
 			: 0.4f * getTotalResourceRequirementStrength(mine->producedResource) + 0.1f * getResourceRequirementStrength(mine->producedResource);
 	}
 
@@ -466,7 +466,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 		auto resource = dynamic_cast<const CGResource *>(target);
 		TResources res;
 		res[resource->resourceID()] = resource->getAmount();
-		
+
 		return getResourceRequirementStrength(res);
 	}
 
