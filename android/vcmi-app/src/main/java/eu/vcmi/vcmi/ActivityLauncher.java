@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
 
@@ -31,6 +32,7 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         super.onCreate(savedInstanceState);
         justLaunched = savedInstanceState == null;
         SDL.setContext(this);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
