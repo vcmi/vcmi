@@ -128,6 +128,10 @@ public:
 	/// Returns true if this image is still loading and can't be used
 	virtual bool isLoading() const = 0;
 
+	/// When disabled upscaling needs to be done in sync (e.g. because there is no 1x base image)
+	virtual void setAsyncUpscale(bool on) = 0;
+	virtual bool getAsyncUpscale() const = 0;
+
 	virtual ~ISharedImage() = default;
 
 	virtual const SDL_Palette * getPalette() const = 0;

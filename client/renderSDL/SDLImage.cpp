@@ -271,7 +271,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 		self->upscalingInProgress = false;
 	};
 
-	if(settings["video"]["asyncUpscaling"].Bool())
+	if(settings["video"]["asyncUpscaling"].Bool() && from->getAsyncUpscale())
 		ENGINE->async().run(scalingTask);
 	else
 		scalingTask();
@@ -282,6 +282,16 @@ std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShare
 bool SDLImageShared::isLoading() const
 {
 	return upscalingInProgress;
+}
+
+void SDLImageShared::setAsyncUpscale(bool on)
+{
+	asyncUpscale = on;
+}
+
+bool SDLImageShared::getAsyncUpscale() const
+{
+	return asyncUpscale;
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const

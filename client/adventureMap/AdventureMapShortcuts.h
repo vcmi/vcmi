@@ -84,7 +84,7 @@ public:
 
 	bool optionCanViewQuests();
 	bool optionCanToggleLevel();
-	bool optionMapLevelSurface();
+	int optionMapLevel();
 	bool optionHeroSleeping();
 	bool optionHeroAwake();
 	bool optionHeroSelected();

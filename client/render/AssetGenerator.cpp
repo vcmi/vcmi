@@ -56,6 +56,8 @@ void AssetGenerator::initialize()
 
 	for(int i = 1; i < 9; i++)
 		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
+	
+	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"));
 
 	createPaletteShiftedSprites();
 }
@@ -428,5 +430,108 @@ AssetGenerator::CanvasPtr AssetGenerator::createPaletteShiftedImage(const Animat
 	canvas.draw(img, Point((32 - img->dimensions().x) / 2, (32 - img->dimensions().y) / 2));
 
 	return image;
+}
 
+void meanImage(AssetGenerator::CanvasPtr dst, std::vector<Canvas> & images)
+{
+	auto image = dst->getCanvas();
+
+	for(int x = 0; x < dst->width(); x++)
+		for(int y = 0; y < dst->height(); y++)
+		{
+			int sumR = 0;
+			int sumG = 0;
+			int sumB = 0;
+			int sumA = 0;
+			for(auto & img : images)
+			{
+				auto color = img.getPixel(Point(x, y));
+				sumR += color.r;
+				sumG += color.g;
+				sumB += color.b;
+				sumA += color.a;
+			}
+			int ct = images.size();
+			image.drawPoint(Point(x, y), ColorRGBA(sumR / ct, sumG / ct, sumB / ct, sumA / ct));
+		}
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createAdventureMapButtonClear(const PlayerColor & player) const
+{
+	auto imageNames = { "iam002", "iam003", "iam004", "iam005", "iam006", "iam007", "iam008", "iam009", "iam010", "iam011" };
+	std::vector<Canvas> images;
+
+	CanvasPtr dst = nullptr;
+	for(auto & imageName : imageNames)
+	{
+		auto animation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin(imageName), EImageBlitMode::COLORKEY);
+		animation->playerColored(player);
+		auto image = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
+		if(!dst)
+			dst = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
+		Canvas canvas = image->getCanvas();	
+		canvas.draw(animation->getImage(2), Point(0, 0));
+		images.push_back(image->getCanvas());
+	}
+
+	meanImage(dst, images);
+
+	return dst;
+}
+
+AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(const ImagePath & overlay)
+{
+	std::shared_ptr<IImage> overlayImg = ENGINE->renderHandler().loadImage(ImageLocator(overlay, EImageBlitMode::OPAQUE));
+	auto overlayCanvasImg = ENGINE->renderHandler().createImage(overlayImg->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas overlayCanvas = overlayCanvasImg->getCanvas();
+	overlayCanvas.draw(overlayImg, Point(0, 0));
+
+	AnimationLayoutMap layout;
+	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		auto clearButtonImg = createAdventureMapButtonClear(color);
+		for(int i = 0; i < 4; i++)
+		{
+			ImagePath spriteName = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + ".png");
+			ImagePath spriteNameColor = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + "-" + color.toString() + ".png");
+
+			imageFiles[spriteNameColor] = [overlayCanvasImg, clearButtonImg, i](){
+				auto newImg = ENGINE->renderHandler().createImage(overlayCanvasImg->dimensions(), CanvasScalingPolicy::IGNORE);
+				auto canvas = newImg->getCanvas();
+				canvas.draw(clearButtonImg, Point(0, 0));
+				switch (i)
+				{
+				case 0:
+					canvas.draw(overlayCanvasImg, Point(0, 0));
+					return newImg;
+				case 1:
+					canvas.draw(clearButtonImg, Point(1, 1));
+					canvas.draw(overlayCanvasImg, Point(1, 1));
+					canvas.drawLine(Point(0, 0), Point(newImg->width() - 1, 0), ColorRGBA(0, 0, 0), ColorRGBA(0, 0, 0));
+					canvas.drawLine(Point(0, 0), Point(0, newImg->height() - 1), ColorRGBA(0, 0, 0), ColorRGBA(0, 0, 0));
+					canvas.drawColorBlended(Rect(0, 0, newImg->width(), 4), ColorRGBA(0, 0, 0, 160));
+					canvas.drawColorBlended(Rect(0, 0, 4, newImg->height()), ColorRGBA(0, 0, 0, 160));
+					return newImg;
+				case 2:
+					canvas.drawTransparent(overlayCanvasImg->getCanvas(), Point(0, 0), 0.25);
+					return newImg;
+				default:
+					canvas.draw(overlayCanvasImg, Point(0, 0));
+					canvas.drawLine(Point(0, 0), Point(newImg->width() - 1, 0), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
+					canvas.drawLine(Point(newImg->width() - 1, 0), Point(newImg->width() - 1, newImg->height() - 1), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
+					canvas.drawLine(Point(newImg->width() - 1, newImg->height() - 1), Point(0, newImg->height() - 1), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
+					canvas.drawLine(Point(0, newImg->height() - 1), Point(0, 0), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
+					return newImg;
+				}
+			};
+
+			if(color == PlayerColor(0))
+			{
+				layout[0].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+				imageFiles[spriteName] = imageFiles[spriteNameColor];
+			}
+		}
+	}
+
+	return layout;
 }

@@ -53,6 +53,8 @@ private:
 	CanvasPtr createSpellTabNone() const;
 	CanvasPtr createChroniclesCampaignImages(int chronicle) const;
 	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
+	CanvasPtr createAdventureMapButtonClear(const PlayerColor & player) const;
+	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay);
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);
