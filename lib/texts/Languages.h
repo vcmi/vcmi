@@ -98,7 +98,7 @@ inline const auto & getLanguageList()
 		{ "finnish",     "Finnish",     "Suomi",        "CP1252",  "fi_FI", "fi", "fin", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "french",      "French",      "Français",     "CP1252",  "fr_FR", "fr", "fre", "%d/%m/%Y %H:%M",    EPluralForms::FR_2, true },
 		{ "german",      "German",      "Deutsch",      "CP1252",  "de_DE", "de", "ger", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
-		{ "greek",       "Greek",       "ελληνικά",     "CP1253",  "el_GR", "el", "ell", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, false },
+		{ "greek",       "Greek",       "ελληνικά",     "CP1253",  "el_GR", "el", "ell", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "hungarian",   "Hungarian",   "Magyar",       "CP1250",  "hu_HU", "hu", "hun", "%Y. %m. %d. %H:%M", EPluralForms::EN_2, true },
 		{ "italian",     "Italian",     "Italiano",     "CP1250",  "it_IT", "it", "ita", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "japanese",    "Japanese",    "日本語",        "JIS",     "ja_JP", "ja", "jpn", "%Y年%m月%d日 %H:%M", EPluralForms::VI_1, true },
