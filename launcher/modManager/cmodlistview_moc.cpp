@@ -798,6 +798,7 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
+	Helper::keepScreenOn(true);
 	// display progress, in megabytes
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
@@ -806,6 +807,7 @@ void CModListView::downloadProgress(qint64 current, qint64 max)
 
 void CModListView::extractionProgress(qint64 current, qint64 max)
 {
+	Helper::keepScreenOn(true);
 	// display progress, in extracted files
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max);
@@ -857,6 +859,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 void CModListView::hideProgressBar()
 {
+	Helper::keepScreenOn(false);
 	if(dlManager == nullptr) // it was not recreated meanwhile
 	{
 		ui->progressWidget->setVisible(false);

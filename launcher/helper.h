@@ -23,4 +23,5 @@ QString getRealPath(QString path);
 void performNativeCopy(QString src, QString dst);
 void revealDirectoryInFileBrowser(QString path);
 MainWindow * getMainWindow();
+void keepScreenOn(bool on);
 }
