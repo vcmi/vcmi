@@ -599,7 +599,7 @@ void CVCMIServer::setPlayer(PlayerColor clickedColor)
 	{
 		PlayerColor color;
 		PlayerConnectionID id;
-		void reset() { id = PlayerConnectionID::PLAYER_AI; color = PlayerColor::CANNOT_DETERMINE; }
+		void reset() { id = PlayerConnectionID::INVALID; color = PlayerColor::CANNOT_DETERMINE; }
 		PlayerToRestore(){ reset(); }
 	};
 
