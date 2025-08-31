@@ -281,10 +281,11 @@ void GameEngine::setStatusbar(const std::shared_ptr<IStatusBar> & newStatusBar)
 	currentStatusBar = newStatusBar;
 }
 
-void GameEngine::onScreenResize(bool resolutionChanged)
+void GameEngine::onScreenResize(bool resolutionChanged, bool windowResized)
 {
 	if(resolutionChanged)
-		screenHandler().onScreenResize();
+		if(!screenHandler().onScreenResize(windowResized))
+			return;
 
 	windows().onScreenResize();
 	ENGINE->cursor().onScreenResize();

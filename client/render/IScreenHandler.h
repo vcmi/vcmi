@@ -25,7 +25,7 @@ public:
 	virtual ~IScreenHandler() = default;
 
 	/// Updates window state after fullscreen state has been changed in settings
-	virtual void onScreenResize() = 0;
+	virtual bool onScreenResize(bool keepWindowResolution) = 0;
 
 	/// Fills screen with black color, erasing any existing content
 	virtual void clearScreen() = 0;
