@@ -89,8 +89,34 @@ QString getRealPath(QString path)
 void performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-	auto srcStr = QAndroidJniObject::fromString(src);
-	auto dstStr = QAndroidJniObject::fromString(dst);
+	auto percentEncodeNonAscii = [](const QString &input) {
+		QByteArray utf8 = input.toUtf8();
+		QByteArray encoded;
+
+		for (char c : utf8) {
+			// If ASCII (0x00 to 0x7F), keep as is
+			if (static_cast<unsigned char>(c) < 0x80) {
+				encoded.append(c);
+			} else {
+				// Non-ASCII: encode as %HH
+				encoded.append('%');
+				encoded.append(QByteArray::number(static_cast<unsigned char>(c), 16).toUpper().rightJustified(2, '0'));
+			}
+		}
+
+		return QString::fromUtf8(encoded);
+	};
+
+	auto safeEncode = [&](QString uri) -> QString
+	{
+		if (!uri.startsWith("content://", Qt::CaseInsensitive))
+			return uri;
+		uri.replace(" ", "%20");
+		return percentEncodeNonAscii(uri);
+	};
+
+	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
+	auto dstStr = QAndroidJniObject::fromString(safeEncode(dst));
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
 #else
 	QFile::copy(src, dst);
