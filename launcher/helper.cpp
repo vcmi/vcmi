@@ -93,11 +93,13 @@ void performNativeCopy(QString src, QString dst)
 		QByteArray utf8 = input.toUtf8();
 		QByteArray encoded;
 
-		for (char c : utf8) {
+		for (char c : utf8)
+		{
 			// If ASCII (0x00 to 0x7F), keep as is
-			if (static_cast<unsigned char>(c) < 0x80) {
+			if (static_cast<unsigned char>(c) < 0x80)
 				encoded.append(c);
-			} else {
+			else
+			{
 				// Non-ASCII: encode as %HH
 				encoded.append('%');
 				encoded.append(QByteArray::number(static_cast<unsigned char>(c), 16).toUpper().rightJustified(2, '0'));
