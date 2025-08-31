@@ -28,12 +28,12 @@ jobs:
       - name: Update TS files (Launcher)
         working-directory: launcher
         run: |
-          lupdate -no-obsolete . -ts translation/*.ts
+          lupdate . -ts translation/*.ts
 
       - name: Update TS files (Map Editor)
         working-directory: mapeditor
         run: |
-          lupdate -no-obsolete . -ts translation/*.ts
+          lupdate . -ts translation/*.ts
 
       - name: Commit and push translation updates
         uses: EndBug/add-and-commit@v9
