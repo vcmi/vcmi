@@ -17,12 +17,8 @@ project(VCMI)
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
-if(APPLE)
-	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-		set(APPLE_MACOS 1)
-	else()
-		set(APPLE_IOS 1)
-	endif()
+if(APPLE AND NOT IOS)
+	set(MACOS 1)
 endif()
 
 if(POLICY CMP0142)
@@ -77,12 +73,12 @@ else()
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	set(ENABLE_MONOLITHIC_INSTALL OFF)
 	set(ENABLE_SINGLE_APP_BUILD ON)
 	set(ENABLE_EDITOR OFF)
@@ -155,7 +151,7 @@ if(ENABLE_CCACHE)
     endif()
 endif()
 
-if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
+if(ENABLE_CCACHE AND XCODE)
 	# https://stackoverflow.com/a/36515503/2278742
 	# Set up wrapper scripts
 	configure_file(xcode/launch-c.in   xcode/launch-c)
@@ -287,7 +283,7 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	set(CMAKE_MACOSX_RPATH 1)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
 
@@ -303,7 +299,7 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 endif()
 
-if(APPLE_MACOS)
+if(MACOS)
 	# Not supported by standard library of our current minimal target - macOS 10.14 or newer required
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-allocation")
 endif()
@@ -441,7 +437,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32 AND NOT APPLE_IOS)
+if(NOT WIN32 AND NOT IOS)
 	include(CheckLibraryExists)
 
 	# Shared memory functions used by Boost.Interprocess
@@ -596,7 +592,7 @@ elseif(APPLE)
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
 	else()
-		if(APPLE_MACOS)
+		if(MACOS)
 			set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
 			set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
 			set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
@@ -657,7 +653,7 @@ else()
 endif()
 
 # iOS/Android have flat libs directory structure
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	set(AI_LIB_DIR "${LIB_DIR}")
 	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
 else()
@@ -676,7 +672,7 @@ endif()
 #        Add subdirectories           #
 #######################################
 
-if(APPLE_IOS)
+if(IOS)
 	add_subdirectory(ios)
 endif()
 
@@ -755,7 +751,7 @@ if(ENABLE_LUA)
 endif()
 
 # that script is useless for Windows / iOS / Android
-if(NOT WIN32 AND NOT APPLE_IOS AND NOT ANDROID)
+if(NOT WIN32 AND NOT IOS AND NOT ANDROID)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE
@@ -855,7 +851,7 @@ if(WIN32)
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(win)
 	endif()
-elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
+elseif(MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
@@ -899,7 +895,7 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 
 	# Bundle fixing code must be in separate directory to be executed after all other install code
 	add_subdirectory(osx)
-elseif(APPLE_IOS)
+elseif(IOS)
 	set(CPACK_GENERATOR ZIP)
 	set(CPACK_ARCHIVE_FILE_EXTENSION ipa)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

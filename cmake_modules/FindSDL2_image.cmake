@@ -227,7 +227,7 @@ if(SDL2_IMAGE_FOUND)
                           IMPORTED_LOCATION "${SDL2_IMAGE_LIBRARY}"
                           INTERFACE_INCLUDE_DIRECTORIES "${SDL2_IMAGE_INCLUDE_DIR}"
                           INTERFACE_LINK_LIBRARIES SDL2::SDL2)
-    if (APPLE_IOS)
+    if (IOS)
       target_link_libraries(SDL2::Image INTERFACE
         "-framework CoreGraphics"
         "-framework Foundation"
