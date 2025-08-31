@@ -147,7 +147,9 @@ def LoadSigningConfig(final signingConfigKey) {
 
 dependencies {
 	implementation fileTree(dir: '../libs', include: ['*.jar', '*.aar'])
-	implementation 'androidx.annotation:annotation:1.7.1'
+	implementation('androidx.annotation:annotation:1.9.1')
+
+	// later versions require API level 21
 	implementation('androidx.appcompat:appcompat:1.6.1')
-	implementation 'androidx.documentfile:documentfile:1.0.1'
+	implementation('androidx.documentfile:documentfile:1.0.1')
 }
