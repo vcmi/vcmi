@@ -89,20 +89,21 @@ QString getRealPath(QString path)
 void performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-	auto percentEncodeNonAscii = [](const QString &input) {
+	auto percentEncodeNonAscii = [](const QString &input) -> QString
+	{
 		QByteArray utf8 = input.toUtf8();
 		QByteArray encoded;
 
-		for (char c : utf8)
+		for(unsigned char c : utf8)
 		{
 			// If ASCII (0x00 to 0x7F), keep as is
-			if (static_cast<unsigned char>(c) < 0x80)
+			if(c < 0x80)
 				encoded.append(c);
 			else
 			{
 				// Non-ASCII: encode as %HH
 				encoded.append('%');
-				encoded.append(QByteArray::number(static_cast<unsigned char>(c), 16).toUpper().rightJustified(2, '0'));
+				encoded.append(QByteArray::number(static_cast<uint>(c), 16).toUpper().rightJustified(2, '0'));
 			}
 		}
 
@@ -111,7 +112,7 @@ void performNativeCopy(QString src, QString dst)
 
 	auto safeEncode = [&](QString uri) -> QString
 	{
-		if (!uri.startsWith("content://", Qt::CaseInsensitive))
+		if(!uri.startsWith("content://", Qt::CaseInsensitive))
 			return uri;
 		uri.replace(" ", "%20");
 		return percentEncodeNonAscii(uri);
