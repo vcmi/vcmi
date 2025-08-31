@@ -122,7 +122,7 @@ public:
 	[[noreturn]] void mainLoop();
 
 	/// called whenever SDL_WINDOWEVENT_RESTORED is reported or the user selects a different resolution, requiring to center/resize all windows
-	void onScreenResize(bool resolutionChanged);
+	void onScreenResize(bool resolutionChanged, bool windowResized);
 
 	/// Simulate mouse movement to force refresh UI state that updates on mouse move
 	void fakeMouseMove();
