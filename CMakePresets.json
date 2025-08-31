@@ -255,8 +255,7 @@
                 "default-release"
             ],
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "ENABLE_TEMPLATE_EDITOR": "OFF"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
