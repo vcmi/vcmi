@@ -36,6 +36,7 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	Point fullSize;
 
 	std::atomic_bool upscalingInProgress = false;
+	bool asyncUpscale = true;
 
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
@@ -63,6 +64,8 @@ public:
 	Rect contentRect() const override;
 
 	bool isLoading() const override;
+	void setAsyncUpscale(bool on) override;
+	bool getAsyncUpscale() const override;
 
 	const SDL_Palette * getPalette() const override;
 

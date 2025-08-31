@@ -572,9 +572,9 @@ bool AdventureMapShortcuts::optionCanToggleLevel()
 	return optionSidePanelActive() && GAME->interface()->cb->getMapSize().z > 1;
 }
 
-bool AdventureMapShortcuts::optionMapLevelSurface()
+int AdventureMapShortcuts::optionMapLevel()
 {
-	return mapLevel == 0;
+	return mapLevel;
 }
 
 bool AdventureMapShortcuts::optionHeroSleeping()
