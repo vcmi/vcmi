@@ -27,5 +27,6 @@ const char *frameworksPath();
 const char *bundleIdentifier();
 
 bool isOsVersionAtLeast(unsigned int osMajorVersion);
+void setScreensaverEnabled(bool isEnabled);
 }
 #pragma GCC visibility pop

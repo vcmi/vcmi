@@ -793,12 +793,12 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
+	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
 void CModListView::downloadProgress(qint64 current, qint64 max)
 {
-	Helper::keepScreenOn(true);
 	// display progress, in megabytes
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max / (1024 * 1024));
