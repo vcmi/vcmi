@@ -17,12 +17,8 @@ project(VCMI)
 # It's used currently to make sure that 3rd-party dependencies in git submodules get proper FOLDER property
 # - Make FindFuzzyLite check for the right version and disable FORCE_BUNDLED_FL by default
 
-if(APPLE)
-	if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-		set(APPLE_MACOS 1)
-	else()
-		set(APPLE_IOS 1)
-	endif()
+if(APPLE AND NOT IOS)
+	set(MACOS 1)
 endif()
 
 if(POLICY CMP0142)
@@ -77,12 +73,12 @@ else()
 	option(ENABLE_LAUNCHER "Enable compilation of launcher" ON)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	set(BUNDLE_IDENTIFIER_PREFIX "" CACHE STRING "Bundle identifier prefix")
 	set(APP_DISPLAY_NAME "VCMI" CACHE STRING "App name on the home screen")
 endif()
 
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	set(ENABLE_MONOLITHIC_INSTALL OFF)
 	set(ENABLE_SINGLE_APP_BUILD ON)
 	set(ENABLE_EDITOR OFF)
@@ -155,7 +151,7 @@ if(ENABLE_CCACHE)
     endif()
 endif()
 
-if(ENABLE_CCACHE AND (CMAKE_GENERATOR STREQUAL "Xcode"))
+if(ENABLE_CCACHE AND XCODE)
 	# https://stackoverflow.com/a/36515503/2278742
 	# Set up wrapper scripts
 	configure_file(xcode/launch-c.in   xcode/launch-c)
@@ -183,7 +179,7 @@ include(VersionDefinition)
 vcmi_print_important_variables()
 
 # Options to enable folders in CMake generated projects for Visual Studio, Xcode, etc
-# Very useful to put 3rd-party libraries such as Minizip, GoogleTest and FuzzyLite in their own folders
+# Very useful to put 3rd-party libraries such as GoogleTest and FuzzyLite in their own folders
 set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
 # Make FOLDER property inheritable
 # So when we set FOLDER property on AI directory all and targets inside will inherit it
@@ -287,7 +283,7 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	set(CMAKE_MACOSX_RPATH 1)
 	set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
 
@@ -303,14 +299,14 @@ if(APPLE_IOS)
 	set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
 endif()
 
-if(APPLE_MACOS)
+if(MACOS)
 	# Not supported by standard library of our current minimal target - macOS 10.14 or newer required
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aligned-allocation")
 endif()
 
 if(MINGW OR MSVC)
 	# Windows Vista or newer for FuzzyLite 6 to compile
-	# Except for conan which already has this definition in its preset
+	# Except for conan which already has this definition in its profile
 	if(NOT USING_CONAN)
 		add_definitions(-D_WIN32_WINNT=0x0600)
 	endif()
@@ -373,14 +369,9 @@ if(MINGW OR MSVC)
 		# Reported to Microsoft here:
 		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
-
-		# Required at least for compatibility with Boost 1.68 on Vcpkg
-  		# psapi required for ARM64 builds
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} bcrypt psapi)
 	endif(MSVC)
 
 	if(MINGW)
-
 		# Temporary (?) workaround for failing builds on MinGW CI due to bug in TBB
 		set(CMAKE_CXX_EXTENSIONS ON)
 
@@ -446,7 +437,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32 AND NOT APPLE_IOS)
+if(NOT WIN32 AND NOT IOS)
 	include(CheckLibraryExists)
 
 	# Shared memory functions used by Boost.Interprocess
@@ -505,14 +496,7 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-option(FORCE_BUNDLED_MINIZIP "Force bundled Minizip library" OFF)
-if(NOT FORCE_BUNDLED_MINIZIP)
-	find_package(minizip)
-	if(TARGET minizip::minizip)
-		add_definitions(-DUSE_SYSTEM_MINIZIP)
-	endif()
-endif()
-
+find_package(minizip REQUIRED)
 
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)
@@ -608,7 +592,7 @@ elseif(APPLE)
 		set(LIB_DIR "." CACHE STRING "Where to install main library")
 		set(DATA_DIR "." CACHE STRING "Where to install data files")
 	else()
-		if(APPLE_MACOS)
+		if(MACOS)
 			set(APP_BUNDLE_DIR "${CMAKE_PROJECT_NAME}.app")
 			set(APP_BUNDLE_CONTENTS_DIR "${APP_BUNDLE_DIR}/Contents")
 			set(APP_BUNDLE_BINARY_DIR "${APP_BUNDLE_CONTENTS_DIR}/MacOS")
@@ -625,6 +609,9 @@ elseif(APPLE)
 elseif(ANDROID)
 	include(GNUInstallDirs)
 	set(LIB_DIR "libs/${ANDROID_ABI}")
+
+	file(READ "${CMAKE_ANDROID_NDK}/meta/abis.json" ndkAbiInfo)
+	string(JSON ANDROID_SYSROOT_LIB_SUBDIR GET "${ndkAbiInfo}" "${ANDROID_ABI}" "triple")
 
 	# required by Qt
 	set(androidPackageSourceDir "${CMAKE_SOURCE_DIR}/android")
@@ -666,7 +653,7 @@ else()
 endif()
 
 # iOS/Android have flat libs directory structure
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	set(AI_LIB_DIR "${LIB_DIR}")
 	set(SCRIPTING_LIB_DIR "${LIB_DIR}")
 else()
@@ -685,7 +672,7 @@ endif()
 #        Add subdirectories           #
 #######################################
 
-if(APPLE_IOS)
+if(IOS)
 	add_subdirectory(ios)
 endif()
 
@@ -705,11 +692,6 @@ endif()
 
 if(ENABLE_LUA)
 	add_subdirectory(scripting/lua)
-endif()
-
-if(NOT TARGET minizip::minizip)
-	add_subdirectory_with_folder("3rdparty" lib/minizip)
-	add_library(minizip::minizip ALIAS minizip)
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
@@ -746,6 +728,8 @@ endif()
 #        Installation section         #
 #######################################
 
+vcmi_install_conan_deps()
+
 if(ANDROID)
 	string(REPLACE ";" "\n" ANDROID_GRADLE_PROPERTIES_MULTILINE "${ANDROID_GRADLE_PROPERTIES}")
 	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties" "signingRoot=${CMAKE_SOURCE_DIR}/CI/android\n${ANDROID_GRADLE_PROPERTIES_MULTILINE}")
@@ -767,65 +751,12 @@ if(ENABLE_LUA)
 endif()
 
 # that script is useless for Windows / iOS / Android
-if(NOT WIN32 AND NOT APPLE_IOS AND NOT ANDROID)
+if(NOT WIN32 AND NOT IOS AND NOT ANDROID)
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
 					GROUP_READ GROUP_EXECUTE
 					WORLD_READ WORLD_EXECUTE)
 endif()
-
-
-if(WIN32)
-	if(TBB_FOUND AND MSVC)
-		install_vcpkg_imported_tgt(TBB::tbb)
-	endif()
-
-	if(USING_CONAN)
-		#Conan imports enabled
-		vcmi_install_conan_deps("\${CMAKE_INSTALL_PREFIX}")
-		file(GLOB dep_files
-				${dep_files}
-				"${CMAKE_SYSROOT}/bin/*.dll" 
-				"${CMAKE_SYSROOT}/lib/*.dll" 
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_dw2-1.dll" # for 32-bit only?
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libgcc_s_seh-1.dll" # for 64-bit only?
-				"${CONAN_SYSTEM_LIBRARY_LOCATION}/libstdc++-6.dll")
-	else()
-		file(GLOB dep_files
-				${dep_files}
-				"${CMAKE_FIND_ROOT_PATH}/bin/*.dll")
-	endif()
-
-	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-		# Copy debug versions of libraries if build type is debug
-		set(debug_postfix d)
-	endif()
-
-	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
-		get_target_property(QtCore_location Qt${QT_VERSION_MAJOR}::Core LOCATION)
-		get_filename_component(Qtbin_folder ${QtCore_location} PATH)
-		file(GLOB dep_files
-			${dep_files}
-			${Qtbin_folder}/Qt5Core${debug_postfix}.dll
-			${Qtbin_folder}/Qt5Gui${debug_postfix}.dll
-			${Qtbin_folder}/Qt5Widgets${debug_postfix}.dll
-			${Qtbin_folder}/Qt5Network${debug_postfix}.dll
-			${Qtbin_folder}/icu*.dll)
-		get_target_property(integration_type Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin TYPE)
-		if(NOT(integration_type STREQUAL "INTERFACE_LIBRARY"))
-			get_target_property(integration_loc Qt${QT_VERSION_MAJOR}::QWindowsIntegrationPlugin LOCATION)
-			install(
-				FILES ${integration_loc}
-				DESTINATION ${BIN_DIR}/platforms
-			)
-			install(
-				FILES "$<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QWindowsVistaStylePlugin>" 
-				DESTINATION ${BIN_DIR}/styles) 
-		endif()
-	endif()
-
-	install(FILES ${dep_files} DESTINATION ${BIN_DIR})
-endif(WIN32)
 
 #######################################
 #       Packaging section             #
@@ -920,7 +851,7 @@ if(WIN32)
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(win)
 	endif()
-elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
+elseif(MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 	set(CPACK_MONOLITHIC_INSTALL 1)
 	set(CPACK_GENERATOR "DragNDrop")
 	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
@@ -964,7 +895,7 @@ elseif(APPLE_MACOS AND NOT ENABLE_MONOLITHIC_INSTALL)
 
 	# Bundle fixing code must be in separate directory to be executed after all other install code
 	add_subdirectory(osx)
-elseif(APPLE_IOS)
+elseif(IOS)
 	set(CPACK_GENERATOR ZIP)
 	set(CPACK_ARCHIVE_FILE_EXTENSION ipa)
 	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

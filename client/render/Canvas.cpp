@@ -238,6 +238,13 @@ Rect Canvas::getRenderArea() const
 	return renderArea;
 }
 
+ColorRGBA Canvas::getPixel(const Point & position) const
+{
+	SDL_Color color;
+	SDL_GetRGBA(CSDL_Ext::getPixel(surface, position.x, position.y), surface->format, &color.r, &color.g, &color.b, &color.a);
+	return ColorRGBA(color.r, color.g, color.b, color.a);
+}
+
 CanvasClipRectGuard::CanvasClipRectGuard(Canvas & canvas, const Rect & rect): surf(canvas.surface)
 {
 	CSDL_Ext::getClipRect(surf, oldRect);

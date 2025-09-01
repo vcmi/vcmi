@@ -46,7 +46,7 @@ android {
 			manifest.srcFile '../AndroidManifest.xml'
 			jniLibs.srcDirs = ['../libs']
 
-			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+			java.srcDirs = [qt5AndroidDir + '/src', 'src', SDL_JAVA_SRC_DIR]
 			aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
 			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']
 		}
@@ -102,24 +102,6 @@ android {
 	}
 }
 
-def CommandOutput(final cmd, final arguments, final cwd) {
-	try {
-		new ByteArrayOutputStream().withStream { final os ->
-			exec {
-				executable cmd
-				args arguments
-				workingDir cwd
-				standardOutput os
-			}
-			return os.toString().trim()
-		}
-	}
-	catch (final Exception ex) {
-		print("Broken: " + cmd + " " + arguments + " in " + cwd + " :: " + ex.toString())
-		return ""
-	}
-}
-
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
 	return file("${basePath}/${signingConfigKey}.properties")
 }
@@ -142,7 +124,6 @@ def LoadSigningConfig(final signingConfigKey) {
 			&& props.containsKey('KEY_ALIAS')) {
 
 			signingConfig.storeFile = SigningKeystorePath(signingRoot, props['STORE_FILE'])
-			signingConfig.storePassword = props['STORE_PASSWORD']
 			signingConfig.keyAlias = props['KEY_ALIAS']
 
 			if(props.containsKey('STORE_PASSWORD'))

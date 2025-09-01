@@ -1,4 +1,6 @@
 if(ENABLE_INNOEXTRACT)
+	# libiconv not required for our use case
+	set(WITH_CONV "builtin" CACHE STRING "" FORCE)
 	add_subdirectory("lib/innoextract")
 endif()
 
@@ -25,7 +27,7 @@ set(launcher_SRCS
 		updatedialog_moc.cpp
 		prepare.cpp
 )
-if(APPLE_IOS)
+if(IOS)
 	list(APPEND launcher_SRCS
 		ios/launchGame.m
 		ios/revealdirectoryinfiles.h
@@ -153,6 +155,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
 	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
+	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
 if(ENABLE_TRANSLATIONS)
@@ -222,7 +225,7 @@ endif()
 
 if(ANDROID)
 	target_link_libraries(vcmilauncher Qt${QT_VERSION_MAJOR}::AndroidExtras)
-elseif(NOT APPLE_IOS)
+elseif(NOT IOS)
 	target_link_libraries(vcmilauncher SDL2::SDL2)
 endif()
 
@@ -242,16 +245,11 @@ if(ENABLE_INNOEXTRACT)
 	target_link_libraries(vcmilauncher innoextract)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	target_link_libraries(vcmilauncher
 		iOS_utils
 		"-framework UniformTypeIdentifiers"
 	)
-
-	# TODO: remove after switching prebuilt deps to a newer Conan's Qt recipe
-	if(XCODE_VERSION VERSION_GREATER_EQUAL 14.0)
-		target_link_libraries(vcmilauncher "-framework IOKit")
-	endif()
 
 	# workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)

@@ -298,7 +298,6 @@ void ScreenHandler::updateWindowState()
 			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
 			return;
 		}
 	}
@@ -480,9 +479,24 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 }
 
-void ScreenHandler::onScreenResize()
+bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
+	if(getPreferredWindowMode() == EWindowMode::WINDOWED && keepWindowResolution)
+	{
+		auto res = getRenderResolution();
+
+		if(res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
+			return false;
+
+		Settings video = settings.write["video"];
+		video["resolution"]["width"].Integer() = res.x;
+		video["resolution"]["height"].Integer() = res.y;
+	}
+	else if(keepWindowResolution)
+		return false;
+
 	recreateWindowAndScreenBuffers();
+	return true;
 }
 
 void ScreenHandler::validateSettings()

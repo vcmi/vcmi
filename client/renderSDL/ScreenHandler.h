@@ -100,7 +100,7 @@ public:
 	~ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onScreenResize() final;
+	bool onScreenResize(bool keepWindowResolution) final;
 
 	/// Fills screen with black color, erasing any existing content
 	void clearScreen() final;

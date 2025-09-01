@@ -77,7 +77,7 @@ public class VcmiSDLActivity extends SDLActivity
 
     @Override
     protected String[] getLibraries() {
-        // SDL is linked statically, no need to load anything
+        // app main library and SDL are loaded when launcher starts, no extra work to do
         return new String[] {
         };
     }

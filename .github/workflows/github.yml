@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           - platform: mac-intel
-            os: macos-13
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -26,11 +26,11 @@ jobs:
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             conan_prebuilts: dependencies-mac-intel
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
             artifact_platform: intel
 
           - platform: mac-arm
-            os: macos-13
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -39,11 +39,11 @@ jobs:
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             conan_prebuilts: dependencies-mac-arm
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
             artifact_platform: arm
 
           - platform: ios
-            os: macos-13
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -52,7 +52,7 @@ jobs:
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
 
           - platform: msvc-x64
             arch: x64
@@ -61,8 +61,10 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-ninja-release
+            conan_profile: msvc-x64
+            conan_prebuilts: dependencies-windows-x64
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x64
             cl: Hostx64/x64/cl.exe
 
@@ -73,8 +75,10 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-ninja-release-x86
+            conan_profile: msvc-x86
+            conan_prebuilts: dependencies-windows-x86
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x86
             cl: Hostx64/x86/cl.exe
 
@@ -85,54 +89,42 @@ jobs:
             upload: 0
             pack_type: RelWithDebInfo
             extension: zip
-            before_install: msvc.sh
             preset: windows-msvc-ninja-release-arm64
+            conan_profile: msvc-arm64
+            conan_prebuilts: dependencies-windows-arm64
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
             artifact_platform: arm64
             cl: HostARM64/ARM64/cl.exe
 
-          - platform: mingw_x86_64
-            arch: x86_64
-            os: ubuntu-24.04
-            pack: 1
-            pack_type: Release
-            extension: zip
-            cmake_args: -G Ninja
-            before_install: mingw.sh
-            preset: windows-mingw-conan-linux
-            conan_profile: mingw64-linux.jinja
-            conan_prebuilts: dependencies-mingw-x86-64
-
-          - platform: mingw_x86
-            arch: x86
-            os: ubuntu-24.04
-            pack: 1
-            pack_type: Release
-            extension: zip
-            cmake_args: -G Ninja
-            before_install: mingw.sh
-            preset: windows-mingw-conan-linux
-            conan_profile: mingw32-linux.jinja
-            conan_prebuilts: dependencies-mingw-x86
-
           - platform: android-32
-            os: ubuntu-24.04
+            os: ubuntu-latest
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-32-ndk
             conan_prebuilts: dependencies-android-armeabi-v7a
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: armeabi-v7a
 
           - platform: android-64
-            os: ubuntu-24.04
+            os: ubuntu-latest
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-64-ndk
             conan_prebuilts: dependencies-android-arm64-v8a
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: arm64-v8a
+
+          - platform: android-64-intel
+            os: ubuntu-latest
+            upload: 1
+            extension: apk
+            preset: android-conan-ninja-release
+            conan_profile: android-x64-ndk
+            conan_prebuilts: dependencies-android-x64
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
+            artifact_platform: x64
 
     runs-on: ${{ matrix.os }}
     # Allow non-MSVC builds to fail without failing whole job
@@ -148,11 +140,11 @@ jobs:
       uses: actions/checkout@v5
       with:
         submodules: recursive
-    
+
     - name: Prepare APT staging dir
       if: contains(matrix.os, 'ubuntu')
       run: mkdir -p "$RUNNER_TEMP/apt-cache"
-    
+
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
@@ -166,7 +158,7 @@ jobs:
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
       run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
-    
+
     # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
@@ -177,11 +169,9 @@ jobs:
 
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
-      run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
-
-    - name: Install vcpkg Dependencies
-      if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}' 'vcpkg'
+      run: |
+        pipx install conan
+        source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
 
     - name: Setup MSVC Developer Command Prompt
       if: ${{ startsWith(matrix.platform, 'msvc') }}
@@ -206,7 +196,7 @@ jobs:
         max-size: '5G'
         verbose: 2
         job-summary: ""           # <-- disable built-in summary to avoid duplicate block
-        
+
     - name: Setup compiler cache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number == '' }}
@@ -220,7 +210,7 @@ jobs:
         max-size: '5G'
         verbose: 2
         job-summary: ""           # <-- disable built-in summary to avoid duplicate block
-        
+
     - name: CCache tuning (Android)
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
@@ -230,33 +220,36 @@ jobs:
         ccache --set-config=hash_dir=true
         ccache --set-config=sloppiness=time_macros
 
-    - name: Install Conan
-      if: "${{ matrix.conan_profile != '' }}"
-      run: pipx install 'conan<2.0'
-
     - name: Install Conan profile
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        conan profile new default --detect
+        conan profile detect
         conan install . \
-          --install-folder=conan-generated \
-          --no-imports \
+          --output-folder=conan-generated \
           --build=never \
-          --profile:build=default \
-          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           ${{ matrix.conan_options }}
-      env:
-        GENERATE_ONLY_BUILT_CONFIG: 1
 
     # Can't be set in Gradle project
     - name: Configure enableUncompressedNativeLibs
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
 
-    # Workaround for gradle not discovering SDK that was installed via conan
-    - name: Find Android NDK
+    # Workaround for gradle not discovering SDK that was installed via Сonan
+    - name: Link Android NDK from Conan cache to Android SDK path
       if: ${{ startsWith(matrix.platform, 'android') }}
-      run: sudo ln -s -T /home/runner/.conan/data/android-ndk/r25c/_/_/package/4db1be536558d833e52e862fd84d64d75c2b3656/bin /usr/local/lib/android/sdk/ndk/25.2.9519653
+      run: |
+        ndkPackage='android-ndk'
+        hexRegex='[[:xdigit:]]+'
+
+        ndkPackageRevision=$(conan list "$ndkPackage/*:*" --format=compact \
+          | egrep --only-matching "$ndkPackage/\\w+#$hexRegex:$hexRegex")
+        ndkPackagePath=$(conan cache path "$ndkPackageRevision")
+
+        # format: Pkg.Revision = 25.2.9519653
+        ndkPath="$ndkPackagePath/bin"
+        ndkVersion=$(fgrep 'Pkg.Revision' "$ndkPath/source.properties" | cut -d ' ' -f 3)
+        ln -s -T "$ndkPath" "$ANDROID_HOME/ndk/$ndkVersion"
 
     - name: Install Java
       uses: actions/setup-java@v5
@@ -266,6 +259,7 @@ jobs:
         java-version: '17'
 
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
+    # TODO: x86_64
     - name: Bump Android x64 build ID
       if: ${{ matrix.platform == 'android-64' }}
       run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
@@ -283,27 +277,33 @@ jobs:
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Configure
+    - name: Configure (non-MSVC)
+      if: ${{ !startsWith(matrix.platform, 'msvc') }}
       run: |
         if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/master') ]]; then
-          cmake -DENABLE_CCACHE:BOOL=ON \
-                -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-                -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" \
-                --preset ${{ matrix.preset }}
-        elif ${{ startsWith(matrix.platform, 'msvc') }}; then
-            CL="$VCToolsInstallDir/bin/${{ matrix.cl }}"
-            cmake \
-              -D CMAKE_C_COMPILER:FILEPATH="$CL" \
-              -D CMAKE_CXX_COMPILER:FILEPATH="$CL" \
-              --preset ${{ matrix.preset }}
-        else
-          cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+          # key1=value1;key2=value2;...
+          gradleProperties=$(python3 CI/android/gradle_daily_props.py)
+          androidOptions=("-DANDROID_GRADLE_PROPERTIES=$gradleProperties")
+          androidOptions+=("-DCMAKE_C_COMPILER_LAUNCHER=ccache" "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache")
         fi
+        cmake -DENABLE_CCACHE:BOOL=ON "${androidOptions[@]}" --preset ${{ matrix.preset }}
+    - name: Configure (MSVC)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: |
+        & conan-generated\conanrun.ps1
+
+        $CL = "$($env:VCToolsInstallDir)/bin/${{ matrix.cl }}"
+        cmake `
+          -D "CMAKE_C_COMPILER:FILEPATH=$CL" `
+          -D "CMAKE_CXX_COMPILER:FILEPATH=$CL" `
+          --preset ${{ matrix.preset }}
+      shell: pwsh
 
     - name: Build
       run: |
+        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
         cmake --build --preset ${{matrix.preset}}
+      shell: pwsh
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -320,15 +320,10 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        
-        # Workaround for CPack bug on macOS 13
-        counter=0
-        until cpack -C ${{matrix.pack_type}} || ((counter > 20)); do
-            sleep 3
-            ((counter++))
-        done
-        rm -rf _CPack_Packages
+        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        cd "${{github.workspace}}/out/build/${{matrix.preset}}"
+        cpack -C ${{matrix.pack_type}}
+      shell: pwsh
 
     - name: Find Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
@@ -410,14 +405,14 @@ jobs:
           run: |
             source '${{github.workspace}}/CI/get_package_name.sh'
             echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
-            
+
         - name: Create source code archive (including submodules)
           run: |
             git archive HEAD -o "release.tar" --worktree-attributes -v
             git submodule update --init --recursive
             git submodule --quiet foreach 'cd "$toplevel"; tar -rvf "release.tar" "$sm_path"'
             gzip release.tar
-            
+
         - name: Upload source code archive
           id: upload_source
           uses: actions/upload-artifact@v4
@@ -434,7 +429,7 @@ jobs:
             cat > .summary/source.json <<JSON
             {"source_url": "${{ steps.upload_source.outputs.artifact-url }}"}
             JSON
-    
+
         - name: Upload partial JSON with source informations
           uses: actions/upload-artifact@v4
           with:
@@ -477,7 +472,7 @@ jobs:
             compiler_cxx: clang++-13
             compiler_cc: clang-13
             preset: linux-clang-test
-  
+
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -504,7 +499,7 @@ jobs:
           ${{ matrix.platform }}-apt-${{ matrix.os }}
 
     - name: Prepare CI
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
@@ -549,7 +544,7 @@ jobs:
         7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
         mkdir -p ~/.local/share/vcmi/
         mv h3_assets/* ~/.local/share/vcmi/
-  
+
     - name: Configure
       run: |
         cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
@@ -595,7 +590,6 @@ jobs:
 
     - name: Extract version info
       id: extract-version
-      shell: bash
       run: |
         filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
 
@@ -609,8 +603,8 @@ jobs:
         echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
         echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
 
-    - name: Install ucrt Dependencies
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}' 'ucrt'
+    - name: Download UCRT
+      run: source '${{github.workspace}}/CI/wininstaller/download_ucrt.sh' '${{matrix.platform}}'
 
     - name: Build Number
       run: |
@@ -630,13 +624,11 @@ jobs:
         path: ${{github.workspace}}/artifact
 
     - name: Extract Artifact
-      shell: bash
       run: |
         mkdir artifact/extracted
         unzip "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d artifact/extracted
 
     - name: Ensure Inno Setup is installed
-      shell: bash
       run: |
         if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ] && [ ! -f "/c/ProgramData/Chocolatey/bin/ISCC.exe" ]; then
           choco install innosetup --no-progress -y
@@ -728,7 +720,7 @@ jobs:
     steps:
       - name: Checkout (for script path)
         uses: actions/checkout@v5
-  
+
       - name: Download all partial JSON artifacts
         continue-on-error: true
         uses: actions/download-artifact@v5
@@ -736,7 +728,7 @@ jobs:
           pattern: partial-json-*
           merge-multiple: true
           path: partials
-  
+
       - name: Run final summary
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

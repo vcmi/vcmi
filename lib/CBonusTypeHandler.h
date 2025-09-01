@@ -38,6 +38,7 @@ private:
 
 	bool creatureNature = false;
 	bool hidden = true;
+	bool blockDescriptionPropagation = false;
 };
 
 class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
@@ -57,6 +58,7 @@ public:
 	const std::string & bonusToString(BonusType bonus) const;
 
 	bool isCreatureNatureBonus(BonusType bonus) const;
+	bool shouldPropagateDescription(BonusType bonus) const;
 
 	std::vector<BonusType> getAllObjets() const;
 private:

@@ -336,7 +336,7 @@ void GeneralOptionsTab::setGameResolution(int index)
 	widget<CLabel>("resolutionLabel")->setText(resolutionToLabelString(resolution.x, resolution.y));
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -360,7 +360,7 @@ void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 	updateResolutionSelector();
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 
@@ -419,7 +419,7 @@ void GeneralOptionsTab::setGameScaling(int index)
 	widget<CLabel>("scalingLabel")->setText(scalingToLabelString(scaling));
 
 	ENGINE->dispatchMainThread([](){
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	});
 }
 

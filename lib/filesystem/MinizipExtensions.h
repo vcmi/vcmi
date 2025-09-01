@@ -9,15 +9,9 @@
  */
 #pragma once
 
-#ifdef USE_SYSTEM_MINIZIP
 #include <minizip/unzip.h>
 #include <minizip/zip.h>
 #include <minizip/ioapi.h>
-#else
-#include "../minizip/unzip.h"
-#include "../minizip/zip.h"
-#include "../minizip/ioapi.h"
-#endif
 
 // system zlib on old Androids isn't capable of using _64 functions: https://github.com/madler/zlib/pull/436
 #if defined(__ANDROID_API__) && (__ANDROID_API__ < 24)

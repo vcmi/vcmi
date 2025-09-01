@@ -437,7 +437,7 @@ set(vcmiclientcommon_HEADERS
 	UIHelper.h
 )
 
-if(APPLE_IOS)
+if(IOS)
 	set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
 		ios/utils.mm
 	)
@@ -461,7 +461,7 @@ if(NOT ENABLE_STATIC_LIBS)
 		add_dependencies(vcmiclientcommon Nullkiller2)
 	endif()
 endif()
-if(APPLE_IOS)
+if(IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclientcommon vcmiERM)
 	endif()
@@ -481,7 +481,7 @@ if(WIN32)
 		target_link_libraries(vcmiclientcommon SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclientcommon PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-elseif(APPLE_IOS)
+elseif(IOS)
 	target_link_libraries(vcmiclientcommon PRIVATE
 		iOS_utils
 
