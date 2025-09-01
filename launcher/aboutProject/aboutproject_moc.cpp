@@ -33,7 +33,7 @@ void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHi
 
 AboutProjectView::AboutProjectView(QWidget * parent)
 	: QWidget(parent)
-	, ui(new Ui::AboutProjectView)
+	, ui(std::make_unique<Ui::AboutProjectView>())
 {
 	ui->setupUi(this);
 
@@ -55,6 +55,8 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 #endif
 #endif
 }
+
+AboutProjectView::~AboutProjectView() = default;
 
 void AboutProjectView::changeEvent(QEvent *event)
 {

@@ -41,7 +41,7 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_heroesDataUpda
 
 FirstLaunchView::FirstLaunchView(QWidget * parent)
 	: QWidget(parent)
-	, ui(new Ui::FirstLaunchView)
+	, ui(std::make_unique<Ui::FirstLaunchView>())
 {
 	ui->setupUi(this);
 
@@ -64,6 +64,8 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	ui->labelDataGogDescr->hide();
 #endif
 }
+
+FirstLaunchView::~FirstLaunchView() = default;
 
 void FirstLaunchView::on_buttonTabLanguage_clicked()
 {

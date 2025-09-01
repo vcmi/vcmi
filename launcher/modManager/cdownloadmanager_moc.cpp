@@ -73,17 +73,19 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 	if(possibleRedirectUrl.isValid())
 	{
 		QString filename;
+		qint64 totalSize = 0;
 
 		for(int i = 0; i< currentDownloads.size(); ++i)
 		{
 			if(currentDownloads[i].file == file.file)
 			{
 				filename = currentDownloads[i].filename;
+				totalSize = currentDownloads[i].totalSize;
 				currentDownloads.removeAt(i);
 				break;
 			}
 		}
-		downloadFile(qurl, filename, file.totalSize);
+		downloadFile(qurl, filename, totalSize);
 		return;
 	}
 
