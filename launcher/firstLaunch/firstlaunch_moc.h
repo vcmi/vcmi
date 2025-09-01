@@ -21,7 +21,7 @@ class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
 
-	void changeEvent(QEvent *event);
+	void changeEvent(QEvent *event) override;
 	CModListView * getModView();
 
 	void setSetupProgress(int progress);
