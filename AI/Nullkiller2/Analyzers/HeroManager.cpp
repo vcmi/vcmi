@@ -62,7 +62,7 @@ const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEv
 
 float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
 {
-	auto role = getHeroRole(HeroPtr(hero));
+	auto role = getHeroRole(hero);
 
 	if(role == HeroRole::MAIN)
 		return wariorSkillsScores.evaluateSecSkill(hero, skill);
@@ -134,26 +134,31 @@ void HeroManager::update()
 	{
 		if(hero->patrol.patrolling)
 		{
-			heroToRoleMap[HeroPtr(hero)] = HeroRole::MAIN;
+			heroToRoleMap[HeroPtr(hero, aiNk->cc)] = HeroRole::MAIN;
 		}
 		else
 		{
-			heroToRoleMap[HeroPtr(hero)] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+			heroToRoleMap[HeroPtr(hero, aiNk->cc)] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
 		}
 	}
 
 	for(auto hero : myHeroes)
 	{
-		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[HeroPtr(hero)] == HeroRole::MAIN ? "main" : "scout");
+		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[HeroPtr(hero, aiNk->cc)] == HeroRole::MAIN ? "main" : "scout");
 	}
 }
 
-HeroRole HeroManager::getHeroRole(const HeroPtr & hPtr) const
+HeroRole HeroManager::getHeroRole(const  CGHeroInstance * hero) const
 {
-	if (heroToRoleMap.find(hPtr) != heroToRoleMap.end())
-		return heroToRoleMap.at(hPtr);
-	else
-		return HeroRole::SCOUT;
+	return getHeroRole(HeroPtr(hero, aiNk->cc));
+}
+
+// TODO: Mircea: Do we need this map on HeroPtr or is enough just on hero?
+HeroRole HeroManager::getHeroRole(const HeroPtr & heroPtr) const
+{
+	if(heroToRoleMap.find(heroPtr) != heroToRoleMap.end())
+		return heroToRoleMap.at(heroPtr);
+	return HeroRole::SCOUT;
 }
 
 const std::map<HeroPtr, HeroRole> & HeroManager::getHeroToRoleMap() const
@@ -161,9 +166,9 @@ const std::map<HeroPtr, HeroRole> & HeroManager::getHeroToRoleMap() const
 	return heroToRoleMap;
 }
 
-int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<SecondarySkill> & skills) const
+int HeroManager::selectBestSkill(const HeroPtr & heroPtr, const std::vector<SecondarySkill> & skills) const
 {
-	auto role = getHeroRole(hero);
+	auto role = getHeroRole(heroPtr);
 	auto & evaluator = role == HeroRole::MAIN ? wariorSkillsScores : scountSkillsScores;
 
 	int result = 0;
@@ -171,7 +176,7 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 
 	for(int i = 0; i < skills.size(); i++)
 	{
-		auto score = evaluator.evaluateSecSkill(hero.get(aiNk->cc.get()), skills[i]);
+		auto score = evaluator.evaluateSecSkill(heroPtr.get(), skills[i]);
 
 		if(score > resultScore)
 		{
@@ -181,7 +186,7 @@ int HeroManager::selectBestSkill(const HeroPtr & hero, const std::vector<Seconda
 
 		logAi->trace(
 			"Hero %s is proposed to learn %d with score %f",
-			hero.name(),
+			heroPtr.nameOrDefault(),
 			skills[i].toEnum(),
 			score);
 	}
@@ -302,7 +307,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
 			|| existingHero->getArmyStrength() >armyLimit
-			|| getHeroRole(HeroPtr(existingHero)) == HeroRole::MAIN
+			|| getHeroRole(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)
 			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))

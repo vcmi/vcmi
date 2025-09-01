@@ -265,7 +265,6 @@ void Nullkiller::updateState()
 	else
 	{
 		memory->removeInvisibleObjects(cc.get());
-
 		dangerHitMap->updateHitMap();
 		dangerHitMap->calculateTileOwners();
 
@@ -281,7 +280,7 @@ void Nullkiller::updateState()
 			if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
 				continue;
 
-			activeHeroes[hero] = heroManager->getHeroRole(HeroPtr(hero));
+			activeHeroes[hero] = heroManager->getHeroRole(hero);
 		}
 
 		PathfinderSettings cfg;
@@ -306,14 +305,13 @@ void Nullkiller::updateState()
 		{
 			pathfinder->updateGraphs(
 				activeHeroes,
-				scanDepth == ScanDepth::SMALL ? 255 : 10,
-				scanDepth == ScanDepth::ALL_FULL ? 255 : 3);
+				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10,
+				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3);
 		}
 
 		makingTurnInterrupption.interruptionPoint();
 
 		objectClusterizer->clusterize();
-
 		pathfinderInvalidated = false;
 	}
 
@@ -549,7 +547,7 @@ bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
 
 HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
 {
-	HeroPtr heroPtr(task->getHero());
+	HeroPtr heroPtr(task->getHero(), cc);
 	HeroRole heroRole = HeroRole::MAIN;
 
 	if(heroPtr.isValid())

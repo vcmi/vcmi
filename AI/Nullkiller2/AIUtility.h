@@ -76,15 +76,13 @@ enum HeroRole
 
 struct DLL_EXPORT HeroPtr
 {
+private:
 	const CGHeroInstance * hero;
-	ObjectInstanceID heroId;
+	std::shared_ptr<CPlayerSpecificInfoCallback> cpsic;
+	bool validate() const;
 
 public:
-	std::string name() const;
-
-	explicit HeroPtr();
-	explicit HeroPtr(const CGHeroInstance * H);
-	~HeroPtr();
+	explicit HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic);
 
 	explicit operator bool() const
 	{
@@ -100,7 +98,9 @@ public:
 		return !(*this == rhs);
 	}
 
-	const CGHeroInstance * get(const CPlayerSpecificInfoCallback * cpsic, bool doWeExpectNull = false) const;
+	ObjectInstanceID idOrNone() const;
+	std::string nameOrDefault() const;
+	const CGHeroInstance * get() const;
 	bool isValid() const;
 };
 

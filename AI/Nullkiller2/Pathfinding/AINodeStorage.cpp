@@ -173,8 +173,8 @@ void AINodeStorage::clear()
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
-	turnDistanceLimit[HeroRole::MAIN] = 255;
-	turnDistanceLimit[HeroRole::SCOUT] = 255;
+	turnDistanceLimit[HeroRole::MAIN] = PathfinderSettings::MaxTurnDistanceLimit;;
+	turnDistanceLimit[HeroRole::SCOUT] = PathfinderSettings::MaxTurnDistanceLimit;;
 }
 
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
@@ -1396,7 +1396,7 @@ bool AINodeStorage::isOtherChainBetter(
 	return false;
 }
 
-bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const
+bool AINodeStorage::isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const
 {
 	auto chains = nodes.get(pos);
 
@@ -1406,7 +1406,7 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & hero, const int3 & pos, con
 			&& node.layer == layer
 			&& node.action != EPathNodeAction::UNKNOWN 
 			&& node.actor
-			&& node.actor->hero == hero.hero)
+			&& node.actor->hero == heroPtr.get())
 		{
 			return true;
 		}

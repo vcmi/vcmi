@@ -109,11 +109,11 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		auto  * node = &chainPath.nodes[i];
 
 		const CGHeroInstance * hero = node->targetHero;
-		HeroPtr heroPtr(hero);
+		HeroPtr heroPtr(hero, aiGw->cc);
 
 		if(!heroPtr.isValid())
 		{
-			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name());
+			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
 			return;
 		}
@@ -150,7 +150,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					
 					if(!heroPtr.isValid())
 					{
-						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.name());
+						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.nameOrDefault());
 
 						return;
 					}
@@ -231,7 +231,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						if(!heroPtr.isValid())
 						{
-							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.name());
+							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
 							return;
 						}
@@ -277,7 +277,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		{
 			if(!heroPtr.isValid())
 			{
-				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.name(), node->coord.toString());
+				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.nameOrDefault(), node->coord.toString());
 
 				return;
 			}
@@ -303,7 +303,7 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 		return true;
 	}
 
-	return aiGw->moveHeroToTile(tile, HeroPtr(hero));
+	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc));
 }
 
 }

@@ -20,11 +20,6 @@ namespace NK2AI
 
 const HitMapInfo HitMapInfo::NoThreat;
 
-double HitMapInfo::value() const
-{
-	return danger / std::sqrt(turn / 3.0f + 1);
-}
-
 void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 {
 #if NK2AI_TRACE_LEVEL >= 1
@@ -137,7 +132,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				HitMapInfo newThreat;
 
-				newThreat.heroPtr = HeroPtr(path.targetHero);
+				newThreat.heroPtr = HeroPtr(path.targetHero, aiNk->cc);
 				newThreat.turn = path.turn();
 				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
 				// TODO: Mircea: Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
@@ -167,7 +162,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 						auto & threats = townThreats[obj->id];
 						auto threat = std::find_if(threats.begin(), threats.end(), [&](const HitMapInfo & i) -> bool
 							{
-								return i.heroPtr.heroId == path.targetHero->id;
+								return i.heroPtr.idOrNone() == path.targetHero->id;
 							});
 
 						if(threat == threats.end())

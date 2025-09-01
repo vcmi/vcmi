@@ -89,7 +89,7 @@ void handleCounterAttack(
 		&& (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
 		auto heroCapturingPaths = aiNk->pathfinder->getPathInfo(threat.heroPtr->visitablePos());
-		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, aiNk, threat.heroPtr.get(aiNk->cc.get()));
+		auto goals = CaptureObjectsBehavior::getVisitGoals(heroCapturingPaths, aiNk, threat.heroPtr.get());
 
 		for(int i = 0; i < heroCapturingPaths.size(); i++)
 		{
@@ -132,7 +132,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			return false;
 		}
-		else if(aiNk->heroManager->getHeroRole(HeroPtr(town->getGarrisonHero())) == HeroRole::MAIN)
+		else if(aiNk->heroManager->getHeroRole(town->getGarrisonHero()) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
 			auto heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(armyDismissLimit);

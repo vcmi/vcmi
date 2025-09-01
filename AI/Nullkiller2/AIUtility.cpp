@@ -46,13 +46,11 @@ ObjectIdRef::operator bool() const
 ObjectIdRef::ObjectIdRef(ObjectInstanceID _id)
 	: id(_id)
 {
-
 }
 
 ObjectIdRef::ObjectIdRef(const CGObjectInstance * obj)
 	: id(obj->id)
 {
-
 }
 
 bool ObjectIdRef::operator<(const ObjectIdRef & rhs) const
@@ -60,93 +58,77 @@ bool ObjectIdRef::operator<(const ObjectIdRef & rhs) const
 	return id < rhs.id;
 }
 
-HeroPtr::HeroPtr(const CGHeroInstance * H)
+HeroPtr::HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic)
+	: hero(input), cpsic(cpsic)
 {
-	if(!H)
-	{
-		//init from nullptr should equal to default init
-		*this = HeroPtr();
-		return;
-	}
-
-	hero = H;
-	heroId = H->id;
-//	infosCount[ai->playerID][hid]++;
-}
-
-HeroPtr::HeroPtr()
-{
-	hero = nullptr;
-	heroId = ObjectInstanceID();
-}
-
-HeroPtr::~HeroPtr()
-{
-//	if(hid >= 0)
-//		infosCount[ai->playerID][hid]--;
 }
 
 bool HeroPtr::operator<(const HeroPtr & rhs) const
 {
-	return heroId < rhs.heroId;
+	return idOrNone() < rhs.idOrNone();
 }
 
-std::string HeroPtr::name() const
+ObjectInstanceID HeroPtr::idOrNone() const
+{
+	if (hero)
+		return hero->id;
+	return ObjectInstanceID::NONE;
+}
+
+std::string HeroPtr::nameOrDefault() const
 {
 	if (hero)
 		return hero->getNameTextID();
-	else
-		return "<NO HERO>";
+	return "<NO HERO>";
 }
 
-const CGHeroInstance * HeroPtr::get(const CPlayerSpecificInfoCallback * cpsic, bool doWeExpectNull) const
+const CGHeroInstance * HeroPtr::get() const
 {
-	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	//
-	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
-	assert(doWeExpectNull || hero);
+	assert(isValid());
+	return hero;
+}
+
+bool HeroPtr::validate() const
+{
+	// TODO: check if these all assertions every time we get info about hero affect efficiency
+	// behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
 
 	if(hero)
 	{
-		const auto *obj = cpsic->getObj(heroId);
+		const auto *obj = cpsic->getObj(hero->id);
 		//const bool owned = obj && obj->tempOwner == ai->playerID;
 
-		if(doWeExpectNull && !obj)
-		{
-			return nullptr;
-		}
-		else
-		{
-			assert(obj);
-			//assert(owned);
-		}
+		if(!obj)
+			return false;
+
+		assert(hero == obj);
+		return true;
+		//assert(owned);
 	}
 
-	return hero;
+	return false;
 }
 
 const CGHeroInstance * HeroPtr::operator->() const
 {
-	// return get();
-	return nullptr;
+	assert(isValid());
+	return hero;
 }
 
 bool HeroPtr::isValid() const
 {
-	// return get(true);
-	return false;
+	return validate();
 }
 
 const CGHeroInstance * HeroPtr::operator*() const
 {
-	// return get();
-	return nullptr;
+	assert(isValid());
+	return hero;
 }
 
 bool HeroPtr::operator==(const HeroPtr & rhs) const
 {
-	// return hero == rhs.get(true);
-	return false;
+	return hero == rhs.get();
 }
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
@@ -184,12 +166,9 @@ bool isObjectRemovable(const CGObjectInstance * obj)
 	case Obj::SHIPWRECK_SURVIVOR:
 	case Obj::SPELL_SCROLL:
 		return true;
-		break;
 	default:
 		return false;
-		break;
 	}
-
 }
 
 bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
@@ -733,7 +712,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		if(aiNk->heroManager->getHeroRole(HeroPtr(hero)) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRole(hero) == HeroRole::SCOUT)
 			return false;
 
 		TResources myRes = aiNk->getFreeResources();

@@ -67,7 +67,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	if(town && townPortalEffect)
 	{
 		// visit town
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero));
+		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc));
 	}
 
 	ccTl->waitTillRealize = wait;

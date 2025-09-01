@@ -61,7 +61,7 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 
 		auto danger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
 
-		if(danger > 0 || !aiGw->moveHeroToTile(target, HeroPtr(hero)))
+		if(danger > 0 || !aiGw->moveHeroToTile(target, HeroPtr(hero, aiGw->cc)))
 		{
 			return;
 		}

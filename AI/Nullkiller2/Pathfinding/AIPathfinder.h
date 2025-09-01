@@ -22,6 +22,8 @@ class Nullkiller;
 
 struct PathfinderSettings
 {
+	static constexpr uint8_t MaxTurnDistanceLimit = 255;
+
 	bool useHeroChain;
 	uint8_t scoutTurnDistanceLimit;
 	uint8_t mainTurnDistanceLimit;
@@ -29,8 +31,8 @@ struct PathfinderSettings
 
 	PathfinderSettings()
 		:useHeroChain(false),
-		scoutTurnDistanceLimit(255),
-		mainTurnDistanceLimit(255),
+		scoutTurnDistanceLimit(MaxTurnDistanceLimit),
+		mainTurnDistanceLimit(MaxTurnDistanceLimit),
 		allowBypassObjects(true)
 	{ }
 };

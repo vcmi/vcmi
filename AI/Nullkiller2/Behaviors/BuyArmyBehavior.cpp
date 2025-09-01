@@ -53,7 +53,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{
-			if(aiNk->heroManager->getHeroRole(HeroPtr(targetHero)) == HeroRole::MAIN)
+			if(aiNk->heroManager->getHeroRole(targetHero) == HeroRole::MAIN)
 			{
 				auto reinforcement = aiNk->armyManager->howManyReinforcementsCanGet(
 					targetHero,

@@ -266,7 +266,7 @@ public:
 
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
 	void calculateChainInfo(std::vector<AIPath> & result, const int3 & pos, bool isOnLand) const;
-	bool isTileAccessible(const HeroPtr & hero, const int3 & pos, const EPathfindingLayer layer) const;
+	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }
 	void setMainTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::MAIN] = distanceLimit; }

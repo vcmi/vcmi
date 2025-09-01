@@ -201,10 +201,10 @@ public:
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 
 	void moveCreaturesToHero(const CGTownInstance * t);
-	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
+	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, HeroPtr hPtr);
+	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
 	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)

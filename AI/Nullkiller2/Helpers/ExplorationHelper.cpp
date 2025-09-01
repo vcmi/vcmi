@@ -144,7 +144,7 @@ void ExplorationHelper::scanTile(const int3 & tile)
 {
 	if(tile == ourPos
 		|| !aiNk->cc->getTile(tile, false)
-		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero), tile)) //shouldn't happen, but it does
+		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc), tile)) //shouldn't happen, but it does
 		return;
 
 	int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
@@ -224,7 +224,7 @@ bool ExplorationHelper::hasReachableNeighbor(const int3 & pos) const
 		{
 			auto isAccessible = useCPathfinderAccessibility
 				? aiNk->getPathsInfo(hero)->getPathInfo(tile)->reachable()
-				: aiNk->pathfinder->isTileAccessible(HeroPtr(hero), tile);
+				: aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc), tile);
 
 			if(isAccessible)
 				return true;

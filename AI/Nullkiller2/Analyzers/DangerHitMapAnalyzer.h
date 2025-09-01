@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../AIUtility.h"
+#include "../Pathfinding/AIPathfinder.h"
 
 namespace NK2AI
 {
@@ -20,40 +21,28 @@ struct HitMapInfo
 {
 	static const HitMapInfo NoThreat;
 
-	uint64_t danger;
-	uint8_t turn;
-	float threat;
-	HeroPtr heroPtr;
+	uint64_t danger = 0;
+	uint8_t turn = PathfinderSettings::MaxTurnDistanceLimit;
+	float threat = 0.f;
+	HeroPtr heroPtr = HeroPtr(nullptr, nullptr);
 
-	HitMapInfo()
+	double value() const
 	{
-		reset();
+		return danger / std::sqrt(turn / 3.0f + 1);
 	}
-
-	void reset()
-	{
-		danger = 0;
-		turn = 255;
-		threat = 0;
-		heroPtr = HeroPtr();
-	}
-
-	double value() const;
 };
 
 struct HitMapNode
 {
-	HitMapInfo maximumDanger;
-	HitMapInfo fastestDanger;
-
+	HitMapInfo maximumDanger = HitMapInfo::NoThreat;
+	HitMapInfo fastestDanger = HitMapInfo::NoThreat;
 	const CGTownInstance * closestTown = nullptr;
-
-	HitMapNode() = default;
 
 	void reset()
 	{
-		maximumDanger.reset();
-		fastestDanger.reset();
+		maximumDanger = HitMapInfo::NoThreat;
+		fastestDanger = HitMapInfo::NoThreat;
+		closestTown = nullptr;
 	}
 };
 

@@ -43,7 +43,7 @@ Goals::TGoalVec GatherArmyBehavior::decompose(const Nullkiller * aiNk) const
 
 	for(const CGHeroInstance * hero : heroes)
 	{
-		if(aiNk->heroManager->getHeroRole(HeroPtr(hero)) == HeroRole::MAIN)
+		if(aiNk->heroManager->getHeroRole(hero) == HeroRole::MAIN)
 		{
 			vstd::concatenate(tasks, deliverArmyToHero(aiNk, hero));
 		}
@@ -121,7 +121,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		{
 			if(!node.targetHero) continue;
 
-			auto heroRole = aiNk->heroManager->getHeroRole(HeroPtr(node.targetHero));
+			auto heroRole = aiNk->heroManager->getHeroRole(node.targetHero);
 
 			if(heroRole == HeroRole::MAIN)
 			{
@@ -239,7 +239,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 
 	for(const AIPath & path : paths)
 	{
-		auto heroRole = aiNk->heroManager->getHeroRole(HeroPtr(path.targetHero));
+		auto heroRole = aiNk->heroManager->getHeroRole(path.targetHero);
 
 		if(heroRole == HeroRole::MAIN && path.turn() < aiNk->settings->getScoutHeroTurnDistanceLimit())
 			hasMainAround = true;
@@ -290,7 +290,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		auto upgrade = aiNk->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
 		if(!upgrader->getGarrisonHero()
-		   && (hasMainAround || aiNk->heroManager->getHeroRole(HeroPtr(path.targetHero)) == HeroRole::MAIN))
+		   && (hasMainAround || aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 
