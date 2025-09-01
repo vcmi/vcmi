@@ -1409,7 +1409,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 
 	if (!vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
 	{
-		// Fixed in #6016 but left as a graceful error log instead of a runtime exception that crashes
+		// Fixed in PR #6016 but left as a graceful error log instead of a runtime exception that crashes
 		logGlobal->error(
 			"Attempt to attack from invalid position! defenderPos (%d, %d) attackOriginHex (%d, %d)",
 			defenderPos.getX(),
