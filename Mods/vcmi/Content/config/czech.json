@@ -402,7 +402,7 @@
 	"vcmi.keyBindings.keyBinding.heroDismiss" : "Hrdina: propustit",
 	"vcmi.keyBindings.keyBinding.heroLooseFormation" : "Hrdina: volná formace",
 	"vcmi.keyBindings.keyBinding.heroTightFormation" : "Hrdina: sevřená formace",
-	"vcmi.keyBindings.keyBinding.heroToggleTactics" : "Hrdina: přepnout taktiku"
+	"vcmi.keyBindings.keyBinding.heroToggleTactics" : "Hrdina: přepnout taktiku",
 	"vcmi.keyBindings.keyBinding.highScoresCampaigns" : "Žebříčky: kampaně",
 	"vcmi.keyBindings.keyBinding.highScoresReset" : "Žebříčky: reset",
 	"vcmi.keyBindings.keyBinding.highScoresStatistics" : "Žebříčky: statistiky",
@@ -1078,7 +1078,7 @@
 	"spell.core.deathCloud.description.none" : "{Smrtící mrak}\n\nKromě cílového pole zasáhne smrtící mrak i všech 6 sousedních polí a způsobí poškození všem živým jednotkám v dosahu.",
 	"spell.core.thunderbolt.description.none" : "{Úder blesku}\n\nPři útoku má jednotka 20% šanci vyvolat blesk ještě před nepřátelským protiútokem. Blesk způsobí poškození rovnající se desetinásobku počtu útočících hromových ptáků.",
 	"spell.core.dispelHelpful.description.none" : "{Ruší kladná kouzla}\n\nOdstraní všechny pozitivní kouzelné efekty z cílové jednotky.",
-	"spell.core.acidBreath.description.none" : "{Kyselina}\n\nDech sníží obranu cílové jednotky o 3 body a má 20% šanci způsobit dodatečné poškození ve výši 25 bodů za každou útočící jednotku."
+	"spell.core.acidBreath.description.none" : "{Kyselina}\n\nDech sníží obranu cílové jednotky o 3 body a má 20% šanci způsobit dodatečné poškození ve výši 25 bodů za každou útočící jednotku.",
 
 	"spellSchool.core.air.name" : "Vdušných",
 	"spellSchool.core.earth.name" : "Zemských",
