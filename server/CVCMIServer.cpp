@@ -419,18 +419,20 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 		si->mode = mode;
 	}
 
-	logNetwork->info("Connection with client %d established. UUID: %s", static_cast<int>(c->connectionID), c->uuid);
+	auto connID = static_cast<int>(c->connectionID);
 
+	logNetwork->info("Connection with client %d established. UUID: %s", connID, c->uuid);
+
+	PlayerConnectionID id = currentPlayerId;
 	for(auto & name : names)
 	{
-		logNetwork->info("Client %d player: %s", static_cast<int>(c->connectionID), name);
-		PlayerConnectionID id = vstd::next(currentPlayerId, 1);
+		logNetwork->info("Client %d player: %s", connID, name);
 
 		ClientPlayer cp;
 		cp.connection = c->connectionID;
 		cp.name = name;
 		playerNames.try_emplace(id, cp);
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % static_cast<int>(id) % static_cast<int>(c->connectionID)));
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % static_cast<int>(id) % connID));
 
 		//put new player in first slot with AI
 		for(auto & elem : si->playerInfos)
@@ -441,6 +443,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 				break;
 			}
 		}
+		id = vstd::next(id, 1);
 	}
 }
 
