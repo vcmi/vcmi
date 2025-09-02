@@ -30,8 +30,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 	const auto ourTowns = aiNk->cc->getTownsInfo();
-	const auto ourHeroes = aiNk->heroManager->getHeroToRoleMap();
-	RecruitHeroChoice bestChoice;
+	const auto ourHeroes = aiNk->cc->getHeroesInfo();
+	constexpr RecruitHeroChoice bestChoice;
 	bool haveCapitol = false;
 	int treasureSourcesCount = 0;
 
@@ -50,9 +50,9 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		}
 
 		float visitabilityRatio = 0;
-		for(const auto & [hero, role] : ourHeroes)
+		for(const auto hero : ourHeroes)
 		{
-			if(aiNk->dangerHitMap->getClosestTown(hero.get()->visitablePos()) == town)
+			if(aiNk->dangerHitMap->getClosestTown(hero->visitablePos()) == town)
 				visitabilityRatio += 1.0f / ourHeroes.size();
 		}
 
