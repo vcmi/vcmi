@@ -515,6 +515,22 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 				info.imageID = object->subID;
 			}
 		}
+		else if(auto * dwelling = dynamic_cast<const CGDwelling *>(object))
+		{
+			auto kingdomOverviewImage = dwelling->getKingdomOverviewImage();
+
+			if(!kingdomOverviewImage.empty())
+			{
+				OwnedObjectInfo & info = visibleObjects[object->subID];
+				if(info.count++ == 0)
+				{
+					info.hoverText = object->getObjectName();
+					info.imagePath = kingdomOverviewImage;
+					info.imageID = 0;
+				}
+			}
+		}
+
 		//Special objects from idToImage map that should be displayed in objects list
 		auto iter = idToImage.find(std::make_pair(object->ID, object->subID));
 		if(iter != idToImage.end())
@@ -543,7 +559,7 @@ std::shared_ptr<CIntObject> CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo & obj = objects[index];
 		std::string value = std::to_string(obj.count);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("FLAGPORT"), obj.imageID, obj.hoverText);
+		auto data = std::make_shared<InfoBoxCustom>(value, "", obj.imagePath.empty() ? AnimationPath::builtin("FLAGPORT") : obj.imagePath, obj.imageID, obj.hoverText);
 		return std::make_shared<InfoBox>(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL, data);
 	}
 	return std::shared_ptr<CIntObject>();

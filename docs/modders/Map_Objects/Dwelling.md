@@ -22,7 +22,10 @@
 	"guards" : true,
 	"guards" : [
 		{ "amount" : 12, "type" : "earthElemental" }
-	]
+	],
+
+	/// Optional image showed on kingdom overview (animation; only frame 0 displayed)
+	"kingdomOverviewImage" : "image.def"
 }
 ```
 
