@@ -117,15 +117,15 @@ MainWindow * getMainWindow()
 }
 
 
-void keepScreenOn(bool on)
+void keepScreenOn(bool isEnabled)
 {
 #if defined(VCMI_ANDROID)
-	QtAndroid::runOnAndroidThread([on]
+	QtAndroid::runOnAndroidThread([isEnabled]
 	{
-		QtAndroid::androidActivity().callMethod<void>("setScreensaverEnabled", "(Z)V", !on);
+		QtAndroid::androidActivity().callMethod<void>("keepScreenOn", "(Z)V", isEnabled);
 	});
 #elif defined(VCMI_IOS)
-	iOS_utils::setScreensaverEnabled(!on);
+	iOS_utils::keepScreenOn(isEnabled);
 #endif
 }
 }

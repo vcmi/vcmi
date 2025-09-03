@@ -807,7 +807,6 @@ void CModListView::downloadProgress(qint64 current, qint64 max)
 
 void CModListView::extractionProgress(qint64 current, qint64 max)
 {
-	Helper::keepScreenOn(true);
 	// display progress, in extracted files
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max);
@@ -854,12 +853,12 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	if(doInstallFiles)
 		installFiles(savedFiles);
 
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 
 void CModListView::hideProgressBar()
 {
-	Helper::keepScreenOn(false);
 	if(dlManager == nullptr) // it was not recreated meanwhile
 	{
 		ui->progressWidget->setVisible(false);
@@ -983,6 +982,8 @@ void CModListView::installFiles(QStringList files)
 
 		float prog = 0.0;
 
+		Helper::keepScreenOn(true);
+
 		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
@@ -998,6 +999,7 @@ void CModListView::installFiles(QStringList files)
 
 		if(futureExtract.get())
 		{
+			Helper::keepScreenOn(false);
 			hideProgressBar();
 			ui->abortButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
@@ -1236,6 +1238,7 @@ void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 

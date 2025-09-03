@@ -53,8 +53,8 @@ bool isOsVersionAtLeast(unsigned int osMajorVersion)
 	return NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= osMajorVersion;
 }
 
-void setScreensaverEnabled(bool isEnabled)
+void keepScreenOn(bool isEnabled)
 {
-	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? NO : YES;
+	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;
 }
 }

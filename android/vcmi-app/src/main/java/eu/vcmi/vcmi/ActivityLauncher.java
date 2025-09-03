@@ -57,12 +57,12 @@ public class ActivityLauncher extends org.qtproject.qt5.android.bindings.QtActiv
         startActivityForResult(intent, PICK_EXTERNAL_VCMI_DATA_TO_COPY);
     }
 
-    public void setScreensaverEnabled(boolean on)
+    public void keepScreenOn(boolean isEnabled)
     {
-        if(on)
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        else
+        if(isEnabled)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void onLaunchGameBtnPressed()
