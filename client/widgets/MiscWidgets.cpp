@@ -257,6 +257,45 @@ CMinorResDataBar::CMinorResDataBar()
 
 CMinorResDataBar::~CMinorResDataBar() = default;
 
+void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slotsPos, std::vector<std::shared_ptr<CAnimImage>>& icons, std::vector<std::shared_ptr<CLabel>>& subtitles)
+{
+	for(const auto& slot : army.army)
+	{
+		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
+		{
+			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
+			continue;
+		}
+
+		// Creature icon
+		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+
+		// Subtitle
+		std::string subtitle;
+		if(army.army.isDetailed)
+		{
+			subtitle = TextOperations::formatMetric(slot.second.getCount(), 4);
+		}
+		else
+		{
+			//if =0 - we have no information about stack size at all
+			if (slot.second.getCount())
+			{
+				if (settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+				{
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
+				}
+				else
+				{
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
+				}
+			}
+		}
+
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
+	}
+}
+
 void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION;
@@ -272,44 +311,35 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	slotsPos.push_back(Point(90, 122));
 	slotsPos.push_back(Point(126, 122));
 
-	for(auto & slot : army.army)
-	{
-		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
-		{
-			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
-			continue;
-		}
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
+}
 
-		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+void CGarrisonTooltip::init(const InfoAboutArmy& army)
+{
+	OBJECT_CONSTRUCTION;
 
-		std::string subtitle;
-		if(army.army.isDetailed)
-		{
-			subtitle = TextOperations::formatMetric(slot.second.getCount(), 4);
-		}
-		else
-		{
-			//if =0 - we have no information about stack size at all
-			if(slot.second.getCount())
-			{
-				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-				{
-					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
-				}
-				else
-				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.getCount())];
-				}
-			}
-		}
+	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name);
 
-		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
-	}
+	std::vector<Point> slotsPos;
+	slotsPos.push_back(Point(14, 48));
+	slotsPos.push_back(Point(50, 48));
+	slotsPos.push_back(Point(86, 48));
+	slotsPos.push_back(Point(122, 48));
+	slotsPos.push_back(Point(158, 48));
+	slotsPos.push_back(Point(194, 48));
+	slotsPos.push_back(Point(230, 48));
 
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
 	CIntObject(0, pos)
+{
+	init(army);
+}
+
+CGarrisonTooltip::CGarrisonTooltip(Point pos, const InfoAboutArmy & army)
+	: CIntObject(0, pos)
 {
 	init(army);
 }
