@@ -110,6 +110,9 @@ void performNativeCopy(QString src, QString dst)
 		return QString::fromUtf8(encoded);
 	};
 
+	// %-encode unencoded parts of string.
+	// This is needed because QT returns a mixed content url with %-encoded and unencoded parts. If Android > 13 this causes problems reading this files. E.g. when using spaces and unicode characters in folder or filename.
+	// Related, but seems not completly fixed (at least in our setup): https://bugreports.qt.io/browse/QTBUG-114435
 	auto safeEncode = [&](QString uri) -> QString
 	{
 		if(!uri.startsWith("content://", Qt::CaseInsensitive))
