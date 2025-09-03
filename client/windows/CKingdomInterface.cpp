@@ -506,16 +506,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	for(const CGObjectInstance * object : ownedObjects)
 	{
 		//Dwellings
-		if(object->ID == Obj::CREATURE_GENERATOR1)
-		{
-			OwnedObjectInfo & info = visibleObjects[object->subID];
-			if(info.count++ == 0)
-			{
-				info.hoverText = object->getObjectName();
-				info.imageID = object->subID;
-			}
-		}
-		else if(auto * dwelling = dynamic_cast<const CGDwelling *>(object))
+		if(auto * dwelling = dynamic_cast<const CGDwelling *>(object))
 		{
 			auto kingdomOverviewImage = dwelling->getKingdomOverviewImage();
 
@@ -527,6 +518,15 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 					info.hoverText = object->getObjectName();
 					info.imagePath = kingdomOverviewImage;
 					info.imageID = 0;
+				}
+			}
+			else if(object->ID == Obj::CREATURE_GENERATOR1)
+			{
+				OwnedObjectInfo & info = visibleObjects[object->subID];
+				if(info.count++ == 0)
+				{
+					info.hoverText = object->getObjectName();
+					info.imageID = object->subID;
 				}
 			}
 		}
