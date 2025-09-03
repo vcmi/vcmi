@@ -39,20 +39,19 @@ public:
 class DLL_EXPORT HeroManager
 {
 private:
-	static const SecondarySkillEvaluator wariorSkillsScores;
-	static const SecondarySkillEvaluator scountSkillsScores;
+	static const SecondarySkillEvaluator mainSkillsEvaluator;
+	static const SecondarySkillEvaluator scoutSkillsEvaluator;
 
 	CCallback * cc; //this is enough, but we downcast from CCallback
 	const Nullkiller * aiNk;
-	std::map<HeroPtr, HeroRole> heroToRoleMap;
+	std::map<HeroPtr, HeroRole> heroToRoleMap; // can get out of sync with cc->getHeroesInfo() and include lost heroes
 	std::map<ObjectInstanceID, float> knownFightingStrength;
 
 public:
 	HeroManager(CCallback * cc, const Nullkiller * aiNk) : cc(cc), aiNk(aiNk) {}
-	const std::map<HeroPtr, HeroRole> & getHeroToRoleMap() const;
-	HeroRole getHeroRole(const CGHeroInstance * hero) const;
-	HeroRole getHeroRole(const HeroPtr & heroPtr) const;
-	int selectBestSkill(const HeroPtr & heroPtr, const std::vector<SecondarySkill> & skills) const;
+	HeroRole getHeroRoleOrDefaultInefficient(const CGHeroInstance * hero) const;
+	HeroRole getHeroRoleOrDefault(const HeroPtr & heroPtr) const;
+	int selectBestSkillIndex(const HeroPtr & heroPtr, const std::vector<SecondarySkill> & skills) const;
 	void update();
 	float evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const;
 	float evaluateHero(const CGHeroInstance * hero) const;

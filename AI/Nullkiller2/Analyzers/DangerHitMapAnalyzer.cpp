@@ -30,7 +30,7 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					auto & threat = data.getTileThreat(pos).maximumDanger;
 					b.addText(pos, std::to_string(threat.danger));
 
-					if(threat.heroPtr.isValid())
+					if(threat.heroPtr.isVerified())
 					{
 						b.addText(pos, std::to_string(threat.turn));
 						b.addText(pos, threat.heroPtr->getNameTranslated());
@@ -45,7 +45,7 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 					auto & threat = data.getTileThreat(pos).fastestDanger;
 					b.addText(pos, std::to_string(threat.danger));
 
-					if(threat.heroPtr.isValid())
+					if(threat.heroPtr.isVerified())
 					{
 						b.addText(pos, std::to_string(threat.turn));
 						b.addText(pos, threat.heroPtr->getNameTranslated());
@@ -119,7 +119,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 		aiNk->pathfinder->updatePaths(pair.second, ps);
 
-		aiNk->makingTurnInterrupption.interruptionPoint();
+		aiNk->makingTurnInterruption.interruptionPoint();
 
 		pforeachTilePaths(mapSize, aiNk, [&](const int3 & pos, const std::vector<AIPath> & paths)
 		{

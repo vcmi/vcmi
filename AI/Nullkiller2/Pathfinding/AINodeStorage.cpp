@@ -43,22 +43,22 @@ const bool DO_NOT_SAVE_TO_COMMITTED_TILES = false;
 
 AISharedStorage::AISharedStorage(int3 sizes, int numChains)
 {
-	if(!shared){
-		shared.reset(new boost::multi_array<AIPathNode, 4>(
-			boost::extents[sizes.z][sizes.x][sizes.y][numChains]));
-
+	if(!shared)
+	{
+		shared.reset(new boost::multi_array<AIPathNode, 4>(boost::extents[sizes.z][sizes.x][sizes.y][numChains]));
 		nodes = shared;
 
-		foreach_tile_pos([&](const int3 & pos)
+		foreach_tile_pos(
+			[&](const int3 & pos)
 			{
 				for(auto i = 0; i < numChains; i++)
 				{
 					auto & node = get(pos)[i];
-						
 					node.version = -1;
 					node.coord = pos;
 				}
-			});
+			}
+		);
 	}
 	else
 		nodes = shared;
@@ -105,7 +105,7 @@ int AINodeStorage::getBucketSize() const
 }
 
 AINodeStorage::AINodeStorage(const Nullkiller * aiNk, const int3 & Sizes)
-	: sizes(Sizes), aiNk(aiNk), cc(aiNk->cc.get()), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
+	: sizes(Sizes), aiNk(aiNk), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -197,7 +197,6 @@ std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
 	for(auto i = aiNk->settings->getPathfinderBucketSize() - 1; i >= 0; i--)
 	{
 		AIPathNode & node = chains[i + bucketOffset];
-
 		if(node.version != AISharedStorage::version)
 		{
 			node.reset(layer, getAccessibility(pos, layer));
@@ -1169,11 +1168,11 @@ void AINodeStorage::calculateTownPortal(
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
-	auto towns = cc->getTownsInfo(false);
+	auto towns = aiNk->cc->getTownsInfo(false);
 
 	vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 		{
-			return cc->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
+			return aiNk->cc->getPlayerRelations(actor->hero->tempOwner, t->tempOwner) == PlayerRelations::ENEMIES;
 		});
 
 	if(!towns.size())
@@ -1399,12 +1398,11 @@ bool AINodeStorage::isOtherChainBetter(
 bool AINodeStorage::isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const
 {
 	auto chains = nodes.get(pos);
-
 	for(const AIPathNode & node : chains)
 	{
 		if(node.version == AISharedStorage::version
 			&& node.layer == layer
-			&& node.action != EPathNodeAction::UNKNOWN 
+			&& node.action != EPathNodeAction::UNKNOWN
 			&& node.actor
 			&& node.actor->hero == heroPtr.get())
 		{
@@ -1415,7 +1413,7 @@ bool AINodeStorage::isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, 
 	return false;
 }
 
-void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const
+void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, const bool isOnLand) const
 {
 	auto layer = isOnLand ? EPathfindingLayer::LAND : EPathfindingLayer::SAIL;
 	auto chains = nodes.get(pos);
@@ -1440,7 +1438,6 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		}
 
 		AIPath & path = paths.emplace_back();
-
 		path.targetHero = node.actor->hero;
 		path.heroArmy = node.actor->creatureSet;
 		path.armyLoss = node.armyLoss;
@@ -1473,7 +1470,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 		}
 
 		int fortLevel = 0;
-		auto visitableObjects = cc->getVisitableObjs(pos);
+		auto visitableObjects = aiNk->cc->getVisitableObjs(pos);
 		for (auto obj : visitableObjects)
 		{
 			if (objWithID<Obj::TOWN>(obj))

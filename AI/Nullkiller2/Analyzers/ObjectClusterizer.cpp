@@ -427,7 +427,7 @@ void ObjectClusterizer::clusterizeObject(
 		logAi->trace("ObjectClusterizer Checking path %s", path.toString());
 #endif
 
-		if(aiNk->heroManager->getHeroRole(path.targetHero) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero) == HeroRole::SCOUT)
 		{
 			// TODO: Mircea: Shouldn't this be linked with scoutHeroTurnDistanceLimit?
 			// TODO: Mircea: Move to constant

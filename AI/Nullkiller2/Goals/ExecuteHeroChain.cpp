@@ -111,7 +111,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		const CGHeroInstance * hero = node->targetHero;
 		HeroPtr heroPtr(hero, aiGw->cc);
 
-		if(!heroPtr.isValid())
+		if(!heroPtr.isVerified())
 		{
 			logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
@@ -148,7 +148,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					
 					node->specialAction->execute(aiGw, hero);
 					
-					if(!heroPtr.isValid())
+					if(!heroPtr.isVerified())
 					{
 						logAi->error("Hero %s was lost trying to execute special action. Exit hero chain.", heroPtr.nameOrDefault());
 
@@ -229,7 +229,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					}
 					catch(const cannotFulfillGoalException &)
 					{
-						if(!heroPtr.isValid())
+						if(!heroPtr.isVerified())
 						{
 							logAi->error("Hero %s was lost. Exit hero chain.", heroPtr.nameOrDefault());
 
@@ -275,7 +275,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		}
 		catch(const goalFulfilledException &)
 		{
-			if(!heroPtr.isValid())
+			if(!heroPtr.isVerified())
 			{
 				logAi->debug("Hero %s was killed while attempting to reach %s", heroPtr.nameOrDefault(), node->coord.toString());
 

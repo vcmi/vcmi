@@ -194,7 +194,7 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 			logAi->debug("AIGateway: Player %d (%s) lost. It's me. What a disappointment! :(", player, player.toString());
 		}
 
-		nullkiller->makingTurnInterrupption.interruptThread();
+		nullkiller->makingTurnInterruption.interruptThread();
 	}
 }
 
@@ -572,7 +572,7 @@ void AIGateway::yourTurn(QueryID queryID)
 	executeActionAsync("yourTurn", [this, queryID](){ answerQuery(queryID, 0); });
 	status.startedTurn();
 
-	nullkiller->makingTurnInterrupption.reset();
+	nullkiller->makingTurnInterruption.reset();
 
 	asyncTasks->run([this]()
 	{
@@ -593,11 +593,11 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 	{
 		int sel = 0;
 
-		if(heroPtr.isValid())
+		if(heroPtr.isVerified())
 		{
 			std::unique_lock lockGuard(nullkiller->aiStateMutex);
 			nullkiller->heroManager->update();
-			sel = nullkiller->heroManager->selectBestSkill(heroPtr, skills);
+			sel = nullkiller->heroManager->selectBestSkillIndex(heroPtr, skills);
 		}
 
 		answerQuery(queryID, sel);
@@ -630,7 +630,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 			bool answer = true;
 			auto objects = cc->getVisitableObjs(target);
 
-			if(heroPtr.isValid() && target.isValid() && !objects.empty())
+			if(heroPtr.isVerified() && target.isValid() && !objects.empty())
 			{
 				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
@@ -683,10 +683,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				std::unique_lock mxLock(nullkiller->aiStateMutex);
 
 				// TODO: Find better way to understand it is Chest of Treasures
-				if(heroPtr.isValid()
+				if(heroPtr.isVerified()
 					&& components.size() == 2
 					&& components.front().type == ComponentType::RESOURCE
-					&& (nullkiller->heroManager->getHeroRole(heroPtr) != HeroRole::MAIN
+					&& (nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) != HeroRole::MAIN
 						|| nullkiller->buildAnalyzer->isGoldPressureOverMax()))
 				{
 					sel = 1;
@@ -873,7 +873,7 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 			if(!heroPtr->getVisitedTown()->getGarrisonHero() || !nullkiller->isHeroLocked(heroPtr->getVisitedTown()->getGarrisonHero()))
 				moveCreaturesToHero(heroPtr->getVisitedTown());
 
-			if(nullkiller->heroManager->getHeroRole(heroPtr) == HeroRole::MAIN && !heroPtr->hasSpellbook()
+			if(nullkiller->heroManager->getHeroRoleOrDefault(heroPtr) == HeroRole::MAIN && !heroPtr->hasSpellbook()
 				&& nullkiller->getFreeGold() >= GameConstants::SPELLBOOK_GOLD_COST)
 			{
 				if(heroPtr->getVisitedTown()->hasBuilt(BuildingID::MAGES_GUILD_1))
@@ -1406,7 +1406,7 @@ void AIGateway::buildArmyIn(const CGTownInstance * t)
 
 void AIGateway::finish()
 {
-	nullkiller->makingTurnInterrupption.interruptThread();
+	nullkiller->makingTurnInterruption.interruptThread();
 
 	if (asyncTasks)
 	{
@@ -1429,13 +1429,13 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 	});
 }
 
-void AIGateway::lostHero(HeroPtr h)
+void AIGateway::lostHero(const HeroPtr & heroPtr) const
 {
-	logAi->debug("I lost my hero %s. It's best to forget and move on.", h.nameOrDefault());
+	logAi->debug("I lost my hero %s. It's best to forget and move on.", heroPtr.nameOrDefault());
 	nullkiller->invalidatePathfinderData();
 }
 
-void AIGateway::answerQuery(QueryID queryID, int selection)
+void AIGateway::answerQuery(const QueryID queryID, const int selection) const
 {
 	logAi->debug("I'll answer the query %d giving the choice %d", queryID, selection);
 	if(queryID != QueryID(-1))
@@ -1564,7 +1564,7 @@ void AIStatus::waitTillFree()
 	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
 	{
 		cv.wait_for(lock, std::chrono::milliseconds(10));
-		aiGw->nullkiller->makingTurnInterrupption.interruptionPoint();
+		aiGw->nullkiller->makingTurnInterruption.interruptionPoint();
 	}
 }
 

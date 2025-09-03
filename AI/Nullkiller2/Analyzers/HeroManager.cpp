@@ -18,7 +18,7 @@
 namespace NK2AI
 {
 
-const SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::mainSkillsEvaluator = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -47,7 +47,7 @@ const SecondarySkillEvaluator HeroManager::wariorSkillsScores = SecondarySkillEv
 		std::make_shared<AtLeastOneMagicRule>()
 	});
 
-const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEvaluator(
+const SecondarySkillEvaluator HeroManager::scoutSkillsEvaluator = SecondarySkillEvaluator(
 	{
 		std::make_shared<SecondarySkillScoreMap>(
 			std::map<SecondarySkill, float>
@@ -62,12 +62,12 @@ const SecondarySkillEvaluator HeroManager::scountSkillsScores = SecondarySkillEv
 
 float HeroManager::evaluateSecSkill(SecondarySkill skill, const CGHeroInstance * hero) const
 {
-	auto role = getHeroRole(hero);
+	auto role = getHeroRoleOrDefaultInefficient(hero);
 
 	if(role == HeroRole::MAIN)
-		return wariorSkillsScores.evaluateSecSkill(hero, skill);
+		return mainSkillsEvaluator.evaluateSecSkill(hero, skill);
 
-	return scountSkillsScores.evaluateSecSkill(hero, skill);
+	return scoutSkillsEvaluator.evaluateSecSkill(hero, skill);
 }
 
 float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
@@ -85,7 +85,7 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 		if(hasBonus)
 		{
 			SecondarySkill bonusSkill = bonus->sid.as<SecondarySkill>();
-			float bonusScore = wariorSkillsScores.evaluateSecSkill(hero, bonusSkill);
+			float bonusScore = mainSkillsEvaluator.evaluateSecSkill(hero, bonusSkill);
 
 			if(bonusScore > 0)
 				specialityScore += bonusScore * bonusScore * bonusScore;
@@ -98,7 +98,7 @@ float HeroManager::evaluateSpeciality(const CGHeroInstance * hero) const
 float HeroManager::evaluateFightingStrength(const CGHeroInstance * hero) const
 {
 	// TODO: Mircea: Shouldn't we count bonuses from artifacts when generating the fighting strength? That could make a huge difference
-	return evaluateSpeciality(hero) + wariorSkillsScores.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK) + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER) + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
+	return evaluateSpeciality(hero) + mainSkillsEvaluator.evaluateSecSkills(hero) + hero->getBasePrimarySkillValue(PrimarySkill::ATTACK) + hero->getBasePrimarySkillValue(PrimarySkill::DEFENSE) + hero->getBasePrimarySkillValue(PrimarySkill::SPELL_POWER) + hero->getBasePrimarySkillValue(PrimarySkill::KNOWLEDGE);
 }
 
 void HeroManager::update()
@@ -120,64 +120,58 @@ void HeroManager::update()
 	};
 
 	int globalMainCount = std::min(((int)myHeroes.size() + 2) / 3, cc->getMapSize().x / 50 + 1);
-
 	//vstd::amin(globalMainCount, 1 + (cb->getTownsInfo().size() / 3));
 	if(cc->getTownsInfo().size() < 4 && globalMainCount > 2)
 	{
 		globalMainCount = 2;
 	}
+	// TODO: Mircea: Make it dependent on myHeroes.size() or better?
+	logAi->trace("Max number of main heroes (globalMainCount) is %d", globalMainCount);
 
 	std::sort(myHeroes.begin(), myHeroes.end(), scoreSort);
 	heroToRoleMap.clear();
 
-	for(auto hero : myHeroes)
+	for(const auto hero : myHeroes)
 	{
+		HeroPtr heroPtr(hero, aiNk->cc);
+		HeroRole role;
 		if(hero->patrol.patrolling)
 		{
-			heroToRoleMap[HeroPtr(hero, aiNk->cc)] = HeroRole::MAIN;
+			role = MAIN;
 		}
 		else
 		{
-			heroToRoleMap[HeroPtr(hero, aiNk->cc)] = (globalMainCount--) > 0 ? HeroRole::MAIN : HeroRole::SCOUT;
+			role = globalMainCount-- > 0 ? MAIN : SCOUT;
 		}
-	}
 
-	for(auto hero : myHeroes)
-	{
-		logAi->trace("Hero %s has role %s", hero->getNameTranslated(), heroToRoleMap[HeroPtr(hero, aiNk->cc)] == HeroRole::MAIN ? "main" : "scout");
+		heroToRoleMap[heroPtr] = role;
+		logAi->trace("Hero %s has role %s", heroPtr.nameOrDefault(), role == MAIN ? "main" : "scout");
 	}
 }
 
-HeroRole HeroManager::getHeroRole(const  CGHeroInstance * hero) const
+HeroRole HeroManager::getHeroRoleOrDefaultInefficient(const  CGHeroInstance * hero) const
 {
-	return getHeroRole(HeroPtr(hero, aiNk->cc));
+	return getHeroRoleOrDefault(HeroPtr(hero, aiNk->cc));
 }
 
 // TODO: Mircea: Do we need this map on HeroPtr or is enough just on hero?
-HeroRole HeroManager::getHeroRole(const HeroPtr & heroPtr) const
+HeroRole HeroManager::getHeroRoleOrDefault(const HeroPtr & heroPtr) const
 {
 	if(heroToRoleMap.find(heroPtr) != heroToRoleMap.end())
 		return heroToRoleMap.at(heroPtr);
 	return HeroRole::SCOUT;
 }
 
-const std::map<HeroPtr, HeroRole> & HeroManager::getHeroToRoleMap() const
+int HeroManager::selectBestSkillIndex(const HeroPtr & heroPtr, const std::vector<SecondarySkill> & skills) const
 {
-	return heroToRoleMap;
-}
-
-int HeroManager::selectBestSkill(const HeroPtr & heroPtr, const std::vector<SecondarySkill> & skills) const
-{
-	auto role = getHeroRole(heroPtr);
-	auto & evaluator = role == HeroRole::MAIN ? wariorSkillsScores : scountSkillsScores;
-
+	const auto role = getHeroRoleOrDefault(heroPtr);
+	const auto & evaluator = role == MAIN ? mainSkillsEvaluator : scoutSkillsEvaluator;
 	int result = 0;
 	float resultScore = -100;
 
 	for(int i = 0; i < skills.size(); i++)
 	{
-		auto score = evaluator.evaluateSecSkill(heroPtr.get(), skills[i]);
-
+		const auto score = evaluator.evaluateSecSkill(heroPtr.getUnverified(), skills[i]);
 		if(score > resultScore)
 		{
 			resultScore = score;
@@ -185,7 +179,7 @@ int HeroManager::selectBestSkill(const HeroPtr & heroPtr, const std::vector<Seco
 		}
 
 		logAi->trace(
-			"Hero %s is proposed to learn %d with score %f",
+			"Hero %s is offered to learn %d with score %f",
 			heroPtr.nameOrDefault(),
 			skills[i].toEnum(),
 			score);
@@ -307,7 +301,7 @@ const CGHeroInstance * HeroManager::findWeakHeroToDismiss(uint64_t armyLimit, co
 	{
 		if(aiNk->getHeroLockedReason(existingHero) == HeroLockedReason::DEFENCE
 			|| existingHero->getArmyStrength() >armyLimit
-			|| getHeroRole(existingHero) == HeroRole::MAIN
+			|| getHeroRoleOrDefaultInefficient(existingHero) == HeroRole::MAIN
 			|| existingHero->movementPointsRemaining()
 			|| (townToSpare != nullptr && existingHero->getVisitedTown() == townToSpare)
 			|| existingHero->artifactsWorn.size() > (existingHero->hasSpellbook() ? 2 : 1))

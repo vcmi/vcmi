@@ -207,7 +207,7 @@ public:
 	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	void buildStructure(const CGTownInstance * t, BuildingID building);
 
-	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)
+	void lostHero(const HeroPtr & heroPtr) const; //should remove all references to hero (assigned tasks and so on)
 	void waitTillFree();
 
 	void validateObject(const CGObjectInstance * obj); //checks if object is still visible and if not, removes references to it
@@ -215,7 +215,7 @@ public:
 	virtual std::vector<const CGObjectInstance *> getFlaggedObjects() const;
 
 	void requestSent(const CPackForServer * pack, int requestID) override;
-	void answerQuery(QueryID queryID, int selection);
+	void answerQuery(QueryID queryID, int selection) const;
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void executeActionAsync(const std::string & description, const std::function<void()> & whatToDo);
 

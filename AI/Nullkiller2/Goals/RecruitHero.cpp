@@ -70,8 +70,8 @@ void RecruitHero::accept(AIGateway * aiGw)
 	ccTl->recruitHero(t, heroToHire);
 
 	{
+		// TODO: Mircea: Consider same behavior when a hero is lost? Relevant?
 		std::unique_lock lockGuard(aiGw->nullkiller->aiStateMutex);
-
 		aiGw->nullkiller->heroManager->update();
 		aiGw->nullkiller->objectClusterizer->reset();
 	}

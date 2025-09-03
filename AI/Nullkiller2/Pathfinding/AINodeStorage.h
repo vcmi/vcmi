@@ -162,11 +162,8 @@ class AINodeStorage : public INodeStorage
 {
 private:
 	int3 sizes;
-
 	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
-
-	const CPlayerSpecificInfoCallback * cc;
-	const Nullkiller * aiNk;
+	const Nullkiller * aiNk; // TODO: Mircea: Replace with &
 	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
@@ -265,7 +262,7 @@ public:
 	bool isDistanceLimitReached(const PathNodeInfo & source, CDestinationNodeInfo & destination) const;
 
 	std::optional<AIPathNode *> getOrCreateNode(const int3 & coord, const EPathfindingLayer layer, const ChainActor * actor);
-	void calculateChainInfo(std::vector<AIPath> & result, const int3 & pos, bool isOnLand) const;
+	void calculateChainInfo(std::vector<AIPath> & paths, const int3 & pos, bool isOnLand) const;
 	bool isTileAccessible(const HeroPtr & heroPtr, const int3 & pos, const EPathfindingLayer layer) const;
 	void setHeroes(std::map<const CGHeroInstance *, HeroRole> heroes);
 	void setScoutTurnDistanceLimit(uint8_t distanceLimit) { turnDistanceLimit[HeroRole::SCOUT] = distanceLimit; }

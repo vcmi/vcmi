@@ -79,14 +79,14 @@ struct DLL_EXPORT HeroPtr
 private:
 	const CGHeroInstance * hero;
 	std::shared_ptr<CPlayerSpecificInfoCallback> cpsic;
-	bool validate() const;
+	bool verify() const;
 
 public:
 	explicit HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic);
 
 	explicit operator bool() const
 	{
-		return isValid();
+		return isVerified();
 	}
 
 	bool operator<(const HeroPtr & rhs) const;
@@ -101,7 +101,8 @@ public:
 	ObjectInstanceID idOrNone() const;
 	std::string nameOrDefault() const;
 	const CGHeroInstance * get() const;
-	bool isValid() const;
+	const CGHeroInstance * getUnverified() const;
+	bool isVerified() const;
 };
 
 enum BattleState

@@ -15,7 +15,6 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
-#include "../Behaviors/StartupBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
@@ -23,7 +22,6 @@
 #include "../Behaviors/StayAtTownBehavior.h"
 #include "../Behaviors/ExplorationBehavior.h"
 #include "../Goals/Invalid.h"
-#include "../Goals/Composition.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/pathfinder/PathfinderCache.h"
@@ -41,7 +39,6 @@ Nullkiller::Nullkiller()
 	: activeHero(nullptr)
 	, scanDepth(ScanDepth::MAIN_FULL)
 	, useHeroChain(true)
-	, pathfinderInvalidated(false)
 	, memory(std::make_unique<AIMemory>())
 {
 
@@ -49,7 +46,7 @@ Nullkiller::Nullkiller()
 
 Nullkiller::~Nullkiller() = default;
 
-bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
+bool canUseOpenMap(const std::shared_ptr<CCallback>& cb, const PlayerColor playerID)
 {
 	if(!cb->getStartInfo()->extraOptionsInfo.cheatsAllowed)
 	{
@@ -58,31 +55,33 @@ bool canUseOpenMap(std::shared_ptr<CCallback> cb, PlayerColor playerID)
 
 	const TeamState * team = cb->getPlayerTeam(playerID);
 
-	auto hasHumanInTeam = vstd::contains_if(team->players, [cb](PlayerColor teamMateID) -> bool
+	const auto hasHumanInTeam = vstd::contains_if(
+		team->players,
+		[cb](const PlayerColor teamMateID) -> bool
 		{
 			return cb->getPlayerState(teamMateID)->isHuman();
-		});
+		}
+	);
 
 	return !hasHumanInTeam;
 }
 
-void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * aiGw)
+void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * aiGwInput)
 {
-	this->cc = cb;
-	this->aiGw = aiGw;
-	this->playerID = aiGw->playerID;
+	cc = cbInput;
+	aiGw = aiGwInput;
+	playerID = aiGwInput->playerID;
 
-	settings = std::make_unique<Settings>(cb->getStartInfo()->difficulty);
+	settings = std::make_unique<Settings>(cc->getStartInfo()->difficulty);
 
-	PathfinderOptions pathfinderOptions(*cb);
-
+	PathfinderOptions pathfinderOptions(*cc);
 	pathfinderOptions.useTeleportTwoWay = true;
 	pathfinderOptions.useTeleportOneWay = settings->isOneWayMonolithUsageAllowed();
 	pathfinderOptions.useTeleportOneWayRandom = settings->isOneWayMonolithUsageAllowed();
 
-	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), pathfinderOptions);
+	pathfinderCache = std::make_unique<PathfinderCache>(cc.get(), pathfinderOptions);
 
-	if(canUseOpenMap(cb, playerID))
+	if(canUseOpenMap(cc, playerID))
 	{
 		useObjectGraph = settings->isObjectGraphAllowed();
 		openMap = settings->isOpenMap() || useObjectGraph;
@@ -94,7 +93,6 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * aiGw)
 	}
 
 	baseGraph.reset();
-
 	priorityEvaluator.reset(new PriorityEvaluator(this));
 	priorityEvaluators.reset(
 		new SharedPool<PriorityEvaluator>(
@@ -107,15 +105,16 @@ void Nullkiller::init(std::shared_ptr<CCallback> cb, AIGateway * aiGw)
 	buildAnalyzer.reset(new BuildAnalyzer(this));
 	objectClusterizer.reset(new ObjectClusterizer(this));
 	dangerEvaluator.reset(new FuzzyHelper(this));
-	pathfinder.reset(new AIPathfinder(cb.get(), this));
-	armyManager.reset(new ArmyManager(cb.get(), this));
-	heroManager.reset(new HeroManager(cb.get(), this));
+	pathfinder.reset(new AIPathfinder(cc.get(), this));
+	armyManager.reset(new ArmyManager(cc.get(), this));
+	heroManager.reset(new HeroManager(cc.get(), this));
 	decomposer.reset(new DeepDecomposer(this));
-	armyFormation.reset(new ArmyFormation(cb, this));
+	armyFormation.reset(new ArmyFormation(cc, this));
 }
 
 TaskPlanItem::TaskPlanItem(const TSubgoal & task)
-	:task(task), affectedObjects(task->asTask()->getAffectedObjects())
+	: affectedObjects(task->asTask()->getAffectedObjects())
+	, task(task)
 {
 }
 
@@ -216,12 +215,12 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 
 void Nullkiller::decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const
 {
-	makingTurnInterrupption.interruptionPoint();
+	makingTurnInterruption.interruptionPoint();
 	logAi->debug("Decomposing behavior %s", behavior->toString());
 	const auto start = std::chrono::high_resolution_clock::now();
 	decomposer->decompose(results, behavior, decompositionMaxDepth);
 
-	makingTurnInterrupption.interruptionPoint();
+	makingTurnInterruption.interruptionPoint();
 	logAi->debug("Decomposing behavior %s done in %ld", behavior->toString(), timeElapsed(start));
 }
 
@@ -250,9 +249,13 @@ void Nullkiller::invalidatePathfinderData()
 
 void Nullkiller::updateState()
 {
-	makingTurnInterrupption.interruptionPoint();
+#if NK2AI_TRACE_LEVEL >= 1
+	logAi->info("PERFORMANCE: AI updateState started");
+#endif
+
+	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
-	auto start = std::chrono::high_resolution_clock::now();
+	const auto start = std::chrono::high_resolution_clock::now();
 
 	activeHero = nullptr;
 	setTargetObject(-1);
@@ -260,28 +263,17 @@ void Nullkiller::updateState()
 
 	buildAnalyzer->update();
 
-	if (!pathfinderInvalidated)
-		logAi->trace("Skipping paths regeneration - up to date");
+	if(!pathfinderInvalidated && dangerHitMap->isHitMapUpToDate() && dangerHitMap->isTileOwnersUpToDate())
+		logAi->trace("Skipping full state regeneration - up to date");
 	else
 	{
 		memory->removeInvisibleObjects(cc.get());
 		dangerHitMap->updateHitMap();
 		dangerHitMap->calculateTileOwners();
 
-		makingTurnInterrupption.interruptionPoint();
-
+		makingTurnInterruption.interruptionPoint();
 		heroManager->update();
 		logAi->trace("Updating paths");
-
-		std::map<const CGHeroInstance *, HeroRole> activeHeroes;
-
-		for(auto hero : cc->getHeroesInfo())
-		{
-			if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
-				continue;
-
-			activeHeroes[hero] = heroManager->getHeroRole(hero);
-		}
 
 		PathfinderSettings cfg;
 		cfg.useHeroChain = useHeroChain;
@@ -297,27 +289,35 @@ void Nullkiller::updateState()
 			cfg.scoutTurnDistanceLimit = settings->getScoutHeroTurnDistanceLimit();
 		}
 
-		makingTurnInterrupption.interruptionPoint();
-
-		pathfinder->updatePaths(activeHeroes, cfg);
+		makingTurnInterruption.interruptionPoint();
+		const auto heroes = getHeroesForPathfinding();
+		pathfinder->updatePaths(heroes, cfg);
 
 		if(isObjectGraphAllowed())
 		{
 			pathfinder->updateGraphs(
-				activeHeroes,
+				heroes,
 				scanDepth == ScanDepth::SMALL ? PathfinderSettings::MaxTurnDistanceLimit : 10,
 				scanDepth == ScanDepth::ALL_FULL ? PathfinderSettings::MaxTurnDistanceLimit : 3);
 		}
 
-		makingTurnInterrupption.interruptionPoint();
-
+		makingTurnInterruption.interruptionPoint();
 		objectClusterizer->clusterize();
 		pathfinderInvalidated = false;
 	}
 
 	armyManager->update();
 
-	logAi->debug("AI state updated in %ld ms", timeElapsed(start));
+#if NK2AI_TRACE_LEVEL >= 1
+	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 499)
+	{
+		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+	}
+	else
+	{
+		logAi->info("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
+	}
+#endif
 }
 
 bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
@@ -335,7 +335,7 @@ bool Nullkiller::arePathHeroesLocked(const AIPath & path) const
 		return true;
 	}
 
-	for(auto & node : path.nodes)
+	for(const auto & node : path.nodes)
 	{
 		auto lockReason = getHeroLockedReason(node.targetHero);
 
@@ -368,9 +368,7 @@ void Nullkiller::makeTurn()
 
 	for(int i = 1; i <= settings->getMaxPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
-		updateState();
-
-		if (!makeTurnHelperPriorityPass(tasks, i)) return;
+		if (!updateStateAndExecutePriorityPass(tasks, i)) return;
 
 		tasks.clear();
 		decompose(tasks, sptr(CaptureObjectsBehavior()), 1);
@@ -493,15 +491,14 @@ void Nullkiller::makeTurn()
 	}
 }
 
-bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int passIndex)
+bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults, const int passIndex)
 {
+	updateState();
+
 	Goals::TTask bestPrioPassTask = taskptr(Goals::Invalid());
 	for(int i = 1; i <= settings->getMaxPriorityPass() && cc->getPlayerStatus(playerID) == EPlayerStatus::INGAME; i++)
 	{
 		tempResults.clear();
-
-		// Call updateHitMap here instead of inside each of the 3 behaviors
-		dangerHitMap->updateHitMap();
 
 		decompose(tempResults, sptr(RecruitHeroBehavior()), 1);
 		decompose(tempResults, sptr(BuyArmyBehavior()), 1);
@@ -510,13 +507,15 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 		bestPrioPassTask = choseBestTask(tempResults);
 		if(bestPrioPassTask->priority > 0)
 		{
-#if NK2AI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
-#endif
 
 			if(!executeTask(bestPrioPassTask))
+			{
+				logAi->warn("Task failed to execute");
 				return false;
+			}
 
+			// TODO: Mircea: Might want to consider calling it before executeTask just in case
 			updateState();
 		}
 		else
@@ -532,7 +531,7 @@ bool Nullkiller::makeTurnHelperPriorityPass(Goals::TGoalVec & tempResults, int p
 	return true;
 }
 
-bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
+bool Nullkiller::areAffectedObjectsPresent(const Goals::TTask & task) const
 {
 	auto affectedObjs = task->getAffectedObjects();
 
@@ -545,23 +544,23 @@ bool Nullkiller::areAffectedObjectsPresent(Goals::TTask task) const
 	return true;
 }
 
-HeroRole Nullkiller::getTaskRole(Goals::TTask task) const
+HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 {
 	HeroPtr heroPtr(task->getHero(), cc);
 	HeroRole heroRole = HeroRole::MAIN;
 
-	if(heroPtr.isValid())
-		heroRole = heroManager->getHeroRole(heroPtr);
+	if(heroPtr.isVerified())
+		heroRole = heroManager->getHeroRoleOrDefault(heroPtr);
 
 	return heroRole;
 }
 
-bool Nullkiller::executeTask(Goals::TTask task)
+bool Nullkiller::executeTask(const Goals::TTask & task)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();
 
-	makingTurnInterrupption.interruptionPoint();
+	makingTurnInterruption.interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
 
 	try
@@ -602,7 +601,7 @@ bool Nullkiller::handleTrading()
 	bool haveTraded = false;
 	bool shouldTryToTrade = true;
 	ObjectInstanceID marketId;
-	for (auto town : cc->getTownsInfo())
+	for (const auto town : cc->getTownsInfo())
 	{
 		if (town->hasBuiltSomeTradeBuilding())
 		{
@@ -645,7 +644,7 @@ bool Nullkiller::handleTrading()
 
 				for (int i = 0; i < required.size(); ++i)
 				{
-					float ratio = available[i];
+					float ratio;
 					if (required[i] > 0)
 						ratio = static_cast<float>(available[i]) / required[i];
 					else
@@ -722,6 +721,19 @@ void Nullkiller::tracePlayerStatus(bool beginning) const
 	const auto *firstWord = beginning ? "Beginning:" : "End:";
 	logAi->info("%s totalHeroesStrength: %f, totalTownsLevel: %d, resources: %s", firstWord, totalHeroesStrength, totalTownsLevel, cc->getResourceAmount().toString());
 #endif
+}
+
+std::map<const CGHeroInstance *, HeroRole> Nullkiller::getHeroesForPathfinding() const
+{
+	std::map<const CGHeroInstance *, HeroRole> activeHeroes;
+	for(auto hero : cc->getHeroesInfo())
+	{
+		if(getHeroLockedReason(hero) == HeroLockedReason::DEFENCE)
+			continue;
+
+		activeHeroes[hero] = heroManager->getHeroRoleOrDefaultInefficient(hero);
+	}
+	return activeHeroes;
 }
 
 }

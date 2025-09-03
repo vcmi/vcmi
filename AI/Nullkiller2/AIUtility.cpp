@@ -78,17 +78,24 @@ ObjectInstanceID HeroPtr::idOrNone() const
 std::string HeroPtr::nameOrDefault() const
 {
 	if (hero)
-		return hero->getNameTextID();
+		return hero->getNameTextID() + "(" + hero->getNameTranslated() + ")";
 	return "<NO HERO>";
 }
 
+// enforces isVerified()
 const CGHeroInstance * HeroPtr::get() const
 {
-	assert(isValid());
+	assert(isVerified());
 	return hero;
 }
 
-bool HeroPtr::validate() const
+// does not enforce isVerified()
+const CGHeroInstance * HeroPtr::getUnverified() const
+{
+	return hero;
+}
+
+bool HeroPtr::verify() const
 {
 	// TODO: check if these all assertions every time we get info about hero affect efficiency
 	// behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
@@ -101,7 +108,6 @@ bool HeroPtr::validate() const
 		if(!obj)
 			return false;
 
-		assert(hero == obj);
 		return true;
 		//assert(owned);
 	}
@@ -109,23 +115,27 @@ bool HeroPtr::validate() const
 	return false;
 }
 
+// enforces isVerified()
 const CGHeroInstance * HeroPtr::operator->() const
 {
-	assert(isValid());
+	assert(isVerified());
 	return hero;
 }
 
-bool HeroPtr::isValid() const
+// Should be called before using the hero inside this HeroPtr, that's the point of this
+bool HeroPtr::isVerified() const
 {
-	return validate();
+	return verify();
 }
 
+// enforces isVerified()
 const CGHeroInstance * HeroPtr::operator*() const
 {
-	assert(isValid());
+	assert(isVerified());
 	return hero;
 }
 
+// enforces isVerified() on input
 bool HeroPtr::operator==(const HeroPtr & rhs) const
 {
 	return hero == rhs.get();
@@ -712,7 +722,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 	{
-		if(aiNk->heroManager->getHeroRole(hero) == HeroRole::SCOUT)
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT)
 			return false;
 
 		TResources myRes = aiNk->getFreeResources();

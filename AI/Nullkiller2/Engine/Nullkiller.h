@@ -110,13 +110,13 @@ public:
 	/// Same value as AIGateway->cc
 	std::shared_ptr<CCallback> cc;
 	std::mutex aiStateMutex;
-	mutable ThreadInterruption makingTurnInterrupption;
+	mutable ThreadInterruption makingTurnInterruption;
 
 	Nullkiller();
 	virtual ~Nullkiller();
-	void init(std::shared_ptr<CCallback> cb, AIGateway * aiGw);
+	void init(const std::shared_ptr<CCallback> & cbInput, AIGateway * aiGwInput);
 	virtual void makeTurn();
-	bool makeTurnHelperPriorityPass(Goals::TGoalVec& tempResults, int passIndex);
+	bool updateStateAndExecutePriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
 	HeroPtr getActiveHero() { return HeroPtr(activeHero, cc); }
@@ -140,6 +140,7 @@ public:
 
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
 	void invalidatePaths();
+	std::map<const CGHeroInstance *, HeroRole> getHeroesForPathfinding() const;
 
 private:
 	void resetState();
@@ -147,9 +148,9 @@ private:
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier) const;
-	bool executeTask(Goals::TTask task);
-	bool areAffectedObjectsPresent(Goals::TTask task) const;
-	HeroRole getTaskRole(Goals::TTask task) const;
+	bool executeTask(const Goals::TTask & task);
+	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
+	HeroRole getTaskRole(const Goals::TTask & task) const;
 	void tracePlayerStatus(bool beginning) const;
 };
 

@@ -49,27 +49,23 @@ void AIPathfinder::calculateQuickPathsWithBlocker(std::vector<AIPath> & result, 
 	}
 }
 
-void AIPathfinder::calculatePathInfo(std::vector<AIPath> & result, const int3 & tile, bool includeGraph) const
+void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph) const
 {
 	const TerrainTile * tileInfo = cb->getTile(tile, false);
-
-	result.clear();
-
+	paths.clear();
 	if(!tileInfo)
-	{
 		return;
-	}
 
-	storage->calculateChainInfo(result, tile, !tileInfo->isWater());
+	storage->calculateChainInfo(paths, tile, !tileInfo->isWater());
 
 	if(includeGraph)
 	{
-		for(auto hero : cb->getHeroesInfo())
+		for(const auto * hero : cb->getHeroesInfo())
 		{
 			auto graph = heroGraphs.find(hero->id);
 
 			if(graph != heroGraphs.end())
-				graph->second->addChainInfo(result, tile, hero, aiNk);
+				graph->second->addChainInfo(paths, tile, hero, aiNk);
 		}
 	}
 }
@@ -118,11 +114,11 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 
 		do
 		{
-			aiNk->makingTurnInterrupption.interruptionPoint();
+			aiNk->makingTurnInterruption.interruptionPoint();
 
 			while(storage->calculateHeroChain())
 			{
-				aiNk->makingTurnInterrupption.interruptionPoint();
+				aiNk->makingTurnInterruption.interruptionPoint();
 
 				logAi->trace("Recalculate paths pass %d", pass++);
 				cb->calculatePaths(config);
@@ -131,11 +127,11 @@ void AIPathfinder::updatePaths(const std::map<const CGHeroInstance *, HeroRole> 
 			logAi->trace("Select next actor");
 		} while(storage->selectNextActor());
 
-		aiNk->makingTurnInterrupption.interruptionPoint();
+		aiNk->makingTurnInterruption.interruptionPoint();
 
 		if(storage->calculateHeroChainFinal())
 		{
-			aiNk->makingTurnInterrupption.interruptionPoint();
+			aiNk->makingTurnInterruption.interruptionPoint();
 
 			logAi->trace("Recalculate paths pass final");
 			cb->calculatePaths(config);

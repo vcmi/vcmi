@@ -77,7 +77,9 @@ public:
 	const HitMapNode & getTileThreat(const int3 & tile) const;
 	std::set<const CGObjectInstance *> getOneTurnAccessibleObjects(const CGHeroInstance * enemy) const;
 	void resetHitmap() {hitMapUpToDate = false;}
+	bool isHitMapUpToDate() const { return hitMapUpToDate; }
 	void resetTileOwners() { tileOwnersUpToDate = false; }
+	bool isTileOwnersUpToDate() const { return tileOwnersUpToDate; }
 	PlayerColor getTileOwner(const int3 & tile) const;
 	const CGTownInstance * getClosestTown(const int3 & tile) const;
 	const std::vector<HitMapInfo> & getTownThreats(const CGTownInstance * town) const;

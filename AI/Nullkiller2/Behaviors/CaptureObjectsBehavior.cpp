@@ -82,7 +82,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		if (hero->getOwner() != nullkiller->playerID)
 			continue;
 
-		if(nullkiller->heroManager->getHeroRole(hero) == HeroRole::SCOUT
+		if(nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT
 			&& (path.getTotalDanger() == 0 || path.turn() > 0)
 			&& path.exchangeCount > 1)
 		{
@@ -132,13 +132,10 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		{
 			auto newWay = new ExecuteHeroChain(path, objToVisit);
 			TSubgoal sharedPtr;
-
 			sharedPtr.reset(newWay);
-
-			auto heroRole = nullkiller->heroManager->getHeroRole(path.targetHero);
+			auto heroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
 
 			auto & closestWay = closestWaysByRole[heroRole];
-
 			if(!closestWay || closestWay->movementCost() > path.movementCost())
 			{
 				closestWay = &path;
@@ -152,15 +149,14 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		}
 	}
 
-	for(auto way : waysToVisitObj)
+	for(auto * way : waysToVisitObj)
 	{
-		auto heroRole = nullkiller->heroManager->getHeroRole(way->getPath().targetHero);
-		auto closestWay = closestWaysByRole[heroRole];
+		auto heroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(way->getPath().targetHero);
+		const auto * closestWay = closestWaysByRole[heroRole];
 
 		if(closestWay)
 		{
-			way->closestWayRatio
-				= closestWay->movementCost() / way->getPath().movementCost();
+			way->closestWayRatio = closestWay->movementCost() / way->getPath().movementCost();
 		}
 	}
 
@@ -173,14 +169,10 @@ void CaptureObjectsBehavior::decomposeObjects(
 	const Nullkiller * nullkiller) const
 {
 	if(objs.empty())
-	{
 		return;
-	}
 
 	std::mutex sync;
-
 	logAi->debug("Scanning objects, count %d", objs.size());
-
 	tbb::parallel_for(
 		tbb::blocked_range<size_t>(0, objs.size()),
 		[this, &objs, &sync, &result, nullkiller](const tbb::blocked_range<size_t> & r)
@@ -191,8 +183,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 
 			for(auto i = r.begin(); i != r.end(); i++)
 			{
-				auto objToVisit = objs[i];
-
+				const auto * objToVisit = objs[i];
 				if(!objectMatchesFilter(objToVisit))
 					continue;
 
@@ -200,6 +191,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 				logAi->trace("Checking object %s, %s", objToVisit->getObjectName(), objToVisit->visitablePos().toString());
 #endif
 
+				// FIXME: Mircea: This one uses the deleted hero
 				nullkiller->pathfinder->calculatePathInfo(paths, objToVisit->visitablePos(), nullkiller->isObjectGraphAllowed());
 
 #if NK2AI_TRACE_LEVEL >= 1

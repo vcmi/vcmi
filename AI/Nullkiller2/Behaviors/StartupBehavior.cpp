@@ -172,7 +172,7 @@ Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * aiNk) const
 				auto garrisonHeroScore = aiNk->heroManager->evaluateHero(garrisonHero);
 
 				if(visitingHeroScore > garrisonHeroScore
-					|| (aiNk->heroManager->getHeroRole(garrisonHero) == HeroRole::SCOUT && aiNk->heroManager->getHeroRole(visitingHero) == HeroRole::MAIN))
+					|| (aiNk->heroManager->getHeroRoleOrDefaultInefficient(garrisonHero) == HeroRole::SCOUT && aiNk->heroManager->getHeroRoleOrDefaultInefficient(visitingHero) == HeroRole::MAIN))
 				{
 					if(canRecruitHero || aiNk->armyManager->howManyReinforcementsCanGet(visitingHero, garrisonHero) > 200)
 					{

@@ -84,7 +84,7 @@ void handleCounterAttack(
 	const Nullkiller * aiNk,
 	Goals::TGoalVec & tasks)
 {
-	if(threat.heroPtr.isValid()
+	if(threat.heroPtr.isVerified()
 		&& threat.turn <= 1
 		&& (threat.danger == maximumDanger.danger || threat.turn < maximumDanger.turn))
 	{
@@ -132,7 +132,7 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 
 			return false;
 		}
-		else if(aiNk->heroManager->getHeroRole(town->getGarrisonHero()) == HeroRole::MAIN)
+		else if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(town->getGarrisonHero()) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
 			auto heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(armyDismissLimit);
