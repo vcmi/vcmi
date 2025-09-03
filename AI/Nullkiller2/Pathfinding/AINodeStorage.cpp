@@ -1429,10 +1429,10 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			continue;
 		}
 
-		if(HeroPtr heroPtr(node.actor->hero, aiNk->cc); !heroPtr.isVerified())
+		if(HeroPtr heroPtr(node.actor->hero, aiNk->cc); !heroPtr.isVerified(false))
 		{
 #if NK2AI_TRACE_LEVEL >= 1
-			logAi->warn("AINodeStorage::calculateChainInfo Skipping unverified hero: %s", heroPtr.nameOrDefault());
+			logAi->warn("AINodeStorage::calculateChainInfo Skipping path due to unverified hero: %s", heroPtr.nameOrDefault());
 #endif
 			continue;
 		}

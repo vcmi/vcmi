@@ -95,14 +95,14 @@ const CGHeroInstance * HeroPtr::getUnverified() const
 	return hero;
 }
 
-bool HeroPtr::verify() const
+bool HeroPtr::verify(const bool verbose) const
 {
 	// TODO: check if these all assertions every time we get info about hero affect efficiency
 	// behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
 
 	if(hero)
 	{
-		const auto *obj = cpsic->getObj(hero->id);
+		const auto *obj = cpsic->getObj(hero->id, verbose);
 		//const bool owned = obj && obj->tempOwner == ai->playerID;
 
 		if(!obj)
@@ -123,9 +123,9 @@ const CGHeroInstance * HeroPtr::operator->() const
 }
 
 // Should be called before using the hero inside this HeroPtr, that's the point of this
-bool HeroPtr::isVerified() const
+bool HeroPtr::isVerified(const bool verbose) const
 {
-	return verify();
+	return verify(verbose);
 }
 
 // enforces isVerified()

@@ -61,7 +61,7 @@ public:
 	const CArtifactSet * getArtSet(const ArtifactLocation & loc) const;
 
 	//objects
-	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
+	const CGObjectInstance * getObj(ObjectInstanceID objId, bool verbose = true) const override;
 	std::vector<const CGObjectInstance *> getBlockingObjs(int3 pos) const;
 	std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos, bool verbose = true) const;
 	std::vector<const CGObjectInstance *> getAllVisitableObjs() const;

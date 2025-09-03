@@ -460,17 +460,22 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-#if NK2AI_TRACE_LEVEL >= 1
 			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
-#endif
 
-			if(!executeTask(selectedTask))
+			if(HeroPtr heroPtr(selectedTask->getHero(), cc); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
-				if(hasAnySuccess)
-					break;
-				return;
+				logAi->warn("Nullkiller::makeTurn Skipping pass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
-			hasAnySuccess = true;
+			else
+			{
+				if(!executeTask(selectedTask))
+				{
+					if(hasAnySuccess)
+						break;
+					return;
+				}
+				hasAnySuccess = true;
+			}
 		}
 
 		hasAnySuccess |= handleTrading();
@@ -509,13 +514,16 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 		{
 			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
 
-			if(!executeTask(bestPrioPassTask))
+			if(HeroPtr heroPtr(bestPrioPassTask->getHero(), cc); bestPrioPassTask->getHero() && !heroPtr.isVerified(false))
+			{
+				logAi->warn("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
+			}
+			else if(!executeTask(bestPrioPassTask))
 			{
 				logAi->warn("Task failed to execute");
 				return false;
 			}
 
-			// TODO: Mircea: Might want to consider calling it before executeTask just in case
 			updateState();
 		}
 		else
@@ -555,7 +563,7 @@ HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 	return heroRole;
 }
 
-bool Nullkiller::executeTask(const Goals::TTask & task)
+bool Nullkiller::executeTask(const Goals::TTask & task) const
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::string taskDescr = task->toString();

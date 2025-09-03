@@ -148,7 +148,7 @@ private:
 	void decompose(Goals::TGoalVec & results, const Goals::TSubgoal& behavior, int decompositionMaxDepth) const;
 	Goals::TTask choseBestTask(Goals::TGoalVec & tasks) const;
 	Goals::TTaskVec buildPlan(Goals::TGoalVec & tasks, int priorityTier) const;
-	bool executeTask(const Goals::TTask & task);
+	bool executeTask(const Goals::TTask & task) const;
 	bool areAffectedObjectsPresent(const Goals::TTask & task) const;
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	void tracePlayerStatus(bool beginning) const;

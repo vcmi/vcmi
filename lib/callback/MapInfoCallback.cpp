@@ -22,19 +22,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 MapInfoCallback::~MapInfoCallback() = default;
 
-const CGObjectInstance * MapInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
+const CGObjectInstance * MapInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
 {
-	if(!objid.hasValue())
+	if(!objId.hasValue())
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. No such object", objid.getNum());
+			logGlobal->error("Cannot get object with id %d. No such object", objId.getNum());
 		return nullptr;
 	}
 
-	const CGObjectInstance * ret = getMapConstPtr()->getObject(objid);
+	const CGObjectInstance * ret = getMapConstPtr()->getObject(objId);
 	if(!ret && verbose)
 	{
-		logGlobal->error("Cannot get object with id %d. Object was removed", objid.getNum());
+		logGlobal->error("Cannot get object with id %d. Object was removed", objId.getNum());
 		return nullptr;
 	}
 

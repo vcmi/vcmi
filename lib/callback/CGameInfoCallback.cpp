@@ -111,17 +111,16 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 /*                                                                      */
 /************************************************************************/
 
-const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
+const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
 {
-	const CGObjectInstance * ret = MapInfoCallback::getObj(objid, verbose);
-
+	const CGObjectInstance * ret = MapInfoCallback::getObj(objId, verbose);
 	if(!ret)
 		return nullptr;
 
 	if(getPlayerID().has_value() && !isVisibleFor(ret, *getPlayerID()) && ret->tempOwner != getPlayerID())
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. Object is not visible.", objid.getNum());
+			logGlobal->error("Cannot get object with id %d. Object is not visible.", objId.getNum());
 		return nullptr;
 	}
 
