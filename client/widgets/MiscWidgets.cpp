@@ -279,9 +279,9 @@ void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slot
 		else
 		{
 			//if =0 - we have no information about stack size at all
-			if (slot.second.getCount())
+			if(slot.second.getCount())
 			{
-				if (settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 				{
 					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
 				}
