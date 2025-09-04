@@ -327,7 +327,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
         tooltip = std::make_shared<CGarrisonTooltip>(Point(9, 10), iah);
      else
         tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
-	
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
