@@ -323,10 +323,14 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 
 	OBJECT_CONSTRUCTION;
 
-    if(settings["general"]["enableUiEnhancements"].Bool())
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
         tooltip = std::make_shared<CGarrisonTooltip>(Point(9, 10), iah);
-     else
+	}
+	else
+	{
         tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
+	}
 
 	addUsedEvents(DRAG_POPUP);
 
