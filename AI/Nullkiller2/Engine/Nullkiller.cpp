@@ -10,22 +10,23 @@
 #include "StdInc.h"
 #include "Nullkiller.h"
 
-#include <boost/range/algorithm/sort.hpp>
-#include "../AIGateway.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
-#include "../Behaviors/RecruitHeroBehavior.h"
-#include "../Behaviors/BuyArmyBehavior.h"
-#include "../Behaviors/DefenceBehavior.h"
-#include "../Behaviors/BuildingBehavior.h"
-#include "../Behaviors/GatherArmyBehavior.h"
-#include "../Behaviors/ClusterBehavior.h"
-#include "../Behaviors/StayAtTownBehavior.h"
-#include "../Behaviors/ExplorationBehavior.h"
-#include "../Goals/Invalid.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/pathfinder/PathfinderCache.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
+#include "../AIGateway.h"
+#include "../Behaviors/BuildingBehavior.h"
+#include "../Behaviors/BuyArmyBehavior.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "../Behaviors/ClusterBehavior.h"
+#include "../Behaviors/DefenceBehavior.h"
+#include "../Behaviors/ExplorationBehavior.h"
+#include "../Behaviors/GatherArmyBehavior.h"
+#include "../Behaviors/RecruitHeroBehavior.h"
+#include "../Behaviors/StayAtTownBehavior.h"
+#include "../Goals/Invalid.h"
+#include "Goals/RecruitHero.h"
+#include <boost/range/algorithm/sort.hpp>
 
 namespace NK2AI
 {
@@ -510,11 +511,14 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 		decompose(tempResults, sptr(BuildingBehavior()), 1);
 
 		bestPrioPassTask = choseBestTask(tempResults);
+
 		if(bestPrioPassTask->priority > 0)
 		{
 			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
 
-			if(HeroPtr heroPtr(bestPrioPassTask->getHero(), cc); bestPrioPassTask->getHero() && !heroPtr.isVerified(false))
+			const bool isRecruitHeroGoal = dynamic_cast<RecruitHero*>(bestPrioPassTask.get()) != nullptr;
+			HeroPtr heroPtr(bestPrioPassTask->getHero(), cc);
+			if(!isRecruitHeroGoal && bestPrioPassTask->getHero() && !heroPtr.isVerified(false))
 			{
 				logAi->warn("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
