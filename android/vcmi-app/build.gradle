@@ -37,8 +37,6 @@ android {
 
 		versionCode 1700
 		versionName "1.7.0"
-
-		setProperty("archivesBaseName", "vcmi")
 	}
 
 	sourceSets {
@@ -103,6 +101,7 @@ android {
 	}
 }
 
+base.archivesName = "vcmi"
 shortcutHelper.filePath = "../shortcuts.xml"
 
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
