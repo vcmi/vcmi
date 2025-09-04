@@ -44,7 +44,7 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 
-			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts${applicationVariant}" /> 
+			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" /> 
 
 			<meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
 			<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>

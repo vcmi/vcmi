@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.zellius.shortcut-helper'
 
 android {
 	/*******************************************************
@@ -101,6 +102,8 @@ android {
 		noCompress 'rcc'
 	}
 }
+
+shortcutHelper.filePath = "../shortcuts.xml"
 
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
 	return file("${basePath}/${signingConfigKey}.properties")
