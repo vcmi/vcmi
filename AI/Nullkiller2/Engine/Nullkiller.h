@@ -97,6 +97,7 @@ public:
 	std::unique_ptr<PriorityEvaluator> priorityEvaluator;
 	std::unique_ptr<SharedPool<PriorityEvaluator>> priorityEvaluators;
 	std::unique_ptr<AIPathfinder> pathfinder;
+	std::atomic_int32_t pathfinderTurnStorageMisses;
 	std::unique_ptr<HeroManager> heroManager;
 	std::unique_ptr<ArmyManager> armyManager;
 	std::unique_ptr<AIMemory> memory;

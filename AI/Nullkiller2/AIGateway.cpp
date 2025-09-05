@@ -829,9 +829,13 @@ void AIGateway::makeTurn()
 
 	try
 	{
+		nullkiller->pathfinderTurnStorageMisses.store(0);
 		nullkiller->makeTurn();
 
 		// for debug purpose
+		if (nullkiller->pathfinderTurnStorageMisses.load() != 0)
+			logAi->warn("AINodeStorage had %d nodeAllocationFailures due to limited capacity", nullkiller->pathfinderTurnStorageMisses.load());
+
 		for (const auto *h : cc->getHeroesInfo())
 		{
 			if (h->movementPointsRemaining())

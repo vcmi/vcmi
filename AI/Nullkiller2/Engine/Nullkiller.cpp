@@ -461,7 +461,7 @@ void Nullkiller::makeTurn()
 				continue;
 			}
 
-			logAi->info("Pass %d: Performing prio %d task %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
+			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
 
 			if(HeroPtr heroPtr(selectedTask->getHero(), cc); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
@@ -514,7 +514,7 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 
 		if(bestPrioPassTask->priority > 0)
 		{
-			logAi->info("Pass %d: Performing priorityPass %d task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
+			logAi->info("Pass %d: priorityPass %d: Performing task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
 
 			const bool isRecruitHeroGoal = dynamic_cast<RecruitHero*>(bestPrioPassTask.get()) != nullptr;
 			HeroPtr heroPtr(bestPrioPassTask->getHero(), cc);

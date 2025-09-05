@@ -163,7 +163,7 @@ class AINodeStorage : public INodeStorage
 private:
 	int3 sizes;
 	std::unique_ptr<boost::multi_array<EPathAccessibility, 4>> accessibility;
-	const Nullkiller * aiNk; // TODO: Mircea: Replace with &
+	Nullkiller * aiNk; // TODO: Mircea: Replace with &
 	AISharedStorage nodes;
 	std::vector<std::shared_ptr<ChainActor>> actors;
 	std::vector<CGPathNode *> heroChain;
@@ -176,8 +176,8 @@ private:
 
 public:
 	/// more than 1 chain layer for each hero allows us to have more than 1 path to each tile so we can chose more optimal one.	
-	AINodeStorage(const Nullkiller * aiNk, const int3 & sizes);
-	~AINodeStorage();
+	AINodeStorage(Nullkiller * aiNk, const int3 & sizes);
+	~AINodeStorage() override;
 
 	void initialize(const PathfinderOptions & options, const IGameInfoCallback & gameInfo) override;
 

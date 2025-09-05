@@ -215,17 +215,27 @@ namespace AIPathfinding
 	{
 		bool result = false;
 
-		nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
+		nodeStorage->updateAINode(
+			destination.node,
+			[&](const AIPathNode * node)
 			{
-				auto castNodeOptional = nodeStorage->getOrCreateNode(
-					node->coord,
-					node->layer,
-					specialAction->getActor(node->actor));
-
-				if(castNodeOptional)
+				const auto castNodeOptional = nodeStorage->getOrCreateNode(node->coord, node->layer, specialAction->getActor(node->actor));
+				if(!castNodeOptional)
+				{
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
+					logAi->trace(
+						"AILayerTransitionRule::tryUseSpecialAction Failed to allocate node at %s[%d]. "
+						"Can not allocate special transition node while moving %s -> %s",
+						node->coord.toString(),
+						static_cast<int32_t>(node->layer),
+						source.coord.toString(),
+						destination.coord.toString()
+					);
+#endif
+				}
+				else
 				{
 					AIPathNode * castNode = castNodeOptional.value();
-
 					if(castNode->action == EPathNodeAction::UNKNOWN)
 					{
 						castNode->addSpecialAction(specialAction);
@@ -236,22 +246,17 @@ namespace AIPathfinding
 					}
 					else
 					{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 						logAi->trace(
-							"Special transition node already allocated. Blocked moving %s -> %s",
+							"AILayerTransitionRule::tryUseSpecialAction Special transition node already allocated. Blocked moving %s -> %s",
 							source.coord.toString(),
-							destination.coord.toString());
+							destination.coord.toString()
+						);
 #endif
 					}
 				}
-				else
-				{
-					logAi->debug(
-						"Can not allocate special transition node while moving %s -> %s",
-						source.coord.toString(),
-						destination.coord.toString());
-				}
-			});
+			}
+		);
 
 		return result;
 	}

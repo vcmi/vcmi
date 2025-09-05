@@ -180,18 +180,28 @@ namespace AIPathfinding
 		{
 			if(!destinationNode->actor->allowUseResources)
 			{
-				std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+				const std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
 					destination.coord,
 					destination.node->layer,
 					destinationNode->actor->resourceActor);
+				if (!questNode)
+				{
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
+					logAi->trace(
+						"AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
+						destination.coord.toString(),
+						static_cast<int32_t>(destination.node->layer)
+					);
+#endif
+					return false;
+				}
 
-				if(!questNode || questNode.value()->getCost() < destination.cost)
+				if(questNode.value()->getCost() < destination.cost)
 				{
 					return false;
 				}
 
 				destination.node = questNode.value();
-
 				nodeStorage->commit(destination, source);
 				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
 			}
@@ -284,18 +294,22 @@ namespace AIPathfinding
 	{
 		const AIPathNode *  srcNode = nodeStorage->getAINode(source.node);
 		const AIPathNode * destNode = nodeStorage->getAINode(destination.node);
-		auto battleNodeOptional = nodeStorage->getOrCreateNode(
+		const auto battleNodeOptional = nodeStorage->getOrCreateNode(
 			destination.coord,
 			destination.node->layer,
 			destNode->actor->battleActor);
 
 		if(!battleNodeOptional)
 		{
-#if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
+#if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 			logAi->trace(
+				"AIMovementAfterDestinationRule::bypassBattle Failed to allocate node at %s[%d]. "
 				"Can not allocate battle node while moving %s -> %s",
+				destination.coord.toString(),
+				static_cast<int32_t>(destination.node->layer),
 				source.coord.toString(),
-				destination.coord.toString());
+				destination.coord.toString()
+			);
 #endif
 			return false;
 		}
@@ -306,7 +320,7 @@ namespace AIPathfinding
 		{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
-				"Block bypass guard at destination while moving %s -> %s",
+				"AIMovementAfterDestinationRule::bypassBattle Block bypass guard at destination while moving %s -> %s",
 				source.coord.toString(),
 				destination.coord.toString());
 #endif
@@ -338,7 +352,7 @@ namespace AIPathfinding
 
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
 			logAi->trace(
-				"Begin bypass guard at destination with danger %s while moving %s -> %s",
+				"AIMovementAfterDestinationRule::bypassBattle Begin bypass guard at destination with danger %s while moving %s -> %s",
 				std::to_string(danger),
 				source.coord.toString(),
 				destination.coord.toString());
