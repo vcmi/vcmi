@@ -25,11 +25,6 @@ AIPathfinder::AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * aiNk)
 {
 }
 
-void AIPathfinder::init()
-{
-	storage.reset();
-}
-
 bool AIPathfinder::isTileAccessible(const HeroPtr & hero, const int3 & tile) const
 {
 	return storage->isTileAccessible(hero, tile, EPathfindingLayer::LAND)

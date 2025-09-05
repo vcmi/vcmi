@@ -52,7 +52,6 @@ public:
 	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);
 	void updateGraphs(const std::map<const CGHeroInstance *, HeroRole> & heroes, uint8_t mainScanDepth, uint8_t scoutScanDepth);
 	void calculateQuickPathsWithBlocker(std::vector<AIPath> & result, const std::vector<const CGHeroInstance *> & heroes, const int3 & tile);
-	void init();
 
 	std::shared_ptr<AINodeStorage>getStorage()
 	{
