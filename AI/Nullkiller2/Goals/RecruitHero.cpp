@@ -38,15 +38,13 @@ void RecruitHero::accept(AIGateway * aiGw)
 
 	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTranslated(), t->visitablePos().toString());
 
-	auto heroes = ccTl->getAvailableHeroes(t);
-
+	const auto heroes = aiGw->cc->getAvailableHeroes(t);
 	if(!heroes.size())
 	{
 		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
 	}
 
 	auto heroToHire = heroToBuy;
-
 	if(!heroToHire)
 	{
 		for(auto hero : heroes)
@@ -61,13 +59,13 @@ void RecruitHero::accept(AIGateway * aiGw)
 
 	if(t->getVisitingHero())
 	{
-		ccTl->swapGarrisonHero(t);
+		aiGw->cc->swapGarrisonHero(t);
 	}
 
 	if(t->getVisitingHero())
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
-	ccTl->recruitHero(t, heroToHire);
+	aiGw->cc->recruitHero(t, heroToHire);
 
 	{
 		// TODO: Mircea: Consider same behavior when a hero is lost? Relevant?

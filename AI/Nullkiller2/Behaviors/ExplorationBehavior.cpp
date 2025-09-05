@@ -50,12 +50,12 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 			case Obj::SUBTERRANEAN_GATE:
 			case Obj::WHIRLPOOL:
 			{
-				auto tObj = dynamic_cast<const CGTeleport*>(obj);
-				for (auto exit : ccTl->getTeleportChannelExits(tObj->channel))
+				const auto tObj = dynamic_cast<const CGTeleport*>(obj);
+				for (auto exit : aiNk->cc->getTeleportChannelExits(tObj->channel))
 				{
 					if (exit != tObj->id)
 					{
-						if (!ccTl->isVisible(ccTl->getObjInstance(exit)))
+						if (!aiNk->cc->isVisible(aiNk->cc->getObjInstance(exit)))
 							tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
 					}
 				}

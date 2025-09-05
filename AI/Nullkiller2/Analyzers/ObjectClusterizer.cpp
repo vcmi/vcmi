@@ -310,12 +310,8 @@ void ObjectClusterizer::clusterize()
 	{
 		for(auto id : invalidated)
 		{
-			auto obj = ccTl->getObj(id, false);
-
-			if(obj)
-			{
+			if(auto obj = aiNk->cc->getObj(id, false))
 				objs.push_back(obj);
-			}
 		}
 
 		invalidated.clear();
@@ -353,7 +349,7 @@ void ObjectClusterizer::clusterize()
 
 	for(auto pair : blockedObjects)
 	{
-		auto blocker = ccTl->getObj(pair.first);
+		auto blocker = aiNk->cc->getObj(pair.first);
 
 		logAi->trace("Cluster %s %s count: %i", blocker->getObjectName(), blocker->visitablePos().toString(), pair.second->objects.size());
 

@@ -97,15 +97,15 @@ bool needToRecruitHero(const Nullkiller * aiNk, const CGTownInstance * startupTo
 		}
 	}
 
-	auto basicCount = ccTl->getTownsInfo().size() + 2;
-	auto boost = std::min(
-		(int)std::floor(std::pow(1 + (ccTl->getMapSize().x / 50), 2)),
+	const auto basicCount = aiNk->cc->getTownsInfo().size() + 2;
+	const auto boost = std::min(
+		(int)std::floor(std::pow(1 + aiNk->cc->getMapSize().x / 50, 2)),
 		treasureSourcesCount / 2);
 
 	logAi->trace("Treasure sources found %d", treasureSourcesCount);
 	logAi->trace("Startup allows %d+%d heroes", basicCount, boost);
 
-	return ccTl->getHeroCount(aiNk->playerID, true) < basicCount + boost;
+	return aiNk->cc->getHeroCount(aiNk->playerID, true) < basicCount + boost;
 }
 
 Goals::TGoalVec StartupBehavior::decompose(const Nullkiller * aiNk) const

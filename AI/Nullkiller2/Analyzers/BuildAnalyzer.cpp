@@ -46,7 +46,7 @@ void BuildAnalyzer::update()
 
 	for(const CGTownInstance * town : towns)
 	{
-		if(town->built >= ccTl->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
+		if(town->built >= aiNk->cc->getSettings().getInteger(EGameSettings::TOWNS_BUILDINGS_PER_TURN_CAP))
 			continue; // Not much point in trying anything - can't built in this town anymore today
 
 #if NK2AI_TRACE_LEVEL >= 1

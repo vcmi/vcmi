@@ -27,29 +27,23 @@ std::string BuyArmyBehavior::toString() const
 Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
-
-	auto heroes = ccTl->getHeroesInfo();
-
+	const auto heroes = aiNk->cc->getHeroesInfo();
 	if(heroes.empty())
-	{
 		return tasks;
-	}
 
 	// Simplification: Moved this call before getting into the decomposer
 	// aiNk->dangerHitMap->updateHitMap();
 
-	for(auto town : ccTl->getTownsInfo())
+	for(const auto town : aiNk->cc->getTownsInfo())
 	{
 		uint8_t closestThreat = aiNk->dangerHitMap->getTileThreat(town->visitablePos()).fastestDanger.turn;
-
-		if (closestThreat >=2 && aiNk->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) && ccTl->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
+		if(closestThreat >= 2 && aiNk->buildAnalyzer->isGoldPressureOverMax() && !town->hasBuilt(BuildingID::CITY_HALL) &&
+		   aiNk->cc->canBuildStructure(town, BuildingID::CITY_HALL) != EBuildingState::FORBIDDEN)
 		{
 			return tasks;
 		}
-		
-		auto townArmyAvailableToBuy = aiNk->armyManager->getArmyAvailableToBuyAsCCreatureSet(
-			town,
-			aiNk->getFreeResources());
+
+		auto townArmyAvailableToBuy = aiNk->armyManager->getArmyAvailableToBuyAsCCreatureSet(town, aiNk->getFreeResources());
 
 		for(const CGHeroInstance * targetHero : heroes)
 		{

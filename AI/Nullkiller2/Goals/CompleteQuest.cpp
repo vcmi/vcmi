@@ -22,7 +22,7 @@ using namespace Goals;
 
 bool isKeyMaster(const QuestInfo & q)
 {
-	auto object = q.getObject(ccTl);
+	const auto object = q.getObject(ccTl);
 	return object && (object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD);
 }
 
@@ -39,7 +39,7 @@ TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 	}
 
 	logAi->debug("Trying to realize quest: %s", questToString());
-	auto quest = q.getQuest(ccTl);
+	const auto quest = q.getQuest(aiNk->cc.get());
 
 	if(!quest->mission.artifacts.empty())
 		return missionArt(aiNk);
@@ -108,14 +108,14 @@ std::string CompleteQuest::questToString() const
 
 TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const
 {
-	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(ccTl)->visitablePos());
+	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(aiNk->cc.get())->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		return !q.getQuest(ccTl)->checkQuest(path.targetHero);
+		return !q.getQuest(aiNk->cc.get())->checkQuest(path.targetHero);
 	});
 	
-	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(ccTl));
+	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(aiNk->cc.get()));
 }
 
 TGoalVec CompleteQuest::missionArt(const Nullkiller * aiNk) const
@@ -127,7 +127,7 @@ TGoalVec CompleteQuest::missionArt(const Nullkiller * aiNk) const
 
 	CaptureObjectsBehavior findArts;
 
-	for(auto art : q.getQuest(ccTl)->mission.artifacts)
+	for(auto art : q.getQuest(aiNk->cc.get())->mission.artifacts)
 	{
 		solutions.push_back(sptr(CaptureObjectsBehavior().ofType(Obj::ARTIFACT, art.getNum())));
 	}
@@ -150,14 +150,14 @@ TGoalVec CompleteQuest::missionHero(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 {
-	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(ccTl)->visitablePos());
+	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(aiNk->cc.get())->visitablePos());
 
 	vstd::erase_if(paths, [&](const AIPath & path) -> bool
 	{
-		return !CQuest::checkMissionArmy(q.getQuest(ccTl), path.heroArmy);
+		return !CQuest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
 	});
 
-	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(ccTl));
+	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(aiNk->cc.get()));
 }
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * aiNk) const
@@ -172,13 +172,13 @@ TGoalVec CompleteQuest::missionLevel(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
 {
-	if(isObjectPassable(aiNk, q.getObject(ccTl)))
+	if(isObjectPassable(aiNk, q.getObject(aiNk->cc.get())))
 	{
-		return CaptureObjectsBehavior(q.getObject(ccTl)).decompose(aiNk);
+		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
 	}
 	else
 	{
-		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(ccTl)->subID).decompose(aiNk);
+		return CaptureObjectsBehavior().ofType(Obj::KEYMASTER, q.getObject(aiNk->cc.get())->subID).decompose(aiNk);
 	}
 }
 
@@ -190,12 +190,11 @@ TGoalVec CompleteQuest::missionResources(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 {
-	auto obj = aiNk->cc->getObj(q.getQuest(ccTl)->killTarget);
-
+	const auto obj = aiNk->cc->getObj(q.getQuest(aiNk->cc.get())->killTarget);
 	if(!obj)
-		return CaptureObjectsBehavior(q.getObject(ccTl)).decompose(aiNk);
+		return CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk);
 
-	auto relations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
+	const auto relations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
 	//if(relations == PlayerRelations::SAME_PLAYER)
 	//{

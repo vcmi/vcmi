@@ -59,10 +59,9 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	if (hero->isGarrisoned())
 		aiGw->cc->swapGarrisonHero(hero->getVisitedTown());
 
-	auto wait = ccTl->waitTillRealize;
-
-	ccTl->waitTillRealize = true;
-	ccTl->castSpell(hero, spellID, tile);
+	const auto wait = aiGw->cc->waitTillRealize;
+	aiGw->cc->waitTillRealize = true;
+	aiGw->cc->castSpell(hero, spellID, tile);
 
 	if(town && townPortalEffect)
 	{
@@ -70,8 +69,7 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc));
 	}
 
-	ccTl->waitTillRealize = wait;
-
+	aiGw->cc->waitTillRealize = wait;
 	throw goalFulfilledException(sptr(*this));
 }
 
