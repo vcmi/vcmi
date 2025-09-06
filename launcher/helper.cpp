@@ -89,36 +89,15 @@ QString getRealPath(QString path)
 void performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-	auto percentEncodeNonAscii = [](const QString &input) -> QString
-	{
-		QByteArray utf8 = input.toUtf8();
-		QByteArray encoded;
-
-		for(unsigned char c : utf8)
-		{
-			// If ASCII (0x00 to 0x7F), keep as is
-			if(c < 0x80)
-				encoded.append(c);
-			else
-			{
-				// Non-ASCII: encode as %HH
-				encoded.append('%');
-				encoded.append(QByteArray::number(static_cast<uint>(c), 16).toUpper().rightJustified(2, '0'));
-			}
-		}
-
-		return QString::fromUtf8(encoded);
-	};
-
 	// %-encode unencoded parts of string.
-	// This is needed because QT returns a mixed content url with %-encoded and unencoded parts. If Android > 13 this causes problems reading this files. E.g. when using spaces and unicode characters in folder or filename.
+	// This is needed because QT returns a mixed content url with %-encoded and unencoded parts. If Android >= 13 this causes problems reading this files, when using spaces and unicode characters in folder or filename.
+	// Only these should encoded (other typically %-encoded chars should not encoded because this leads to errors).
 	// Related, but seems not completly fixed (at least in our setup): https://bugreports.qt.io/browse/QTBUG-114435
 	auto safeEncode = [&](QString uri) -> QString
 	{
 		if(!uri.startsWith("content://", Qt::CaseInsensitive))
 			return uri;
-		uri.replace(" ", "%20");
-		return percentEncodeNonAscii(uri);
+		return QString::fromUtf8(QUrl::toPercentEncoding(uri, "!#$&'()*+,/:;=?@[]<>{}\"`^~%"));
 	};
 
 	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
