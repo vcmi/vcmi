@@ -1854,7 +1854,7 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 	case EBuildingState::ALREADY_PRESENT:
 	case EBuildingState::CANT_BUILD_TODAY:
 	case EBuildingState::NO_RESOURCES:
-		ret.replace(ret.find_first_of("%s"), 2, building->getNameTranslated());
+		boost::algorithm::replace_first(ret, "%s", building->getNameTranslated());
 		break;
 	case EBuildingState::ALLOWED:
 		return LIBRARY->generaltexth->allTexts[219]; //all prereq. are met
