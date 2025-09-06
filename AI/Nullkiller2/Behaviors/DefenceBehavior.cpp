@@ -164,7 +164,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 	{
 		return;
 	}
-	if(!threatNode.fastestDanger.heroPtr)
+	if(!threatNode.fastestDanger.heroPtr.isVerified())
 	{
 #if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("No threat found for town %s", town->getNameTranslated());
@@ -192,7 +192,7 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 			town->getNameTranslated(),
 			threat.danger,
 			std::to_string(threat.turn),
-			threat.heroPtr ? threat.heroPtr->getNameTranslated() : std::string("<no hero>"));
+			threat.heroPtr.isVerified() ? threat.heroPtr->getNameTranslated() : std::string("<no hero>"));
 #endif
 		handleCounterAttack(town, threat, threatNode.maximumDanger, aiNk, tasks);
 

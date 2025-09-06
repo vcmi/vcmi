@@ -1100,7 +1100,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 	auto afterMovementCheck = [&]() -> void
 	{
 		waitTillFree(); //movement may cause battle or blocking dialog
-		if(!heroPtr)
+		if(!heroPtr.isVerified())
 		{
 			lostHero(heroPtr);
 			teleportChannelProbingList.clear();
@@ -1282,10 +1282,10 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		{
 			// when we take resource we do not reach its position. We even might not move
 			// also guarded town is not get visited automatically after capturing
-			ret = heroPtr && i == 0;
+			ret = heroPtr.isVerified() && i == 0;
 		}
 	}
-	if(heroPtr)
+	if(heroPtr.isVerified())
 	{
 		if(auto visitedObject = vstd::frontOrNull(cc->getVisitableObjs(heroPtr->visitablePos()))) //we stand on something interesting
 		{
@@ -1296,7 +1296,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			}
 		}
 	}
-	if(heroPtr) //we could have lost hero after last move
+	if(heroPtr.isVerified()) //we could have lost hero after last move
 	{
 		ret = ret || (dst == heroPtr->visitablePos());
 

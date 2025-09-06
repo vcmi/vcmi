@@ -84,11 +84,6 @@ private:
 public:
 	explicit HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic);
 
-	explicit operator bool() const
-	{
-		return isVerified();
-	}
-
 	bool operator<(const HeroPtr & rhs) const;
 	const CGHeroInstance * operator->() const;
 	const CGHeroInstance * operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
