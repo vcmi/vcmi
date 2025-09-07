@@ -118,6 +118,18 @@ function(vcmi_print_git_commit_hash)
 
 endfunction()
 
+# install(FILES) of shared libs but using symlink instead of copying
+function(vcmi_install_libs_symlink libs)
+	install(CODE "
+		foreach(lib ${libs})
+			cmake_path(GET lib FILENAME filename)
+			file(CREATE_LINK \${lib} \"\${CMAKE_INSTALL_PREFIX}/${LIB_DIR}/\${filename}\"
+				COPY_ON_ERROR SYMBOLIC
+			)
+		endforeach()
+	")
+endfunction()
+
 # install dependencies from Conan, CONAN_RUNTIME_LIBS_FILE is set in conanfile.py
 function(vcmi_install_conan_deps)
 	if(NOT USING_CONAN)
@@ -125,7 +137,11 @@ function(vcmi_install_conan_deps)
 	endif()
 
 	file(STRINGS "${CONAN_RUNTIME_LIBS_FILE}" runtimeLibs)
-	install(FILES ${runtimeLibs} DESTINATION ${LIB_DIR})
+	if(ANDROID)
+		vcmi_install_libs_symlink("${runtimeLibs}")
+	else()
+		install(FILES ${runtimeLibs} DESTINATION ${LIB_DIR})
+	endif()
 endfunction()
 
 function(vcmi_deploy_qt deployQtToolName deployQtOptions)
