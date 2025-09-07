@@ -26,6 +26,7 @@
 
 #ifdef VCMI_IOS
 #include "ios/revealdirectoryinfiles.h"
+#include "iOS_utils.h"
 #endif
 
 #ifdef VCMI_MOBILE
@@ -113,5 +114,18 @@ MainWindow * getMainWindow()
 		if(auto mainWin = qobject_cast<MainWindow*>(w))
 			return mainWin;
 	return nullptr;
+}
+
+
+void keepScreenOn(bool isEnabled)
+{
+#if defined(VCMI_ANDROID)
+	QtAndroid::runOnAndroidThread([isEnabled]
+	{
+		QtAndroid::androidActivity().callMethod<void>("keepScreenOn", "(Z)V", isEnabled);
+	});
+#elif defined(VCMI_IOS)
+	iOS_utils::keepScreenOn(isEnabled);
+#endif
 }
 }
