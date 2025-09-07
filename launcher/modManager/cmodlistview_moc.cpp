@@ -793,6 +793,7 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
+	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
@@ -852,6 +853,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	if(doInstallFiles)
 		installFiles(savedFiles);
 
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 
@@ -980,6 +982,8 @@ void CModListView::installFiles(QStringList files)
 
 		float prog = 0.0;
 
+		Helper::keepScreenOn(true);
+
 		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
@@ -995,6 +999,7 @@ void CModListView::installFiles(QStringList files)
 
 		if(futureExtract.get())
 		{
+			Helper::keepScreenOn(false);
 			hideProgressBar();
 			ui->abortButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
@@ -1233,6 +1238,7 @@ void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 

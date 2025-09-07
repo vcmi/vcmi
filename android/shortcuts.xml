@@ -7,7 +7,6 @@
 		android:shortcutLongLabel="@string/shortcut_play">
 		<intent
 			android:action="android.intent.action.VIEW"
-			android:targetPackage="is.xyz.vcmi.daily"
 			android:targetClass="eu.vcmi.vcmi.VcmiSDLActivity" />
 	</shortcut>
 </shortcuts>

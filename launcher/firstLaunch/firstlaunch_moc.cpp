@@ -445,10 +445,12 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 	if(errorText.isEmpty())
 	{
 		logGlobal->info("Performing extraction using innoextract...");
+		Helper::keepScreenOn(true);
 		errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [this](float progress) {
 			ui->progressBarGog->setValue(progress * 100);
 			qApp->processEvents();
 		});
+		Helper::keepScreenOn(false);
 		logGlobal->info("Extraction done!");
 	}
 

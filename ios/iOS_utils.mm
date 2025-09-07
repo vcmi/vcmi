@@ -11,6 +11,7 @@
 #include "iOS_utils.h"
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 namespace
 {
@@ -50,5 +51,10 @@ const char *bundleIdentifier() { return NSBundle.mainBundle.bundleIdentifier.UTF
 bool isOsVersionAtLeast(unsigned int osMajorVersion)
 {
 	return NSProcessInfo.processInfo.operatingSystemVersion.majorVersion >= osMajorVersion;
+}
+
+void keepScreenOn(bool isEnabled)
+{
+	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;
 }
 }

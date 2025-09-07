@@ -31,7 +31,9 @@
 		android:label="${applicationLabel}"
 		android:testOnly="false"
 		android:supportsRtl="true"
-		android:usesCleartextTraffic="false">
+		android:usesCleartextTraffic="false"
+		android:theme="@style/AppTheme"
+	>
 		<activity
 			android:name=".ActivityLauncher"
 			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
@@ -42,7 +44,7 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 
-			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts${applicationVariant}" /> 
+			<meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" /> 
 
 			<meta-data android:name="android.app.lib_name" android:value="-- %%INSERT_APP_LIB_NAME%% --"/>
 			<meta-data android:name="android.app.qt_sources_resource_id" android:resource="@array/qt_sources"/>
