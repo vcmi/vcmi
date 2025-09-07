@@ -654,7 +654,7 @@ bool Nullkiller::handleTrading()
 		TResources freeAfterMissingTotal = buildAnalyzer->getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
 
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->info("Nullkiller::handleTrading Free %s. FreeAfterMissingTotal %s. Required  %s", getFreeResources().toString(), freeAfterMissingTotal.toString(), missingNow.toString());
+		logAi->info("Nullkiller::handleTrading Free %s. FreeAfterMissingTotal %s. MissingNow  %s", getFreeResources().toString(), freeAfterMissingTotal.toString(), missingNow.toString());
 #endif
 
 		constexpr int EMPTY = -1;
