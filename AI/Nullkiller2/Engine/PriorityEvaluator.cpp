@@ -380,7 +380,7 @@ float RewardEvaluator::getEnemyHeroStrategicalValue(const CGHeroInstance * enemy
 /// @return between 0-1.0f
 float RewardEvaluator::getNowResourceRequirementStrength(GameResID resType) const
 {
-	TResources requiredResources = aiNk->buildAnalyzer->getResourcesRequiredNow();
+	TResources requiredResources = aiNk->buildAnalyzer->getMissingResourcesNow();
 	TResources dailyIncome = aiNk->buildAnalyzer->getDailyIncome();
 
 	if(requiredResources[resType] == 0)
@@ -395,7 +395,7 @@ float RewardEvaluator::getNowResourceRequirementStrength(GameResID resType) cons
 /// @return between 0-1.0f
 float RewardEvaluator::getTotalResourceRequirementStrength(GameResID resType) const
 {
-	TResources requiredResources = aiNk->buildAnalyzer->getTotalResourcesRequired();
+	TResources requiredResources = aiNk->buildAnalyzer->getMissingResourcesInTotal();
 	TResources dailyIncome = aiNk->buildAnalyzer->getDailyIncome();
 
 	if(requiredResources[resType] == 0)

@@ -18,16 +18,29 @@
 namespace NK2AI
 {
 
-TResources BuildAnalyzer::getResourcesRequiredNow() const
+TResources BuildAnalyzer::getMissingResourcesNow(const float armyGoldRatio) const
 {
-	auto result = withoutGold(armyCost) + requiredResources - aiNk->getFreeResources();
+	auto armyGold = goldOnly(armyCost);
+	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
+	auto result = requiredResources + goldRemove(armyCost) + armyGold - aiNk->getFreeResources();
 	result.positive();
 	return result;
 }
 
-TResources BuildAnalyzer::getTotalResourcesRequired() const
+TResources BuildAnalyzer::getMissingResourcesInTotal(const float armyGoldRatio) const
 {
-	auto result = totalDevelopmentCost + withoutGold(armyCost) - aiNk->getFreeResources();
+	auto armyGold = goldOnly(armyCost);
+	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
+	auto result = totalDevelopmentCost + goldRemove(armyCost) + armyGold - aiNk->getFreeResources();
+	result.positive();
+	return result;
+}
+
+TResources BuildAnalyzer::getFreeResourcesAfterMissingTotal(const float armyGoldRatio) const
+{
+	auto armyGold = goldOnly(armyCost);
+	armyGold[GameResID::GOLD] = armyGoldRatio * armyGold[GameResID::GOLD];
+	auto result = aiNk->getFreeResources() - totalDevelopmentCost - goldRemove(armyCost) - armyGold;
 	result.positive();
 	return result;
 }
@@ -77,8 +90,8 @@ void BuildAnalyzer::update()
 
 	boost::range::sort(developmentInfos, [](const TownDevelopmentInfo & tdi1, const TownDevelopmentInfo & tdi2) -> bool
 	{
-		auto val1 = approximateInGold(tdi1.armyCost) - approximateInGold(tdi1.townDevelopmentCost);
-		auto val2 = approximateInGold(tdi2.armyCost) - approximateInGold(tdi2.townDevelopmentCost);
+		auto val1 = goldApproximate(tdi1.armyCost) - goldApproximate(tdi1.townDevelopmentCost);
+		auto val2 = goldApproximate(tdi2.armyCost) - goldApproximate(tdi2.townDevelopmentCost);
 		return val1 > val2;
 	});
 
@@ -119,7 +132,7 @@ void TownDevelopmentInfo::addBuildingBuilt(const BuildingInfo & bi)
 void TownDevelopmentInfo::addBuildingToBuild(const BuildingInfo & bi)
 {
 	townDevelopmentCost += bi.buildCostWithPrerequisites;
-	townDevelopmentCost += BuildAnalyzer::withoutGold(bi.armyCost);
+	townDevelopmentCost += BuildAnalyzer::goldRemove(bi.armyCost);
 
 	if (bi.isBuildable)
 	{
@@ -434,19 +447,29 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 	return info;
 }
 
-int32_t BuildAnalyzer::approximateInGold(const TResources & res)
+TResource BuildAnalyzer::goldApproximate(const TResources & res)
 {
-	// TODO: Would it make sense to use the marketplace rate of the player?
+	// TODO: Would it make sense to use the marketplace rate of the player? See Nullkiller::handleTrading()
 	return res[EGameResID::GOLD]
 		+ 75 * (res[EGameResID::WOOD] + res[EGameResID::ORE])
 		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
 }
 
-TResources BuildAnalyzer::withoutGold(TResources other)
+TResources BuildAnalyzer::goldRemove(TResources other)
 {
-	// TODO: Mircea: Potential issue modifying the input directly? To inspect
-	other[GameResID::GOLD] = 0;
-	return other;
+	TResources copy;
+	for(int i = 0; i < GameResID::COUNT; ++i)
+		copy[i] = other[i];
+
+	copy[GameResID::GOLD] = 0;
+	return copy;
+}
+
+TResources BuildAnalyzer::goldOnly(TResources other)
+{
+	TResources copy;
+	copy[GameResID::GOLD] = other[GameResID::GOLD];
+	return copy;
 }
 
 }

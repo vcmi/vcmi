@@ -25,9 +25,7 @@ bool SaveResources::operator==(const SaveResources & other) const
 void SaveResources::accept(AIGateway * aiGw)
 {
 	aiGw->nullkiller->lockResources(resources);
-
-	logAi->debug("Locked %s resources", resources.toString());
-
+	logAi->debug("Locked resources %s", resources.toString());
 	throw goalFulfilledException(sptr(*this));
 }
 

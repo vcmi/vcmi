@@ -597,9 +597,7 @@ bool Nullkiller::executeTask(const Goals::TTask & task) const
 TResources Nullkiller::getFreeResources() const
 {
 	auto freeRes = cc->getResourceAmount() - lockedResources;
-
 	freeRes.positive();
-
 	return freeRes;
 }
 
@@ -610,98 +608,154 @@ void Nullkiller::lockResources(const TResources & res)
 
 bool Nullkiller::handleTrading()
 {
+	// TODO: Mircea: Maybe include based on how close danger is: X as default + proportion of close danger or something around that
+	constexpr float ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS = 0.1f;
+	constexpr float EXPENDABLE_BULK_RATIO = 0.25f;
 	bool haveTraded = false;
-	bool shouldTryToTrade = true;
 	ObjectInstanceID marketId;
-	for (const auto town : cc->getTownsInfo())
+
+	// TODO: Mircea: What about outside town markets that have better rates than a single town for example?
+	// Are those used anywhere? To inspect.
+	for (const auto * const town : cc->getTownsInfo())
 	{
 		if (town->hasBuiltSomeTradeBuilding())
 		{
 			marketId = town->id;
+			break;
 		}
 	}
+
 	if (!marketId.hasValue())
 		return false;
-	if (const CGObjectInstance* obj = cc->getObj(marketId, false))
+
+	const CGObjectInstance * obj = cc->getObj(marketId, false);
+	assert(obj);
+	// if (!obj)
+		// return false;
+
+	const auto * market = dynamic_cast<const IMarket *>(obj);
+	assert(market);
+	// if (!market)
+		// return false;
+
+	bool shouldTryToTrade = true;
+	while(shouldTryToTrade)
 	{
-		if (const auto* m = dynamic_cast<const IMarket*>(obj))
+		shouldTryToTrade = false;
+		buildAnalyzer->update();
+
+		// if we favor getResourcesRequiredNow is better on short term, if we favor getTotalResourcesRequired is better on long term
+		TResources missingNow = buildAnalyzer->getMissingResourcesNow(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+		if(missingNow.empty())
+			break;
+
+		TResources income = buildAnalyzer->getDailyIncome();
+		// We don't want to sell something that's necessary later on, though that could make short term a bit harder sometimes
+		TResources freeAfterMissingTotal = buildAnalyzer->getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+
+#if NK2AI_TRACE_LEVEL >= 2
+		logAi->info("Nullkiller::handleTrading Free %s. FreeAfterMissingTotal %s. Required  %s", getFreeResources().toString(), freeAfterMissingTotal.toString(), missingNow.toString());
+#endif
+
+		constexpr int EMPTY = -1;
+		int mostWanted = EMPTY;
+		TResource mostWantedScoreNeg = std::numeric_limits<TResource>::max();
+		int mostExpendable = EMPTY;
+		TResource mostExpendableAmountPos = 0;
+
+		// Find the most wanted resource
+		for(int i = 0; i < missingNow.size(); ++i)
 		{
-			while (shouldTryToTrade)
+			if(missingNow[i] == 0)
+				continue;
+
+			const TResource score = income[i] - missingNow[i];
+			if(score < mostWantedScoreNeg)
 			{
-				shouldTryToTrade = false;
-				buildAnalyzer->update();
-				TResources required = buildAnalyzer->getTotalResourcesRequired();
-				TResources income = buildAnalyzer->getDailyIncome();
-				TResources available = cc->getResourceAmount();
-#if NK2AI_TRACE_LEVEL >= 2
-				logAi->debug("Available %s", available.toString());
-				logAi->debug("Required  %s", required.toString());
-#endif
-				int mostWanted = -1;
-				int mostExpendable = -1;
-				float minRatio = std::numeric_limits<float>::max();
-				float maxRatio = std::numeric_limits<float>::min();
-
-				for (int i = 0; i < required.size(); ++i)
-				{
-					if (required[i] <= 0)
-						continue;
-					float ratio = static_cast<float>(available[i]) / required[i];
-
-					if (ratio < minRatio) {
-						minRatio = ratio;
-						mostWanted = i;
-					}
-				}
-
-				for (int i = 0; i < required.size(); ++i)
-				{
-					float ratio;
-					if (required[i] > 0)
-						ratio = static_cast<float>(available[i]) / required[i];
-					else
-						ratio = available[i];
-
-					bool okToSell = false;
-
-					if (i == GameResID::GOLD)
-					{
-						if (income[i] > 0 && !buildAnalyzer->isGoldPressureOverMax())
-							okToSell = true;
-					}
-					else
-					{
-						if (required[i] <= 0 && income[i] > 0)
-							okToSell = true;
-					}
-
-					if (ratio > maxRatio && okToSell) {
-						maxRatio = ratio;
-						mostExpendable = i;
-					}
-				}
-#if NK2AI_TRACE_LEVEL >= 2
-				logAi->debug("mostExpendable: %d mostWanted: %d", mostExpendable, mostWanted);
-#endif
-				if (mostExpendable == mostWanted || mostWanted == -1 || mostExpendable == -1)
-					return false;
-
-				int toGive;
-				int toGet;
-				m->getOffer(mostExpendable, mostWanted, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
-				//logAi->info("Offer is: I get %d of %s for %d of %s at %s", toGet, mostWanted, toGive, mostExpendable, obj->getObjectName());
-				//TODO trade only as much as needed
-				if (toGive && toGive <= available[mostExpendable]) //don't try to sell 0 resources
-				{
-					cc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), toGive);
-#if NK2AI_TRACE_LEVEL >= 2
-					logAi->info("Traded %d of %s for %d of %s at %s", toGive, mostExpendable, toGet, mostWanted, obj->getObjectName());
-#endif
-					haveTraded = true;
-					shouldTryToTrade = true;
-				}
+				mostWanted = i;
+				mostWantedScoreNeg = score;
 			}
 		}
+
+		// Find the most expendable resource
+		for(int i = 0; i < missingNow.size(); ++i)
+		{
+			const TResource amountToSell = freeAfterMissingTotal[i];
+			if (amountToSell == 0)
+				continue;
+
+			bool okToSell = false;
+			if(i == GameResID::GOLD)
+			{
+				// TODO: Mircea: Check if we should negate isGoldPressureOverMax() instead
+				if(income[GameResID::GOLD] > 0 && !buildAnalyzer->isGoldPressureOverMax())
+					okToSell = true;
+			}
+			else
+			{
+				okToSell = true;
+			}
+
+			if(amountToSell > mostExpendableAmountPos && okToSell)
+			{
+				mostExpendable = i;
+				mostExpendableAmountPos = amountToSell;
+			}
+		}
+
+#if NK2AI_TRACE_LEVEL >= 2
+		logAi->trace(
+			"Nullkiller::handleTrading mostWanted: %d, mostWantedScoreNeg %d, mostExpendable: %d, mostExpendableAmountPos %d",
+			mostWanted,
+			mostWantedScoreNeg,
+			mostExpendable,
+			mostExpendableAmountPos
+		);
+#endif
+
+		if(mostExpendable == mostWanted || mostWanted == EMPTY || mostExpendable == EMPTY)
+			break;
+
+		int givenPerUnit;
+		int receivedUnits;
+		market->getOffer(mostExpendable, mostWanted, givenPerUnit, receivedUnits, EMarketMode::RESOURCE_RESOURCE);
+		if (!givenPerUnit || !receivedUnits)
+		{
+			logGlobal->error(
+				"Nullkiller::handleTrading No offer for %d of %d, given %d, received %d. Should never happen",
+				mostExpendable,
+				mostWanted,
+				givenPerUnit,
+				receivedUnits
+			);
+			break;
+		}
+
+		// TODO: Mircea: if 15 wood and 14 gems, gems can be used a lot more for buying other things
+		if (givenPerUnit > mostExpendableAmountPos)
+			break;
+
+		TResource multiplier = std::min(static_cast<int>(mostExpendableAmountPos * EXPENDABLE_BULK_RATIO / givenPerUnit),
+			missingNow[mostWanted] / receivedUnits); // for gold we have to / receivedUnits, because 1 ore gives many gold units
+		if(multiplier == 0) // could happen for very small values due to EXPENDABLE_BULK_RATIO
+			multiplier = 1;
+
+		const TResource givenMultiplied = givenPerUnit * multiplier;
+		if(givenMultiplied > freeAfterMissingTotal[mostExpendable])
+		{
+			logGlobal->error(
+				"Nullkiller::handleTrading Something went wrong with the multiplier %d",
+				multiplier
+			);
+			break;
+		}
+
+		cc->trade(market->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
+#if NK2AI_TRACE_LEVEL >= 2
+		logAi->info("Nullkiller::handleTrading Traded %d of %s for %d of %s at %s", givenMultiplied, mostExpendable, receivedUnits, mostWanted, obj->getObjectName());
+#endif
+		haveTraded = true;
+		shouldTryToTrade = true;
 	}
 	return haveTraded;
 }

@@ -15,6 +15,7 @@ namespace NK2AI
 {
 namespace Goals
 {
+	// TODO: Mircea: Inspect if it's really in use. See aiNk->getLockedResources()
 	class DLL_EXPORT SaveResources : public ElementarGoal<SaveResources>
 	{
 	private:

@@ -82,8 +82,9 @@ public:
 	explicit BuildAnalyzer(Nullkiller * aiNk) : aiNk(aiNk) {}
 	void update();
 
-	TResources getResourcesRequiredNow() const;
-	TResources getTotalResourcesRequired() const;
+	TResources getMissingResourcesNow(float armyGoldRatio = 0) const;
+	TResources getMissingResourcesInTotal(float armyGoldRatio = 0) const;
+	TResources getFreeResourcesAfterMissingTotal(float armyGoldRatio = 0) const;
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
 	TResources getDailyIncome() const { return dailyIncome; }
 	float getGoldPressure() const { return goldPressure; }
@@ -102,8 +103,9 @@ public:
 		std::unique_ptr<ArmyManager> & armyManager,
 		std::shared_ptr<CCallback> & cc,
 		bool excludeDwellingDependencies = true);
-	static int32_t approximateInGold(const TResources & res);
-	static TResources withoutGold(TResources other);
+	static TResource goldApproximate(const TResources & res);
+	static TResources goldRemove(TResources other);
+	static TResources goldOnly(TResources other);
 };
 
 }

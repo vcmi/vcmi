@@ -31,8 +31,8 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	TResources resourcesRequired = aiNk->buildAnalyzer->getResourcesRequiredNow();
-	TResources totalDevelopmentCost = aiNk->buildAnalyzer->getTotalResourcesRequired();
+	TResources resourcesRequired = aiNk->buildAnalyzer->getMissingResourcesNow();
+	TResources totalDevelopmentCost = aiNk->buildAnalyzer->getMissingResourcesInTotal();
 	TResources availableResources = aiNk->getFreeResources();
 	TResources dailyIncome = aiNk->buildAnalyzer->getDailyIncome();
 
