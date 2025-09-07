@@ -335,7 +335,13 @@ CMainMenu::CMainMenu()
 
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
+
+	if (bgConfig.isString())
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::fromJson(bgConfig), pos);
+	else
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
 CMainMenu::~CMainMenu() = default;
