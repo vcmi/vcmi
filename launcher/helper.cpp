@@ -90,8 +90,19 @@ QString getRealPath(QString path)
 void performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-	auto srcStr = QAndroidJniObject::fromString(src);
-	auto dstStr = QAndroidJniObject::fromString(dst);
+	// %-encode unencoded parts of string.
+	// This is needed because Qt returns a mixed content url with %-encoded and unencoded parts. On Android >= 13 this causes problems reading these files, when using spaces and unicode characters in folder or filename.
+	// Only these should be encoded (other typically %-encoded chars should not be encoded because this leads to errors).
+	// Related, but seems not completly fixed (at least in our setup): https://bugreports.qt.io/browse/QTBUG-114435
+	auto safeEncode = [&](QString uri) -> QString
+	{
+		if(!uri.startsWith("content://", Qt::CaseInsensitive))
+			return uri;
+		return QString::fromUtf8(QUrl::toPercentEncoding(uri, "!#$&'()*+,/:;=?@[]<>{}\"`^~%"));
+	};
+
+	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
+	auto dstStr = QAndroidJniObject::fromString(safeEncode(dst));
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
 #else
 	QFile::copy(src, dst);
