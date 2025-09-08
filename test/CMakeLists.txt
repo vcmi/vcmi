@@ -148,6 +148,7 @@ if(ENABLE_NULLKILLER_AI)
 	list(APPEND test_SRCS
 		${NULLKILLER2_TEST_SRCS}
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Engine/ResourceTraderTest.cpp
 	)
 
 	list(APPEND test_HEADERS

@@ -50,6 +50,7 @@ set(Nullkiller2_SRCS
 		Engine/Nullkiller.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
+		Engine/ResourceTrader.cpp
 		Analyzers/DangerHitMapAnalyzer.cpp
 		Analyzers/BuildAnalyzer.cpp
 		Analyzers/ObjectClusterizer.cpp
@@ -126,6 +127,7 @@ set(Nullkiller2_HEADERS
 		Engine/Nullkiller.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h
+		Engine/ResourceTrader.h
 		Analyzers/DangerHitMapAnalyzer.h
 		Analyzers/BuildAnalyzer.h
 		Analyzers/ObjectClusterizer.h

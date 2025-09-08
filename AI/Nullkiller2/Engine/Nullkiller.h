@@ -136,9 +136,7 @@ public:
 	ScanDepth getScanDepth() const { return scanDepth; }
 	bool isOpenMap() const { return openMap; }
 	bool isObjectGraphAllowed() const { return useObjectGraph; }
-	bool handleTrading();
 	void invalidatePathfinderData();
-
 	std::shared_ptr<const CPathsInfo> getPathsInfo(const CGHeroInstance * h) const;
 	void invalidatePaths();
 	std::map<const CGHeroInstance *, HeroRole> getHeroesForPathfinding() const;
