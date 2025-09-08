@@ -409,13 +409,13 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	const auto defenderHero = (*battle)->battleGetFightingHero(BattleSide::DEFENDER);
 	const auto attackerSide = (*battle)->getSidePlayer(BattleSide::ATTACKER);
 	const auto defenderSide = (*battle)->getSidePlayer(BattleSide::DEFENDER);
-	bool winnerHasUnitsLeft = false;
+	bool winnerHasUnitsLeft = true;
 
 	if (!finishingBattle->isDraw())
 	{
 		winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
 		loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
-		winnerHasUnitsLeft = !winnerHero->getCreatureMap().empty();
+		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 : true;
 	}
 
 	BattleResultsApplied resultsApplied;
