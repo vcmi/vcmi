@@ -393,7 +393,12 @@ bool CGameInfoCallback::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameInfoCallback::isVisible(int3 pos) const
 {
 	if (!getPlayerID().has_value())
-		return true; // weird, but we do have such calls
+	{
+		// isVisibleFor calls isInTheMap internally, so we need to at least call that one to be consistent and to avoid array out of bounds,
+		// otherwise some requests (IBoatGenerator::bestLocation()) will trash when trying to access outsite the map array
+		return gameState().getMap().isInTheMap(pos);
+	}
+
 	return gameState().isVisibleFor(pos, *getPlayerID());
 }
 
@@ -402,10 +407,20 @@ bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor p
 	return gameState().isVisibleFor(obj, player);
 }
 
-bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
+bool CGameInfoCallback::isVisible(const CGObjectInstance * obj) const
 {
-	if (!getPlayerID().has_value())
-		return true; // weird, but we do have such calls
+	if(!getPlayerID().has_value())
+	{
+		// isVisibleFor calls isInTheMap internally, so we need to at least call that one to be consistent and to avoid array out of bounds.
+		return CGameState::iteratePositionsUntilTrue(
+			obj,
+			[this](const int3 & pos) -> bool
+			{
+				return gameState().getMap().isInTheMap(pos);
+			}
+		);
+	}
+
 	return gameState().isVisibleFor(obj, *getPlayerID());
 }
 

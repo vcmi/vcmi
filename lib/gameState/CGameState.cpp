@@ -1161,26 +1161,20 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
 	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
-	if (player == obj->tempOwner)
+	if(player == obj->tempOwner)
 		return true;
 
 	if(player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
 
-	//object is visible when at least one blocked tile is visible
-	for(int fy=0; fy < obj->getHeight(); ++fy)
-	{
-		for(int fx=0; fx < obj->getWidth(); ++fx)
+	return iteratePositionsUntilTrue(
+		obj,
+		[this, obj, player](const int3 & pos) -> bool
 		{
-			int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
-
-			if ( map->isInTheMap(pos) &&
-				 obj->coveringAt(pos) &&
-				 isVisibleFor(pos, player))
-				return true;
+			// object is visible when at least one blocked tile is visible
+			return map->isInTheMap(pos) && obj->coveringAt(pos) && isVisibleFor(pos, player);
 		}
-	}
-	return false;
+	);
 }
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
