@@ -103,6 +103,7 @@ public:
 	bool optionMarketplace();
 	bool optionHeroGround();
 	bool optionHeroBoat(EPathfindingLayer layer);
+	bool optionHeroDig();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;
