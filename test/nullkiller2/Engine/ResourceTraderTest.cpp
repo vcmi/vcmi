@@ -6,11 +6,11 @@
  * License: GNU General Public License v2.0 or later
  * Full text of license available in license.txt file, in main folder
  */
-#include "AI/Nullkiller2/Behaviors/RecruitHeroBehavior.h"
-#include "AI/Nullkiller2/Engine/Nullkiller.h"
 #include "Global.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "AI/Nullkiller2/Behaviors/RecruitHeroBehavior.h"
 
 class MockMarket : public IMarket
 {

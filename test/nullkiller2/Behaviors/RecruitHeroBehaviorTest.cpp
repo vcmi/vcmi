@@ -7,8 +7,9 @@
  * Full text of license available in license.txt file, in main folder
  */
 #include "Global.h"
-#include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
 #include "AI/Nullkiller2/Behaviors/RecruitHeroBehavior.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
 
