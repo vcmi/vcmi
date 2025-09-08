@@ -55,6 +55,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 				{
 					if (exit != tObj->id)
 					{
+						// TODO: Mircea: Looks like a bug. Should use isVisibleFor with aiNk->playerID
 						if (!aiNk->cc->isVisible(aiNk->cc->getObjInstance(exit)))
 							tasks.push_back(sptr(Composition().addNext(ExplorationPoint(obj->visitablePos(), 50)).addNext(CaptureObject(obj))));
 					}

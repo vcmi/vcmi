@@ -1161,6 +1161,10 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
 	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
+	// TODO: Mircea: Looks like a bug. See ExplorationBehavior::decompose
+	// if (!aiNk->cc->isVisibleFor(aiNk->cc->getObjInstance(exit), aiNk->playerID))
+	// First thought: we shouldn't have the following if: if(player == obj->tempOwner)
+	// because we need to triggger the actual isInTheMap and isVisibleFor code
 	if(player == obj->tempOwner)
 		return true;
 
