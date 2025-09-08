@@ -687,26 +687,38 @@ std::vector<Destination> BattleSpellMechanics::getPossibleDestinations(size_t in
 	case AimType::LOCATION:
 		if(fast)
 		{
-			auto stacks = battle()->battleGetAllStacks();
-			BattleHexArray hexesToCheck;
-
-			for(auto stack : stacks)
+			std::set<std::vector<const CStack *>> affectedUnitsSet;
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 			{
-				hexesToCheck.insert(stack->getPosition());
-				hexesToCheck.insert(stack->getPosition().getNeighbouringTiles());
-			}
+				BattleHex dest(i);
+				spells::Target target;
+				target.emplace_back(dest);
+				std::vector<const CStack *> affectedUnits = getAffectedStacks(target);
 
-			for(const auto & hex : hexesToCheck)
-			{
-				if(hex.isAvailable())
+				bool isAffectedAlly = false;
+				bool isAffectedEnemy = false;
+				for (const  CStack * affectedUnit : affectedUnits)
+				{
+					if(affectedUnit->unitSide() == casterSide)
+						isAffectedAlly = true;
+					else
+						isAffectedEnemy = true;
+				}
+
+				auto invalidCast = (getSpell()->getPositiveness() &&  !isAffectedAlly) || (!getSpell()->getPositiveness() && !isAffectedEnemy);
+
+				if (!invalidCast && affectedUnitsSet.find(affectedUnits) == affectedUnitsSet.end())
 				{
 					Target tmp = current;
-					tmp.emplace_back(hex);
+					tmp.emplace_back(dest);
 
 					detail::ProblemImpl ignored;
 
 					if(canBeCastAt(tmp, ignored))
-						ret.emplace_back(hex);
+					{
+						ret.emplace_back(dest);
+						affectedUnitsSet.insert(affectedUnits);
+					}
 				}
 			}
 		}
