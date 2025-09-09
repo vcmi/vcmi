@@ -230,9 +230,6 @@ bool CVCMIServer::prepareToStartGame()
 	Load::Progress current(1);
 	progressTracking.include(current);
 
-	if (lobbyProcessor)
-		lobbyProcessor->sendGameStarted();
-
 	auto progressTrackingThread = std::thread([this, &progressTracking]()
 	{
 		setThreadName("progressTrackingThread");
@@ -252,42 +249,71 @@ bool CVCMIServer::prepareToStartGame()
 		}
 	});
 
-	gh = std::make_shared<CGameHandler>(*this);
-	switch(si->mode)
+	auto newGH = std::make_shared<CGameHandler>(*this);
+	bool started = false;
+	try
 	{
-	case EStartMode::CAMPAIGN:
-		logNetwork->info("Preparing to start new campaign");
-		si->startTime = std::time(nullptr);
-		si->fileURI = mi->fileURI;
-		si->campState->setCurrentMap(campaignMap);
-		si->campState->setCurrentMapBonus(campaignBonus);
-		gh->init(si.get(), progressTracking);
-		break;
-
-	case EStartMode::NEW_GAME:
-		logNetwork->info("Preparing to start new game");
-		si->startTime = std::time(nullptr);
-		si->fileURI = mi->fileURI;
-		gh->init(si.get(), progressTracking);
-		break;
-
-	case EStartMode::LOAD_GAME:
-		logNetwork->info("Preparing to start loaded game");
-		if(!loadSavedGame(*si))
+		switch(si->mode)
 		{
-			current.finish();
-			progressTrackingThread.join();
-			return false;
-		}
-		break;
-	default:
-		logNetwork->error("Wrong mode in StartInfo!");
-		assert(0);
-		break;
-	}
+		case EStartMode::CAMPAIGN:
+			logNetwork->info("Preparing to start new campaign");
+			si->startTime = std::time(nullptr);
+			si->fileURI = mi->fileURI;
+			si->campState->setCurrentMap(campaignMap);
+			si->campState->setCurrentMapBonus(campaignBonus);
+			newGH->init(si.get(), progressTracking);	// may throw
+			started = true;
+			break;
+		case EStartMode::NEW_GAME:
+			logNetwork->info("Preparing to start new game");
+			si->startTime = std::time(nullptr);
+			si->fileURI = mi->fileURI;
+			newGH->init(si.get(), progressTracking);	// may throw
+			started = true;
+			break;
 
+		case EStartMode::LOAD_GAME:
+			logNetwork->info("Preparing to start loaded game");
+			if(loadSavedGame(*newGH, *si))
+				started = true;
+			break;
+		default:
+			logNetwork->error("Wrong mode in StartInfo!");
+			assert(0);
+			break;
+		}
+	}
+	catch(const ModIncompatibility & e)
+	{
+		logGlobal->error("Failed to launch game: %s", e.what());
+		announceMessage(e.getFullErrorMsg());
+	}
+	catch(const IdentifierResolutionException & e)
+	{
+		logGlobal->error("Failed to launch game: %s", e.what());
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		announceMessage(errorMsg);
+	}
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to launch game: %s", e.what());
+		auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+		str.appendRawString(":\n");
+		str.appendRawString(e.what());
+		announceMessage(str);
+	}
 	current.finish();
 	progressTrackingThread.join();
+
+	if (!started)
+		return false;
+
+	gh = std::move(newGH);
+
+	if(lobbyProcessor)
+		lobbyProcessor->sendGameStarted();
 
 	return true;
 }
@@ -1066,36 +1092,23 @@ INetworkServer & CVCMIServer::getNetworkServer()
 	return *networkServer;
 }
 
-bool CVCMIServer::loadSavedGame(const StartInfo &info)
+bool CVCMIServer::loadSavedGame(CGameHandler & handler, const StartInfo & info)
 {
 	try
 	{
-		gh->load(info);
+		handler.load(info);
 	}
 	catch(const ModIncompatibility & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
-		MetaString errorMsg;
-		if(!e.whatMissing().empty())
-		{
-			errorMsg.appendTextID("vcmi.server.errors.modsToEnable");
-			errorMsg.appendRawString("\n");
-			errorMsg.appendRawString(e.whatMissing());
-		}
-		if(!e.whatExcessive().empty())
-		{
-			errorMsg.appendTextID("vcmi.server.errors.modsToDisable");
-			errorMsg.appendRawString("\n");
-			errorMsg.appendRawString(e.whatExcessive());
-		}
-		announceMessage(errorMsg);
+		announceMessage(e.getFullErrorMsg());
 		return false;
 	}
 	catch(const IdentifierResolutionException & e)
 	{
 		logGlobal->error("Failed to load game: %s", e.what());
 		MetaString errorMsg;
-		errorMsg.appendTextID("vcmi.server.errors.unknownEntity");
+		errorMsg.appendTextID("vcmi.server.errors.saveFile.unknownEntity");
 		errorMsg.replaceRawString(e.identifierName);
 		announceMessage(errorMsg);
 		return false;

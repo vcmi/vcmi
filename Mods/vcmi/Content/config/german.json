@@ -249,7 +249,7 @@
 	"vcmi.server.errors.existingProcess" : "Es läuft ein weiterer vcmiserver-Prozess, bitte beendet diesen zuerst",
 	"vcmi.server.errors.modsToEnable"    : "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.modsToDisable"   : "{Folgende Mods müssen deaktiviert werden}",
-	"vcmi.server.errors.unknownEntity" : "Spielstand konnte nicht geladen werden! Unbekannte Entität '%s' im gespeicherten Spiel gefunden! Der Spielstand ist möglicherweise nicht mit der aktuell installierten Version der Mods kompatibel!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Spielstand konnte nicht geladen werden! Unbekannte Entität '%s' im gespeicherten Spiel gefunden! Der Spielstand ist möglicherweise nicht mit der aktuell installierten Version der Mods kompatibel!",
 	"vcmi.server.errors.wrongIdentified"   : "Ihr wurdet als Spieler %s identifiziert, während %s erwartet wurde",
 	"vcmi.server.errors.notAllowed"   : "Ihr dürft diese Aktion nicht durchführen!",
 	

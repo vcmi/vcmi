@@ -408,9 +408,9 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 			return object->objectTypeHandlers.at(subID.value());
 	}
 
-	std::string errorString = "Failed to find object of type " + type + "::" + subtype;
-	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
+	std::string objectType = type + "::" + subtype;
+	logGlobal->error("Failed to find object of type %s", objectType);
+	throw IdentifierResolutionException(objectType);
 }
 
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const

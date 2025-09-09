@@ -569,24 +569,14 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-		std::string errorMsg;
-		if(!e.whatMissing().empty())
-		{
-			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
-			errorMsg += e.whatMissing();
-		}
-		if(!e.whatExcessive().empty())
-		{
-			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
-			errorMsg += e.whatExcessive();
-		}
-		showServerError(errorMsg);
+
+		showServerError(e.getFullErrorMsg());
 		return false;
 	}
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());
-		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		showServerError(std::string("Unable to start map!\nReason: ") + e.what());
 		return false;
 	}
 

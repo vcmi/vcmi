@@ -467,9 +467,19 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, tr("Mods are required"), QString::fromStdString(e.whatMissing()));
+		auto qstrError = QString::fromStdString(e.getFullErrorMsg()).remove('{').remove('}');
+		QMessageBox::warning(this, tr("Mods are required"), qstrError);
 		return false;
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		return false;
+	}
+
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));

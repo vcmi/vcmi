@@ -146,7 +146,6 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
-	handler.client = std::make_unique<CClient>();
 	handler.logicConnection->enterLobbyConnectionMode();
 }
 
@@ -159,6 +158,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pac
 		handler.si = pack.initializedStartInfo;
 		handler.si->mode = modeBackup;
 	}
+	handler.client = std::make_unique<CClient>();
 	handler.startGameplay(pack.initializedGameState);
 }
 

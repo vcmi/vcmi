@@ -227,7 +227,7 @@
 	"vcmi.server.errors.existingProcess" : "Un altro processo del server VCMI è in esecuzione. Terminarlo prima di avviare una nuova partita.",
 	"vcmi.server.errors.modsToEnable"    : "{Le seguenti mod sono richieste}",
 	"vcmi.server.errors.modsToDisable"   : "{Le seguenti mod devono essere disattivate}",
-	"vcmi.server.errors.unknownEntity" : "Impossibile caricare il salvataggio! Entità sconosciuta '%s' trovata nel salvataggio! Il salvataggio potrebbe non essere compatibile con la versione attualmente installata delle mod!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Impossibile caricare il salvataggio! Entità sconosciuta '%s' trovata nel salvataggio! Il salvataggio potrebbe non essere compatibile con la versione attualmente installata delle mod!",
 	"vcmi.server.errors.wrongIdentified"   : "Sei stato identificato come giocatore %s mentre ci si aspettava %s",
 	"vcmi.server.errors.notAllowed"   : "Non ti è permesso eseguire questa azione!",
 	
