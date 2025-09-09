@@ -34,6 +34,7 @@ const std::vector<std::vector<std::string>> contributors = {
 	{ "Developing", ""                   , "Laserlicht"         , ""                             },
 	{ "Developing", "Lukasz Wychrystenko", "tezeriusz"          , "t0@czlug.icis.pcz.pl"         },
 	{ "Developing", "Michał Kalinowski"  , ""                   , "feniks_fire@o2.pl"            },
+	{ "Developing", ""             	  , "Mircea TheHonestCTO", "mircea@thehonestcto.com"      },
 	{ "Developing", "Piotr Wójcik"       , "Chocimier"          , "chocimier@tlen.pl"            },
 	{ "Developing", "Rafal R."           , "ambtrip"            , "ambtrip@wp.pl"                },
 	{ "Developing", "Rickard Westerlund" , "Onion Knight"       , "onionknigh@gmail.com"         },
