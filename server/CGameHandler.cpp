@@ -3106,18 +3106,18 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	int b1; //base quantities for trade
 	int b2;
 	market->getOffer(toSell, toBuy, b1, b2, EMarketMode::RESOURCE_RESOURCE);
-	int amountToBoy = amountToSell / b1; //how many base quantities we trade
+	int amountToBuy = amountToSell / b1; //how many base quantities we trade
 
 	if (amountToSell % b1 != 0) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
 	{
 		COMPLAIN_RET("Invalid deal, not all offered units of resource were used.");
 	}
 
-	giveResource(player, toSell, -b1 * amountToBoy);
-	giveResource(player, toBuy, b2 * amountToBoy);
+	giveResource(player, toSell, -b1 * amountToBuy);
+	giveResource(player, toBuy, b2 * amountToBuy);
 
-	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
-	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
+	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBuy;
+	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBuy;
 
 	return true;
 }
