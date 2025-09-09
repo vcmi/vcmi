@@ -146,7 +146,7 @@ if(ENABLE_NULLKILLER_AI)
 	list(FILTER NULLKILLER2_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
 
 	list(APPEND test_SRCS
-		${NULLKILLER2_TEST_SRCS}
+#		${NULLKILLER2_TEST_SRCS}
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 		nullkiller2/Engine/ResourceTraderTest.cpp
 	)
@@ -199,9 +199,6 @@ if(ENABLE_LUA)
 endif()
 if(ENABLE_NULLKILLER_AI)
 	target_link_libraries(vcmitest PUBLIC Nullkiller2)
-#	target_link_libraries(vcmitest PRIVATE fuzzylite::fuzzylite TBB::tbb)
-	# TODO: Mircea: fix code to eliminate all linking issues, then remove the options below
-	target_link_options(vcmitest PRIVATE -Wl,--warn-unresolved-symbols)
 endif()
 
 target_include_directories(vcmitest

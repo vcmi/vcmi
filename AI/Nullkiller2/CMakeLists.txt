@@ -151,7 +151,7 @@ if(NOT ENABLE_STATIC_LIBS)
 endif()
 assign_source_group(${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 
-if(ENABLE_STATIC_LIBS)
+if(ENABLE_STATIC_LIBS OR ENABLE_TEST)
 	add_library(Nullkiller2 STATIC ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
 else()
 	add_library(Nullkiller2 SHARED ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
