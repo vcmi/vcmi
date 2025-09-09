@@ -449,10 +449,32 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 TResource BuildAnalyzer::goldApproximate(const TResources & res)
 {
-	// TODO: Would it make sense to use the marketplace rate of the player? See Nullkiller::handleTrading()
-	return res[EGameResID::GOLD]
-		+ 75 * (res[EGameResID::WOOD] + res[EGameResID::ORE])
-		+ 125 * (res[EGameResID::GEMS] + res[EGameResID::CRYSTAL] + res[EGameResID::MERCURY] + res[EGameResID::SULFUR]);
+	// TODO: Mircea: Would it make sense to use the marketplace rate of the player? See ResourceTrader::trade()
+	return goldApproximate(res[EGameResID::WOOD], EGameResID::WOOD) + goldApproximate(res[EGameResID::MERCURY], EGameResID::MERCURY) +
+		   goldApproximate(res[EGameResID::ORE], EGameResID::ORE) + goldApproximate(res[EGameResID::SULFUR], EGameResID::SULFUR) +
+		   goldApproximate(res[EGameResID::CRYSTAL], EGameResID::CRYSTAL) + goldApproximate(res[EGameResID::GEMS], EGameResID::GEMS) +
+		   goldApproximate(res[EGameResID::GOLD], EGameResID::GOLD) + goldApproximate(res[EGameResID::MITHRIL], EGameResID::MITHRIL);
+}
+
+TResource BuildAnalyzer::goldApproximate(const TResource & res, EGameResID resId)
+{
+	switch(resId)
+	{
+		case EGameResID::WOOD:
+		case EGameResID::ORE:
+			return res * 75;
+		case EGameResID::MERCURY:
+		case EGameResID::SULFUR:
+		case EGameResID::CRYSTAL:
+		case EGameResID::GEMS:
+			return res * 125;
+		case EGameResID::GOLD:
+			return res;
+		case EGameResID::MITHRIL:
+			return res; // TODO: Mircea: What multiplier to give for mithril?
+		default:
+			throw std::runtime_error("Unsupported resource ID" + std::to_string(resId));
+	}
 }
 
 TResources BuildAnalyzer::goldRemove(TResources other)

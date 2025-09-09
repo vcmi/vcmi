@@ -16,15 +16,19 @@ namespace NK2AI
 class ResourceTrader
 {
 public:
-	static bool trade(const std::unique_ptr<BuildAnalyzer> & buildAnalyzer, std::shared_ptr<CCallback> cc, TResources freeResources);
+	// TODO: Mircea: Maybe include based on how close danger is: X as default + proportion of close danger or something around that
+	static constexpr float ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS = 0.1f;
+	static constexpr float EXPENDABLE_BULK_RATIO = 0.3f;
+
+	static bool trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const TResources & freeResources);
 	static bool tradeHelper(
-		float EXPENDABLE_BULK_RATIO,
-		const IMarket * market,
+		float expendableBulkRatio,
+		const IMarket & market,
 		TResources missingNow,
 		TResources income,
 		TResources freeAfterMissingTotal,
-		const std::unique_ptr<BuildAnalyzer> & buildAnalyzer,
-		std::shared_ptr<CCallback> cc
+		const BuildAnalyzer & buildAnalyzer,
+		CCallback & cc
 	);
 };
 

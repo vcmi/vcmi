@@ -35,13 +35,13 @@ public:
 	};
 
 	virtual ObjectInstanceID getObjInstanceID() const = 0;	// The market is always an object on the map
-	virtual int getMarketEfficiency() const = 0;
+	virtual int getMarketEfficiency() const = 0; // marketCount in CGTownInstance::getMarketEfficiency()
 	virtual bool allowsTrade(const EMarketMode mode) const;
 	virtual int availableUnits(const EMarketMode mode, const int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<TradeItemBuy> availableItemsIds(const EMarketMode mode) const;
 	virtual std::set<EMarketMode> availableModes() const = 0;
 	CArtifactSet * getArtifactsStorage() const;
-	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
+	virtual bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 
 private:
 	std::unique_ptr<CArtifactSetAltar> altarArtifactsStorage;

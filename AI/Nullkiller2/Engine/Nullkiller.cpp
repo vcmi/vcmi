@@ -466,7 +466,7 @@ void Nullkiller::makeTurn()
 
 			if(HeroPtr heroPtr(selectedTask->getHero(), cc); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
-				logAi->warn("Nullkiller::makeTurn Skipping pass due to unverified hero: %s", heroPtr.nameOrDefault());
+				logAi->error("Nullkiller::makeTurn Skipping pass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
 			else
 			{
@@ -480,21 +480,19 @@ void Nullkiller::makeTurn()
 			}
 		}
 
-		hasAnySuccess |= ResourceTrader::trade(buildAnalyzer, cc, getFreeResources());
+		hasAnySuccess |= ResourceTrader::trade(*buildAnalyzer, *cc, getFreeResources());
 		if(!hasAnySuccess)
 		{
-			logAi->trace("Nothing was done this turn. Ending turn.");
+			logAi->trace("Nothing was done this turn pass. Ending turn.");
 			tracePlayerStatus(false);
 			return;
 		}
 
-		for (const auto *heroInfo : cc->getHeroesInfo())
+		for(const auto * heroInfo : cc->getHeroesInfo())
 			AIGateway::pickBestArtifacts(cc, heroInfo);
 
 		if(i == settings->getMaxPass())
-		{
 			logAi->warn("MaxPass reached. Terminating AI turn.");
-		}
 	}
 }
 
@@ -521,7 +519,7 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 			HeroPtr heroPtr(bestPrioPassTask->getHero(), cc);
 			if(!isRecruitHeroGoal && bestPrioPassTask->getHero() && !heroPtr.isVerified(false))
 			{
-				logAi->warn("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
+				logAi->error("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
 			else if(!executeTask(bestPrioPassTask))
 			{

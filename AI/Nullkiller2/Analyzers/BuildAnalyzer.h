@@ -104,6 +104,7 @@ public:
 		std::shared_ptr<CCallback> & cc,
 		bool excludeDwellingDependencies = true);
 	static TResource goldApproximate(const TResources & res);
+	static TResource goldApproximate(const TResource & res, EGameResID resId);
 	static TResources goldRemove(TResources other);
 	static TResources goldOnly(TResources other);
 };
