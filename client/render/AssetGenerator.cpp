@@ -584,13 +584,13 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmoun
 
 	if(boxesAmount == 3)
 	{
-		redRects.push_back(Rect(347, 108, 45, 45));
+		redRects.push_back(Rect(347, 109, 45, 45));
 		darkRects.push_back(Rect(347, 156, 45, 19));
 	}
 	else if(boxesAmount == 4)
 	{
-		redRects.push_back(Rect(319, 108, 45, 45));
-		redRects.push_back(Rect(373, 108, 45, 45));
+		redRects.push_back(Rect(319, 109, 45, 45));
+		redRects.push_back(Rect(373, 109, 45, 45));
 		darkRects.push_back(Rect(319, 156, 45, 19));
 		darkRects.push_back(Rect(373, 156, 45, 19));
 	}
