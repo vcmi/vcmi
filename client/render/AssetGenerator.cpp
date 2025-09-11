@@ -548,17 +548,10 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 
 AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmount) const
 {
-	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
-	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
-
 	Point size(438, 187);
 
 	auto image = ENGINE->renderHandler().createImage(size, CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
-
-	for (int y = 0; y < size.y; y += img->height())
-		for (int x = 0; x < size.x; x += img->width())
-			canvas.draw(img, Point(x, y), Rect(0, 0, std::min(img->width(), size.x - x), std::min(img->height(), size.y - y)));
 
 	Rect r(4, 40, 102, 132);
 	canvas.drawColor(r, Colors::BLACK);
@@ -618,9 +611,6 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmoun
 
 AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanelElement(CreatureInfoPanelElement element) const
 {
-	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
-	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
-
 	std::map<CreatureInfoPanelElement, Point> size {
 		{BONUS_EFFECTS, Point(438, 59)},
 		{SPELL_EFFECTS, Point(438, 42)},
@@ -631,10 +621,6 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanelElement(Creatur
 
 	auto image = ENGINE->renderHandler().createImage(size[element], CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
-
-	for (int y = 0; y < size[element].y; y += img->height())
-		for (int x = 0; x < size[element].x; x += img->width())
-			canvas.draw(img, Point(x, y), Rect(0, 0, std::min(img->width(), size[element].x - x), std::min(img->height(), size[element].y - y)));
 	
     const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
     const ColorRGBA rectangleColorRed = ColorRGBA(32, 0, 0, 150);
@@ -654,12 +640,47 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanelElement(Creatur
 		}
 		break;
 	case SPELL_EFFECTS:
+		for(int i = 0; i < 8; i++)
+		{
+			Rect r(6 + i * 54, 2, 48, 36);
+			canvas.drawColorBlended(r, rectangleColor);
+			canvas.drawBorder(r, borderColor);
+		}
 		break;
 	case BUTTON_PANEL:
+		canvas.drawColorBlended(Rect(382, 5, 52, 36), Colors::BLACK);
 		break;
 	case COMMANDER_BACKGROUND:
+		for(int x = 0; x < 3; x++)
+		{
+			for(int y = 0; y < 3; y++)
+			{
+				Rect r(269 + x * 52, 21 + y * 52, 44, 44);
+				canvas.drawColorBlended(r, rectangleColorRed);
+				canvas.drawBorder(r, borderColor);
+			}
+		}
+		for(int x = 0; x < 3; x++)
+		{
+			for(int y = 0; y < 2; y++)
+			{
+				Rect r(10 + x * 80, 20 + y * 80, 70, 70);
+				canvas.drawColor(r, Colors::BLACK);
+			}
+		}
 		break;
 	case COMMANDER_ABILITIES:
+		for(int i = 0; i < 6; i++)
+		{
+			Rect r(37 + i * 63, 2, 54, 54);
+			canvas.drawColorBlended(r, rectangleColorRed);
+			canvas.drawBorder(r, borderColor);
+		}
+		for(int i = 0; i < 2; i++)
+		{
+			Rect r(10 + i * 401, 6, 22, 46);
+			canvas.drawColor(r, Colors::BLACK);
+		}
 		break;
 	}
 
