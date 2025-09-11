@@ -329,7 +329,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	}
 	else
 	{
-        tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
+        tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 	}
 
 	addUsedEvents(DRAG_POPUP);
