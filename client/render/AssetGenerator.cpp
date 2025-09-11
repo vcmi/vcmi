@@ -18,6 +18,7 @@
 #include "../render/ColorFilter.h"
 #include "../render/IRenderHandler.h"
 #include "../render/CAnimation.h"
+#include "../render/Colors.h"
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameSettings.h"
@@ -50,6 +51,15 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this]() { return createCampaignBackground(8); };
 
 	imageFiles[ImagePath::builtin("SpelTabNone.png")] = [this](){ return createSpellTabNone();};
+
+	imageFiles[ImagePath::builtin("stackWindow/info-panel-0.png")] = [this](){ return createCreatureInfoPanel(2);};
+	imageFiles[ImagePath::builtin("stackWindow/info-panel-1.png")] = [this](){ return createCreatureInfoPanel(3);};
+	imageFiles[ImagePath::builtin("stackWindow/info-panel-2.png")] = [this](){ return createCreatureInfoPanel(4);};
+	imageFiles[ImagePath::builtin("stackWindow/bonus-effects.png")] = [this](){ return createCreatureInfoPanelElement(BONUS_EFFECTS);};
+	imageFiles[ImagePath::builtin("stackWindow/spell-effects.png")] = [this](){ return createCreatureInfoPanelElement(SPELL_EFFECTS);};
+	imageFiles[ImagePath::builtin("stackWindow/button-panel.png")] = [this](){ return createCreatureInfoPanelElement(BUTTON_PANEL);};
+	imageFiles[ImagePath::builtin("stackWindow/commander-bg.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_BACKGROUND);};
+	imageFiles[ImagePath::builtin("stackWindow/commander-abilities.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_ABILITIES);};
 
 	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 		imageFiles[ImagePath::builtin("DialogBoxBackground_" + color.toString())] = [this, color](){ return createPlayerColoredBackground(color);};
@@ -534,4 +544,124 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 	}
 
 	return layout;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmount) const
+{
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+
+	Point size(438, 187);
+
+	auto image = ENGINE->renderHandler().createImage(size, CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	for (int y = 0; y < size.y; y += img->height())
+		for (int x = 0; x < size.x; x += img->width())
+			canvas.draw(img, Point(x, y), Rect(0, 0, std::min(img->width(), size.x - x), std::min(img->height(), size.y - y)));
+
+	Rect r(4, 40, 102, 132);
+	canvas.drawColor(r, Colors::BLACK);
+	canvas.drawBorder(r, Colors::YELLOW);
+
+    const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+    const ColorRGBA rectangleColorRed = ColorRGBA(32, 0, 0, 150);
+    const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+
+	r = Rect(60, 3, 315, 21);
+	canvas.drawColorBlended(r, rectangleColor);
+	canvas.drawBorder(r, borderColor);
+
+	for(int i = 0; i < 8; i++)
+	{
+		Rect r(114, 30 + i * 19, 24, 20);
+		canvas.drawColorBlended(r, rectangleColor);
+		canvas.drawBorder(r, borderColor);
+		r.x += 23;
+		r.w = 173;
+		canvas.drawColorBlended(r, rectangleColor);
+		canvas.drawBorder(r, borderColor);
+	}
+
+	std::vector<Rect> redRects = {
+		Rect(319, 30, 45, 45),
+		Rect(373, 30, 45, 45)
+	};
+	std::vector<Rect> darkRects = {};
+
+	if(boxesAmount == 3)
+	{
+		redRects.push_back(Rect(347, 108, 45, 45));
+		darkRects.push_back(Rect(347, 156, 45, 19));
+	}
+	else if(boxesAmount == 4)
+	{
+		redRects.push_back(Rect(319, 108, 45, 45));
+		redRects.push_back(Rect(373, 108, 45, 45));
+		darkRects.push_back(Rect(319, 156, 45, 19));
+		darkRects.push_back(Rect(373, 156, 45, 19));
+	}
+	
+	for(auto & rect : darkRects)
+	{
+		canvas.drawColorBlended(rect, rectangleColor);
+		canvas.drawBorder(rect, borderColor);
+	}
+	for(auto & rect : redRects)
+	{
+		canvas.drawColorBlended(rect, rectangleColorRed);
+		canvas.drawBorder(rect, borderColor);
+	}
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanelElement(CreatureInfoPanelElement element) const
+{
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+
+	std::map<CreatureInfoPanelElement, Point> size {
+		{BONUS_EFFECTS, Point(438, 59)},
+		{SPELL_EFFECTS, Point(438, 42)},
+		{BUTTON_PANEL, Point(438, 43)},
+		{COMMANDER_BACKGROUND, Point(438, 177)},
+		{COMMANDER_ABILITIES, Point(438, 59)}
+	};
+
+	auto image = ENGINE->renderHandler().createImage(size[element], CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	for (int y = 0; y < size[element].y; y += img->height())
+		for (int x = 0; x < size[element].x; x += img->width())
+			canvas.draw(img, Point(x, y), Rect(0, 0, std::min(img->width(), size[element].x - x), std::min(img->height(), size[element].y - y)));
+	
+    const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+    const ColorRGBA rectangleColorRed = ColorRGBA(32, 0, 0, 150);
+    const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+
+	switch (element)
+	{
+	case BONUS_EFFECTS:
+		for(int i = 0; i < 2; i++)
+		{
+			Rect r(4 + i * 208, 0, 54, 54);
+			canvas.drawColorBlended(r, rectangleColorRed);
+			canvas.drawBorder(r, borderColor);
+			r = Rect(61 + i * 208, 0, 144, 54);
+			canvas.drawColorBlended(r, rectangleColor);
+			canvas.drawBorder(r, borderColor);
+		}
+		break;
+	case SPELL_EFFECTS:
+		break;
+	case BUTTON_PANEL:
+		break;
+	case COMMANDER_BACKGROUND:
+		break;
+	case COMMANDER_ABILITIES:
+		break;
+	}
+
+	return image;
 }
