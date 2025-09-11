@@ -60,6 +60,7 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("stackWindow/button-panel.png")] = [this](){ return createCreatureInfoPanelElement(BUTTON_PANEL);};
 	imageFiles[ImagePath::builtin("stackWindow/commander-bg.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_BACKGROUND);};
 	imageFiles[ImagePath::builtin("stackWindow/commander-abilities.png")] = [this](){ return createCreatureInfoPanelElement(COMMANDER_ABILITIES);};
+	imageFiles[ImagePath::builtin("questDialog.png")] = [this](){ return createQuestWindow();};
 
 	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 		imageFiles[ImagePath::builtin("DialogBoxBackground_" + color.toString())] = [this, color](){ return createPlayerColoredBackground(color);};
@@ -683,6 +684,45 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanelElement(Creatur
 		}
 		break;
 	}
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createQuestWindow() const
+{
+	auto locator = ImageLocator(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+
+	Point size(612, 438);
+
+	auto image = ENGINE->renderHandler().createImage(size, CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	for (int y = 0; y < size.y; y += img->height())
+		for (int x = 0; x < size.x; x += img->width())
+			canvas.draw(img, Point(x, y), Rect(0, 0, std::min(img->width(), size.x - x), std::min(img->height(), size.y - y)));
+
+	Rect r(11, 11, 171, 171);
+	canvas.drawColor(r, Colors::BLACK);
+	canvas.drawBorder(r, Colors::YELLOW);
+
+    const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
+    const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
+
+	for(int i = 0; i < 6; i++)
+	{
+		Rect r(11, 194 + i * 32, 155, 33);
+		canvas.drawColorBlended(r, rectangleColor);
+		canvas.drawBorder(r, borderColor);
+	}
+	
+	r = Rect(165, 194, 18, 193);
+	canvas.drawColor(r, Colors::BLACK);
+	canvas.drawBorder(r, borderColor);
+
+	r = Rect(193, 11, 408, 376);
+	canvas.drawColorBlended(r, rectangleColor);
+	canvas.drawBorder(r, borderColor);
 
 	return image;
 }

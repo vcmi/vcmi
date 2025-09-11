@@ -57,6 +57,7 @@ private:
 	CanvasPtr createCreatureInfoPanel(int boxesAmount) const;
 	enum CreatureInfoPanelElement{ BONUS_EFFECTS, SPELL_EFFECTS, BUTTON_PANEL, COMMANDER_BACKGROUND, COMMANDER_ABILITIES };
 	CanvasPtr createCreatureInfoPanelElement(CreatureInfoPanelElement element) const;
+	CanvasPtr createQuestWindow() const;
 	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay);
 
 	void createPaletteShiftedSprites();
