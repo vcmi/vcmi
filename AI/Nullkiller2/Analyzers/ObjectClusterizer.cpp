@@ -332,7 +332,6 @@ void ObjectClusterizer::clusterize()
 		tbb::blocked_range<size_t>(0, objs.size()),
 		[&](const tbb::blocked_range<size_t> & r)
 		{
-			SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 			auto priorityEvaluator = aiNk->priorityEvaluators->acquire();
 			auto heroes = aiNk->cc->getHeroesInfo();
 			std::vector<AIPath> pathCache;

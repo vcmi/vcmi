@@ -60,7 +60,7 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 	std::unordered_map<HeroRole, const AIPath *> closestWaysByRole;
 	std::vector<ExecuteHeroChain *> waysToVisitObj;
 
-	for(auto & path : paths)
+	for(const auto & path : paths)
 	{
 		tasks.push_back(sptr(Goals::Invalid()));
 
@@ -76,9 +76,8 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			continue;
 		}
 
-		auto hero = path.targetHero;
-		auto danger = path.getTotalDanger();
-
+		const auto * hero = path.targetHero;
+		const auto danger = path.getTotalDanger();
 		if (hero->getOwner() != nullkiller->playerID)
 			continue;
 
@@ -177,7 +176,6 @@ void CaptureObjectsBehavior::decomposeObjects(
 		tbb::blocked_range<size_t>(0, objs.size()),
 		[this, &objs, &sync, &result, nullkiller](const tbb::blocked_range<size_t> & r)
 		{
-			SET_GLOBAL_STATE_TBB(nullkiller->aiGw);
 			std::vector<AIPath> paths;
 			Goals::TGoalVec tasksLocal;
 

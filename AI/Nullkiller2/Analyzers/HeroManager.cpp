@@ -133,7 +133,7 @@ void HeroManager::update()
 
 	for(const auto hero : myHeroes)
 	{
-		HeroPtr heroPtr(hero, aiNk->cc);
+		HeroPtr heroPtr(hero, aiNk->cc.get());
 		HeroRole role;
 		if(hero->patrol.patrolling)
 		{
@@ -151,7 +151,7 @@ void HeroManager::update()
 
 HeroRole HeroManager::getHeroRoleOrDefaultInefficient(const  CGHeroInstance * hero) const
 {
-	return getHeroRoleOrDefault(HeroPtr(hero, aiNk->cc));
+	return getHeroRoleOrDefault(HeroPtr(hero, aiNk->cc.get()));
 }
 
 // TODO: Mircea: Do we need this map on HeroPtr or is enough just on hero?

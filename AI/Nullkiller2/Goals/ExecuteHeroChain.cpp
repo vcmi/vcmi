@@ -109,7 +109,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 		auto  * node = &chainPath.nodes[i];
 
 		const CGHeroInstance * hero = node->targetHero;
-		HeroPtr heroPtr(hero, aiGw->cc);
+		HeroPtr heroPtr(hero, aiGw->cc.get());
 
 		if(!heroPtr.isVerified())
 		{
@@ -303,7 +303,7 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 		return true;
 	}
 
-	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc));
+	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc.get()));
 }
 
 }

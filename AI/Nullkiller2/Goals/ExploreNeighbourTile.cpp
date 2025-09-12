@@ -33,17 +33,18 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 		int3 pos = hero->visitablePos();
 		float value = 0;
 		int3 target = int3(-1);
-		foreach_neighbour(pos, [&](int3 tile)
+		foreach_neighbour(
+			*aiGw->cc,
+			pos,
+			[&](int3 tile)
 			{
-				auto pathInfo = aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
-
+				const auto pathInfo = aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(tile);
 				if(pathInfo->turns > 0)
 					return;
 
 				if(pathInfo->accessible == EPathAccessibility::ACCESSIBLE)
 				{
 					float newValue = h.howManyTilesWillBeDiscovered(tile);
-
 					newValue /= std::min(0.1f, pathInfo->getCost());
 
 					if(newValue > value)
@@ -52,7 +53,8 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 						target = tile;
 					}
 				}
-			});
+			}
+		);
 
 		if(!target.isValid())
 		{
@@ -61,7 +63,7 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 
 		auto danger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(target, hero, true);
 
-		if(danger > 0 || !aiGw->moveHeroToTile(target, HeroPtr(hero, aiGw->cc)))
+		if(danger > 0 || !aiGw->moveHeroToTile(target, HeroPtr(hero, aiGw->cc.get())))
 		{
 			return;
 		}

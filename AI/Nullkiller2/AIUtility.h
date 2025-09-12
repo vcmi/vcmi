@@ -62,8 +62,6 @@ const int WOOD_ORE_MINE_PRODUCTION = 2;
 const int RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
 
-extern thread_local CCallback * ccTl;
-
 enum HeroRole
 {
 	SCOUT = 0,
@@ -78,11 +76,11 @@ struct DLL_EXPORT HeroPtr
 {
 private:
 	const CGHeroInstance * hero;
-	std::shared_ptr<CPlayerSpecificInfoCallback> cpsic;
+	const CPlayerSpecificInfoCallback * cpsic;
 	bool verify(bool verbose = true) const;
 
 public:
-	explicit HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic);
+	explicit HeroPtr(const CGHeroInstance * input, const CPlayerSpecificInfoCallback * cpsic);
 
 	bool operator<(const HeroPtr & rhs) const;
 	const CGHeroInstance * operator->() const;
@@ -112,10 +110,10 @@ enum BattleState
 // This class stores object id, so we can detect when we lose access to the underlying object.
 struct ObjectIdRef
 {
-	ObjectInstanceID id;
+	const ObjectInstanceID id;
+	const CPlayerSpecificInfoCallback * cpsic;
 
-	explicit ObjectIdRef(ObjectInstanceID _id);
-	explicit ObjectIdRef(const CGObjectInstance * obj);
+	explicit ObjectIdRef(ObjectInstanceID id, const CPlayerSpecificInfoCallback * cpsic);
 
 	const CGObjectInstance * operator->() const;
 	operator const CGObjectInstance *() const;
@@ -138,11 +136,11 @@ struct creInfo
 creInfo infoFromDC(const dwellingContent & dc);
 
 template<class Func>
-void foreach_tile_pos(const Func & foo)
+void foreach_tile_pos(const CCallback & cc, const Func & foo)
 {
 	// some micro-optimizations since this function gets called a LOT
 	// callback pointer is thread-specific and slow to retrieve -> read map size only once
-	int3 mapSize = ccTl->getMapSize();
+	int3 mapSize = cc.getMapSize();
 	for(int z = 0; z < mapSize.z; z++)
 	{
 		for(int x = 0; x < mapSize.x; x++)
@@ -172,13 +170,12 @@ void foreach_tile_pos(TCallback * cbp, const Func & foo) // avoid costly retriev
 }
 
 template<class Func>
-void foreach_neighbour(const int3 & pos, const Func & foo)
+void foreach_neighbour(const CCallback & cc, const int3 & pos, const Func & foo)
 {
-	CCallback * cbp = ccTl; // avoid costly retrieval of thread-specific pointer
 	for(const int3 & dir : int3::getDirs())
 	{
 		const int3 n = pos + dir;
-		if(cbp->isInTheMap(n))
+		if(cc.isInTheMap(n))
 			foo(pos + dir);
 	}
 }
@@ -194,10 +191,8 @@ void foreach_neighbour(CCallback * cbp, const int3 & pos, const Func & foo) // a
 	}
 }
 
-bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater);
 bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj);
 bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, PlayerRelations objectRelations);
-bool isBlockVisitObj(const int3 & pos);
 
 bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * obj);
 

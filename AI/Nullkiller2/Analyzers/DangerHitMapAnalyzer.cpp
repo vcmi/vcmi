@@ -20,12 +20,16 @@ namespace NK2AI
 
 const HitMapInfo HitMapInfo::NoThreat;
 
-void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
+void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data, const CCallback & cc)
 {
 #if NK2AI_TRACE_LEVEL >= 1
-	logVisual->updateWithLock(playerID.toString() + ".danger.max", [&data](IVisualLogBuilder & b)
+	logVisual->updateWithLock(
+		playerID.toString() + ".danger.max",
+		[&data, &cc](IVisualLogBuilder & b)
 		{
-			foreach_tile_pos([&b, &data](const int3 & pos)
+			foreach_tile_pos(
+				cc,
+				[&b, &data](const int3 & pos)
 				{
 					auto & threat = data.getTileThreat(pos).maximumDanger;
 					b.addText(pos, std::to_string(threat.danger));
@@ -35,12 +39,18 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 						b.addText(pos, std::to_string(threat.turn));
 						b.addText(pos, threat.heroPtr->getNameTranslated());
 					}
-				});
-		});
+				}
+			);
+		}
+	);
 
-	logVisual->updateWithLock(playerID.toString() + ".danger.fast", [&data](IVisualLogBuilder & b)
+	logVisual->updateWithLock(
+		playerID.toString() + ".danger.fast",
+		[&data, &cc](IVisualLogBuilder & b)
 		{
-			foreach_tile_pos([&b, &data](const int3 & pos)
+			foreach_tile_pos(
+				cc,
+				[&b, &data](const int3 & pos)
 				{
 					auto & threat = data.getTileThreat(pos).fastestDanger;
 					b.addText(pos, std::to_string(threat.danger));
@@ -50,8 +60,10 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data)
 						b.addText(pos, std::to_string(threat.turn));
 						b.addText(pos, threat.heroPtr->getNameTranslated());
 					}
-				});
-		});
+				}
+			);
+		}
+	);
 #endif
 }
 
@@ -100,7 +112,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		townThreats[town->id]; // insert empty list
 	}
 
-	foreach_tile_pos([&](const int3 & pos){
+	foreach_tile_pos(*aiNk->cc, [&](const int3 & pos){
 		hitMap[pos.x][pos.y][pos.z].reset();
 	});
 
@@ -132,7 +144,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 				HitMapInfo newThreat;
 
-				newThreat.heroPtr = HeroPtr(path.targetHero, aiNk->cc);
+				newThreat.heroPtr = HeroPtr(path.targetHero, aiNk->cc.get());
 				newThreat.turn = path.turn();
 				newThreat.threat = path.getHeroStrength() * (1 - path.movementCost() / 2.0);
 				// TODO: Mircea: Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
@@ -189,7 +201,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	logAi->trace("Danger hit map updated in %ld", timeElapsed(start));
 
-	logHitmap(aiNk->playerID, *this);
+	logHitmap(aiNk->playerID, *this, *aiNk->cc);
 }
 
 void DangerHitMapAnalyzer::calculateTileOwners()

@@ -13,7 +13,6 @@ namespace NK2AI
 // 	{
 // 		tbb::parallel_for(tbb::blocked_range<size_t>(0, mapSize.x), [&](const tbb::blocked_range<size_t> & r)
 // 			{
-//				SET_GLOBAL_STATE_TBB(this->aiGw);
 // 				int3 pos(0, 0, z);
 //
 // 				for(pos.x = r.begin(); pos.x != r.end(); ++pos.x)
@@ -34,7 +33,6 @@ void pforeachTilePaths(const int3 & mapSize, const Nullkiller * aiNk, TFunc fn)
 	{
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, mapSize.x), [&](const tbb::blocked_range<size_t> & r)
 		{
-			SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 			int3 pos(0, 0, z);
 			std::vector<AIPath> paths;
 

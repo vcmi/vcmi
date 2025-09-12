@@ -84,7 +84,7 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		aiGw->cc->swapGarrisonHero(town);
 
 	aiGw->makePossibleUpgrades(town);
-	aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc));
+	aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
 
 	auto upperArmy = town->getUpperArmy();
 	

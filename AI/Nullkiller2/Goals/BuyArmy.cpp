@@ -99,7 +99,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 
 	if(town->getVisitingHero() && !town->getGarrisonHero())
 	{
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc));
+		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
 	}
 }
 

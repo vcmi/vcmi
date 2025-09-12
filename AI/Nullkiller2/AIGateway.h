@@ -28,43 +28,6 @@ VCMI_LIB_NAMESPACE_END
 namespace NK2AI
 {
 
-extern thread_local CCallback * ccTl;
-
-// helper RAII to manage global ai/cb ptrs
-struct SetGlobalState
-{
-	CCallback * previousCc;
-	bool wasAlreadySet;
-
-	SetGlobalState(AIGateway * aiGw, CCallback * cc)
-		: previousCc(ccTl), wasAlreadySet(ccTl != nullptr)
-	{
-		ccTl = cc;
-// #if NK2AI_TRACE_LEVEL >= 2
-// 		if(wasAlreadySet)
-// 		{
-// 			logAi->trace("SetGlobalState constructed (was already set)");
-// 		}
-// 		else
-// 		{
-// 			logAi->trace("SetGlobalState constructed");
-// 		}
-// #endif
-	}
-
-	~SetGlobalState()
-	{
-		// Restore previous values instead of always setting to nullptr
-		ccTl = previousCc;
-// #if NK2AI_TRACE_LEVEL >= 2
-// 		logAi->trace("SetGlobalState destroyed");
-// #endif
-	}
-};
-
-#define SET_GLOBAL_STATE(aiGw) SetGlobalState _hlpSetState(aiGw, aiGw->cc.get())
-#define SET_GLOBAL_STATE_TBB(aiGw) SET_GLOBAL_STATE(aiGw)
-
 class AIStatus
 {
 	AIGateway * aiGw;

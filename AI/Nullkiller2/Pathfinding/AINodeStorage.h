@@ -148,7 +148,7 @@ public:
 	static std::mutex locker;
 	static uint32_t version;
 
-	AISharedStorage(int3 sizes, int numChains);
+	explicit AISharedStorage(int3 sizes, int numChains, const CCallback & cc);
 	~AISharedStorage();
 
 	STRONG_INLINE

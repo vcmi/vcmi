@@ -19,14 +19,11 @@ namespace Goals
 {
 	class CompleteQuest : public CGoal<CompleteQuest>
 	{
-	private:
 		QuestInfo q;
+		CCallback & cc;
 
 	public:
-		CompleteQuest(const QuestInfo & quest)
-			:CGoal(COMPLETE_QUEST), q(quest)
-		{
-		}
+		CompleteQuest(const QuestInfo & quest, CCallback & cc) : CGoal(COMPLETE_QUEST), q(quest), cc(cc) {}
 
 		Goals::TGoalVec decompose(const Nullkiller * aiNk) const override;
 		std::string toString() const override;

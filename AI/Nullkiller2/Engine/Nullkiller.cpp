@@ -191,7 +191,6 @@ Goals::TTaskVec Nullkiller::buildPlan(TGoalVec & tasks, int priorityTier) const
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, tasks.size()), [this, &tasks, priorityTier](const tbb::blocked_range<size_t> & r)
 	{
-		SET_GLOBAL_STATE_TBB(this->aiGw);
 		auto evaluator = this->priorityEvaluators->acquire();
 
 		for(size_t i = r.begin(); i != r.end(); i++)
@@ -464,7 +463,7 @@ void Nullkiller::makeTurn()
 
 			logAi->info("Pass %d: Performing task (prioOfTask %d) %s with prio: %d", i, prioOfTask, selectedTask->toString(), selectedTask->priority);
 
-			if(HeroPtr heroPtr(selectedTask->getHero(), cc); selectedTask->getHero() && !heroPtr.isVerified(false))
+			if(HeroPtr heroPtr(selectedTask->getHero(), cc.get()); selectedTask->getHero() && !heroPtr.isVerified(false))
 			{
 				logAi->error("Nullkiller::makeTurn Skipping pass due to unverified hero: %s", heroPtr.nameOrDefault());
 			}
@@ -516,7 +515,7 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 			logAi->info("Pass %d: priorityPass %d: Performing task %s with prio: %d", passIndex, i, bestPrioPassTask->toString(), bestPrioPassTask->priority);
 
 			const bool isRecruitHeroGoal = dynamic_cast<RecruitHero*>(bestPrioPassTask.get()) != nullptr;
-			HeroPtr heroPtr(bestPrioPassTask->getHero(), cc);
+			HeroPtr heroPtr(bestPrioPassTask->getHero(), cc.get());
 			if(!isRecruitHeroGoal && bestPrioPassTask->getHero() && !heroPtr.isVerified(false))
 			{
 				logAi->error("Nullkiller::updateStateAndExecutePriorityPass Skipping priorityPass due to unverified hero: %s", heroPtr.nameOrDefault());
@@ -557,7 +556,7 @@ bool Nullkiller::areAffectedObjectsPresent(const Goals::TTask & task) const
 
 HeroRole Nullkiller::getTaskRole(const Goals::TTask & task) const
 {
-	HeroPtr heroPtr(task->getHero(), cc);
+	HeroPtr heroPtr(task->getHero(), cc.get());
 	HeroRole heroRole = HeroRole::MAIN;
 
 	if(heroPtr.isVerified())

@@ -8,21 +8,21 @@
 *
 */
 #include "StdInc.h"
-#include "CompleteQuest.h"
-#include "../Behaviors/CaptureObjectsBehavior.h"
-#include "../AIGateway.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/mapObjects/CQuest.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../AIGateway.h"
+#include "../Behaviors/CaptureObjectsBehavior.h"
+#include "CompleteQuest.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
 
-bool isKeyMaster(const QuestInfo & q)
+bool isKeyMaster(const QuestInfo & q, CCallback & cc)
 {
-	const auto object = q.getObject(ccTl);
+	const auto * const object = q.getObject(&cc);
 	return object && (object->ID == Obj::BORDER_GATE || object->ID == Obj::BORDERGUARD);
 }
 
@@ -33,7 +33,7 @@ std::string CompleteQuest::toString() const
 
 TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 {
-	if(isKeyMaster(q))
+	if(isKeyMaster(q, *aiNk->cc))
 	{
 		return missionKeymaster(aiNk);
 	}
@@ -68,40 +68,40 @@ TGoalVec CompleteQuest::decompose(const Nullkiller * aiNk) const
 
 bool CompleteQuest::operator==(const CompleteQuest & other) const
 {
-	if(isKeyMaster(q))
+	if(isKeyMaster(q, cc))
 	{
-		return isKeyMaster(other.q) && q.getObject(ccTl)->subID == other.q.getObject(ccTl)->subID;
+		return isKeyMaster(other.q, cc) && q.getObject(&cc)->subID == other.q.getObject(&cc)->subID;
 	}
-	else if(isKeyMaster(other.q))
+	else if(isKeyMaster(other.q, cc))
 	{
 		return false;
 	}
 
-	return q.getQuest(ccTl) == other.q.getQuest(ccTl);
+	return q.getQuest(&cc) == other.q.getQuest(&cc);
 }
 
 uint64_t CompleteQuest::getHash() const
 {
-	if(isKeyMaster(q))
+	if(isKeyMaster(q, cc))
 	{
-		return q.getObject(ccTl)->subID;
+		return q.getObject(&cc)->subID;
 	}
 
-	return q.getObject(ccTl)->id.getNum();
+	return q.getObject(&cc)->id.getNum();
 }
 
 std::string CompleteQuest::questToString() const
 {
-	if(isKeyMaster(q))
+	if(isKeyMaster(q, cc))
 	{
-		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(ccTl)->subID] + " keymaster tent";
+		return "find " + LIBRARY->generaltexth->tentColors[q.getObject(&cc)->subID] + " keymaster tent";
 	}
 
-	if(q.getQuest(ccTl)->questName == CQuest::missionName(EQuestMission::NONE))
+	if(q.getQuest(&cc)->questName == CQuest::missionName(EQuestMission::NONE))
 		return "inactive quest";
 
 	MetaString ms;
-	q.getQuest(ccTl)->getRolloverText(ccTl, ms, false);
+	q.getQuest(&cc)->getRolloverText(&cc, ms, false);
 
 	return ms.toString();
 }
@@ -110,11 +110,14 @@ TGoalVec CompleteQuest::tryCompleteQuest(const Nullkiller * aiNk) const
 {
 	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(aiNk->cc.get())->visitablePos());
 
-	vstd::erase_if(paths, [&](const AIPath & path) -> bool
-	{
-		return !q.getQuest(aiNk->cc.get())->checkQuest(path.targetHero);
-	});
-	
+	vstd::erase_if(
+		paths,
+		[&](const AIPath & path) -> bool
+		{
+			return !q.getQuest(aiNk->cc.get())->checkQuest(path.targetHero);
+		}
+	);
+
 	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(aiNk->cc.get()));
 }
 
@@ -152,10 +155,13 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 {
 	auto paths = aiNk->pathfinder->getPathInfo(q.getObject(aiNk->cc.get())->visitablePos());
 
-	vstd::erase_if(paths, [&](const AIPath & path) -> bool
-	{
-		return !CQuest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
-	});
+	vstd::erase_if(
+		paths,
+		[&](const AIPath & path) -> bool
+		{
+			return !CQuest::checkMissionArmy(q.getQuest(aiNk->cc.get()), path.heroArmy);
+		}
+	);
 
 	return CaptureObjectsBehavior::getVisitGoals(paths, aiNk, q.getObject(aiNk->cc.get()));
 }
@@ -202,7 +208,7 @@ TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 
 	//	//solutions.push_back(sptr(GatherArmy().sethero(heroToProtect)));
 	//}
-	//else 
+	//else
 	if(relations == PlayerRelations::ENEMIES)
 	{
 		return CaptureObjectsBehavior(obj).decompose(aiNk);

@@ -30,38 +30,27 @@ namespace NK2AI
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
-	return ccTl->getObj(id, false);
+	return cpsic->getObj(id, false);
 }
 
 ObjectIdRef::operator const CGObjectInstance *() const
 {
-	return ccTl->getObj(id, false);
+	return cpsic->getObj(id, false);
 }
 
 ObjectIdRef::operator bool() const
 {
-	return ccTl->getObj(id, false);
+	return cpsic->getObj(id, false);
 }
 
-ObjectIdRef::ObjectIdRef(ObjectInstanceID _id)
-	: id(_id)
-{
-}
-
-ObjectIdRef::ObjectIdRef(const CGObjectInstance * obj)
-	: id(obj->id)
-{
-}
+ObjectIdRef::ObjectIdRef(ObjectInstanceID id, const CPlayerSpecificInfoCallback * cpsic) : id(id), cpsic(cpsic) {}
 
 bool ObjectIdRef::operator<(const ObjectIdRef & rhs) const
 {
 	return id < rhs.id;
 }
 
-HeroPtr::HeroPtr(const CGHeroInstance * input, std::shared_ptr<CPlayerSpecificInfoCallback> cpsic)
-	: hero(input), cpsic(cpsic)
-{
-}
+HeroPtr::HeroPtr(const CGHeroInstance * input, const CPlayerSpecificInfoCallback * cpsic) : hero(input), cpsic(cpsic) {}
 
 bool HeroPtr::operator<(const HeroPtr & rhs) const
 {
@@ -181,22 +170,6 @@ bool isObjectRemovable(const CGObjectInstance * obj)
 	}
 }
 
-bool canBeEmbarkmentPoint(const TerrainTile * t, bool fromWater)
-{
-	// TODO: Such information should be provided by pathfinder
-	// Tile must be free or with unoccupied boat
-	if(!t->blocked())
-	{
-		return true;
-	}
-	else if(!fromWater) // do not try to board when in water sector
-	{
-		if(t->visitableObjects.size() == 1 && ccTl->getObjInstance(t->topVisitableObj())->ID == Obj::BOAT)
-			return true;
-	}
-	return false;
-}
-
 bool isObjectPassable(const Nullkiller * aiNk, const CGObjectInstance * obj)
 {
 	return isObjectPassable(obj, aiNk->playerID, aiNk->cc->getPlayerRelations(obj->tempOwner, aiNk->playerID));
@@ -214,17 +187,6 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 		auto quest = dynamic_cast<const CGKeys *>(obj);
 
 		if(quest->wasMyColorVisited(playerColor))
-			return true;
-	}
-
-	return false;
-}
-
-bool isBlockVisitObj(const int3 & pos)
-{
-	if(auto obj = ccTl->getTopObj(pos))
-	{
-		if(obj->isBlockedVisitable()) //we can't stand on that object
 			return true;
 	}
 

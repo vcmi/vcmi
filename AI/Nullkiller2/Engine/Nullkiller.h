@@ -120,7 +120,7 @@ public:
 	bool updateStateAndExecutePriorityPass(Goals::TGoalVec& tempResults, int passIndex);
 	bool isActive(const CGHeroInstance * hero) const { return activeHero == hero; }
 	bool isHeroLocked(const CGHeroInstance * hero) const;
-	HeroPtr getActiveHero() { return HeroPtr(activeHero, cc); }
+	HeroPtr getActiveHero() { return HeroPtr(activeHero, cc.get()); }
 	HeroLockedReason getHeroLockedReason(const CGHeroInstance * hero) const;
 	int3 getTargetTile() const { return targetTile; }
 	ObjectInstanceID getTargetObject() const { return targetObject; }

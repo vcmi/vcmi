@@ -41,7 +41,7 @@ const uint64_t CHAIN_MAX_DEPTH = 4;
 
 const bool DO_NOT_SAVE_TO_COMMITTED_TILES = false;
 
-AISharedStorage::AISharedStorage(int3 sizes, int numChains)
+AISharedStorage::AISharedStorage(int3 sizes, int numChains, const CCallback & cc)
 {
 	if(!shared)
 	{
@@ -49,6 +49,7 @@ AISharedStorage::AISharedStorage(int3 sizes, int numChains)
 		nodes = shared;
 
 		foreach_tile_pos(
+			cc,
 			[&](const int3 & pos)
 			{
 				for(auto i = 0; i < numChains; i++)
@@ -104,8 +105,8 @@ int AINodeStorage::getBucketSize() const
 	return aiNk->settings->getPathfinderBucketSize();
 }
 
-AINodeStorage::AINodeStorage(Nullkiller * aiNk, const int3 & Sizes)
-	: sizes(Sizes), aiNk(aiNk), nodes(Sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount())
+AINodeStorage::AINodeStorage(Nullkiller * aiNk, const int3 & sizes)
+	: sizes(sizes), aiNk(aiNk), nodes(sizes, aiNk->settings->getPathfinderBucketSize() * aiNk->settings->getPathfinderBucketsCount(), *aiNk->cc)
 {
 	accessibility = std::make_unique<boost::multi_array<EPathAccessibility, 4>>(
 		boost::extents[sizes.z][sizes.x][sizes.y][EPathfindingLayer::NUM_LAYERS]);
@@ -129,7 +130,6 @@ void AINodeStorage::initialize(const PathfinderOptions & options, const IGameInf
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, sizes.x), [&](const tbb::blocked_range<size_t>& r)
 	{
-		SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 		int3 pos;
 
 		for(pos.z = 0; pos.z < sizes.z; ++pos.z)
@@ -430,7 +430,7 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 
 	for(auto layer : phisycalLayers)
 	{
-		foreach_tile_pos([&](const int3 & pos)
+		foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
 			iterateValidNodesUntil(pos, layer, [&](AIPathNode & node)
 				{
@@ -455,7 +455,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 
 	for(auto layer : phisycalLayers)
 	{
-		foreach_tile_pos([&](const int3 & pos)
+		foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
 			iterateValidNodes(pos, layer, [&](AIPathNode & node)
 				{
@@ -603,9 +603,7 @@ bool AINodeStorage::calculateHeroChain()
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r)
 	{
-		SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 		HeroChainCalculationTask task(*this, data, chainMask, heroChainTurn);
-
 		int ourThread = tbb::this_task_arena::current_thread_index();
 		task.execute(r);
 		task.flushResult(results.at(ourThread));
@@ -1276,7 +1274,6 @@ void AINodeStorage::calculateTownPortalTeleportations(std::vector<CGPathNode *> 
 	{
 		tbb::parallel_for(tbb::blocked_range<size_t>(0, actorsVector.size()), [&](const tbb::blocked_range<size_t> & r)
 			{
-				SET_GLOBAL_STATE_TBB(aiNk->aiGw);
 				for(int i = r.begin(); i != r.end(); i++)
 				{
 					calculateTownPortal(actorsVector[i], maskMap, initialNodes, output);
@@ -1447,7 +1444,7 @@ void AINodeStorage::calculateChainInfo(std::vector<AIPath> & paths, const int3 &
 			continue;
 		}
 
-		if(HeroPtr heroPtr(node.actor->hero, aiNk->cc); !heroPtr.isVerified(false))
+		if(HeroPtr heroPtr(node.actor->hero, aiNk->cc.get()); !heroPtr.isVerified(false))
 		{
 #if NK2AI_TRACE_LEVEL >= 1
 			logAi->warn("AINodeStorage::calculateChainInfo Skipping path due to unverified hero: %s", heroPtr.nameOrDefault());

@@ -39,9 +39,6 @@
 namespace NK2AI
 {
 
-thread_local CCallback * ccTl = nullptr;
-#define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
-
 AIGateway::AIGateway()
 	:status(this)
 {
@@ -62,18 +59,14 @@ AIGateway::~AIGateway()
 void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-
-	auto hero = cc->getHero(details.id);
-
+	const auto hero = cc->getHero(details.id);
 	if(!hero)
-		validateObject(ObjectIdRef(details.id)); //enemy hero may have left visible area
+		validateObject(ObjectIdRef(details.id, cc.get())); //enemy hero may have left visible area
 
 	nullkiller->invalidatePathfinderData();
 
@@ -114,32 +107,26 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 void AIGateway::heroInGarrisonChange(const CGTownInstance * town)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::centerView(int3 pos, int focusTime)
 {
 	LOG_TRACE_PARAMS(logAi, "focusTime '%i'", focusTime);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::artifactAssembled(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-
 	status.addQuery(queryID, "TavernWindow");
 	executeActionAsync("showTavernWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
@@ -147,13 +134,11 @@ void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroIn
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::playerBlocked(int reason, bool start)
 {
 	LOG_TRACE_PARAMS(logAi, "reason '%i', start '%i'", reason % start);
-	NET_EVENT_HANDLER;
 	if(start && reason == PlayerBlocked::UPCOMING_BATTLE)
 		status.setBattle(UPCOMING_BATTLE);
 
@@ -164,19 +149,16 @@ void AIGateway::playerBlocked(int reason, bool start)
 void AIGateway::showPuzzleMap()
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showShipyardDialog(const IShipyard * obj)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult)
 {
 	LOG_TRACE_PARAMS(logAi, "victoryLossCheckResult '%s'", victoryLossCheckResult.messageToSelf.toString());
-	NET_EVENT_HANDLER;
 	logAi->debug("Player %d (%s): I heard that player %d (%s) %s.", playerID, playerID.toString(), player, player.toString(), (victoryLossCheckResult.victory() ? "won" : "lost"));
 
 	// some whitespace to flush stream
@@ -201,25 +183,21 @@ void AIGateway::gameOver(PlayerColor player, const EVictoryLossCheckResult & vic
 void AIGateway::artifactPut(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::artifactRemoved(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::artifactDisassembled(const ArtifactLocation & al)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start)
 {
 	LOG_TRACE_PARAMS(logAi, "start '%i'; obj '%s'", start % (visitedObj ? visitedObj->getObjectName() : std::string("n/a")));
-	NET_EVENT_HANDLER;
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
@@ -233,19 +211,16 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 void AIGateway::availableArtifactsChanged(const CGBlackMarket * bm)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::tileHidden(const FowTilesType & pos)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 
 	nullkiller->memory->removeInvisibleObjects(cc.get());
 }
@@ -253,7 +228,7 @@ void AIGateway::tileHidden(const FowTilesType & pos)
 void AIGateway::tileRevealed(const FowTilesType & pos)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
+
 	for(int3 tile : pos)
 	{
 		for(const CGObjectInstance * obj : cc->getVisitableObjs(tile))
@@ -267,8 +242,6 @@ void AIGateway::tileRevealed(const FowTilesType & pos)
 void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-
 	auto firstHero = cc->getHero(hero1);
 	auto secondHero = cc->getHero(hero2);
 
@@ -303,20 +276,16 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 void AIGateway::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
 {
 	LOG_TRACE_PARAMS(logAi, "val '%i'", val);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val)
 {
 	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
-	NET_EVENT_HANDLER;
-
 	status.addQuery(queryID, "RecruitmentDialog");
 
 	executeActionAsync("showRecruitmentDialog", [this, dwelling, dst, queryID](){
@@ -328,19 +297,16 @@ void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedI
 void AIGateway::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::newObject(const CGObjectInstance * obj)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	if(obj->isVisitable())
 		memorizeVisitableObj(obj, nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
@@ -351,8 +317,6 @@ void AIGateway::newObject(const CGObjectInstance * obj)
 void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & initiator)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-
 	if(!nullkiller) // crash protection
 		return;
 
@@ -366,7 +330,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)
 	{
-		lostHero(HeroPtr(cc->getHero(obj->id), cc)); //we can promote, since objectRemoved is called just before actual deletion
+		lostHero(HeroPtr(cc->getHero(obj->id), cc.get())); //we can promote, since objectRemoved is called just before actual deletion
 	}
 
 	if(obj->ID == Obj::HERO && cc->getPlayerRelations(obj->tempOwner, playerID) == PlayerRelations::ENEMIES)
@@ -379,38 +343,32 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 void AIGateway::showHillFortWindow(const CGObjectInstance * object, const CGHeroInstance * visitor)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::playerBonusChanged(const Bonus & bonus, bool gain)
 {
 	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroCreated(const CGHeroInstance * h)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData(); // new hero needs to look around
 }
 
 void AIGateway::advmapSpellCast(const CGHeroInstance * caster, SpellID spellID)
 {
 	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showInfoDialog(EInfoWindowMode type, const std::string & text, const std::vector<Component> & components, int soundID)
 {
 	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::requestRealized(PackageApplied * pa)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 	if(status.haveTurn())
 	{
 		if(pa->packType == CTypeList::getInstance().getTypeID<EndTurn>(nullptr))
@@ -429,13 +387,11 @@ void AIGateway::requestRealized(PackageApplied * pa)
 void AIGateway::receivedResource()
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 
 	status.addQuery(queryID, "UniversityWindow");
 	executeActionAsync("showUniversityWindow", [this, queryID](){ answerQuery(queryID, 0); });
@@ -444,19 +400,16 @@ void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstanc
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	LOG_TRACE_PARAMS(logAi, "which '%d', val '%d'", which % val);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::battleResultsApplied()
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
 }
@@ -470,7 +423,6 @@ void AIGateway::beforeObjectPropertyChanged(const SetObjectProperty * sop)
 void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
 		auto relations = cc->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>());
@@ -499,20 +451,16 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 void AIGateway::buildChanged(const CGTownInstance * town, BuildingID buildingID, int what)
 {
 	LOG_TRACE_PARAMS(logAi, "what '%i'", what);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonus, bool gain)
 {
 	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
-	NET_EVENT_HANDLER;
 }
 
 void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
-
 	status.addQuery(queryID, "MarketWindow");
 	executeActionAsync("showMarketWindow", [this, queryID](){ answerQuery(queryID, 0); });
 }
@@ -521,13 +469,11 @@ void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositio
 {
 	//TODO: AI support for ViewXXX spell
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 }
 
 std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
 	LOG_TRACE(logAi);
-	NET_EVENT_HANDLER;
 
 	if(battleState.ourHero && battleState.ourHero->patrol.patrolling)
 	{
@@ -553,20 +499,16 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cbc = callback;
 	cc = callback;
 	this->env = env;
-
-	NET_EVENT_HANDLER;
 	playerID = *cc->getPlayerID();
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
-
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 }
 
 void AIGateway::yourTurn(QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	NET_EVENT_HANDLER;
 	nullkiller->invalidatePathfinderData();
 	status.addQuery(queryID, "YourTurn");
 	executeActionAsync("yourTurn", [this, queryID](){ answerQuery(queryID, 0); });
@@ -584,10 +526,8 @@ void AIGateway::yourTurn(QueryID queryID)
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	NET_EVENT_HANDLER;
-
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTranslated() % hero->level));
-	HeroPtr heroPtr(hero, cc);
+	HeroPtr heroPtr(hero, cc.get());
 
 	executeActionAsync("heroGotLevel", [this, heroPtr, skills, queryID]()
 	{
@@ -607,7 +547,6 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % (int)commander->level));
 	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
 }
@@ -615,7 +554,6 @@ void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vec
 void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
 	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
-	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
 
@@ -699,7 +637,6 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 
 void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	NET_EVENT_HANDLER;
 	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
 
 	int chosenExit = -1;
@@ -743,8 +680,6 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
-	NET_EVENT_HANDLER;
-
 	std::string s1 = up->nodeName();
 	std::string s2 = down->nodeName();
 
@@ -764,7 +699,6 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 
 void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
-	NET_EVENT_HANDLER;
 	status.addQuery(askID, "Map object select query");
 	executeActionAsync("showMapObjectSelectDialog", [this, askID](){ answerQuery(askID, selectedObject.getNum()); });
 }
@@ -816,13 +750,10 @@ bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
 
 void AIGateway::makeTurn()
 {
-	SET_GLOBAL_STATE(this);
-
 	auto day = cc->getDate(Date::DAY);
 	logAi->info("Player %d (%s) starting turn, day %d", playerID, playerID.toString(), day);
 
 	std::shared_lock gsLock(CGameState::mutex);
-
 	cheatMapReveal(nullkiller);
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 	memorizeRevisitableObjs(nullkiller->memory, playerID, cc);
@@ -1039,7 +970,6 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed)
 {
-	NET_EVENT_HANDLER;
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cc->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
@@ -1049,7 +979,6 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 
 void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
-	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == cc->getBattle(battleID)->battleGetMySide();
@@ -1424,10 +1353,9 @@ void AIGateway::executeActionAsync(const std::string & description, const std::f
 	if (!asyncTasks)
 		throw std::runtime_error("Attempt to execute task on shut down AI state!");
 
-	asyncTasks->run([this, description, whatToDo]()
+	asyncTasks->run([description, whatToDo]()
 	{
 		ScopedThreadName guard("NK2AI::AIGateway::" + description);
-		SET_GLOBAL_STATE(this);
 		std::shared_lock gsLock(CGameState::mutex);
 		whatToDo();
 	});
@@ -1472,7 +1400,7 @@ std::string AIGateway::getBattleAIName() const
 
 void AIGateway::validateObject(const CGObjectInstance * obj)
 {
-	validateObject(ObjectIdRef(obj->id));
+	validateObject(ObjectIdRef(obj->id, cc.get()));
 }
 
 void AIGateway::validateObject(ObjectIdRef obj)
@@ -1669,7 +1597,7 @@ void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
                                       const PlayerColor & playerID,
                                       const std::shared_ptr<CCallback> & cc)
 {
-	foreach_tile_pos([&](const int3 & pos)
+	foreach_tile_pos(*cc, [&](const int3 & pos)
 	{
 		// TODO: Inspect what not visible means when using verbose true
 		for(const CGObjectInstance * obj : cc->getVisitableObjs(pos, false))

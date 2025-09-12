@@ -151,7 +151,6 @@ bool ResourceTrader::tradeHelper(
 	int givenPerUnit;
 	int receivedPerUnit;
 	market.getOffer(mostExpendable, mostWanted, givenPerUnit, receivedPerUnit, EMarketMode::RESOURCE_RESOURCE);
-	logAi->info("ResourceTrader: Offer: %d of %d for %d of %d", givenPerUnit, mostExpendable, receivedPerUnit, mostWanted);
 
 	if(!givenPerUnit || !receivedPerUnit)
 	{

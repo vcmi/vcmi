@@ -47,12 +47,12 @@ namespace AIPathfinding
 
 	Goals::TSubgoal QuestAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
-		return Goals::sptr(Goals::CompleteQuest(questInfo));
+		return Goals::sptr(Goals::CompleteQuest(questInfo, *aiNk->cc));
 	}
 
 	void QuestAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc));
+		aiGw->moveHeroToTile(questInfo.getObject(aiGw->cc.get())->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
 	}
 
 	std::string QuestAction::toString() const
