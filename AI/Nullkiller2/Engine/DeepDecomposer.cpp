@@ -75,7 +75,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 				// TODO: Mircea: Issue with CGameHandler::spawnWanderingMonsters, see getFreeTiles(tiles, true);
 				// danger not linked GraphPaths::addChainInfo, so spawning only with nearby unblocked
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Found task %s", task->toString(TODO));
+				logAi->trace("Found task %s", task->toString());
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
@@ -90,7 +90,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 			else if(depth < depthLimit - 1)
 			{
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Found abstract goal %s", subgoal->toString(TODO));
+				logAi->trace("Found abstract goal %s", subgoal->toString());
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
@@ -180,7 +180,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 {
 #if NK2AI_TRACE_LEVEL >= 1
-	logAi->trace("Decomposing %s, level %s", goal->toString(TODO), depth);
+	logAi->trace("Decomposing %s, level %s", goal->toString(), depth);
 #endif
 
 	if(goal->hasHash())
@@ -192,7 +192,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 			if(cached != decompositionCache[i].end())
 			{
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Use decomposition cache for %s, level: %d", goal->toString(TODO), depth);
+				logAi->trace("Use decomposition cache for %s, level: %d", goal->toString(), depth);
 #endif
 				fromCache = true;
 
@@ -204,7 +204,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("Calling decompose on %s, level %s", goal->toString(TODO), depth);
+	logAi->trace("Calling decompose on %s, level %s", goal->toString(), depth);
 #endif
 
 	fromCache = false;
@@ -225,7 +225,7 @@ void DeepDecomposer::addToCache(TSubgoal goal)
 			auto solution = parentDepth < depth ? aggregateGoals(parentDepth + 1, goal) : goal;
 
 #if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Adding %s to decomosition cache of %s at level %d", solution->toString(TODO), parent->toString(TODO), parentDepth);
+			logAi->trace("Adding %s to decomosition cache of %s at level %d", solution->toString(), parent->toString(), parentDepth);
 #endif
 
 			decompositionCache[parentDepth][parent].push_back(solution);

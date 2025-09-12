@@ -73,7 +73,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	auto hero = cc->getHero(details.id);
 
 	if(!hero)
-		validateObject(details.id); //enemy hero may have left visible area
+		validateObject(ObjectIdRef(details.id)); //enemy hero may have left visible area
 
 	nullkiller->invalidatePathfinderData();
 
@@ -1472,7 +1472,7 @@ std::string AIGateway::getBattleAIName() const
 
 void AIGateway::validateObject(const CGObjectInstance * obj)
 {
-	validateObject(obj->id);
+	validateObject(ObjectIdRef(obj->id));
 }
 
 void AIGateway::validateObject(ObjectIdRef obj)

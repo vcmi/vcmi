@@ -114,13 +114,12 @@ struct ObjectIdRef
 {
 	ObjectInstanceID id;
 
+	explicit ObjectIdRef(ObjectInstanceID _id);
+	explicit ObjectIdRef(const CGObjectInstance * obj);
+
 	const CGObjectInstance * operator->() const;
 	operator const CGObjectInstance *() const;
 	operator bool() const;
-
-	ObjectIdRef(ObjectInstanceID _id);
-	ObjectIdRef(const CGObjectInstance * obj);
-
 	bool operator<(const ObjectIdRef & rhs) const;
 };
 
