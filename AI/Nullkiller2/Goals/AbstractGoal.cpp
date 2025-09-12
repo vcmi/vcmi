@@ -47,11 +47,9 @@ std::string AbstractGoal::toString() const
 		break;
 	case TRADE:
 	{
-		auto obj = ccTl->getObjInstance(ObjectInstanceID(objid));
-		if (obj)
-			desc = (boost::format("TRADE %d of %s at %s") % value % GameConstants::RESOURCE_NAMES[resID] % obj->getObjectName()).str();
+		desc = (boost::format("TRADE %d of %s at objid %d") % value % GameConstants::RESOURCE_NAMES[resID] % objid).str();
+		break;
 	}
-	break;
 	case GATHER_TROOPS:
 		desc = "GATHER TROOPS";
 		break;
