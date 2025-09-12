@@ -47,7 +47,7 @@ BraceWrapping:
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeConceptDeclarations: true
 BreakBeforeBraces: Allman
 BreakBeforeInheritanceComma: false
@@ -106,7 +106,7 @@ LambdaBodyIndentation: Signature
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
+NamespaceIndentation: Inner
 ObjCBinPackProtocolList: Auto
 ObjCBlockIndentWidth: 4
 ObjCBreakBeforeNestedBlockParam: true
