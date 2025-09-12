@@ -116,6 +116,8 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 
 	int scaling = getInterfaceScalingPercentage();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 	return logicalResolution;
 }
