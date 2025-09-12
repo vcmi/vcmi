@@ -458,6 +458,7 @@ TResource BuildAnalyzer::goldApproximate(const TResources & res)
 
 TResource BuildAnalyzer::goldApproximate(const TResource & res, EGameResID resId)
 {
+	// TODO: Mircea: replace with LIBRARY->objh->resVals[resId]
 	switch(resId)
 	{
 		case EGameResID::WOOD:
@@ -467,7 +468,7 @@ TResource BuildAnalyzer::goldApproximate(const TResource & res, EGameResID resId
 		case EGameResID::SULFUR:
 		case EGameResID::CRYSTAL:
 		case EGameResID::GEMS:
-			return res * 125;
+			return res * 150;
 		case EGameResID::GOLD:
 			return res;
 		case EGameResID::MITHRIL:

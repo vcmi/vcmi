@@ -18,16 +18,16 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 
 	// TODO: Mircea: What about outside town markets that have better rates than a single town for example?
 	// Are those used anywhere? To inspect.
-	for (const auto * const town : cc.getTownsInfo())
+	for(const auto * const town : cc.getTownsInfo())
 	{
-		if (town->hasBuiltSomeTradeBuilding())
+		if(town->hasBuiltSomeTradeBuilding())
 		{
 			marketId = town->id;
 			break;
 		}
 	}
 
-	if (!marketId.hasValue())
+	if(!marketId.hasValue())
 		return false;
 
 	const CGObjectInstance * obj = cc.getObj(marketId, false);
@@ -55,9 +55,12 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		// We don't want to sell something that's necessary later on, though that could make short term a bit harder sometimes
 		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
 
-#if NK2AI_TRACE_LEVEL >= 2
-		logAi->info("ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s", freeResources.toString(), freeAfterMissingTotal.toString(), missingNow.toString());
-#endif
+		logAi->info(
+			"ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s",
+			freeResources.toString(),
+			freeAfterMissingTotal.toString(),
+			missingNow.toString()
+		);
 
 		if(ResourceTrader::tradeHelper(EXPENDABLE_BULK_RATIO, *market, missingNow, income, freeAfterMissingTotal, buildAnalyzer, cc))
 		{
@@ -90,7 +93,16 @@ bool ResourceTrader::tradeHelper(
 		if(missingNow[i] == 0)
 			continue;
 
-		const TResource score = BuildAnalyzer::goldApproximate(income[i] - missingNow[i], GameResID(i));
+		TResource score = income[i] - missingNow[i];
+		if(i != GameResID::GOLD)
+		{
+			int givenPerUnit;
+			int receivedPerUnit;
+			market.getOffer(i, GameResID::GOLD, givenPerUnit, receivedPerUnit, EMarketMode::RESOURCE_RESOURCE);
+			score *= receivedPerUnit;
+			logAi->trace("ResourceTrader: mostWantedScoreNeg %d for %d with market receivedPerUnit %d", mostWantedScoreNeg, i, receivedPerUnit);
+		}
+
 		if(score < mostWantedScoreNeg)
 		{
 			mostWanted = i;
@@ -124,7 +136,6 @@ bool ResourceTrader::tradeHelper(
 		}
 	}
 
-#if NK2AI_TRACE_LEVEL >= 2
 	logAi->trace(
 		"ResourceTrader: mostWanted: %d, mostWantedScoreNeg %d, mostExpendable: %d, mostExpendableAmountPos %d",
 		mostWanted,
@@ -132,7 +143,6 @@ bool ResourceTrader::tradeHelper(
 		mostExpendable,
 		mostExpendableAmountPos
 	);
-#endif
 
 	if(mostExpendable == mostWanted || mostWanted == EMPTY || mostExpendable == EMPTY)
 		return false;
@@ -140,18 +150,12 @@ bool ResourceTrader::tradeHelper(
 	int givenPerUnit;
 	int receivedPerUnit;
 	market.getOffer(mostExpendable, mostWanted, givenPerUnit, receivedPerUnit, EMarketMode::RESOURCE_RESOURCE);
-#if NK2AI_TRACE_LEVEL >= 2
 	logAi->info("ResourceTrader: Offer: %d of %d for %d of %d", givenPerUnit, mostExpendable, receivedPerUnit, mostWanted);
-#endif
 
 	if(!givenPerUnit || !receivedPerUnit)
 	{
 		logGlobal->error(
-			"ResourceTrader: No offer for %d of %d, given %d, received %d. Should never happen",
-			mostExpendable,
-			mostWanted,
-			givenPerUnit,
-			receivedPerUnit
+			"ResourceTrader: No offer for %d of %d, given %d, received %d. Should never happen", mostExpendable, mostWanted, givenPerUnit, receivedPerUnit
 		);
 		return false;
 	}
@@ -175,9 +179,7 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	cc.trade(market.getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
-#if NK2AI_TRACE_LEVEL >= 2
 	logAi->info("ResourceTrader: Traded %d of %s for %d receivedPerUnit of %s", givenMultiplied, mostExpendable, receivedPerUnit, mostWanted);
-#endif
 	return true;
 }
 }

@@ -79,6 +79,7 @@ class DLL_EXPORT BuildAnalyzer
 	Nullkiller * aiNk;
 
 public:
+	virtual ~BuildAnalyzer() = default;
 	explicit BuildAnalyzer(Nullkiller * aiNk) : aiNk(aiNk) {}
 	void update();
 
@@ -88,7 +89,7 @@ public:
 	const std::vector<TownDevelopmentInfo> & getDevelopmentInfo() const { return developmentInfos; }
 	TResources getDailyIncome() const { return dailyIncome; }
 	float getGoldPressure() const { return goldPressure; }
-	bool isGoldPressureOverMax() const;
+	virtual bool isGoldPressureOverMax() const;
 	bool isBuilt(FactionID alignment, BuildingID bid) const;
 
 	void reset();
