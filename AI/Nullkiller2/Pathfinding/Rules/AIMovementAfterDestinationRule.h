@@ -22,7 +22,6 @@ namespace AIPathfinding
 	class AIMovementAfterDestinationRule : public MovementAfterDestinationRule
 	{
 	private:
-		CPlayerSpecificInfoCallback * cb;
 		const Nullkiller * aiNk;
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		bool allowBypassObjects;
@@ -30,7 +29,6 @@ namespace AIPathfinding
 	public:
 		AIMovementAfterDestinationRule(
 			const Nullkiller * aiNk,
-			CPlayerSpecificInfoCallback * cb,
 			std::shared_ptr<AINodeStorage> nodeStorage,
 			bool allowBypassObjects);
 

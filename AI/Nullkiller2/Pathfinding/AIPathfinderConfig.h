@@ -27,12 +27,7 @@ namespace AIPathfinding
 		std::shared_ptr<AINodeStorage> aiNodeStorage;
 
 	public:
-		AIPathfinderConfig(
-			CPlayerSpecificInfoCallback * cb,
-			Nullkiller * aiNk,
-			std::shared_ptr<AINodeStorage> nodeStorage,
-			bool allowBypassObjects);
-
+		AIPathfinderConfig(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects);
 		~AIPathfinderConfig();
 
 		CPathfinderHelper * getOrCreatePathfinderHelper(const PathNodeInfo & source, const IGameInfoCallback & gameInfo) override;

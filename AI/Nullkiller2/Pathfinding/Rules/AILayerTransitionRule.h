@@ -23,8 +23,6 @@ namespace AIPathfinding
 {
 	class AILayerTransitionRule : public LayerTransitionRule
 	{
-	private:
-		CPlayerSpecificInfoCallback * cb;
 		Nullkiller * aiNk;
 		std::map<int3, std::shared_ptr<const BuildBoatAction>> virtualBoats;
 		std::shared_ptr<AINodeStorage> nodeStorage;
@@ -33,16 +31,14 @@ namespace AIPathfinding
 		std::map<const CGHeroInstance *, std::shared_ptr<const AirWalkingAction>> airWalkingActions;
 
 	public:
-		AILayerTransitionRule(
-			CPlayerSpecificInfoCallback * cb,
-			Nullkiller * aiNk,
-			std::shared_ptr<AINodeStorage> nodeStorage);
+		AILayerTransitionRule(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage);
 
 		virtual void process(
 			const PathNodeInfo & source,
 			CDestinationNodeInfo & destination,
 			const PathfinderConfig * pathfinderConfig,
-			CPathfinderHelper * pathfinderHelper) const override;
+			CPathfinderHelper * pathfinderHelper
+		) const override;
 
 	private:
 		void setup();

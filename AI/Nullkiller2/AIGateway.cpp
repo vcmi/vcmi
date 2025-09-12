@@ -361,7 +361,7 @@ void AIGateway::objectRemoved(const CGObjectInstance * obj, const PlayerColor & 
 
 	if(nullkiller->baseGraph && nullkiller->isObjectGraphAllowed())
 	{
-		nullkiller->baseGraph->removeObject(obj);
+		nullkiller->baseGraph->removeObject(obj, *nullkiller->cc);
 	}
 
 	if(obj->ID == Obj::HERO && obj->tempOwner == playerID)

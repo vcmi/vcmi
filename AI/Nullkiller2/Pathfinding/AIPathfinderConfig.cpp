@@ -8,12 +8,12 @@
 *
 */
 #include "StdInc.h"
+#include "AI/Nullkiller2/Engine/Nullkiller.h"
 #include "AIPathfinderConfig.h"
 #include "Rules/AILayerTransitionRule.h"
 #include "Rules/AIMovementAfterDestinationRule.h"
 #include "Rules/AIMovementToDestinationRule.h"
 #include "Rules/AIPreviousNodeRule.h"
-#include "../Engine/Nullkiller.h"
 
 #include "../../../lib/pathfinder/CPathfinder.h"
 
@@ -21,30 +21,23 @@ namespace NK2AI
 {
 namespace AIPathfinding
 {
-	std::vector<std::shared_ptr<IPathfindingRule>> makeRuleset(
-		CPlayerSpecificInfoCallback * cb,
-		Nullkiller * aiNk,
-		std::shared_ptr<AINodeStorage> nodeStorage,
-		bool allowBypassObjects)
+	std::vector<std::shared_ptr<IPathfindingRule>>
+	makeRuleset(CPlayerSpecificInfoCallback * cpsic, Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects)
 	{
-			std::vector<std::shared_ptr<IPathfindingRule>> rules = {
-				std::make_shared<AILayerTransitionRule>(cb, aiNk, nodeStorage),
-				std::make_shared<DestinationActionRule>(),
-				std::make_shared<AIMovementToDestinationRule>(nodeStorage, allowBypassObjects),
-				std::make_shared<MovementCostRule>(),
-				std::make_shared<AIPreviousNodeRule>(nodeStorage),
-				std::make_shared<AIMovementAfterDestinationRule>(aiNk, cb, nodeStorage, allowBypassObjects)
-			};
+		std::vector<std::shared_ptr<IPathfindingRule>> rules = {
+			std::make_shared<AILayerTransitionRule>(aiNk, nodeStorage),
+			std::make_shared<DestinationActionRule>(),
+			std::make_shared<AIMovementToDestinationRule>(nodeStorage, allowBypassObjects, *aiNk->cc),
+			std::make_shared<MovementCostRule>(),
+			std::make_shared<AIPreviousNodeRule>(nodeStorage),
+			std::make_shared<AIMovementAfterDestinationRule>(aiNk, nodeStorage, allowBypassObjects)
+		};
 
 		return rules;
 	}
 
-	AIPathfinderConfig::AIPathfinderConfig(
-		CPlayerSpecificInfoCallback * cb,
-		Nullkiller * aiNk,
-		std::shared_ptr<AINodeStorage> nodeStorage,
-		bool allowBypassObjects)
-		:PathfinderConfig(nodeStorage, *cb, makeRuleset(cb, aiNk, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
+	AIPathfinderConfig::AIPathfinderConfig(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects)
+		: PathfinderConfig(nodeStorage, *aiNk->cc, makeRuleset(aiNk->cc.get(), aiNk, nodeStorage, allowBypassObjects)), aiNodeStorage(nodeStorage)
 	{
 		options.canUseCast = true;
 		options.allowLayerTransitioningAfterBattle = true;

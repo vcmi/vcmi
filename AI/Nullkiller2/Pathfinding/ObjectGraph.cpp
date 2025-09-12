@@ -78,7 +78,7 @@ void ObjectGraph::registerJunction(const int3 & pos)
 
 }
 
-void ObjectGraph::removeObject(const CGObjectInstance * obj)
+void ObjectGraph::removeObject(const CGObjectInstance * obj, CCallback & cc)
 {
 	nodes[obj->visitablePos()].objectExists = false;
 
@@ -86,7 +86,7 @@ void ObjectGraph::removeObject(const CGObjectInstance * obj)
 	{
 		vstd::erase_if(nodes[obj->visitablePos()].connections, [&](const std::pair<int3, ObjectLink> & link) -> bool
 			{
-				const auto tile = ccTl->getTile(link.first, false);
+				const auto tile = cc.getTile(link.first, false);
 				return tile && tile->isWater();
 			});
 	}

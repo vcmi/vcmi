@@ -21,12 +21,12 @@ namespace AIPathfinding
 {
 	class AIMovementToDestinationRule : public MovementToDestinationRule
 	{
-	private:
 		std::shared_ptr<AINodeStorage> nodeStorage;
 		bool allowBypassObjects;
+		CCallback & cc;
 
 	public:
-		AIMovementToDestinationRule(std::shared_ptr<AINodeStorage> nodeStorage, bool allowBypassObjects);
+		AIMovementToDestinationRule(const std::shared_ptr<AINodeStorage> & nodeStorage, bool allowBypassObjects, CCallback & cc);
 
 		virtual void process(
 			const PathNodeInfo & source,

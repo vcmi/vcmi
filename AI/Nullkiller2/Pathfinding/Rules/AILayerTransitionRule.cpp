@@ -8,8 +8,9 @@
 *
 */
 #include "StdInc.h"
+#include "AI/Nullkiller2/Engine/Nullkiller.h"
 #include "AILayerTransitionRule.h"
-#include "../../Engine/Nullkiller.h"
+
 #include "../../../../lib/pathfinder/CPathfinder.h"
 #include "../../../../lib/pathfinder/TurnInfo.h"
 #include "../../../../lib/spells/ISpellMechanics.h"
@@ -19,11 +20,7 @@ namespace NK2AI
 {
 namespace AIPathfinding
 {
-	AILayerTransitionRule::AILayerTransitionRule(
-		CPlayerSpecificInfoCallback * cb,
-		Nullkiller * aiNk,
-		std::shared_ptr<AINodeStorage> nodeStorage)
-		:cb(cb), aiNk(aiNk), nodeStorage(nodeStorage)
+	AILayerTransitionRule::AILayerTransitionRule(Nullkiller * aiNk, std::shared_ptr<AINodeStorage> nodeStorage) : aiNk(aiNk), nodeStorage(nodeStorage)
 	{
 		setup();
 	}
@@ -32,22 +29,25 @@ namespace AIPathfinding
 		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		const PathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) const
+		CPathfinderHelper * pathfinderHelper
+	) const
 	{
 		LayerTransitionRule::process(source, destination, pathfinderConfig, pathfinderHelper);
 
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
-		logAi->trace("Layer transitioning %s -> %s, action: %d, blocked: %s",
+		logAi->trace(
+			"Layer transitioning %s -> %s, action: %d, blocked: %s",
 			source.coord.toString(),
 			destination.coord.toString(),
 			static_cast<int32_t>(destination.action),
-			destination.blocked ? "true" : "false");
+			destination.blocked ? "true" : "false"
+		);
 #endif
 
 		if(!destination.blocked)
 		{
 			if(source.node->layer == EPathfindingLayer::LAND
-				&& (destination.node->layer == EPathfindingLayer::AIR || destination.node->layer == EPathfindingLayer::WATER))
+			   && (destination.node->layer == EPathfindingLayer::AIR || destination.node->layer == EPathfindingLayer::WATER))
 			{
 				if(pathfinderHelper->getTurnInfo()->isLayerAvailable(destination.node->layer))
 					return;
@@ -113,17 +113,19 @@ namespace AIPathfinding
 	{
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			for (const auto & spell : LIBRARY->spellh->objects)
+			for(const auto & spell : LIBRARY->spellh->objects)
 			{
-				if (!spell || !spell->isAdventure())
+				if(!spell || !spell->isAdventure())
 					continue;
 
-				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get())
+				   && hero->mana >= hero->getSpellCost(spell.get()))
 				{
 					waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero, spell->id);
 				}
 
-				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get())
+				   && hero->mana >= hero->getSpellCost(spell.get()))
 				{
 					airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero, spell->id);
 				}
@@ -137,7 +139,7 @@ namespace AIPathfinding
 	{
 		std::vector<const IShipyard *> shipyards;
 
-		for(const CGTownInstance * t : cb->getTownsInfo())
+		for(const CGTownInstance * t : aiNk->cc->getTownsInfo())
 		{
 			if(t->hasBuilt(BuildingID::SHIPYARD))
 				shipyards.push_back(t);
@@ -157,24 +159,24 @@ namespace AIPathfinding
 			if(shipyard->shipyardStatus() == IShipyard::GOOD)
 			{
 				int3 boatLocation = shipyard->bestLocation();
-				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(cb, shipyard);
+				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(aiNk->cc.get(), shipyard);
 				logAi->debug("Virtual boat added at %s", boatLocation.toString());
 			}
 		}
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			for (const auto & spell : LIBRARY->spellh->objects)
+			for(const auto & spell : LIBRARY->spellh->objects)
 			{
-				if (!spell || !spell->isAdventure())
+				if(!spell || !spell->isAdventure())
 					continue;
 
 				auto effect = spell->getAdventureMechanics().getEffectAs<SummonBoatEffect>(hero);
 
-				if (!effect || !hero->canCastThisSpell(spell.get()))
+				if(!effect || !hero->canCastThisSpell(spell.get()))
 					continue;
 
-				if (effect->canCreateNewBoat() && effect->getSuccessChance(hero) == 100)
+				if(effect->canCreateNewBoat() && effect->getSuccessChance(hero) == 100)
 				{
 					// TODO: For lower school level we might need to check the existence of some boat
 					summonableVirtualBoats[hero] = std::make_shared<SummonBoatAction>(spell->id);
@@ -183,9 +185,7 @@ namespace AIPathfinding
 		}
 	}
 
-	std::shared_ptr<const VirtualBoatAction> AILayerTransitionRule::findVirtualBoat(
-		CDestinationNodeInfo & destination,
-		const PathNodeInfo & source) const
+	std::shared_ptr<const VirtualBoatAction> AILayerTransitionRule::findVirtualBoat(CDestinationNodeInfo & destination, const PathNodeInfo & source) const
 	{
 		std::shared_ptr<const VirtualBoatAction> virtualBoat;
 
@@ -197,8 +197,7 @@ namespace AIPathfinding
 		{
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
-			if(vstd::contains(summonableVirtualBoats, hero)
-				&& summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
+			if(vstd::contains(summonableVirtualBoats, hero) && summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}
@@ -211,7 +210,8 @@ namespace AIPathfinding
 		CDestinationNodeInfo & destination,
 		const PathNodeInfo & source,
 		std::shared_ptr<const SpecialAction> specialAction,
-		EPathNodeAction targetAction) const
+		EPathNodeAction targetAction
+	) const
 	{
 		bool result = false;
 

@@ -14,10 +14,8 @@ namespace NK2AI
 {
 namespace AIPathfinding
 {
-	AIMovementToDestinationRule::AIMovementToDestinationRule(
-		std::shared_ptr<AINodeStorage> nodeStorage,
-		bool allowBypassObjects)
-		: nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+	AIMovementToDestinationRule::AIMovementToDestinationRule(const std::shared_ptr<AINodeStorage> & nodeStorage, const bool allowBypassObjects, CCallback & cc)
+		: nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects), cc(cc)
 	{
 	}
 
@@ -25,16 +23,16 @@ namespace AIPathfinding
 		const PathNodeInfo & source,
 		CDestinationNodeInfo & destination,
 		const PathfinderConfig * pathfinderConfig,
-		CPathfinderHelper * pathfinderHelper) const
+		CPathfinderHelper * pathfinderHelper
+	) const
 	{
 		auto blocker = getBlockingReason(source, destination, pathfinderConfig, pathfinderHelper);
 
 		if(blocker == BlockingReason::NONE)
 			return;
 
-		if(blocker == BlockingReason::DESTINATION_BLOCKED
-			&& destination.action == EPathNodeAction::EMBARK
-			&& nodeStorage->getAINode(destination.node)->specialAction)
+		if(blocker == BlockingReason::DESTINATION_BLOCKED && destination.action == EPathNodeAction::EMBARK
+		   && nodeStorage->getAINode(destination.node)->specialAction)
 		{
 			return;
 		}
@@ -45,21 +43,18 @@ namespace AIPathfinding
 
 			if(!allowBypassObjects)
 			{
-				if (source.node->getCost() < 0.0001f)
+				if(source.node->getCost() < 0.0001f)
 					return;
 
 				// when actor represents moster graph node, we need to let him escape monster
-				if(ccTl->getGuardingCreaturePosition(source.coord) == actor->initialPosition)
+				if(cc.getGuardingCreaturePosition(source.coord) == actor->initialPosition)
 					return;
 			}
 
 			if(actor->allowBattle)
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
-				logAi->trace(
-					"Bypass src guard while moving from %s to %s",
-					source.coord.toString(),
-					destination.coord.toString());
+				logAi->trace("Bypass src guard while moving from %s to %s", source.coord.toString(), destination.coord.toString());
 #endif
 				return;
 			}

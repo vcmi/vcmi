@@ -24,10 +24,9 @@ namespace AIPathfinding
 {
 	AIMovementAfterDestinationRule::AIMovementAfterDestinationRule(
 		const Nullkiller * aiNk,
-		CPlayerSpecificInfoCallback * cb, 
 		std::shared_ptr<AINodeStorage> nodeStorage,
 		bool allowBypassObjects)
-		:aiNk(aiNk), cb(cb), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
+		:aiNk(aiNk), nodeStorage(nodeStorage), allowBypassObjects(allowBypassObjects)
 	{
 	}
 
@@ -94,7 +93,7 @@ namespace AIPathfinding
 			source.coord.toString());
 #endif
 
-		auto destGuardians = cb->getGuardingCreatures(destination.coord);
+		auto destGuardians = aiNk->cc->getGuardingCreatures(destination.coord);
 		bool allowBypass = false;
 
 		switch(blocker)
@@ -255,22 +254,20 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		auto srcGuardians = cb->getGuardingCreatures(source.coord);
-
 		if(destGuardians.empty())
 		{
 			return false;
 		}
 
-		auto srcNode = nodeStorage->getAINode(source.node);
+		const auto srcGuardians = aiNk->cc->getGuardingCreatures(source.coord);
+		const auto srcNode = nodeStorage->getAINode(source.node);
 
 		vstd::erase_if(destGuardians, [&](const CGObjectInstance * destGuard) -> bool
 		{
 			return vstd::contains(srcGuardians, destGuard);
 		});
 
-		auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
-
+		const auto guardsAlreadyBypassed = destGuardians.empty() && srcGuardians.size();
 		if(guardsAlreadyBypassed && srcNode->actor->allowBattle)
 		{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1

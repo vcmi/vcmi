@@ -75,7 +75,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 				// TODO: Mircea: Issue with CGameHandler::spawnWanderingMonsters, see getFreeTiles(tiles, true);
 				// danger not linked GraphPaths::addChainInfo, so spawning only with nearby unblocked
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Found task %s", task->toString());
+				logAi->trace("Found task %s", task->toString(TODO));
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
@@ -90,7 +90,7 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 			else if(depth < depthLimit - 1)
 			{
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Found abstract goal %s", subgoal->toString());
+				logAi->trace("Found abstract goal %s", subgoal->toString(TODO));
 #endif
 				if(!isCompositionLoop(subgoal))
 				{
@@ -142,14 +142,14 @@ Goals::TSubgoal DeepDecomposer::unwrapComposition(Goals::TSubgoal goal)
 	return goal->goalType == Goals::COMPOSITION ? goal->decompose(aiNk).back() : goal;
 }
 
-bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2)
+bool isEquivalentGoals(TSubgoal goal1, TSubgoal goal2, CCallback & cc)
 {
 	if(goal1 == goal2) return true;
 
 	if(goal1->goalType == Goals::CAPTURE_OBJECT && goal2->goalType == Goals::CAPTURE_OBJECT)
 	{
-		auto o1 = ccTl->getObj(ObjectInstanceID(goal1->objid));
-		auto o2 = ccTl->getObj(ObjectInstanceID(goal2->objid));
+		const auto o1 = cc.getObj(ObjectInstanceID(goal1->objid));
+		const auto o2 = cc.getObj(ObjectInstanceID(goal2->objid));
 
 		return o1->ID == Obj::SHIPYARD && o1->ID == o2->ID;
 	}
@@ -167,7 +167,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 		{
 			auto parent = unwrapComposition(goals[i].back());
 
-			if(isEquivalentGoals(parent, goalToTest))
+			if(isEquivalentGoals(parent, goalToTest, *aiNk->cc))
 			{
 				return true;
 			}
@@ -180,7 +180,7 @@ bool DeepDecomposer::isCompositionLoop(TSubgoal goal)
 TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 {
 #if NK2AI_TRACE_LEVEL >= 1
-	logAi->trace("Decomposing %s, level %s", goal->toString(), depth);
+	logAi->trace("Decomposing %s, level %s", goal->toString(TODO), depth);
 #endif
 
 	if(goal->hasHash())
@@ -192,7 +192,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 			if(cached != decompositionCache[i].end())
 			{
 #if NK2AI_TRACE_LEVEL >= 1
-				logAi->trace("Use decomposition cache for %s, level: %d", goal->toString(), depth);
+				logAi->trace("Use decomposition cache for %s, level: %d", goal->toString(TODO), depth);
 #endif
 				fromCache = true;
 
@@ -204,7 +204,7 @@ TGoalVec DeepDecomposer::decomposeCached(TSubgoal goal, bool & fromCache)
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("Calling decompose on %s, level %s", goal->toString(), depth);
+	logAi->trace("Calling decompose on %s, level %s", goal->toString(TODO), depth);
 #endif
 
 	fromCache = false;
@@ -225,7 +225,7 @@ void DeepDecomposer::addToCache(TSubgoal goal)
 			auto solution = parentDepth < depth ? aggregateGoals(parentDepth + 1, goal) : goal;
 
 #if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Adding %s to decomosition cache of %s at level %d", solution->toString(), parent->toString(), parentDepth);
+			logAi->trace("Adding %s to decomosition cache of %s at level %d", solution->toString(TODO), parent->toString(TODO), parentDepth);
 #endif
 
 			decompositionCache[parentDepth][parent].push_back(solution);

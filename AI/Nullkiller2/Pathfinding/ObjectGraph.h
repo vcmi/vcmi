@@ -76,7 +76,7 @@ public:
 	void registerJunction(const int3 & pos);
 	void addVirtualBoat(const int3 & pos, const CGObjectInstance * shipyard);
 	void connectHeroes(const Nullkiller * aiNk);
-	void removeObject(const CGObjectInstance * obj);
+	void removeObject(const CGObjectInstance * obj, CCallback & cc);
 	bool tryAddConnection(const int3 & from, const int3 & to, float cost, uint64_t danger);
 	void removeConnection(const int3 & from, const int3 & to);
 	void dumpToLog(std::string visualKey) const;
