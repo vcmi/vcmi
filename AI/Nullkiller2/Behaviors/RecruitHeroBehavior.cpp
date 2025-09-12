@@ -10,11 +10,11 @@
 #include "StdInc.h"
 #include "RecruitHeroBehavior.h"
 
-#include <algorithm>
 #include "../AIGateway.h"
 #include "../AIUtility.h"
-#include "../Goals/RecruitHero.h"
 #include "../Goals/ExecuteHeroChain.h"
+#include "../Goals/RecruitHero.h"
+#include <algorithm>
 
 namespace NK2AI
 {
@@ -59,12 +59,7 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		if(aiNk->heroManager->canRecruitHero(town))
 		{
 			calculateTreasureSources(aiNk->objectClusterizer->getNearbyObjects(), aiNk->playerID, *aiNk->dangerHitMap, treasureSourcesCount, town);
-			calculateBestHero(aiNk->cc->getAvailableHeroes(town),
-			                  *aiNk->heroManager,
-			                  bestChoice,
-			                  town,
-			                  closestThreatTurn,
-			                  visitabilityRatio);
+			calculateBestHero(aiNk->cc->getAvailableHeroes(town), *aiNk->heroManager, bestChoice, town, closestThreatTurn, visitabilityRatio);
 		}
 
 		if(town->hasCapitol())
@@ -76,8 +71,8 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 		if(ourHeroes.empty()
 		   || treasureSourcesCount > ourHeroes.size() * 5
 		   // TODO: Mircea: The next condition should always consider a hero if under attack especially if it has towers
-		   || (bestChoice.hero->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0 && (
-			       bestChoice.closestThreat < 1 || !aiNk->buildAnalyzer->isGoldPressureOverMax()))
+		   || (bestChoice.hero->getArmyCost() > GameConstants::HERO_GOLD_COST / 2.0
+			   && (bestChoice.closestThreat < 1 || !aiNk->buildAnalyzer->isGoldPressureOverMax()))
 		   || (aiNk->getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk->buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
 		   || (aiNk->getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk->buildAnalyzer->isGoldPressureOverMax()))
 		{
@@ -88,18 +83,17 @@ Goals::TGoalVec RecruitHeroBehavior::decompose(const Nullkiller * aiNk) const
 	return tasks;
 }
 
-void RecruitHeroBehavior::calculateTreasureSources(const std::vector<const CGObjectInstance *> & nearbyObjects,
-                                                   const PlayerColor & playerID,
-                                                   const DangerHitMapAnalyzer & dangerHitMap,
-                                                   int & treasureSourcesCount,
-                                                   const CGTownInstance * town)
+void RecruitHeroBehavior::calculateTreasureSources(
+	const std::vector<const CGObjectInstance *> & nearbyObjects,
+	const PlayerColor & playerID,
+	const DangerHitMapAnalyzer & dangerHitMap,
+	int & treasureSourcesCount,
+	const CGTownInstance * town
+)
 {
 	for(const auto * obj : nearbyObjects)
 	{
-		if(obj->ID == Obj::RESOURCE
-		   || obj->ID == Obj::TREASURE_CHEST
-		   || obj->ID == Obj::CAMPFIRE
-		   || isWeeklyRevisitable(playerID, obj)
+		if(obj->ID == Obj::RESOURCE || obj->ID == Obj::TREASURE_CHEST || obj->ID == Obj::CAMPFIRE || isWeeklyRevisitable(playerID, obj)
 		   || obj->ID == Obj::ARTIFACT)
 		{
 			if(town == dangerHitMap.getClosestTown(obj->visitablePos()))
@@ -108,19 +102,19 @@ void RecruitHeroBehavior::calculateTreasureSources(const std::vector<const CGObj
 	}
 }
 
-void RecruitHeroBehavior::calculateBestHero(const std::vector<const CGHeroInstance *> & availableHeroes,
-                                            const HeroManager & heroManager,
-                                            const RecruitHeroChoice & bestChoice,
-                                            const CGTownInstance * town,
-                                            const uint8_t closestThreatTurn,
-                                            const float visitabilityRatio)
+void RecruitHeroBehavior::calculateBestHero(
+	const std::vector<const CGHeroInstance *> & availableHeroes,
+	const HeroManager & heroManager,
+	const RecruitHeroChoice & bestChoice,
+	const CGTownInstance * town,
+	const uint8_t closestThreatTurn,
+	const float visitabilityRatio
+)
 {
 
 	for(const auto * const hero : availableHeroes)
 	{
-		if((town->getVisitingHero() || town->getGarrisonHero())
-		   && closestThreatTurn < 1
-		   && hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
+		if((town->getVisitingHero() || town->getGarrisonHero()) && closestThreatTurn < 1 && hero->getArmyCost() < GameConstants::HERO_GOLD_COST / 3.0)
 			continue;
 
 		const float heroScore = heroManager.evaluateHero(hero);
