@@ -958,7 +958,7 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Visions Heroes}\nHero can see detailed informations about enemy heroes",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Visions Towns}\nHero can see detailed informations about enemy towns",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional {$val} times", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Additional attacks}\nUnit can attack an additional ${val} times", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Additional retaliations}\nUnit can retaliate ${val} extra times",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attack all around}\nAttacks all adjacent enemies in addition to the primary target",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{No ranged retaliation}\nThe enemy cannot retaliate when shot by this unit",
