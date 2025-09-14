@@ -14,6 +14,28 @@
 			"type" : "string",
 			"description" : "Localizable name of this resource"
 		},
+		"images" : {
+			"type" : "object",
+			"description" : "Resource icons of varying size",
+			"required" : [ "small", "medium", "large"],
+			"properties" : {
+				"small" : {
+					"type" : "string",
+					"description" : "20x18 resource icon",
+					"format" : "imageFile"
+				},
+				"medium" : {
+					"type" : "string",
+					"description" : "32x32 resource icon",
+					"format" : "imageFile"
+				},
+				"large" : {
+					"type" : "string",
+					"description" : "82x93 resource icon",
+					"format" : "imageFile"
+				}
+			}
+		},
 		"price" : {
 			"type" : "number",
 			"description" : "Price of resource in gold"

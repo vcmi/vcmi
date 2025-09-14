@@ -28,6 +28,13 @@ std::string resources::ResourceType::getNameTranslated() const
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
+void resources::ResourceType::registerIcons(const IconRegistar & cb) const
+{
+	cb(getIconIndex(), 0, "SMALRES", iconSmall);
+	cb(getIconIndex(), 0, "RESOURCE", iconMedium);
+	cb(getIconIndex(), 0, "RESOUR82", iconLarge);
+}
+
 std::vector<JsonNode> ResourceTypeHandler::loadLegacyData()
 {
 	objects.resize(8);
@@ -44,6 +51,9 @@ std::shared_ptr<resources::ResourceType> ResourceTypeHandler::loadObjectImpl(std
 	ret->identifier = name;
 
 	ret->price = data["price"].Integer();
+	ret->iconSmall = data["images"]["small"].String();
+	ret->iconMedium = data["images"]["medium"].String();
+	ret->iconLarge = data["images"]["large"].String();
 
 	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), data["name"]);
 

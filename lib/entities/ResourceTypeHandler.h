@@ -30,6 +30,9 @@ class DLL_LINKAGE ResourceType : public EntityT<GameResID>
 	GameResID id; //backlink
 
 	int price;
+	std::string iconSmall;
+	std::string iconMedium;
+	std::string iconLarge;
 
 	std::string identifier;
 	std::string modScope;
@@ -45,7 +48,7 @@ public:
 	GameResID getId() const override { return id;}
 	int32_t getIconIndex() const override { return 0; }
 	std::string getModScope() const override { return modScope; };
-	void registerIcons(const IconRegistar & cb) const override {};
+	void registerIcons(const IconRegistar & cb) const override;
 	std::string getNameTextID() const override;
 	std::string getNameTranslated() const override;
 };
