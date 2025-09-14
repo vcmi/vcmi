@@ -21,6 +21,7 @@
 #include "../gameState/CGameState.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../CSoundBase.h"
+#include "../entities/ResourceTypeHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -50,7 +51,7 @@ GameResID CGResource::resourceID() const
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return LIBRARY->generaltexth->restypes[resourceID().getNum()];
+	return MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(resourceID())->getNameTextID()).toString();
 }
 
 void CGResource::pickRandomObject(IGameRandomizer & gameRandomizer)

@@ -165,7 +165,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + LIBRARY->generaltexth->restypes[producedResource.getNum()] + ")";
+		hoverName += "\n(" + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(producedResource.getNum())->getNameTextID()).toString() + ")";
 
 	if(stacksCount())
 	{

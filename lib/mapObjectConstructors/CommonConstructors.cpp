@@ -17,6 +17,7 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -60,7 +61,7 @@ bool ResourceInstanceConstructor::hasNameTextID() const
 
 std::string ResourceInstanceConstructor::getNameTextID() const
 {
-	return TextIdentifier("core", "restypes", resourceType.getNum()).get();
+	return LIBRARY->resourceTypeHandler->getById(resourceType)->getNameTextID();
 }
 
 GameResID ResourceInstanceConstructor::getResourceType() const

@@ -58,10 +58,10 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
-#include "../../lib/entities/ResourceTypeHandler.h"
 
 
 static bool useCompactCreatureBox()
@@ -1127,7 +1127,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr,"%s",LIBRARY->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr,"%s",MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(town->bonusValue.first)->getNameTextID()).toString());
 			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}
