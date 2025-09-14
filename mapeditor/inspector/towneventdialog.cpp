@@ -81,9 +81,9 @@ void TownEventDialog::initPlayers()
 
 void TownEventDialog::initResources()
 {
-	ui->resourcesTable->setRowCount(GameConstants::RESOURCE_QUANTITY);
+	ui->resourcesTable->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	auto resourcesMap = params.value("resources").toMap();
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
@@ -230,7 +230,7 @@ QVariant TownEventDialog::playersToVariant()
 QVariantMap TownEventDialog::resourcesToVariant()
 {
 	auto res = params.value("resources").toMap();
-	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		auto itemType = QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey());
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));

@@ -293,7 +293,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[217] + text);
 	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[346]);
 
-	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
+	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++) //TODO: configurable resource support
 	{
 		auto res = static_cast<EGameResID>(i);
 		if(creature->getRecruitCost(res))

@@ -12,9 +12,11 @@
 #include "ui_victoryconditions.h"
 #include "../mapcontroller.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -406,12 +408,12 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			{
-				for(int resType = 0; resType < GameConstants::RESOURCE_QUANTITY; ++resType)
+				for(auto & resType : LIBRARY->resourceTypeHandler->getAllObjects())
 				{
 					MetaString str;
 					str.appendName(GameResID(resType));
 					auto resName = QString::fromStdString(str.toString());
-					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType));
+					victoryTypeWidget->addItem(resName, QVariant::fromValue(resType.getNum()));
 				}
 			}
 

@@ -12,6 +12,7 @@
 
 #include "Nullkiller.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
@@ -1590,7 +1591,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
-						for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+						for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
 							if (i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;

@@ -535,10 +535,9 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto minesData = handler.enterStruct("mines");
 
-		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-		{
-			handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), mines[idx], 0);
-		}
+		for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+			if(idx != GameResID::MITHRIL)
+				handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), mines[idx], 0);
 	}
 
 	handler.serializeStruct("customObjects", objectConfig);

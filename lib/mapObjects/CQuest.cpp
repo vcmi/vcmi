@@ -373,11 +373,10 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		if(missionType == "Resources")
 		{
 			auto r = handler.enterStruct("resources");
-
-			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-			{
-				handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), mission.resources[idx], 0);
-			}
+			
+			for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+				if(idx != GameResID::MITHRIL)
+					handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), mission.resources[idx], 0);
 		}
 		
 		if(missionType == "Hero")

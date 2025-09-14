@@ -22,7 +22,7 @@ ResourceSet::ResourceSet() = default;
 
 ResourceSet::ResourceSet(const JsonNode & node)
 {
-	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		container[i] = static_cast<int>(node[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()].Float());
 }
 
@@ -32,9 +32,14 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 		return;
 	auto s = handler.enterStruct(fieldName);
 
-	//TODO: add proper support for mithril to map format
-	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx ++)
+	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+	{
+		//TODO: add proper support for mithril to map format
+		if(idx == EGameResID::MITHRIL)
+			continue;
+
 		handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), this->operator[](idx), 0);
+	}
 }
 
 bool ResourceSet::nonZero() const
@@ -76,8 +81,7 @@ void ResourceSet::applyHandicap(int percentage)
 
 static bool canAfford(const ResourceSet &res, const ResourceSet &price)
 {
-	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		if(price[i] > res[i])
 			return false;
 
@@ -97,7 +101,7 @@ bool ResourceSet::canAfford(const ResourceSet &price) const
 TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		total += static_cast<TResourceCap>(LIBRARY->resourceTypeHandler->getById(i)->getPrice()) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }

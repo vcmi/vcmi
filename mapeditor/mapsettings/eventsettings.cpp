@@ -43,7 +43,7 @@ std::set<PlayerColor> playersFromVariant(const QVariant & v)
 QVariant toVariant(const TResources & resources)
 {
 	QVariantMap result;
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		result[QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey())] = QVariant::fromValue(resources[i]);
 	return result;
 }

@@ -299,7 +299,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 			return ret;
 		}
 
-		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
+		for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			ret[i] = loadValue(value[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()], variables);
 		}
