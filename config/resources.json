@@ -1,49 +1,41 @@
 {
 	"wood": {
 		"index" : 0,
-		"name": "Wood",
 		"price": 250
 	},
 	
 	"mercury": {
 		"index" : 1,
-		"name": "Mercury",
 		"price": 500
 	},
 	
 	"ore": {
 		"index" : 2,
-		"name": "Ore",
 		"price": 250
 	},
 	
 	"sulfur": {
 		"index" : 3,
-		"name": "Sulfur",
 		"price": 500
 	},
 	
 	"crystal": {
 		"index" : 4,
-		"name": "Crystal",
 		"price": 500
 	},
 	
 	"gems": {
 		"index" : 5,
-		"name": "Gems",
 		"price": 500
 	},
 	
 	"gold": {
 		"index" : 6,
-		"name": "Gold",
 		"price": 1
 	},
 
 	"mithril": {
 		"index" : 7,
-		"name": "Mithril",
 		"price": 0
 	}
 }
