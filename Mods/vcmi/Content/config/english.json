@@ -1085,12 +1085,5 @@
 	"spellSchool.core.fire.name" : "Fire",
 	"spellSchool.core.water.name" : "Water",
 
-	"resources.core.wood.name" : "Wood",
-	"resources.core.mercury.name" : "Mercury",
-	"resources.core.ore.name" : "Ore",
-	"resources.core.sulfur.name" : "Sulfur",
-	"resources.core.crystal.name" : "Crystal",
-	"resources.core.gems.name" : "Gems",
-	"resources.core.gold.name" : "Gold",
 	"resources.core.mithril.name" : "Mithril"
 }

@@ -20,6 +20,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::string Resource::getNameTextID() const
 {
+	if(id.getNum() < 7) // OH3 resources
+		return TextIdentifier("core.restypes", id).get();
 	return TextIdentifier( "resources", modScope, identifier, "name" ).get();
 }
 
@@ -55,7 +57,8 @@ std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & 
 	ret->iconMedium = json["images"]["medium"].String();
 	ret->iconLarge = json["images"]["large"].String();
 
-	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
+	if(ret->id.getNum() >= 7) // not OH3 resources
+		LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }
