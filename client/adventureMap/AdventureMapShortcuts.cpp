@@ -679,5 +679,6 @@ bool AdventureMapShortcuts::optionHeroBoat(EPathfindingLayer layer)
 
 bool AdventureMapShortcuts::optionHeroDig()
 {
-	return optionInMapView() && GAME->interface()->localState->getCurrentHero() != nullptr && GAME->interface()->localState->getCurrentHero()->diggingStatus() == EDiggingStatus::CAN_DIG;
+	auto hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->diggingStatus() == EDiggingStatus::CAN_DIG;
 }
