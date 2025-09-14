@@ -958,11 +958,11 @@
 	"creatures.core.rogue.bonus.visionsHeroes" : "{Vize hrdinů}\nHrdina vidí podrobné informace o nepřátelských hrdinech",
 	"creatures.core.rogue.bonus.visionsTowns" : "{Vize měst}\nHrdina vidí podrobné informace o nepřátelských městech",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Dvojitý útok}\nÚtočí dvakrát", // TODO: alternative descriptions for melee/ranged effect range
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Další útoky}\nJednotka může zaútočit ještě ${val}x během svého kola", // TODO: alternative descriptions for melee/ranged effect range
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Další odvetné útoky}\nMůže odvetně zaútočit ${val} krát navíc",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Útok na všechny kolem}\nÚtočí na všechny sousední nepřátele",
-	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Žádná střelecká odveta}\nNepřítel nemůže odvetně zaútočit střeleckým útokem",
-	"core.bonus.BLOCKS_RETALIATION.description" : "{Žádná odveta}\nNepřítel nemůže odvetně zaútočit",
+	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Bez odvety střelce}\nNepřítel nemůže protiútokem reagovat na střelbu této jednotky",
+	"core.bonus.BLOCKS_RETALIATION.description" : "{Bez odvety}\nNepřítel nemůže protiútokem reagovat na její blízký útok",
 	"core.bonus.CATAPULT.description" : "{Katapult}\nÚtočí na ochranné hradby",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ALLY.description" : "{Snížit cenu kouzel (${val})}\nSnižuje náklady na kouzla pro hrdinu o ${val}",
 	"core.bonus.CHANGES_SPELL_COST_FOR_ENEMY.description" : "{Tlumič magie (${val})}\nZvyšuje náklady na kouzla nepřítele o ${val}",
