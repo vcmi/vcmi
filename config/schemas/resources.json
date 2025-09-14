@@ -1,0 +1,22 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI resources format",
+	"description" : "Format used to define new resources in VCMI",
+	"required" : [ "name", "price" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"index" : {
+			"type" : "number",
+			"description" : "numeric id of h3 resource, prohibited for new resources"
+		},
+		"name" : {
+			"type" : "string",
+			"description" : "Localizable name of this resource"
+		},
+		"price" : {
+			"type" : "number",
+			"description" : "Price of resource in gold"
+		}
+	}
+}

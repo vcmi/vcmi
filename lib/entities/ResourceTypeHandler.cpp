@@ -20,7 +20,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 std::string resources::ResourceType::getNameTextID() const
 {
-	return TextIdentifier( "resourceType", modScope, identifier, "name" ).get();
+	return TextIdentifier( "resources", modScope, identifier, "name" ).get();
 }
 
 std::string resources::ResourceType::getNameTranslated() const
@@ -54,22 +54,22 @@ std::shared_ptr<resources::ResourceType> ResourceTypeHandler::loadObjectImpl(std
 void ResourceTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	objects.push_back(loadObjectImpl(scope, name, data, objects.size()));
-	registerObject(scope, "resourceType", name, objects.back()->getIndex());
+	registerObject(scope, "resources", name, objects.back()->getIndex());
 }
 
 void ResourceTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = loadObjectImpl(scope, name, data, index);
-	registerObject(scope, "resourceType", name, objects[index]->getIndex());
+	registerObject(scope, "resources", name, objects[index]->getIndex());
 }
 
 std::vector<GameResID> ResourceTypeHandler::getAllObjects() const
 {
 	std::vector<GameResID> result;
 
-	for (const auto & school : objects)
-		result.push_back(school->id);
+	for (const auto & resource : objects)
+		result.push_back(resource->id);
 
 	return result;
 }

@@ -21,13 +21,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 CObjectHandler::CObjectHandler()
 {
-	logGlobal->trace("\t\tReading resources prices ");
-	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
-	{
-		auto resType = LIBRARY->resourceTypeHandler->getById(res);
-		resVals[res] = static_cast<ui32>(resType->getPrice());
-	}
-	logGlobal->trace("\t\tDone loading resource prices!");
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -19,8 +19,6 @@ class int3;
 class DLL_LINKAGE CObjectHandler
 {
 public:
-	std::map<GameResID, ui32> resVals; //default values of resources in gold
-
 	CObjectHandler();
 };
 
