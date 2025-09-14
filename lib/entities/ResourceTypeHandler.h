@@ -46,7 +46,7 @@ public:
 	std::string getJsonKey() const override { return identifier; }
 	int32_t getIndex() const override { return id.getNum(); }
 	GameResID getId() const override { return id;}
-	int32_t getIconIndex() const override { return 0; }
+	int32_t getIconIndex() const override { return id.getNum(); }
 	std::string getModScope() const override { return modScope; };
 	void registerIcons(const IconRegistar & cb) const override;
 	std::string getNameTextID() const override;
