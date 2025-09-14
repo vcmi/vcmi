@@ -51,7 +51,7 @@ GameResID CGResource::resourceID() const
 
 std::string CGResource::getHoverText(PlayerColor player) const
 {
-	return MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(resourceID())->getNameTextID()).toString();
+	return MetaString::createFromTextID(resourceID().toResource()->getNameTextID()).toString();
 }
 
 void CGResource::pickRandomObject(IGameRandomizer & gameRandomizer)

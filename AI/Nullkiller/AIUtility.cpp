@@ -471,7 +471,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return bonus->val * 400;
 		case BonusType::GENERATE_RESOURCE:
-			return bonus->val * LIBRARY->resourceTypeHandler->getById(bonus->subtype.as<GameResID>())->getPrice() * 10;
+			return bonus->val * bonus->subtype.as<GameResID>().toResource()->getPrice() * 10;
 		case BonusType::SPELL_DURATION:
 			return bonus->val * 200;
 		case BonusType::MAGIC_RESISTANCE:

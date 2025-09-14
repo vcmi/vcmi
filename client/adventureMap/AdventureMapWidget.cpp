@@ -288,7 +288,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++) //TODO: configurable resource support
 	{
-		const auto & node = input[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()];
+		const auto & node = input[GameResID(i).toResource()->getJsonKey()];
 
 		if(node.isNull())
 			continue;

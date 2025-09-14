@@ -23,7 +23,7 @@ ResourceSet::ResourceSet() = default;
 ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		container[i] = static_cast<int>(node[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()].Float());
+		container[i] = static_cast<int>(node[i.toResource()->getJsonKey()].Float());
 }
 
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
@@ -38,7 +38,7 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 		if(idx == EGameResID::MITHRIL)
 			continue;
 
-		handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), this->operator[](idx), 0);
+		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
 	}
 }
 
@@ -102,7 +102,7 @@ TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		total += static_cast<TResourceCap>(LIBRARY->resourceTypeHandler->getById(i)->getPrice()) * static_cast<TResourceCap>(operator[](i));
+		total += static_cast<TResourceCap>(i.toResource()->getPrice()) * static_cast<TResourceCap>(operator[](i));
 	return total;
 }
 

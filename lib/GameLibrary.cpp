@@ -75,6 +75,11 @@ const HeroTypeService * GameLibrary::heroTypes() const
 	return heroh.get();
 }
 
+const ResourceTypeService * GameLibrary::resources() const
+{
+	return resourceTypeHandler.get();
+}
+
 #if SCRIPTING_ENABLED
 const scripting::Service * GameLibrary::scripts() const
 {

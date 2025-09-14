@@ -259,7 +259,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
 		for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			const std::string & name = LIBRARY->resourceTypeHandler->getById(i)->getJsonKey();
+			const std::string & name = i.toResource()->getJsonKey();
 			int64_t weeklyBonus = difficultyConfig[name].Integer();
 			int64_t dayOfWeek = gameHandler->gameState().getDate(Date::DAY_OF_WEEK);
 			int64_t dailyIncome = incomeHandicapped[i];

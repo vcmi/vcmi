@@ -1127,7 +1127,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr,"%s",MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(town->bonusValue.first)->getNameTextID()).toString());
+			boost::algorithm::replace_first(descr,"%s",MetaString::createFromTextID(GameResID(town->bonusValue.first).toResource()->getNameTextID()).toString());
 			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}

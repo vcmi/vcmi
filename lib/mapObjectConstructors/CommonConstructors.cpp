@@ -61,7 +61,7 @@ bool ResourceInstanceConstructor::hasNameTextID() const
 
 std::string ResourceInstanceConstructor::getNameTextID() const
 {
-	return LIBRARY->resourceTypeHandler->getById(resourceType)->getNameTextID();
+	return resourceType.toResource()->getNameTextID();
 }
 
 GameResID ResourceInstanceConstructor::getResourceType() const

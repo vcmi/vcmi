@@ -44,7 +44,7 @@ QVariant toVariant(const TResources & resources)
 {
 	QVariantMap result;
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		result[QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey())] = QVariant::fromValue(resources[i]);
+		result[QString::fromStdString(i.toResource()->getJsonKey())] = QVariant::fromValue(resources[i]);
 	return result;
 }
 

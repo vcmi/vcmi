@@ -25,6 +25,9 @@ class CHero;
 class CHeroClass;
 class HeroClass;
 class HeroTypeService;
+class Resource;
+class ResourceType;
+class ResourceTypeService;
 class CFaction;
 class Faction;
 class Skill;
@@ -1079,6 +1082,9 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
+
+	const Resource * toResource() const;
+	const ResourceType * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>

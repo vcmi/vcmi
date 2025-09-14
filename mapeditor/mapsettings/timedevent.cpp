@@ -53,7 +53,7 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		MetaString str;
 		str.appendName(GameResID(i));
 		auto name = QString::fromStdString(str.toString());
-		int val = params.value("resources").toMap().value(QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey())).toInt();
+		int val = params.value("resources").toMap().value(QString::fromStdString(i.toResource()->getJsonKey())).toInt();
 		ui->resources->setItem(i, 0, new QTableWidgetItem(name));
 		auto nval = new QTableWidgetItem(QString::number(val));
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
@@ -98,7 +98,7 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	auto res = target->data(Qt::UserRole).toMap().value("resources").toMap();
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto itemType = QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey());
+		auto itemType = QString::fromStdString(i.toResource()->getJsonKey());
 		auto * itemQty = ui->resources->item(i, 1);
 		res[itemType] = QVariant::fromValue(itemQty->text().toInt());
 	}

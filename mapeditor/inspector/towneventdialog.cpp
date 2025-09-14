@@ -93,7 +93,7 @@ void TownEventDialog::initResources()
 		item->setText(name);
 		ui->resourcesTable->setItem(i, 0, item);
 
-		int val = resourcesMap.value(QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey())).toInt();
+		int val = resourcesMap.value(QString::fromStdString(i.toResource()->getJsonKey())).toInt();
 		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
@@ -232,7 +232,7 @@ QVariantMap TownEventDialog::resourcesToVariant()
 	auto res = params.value("resources").toMap();
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto itemType = QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey());
+		auto itemType = QString::fromStdString(i.toResource()->getJsonKey());
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
 		res[itemType] = QVariant::fromValue(itemQty->value());

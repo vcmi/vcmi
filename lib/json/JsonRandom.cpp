@@ -301,7 +301,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 
 		for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			ret[i] = loadValue(value[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()], variables);
+			ret[i] = loadValue(value[i.toResource()->getJsonKey()], variables);
 		}
 		return ret;
 	}

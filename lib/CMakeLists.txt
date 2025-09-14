@@ -428,6 +428,8 @@ set(lib_MAIN_HEADERS
 	../include/vcmi/HeroClassService.h
 	../include/vcmi/HeroType.h
 	../include/vcmi/HeroTypeService.h
+	../include/vcmi/ResourceType.h
+	../include/vcmi/ResourceTypeService.h
 	../include/vcmi/Metatype.h
 	../include/vcmi/Player.h
 	../include/vcmi/ServerCallback.h

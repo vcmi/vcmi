@@ -165,7 +165,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(producedResource.getNum())->getNameTextID()).toString() + ")";
+		hoverName += "\n(" + MetaString::createFromTextID(producedResource.toResource()->getNameTextID()).toString() + ")";
 
 	if(stacksCount())
 	{
@@ -239,7 +239,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			JsonNode node;
 			for(const auto & resID : abandonedMineResources)
-				node.Vector().emplace_back(LIBRARY->resourceTypeHandler->getById(resID)->getJsonKey());
+				node.Vector().emplace_back(resID.toResource()->getJsonKey());
 
 			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
@@ -254,7 +254,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 			{
 				std::vector<std::string> resNames;
 				for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
-					resNames.push_back(LIBRARY->resourceTypeHandler->getById(res)->getJsonKey());
+					resNames.push_back(res.toResource()->getJsonKey());
 				int raw_res = vstd::find_pos(resNames, s);
 				if(raw_res < 0)
 					logGlobal->error("Invalid resource name: %s", s);

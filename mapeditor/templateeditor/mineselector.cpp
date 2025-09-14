@@ -35,7 +35,7 @@ MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	ui->tableWidgetMines->setHorizontalHeaderLabels({tr("Resource"), tr("Mines")});
 	for (int row = 0; row < resourcesToShow.size(); ++row)
 	{
-		auto name = MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(resourcesToShow[row].getNum())->getNameTextID()).toString();
+		auto name = MetaString::createFromTextID(resourcesToShow[row].toResource()->getNameTextID()).toString();
 		auto label = new QLabel(QString::fromStdString(name));
 		label->setAlignment(Qt::AlignCenter);
 		ui->tableWidgetMines->setCellWidget(row, 0, label);

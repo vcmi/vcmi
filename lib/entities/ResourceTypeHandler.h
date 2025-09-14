@@ -12,6 +12,8 @@
 
 #include <vcmi/EntityService.h>
 #include <vcmi/Entity.h>
+#include <vcmi/ResourceType.h>
+#include <vcmi/ResourceTypeService.h>
 #include "../constants/EntityIdentifiers.h"
 #include "../IHandlerBase.h"
 #include "../filesystem/ResourcePath.h"
@@ -20,12 +22,9 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 class ResourceTypeHandler;
 
-namespace resources
+class DLL_LINKAGE Resource : public ResourceType
 {
-
-class DLL_LINKAGE ResourceType : public EntityT<GameResID>
-{
-	friend class VCMI_LIB_WRAP_NAMESPACE(ResourceTypeHandler);
+	friend class ResourceTypeHandler;
 
 	GameResID id; //backlink
 
@@ -38,10 +37,7 @@ class DLL_LINKAGE ResourceType : public EntityT<GameResID>
 	std::string modScope;
 
 public:
-	int getPrice() const
-	{
-		return price;
-	}
+	int getPrice() const override { return price; }
 
 	std::string getJsonKey() const override { return identifier; }
 	int32_t getIndex() const override { return id.getNum(); }
@@ -53,27 +49,18 @@ public:
 	std::string getNameTranslated() const override;
 };
 
-}
-
-class DLL_LINKAGE ResourceTypeHandler : public IHandlerBase
+class DLL_LINKAGE ResourceTypeHandler : public CHandlerBase<GameResID, ResourceType, Resource, ResourceTypeService>
 {
-	std::shared_ptr<resources::ResourceType> loadObjectImpl(std::string scope, std::string name, const JsonNode & data, size_t index);
 public:
+	std::shared_ptr<Resource> loadFromJson(const std::string & scope,
+										const JsonNode & json,
+										const std::string & identifier,
+										size_t index) override;
+	
+	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData() override;
 
-	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
-	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
-
 	std::vector<GameResID> getAllObjects() const;
-
-	const resources::ResourceType * getById(GameResID index) const
-	{
-		return objects.at(index).get();
-	}
-
-private:
-	std::vector<std::shared_ptr<resources::ResourceType>> objects;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -176,7 +176,7 @@ void CTradeableItem::hover(bool on)
 			ENGINE->statusbar()->write(LIBRARY->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		ENGINE->statusbar()->write(MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(id)->getNameTextID()).toString());
+		ENGINE->statusbar()->write(MetaString::createFromTextID(GameResID(id).toResource()->getNameTextID()).toString());
 		break;
 	case EType::PLAYER:
 		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);

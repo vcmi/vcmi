@@ -18,17 +18,17 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-std::string resources::ResourceType::getNameTextID() const
+std::string Resource::getNameTextID() const
 {
 	return TextIdentifier( "resources", modScope, identifier, "name" ).get();
 }
 
-std::string resources::ResourceType::getNameTranslated() const
+std::string Resource::getNameTranslated() const
 {
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
-void resources::ResourceType::registerIcons(const IconRegistar & cb) const
+void Resource::registerIcons(const IconRegistar & cb) const
 {
 	cb(getIconIndex(), 0, "SMALRES", iconSmall);
 	cb(getIconIndex(), 0, "RESOURCE", iconMedium);
@@ -42,36 +42,28 @@ std::vector<JsonNode> ResourceTypeHandler::loadLegacyData()
 	return std::vector<JsonNode>(8, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<resources::ResourceType> ResourceTypeHandler::loadObjectImpl(std::string scope, std::string name, const JsonNode & data, size_t index)
+std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
-	auto ret = std::make_shared<resources::ResourceType>();
+	auto ret = std::make_shared<Resource>();
 
 	ret->id = GameResID(index);
 	ret->modScope = scope;
-	ret->identifier = name;
+	ret->identifier = identifier;
 
-	ret->price = data["price"].Integer();
-	ret->iconSmall = data["images"]["small"].String();
-	ret->iconMedium = data["images"]["medium"].String();
-	ret->iconLarge = data["images"]["large"].String();
+	ret->price = json["price"].Integer();
+	ret->iconSmall = json["images"]["small"].String();
+	ret->iconMedium = json["images"]["medium"].String();
+	ret->iconLarge = json["images"]["large"].String();
 
-	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), data["name"]);
+	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }
 
-/// loads single object into game. Scope is namespace of this object, same as name of source mod
-void ResourceTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+const std::vector<std::string> & ResourceTypeHandler::getTypeNames() const
 {
-	objects.push_back(loadObjectImpl(scope, name, data, objects.size()));
-	registerObject(scope, "resources", name, objects.back()->getIndex());
-}
-
-void ResourceTypeHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
-{
-	assert(objects[index] == nullptr); // ensure that this id was not loaded before
-	objects[index] = loadObjectImpl(scope, name, data, index);
-	registerObject(scope, "resources", name, objects[index]->getIndex());
+	static const std::vector<std::string> types = { "resources" };
+	return types;
 }
 
 std::vector<GameResID> ResourceTypeHandler::getAllObjects() const
@@ -79,7 +71,7 @@ std::vector<GameResID> ResourceTypeHandler::getAllObjects() const
 	std::vector<GameResID> result;
 
 	for (const auto & resource : objects)
-		result.push_back(resource->id);
+		result.push_back(resource->getId());
 
 	return result;
 }

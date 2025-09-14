@@ -379,7 +379,7 @@ void MetaString::appendName(const CreatureID & id, TQuantity count)
 
 void MetaString::appendName(const GameResID& id)
 {
-	appendTextID(LIBRARY->resourceTypeHandler->getById(id)->getNameTextID());
+	appendTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::appendNameSingular(const CreatureID & id)
@@ -424,7 +424,7 @@ void MetaString::replaceName(const SpellID & id)
 
 void MetaString::replaceName(const GameResID& id)
 {
-	replaceTextID(LIBRARY->resourceTypeHandler->getById(id)->getNameTextID());
+	replaceTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::replaceNameSingular(const CreatureID & id)

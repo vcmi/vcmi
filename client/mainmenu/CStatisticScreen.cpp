@@ -80,7 +80,7 @@ void CStatisticScreen::onSelectButton()
 			auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
 			std::vector<std::string> resourceText;
 			for(const auto & res : possibleRes)
-				resourceText.emplace_back(MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(res)->getNameTextID()).toString());
+				resourceText.emplace_back(MetaString::createFromTextID(res.toResource()->getNameTextID()).toString());
 			
 			ENGINE->windows().createAndPushWindow<StatisticSelector>(resourceText, [this, content, possibleRes](int index)
 			{
@@ -170,7 +170,7 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_RESOURCES:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.resources[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(res)->getNameTextID()).toString(), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(res.toResource()->getNameTextID()).toString(), plotData, icons, 0);
 	
 	case CHART_INCOME:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.income; });
@@ -194,7 +194,7 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_NUMBER_OF_MINES:
 		plotData = extractData(statistic, [res](StatisticDataSetEntry val) -> float { return val.numMines[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(res)->getNameTextID()).toString(), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(res.toResource()->getNameTextID()).toString(), plotData, icons, 0);
 	
 	case CHART_ARMY_STRENGTH:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.armyStrength; });
@@ -206,11 +206,11 @@ std::shared_ptr<CIntObject> CStatisticScreen::getContent(Content c, EGameResID r
 	
 	case CHART_RESOURCES_SPENT_ARMY:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.spentResourcesForArmy[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(res)->getNameTextID()).toString(), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(res.toResource()->getNameTextID()).toString(), plotData, icons, 0);
 	
 	case CHART_RESOURCES_SPENT_BUILDINGS:
 		plotData = extractData(statistic, [res](const StatisticDataSetEntry & val) -> float { return val.spentResourcesForBuildings[res]; });
-		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(res)->getNameTextID()).toString(), plotData, icons, 0);
+		return std::make_shared<LineChart>(contentArea.resize(-5), LIBRARY->generaltexth->translate(std::get<0>(contentInfo[c])) + " - " + MetaString::createFromTextID(res.toResource()->getNameTextID()).toString(), plotData, icons, 0);
 	
 	case CHART_MAP_EXPLORED:
 		plotData = extractData(statistic, [](const StatisticDataSetEntry & val) -> float { return val.mapExploredRatio; });
@@ -331,43 +331,43 @@ OverviewPanel::OverviewPanel(Rect position, std::string title, const StatisticDa
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::GOLD)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::GOLD).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::GOLD]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::WOOD)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::WOOD).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::WOOD]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::MERCURY)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::MERCURY).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::MERCURY]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::ORE)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::ORE).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::ORE]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::SULFUR)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::SULFUR).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::SULFUR]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::CRYSTAL)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::CRYSTAL).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::CRYSTAL]);
 			}
 		},
 		{
-			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(LIBRARY->resourceTypeHandler->getById(EGameResID::GEMS)->getNameTextID()).toString(), [this](PlayerColor color){
+			LIBRARY->generaltexth->translate("vcmi.statisticWindow.param.tradeVolume") + " - " + MetaString::createFromTextID(GameResID(EGameResID::GEMS).toResource()->getNameTextID()).toString(), [this](PlayerColor color){
 				auto val = playerDataFilter(color).back();
 				return std::to_string(val.tradeVolume[EGameResID::GEMS]);
 			}

@@ -60,6 +60,7 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+	const ResourceTypeService * resources() const override;
 #if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
 #endif
