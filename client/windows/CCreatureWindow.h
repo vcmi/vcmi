@@ -32,6 +32,7 @@ class CArtPlace;
 class CCommanderArtPlace;
 class LRClickableArea;
 class GraphicalPrimitiveCanvas;
+class CFilledTexture;
 
 class CCommanderSkillIcon : public LRClickableAreaWText //TODO: maybe bring commander skill button initialization logic inside?
 {
@@ -158,6 +159,8 @@ class CStackWindow : public CWindowObject
 	public:
 		MainSection(CStackWindow * owner, int yOffset, bool showExp, bool showArt);
 	};
+
+	std::shared_ptr<CFilledTexture> background;
 
 	std::shared_ptr<CArtPlace> stackArtifact;
 	std::shared_ptr<CButton> stackArtifactButton;

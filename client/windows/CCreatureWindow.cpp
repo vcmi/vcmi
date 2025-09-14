@@ -18,6 +18,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CComponentHolder.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/ObjectLists.h"
@@ -831,6 +832,8 @@ void CStackWindow::init()
 {
 	OBJECT_CONSTRUCTION;
 
+	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+
 	if(!info->stackNode)
 	{
 		fakeNode = std::make_unique<CStackInstance>(nullptr, info->creature->getId(), 1, true);
@@ -846,6 +849,8 @@ void CStackWindow::init()
 
 	initBonusesList();
 	initSections();
+
+	background->pos = pos;
 }
 
 void CStackWindow::initBonusesList()
