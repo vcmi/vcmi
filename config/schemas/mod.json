@@ -303,6 +303,10 @@
 			"description" : "List of configuration files for terrains",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"resources" : {
+			"description" : "List of configuration files for resources",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"roads" : {
 			"description" : "List of configuration files for roads",
 			"$ref" : "#/definitions/fileListOrObject"

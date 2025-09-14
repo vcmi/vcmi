@@ -31,6 +31,7 @@ class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
+class ResourceTypeHandler;
 class RoadTypeHandler;
 class RiverTypeHandler;
 class ObstacleHandler;
@@ -90,6 +91,7 @@ public:
 	std::unique_ptr<CGeneralTextHandler> generaltexth;
 	std::unique_ptr<CModHandler> modh;
 	std::unique_ptr<TerrainTypeHandler> terrainTypeHandler;
+	std::unique_ptr<ResourceTypeHandler> resourceTypeHandler;
 	std::unique_ptr<RoadTypeHandler> roadTypeHandler;
 	std::unique_ptr<RiverTypeHandler> riverTypeHandler;
 	std::unique_ptr<CIdentifierStorage> identifiersHandler;

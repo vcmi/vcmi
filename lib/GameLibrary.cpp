@@ -25,6 +25,7 @@
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "campaign/CampaignRegionsHandler.h"
 #include "mapping/MapFormatSettings.h"
@@ -171,6 +172,7 @@ void GameLibrary::initializeLibrary()
 
 	createHandler(generaltexth);
 	createHandler(bth);
+	createHandler(resourceTypeHandler);
 	createHandler(roadTypeHandler);
 	createHandler(riverTypeHandler);
 	createHandler(terrainTypeHandler);

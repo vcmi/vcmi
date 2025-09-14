@@ -12,6 +12,8 @@
 #include "CObjectHandler.h"
 
 #include "CGObjectInstance.h"
+#include "../GameLibrary.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../filesystem/ResourcePath.h"
 #include "../json/JsonNode.h"
 
@@ -20,10 +22,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 CObjectHandler::CObjectHandler()
 {
 	logGlobal->trace("\t\tReading resources prices ");
-	const JsonNode config2(JsonPath::builtin("config/resources.json"));
-	for(const JsonNode &price : config2["resources_prices"].Vector())
+	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		resVals.push_back(static_cast<ui32>(price.Float()));
+		auto resType = LIBRARY->resourceTypeHandler->getById(res);
+		resVals[res] = static_cast<ui32>(resType->getPrice());
 	}
 	logGlobal->trace("\t\tDone loading resource prices!");
 }
