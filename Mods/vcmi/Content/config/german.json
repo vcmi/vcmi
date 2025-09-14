@@ -1084,5 +1084,6 @@
 	"resources.core.sulfur.name" : "Schwefel",
 	"resources.core.crystal.name" : "Kristall",
 	"resources.core.gems.name" : "Edelsteine",
-	"resources.core.gold.name" : "Gold"
+	"resources.core.gold.name" : "Gold",
+	"resources.core.mithril.name" : "Mithril"
 }
