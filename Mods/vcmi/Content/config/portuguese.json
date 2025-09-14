@@ -645,7 +645,7 @@
 	"creatures.core.azureDragon.bonus.fearful" : "{Medo}\nUnidades inimigas têm 10% de chance de congelar de medo",
 	"creatures.core.azureDragon.bonus.fearless" : "{Destemido}\nImune à habilidade Medo",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ataques Adicionais}\nA unidade pode atacar {$val} vezes adicionais",
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ataques Adicionais}\nA unidade pode atacar ${val} vezes adicionais",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Contra-ataques Adicionais}\nA unidade pode contra-atacar ${val} vezes extras",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Ataque em Área}\nAtaca todos os inimigos adjacentes além do alvo principal",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Evita Contra-ataques à Distância}\nO inimigo não pode contra-atacar usando um ataque à distância",

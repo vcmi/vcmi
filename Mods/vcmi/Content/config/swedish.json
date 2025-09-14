@@ -953,7 +953,7 @@
 	"creatures.core.azureDragon.bonus.fearful"           : "{Skräckinjagande}\nInjagar skräck/rädsla hos fiendetrupper.",
 	"creatures.core.azureDragon.bonus.fearless"          : "{Orädd}\nImmun mot rädsla/skräck.",
 
-	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ytterligare attacker}\nEnheten kan attackera ytterligare {$val} gång(er).",
+	"core.bonus.ADDITIONAL_ATTACK.description" : "{Ytterligare attacker}\nEnheten kan attackera ytterligare ${val} gång(er).",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Ytterligare motattacker}\nKan slå tillbaka ${val} extra gång(er).",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Attackera runtomkring}\nAttackerar alla angränsande fiender.",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Stoppa avståndsretaliering}\nFienden kan inte retaliera på avstånd.",
