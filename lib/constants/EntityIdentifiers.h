@@ -1079,8 +1079,6 @@ public:
 	static si32 decode(const std::string & identifier);
 	static std::string encode(const si32 index);
 	static std::string entityType();
-
-	static const std::array<GameResID, 7> & ALL_RESOURCES();
 };
 
 class DLL_LINKAGE BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>

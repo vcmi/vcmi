@@ -25,6 +25,7 @@
 #include "../networkPacks/StackLocation.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -630,7 +631,7 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 	if(!resources.empty())
 	{
 		gameEvents.giveResources(h->tempOwner, resources);
-		for(const auto & res : GameResID::ALL_RESOURCES())
+		for(const auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if(resources[res] > 0)
 				iw.components.emplace_back(ComponentType::RESOURCE, res, resources[res]);

@@ -61,6 +61,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 
 static bool useCompactCreatureBox()
@@ -1795,7 +1796,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	//Create components for all required resources
 	std::vector<std::shared_ptr<CComponent>> components;
 
-	for(GameResID i : GameResID::ALL_RESOURCES())
+	for(GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(building->resources[i])
 		{

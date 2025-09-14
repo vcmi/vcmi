@@ -18,6 +18,7 @@
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
@@ -143,7 +144,7 @@ ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
 
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	result[producedResource] += defaultResProduction();
@@ -872,7 +873,7 @@ const IOwnableObject * CGGarrison::asOwnable() const
 ResourceSet CGGarrison::dailyIncome() const
 {
 	ResourceSet result;
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	return result;

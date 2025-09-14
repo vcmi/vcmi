@@ -22,6 +22,7 @@
 #include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
@@ -233,7 +234,7 @@ void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text
 	if(mission.resources.nonZero())
 	{
 		MetaString loot;
-		for(auto i : GameResID::ALL_RESOURCES())
+		for(auto i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if(mission.resources[i])
 			{

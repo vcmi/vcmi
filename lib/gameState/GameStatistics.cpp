@@ -24,6 +24,7 @@
 #include "../entities/building/CBuilding.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonUpdater.h"
+#include "../entities/ResourceTypeHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -403,7 +404,7 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 {
 	std::map<EGameResID, int> tmp;
 
-	for(auto & res : EGameResID::ALL_RESOURCES())
+	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 		tmp[res] = 0;
 
 	for(const auto * object : ps->getOwnedObjects())

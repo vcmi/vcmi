@@ -38,6 +38,7 @@
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
@@ -1816,7 +1817,7 @@ ResourceSet CGHeroInstance::dailyIncome() const
 {
 	ResourceSet income;
 
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		income[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());
