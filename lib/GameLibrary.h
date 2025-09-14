@@ -20,7 +20,6 @@ class CHeroClassHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
-class CObjectHandler;
 class CObjectClassesHandler;
 class ObstacleSetHandler;
 class CTownHandler;
@@ -84,8 +83,6 @@ public:
 	std::unique_ptr<CSpellHandler> spellh;
 	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
 	std::unique_ptr<CSkillHandler> skillh;
-	// TODO: Remove ObjectHandler altogether?
-	std::unique_ptr<CObjectHandler> objh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;
 	std::unique_ptr<CGeneralTextHandler> generaltexth;

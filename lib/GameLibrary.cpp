@@ -37,7 +37,6 @@
 #include "filesystem/Filesystem.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
@@ -182,7 +181,6 @@ void GameLibrary::initializeLibrary()
 	createHandler(creh);
 	createHandler(townh);
 	createHandler(biomeHandler);
-	createHandler(objh);
 	createHandler(objtypeh);
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);
