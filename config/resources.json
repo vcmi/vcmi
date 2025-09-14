@@ -46,12 +46,5 @@
 		"name": "Gold",
 		"price": 1
 
-	},
-	
-	"mithril": {
-		"index" : 7,
-		"name": "Mithril",
-		"price": 0
-
 	}
 }

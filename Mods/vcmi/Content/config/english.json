@@ -1091,6 +1091,5 @@
 	"resources.core.sulfur.name" : "Sulfur",
 	"resources.core.crystal.name" : "Crystal",
 	"resources.core.gems.name" : "Gems",
-	"resources.core.gold.name" : "Gold",
-	"resources.core.mithril.name" : "Mithril"
+	"resources.core.gold.name" : "Gold"
 }
