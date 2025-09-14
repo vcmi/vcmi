@@ -239,7 +239,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			JsonNode node;
 			for(const auto & resID : abandonedMineResources)
-				node.Vector().emplace_back(GameConstants::RESOURCE_NAMES[resID.getNum()]);
+				node.Vector().emplace_back(LIBRARY->resourceTypeHandler->getById(resID)->getJsonKey());
 
 			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
@@ -252,7 +252,10 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			for(const std::string & s : names)
 			{
-				int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
+				std::vector<std::string> resNames;
+				for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
+					resNames.push_back(LIBRARY->resourceTypeHandler->getById(res)->getJsonKey());
+				int raw_res = vstd::find_pos(resNames, s);
 				if(raw_res < 0)
 					logGlobal->error("Invalid resource name: %s", s);
 				else

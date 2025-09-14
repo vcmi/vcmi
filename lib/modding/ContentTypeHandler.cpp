@@ -243,28 +243,29 @@ void ContentTypeHandler::afterLoadFinalization()
 
 void CContentHandler::init()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
-	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
-	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
-	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
+	handlers.push_back(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources"))); // needs to loaded first because needed by other handlers
+
+	handlers.push_back(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
+	handlers.push_back(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
+	handlers.push_back(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
+	handlers.push_back(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
+	handlers.push_back(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
+	handlers.push_back(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
+	handlers.push_back(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
+	handlers.push_back(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
+	handlers.push_back(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
+	handlers.push_back(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
+	handlers.push_back(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
+	handlers.push_back(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
 #if SCRIPTING_ENABLED
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptHandler.get(), "script")));
+	handlers.push_back(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptHandler.get(), "script")));
 #endif
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(LIBRARY->battlefieldsHandler.get(), "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(LIBRARY->terrainTypeHandler.get(), "terrain")));
-	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(LIBRARY->riverTypeHandler.get(), "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
-	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
+	handlers.push_back(std::make_pair("battlefields", ContentTypeHandler(LIBRARY->battlefieldsHandler.get(), "battlefield")));
+	handlers.push_back(std::make_pair("terrains", ContentTypeHandler(LIBRARY->terrainTypeHandler.get(), "terrain")));
+	handlers.push_back(std::make_pair("rivers", ContentTypeHandler(LIBRARY->riverTypeHandler.get(), "river")));
+	handlers.push_back(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
+	handlers.push_back(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
+	handlers.push_back(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
 }
 
 bool CContentHandler::preloadData(const ModDescription & mod, bool validate)
@@ -309,7 +310,15 @@ void CContentHandler::afterLoadFinalization()
 
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
 {
-	return handlers.at(name);
+	auto it = std::find_if(handlers.begin(), handlers.end(), [&name](const auto& pair)
+	{
+		return pair.first == name;
+	});
+
+	if (it != handlers.end()) {
+		return it->second;
+	}
+	throw std::out_of_range("Handler not found for name: " + name);
 }
 
 VCMI_LIB_NAMESPACE_END

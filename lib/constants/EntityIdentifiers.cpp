@@ -37,6 +37,7 @@
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "entities/hero/CHeroClass.h"
+#include "entities/ResourceTypeHandler.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"
@@ -628,7 +629,7 @@ si32 GameResID::decode(const std::string & identifier)
 
 std::string GameResID::encode(const si32 index)
 {
-	return GameConstants::RESOURCE_NAMES[index];
+	return LIBRARY->resourceTypeHandler->getById(index)->getJsonKey();
 }
 
 si32 BuildingTypeUniqueID::decode(const std::string & identifier)

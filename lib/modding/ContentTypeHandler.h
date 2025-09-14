@@ -50,7 +50,7 @@ public:
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
-	std::map<std::string, ContentTypeHandler> handlers;
+	std::vector<std::pair<std::string, ContentTypeHandler>> handlers;
 
 public:
 	void init();

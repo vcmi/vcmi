@@ -30,10 +30,12 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: shortcuts(shortcuts)
@@ -286,7 +288,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		const auto & node = input[GameConstants::RESOURCE_NAMES[i]];
+		const auto & node = input[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()];
 
 		if(node.isNull())
 			continue;

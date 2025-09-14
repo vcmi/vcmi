@@ -18,6 +18,8 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 static const int FIRST_DAY_FOR_EVENT = 1;
 static const int LAST_DAY_FOR_EVENT = 999;
@@ -91,7 +93,7 @@ void TownEventDialog::initResources()
 		item->setText(name);
 		ui->resourcesTable->setItem(i, 0, item);
 
-		int val = resourcesMap.value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
+		int val = resourcesMap.value(QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey())).toInt();
 		auto * edit = new QSpinBox(ui->resourcesTable);
 		edit->setMaximum(i == GameResID::GOLD ? MAXIMUM_GOLD_CHANGE : MAXIMUM_RESOURCE_CHANGE);
 		edit->setMinimum(i == GameResID::GOLD ? -MAXIMUM_GOLD_CHANGE : -MAXIMUM_RESOURCE_CHANGE);
@@ -230,7 +232,7 @@ QVariantMap TownEventDialog::resourcesToVariant()
 	auto res = params.value("resources").toMap();
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		auto itemType = QString::fromStdString(LIBRARY->resourceTypeHandler->getById(i)->getJsonKey());
 		auto * itemQty = static_cast<QSpinBox *> (ui->resourcesTable->cellWidget(i, 1));
 
 		res[itemType] = QVariant::fromValue(itemQty->value());

@@ -107,7 +107,7 @@ void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto zonesData = handler.enterStruct("numMines");
 		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], numMines[idx], 0);
+			handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), numMines[idx], 0);
 	}
 	handler.serializeInt("score", score);
 	handler.serializeInt("maxHeroLevel", maxHeroLevel);
@@ -192,15 +192,15 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 	ss << "EventDefeatedStrongestHero" << sep;
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource];
+		ss << sep << LIBRARY->resourceTypeHandler->getById(resource)->getJsonKey();
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "Mines";
+		ss << sep << LIBRARY->resourceTypeHandler->getById(resource)->getJsonKey() + "Mines";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
+		ss << sep << LIBRARY->resourceTypeHandler->getById(resource)->getJsonKey() + "SpentResourcesForArmy";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
+		ss << sep << LIBRARY->resourceTypeHandler->getById(resource)->getJsonKey() + "SpentResourcesForBuildings";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
+		ss << sep << LIBRARY->resourceTypeHandler->getById(resource)->getJsonKey() + "TradeVolume";
 	ss << "\r\n";
 
 	for(auto & entry : data)

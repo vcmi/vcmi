@@ -28,6 +28,7 @@
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/hero/CHero.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../mapObjects/IObjectInterface.h"
@@ -300,7 +301,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 
 		for (size_t i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		{
-			ret[i] = loadValue(value[GameConstants::RESOURCE_NAMES[i]], variables);
+			ret[i] = loadValue(value[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()], variables);
 		}
 		return ret;
 	}

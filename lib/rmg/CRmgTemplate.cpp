@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
 
@@ -536,7 +537,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
 		{
-			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mines[idx], 0);
+			handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), mines[idx], 0);
 		}
 	}
 

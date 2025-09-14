@@ -23,7 +23,7 @@ ResourceSet::ResourceSet() = default;
 ResourceSet::ResourceSet(const JsonNode & node)
 {
 	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
-		container[i] = static_cast<int>(node[GameConstants::RESOURCE_NAMES[i]].Float());
+		container[i] = static_cast<int>(node[LIBRARY->resourceTypeHandler->getById(i)->getJsonKey()].Float());
 }
 
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
@@ -34,7 +34,7 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 
 	//TODO: add proper support for mithril to map format
 	for(int idx = 0; idx < GameConstants::RESOURCE_QUANTITY - 1; idx ++)
-		handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], this->operator[](idx), 0);
+		handler.serializeInt(LIBRARY->resourceTypeHandler->getById(idx)->getJsonKey(), this->operator[](idx), 0);
 }
 
 bool ResourceSet::nonZero() const
