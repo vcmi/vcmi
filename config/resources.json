@@ -36,6 +36,7 @@
 
 	"mithril": {
 		"index" : 7,
+		"name" : "Mithril",
 		"price": 0
 	}
 }
