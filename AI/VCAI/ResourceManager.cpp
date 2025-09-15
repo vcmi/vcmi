@@ -323,7 +323,7 @@ TResources ResourceManager::freeResources() const
 	myRes -= reservedResources(); //subtract the value of reserved goals
 
 	for (auto & val : myRes)
-		vstd::amax(val, 0); //never negative
+		vstd::amax(val.second, 0); //never negative
 
 	return myRes;
 }

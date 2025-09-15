@@ -26,7 +26,7 @@ class ResourceSet;
 class ResourceSet
 {
 private:
-	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container = {};
+	std::map<GameResID, TResource> container = {};
 public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
@@ -37,7 +37,7 @@ public:
 	ResourceSet& operator OPSIGN ## =(const TResource &rhs) \
 	{														\
 		for(auto i = 0; i < container.size(); i++)						\
-			container.at(i) OPSIGN ## = rhs;						\
+			container[GameResID(i)] OPSIGN ## = rhs;						\
 															\
 		return *this;											\
 	}
@@ -46,7 +46,7 @@ public:
 	ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 	{															\
 		for(auto i = 0; i < container.size(); i++)							\
-			container.at(i) OPSIGN ## = rhs[i];						\
+			container[GameResID(i)] OPSIGN ## = rhs[i];						\
 																\
 		return *this;												\
 	}
@@ -94,18 +94,18 @@ public:
 
 	TResource & operator[](size_t index)
 	{
-		return container.at(index);
+		return container[GameResID(index)];
 	}
 
 	const TResource & operator[](size_t index) const 
 	{
-		return container.at(index);
+		return container.at(GameResID(index));
 	}
 
 	bool empty () const
 	{
 		for(const auto & res : *this)
-			if(res)
+			if(res.second)
 				return false;
 
 		return true;
@@ -143,7 +143,7 @@ public:
 		int ret = INT_MAX;
 		for(int i = 0; i < container.size(); i++)
 			if(rhs[i])
-				vstd::amin(ret, container.at(i) / rhs[i]);
+				vstd::amin(ret, container[GameResID(i)] / rhs[i]);
 
 		return ret;
 	}
@@ -153,14 +153,14 @@ public:
 		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
 
 		for (size_t i = 0; i < container.size(); ++i) {
-			if (container.at(i) > 0) { // We only care about fulfilling positive needs
+			if (container[GameResID(i)] > 0) { // We only care about fulfilling positive needs
 				if (availableFunds[i] == 0) {
 					// If income is 0 and we need a positive amount, it's impossible to fulfill
 					return INT_MAX;
 				}
 				else {
 					// Calculate the number of times we need to accumulate income to fulfill the need
-					int ceiledResult = vstd::divideAndCeil(container.at(i), availableFunds[i]);
+					int ceiledResult = vstd::divideAndCeil(container[GameResID(i)], availableFunds[i]);
 					ret = std::max(ret, ceiledResult);
 				}
 			}
@@ -170,8 +170,8 @@ public:
 
 	ResourceSet & operator=(const TResource &rhs)
 	{
-		for(int & i : container)
-			i = rhs;
+		for(auto & i : container)
+			i.second = rhs;
 
 		return *this;
 	}
@@ -180,7 +180,7 @@ public:
 	{
 		ResourceSet ret;
 		for(int i = 0; i < container.size(); i++)
-			ret[i] = -container.at(i);
+			ret[i] = -container.at(GameResID(i));
 		return ret;
 	}
 
