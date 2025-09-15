@@ -21,11 +21,32 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/GameConstants.h"
 
+namespace
+{
 const int tileSize = 32;
 
-static bool objectBlitOrderSorter(const ObjectRect & a, const ObjectRect & b)
+bool objectBlitOrderSorter(const ObjectRect & a, const ObjectRect & b)
 {
 	return MapHandler::compareObjectBlitOrder(a.obj, b.obj);
+}
+
+QImage flippedImage(const std::shared_ptr<QImage> & image, ui8 rotationFlags)
+{
+	const ui8 rotation = rotationFlags % 4;
+	const bool hflip = rotation & 0b01;
+	const bool vflip = rotation & 0b10;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+	Qt::Orientations orientations;
+	if(hflip)
+		orientations |= Qt::Horizontal;
+	if(vflip)
+		orientations |= Qt::Vertical;
+	return image->flipped(orientations);
+#else
+	return image->mirrored(hflip, vflip);
+#endif
+}
 }
 
 int MapHandler::index(int x, int y, int z) const
@@ -61,12 +82,12 @@ void MapHandler::initTerrainGraphics()
 			animation[type.first]->preload();
 			const size_t views = animation[type.first]->size(0);
 			cache[type.first].resize(views);
-			
+
 			for(int j = 0; j < views; j++)
 				cache[type.first][j] = animation[type.first]->getImage(j);
 		}
 	};
-	
+
 	std::map<std::string, std::string> terrainFiles;
 	std::map<std::string, std::string> roadFiles;
 	std::map<std::string, std::string> riverFiles;
@@ -82,7 +103,7 @@ void MapHandler::initTerrainGraphics()
 	{
 		roadFiles[road->getJsonKey()] = road->tilesFilename.getName();
 	}
-	
+
 	loadFlipped(terrainAnimations, terrainImages, terrainFiles);
 	loadFlipped(riverAnimations, riverImages, riverFiles);
 	loadFlipped(roadAnimations, roadImages, roadFiles);
@@ -90,69 +111,58 @@ void MapHandler::initTerrainGraphics()
 
 void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
 {
-	auto & tinfo = map->getTile(int3(x, y, z));
-	ui8 rotation = tinfo.extTileFlags % 4;
-	
+	const auto & tinfo = map->getTile(int3(x, y, z));
+
 	auto terrainName = tinfo.getTerrain()->getJsonKey();
-	
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
-	
-	bool hflip = (rotation == 1 || rotation == 3);
-	bool vflip = (rotation == 2 || rotation == 3);
-	painter.drawImage(x * tileSize, y * tileSize, terrainImages.at(terrainName)[tinfo.terView]->mirrored(hflip, vflip));
+
+	painter.drawImage(x * tileSize, y * tileSize, flippedImage(terrainImages.at(terrainName)[tinfo.terView], tinfo.extTileFlags));
 }
 
 void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 {
-	auto & tinfo = map->getTile(int3(x, y, z));
+	const auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
-	
+
 	if(tinfoUpper && tinfoUpper->roadType)
 	{
 		auto roadName = tinfoUpper->getRoad()->getJsonKey();
-		QRect source(0, tileSize / 2, tileSize, tileSize / 2);
-		ui8 rotation = (tinfoUpper->extTileFlags >> 4) % 4;
-		bool hflip = (rotation == 1 || rotation == 3);
-		bool vflip = (rotation == 2 || rotation == 3);
 		if(roadImages.at(roadName).size() > tinfoUpper->roadDir)
 		{
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), roadImages.at(roadName)[tinfoUpper->roadDir]->mirrored(hflip, vflip), source);
+			const QRect source{0, tileSize / 2, tileSize, tileSize / 2};
+			const ui8 rotationFlags = tinfoUpper->extTileFlags >> 4;
+			painter.drawImage(QPoint(x * tileSize, y * tileSize), flippedImage(roadImages.at(roadName)[tinfoUpper->roadDir], rotationFlags), source);
 		}
 	}
-	
+
 	if(tinfo.roadType) //print road from this tile
 	{
 		auto roadName = tinfo.getRoad()->getJsonKey();
-		QRect source(0, 0, tileSize, tileSize / 2);
-		ui8 rotation = (tinfo.extTileFlags >> 4) % 4;
-		bool hflip = (rotation == 1 || rotation == 3);
-		bool vflip = (rotation == 2 || rotation == 3);
 		if(roadImages.at(roadName).size() > tinfo.roadDir)
 		{
-			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), roadImages.at(roadName)[tinfo.roadDir]->mirrored(hflip, vflip), source);
+			const QRect source{0, 0, tileSize, tileSize / 2};
+			const ui8 rotationFlags = tinfo.extTileFlags >> 4;
+			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), flippedImage(roadImages.at(roadName)[tinfo.roadDir], rotationFlags), source);
 		}
 	}
 }
 
 void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 {
-	auto & tinfo = map->getTile(int3(x, y, z));
+	const auto & tinfo = map->getTile(int3(x, y, z));
 
 	if(!tinfo.hasRiver())
 		return;
-	
+
 	//TODO: use ui8 instead of string key
 	auto riverName = tinfo.getRiver()->getJsonKey();
 
 	if(riverImages.at(riverName).size() <= tinfo.riverDir)
 		return;
 
-	ui8 rotation = (tinfo.extTileFlags >> 2) % 4;
-	bool hflip = (rotation == 1 || rotation == 3);
-	bool vflip = (rotation == 2 || rotation == 3);
-
-	painter.drawImage(x * tileSize, y * tileSize, riverImages.at(riverName)[tinfo.riverDir]->mirrored(hflip, vflip));
+	const ui8 rotationFlags = tinfo.extTileFlags >> 2;
+	painter.drawImage(x * tileSize, y * tileSize, flippedImage(riverImages.at(riverName)[tinfo.riverDir], rotationFlags));
 }
 
 void setPlayerColor(QImage * sur, PlayerColor player)
@@ -179,24 +189,24 @@ std::shared_ptr<QImage> MapHandler::getObjectImage(const CGObjectInstance * obj)
 	{
 		return nullptr;
 	}
-	
+
 	std::shared_ptr<Animation> animation = graphics->getAnimation(obj);
-	
+
 	//no animation at all
 	if(!animation)
 		return nullptr;
-	
+
 	//empty animation
 	if(animation->size(0) == 0)
 		return nullptr;
-	
+
 	auto image = animation->getImage(0, obj->ID == Obj::HERO ? 2 : 0);
 	if(!image)
 	{
 		//workaround for prisons
 		image = animation->getImage(0, 0);
 	}
-	
+
 	return image;
 }
 
@@ -215,7 +225,7 @@ std::set<int3> MapHandler::removeObject(const CGObjectInstance *object)
 			}
 		}
 	}
-	
+
 	tilesCache.erase(object);
 	return result;
 }
@@ -225,7 +235,7 @@ std::set<int3> MapHandler::addObject(const CGObjectInstance * object)
 	auto image = getObjectImage(object);
 	if(!image)
 		return std::set<int3>{};
-	
+
 	for(int fx = 0; fx < object->getWidth(); ++fx)
 	{
 		for(int fy = 0; fy < object->getHeight(); ++fy)
@@ -235,7 +245,7 @@ std::set<int3> MapHandler::addObject(const CGObjectInstance * object)
 					 image->height() - fy * tileSize - tileSize,
 					 tileSize,
 					 tileSize);
-							
+
 			if( map->isInTheMap(currTile) && // within map
 			   cr.x() + cr.width() > 0 &&    // image has data on this tile
 			   cr.y() + cr.height() > 0)
@@ -245,7 +255,7 @@ std::set<int3> MapHandler::addObject(const CGObjectInstance * object)
 			}
 		}
 	}
-	
+
 	return tilesCache[object];
 }
 
@@ -255,15 +265,15 @@ void MapHandler::initObjectRects()
 	tilesCache.clear();
 	if(!map)
 		return;
-	
+
 	tileObjects.resize(map->width * map->height * map->mapLevels);
-	
+
 	//initializing objects / rects
 	for(const auto & elem : map->objects)
 	{
 		addObject(elem.get());
 	}
-	
+
 	for(auto & tt : tileObjects)
 		stable_sort(tt.begin(), tt.end(), objectBlitOrderSorter);
 }
@@ -276,15 +286,15 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 		return false;
 	if (a->appearance->printPriority != b->appearance->printPriority)
 		return a->appearance->printPriority > b->appearance->printPriority;
-	
+
 	if(a->pos.y != b->pos.y)
 		return a->pos.y < b->pos.y;
-	
+
 	if(b->ID == Obj::HERO && a->ID != Obj::HERO)
 		return true;
 	if(b->ID != Obj::HERO && a->ID == Obj::HERO)
 		return false;
-	
+
 	if(!a->isVisitable() && b->isVisitable())
 		return true;
 	if(!b->isVisitable() && a->isVisitable())
@@ -295,8 +305,8 @@ bool MapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObje
 }
 
 ObjectRect::ObjectRect(const CGObjectInstance * obj_, QRect rect_)
-: obj(obj_),
-rect(rect_)
+	: obj(obj_)
+	, rect(rect_)
 {
 }
 
@@ -308,7 +318,7 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmap(const CGHeroInstance * hero, 
 {
 	if(!hero || hero->inBoat())
 		return std::shared_ptr<QImage>();
-	
+
 	return findFlagBitmapInternal(graphics->heroFlagAnimations.at(color.getNum()), anim, group, hero->moveDir, true);
 }
 
@@ -317,7 +327,7 @@ std::shared_ptr<QImage> MapHandler::findFlagBitmapInternal(std::shared_ptr<Anima
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
 		return nullptr;
-	
+
 	if(moving)
 		return animation->getImage(anim % groupSize, group);
 	else
@@ -334,15 +344,15 @@ MapHandler::BitmapHolder MapHandler::findObjectBitmap(const CGObjectInstance * o
 	size_t groupSize = animation->size(group);
 	if(groupSize == 0)
 		return MapHandler::BitmapHolder();
-	
+
 	animation->playerColored(obj->tempOwner);
 	auto bitmap = animation->getImage(anim % groupSize, group);
-	
+
 	if(!bitmap)
 		return MapHandler::BitmapHolder();
 
 	setPlayerColor(bitmap.get(), obj->tempOwner);
-	
+
 	return MapHandler::BitmapHolder(bitmap);
 }
 
@@ -375,7 +385,7 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std:
 		auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
 		if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
 			objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
-		
+
 		if(objData.objBitmap)
 		{
 			auto pos = obj->anchorPos();
@@ -411,11 +421,11 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 	auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
 	if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
 		objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
-	
+
 	if (objData.objBitmap)
 	{
 		painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.objBitmap);
-		
+
 		if (objData.flagBitmap)
 			painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.flagBitmap);
 	}
@@ -428,7 +438,7 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 	{
 		if(!object.obj->getBlockedPos().count(int3(x, y, z)))
 			continue;
-		
+
 		PlayerColor player = object.obj->getOwner();
 		if(player == PlayerColor::NEUTRAL)
 			return graphics->neutralColor;
@@ -436,15 +446,15 @@ QRgb MapHandler::getTileColor(int x, int y, int z)
 			if (player.isValidPlayer())
 				return graphics->playerColors[player.getNum()];
 	}
-	
+
 	// else - use terrain color (blocked version or normal)
-	
+
 	auto & tile = map->getTile(int3(x, y, z));
-	
+
 	auto color = tile.getTerrain()->minimapUnblocked;
 	if (tile.blocked() && (!tile.visitable()))
 		color = tile.getTerrain()->minimapBlocked;
-	
+
 	return qRgb(color.r, color.g, color.b);
 }
 
@@ -459,10 +469,10 @@ std::set<int3> MapHandler::invalidate(const CGObjectInstance * obj)
 	auto t1 = removeObject(obj);
 	auto t2 = addObject(obj);
 	t1.insert(t2.begin(), t2.end());
-	
+
 	for(auto & tt : t2)
 		stable_sort(tileObjects[index(tt)].begin(), tileObjects[index(tt)].end(), objectBlitOrderSorter);
-	
+
 	return t1;
 }
 
