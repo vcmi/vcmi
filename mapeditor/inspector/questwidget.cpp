@@ -44,9 +44,6 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		if(i == EGameResID::MITHRIL)
-			continue;
-
 		MetaString str;
 		str.appendName(GameResID(i));
 		auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
@@ -459,8 +456,6 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	QStringList resourcesList;
 	for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
 	{
-		if(resource == GameResID::MITHRIL)
-			continue;
 		if(quest.mission.resources[resource] == 0)
 			continue;
 		MetaString str;

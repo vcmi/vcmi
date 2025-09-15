@@ -34,10 +34,6 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 
 	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		//TODO: add proper support for mithril to map format
-		if(idx == EGameResID::MITHRIL)
-			continue;
-
 		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
 	}
 }

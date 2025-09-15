@@ -57,8 +57,6 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
-	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
-
 	parser.endLine();
 
 	return ret;

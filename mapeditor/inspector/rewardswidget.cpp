@@ -60,9 +60,6 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		if(i == EGameResID::MITHRIL)
-			continue;
-
 		MetaString str;
 		str.appendName(GameResID(i));
 		for(auto * w : {ui->rResources, ui->lResources})
@@ -783,8 +780,6 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		QStringList resourcesList;
 		for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
 		{
-			if(resource == GameResID::MITHRIL)
-				continue; // translated as "Abandoned"?
 			if(vinfo.reward.resources[resource] == 0)
 				continue;
 			MetaString str;

@@ -107,8 +107,7 @@ void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
 	{
 		auto zonesData = handler.enterStruct("numMines");
 		for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
-			if(idx != GameResID::MITHRIL)
-				handler.serializeInt(idx.toResource()->getJsonKey(), numMines[idx], 0);
+			handler.serializeInt(idx.toResource()->getJsonKey(), numMines[idx], 0);
 	}
 	handler.serializeInt("score", score);
 	handler.serializeInt("maxHeroLevel", maxHeroLevel);
