@@ -99,7 +99,12 @@ public:
 
 	const TResource & operator[](size_t index) const 
 	{
-		return container.at(GameResID(index));
+		auto it = container.find(GameResID(index));
+		if (it != container.end())
+			return it->second;
+			
+		static const TResource default_resource{};
+		return default_resource;
 	}
 
 	bool empty () const

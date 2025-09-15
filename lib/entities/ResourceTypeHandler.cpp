@@ -65,7 +65,7 @@ std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & 
 
 const std::vector<std::string> & ResourceTypeHandler::getTypeNames() const
 {
-	static const std::vector<std::string> types = { "resources" };
+	static const std::vector<std::string> types = { "resource" };
 	return types;
 }
 
