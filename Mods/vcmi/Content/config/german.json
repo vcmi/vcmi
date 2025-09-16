@@ -1076,7 +1076,5 @@
 	"spellSchool.core.air.name" : "Luft",
 	"spellSchool.core.earth.name" : "Erde",
 	"spellSchool.core.fire.name" : "Feuer",
-	"spellSchool.core.water.name" : "Wasser",
-
-	"resources.core.mithril.name" : "Mithril"
+	"spellSchool.core.water.name" : "Wasser"
 }

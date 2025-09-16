@@ -568,7 +568,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		data["name"]["plural"].String() =  parser.readString();
 
-		for(int v=0; v<7; ++v)
+		for(int v=0; v<GameConstants::RESOURCE_QUANTITY; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
 		data["fightValue"].Float() = parser.readNumber();

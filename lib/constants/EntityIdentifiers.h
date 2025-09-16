@@ -1064,7 +1064,6 @@ public:
 		CRYSTAL,
 		GEMS,
 		GOLD,
-		MITHRIL,
 		COUNT,
 
 		WOOD_AND_ORE = -4,  // special case for town bonus resource

@@ -162,8 +162,6 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 				return GEM;
 			case EGameResID::GOLD:
 				return GOLD;
-			case EGameResID::MITHRIL:
-				return MITHRIL;
 			}
 		}
 		}
