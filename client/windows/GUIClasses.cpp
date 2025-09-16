@@ -46,6 +46,7 @@
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -830,7 +831,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(LIBRARY->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	build->addCallback(onBuy);
 
-	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(cost[i] > GAME->interface()->cb->getResourceAmount(i))
 		{

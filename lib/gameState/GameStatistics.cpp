@@ -159,7 +159,7 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 {
 	std::stringstream ss;
 
-	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS}; //todo: configurable resource support
 
 	ss << "Map" << sep;
 	ss << "Timestamp" << sep;

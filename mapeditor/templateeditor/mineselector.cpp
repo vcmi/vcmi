@@ -18,7 +18,7 @@
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
 
-auto resourcesToShow = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+auto resourcesToShow = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS}; //todo: configurable resource support
 
 MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	ui(new Ui::MineSelector),

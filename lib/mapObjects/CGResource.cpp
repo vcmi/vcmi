@@ -61,7 +61,7 @@ void CGResource::pickRandomObject(IGameRandomizer & gameRandomizer)
 	if (ID == Obj::RANDOM_RESOURCE)
 	{
 		ID = Obj::RESOURCE;
-		subID = gameRandomizer.getDefault().nextInt(EGameResID::WOOD, EGameResID::GOLD);
+		subID = gameRandomizer.getDefault().nextInt(EGameResID::WOOD, EGameResID::GOLD); //todo: configurable resource support
 		setType(ID, subID);
 
 		amount *= getAmountMultiplier();
