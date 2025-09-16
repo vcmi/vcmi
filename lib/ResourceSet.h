@@ -31,6 +31,7 @@ public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
 	DLL_LINKAGE ResourceSet();
+	DLL_LINKAGE ResourceSet(const ResourceSet& rhs);
 
 
 #define scalarOperator(OPSIGN)									\
@@ -176,6 +177,15 @@ public:
 		for(int & i : container)
 			i = rhs;
 
+		return *this;
+	}
+
+	ResourceSet& operator=(const ResourceSet& rhs)
+	{
+		if (this != &rhs)
+		{
+			container = rhs.container;
+		}
 		return *this;
 	}
 

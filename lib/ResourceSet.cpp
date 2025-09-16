@@ -30,6 +30,11 @@ ResourceSet::ResourceSet(const JsonNode & node)
 		container[i] = static_cast<int>(node[i.toResource()->getJsonKey()].Float());
 }
 
+ResourceSet::ResourceSet(const ResourceSet& rhs)
+	: container(rhs.container) // vector copy constructor
+{
+}
+
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
 {
 	if(handler.saving && !nonZero())
@@ -37,9 +42,7 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 	auto s = handler.enterStruct(fieldName);
 
 	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
-	{
 		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
-}
 }
 
 bool ResourceSet::nonZero() const
