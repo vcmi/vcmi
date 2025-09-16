@@ -39,9 +39,9 @@ void Resource::registerIcons(const IconRegistar & cb) const
 
 std::vector<JsonNode> ResourceTypeHandler::loadLegacyData()
 {
-	objects.resize(8);
+	objects.resize(GameConstants::RESOURCE_QUANTITY);
 
-	return std::vector<JsonNode>(8, JsonNode(JsonMap()));
+	return std::vector<JsonNode>(GameConstants::RESOURCE_QUANTITY, JsonNode(JsonMap()));
 }
 
 std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)

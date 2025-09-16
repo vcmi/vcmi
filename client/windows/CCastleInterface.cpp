@@ -1798,7 +1798,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	for(GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		if(building->resources[i] || i == GameResID(8))
+		if(building->resources[i])
 		{
 			MetaString message;
 			int resourceAmount = GAME->interface()->cb->getResourceAmount(i);
