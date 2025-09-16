@@ -807,7 +807,10 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 			{
 				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
 				assert(!vstd::contains(sortedValidMods, *it));
-				sortedValidMods.push_back(*it);
+				if(storage.getMod(*it).getValue("modType").String() == "Resources") // Resources needs to load before core to make it possible to override core elements with new resources
+					sortedValidMods.insert(sortedValidMods.begin(), *it);
+				else
+					sortedValidMods.push_back(*it);
 				it = modsToResolve.erase(it);
 				continue;
 			}
