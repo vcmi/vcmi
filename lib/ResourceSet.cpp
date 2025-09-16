@@ -18,7 +18,11 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ResourceSet::ResourceSet() = default;
+ResourceSet::ResourceSet()
+{
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+		container[i] = 0;
+}
 
 ResourceSet::ResourceSet(const JsonNode & node)
 {

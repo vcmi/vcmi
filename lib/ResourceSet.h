@@ -45,7 +45,7 @@ public:
 #define vectorOperator(OPSIGN)										\
 	ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 	{															\
-		for(auto i = 0; i < container.size(); i++)							\
+		for(auto i = 0; i < rhs.size(); i++)							\
 			container[GameResID(i)] OPSIGN ## = rhs[i];						\
 																\
 		return *this;												\
