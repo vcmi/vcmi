@@ -18,10 +18,14 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-ResourceSet::ResourceSet() = default;
+ResourceSet::ResourceSet()
+{
+	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
+};
 
 ResourceSet::ResourceSet(const JsonNode & node)
 {
+	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		container[i] = static_cast<int>(node[i.toResource()->getJsonKey()].Float());
 }
@@ -35,13 +39,13 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
-	}
+}
 }
 
 bool ResourceSet::nonZero() const
 {
 	for(const auto & elem : *this)
-		if(elem.second)
+		if(elem)
 			return true;
 
 	return false;
@@ -50,28 +54,28 @@ bool ResourceSet::nonZero() const
 void ResourceSet::amax(const TResourceCap &val)
 {
 	for(auto & elem : *this)
-		vstd::amax(elem.second, val);
+		vstd::amax(elem, val);
 }
 
 void ResourceSet::amin(const TResourceCap &val)
 {
 	for(auto & elem : *this)
-		vstd::amin(elem.second, val);
+		vstd::amin(elem, val);
 }
 
 void ResourceSet::positive()
 {
 	for(auto & elem : *this)
-		vstd::amax(elem.second, 0);
+		vstd::amax(elem, 0);
 }
 
 void ResourceSet::applyHandicap(int percentage)
 {
 	for(auto & elem : *this)
 	{
-		int64_t newAmount = vstd::divideAndCeil(static_cast<int64_t>(elem.second) * percentage, 100);
+		int64_t newAmount = vstd::divideAndCeil(static_cast<int64_t>(elem) * percentage, 100);
 		int64_t cap = GameConstants::PLAYER_RESOURCES_CAP;
-		elem.second = std::min(cap, newAmount);
+		elem = std::min(cap, newAmount);
 	}
 }
 
@@ -108,7 +112,7 @@ std::string ResourceSet::toString() const
 	out << "[";
 	for(auto it = begin(); it != end(); ++it)
 	{
-		out << (*it).second;
+		out << *it;
 		if(std::prev(end()) != it) out << ", ";
 	}
 	out << "]";

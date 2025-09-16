@@ -26,7 +26,7 @@ class ResourceSet;
 class ResourceSet
 {
 private:
-	std::map<GameResID, TResource> container = {};
+	std::vector<TResource> container = {};
 public:
 	// read resources set from json. Format example: { "gold": 500, "wood":5 }
 	DLL_LINKAGE ResourceSet(const JsonNode & node);
@@ -37,7 +37,7 @@ public:
 	ResourceSet& operator OPSIGN ## =(const TResource &rhs) \
 	{														\
 		for(auto i = 0; i < container.size(); i++)						\
-			container[GameResID(i)] OPSIGN ## = rhs;						\
+			container.at(i) OPSIGN ## = rhs;						\
 															\
 		return *this;											\
 	}
@@ -45,8 +45,8 @@ public:
 #define vectorOperator(OPSIGN)										\
 	ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 	{															\
-		for(auto i = 0; i < rhs.size(); i++)							\
-			container[GameResID(i)] OPSIGN ## = rhs[i];						\
+		for(auto i = 0; i < container.size(); i++)							\
+			container.at(i) OPSIGN ## = rhs[i];						\
 																\
 		return *this;												\
 	}
@@ -94,23 +94,21 @@ public:
 
 	TResource & operator[](size_t index)
 	{
-		return container[GameResID(index)];
+		return container.at(index);
 	}
 
 	const TResource & operator[](size_t index) const 
 	{
-		auto it = container.find(GameResID(index));
-		if (it != container.end())
-			return it->second;
-			
-		static const TResource default_resource{};
-		return default_resource;
+		if(index >= container.size())
+			logGlobal->error("Try to access resource which is not existing! Maybe new resources in mod not marked as modType=Resources?");
+
+		return container.at(index);
 	}
 
 	bool empty () const
 	{
 		for(const auto & res : *this)
-			if(res.second)
+			if(res)
 				return false;
 
 		return true;
@@ -148,7 +146,7 @@ public:
 		int ret = INT_MAX;
 		for(int i = 0; i < container.size(); i++)
 			if(rhs[i])
-				vstd::amin(ret, container[GameResID(i)] / rhs[i]);
+				vstd::amin(ret, container.at(i) / rhs[i]);
 
 		return ret;
 	}
@@ -158,14 +156,14 @@ public:
 		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
 
 		for (size_t i = 0; i < container.size(); ++i) {
-			if (container[GameResID(i)] > 0) { // We only care about fulfilling positive needs
+			if (container.at(i) > 0) { // We only care about fulfilling positive needs
 				if (availableFunds[i] == 0) {
 					// If income is 0 and we need a positive amount, it's impossible to fulfill
 					return INT_MAX;
 				}
 				else {
 					// Calculate the number of times we need to accumulate income to fulfill the need
-					int ceiledResult = vstd::divideAndCeil(container[GameResID(i)], availableFunds[i]);
+					int ceiledResult = vstd::divideAndCeil(container.at(i), availableFunds[i]);
 					ret = std::max(ret, ceiledResult);
 				}
 			}
@@ -175,8 +173,8 @@ public:
 
 	ResourceSet & operator=(const TResource &rhs)
 	{
-		for(auto & i : container)
-			i.second = rhs;
+		for(int & i : container)
+			i = rhs;
 
 		return *this;
 	}
@@ -185,7 +183,7 @@ public:
 	{
 		ResourceSet ret;
 		for(int i = 0; i < container.size(); i++)
-			ret[i] = -container.at(GameResID(i));
+			ret[i] = -container.at(i);
 		return ret;
 	}
 
