@@ -124,7 +124,7 @@ std::string ResourceSet::toString() const
 
 bool ResourceSet::nziterator::valid() const
 {
-	return cur.resType < GameResID::COUNT && cur.resVal;
+	return static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && cur.resVal;
 }
 
 ResourceSet::nziterator ResourceSet::nziterator::operator++()
@@ -155,9 +155,9 @@ void ResourceSet::nziterator::advance()
 	do
 	{
 		++cur.resType;
-	} while(cur.resType < GameResID::COUNT && !(cur.resVal=rs[cur.resType]));
+	} while(static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && !(cur.resVal=rs[cur.resType]));
 
-	if(cur.resType >= GameResID::COUNT)
+	if(static_cast<int>(cur.resType) >= LIBRARY->resourceTypeHandler->getAllObjects().size())
 		cur.resVal = -1;
 }
 
