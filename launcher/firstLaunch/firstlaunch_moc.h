@@ -41,6 +41,9 @@ class FirstLaunchView : public QWidget
 	void heroesDataDetected();
 
 	QString getHeroesInstallDir();
+    QString setGameDataPath();
+    QString moveGameDataDir(QString previousPath, QString currentPath);
+
 	void extractGogData();
 	void extractGogDataAsync(QString filePathBin, QString filePathExe);
 	void copyHeroesData(const QString & path = {}, bool move = false);
@@ -75,8 +78,8 @@ private slots:
 	void on_pushButtonDataNext_clicked();
 	void on_pushButtonDataBack_clicked();
 
+    void on_pushButtonDataBrowse_clicked();
 	void on_pushButtonDataSearch_clicked();
-
 	void on_pushButtonDataCopy_clicked();
 
 	void on_pushButtonGogInstall_clicked();

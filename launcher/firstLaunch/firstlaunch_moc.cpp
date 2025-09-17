@@ -112,6 +112,13 @@ void FirstLaunchView::on_pushButtonDataBack_clicked()
 	activateTabLanguage();
 }
 
+void FirstLaunchView::on_pushButtonDataBrowse_clicked()
+{
+    setGameDataPath();
+
+    return;
+}
+
 void FirstLaunchView::on_pushButtonDataSearch_clicked()
 {
 	heroesDataUpdate();
@@ -315,6 +322,59 @@ QString FirstLaunchView::getHeroesInstallDir()
 	}
 #endif
 	return QString{};
+}
+
+/*!
+ * \brief FirstLaunchView::moveGameDataDir - move existing game data files from one location to another.
+ * \param previousPath - previously set path.
+ * \param currentPath - desired path.
+ * \return path to the game data directory.
+ * \return empty string if parent directory is set as read-only or as immutable.
+ */
+QString FirstLaunchView::moveGameDataDir(QString previousPath, QString currentPath)
+{
+    //
+    // Requested directory can either be read-only or immutable.
+    //
+    if(QFileInfo(currentPath).exists() && !QFileInfo(currentPath).isWritable())
+    {
+        return QString();
+    }
+
+    QDir().rename(previousPath, currentPath);
+
+    return currentPath;
+}
+
+/*!
+ * \brief FirstLaunchView::setGameDataPath - set a path to the game data files.
+ * \return a path to the game data files.
+ * \return empty string if nothing was selected in the directory browser window.
+ * \return empty string on directory transfer failure.
+ */
+QString FirstLaunchView::setGameDataPath()
+{
+    const QString previousPath = FirstLaunchView::ui->lineEditDataUser->text();
+
+    QString currentPath = QFileDialog().getExistingDirectory();
+
+    if(currentPath.isEmpty())
+    {
+        return QString();
+    }
+
+    currentPath.append("/vcmi");
+
+    const QString dataDirTransferResult = FirstLaunchView::moveGameDataDir(previousPath, currentPath);
+
+    if(dataDirTransferResult.isEmpty())
+    {
+        return QString();
+    }
+
+    FirstLaunchView::ui->lineEditDataUser->setText(currentPath);
+
+    return currentPath;
 }
 
 void FirstLaunchView::extractGogData()
