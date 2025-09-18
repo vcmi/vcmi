@@ -32,6 +32,7 @@
 #include "../render/CAnimation.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
+#include "../mainmenu/CCampaignScreen.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
@@ -256,8 +257,15 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		if(tabType == ESelectionScreen::campaignList)
 		{
-			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{ 
-				showCampaignSetWindow();
+			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{
+				std::vector<std::string> names;
+				for (auto const & set : campaignSets.Struct())
+					names.push_back(set.first);
+				ENGINE->windows().createAndPushWindow<CampaignSetSelector>(std::vector<std::string>(names), [this, names](int index)
+				{
+					(static_cast<CLobbyScreen *>(parent))->close();
+					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, names[index]);
+				});
 			}, EShortcut::LOBBY_CAMPAIGN_SETS);
 			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);
 		}
@@ -1134,7 +1142,32 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	labelName->setColor(color);
 }
 
-void SelectionTab::showCampaignSetWindow()
+CampaignSetSelector::CampaignSetSelector(const std::vector<std::string> & texts, const std::function<void(int selectedIndex)> & cb)
+	: CWindowObject(BORDERED), texts(texts), cb(cb)
 {
+	OBJECT_CONSTRUCTION;
+	pos = center(Rect(0, 0, 128 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
+	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	filledBackground->setPlayerColor(PlayerColor(1));
 
+	slider = std::make_shared<CSlider>(Point(pos.w - 16, 0), pos.h, [this](int to){ update(to); redraw(); }, LINES, texts.size(), 0, Orientation::VERTICAL, CSlider::BLUE);
+	slider->setPanningStep(40);
+	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, pos.h));
+
+	update(0);
+}
+
+void CampaignSetSelector::update(int to)
+{
+	OBJECT_CONSTRUCTION;
+	buttons.clear();
+	for(int i = to; i < LINES + to; i++)
+	{
+		if(i>=texts.size())
+			continue;
+
+		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
+		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
+		buttons.emplace_back(button);
+	}
 }
