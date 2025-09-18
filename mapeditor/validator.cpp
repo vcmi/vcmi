@@ -79,6 +79,8 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 		//checking all objects in the map
 		for(auto o : map->objects)
 		{
+			if(!o)
+				continue;
 			//owners for objects
 			if(o->getOwner() == PlayerColor::UNFLAGGABLE)
 			{

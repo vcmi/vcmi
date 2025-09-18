@@ -742,6 +742,8 @@ ModCompatibilityInfo MapController::modAssessmentMap(const CMap & map)
 
 	for(auto obj : map.objects)
 	{
+		if(!obj)
+			continue;
 		modAssessmentObject(obj.get(), result);
 	}
 	return result;

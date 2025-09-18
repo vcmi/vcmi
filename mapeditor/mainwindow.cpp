@@ -618,6 +618,9 @@ void MainWindow::saveMap()
 
 	for(auto obj : controller.map()->objects)
 	{
+		if(!obj)
+			continue;
+
 		if(obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			auto hero = dynamic_cast<CGHeroPlaceholder *>(obj.get());
