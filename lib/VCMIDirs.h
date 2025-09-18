@@ -14,7 +14,17 @@ VCMI_LIB_NAMESPACE_BEGIN
 class DLL_LINKAGE IVCMIDirs
 {
 public:
-	// Path to user-specific data directory
+    /*!
+     * \brief boost::checkUserDataPointer - check the current status of user data pointer file and resolve all the issues that might've occurred during validation.
+     * \return false on failed validation.
+     * \return true on successful validation.
+     */
+    virtual bool validateUsrDataPtr(boost::filesystem::path homeDir) const = 0;
+
+    /*!
+    * \brief VCMIDirsXDG::userDataPath - locate game data files directory.
+    * \return path to the game data files directory.
+    */
 	virtual boost::filesystem::path userDataPath() const = 0;
 
 	// Path to "cache" directory, can be used for any non-essential files

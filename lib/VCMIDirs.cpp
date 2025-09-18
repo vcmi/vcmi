@@ -523,6 +523,7 @@ std::string VCMIDirsPM::libraryName(const std::string& basename) const { return 
 class VCMIDirsXDG : public IVCMIDirsUNIX
 {
 public:
+    bool validateUsrDataPtr(bfs::path homeDir) const override;
 	bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userConfigPath() const override;
@@ -535,34 +536,43 @@ public:
 	std::string libraryName(const std::string& basename) const override;
 };
 
-/*!
- * \brief VCMIDirsXDG::userDataPath - locate game data files directory.
- * \return path to the game data files directory.
- */
-bfs::path VCMIDirsXDG::userDataPath() const
+bool VCMIDirsXDG::validateUsrDataPtr(bfs::path homeDir) const
 {
-    const char *homeDir = getenv("HOME");
-    const std::string dataPointerFileName = ".vcmi";
-    const bfs::path dataPointerPath = bfs::path(homeDir) / dataPointerFileName ;
+    const std::string usrDataPtrFileName = ".vcmi";
+    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
+    const bfs::path usrDataPath = bfs::path(homeDir) / ".local" / "share" / "vcmi";
 
     //
     // By default, the max length of a file path is 4096 characters, as shown in /usr/include/linux/limits.h or equivalent.
     //
-    if(!bfs::exists(dataPointerPath) || bfs::file_size(dataPointerPath) <= 0 || bfs::file_size(dataPointerPath) >= 4096)
+    if(!bfs::exists(usrDataPtrPath) || bfs::file_size(usrDataPtrPath) <= 0 || bfs::file_size(usrDataPtrPath) >= 4096)
     {
-        std::ofstream vcmiDataPointerFile = std::ofstream(dataPointerPath);
+        std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
 
-        vcmiDataPointerFile << (bfs::path(homeDir) / ".local" / "share" / "vcmi").string();
+        vcmiDataPointerFile << (usrDataPath).string();
         vcmiDataPointerFile.close();
+
+        return false;
     }
 
-    std::string dataPointerContents = std::string();
-    std::ifstream dataPointerFile = std::ifstream(dataPointerPath);
+    return true;
+}
 
-    dataPointerFile >> dataPointerContents;
-    dataPointerFile.close();
+bfs::path VCMIDirsXDG::userDataPath() const
+{
+    const char *homeDir = getenv("HOME");
+    const std::string usrDataPtrFileName = ".vcmi";
+    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
 
-    return bfs::path(dataPointerContents);
+    validateUsrDataPtr(bfs::path(homeDir));
+
+    std::string usrDataPtrContents = std::string();
+    std::ifstream usrDataPtrFile = std::ifstream(usrDataPtrPath);
+
+    usrDataPtrFile >> usrDataPtrContents;
+    usrDataPtrFile.close();
+
+    return bfs::path(usrDataPtrContents);
 }
 bfs::path VCMIDirsXDG::userCachePath() const
 {
