@@ -835,6 +835,9 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "Simzüge: 1 Woche, Kontakte block.",
 	"vcmi.optionsTab.simturns.blocked2"       : "Simzüge: 2 Wochen, Kontakte block.",
 	"vcmi.optionsTab.simturns.blocked4"       : "Simzüge: 1 Monat, Kontakte block.",
+
+	"vcmi.campaignSet.chronicles" : "Chronicles",
+	"vcmi.campaignSet.hota" : "Horn of the Abyss",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount

@@ -2,6 +2,7 @@
 	"roe" :
 	{
 		"index" : 0,
+		"text" : "core.genrltxt.762",
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBACK"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
@@ -18,6 +19,7 @@
 	"ab" :
 	{
 		"index" : 1,
+		"text" : "core.genrltxt.745",
 		"images" :
 		[
 			{"x": 0,   "y": 0,   "name":"CampaignBackground6"},
@@ -37,6 +39,7 @@
 	"sod":
 	{
 		"index" : 2,
+		"text" : "core.genrltxt.746",
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBKX2"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
@@ -53,6 +56,7 @@
 	"chr":
 	{
 		"index" : 3,
+		"text" : "vcmi.campaignSet.chronicles",
 		"images" : [ {"x": 0, "y": 0, "name":"CampaignBackground8"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":

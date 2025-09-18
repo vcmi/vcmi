@@ -267,10 +267,10 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 							oneCampaignExists = true;
 
 					if(oneCampaignExists)
-						namesWithIndex.push_back({set.second["index"].isNull() ? std::numeric_limits<si64>::max() : set.second["index"].Integer(), { set.first, set.first + " translation" }});
+						namesWithIndex.push_back({set.second["index"].isNull() ? std::numeric_limits<si64>::max() : set.second["index"].Integer(), { set.first, set.second["text"].isNull() ? set.first : LIBRARY->generaltexth->translate(set.second["text"].String()) }});
 				}
 
-				std::sort(namesWithIndex.begin(), namesWithIndex.end(), [](const std::pair<int, std::pair<std::string, std::string>>& a, const std::pair<int, std::pair<std::string, std::string>>& b)
+				std::sort(namesWithIndex.begin(), namesWithIndex.end(), [](const std::pair<si64, std::pair<std::string, std::string>>& a, const std::pair<si64, std::pair<std::string, std::string>>& b)
 				{
 					if (a.first != b.first) return a.first < b.first;
 					return a.second.second < b.second.second;
@@ -1169,7 +1169,7 @@ CampaignSetSelector::CampaignSetSelector(const std::vector<std::string> & texts,
 	: CWindowObject(BORDERED), texts(texts), cb(cb)
 {
 	OBJECT_CONSTRUCTION;
-	pos = center(Rect(0, 0, 128 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
+	pos = center(Rect(0, 0, 200 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
 
@@ -1189,7 +1189,7 @@ void CampaignSetSelector::update(int to)
 		if(i>=texts.size())
 			continue;
 
-		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
+		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUTT"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
 		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
 		buttons.emplace_back(button);
 	}
