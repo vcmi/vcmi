@@ -258,13 +258,36 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		if(tabType == ESelectionScreen::campaignList)
 		{
 			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{
-				std::vector<std::string> names;
+				std::vector<std::pair<si64, std::pair<std::string, std::string>>> namesWithIndex;
 				for (auto const & set : campaignSets.Struct())
-					names.push_back(set.first);
-				ENGINE->windows().createAndPushWindow<CampaignSetSelector>(std::vector<std::string>(names), [this, names](int index)
 				{
+					bool oneCampaignExists = false;
+					for (auto const & item : set.second["items"].Vector())
+						if(CResourceHandler::get()->existsResource(ResourcePath(item["file"].String(), EResType::CAMPAIGN)))
+							oneCampaignExists = true;
+
+					if(oneCampaignExists)
+						namesWithIndex.push_back({set.second["index"].isNull() ? std::numeric_limits<si64>::max() : set.second["index"].Integer(), { set.first, set.first + " translation" }});
+				}
+
+				std::sort(namesWithIndex.begin(), namesWithIndex.end(), [](const std::pair<int, std::pair<std::string, std::string>>& a, const std::pair<int, std::pair<std::string, std::string>>& b)
+				{
+					if (a.first != b.first) return a.first < b.first;
+					return a.second.second < b.second.second;
+				});
+
+				std::vector<std::string> namesIdentifier;
+				for (const auto& pair : namesWithIndex)
+					namesIdentifier.push_back(pair.second.first);
+				std::vector<std::string> namesTranslated;
+				for (const auto& pair : namesWithIndex)
+					namesTranslated.push_back(pair.second.second);
+
+				ENGINE->windows().createAndPushWindow<CampaignSetSelector>(namesTranslated, [this, namesIdentifier](int index)
+				{
+					GAME->server().sendClientDisconnecting();
 					(static_cast<CLobbyScreen *>(parent))->close();
-					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, names[index]);
+					ENGINE->windows().createAndPushWindow<CCampaignScreen>(campaignSets, namesIdentifier[index]);
 				});
 			}, EShortcut::LOBBY_CAMPAIGN_SETS);
 			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);

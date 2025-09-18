@@ -1,6 +1,7 @@
 {
 	"roe" :
 	{
+		"index" : 0,
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBACK"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
@@ -16,6 +17,7 @@
 	},
 	"ab" :
 	{
+		"index" : 1,
 		"images" :
 		[
 			{"x": 0,   "y": 0,   "name":"CampaignBackground6"},
@@ -34,6 +36,7 @@
 	},
 	"sod":
 	{
+		"index" : 2,
 		"images" : [ {"x": 0, "y": 0, "name":"CAMPBKX2"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
@@ -49,6 +52,7 @@
 	},
 	"chr":
 	{
+		"index" : 3,
 		"images" : [ {"x": 0, "y": 0, "name":"CampaignBackground8"} ],
 		"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN" },
 		"items":
