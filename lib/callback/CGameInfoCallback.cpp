@@ -394,7 +394,7 @@ bool CGameInfoCallback::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameInfoCallback::isVisible(int3 pos) const
 {
 	if (!getPlayerID().has_value())
-		return true; // weird, but we do have such calls
+		return gameState().getMap().isInTheMap(pos); // weird, but we do have such calls
 	return gameState().isVisibleFor(pos, *getPlayerID());
 }
 
