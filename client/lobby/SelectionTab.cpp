@@ -1189,7 +1189,7 @@ void CampaignSetSelector::update(int to)
 		if(i>=texts.size())
 			continue;
 
-		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPBUTT"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
+		auto button = std::make_shared<CToggleButton>(Point(0, 10 + (i - to) * 40), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this, i](bool on){ close(); cb(i); });
 		button->setTextOverlay(texts[i], EFonts::FONT_SMALL, Colors::WHITE);
 		buttons.emplace_back(button);
 	}
