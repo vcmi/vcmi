@@ -74,6 +74,8 @@ class SelectionTab : public CIntObject
 	std::shared_ptr<CAnimation> iconsLossCondition;
 
 	std::vector<std::shared_ptr<ListItem>> unSupportedSaves;
+
+	JsonNode campaignSets;
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
@@ -125,6 +127,9 @@ private:
 	std::shared_ptr<CButton> buttonDeleteMode;
 	bool deleteMode;
 
+	bool enableUiEnhancements;
+	std::shared_ptr<CButton> buttonCampaignSet;
+
 	auto checkSubfolder(std::string path);
 
 	bool isMapSupported(const CMapInfo & info);
@@ -132,6 +137,8 @@ private:
 	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);
 	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
 	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
+
+	void showCampaignSetWindow();
 
 	void handleUnsupportedSavegames(const std::vector<ResourcePath> & files);
 };

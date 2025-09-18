@@ -425,6 +425,7 @@
 	"vcmi.keyBindings.keyBinding.lobbySelectScenario": "Lobby select scenario",
 	"vcmi.keyBindings.keyBinding.lobbyToggleChat": "Lobby toggle chat",
 	"vcmi.keyBindings.keyBinding.lobbyTurnOptions": "Lobby turn options",
+	"vcmi.keyBindings.keyBinding.lobbyCampaignSets": "Lobby campaign sets",
 	"vcmi.keyBindings.keyBinding.mainMenuBack": "Main menu back",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaign": "Main menu campaign",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaignAb": "Main menu campaign ab",
@@ -847,6 +848,9 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d months",
 	"vcmi.optionsTab.simturns.months.1" : " %d month",
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
+
+	"vcmi.selectionTab.campaignSets.hover" : "Campaign sets",
+	"vcmi.selectionTab.campaignSets.help" : "Multiple campaigns bundeled as set",
 
 	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
 	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game",

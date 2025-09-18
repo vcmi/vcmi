@@ -154,14 +154,23 @@ static ESortBy getSortBySelectionScreen(ESelectionScreen Type)
 }
 
 SelectionTab::SelectionTab(ESelectionScreen Type)
-	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK), callOnSelect(nullptr), tabType(Type), selectionPos(0), sortModeAscending(true), inputNameRect{32, 539, 350, 20}, curFolder(""), currentMapSizeFilter(0), showRandom(false), deleteMode(false)
+	: CIntObject(LCLICK | SHOW_POPUP | KEYBOARD | DOUBLECLICK)
+	, callOnSelect(nullptr)
+	, tabType(Type)
+	, selectionPos(0)
+	, sortModeAscending(true)
+	, inputNameRect{32, 539, 350, 20}
+	, curFolder("")
+	, currentMapSizeFilter(0)
+	, showRandom(false)
+	, deleteMode(false)
+	, enableUiEnhancements(settings["general"]["enableUiEnhancements"].Bool())
+	, campaignSets(JsonUtils::assembleFromFiles("config/campaignSets.json"))
 {
 	OBJECT_CONSTRUCTION;
 		
 	generalSortingBy = getSortBySelectionScreen(tabType);
 	sortingBy = _format;
-
-	bool enableUiEnhancements = settings["general"]["enableUiEnhancements"].Bool();
 
 	if(tabType != ESelectionScreen::campaignList)
 	{
@@ -243,6 +252,14 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 			if(tabType == ESelectionScreen::newGame)
 				buttonDeleteMode->setEnabled(false);
+		}
+
+		if(tabType == ESelectionScreen::campaignList)
+		{
+			buttonCampaignSet = std::make_shared<CButton>(Point(262, 53), AnimationPath::builtin("GSPBUT2.DEF"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.help")), [this]{ 
+				showCampaignSetWindow();
+			}, EShortcut::LOBBY_CAMPAIGN_SETS);
+			buttonCampaignSet->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.selectionTab.campaignSets.hover"), FONT_SMALL, Colors::WHITE);
 		}
 	}
 
@@ -961,9 +978,6 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<ResourcePath> & 
 
 void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files)
 {
-	auto campaignSets = JsonUtils::assembleFromFiles("config/campaignSets.json");
-	auto mainmenu = JsonNode(JsonPath::builtin("config/mainmenu.json"));
-
 	allItems.reserve(files.size());
 	for(auto & file : files)
 	{
@@ -977,22 +991,13 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 			if(info->campaign)
 			{
 				// skip campaigns organized in sets
-				std::string foundInSet = "";
+				bool foundInSet = false;
 				for (auto const & set : campaignSets.Struct())
 					for (auto const & item : set.second["items"].Vector())
 						if(file.getName() == ResourcePath(item["file"].String()).getName())
-							foundInSet = set.first;
+							foundInSet = true;
 
-				// set has to be used in main menu
-				bool setInMainmenu = false;
-				if(!foundInSet.empty())
-					for (auto const & item : mainmenu["window"]["items"].Vector())
-						if(item["name"].String() == "campaign")
-							for (auto const & button : item["buttons"].Vector())
-								if(boost::algorithm::ends_with(boost::algorithm::to_lower_copy(button["command"].String()), boost::algorithm::to_lower_copy(foundInSet)))
-									setInMainmenu = true;
-
-				if(!setInMainmenu)
+				if(!foundInSet || !enableUiEnhancements)
 					allItems.push_back(info);
 			}
 		}
@@ -1127,4 +1132,9 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	}
 	labelName->setText(info->name);
 	labelName->setColor(color);
+}
+
+void SelectionTab::showCampaignSetWindow()
+{
+
 }
