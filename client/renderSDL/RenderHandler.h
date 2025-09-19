@@ -69,4 +69,5 @@ public:
 	void exportGeneratedAssets() override;
 
 	std::shared_ptr<AssetGenerator> getAssetGenerator() override;
+	void updateGeneratedAssets() override;
 };

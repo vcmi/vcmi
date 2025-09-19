@@ -55,4 +55,6 @@ public:
 	virtual void exportGeneratedAssets() = 0;
 
 	virtual std::shared_ptr<AssetGenerator> getAssetGenerator() = 0;
+
+	virtual void updateGeneratedAssets() = 0;
 };

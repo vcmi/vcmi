@@ -486,7 +486,7 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
 	assert(animationLayouts.empty());
 	assetGenerator->initialize();
-	animationLayouts = assetGenerator->generateAllAnimations();
+	updateGeneratedAssets();
 
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());
@@ -544,4 +544,9 @@ void RenderHandler::exportGeneratedAssets()
 std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 {
 	return assetGenerator;
+}
+
+void RenderHandler::updateGeneratedAssets()
+{
+	animationLayouts = assetGenerator->generateAllAnimations();
 }

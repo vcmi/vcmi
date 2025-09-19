@@ -160,6 +160,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & 
 		auto assetGenerator = ENGINE->renderHandler().getAssetGenerator();
 		auto layout = assetGenerator->createAdventureMapButton(ImagePath::fromJson(input["generateFromBaseImage"]), small);
 		assetGenerator->addAnimationFile(AnimationPath::builtin("SPRITES/" + input["image"].String()), layout);
+		ENGINE->renderHandler().updateGeneratedAssets();
 	}
 
 	auto button = std::make_shared<CButton>(position.topLeft(), image, help, 0, EShortcut::NONE, playerColored);
