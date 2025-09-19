@@ -540,8 +540,9 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 		auto clearButtonImg = createAdventureMapButtonClear(color, small);
 		for(int i = 0; i < 4; i++)
 		{
-			ImagePath spriteName = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + ".png");
-			ImagePath spriteNameColor = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + "-" + color.toString() + ".png");
+			std::string baseName = overlay.getOriginalName() + "Btn" + (small ? "Small" : "Big") + std::to_string(i);
+			ImagePath spriteName = ImagePath::builtin(baseName + ".png");
+			ImagePath spriteNameColor = ImagePath::builtin(baseName + "-" + color.toString() + ".png");
 
 			imageFiles[spriteNameColor] = [overlayCanvasImg, clearButtonImg, i, offs](){
 				auto newImg = ENGINE->renderHandler().createImage(clearButtonImg->dimensions(), CanvasScalingPolicy::IGNORE);
