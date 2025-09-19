@@ -540,3 +540,8 @@ void RenderHandler::exportGeneratedAssets()
 	for (const auto & entry : assetGenerator->generateAllImages())
 		entry.second->exportBitmap(VCMIDirs::get().userDataPath() / "Generated" / (entry.first.getOriginalName() + ".png"), nullptr);
 }
+
+std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
+{
+	return assetGenerator;
+}

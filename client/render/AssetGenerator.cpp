@@ -68,7 +68,7 @@ void AssetGenerator::initialize()
 	for(int i = 1; i < 9; i++)
 		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
 	
-	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"));
+	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"), true);
 
 	createPaletteShiftedSprites();
 }
@@ -94,6 +94,16 @@ std::map<ImagePath, std::shared_ptr<ISharedImage>> AssetGenerator::generateAllIm
 std::map<AnimationPath, AssetGenerator::AnimationLayoutMap> AssetGenerator::generateAllAnimations()
 {
 	return animationFiles;
+}
+
+void AssetGenerator::addImageFile(const ImagePath & path, ImageGenerationFunctor & img)
+{
+	imageFiles[path] = img;
+}
+
+void AssetGenerator::addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim)
+{
+	animationFiles[path] = anim;
 }
 
 AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground() const
@@ -467,30 +477,56 @@ void meanImage(AssetGenerator::CanvasPtr dst, std::vector<Canvas> & images)
 		}
 }
 
-AssetGenerator::CanvasPtr AssetGenerator::createAdventureMapButtonClear(const PlayerColor & player) const
+AssetGenerator::CanvasPtr AssetGenerator::createAdventureMapButtonClear(const PlayerColor & player, bool small) const
 {
-	auto imageNames = { "iam002", "iam003", "iam004", "iam005", "iam006", "iam007", "iam008", "iam009", "iam010", "iam011" };
-	std::vector<Canvas> images;
-
 	CanvasPtr dst = nullptr;
-	for(auto & imageName : imageNames)
+	if(small)
 	{
-		auto animation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin(imageName), EImageBlitMode::COLORKEY);
-		animation->playerColored(player);
-		auto image = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
-		if(!dst)
-			dst = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
-		Canvas canvas = image->getCanvas();	
-		canvas.draw(animation->getImage(2), Point(0, 0));
-		images.push_back(image->getCanvas());
-	}
+		auto imageNames = { "iam002", "iam003", "iam004", "iam005", "iam006", "iam007", "iam008", "iam009", "iam010", "iam011" };
+		std::vector<Canvas> images;
 
-	meanImage(dst, images);
+		for(auto & imageName : imageNames)
+		{
+			auto animation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin(imageName), EImageBlitMode::COLORKEY);
+			animation->playerColored(player);
+			auto image = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
+			if(!dst)
+				dst = ENGINE->renderHandler().createImage(animation->getImage(2)->dimensions(), CanvasScalingPolicy::IGNORE);
+			Canvas canvas = image->getCanvas();	
+			canvas.draw(animation->getImage(2), Point(0, 0));
+			images.push_back(image->getCanvas());
+		}
+
+		meanImage(dst, images);
+	}
+	else
+	{
+		auto animation = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("iam001"), EImageBlitMode::COLORKEY);
+		animation->playerColored(player);
+		auto image = animation->getImage(2);
+
+		dst = ENGINE->renderHandler().createImage(image->dimensions(), CanvasScalingPolicy::IGNORE);
+		Canvas canvas = dst->getCanvas();	
+		canvas.draw(image, Point(0, 0));
+
+		auto tmp = ENGINE->renderHandler().createImage(Point(5, 22), CanvasScalingPolicy::IGNORE);
+		std::vector<Canvas> meanImages;
+		auto tmpLeft = ENGINE->renderHandler().createImage(Point(5, 22), CanvasScalingPolicy::IGNORE);
+		tmpLeft->getCanvas().draw(image, Point(0, 0), Rect(18, 6, 5, 22));
+		meanImages.push_back(tmpLeft->getCanvas());
+		auto tmpRight = ENGINE->renderHandler().createImage(Point(5, 22), CanvasScalingPolicy::IGNORE);
+		tmpRight->getCanvas().draw(image, Point(0, 0), Rect(42, 6, 5, 22));
+		meanImages.push_back(tmpRight->getCanvas());
+		meanImage(tmp, meanImages);
+
+		for(int i = 0; i < 4; i++)
+			canvas.draw(tmp, Point(23 + i * 5, 6));
+	}
 
 	return dst;
 }
 
-AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(const ImagePath & overlay)
+AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(const ImagePath & overlay, bool small)
 {
 	std::shared_ptr<IImage> overlayImg = ENGINE->renderHandler().loadImage(ImageLocator(overlay, EImageBlitMode::OPAQUE));
 	auto overlayCanvasImg = ENGINE->renderHandler().createImage(overlayImg->dimensions(), CanvasScalingPolicy::IGNORE);
@@ -500,34 +536,35 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 	AnimationLayoutMap layout;
 	for (PlayerColor color(0); color < PlayerColor::PLAYER_LIMIT; ++color)
 	{
-		auto clearButtonImg = createAdventureMapButtonClear(color);
+		int offs = small ? 0 : 16;
+		auto clearButtonImg = createAdventureMapButtonClear(color, small);
 		for(int i = 0; i < 4; i++)
 		{
 			ImagePath spriteName = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + ".png");
 			ImagePath spriteNameColor = ImagePath::builtin(overlay.getOriginalName() + "Btn" + std::to_string(i) + "-" + color.toString() + ".png");
 
-			imageFiles[spriteNameColor] = [overlayCanvasImg, clearButtonImg, i](){
-				auto newImg = ENGINE->renderHandler().createImage(overlayCanvasImg->dimensions(), CanvasScalingPolicy::IGNORE);
+			imageFiles[spriteNameColor] = [overlayCanvasImg, clearButtonImg, i, offs](){
+				auto newImg = ENGINE->renderHandler().createImage(clearButtonImg->dimensions(), CanvasScalingPolicy::IGNORE);
 				auto canvas = newImg->getCanvas();
 				canvas.draw(clearButtonImg, Point(0, 0));
 				switch (i)
 				{
 				case 0:
-					canvas.draw(overlayCanvasImg, Point(0, 0));
+					canvas.draw(overlayCanvasImg, Point(offs, 0));
 					return newImg;
 				case 1:
 					canvas.draw(clearButtonImg, Point(1, 1));
-					canvas.draw(overlayCanvasImg, Point(1, 1));
+					canvas.draw(overlayCanvasImg, Point(offs + 1, 1));
 					canvas.drawLine(Point(0, 0), Point(newImg->width() - 1, 0), ColorRGBA(0, 0, 0), ColorRGBA(0, 0, 0));
 					canvas.drawLine(Point(0, 0), Point(0, newImg->height() - 1), ColorRGBA(0, 0, 0), ColorRGBA(0, 0, 0));
 					canvas.drawColorBlended(Rect(0, 0, newImg->width(), 4), ColorRGBA(0, 0, 0, 160));
 					canvas.drawColorBlended(Rect(0, 0, 4, newImg->height()), ColorRGBA(0, 0, 0, 160));
 					return newImg;
 				case 2:
-					canvas.drawTransparent(overlayCanvasImg->getCanvas(), Point(0, 0), 0.25);
+					canvas.drawTransparent(overlayCanvasImg->getCanvas(), Point(offs, 0), 0.25);
 					return newImg;
 				default:
-					canvas.draw(overlayCanvasImg, Point(0, 0));
+					canvas.draw(overlayCanvasImg, Point(offs, 0));
 					canvas.drawLine(Point(0, 0), Point(newImg->width() - 1, 0), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
 					canvas.drawLine(Point(newImg->width() - 1, 0), Point(newImg->width() - 1, newImg->height() - 1), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
 					canvas.drawLine(Point(newImg->width() - 1, newImg->height() - 1), Point(0, newImg->height() - 1), ColorRGBA(255, 255, 255), ColorRGBA(255, 255, 255));
