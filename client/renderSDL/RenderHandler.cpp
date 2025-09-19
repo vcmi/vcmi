@@ -548,5 +548,6 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 
 void RenderHandler::updateGeneratedAssets()
 {
-	animationLayouts = assetGenerator->generateAllAnimations();
+	for (const auto& [key, value] : assetGenerator->generateAllAnimations())
+        animationLayouts[key] = value;
 }
