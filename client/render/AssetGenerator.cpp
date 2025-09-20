@@ -52,6 +52,22 @@ void AssetGenerator::initialize()
 
 	imageFiles[ImagePath::builtin("SpelTabNone.png")] = [this](){ return createSpellTabNone();};
 
+	for (PlayerColor color(-1); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		for(int amount : { 8, 9 })
+		{
+			auto addResWindow = [this, amount, color](std::string baseName, CreateResourceWindowType type){
+				std::string name = baseName + "-R" + std::to_string(amount) + (color == -1 ? "" : "-" + color.toString());
+				imageFiles[ImagePath::builtin(name)] = [this, color, amount, type](){ return createResourceWindow(type, amount, std::max(PlayerColor(0), color)); };
+			};
+			addResWindow("TPMRKABS", CreateResourceWindowType::ARTIFACTS_BUYING);
+			addResWindow("TPMRKASS", CreateResourceWindowType::ARTIFACTS_SELLING);
+			addResWindow("TPMRKRES", CreateResourceWindowType::MARKET_RESOURCES);
+			addResWindow("TPMRKCRS", CreateResourceWindowType::FREELANCERS_GUILD);
+			addResWindow("TPMRKPTS", CreateResourceWindowType::TRANSFER_RESOURCES);
+		}
+	}
+
 	imageFiles[ImagePath::builtin("stackWindow/info-panel-0.png")] = [this](){ return createCreatureInfoPanel(2);};
 	imageFiles[ImagePath::builtin("stackWindow/info-panel-1.png")] = [this](){ return createCreatureInfoPanel(3);};
 	imageFiles[ImagePath::builtin("stackWindow/info-panel-2.png")] = [this](){ return createCreatureInfoPanel(4);};
@@ -605,6 +621,65 @@ AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmoun
 	{
 		canvas.drawColorBlended(rect, rectangleColorRed);
 		canvas.drawBorder(rect, borderColor);
+	}
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createResourceWindow(CreateResourceWindowType type, int count, PlayerColor color) const
+{
+	assert(count >= 8 && count <= 9);
+
+	const std::map<CreateResourceWindowType, ImagePath> files = {
+		{ ARTIFACTS_BUYING,   ImagePath::builtin("TPMRKABS") },
+		{ ARTIFACTS_SELLING,  ImagePath::builtin("TPMRKASS") },
+		{ MARKET_RESOURCES,   ImagePath::builtin("TPMRKRES") },
+		{ FREELANCERS_GUILD,  ImagePath::builtin("TPMRKCRS") },
+		{ TRANSFER_RESOURCES, ImagePath::builtin("TPMRKPTS") }
+	};
+
+	auto file = files.at(type);
+	auto locator = ImageLocator(file, EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> baseImg = ENGINE->renderHandler().loadImage(locator);
+	baseImg->playerColored(color);
+
+	auto image = ENGINE->renderHandler().createImage(baseImg->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(baseImg, Point(0, 0));
+
+	auto drawBox = [&canvas, &baseImg](bool left, bool one){
+		if(left)
+		{
+			canvas.draw(baseImg, Point(38, 339), Rect(121, 339, 71, 69));
+			if(!one)
+				canvas.draw(baseImg, Point(204, 339), Rect(121, 339, 71, 69));
+		}
+		else
+		{
+			canvas.draw(baseImg, Point(325, 339), Rect(408, 339, 71, 69));
+			if(!one)
+				canvas.draw(baseImg, Point(491, 339), Rect(408, 339, 71, 69));
+		}
+	};
+
+	switch (type)
+	{
+	case ARTIFACTS_BUYING:
+		drawBox(true, count == 8);
+		break;
+	case ARTIFACTS_SELLING:
+		drawBox(false, count == 8);
+		break;
+	case MARKET_RESOURCES:
+		drawBox(true, count == 8);
+		drawBox(false, count == 8);
+		break;
+	case FREELANCERS_GUILD:
+		drawBox(false, count == 8);
+		break;
+	case TRANSFER_RESOURCES:
+		drawBox(true, count == 8);
+		break;
 	}
 
 	return image;
