@@ -54,6 +54,10 @@ private:
 	CanvasPtr createChroniclesCampaignImages(int chronicle) const;
 	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
 	CanvasPtr createAdventureMapButtonClear(const PlayerColor & player) const;
+	CanvasPtr createCreatureInfoPanel(int boxesAmount) const;
+	enum CreatureInfoPanelElement{ BONUS_EFFECTS, SPELL_EFFECTS, BUTTON_PANEL, COMMANDER_BACKGROUND, COMMANDER_ABILITIES };
+	CanvasPtr createCreatureInfoPanelElement(CreatureInfoPanelElement element) const;
+	CanvasPtr createQuestWindow() const;
 	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay);
 
 	void createPaletteShiftedSprites();
