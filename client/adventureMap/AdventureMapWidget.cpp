@@ -320,14 +320,32 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildTexturePlayerColored(const 
 std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceAdditional(const JsonNode & input)
 {
 	OBJECT_CONSTRUCTION;
+
 	logGlobal->debug("Building widget ResourceAdditional");
 	Rect area = readTargetArea(input["area"]);
 	auto obj = std::make_shared<CIntObject>();
-	auto result = std::make_shared<CResDataBar>(ImagePath::builtin("ResBarElement"), area.topLeft());
-	result->setResourcePosition(GameResID::CRYSTAL, Point(35, 3));
-	addWidget("", result);
-	obj->addChild(result.get());
-	//auto area = std::make_shared<FilledTexturePlayerColored>(area)
+
+	int remainingSpace = area.w;
+	int resElementSize = 84;
+	int fitOffset = 2;
+	for (int i = 0; i < 15; i++) // TODO: Replace with resources
+	{
+		if(remainingSpace < resElementSize)
+			break;
+
+		auto res = std::make_shared<CResDataBar>(ImagePath::builtin("ResBarElement"), area.topRight() + Point(remainingSpace - area.w - resElementSize + fitOffset, 0));
+		res->setResourcePosition(GameResID::CRYSTAL, Point(35, 3)); // TODO: Replace with resource
+		addWidget("", res);
+		obj->addChild(res.get());
+
+		remainingSpace -= resElementSize;
+	}
+	
+	area.w = remainingSpace + fitOffset;
+	auto texture = std::make_shared<FilledTexturePlayerColored>(area);
+	addWidget("", texture);
+	obj->addChild(texture.get());
+
 	return obj;
 }
 
@@ -389,6 +407,8 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 
 		if (textureIndexed)
 			textureIndexed->setPlayerColor(player);
+
+		setPlayerChildren(entry, player);
 	}
 
 	redraw();
