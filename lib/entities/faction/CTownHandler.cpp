@@ -55,9 +55,7 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
-
-	parser.readNumber(); //note: will try to parse mithril -> needs mapping to resource from mithril mod
-
+	
 	parser.endLine();
 
 	return ret;

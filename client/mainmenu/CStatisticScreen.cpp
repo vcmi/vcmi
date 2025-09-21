@@ -77,7 +77,7 @@ void CStatisticScreen::onSelectButton()
 		else
 		{
 			auto content = static_cast<Content>(selectedIndex);
-			auto possibleRes = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+			auto possibleRes = LIBRARY->resourceTypeHandler->getAllObjects();
 			std::vector<std::string> resourceText;
 			for(const auto & res : possibleRes)
 				resourceText.emplace_back(res.toResource()->getNameTranslated());

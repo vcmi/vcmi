@@ -316,7 +316,7 @@ JsonRandom::JsonRandom(IGameInfoCallback * cb, IGameRandomizer & gameRandomizer)
 			GameResID::CRYSTAL,
 			GameResID::GEMS,
 			GameResID::GOLD
-		};
+		}; //todo: configurable resource support
 
 		std::set<GameResID> potentialPicks = filterKeys(value, defaultResources, variables);
 		GameResID resourceID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);

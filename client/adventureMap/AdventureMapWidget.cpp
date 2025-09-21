@@ -288,12 +288,12 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		const auto & node = input[GameResID(i).toResource()->getJsonKey()];
+		const auto & node = input[i.toResource()->getJsonKey()];
 
 		if(node.isNull())
 			continue;
 
-		result->setResourcePosition(GameResID(i), Point(node["x"].Integer(), node["y"].Integer()));
+		result->setResourcePosition(i, Point(node["x"].Integer(), node["y"].Integer()));
 	}
 
 	result->setDatePosition(Point(input["date"]["x"].Integer(), input["date"]["y"].Integer()));

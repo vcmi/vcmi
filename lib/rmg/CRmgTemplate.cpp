@@ -259,12 +259,12 @@ std::set<FactionID> ZoneOptions::getMonsterTypes() const
 	return vstd::difference(monsterTypes, bannedMonsters);
 }
 
-void ZoneOptions::setMinesInfo(const std::map<TResource, ui16> & value)
+void ZoneOptions::setMinesInfo(const std::map<GameResID, ui16> & value)
 {
 	mines = value;
 }
 
-std::map<TResource, ui16> ZoneOptions::getMinesInfo() const
+std::map<GameResID, ui16> ZoneOptions::getMinesInfo() const
 {
 	return mines;
 }
@@ -533,10 +533,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 
 	if((minesLikeZone == NO_ZONE) && (!handler.saving || !mines.empty()))
 	{
-		auto minesData = handler.enterStruct("mines");
-
-		for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
-			handler.serializeInt(idx.toResource()->getJsonKey(), mines[idx], 0);
+		handler.serializeIdMap<GameResID, ui16>("mines", mines);
 	}
 
 	handler.serializeStruct("customObjects", objectConfig);
