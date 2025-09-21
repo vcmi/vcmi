@@ -14,6 +14,8 @@
 
 #include "../../../lib/networkPacks/TradeItem.h"
 
+class CSlider;
+
 enum class EType
 {
 	RESOURCE, PLAYER, ARTIFACT_TYPE, CREATURE, ARTIFACT
@@ -68,21 +70,21 @@ public:
 
 class ResourcesPanel : public TradePanelBase
 {
-	const std::vector<GameResID> resourcesForTrade =
-	{
-		GameResID::WOOD, GameResID::MERCURY, GameResID::ORE,
-		GameResID::SULFUR, GameResID::CRYSTAL, GameResID::GEMS,
-		GameResID::GOLD
-	};
 	const std::vector<Point> slotsPos =
 	{
-		Point(0, 0), Point(83, 0), Point(166, 0),
-		Point(0, 79), Point(83, 79), Point(166, 79),
-		Point(83, 158)
+		Point(0, 0),   Point(83, 0),   Point(166, 0),
+		Point(0, 79),  Point(83, 79),  Point(166, 79),
+		Point(0, 158), Point(83, 158), Point(166, 158)
 	};
 	const Point slotDimension = Point(69, 66);
 	const Point selectedPos = Point(83, 267);
 
+	CTradeableItem::ClickPressedFunctor clickPressedCallback;
+
+	std::vector<GameResID> resourcesForTrade;
+	std::shared_ptr<CSlider> slider;
+
+	void updateSlots(int line);
 public:
 	ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback, const UpdateSlotsFunctor & updateSubtitles);
 };

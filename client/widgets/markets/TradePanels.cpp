@@ -13,6 +13,7 @@
 #include "../../GameEngine.h"
 #include "../../GameInstance.h"
 #include "../../render/Canvas.h"
+#include "../../widgets/Slider.h"
 #include "../../widgets/TextControls.h"
 #include "../../windows/InfoWindows.h"
 
@@ -261,18 +262,57 @@ bool TradePanelBase::isHighlighted() const
 
 ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
 	const UpdateSlotsFunctor & updateSubtitles)
+	: clickPressedCallback(std::move(clickPressedCallback))
 {
-	assert(resourcesForTrade.size() == slotsPos.size());
 	OBJECT_CONSTRUCTION;
 
-	for(const auto & res : resourcesForTrade)
+	// TODO: replace with LIBRARY->resourceTypeHandler->getAllObjects() -> also check order after doing this
+	resourcesForTrade =
 	{
-		auto slot = slots.emplace_back(std::make_shared<CTradeableItem>(Rect(slotsPos[res.num], slotDimension), EType::RESOURCE, res.num, res.num));
-		slot->clickPressedCallback = clickPressedCallback;
-		slot->setSelectionWidth(selectionWidth);
+		GameResID::WOOD, GameResID::MERCURY, GameResID::ORE,
+		GameResID::SULFUR, GameResID::CRYSTAL, GameResID::GEMS,
+		GameResID::GOLD,
+		GameResID::GOLD, // TODO: remove
+		GameResID::GOLD, // TODO: remove
+		GameResID::GOLD // TODO: remove
+	};
+
+	int lines = vstd::divideAndCeil(resourcesForTrade.size(), 3);
+	if(lines > 3)
+	{
+		slider = std::make_shared<CSlider>(Point(240, 0), 224, [this](int to){ updateSlots(to); setRedrawParent(true); redraw(); }, 3, lines, 0, Orientation::VERTICAL, CSlider::BROWN);
+		slider->setPanningStep(72);
+		slider->setScrollBounds(Rect(-240, 0, 240, 224));
 	}
-	updateSlotsCallback = updateSubtitles;
+
+	updateSlotsCallback = std::move(updateSubtitles);
+
+	updateSlots(0);
 	showcaseSlot = std::make_shared<CTradeableItem>(Rect(selectedPos, slotDimension), EType::RESOURCE, 0, 0);
+}
+
+void ResourcesPanel::updateSlots(int line)
+{
+	OBJECT_CONSTRUCTION;
+
+	clickPressedCallback(nullptr);
+
+	int offset = line * 3;
+	slots.clear();
+	for (int i = 0; i < std::min(static_cast<int>(resourcesForTrade.size() - offset), 9); i++)
+	{
+		const auto& res = resourcesForTrade[i + offset];
+		auto slotPos = slotsPos[i];
+		if(resourcesForTrade.size() == 7 && i == 6) // for 7 ressources place gold in the middle
+			slotPos = slotsPos[i + 1];
+
+		auto slotPtr = std::make_shared<CTradeableItem>(Rect(slotPos, slotDimension), EType::RESOURCE, res.num, res.num);
+		slotPtr->clickPressedCallback = clickPressedCallback;
+		slotPtr->setSelectionWidth(selectionWidth);
+		slots.push_back(slotPtr);
+	}
+
+	updateSlotsCallback();
 }
 
 ArtifactsPanel::ArtifactsPanel(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
