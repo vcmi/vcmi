@@ -20,7 +20,7 @@
 
 auto resourcesToShow = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS}; //todo: configurable resource support
 
-MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
+MineSelector::MineSelector(std::map<GameResID, ui16> & mines) :
 	ui(new Ui::MineSelector),
 	minesSelected(mines)
 {
@@ -50,7 +50,7 @@ MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	show();
 }
 
-void MineSelector::showMineSelector(std::map<TResource, ui16> & mines)
+void MineSelector::showMineSelector(std::map<GameResID, ui16> & mines)
 {
 	auto * dialog = new MineSelector(mines);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
