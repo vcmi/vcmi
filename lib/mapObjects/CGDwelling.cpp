@@ -586,6 +586,13 @@ ResourceSet CGDwelling::dailyIncome() const
 	return {};
 }
 
+AnimationPath CGDwelling::getKingdomOverviewImage() const
+{
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(baseHandler);
+	return ourHandler ? ourHandler->getKingdomOverviewImage() : AnimationPath{};
+}
+
 std::vector<CreatureID> CGDwelling::providedCreatures() const
 {
 	if (ID == Obj::WAR_MACHINE_FACTORY || ID == Obj::REFUGEE_CAMP)

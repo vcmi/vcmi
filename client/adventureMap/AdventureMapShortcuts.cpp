@@ -36,6 +36,7 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
@@ -96,11 +97,11 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
 		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
-		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroSelected(),   [this]() { this->digGrail(); } },
+		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
 		{ EShortcut::ADVENTURE_VISIT_OBJECT,     optionCanVisitObject(), [this]() { this->visitObject(); } },
 		{ EShortcut::ADVENTURE_VIEW_SELECTED,    optionInMapView(),      [this]() { this->openObject(); } },
-		{ EShortcut::ADVENTURE_MARKETPLACE,      optionInMapView(),      [this]() { this->showMarketplace(); } },
+		{ EShortcut::ADVENTURE_MARKETPLACE,      optionMarketplace(),    [this]() { this->showMarketplace(); } },
 		{ EShortcut::ADVENTURE_ZOOM_IN,          optionSidePanelActive(),[this]() { this->zoom(+10); } },
 		{ EShortcut::ADVENTURE_ZOOM_OUT,         optionSidePanelActive(),[this]() { this->zoom(-10); } },
 		{ EShortcut::ADVENTURE_ZOOM_RESET,       optionSidePanelActive(),[this]() { this->zoom( 0); } },
@@ -641,7 +642,7 @@ bool AdventureMapShortcuts::optionInWorldView()
 
 bool AdventureMapShortcuts::optionSidePanelActive()
 {
-return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW;
 }
 
 bool AdventureMapShortcuts::optionMapScrollingActive()
@@ -652,4 +653,32 @@ bool AdventureMapShortcuts::optionMapScrollingActive()
 bool AdventureMapShortcuts::optionMapViewActive()
 {
 	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
+}
+
+bool AdventureMapShortcuts::optionMarketplace()
+{
+	if(state != EAdventureState::MAKING_TURN)
+		return false;
+	for(const CGTownInstance *t : GAME->interface()->cb->getTownsInfo())
+		if(t->hasBuilt(BuildingID::MARKETPLACE))
+			return true;
+	return false;
+}
+
+bool AdventureMapShortcuts::optionHeroGround()
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && !hero->inBoat();
+}
+
+bool AdventureMapShortcuts::optionHeroBoat(EPathfindingLayer layer)
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->inBoat() && hero->getBoat()->layer == layer;
+}
+
+bool AdventureMapShortcuts::optionHeroDig()
+{
+	auto hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->diggingStatus() == EDiggingStatus::CAN_DIG;
 }

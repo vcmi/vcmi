@@ -1,5 +1,8 @@
 {
-	//images used in game selection screen
+	// Image around main menu
+	"backgroundAround" : "diboxbck",
+	
+	// Images used in game selection screen
 	"scenario-selection" :
 	{
 		"background" : ["gamselb0", "gamselb1"],
@@ -35,17 +38,17 @@
 		
 	},
 	
-	//Multiplayer selection image
+	// Multiplayer selection image
 	"multiplayer" : ["mumap"],
 
-	//Main menu window, consists of several sub-menus aka items
+	// Main menu window, consists of several sub-menus aka items
 	"window":
 	{
-		//"scalable" : true, //background will be scaled to screen size
+		//"scalable" : true, // Background will be scaled to screen size
 		
 		"background" : ["gamselbk"],
 
-		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo. Disabled due to different position in various versions of H3.
+		//"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" }, // Floating WoG logo. Disabled due to different position in various versions of H3.
 		
 		// Additional images
 		//"images": 
