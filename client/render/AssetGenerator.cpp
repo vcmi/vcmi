@@ -51,6 +51,11 @@ void AssetGenerator::initialize()
 	imageFiles[ImagePath::builtin("CampaignBackground8.png")] = [this]() { return createCampaignBackground(8); };
 
 	imageFiles[ImagePath::builtin("SpelTabNone.png")] = [this](){ return createSpellTabNone();};
+	for (PlayerColor color(-1); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		std::string name = "ResBarElement" + (color == -1 ? "" : "-" + color.toString());
+		imageFiles[ImagePath::builtin(name)] = [this, color](){ return createResBarElement(std::max(PlayerColor(0), color));};
+	}
 
 	imageFiles[ImagePath::builtin("stackWindow/info-panel-0.png")] = [this](){ return createCreatureInfoPanel(2);};
 	imageFiles[ImagePath::builtin("stackWindow/info-panel-1.png")] = [this](){ return createCreatureInfoPanel(3);};
@@ -318,6 +323,20 @@ AssetGenerator::CanvasPtr AssetGenerator::createCampaignBackground(int selection
 		canvas.drawScaled(canvasSkull, Point(385, 400), Point(238, 150));
 	}
 
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createResBarElement(const PlayerColor & player) const
+{
+	auto locator = ImageLocator(ImagePath::builtin("ARESBAR"), EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+	img->playerColored(player);
+
+	auto image = ENGINE->renderHandler().createImage(Point(84, 22), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img, Point(0, 0), Rect(2, 0, 84, 22));
+	canvas.draw(img, Point(4, 0), Rect(29, 0, 22, 22));
 
 	return image;
 }

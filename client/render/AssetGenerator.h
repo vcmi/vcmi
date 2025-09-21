@@ -51,6 +51,7 @@ private:
 	CanvasPtr createCombatUnitNumberWindow(float multR, float multG, float multB) const;
 	CanvasPtr createCampaignBackground(int selection) const;
 	CanvasPtr createSpellTabNone() const;
+	CanvasPtr createResBarElement(const PlayerColor & player) const;
 	CanvasPtr createChroniclesCampaignImages(int chronicle) const;
 	CanvasPtr createPaletteShiftedImage(const AnimationPath & source, const std::vector<PaletteAnimation> & animation, int frameIndex, int paletteShiftCounter) const;
 	CanvasPtr createAdventureMapButtonClear(const PlayerColor & player) const;
