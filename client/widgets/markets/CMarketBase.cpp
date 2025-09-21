@@ -211,7 +211,7 @@ CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback
 	OBJECT_CONSTRUCTION;
 
 	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, movingCallback, 0, 0, 0, Orientation::HORIZONTAL);
-	offerSlider->setScrollBounds(Rect());
+	offerSlider->setScrollBounds(Rect(-215, -50, 575, 120));
 	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), LIBRARY->generaltexth->zelp[596],
 		[this]()
 		{
