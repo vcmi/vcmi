@@ -53,9 +53,23 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 
 	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
 
+#ifdef VCMI_APPLE
+        //
+        // Disable user data browser temporarily on Appl devices.
+        //
+        ui->pushButtonDataBrowse->setDisabled(true);
+#endif
+
 #ifdef VCMI_MOBILE
-	// This directory is not accessible to players without rooting of their device
+    //
+    // This directory is not accessible to players without rooting of their device.
+    //
 	ui->lineEditDataSystem->hide();
+    //
+    // User data browser is disabled on mobile devices.
+    //
+    ui->pushButtonDataBrowse->setDisabled(true);
+    ui->pushButtonDataBrowse->hide();
 #endif
 
 #ifndef ENABLE_INNOEXTRACT

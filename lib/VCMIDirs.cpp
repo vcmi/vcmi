@@ -163,17 +163,60 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return bfs::path(raw);
 }
 
+bool VCMIDirsWIN32::validateUsrDataPtr(bfs::path homeDir) const
+{
+    const std::string usrDataPtrFileName = ".vcmi";
+    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName;
+
+    bool status = true;
+    bfs::path usrDataPath = bfs::path(homeDir) / "My Games" / "vcmi";
+
+    if(!bfs::exists(usrDataPtrPath))
+        status = false;
+
+    if(bfs::file_size(usrDataPtrPath) <= 0)
+        status = false;
+
+    if(bfs::file_size(usrDataPtrPath) >= MAX_PATH)
+        status = false;
+
+    if(!status)
+    {
+        std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
+
+        vcmiDataPointerFile << (usrDataPath).string();
+        vcmiDataPointerFile.close();
+    }
+
+    return status;
+}
+
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
-	wchar_t profileDir[MAX_PATH];
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
-	return bfs::path(".");
+    const std::string usrDataPtrFileName = ".vcmi";
+
+    wchar_t homeDir[MAX_PATH];
+    bfs::path usrDataPtrPath = bfs::path();
+
+    if(SHGetSpecialFolderPathW(nullptr, homeDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
+        usrDataPtrPath = bfs::path(homeDir) / "My Games" / "vcmi" / usrDataPtrFileName;
+    else
+        usrDataPtrPath = bfs::path(".") / usrDataPtrFileName;
+
+    validateUsrDataPtr(bfs::path(homeDir));
+
+    std::string usrDataPtrContents = std::string();
+    std::ifstream usrDataPtrFile = std::ifstream(usrDataPtrPath);
+
+    usrDataPtrFile >> usrDataPtrContents;
+    usrDataPtrFile.close();
+
+    return bfs::path(usrDataPtrContents);
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
 {
-	return getPathFromConfigOrDefault("userDataPath", [this] { return getDefaultUserDataPath(); });
+    return getDefaultUserDataPath();
 }
 
 bfs::path VCMIDirsWIN32::userCachePath() const
@@ -542,20 +585,29 @@ bool VCMIDirsXDG::validateUsrDataPtr(bfs::path homeDir) const
     const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
     const bfs::path usrDataPath = bfs::path(homeDir) / ".local" / "share" / "vcmi";
 
+    bool status = true;
+
+    if(!bfs::exists(usrDataPtrPath))
+        status = false;
+
+    if(bfs::file_size(usrDataPtrPath) <= 0)
+        status = false;
+
+    if(bfs::file_size(usrDataPtrPath) >= 4096)
+        status = false;
+
     //
     // By default, the max length of a file path is 4096 characters, as shown in /usr/include/linux/limits.h or equivalent.
     //
-    if(!bfs::exists(usrDataPtrPath) || bfs::file_size(usrDataPtrPath) <= 0 || bfs::file_size(usrDataPtrPath) >= 4096)
+    if(!status)
     {
         std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
 
         vcmiDataPointerFile << (usrDataPath).string();
         vcmiDataPointerFile.close();
-
-        return false;
     }
 
-    return true;
+    return status;
 }
 
 bfs::path VCMIDirsXDG::userDataPath() const
