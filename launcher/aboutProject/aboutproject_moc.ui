@@ -234,30 +234,30 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
-      <widget class="QPushButton" name="openUserDataDir">
-       <property name="text">
-        <string>Open</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="2">
       <layout class="QHBoxLayout" name="usrDataHorizontalLayout">
        <item>
-        <widget class="QPushButton" name="openGameDataDir">
+        <widget class="QPushButton" name="openUserDataDir">
          <property name="text">
           <string>Open</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="changeGameDataDir">
+        <widget class="QPushButton" name="changeUserDataDir">
          <property name="text">
           <string>Change</string>
          </property>
         </widget>
        </item>
       </layout>
+     </item>
+     <item row="4" column="2">
+      <widget class="QPushButton" name="openGameDataDir">
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

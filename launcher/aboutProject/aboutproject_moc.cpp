@@ -102,7 +102,7 @@ void AboutProjectView::on_openGameDataDir_clicked()
 	Helper::revealDirectoryInFileBrowser(ui->lineEditGameDir->text());
 }
 
-void AboutProjectView::on_changeGameDataDir_clicked()
+void AboutProjectView::on_changeUserDataDir_clicked()
 {
     setUsrDataPath();
 }

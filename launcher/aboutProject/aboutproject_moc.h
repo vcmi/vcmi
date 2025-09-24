@@ -37,9 +37,9 @@ private slots:
 	void on_updatesButton_clicked();
 
 	void on_openGameDataDir_clicked();
-    void on_changeGameDataDir_clicked();
 
 	void on_openUserDataDir_clicked();
+    void on_changeUserDataDir_clicked();
 
 	void on_openTempDir_clicked();
 
