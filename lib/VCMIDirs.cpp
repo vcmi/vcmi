@@ -193,7 +193,7 @@ bfs::path VCMIDirsWIN32::userDataPtrPath() const
 
     if(!status)
     {
-        setUserDataPath(ptrPath, usrDataPath)
+        setUserDataPath(ptrPath, usrDataPath);
     }
 
     return ptrPath;
@@ -201,7 +201,7 @@ bfs::path VCMIDirsWIN32::userDataPtrPath() const
 
 bfs::path VCMIDirsWIN32::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const
 {
-    std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
+    std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath.string());
 
     vcmiDataPointerFile << (usrDataPath).string();
     vcmiDataPointerFile.close();
@@ -224,7 +224,7 @@ bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
     userDataPtrPath();
 
     std::string usrDataPtrContents = std::string();
-    std::ifstream usrDataPtrFile = std::ifstream(usrDataPtrPath);
+    std::ifstream usrDataPtrFile = std::ifstream(ptrPath.string());
 
     usrDataPtrFile >> usrDataPtrContents;
     usrDataPtrFile.close();
@@ -310,6 +310,8 @@ std::string VCMIDirsApple::libraryName(const std::string& basename) const { retu
 class VCMIDirsIOS final : public VCMIDirsApple
 {
 public:
+    bfs::path userDataPtrPath() const override;
+    bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
 	bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userLogsPath() const override;
@@ -321,6 +323,8 @@ public:
 	bfs::path binaryPath() const override;
 };
 
+bfs::path VCMIDirsIOS::userDataPtrPath() const { return bfs::path(); }
+bfs::path VCMIDirsIOS::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const { return bfs::path(); }
 bfs::path VCMIDirsIOS::userDataPath() const { return {iOS_utils::documentsPath()}; }
 bfs::path VCMIDirsIOS::userCachePath() const { return {iOS_utils::cachesPath()}; }
 bfs::path VCMIDirsIOS::userLogsPath() const { return {iOS_utils::documentsPath()}; }
@@ -350,6 +354,8 @@ bfs::path VCMIDirsIOS::binaryPath() const { return {iOS_utils::bundlePath()}; }
 class VCMIDirsOSX final : public VCMIDirsApple
 {
 public:
+    bfs::path userDataPtrPath() const override;
+    bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
 	bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userLogsPath() const override;
@@ -404,6 +410,15 @@ void VCMIDirsOSX::init()
 	moveDirIfExists(userDataPath() / "Games", userSavePath());
 }
 
+//
+// TODO implement user data pointer locator.
+//
+bfs::path VCMIDirsOSX::userDataPtrPath() const { return bfs::path(); }
+//
+// TODO implement user data path locator.
+//
+bfs::path VCMIDirsOSX::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const { return bfs::path(); }
+
 bfs::path VCMIDirsOSX::userDataPath() const
 {
 	// This is Cocoa code that should be normally used to get path to Application Support folder but can't use it here for now...
@@ -457,6 +472,8 @@ public:
 	bfs::path fullLibraryPath(const std::string & desiredFolder, const std::string & baseLibName) const override;
 	bfs::path binaryPath() const override;
 	bfs::path libraryPath() const override;
+    bfs::path userDataPtrPath() const override;
+    bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
 	bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userConfigPath() const override;
@@ -469,6 +486,9 @@ public:
 std::string VCMIDirsAndroid::libraryName(const std::string & basename) const { return "lib" + basename + ".so"; }
 bfs::path VCMIDirsAndroid::binaryPath() const { return "."; }
 bfs::path VCMIDirsAndroid::libraryPath() const { return nativePath; }
+
+bfs::path VCMIDirsAndroid::userDataPtrPath() const { return bfs::path(); }
+bfs::path VCMIDirsAndroid::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const { return bfs::path(); }
 bfs::path VCMIDirsAndroid::userDataPath() const { return basePath; }
 bfs::path VCMIDirsAndroid::userCachePath() const { return userDataPath() / "cache"; }
 bfs::path VCMIDirsAndroid::userConfigPath() const { return userDataPath() / "config"; }
@@ -501,7 +521,9 @@ void VCMIDirsAndroid::init()
 class VCMIDirsPM : public IVCMIDirsUNIX
 {
 public:
-	bfs::path userDataPath() const override;
+    bfs::path userDataPtrPath() const override;
+    bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
+    bfs::path userDataPath() const override;
 	bfs::path userCachePath() const override;
 	bfs::path userConfigPath() const override;
 
@@ -512,6 +534,9 @@ public:
 
 	std::string libraryName(const std::string& basename) const override;
 };
+
+bfs::path VCMIDirsPM::userDataPtrPath() const { return bfs::path(); }
+bfs::path VCMIDirsPM::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const { return bfs::path(); }
 
 bfs::path VCMIDirsPM::userDataPath() const
 {
