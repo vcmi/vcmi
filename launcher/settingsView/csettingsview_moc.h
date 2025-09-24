@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "usr_data_mgr.h"
+
 namespace Ui
 {
 class CSettingsView;

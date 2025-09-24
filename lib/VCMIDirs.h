@@ -15,17 +15,22 @@ class DLL_LINKAGE IVCMIDirs
 {
 public:
     /*!
-     * \brief boost::checkUserDataPointer - check the current status of user data pointer file and resolve all the issues that might've occurred during validation.
-     * \return false on failed validation.
-     * \return true on successful validation.
+     * \brief userDataPtrPath - check the current status of user data pointer file and resolve all the issues that might've occurred during validation.
+     * \return path to the user data pointer file.
      */
-    virtual bool validateUsrDataPtr(boost::filesystem::path homeDir) const = 0;
-
+    virtual boost::filesystem::path userDataPtrPath() const = 0;
     /*!
-    * \brief VCMIDirsXDG::userDataPath - locate game data files directory.
-    * \return path to the game data files directory.
+     * \brief setUserDataPath - set a new path to the user data directory.
+     * \param usrDataPtrPath - path to the user data pointer file.
+     * \param usrDataPath - path to the user data directory.
+     * \return path to the user data files directory.
+     */
+    virtual boost::filesystem::path setUserDataPath(boost::filesystem::path usrDataPtrPath, boost::filesystem::path usrDataPath) const = 0;
+    /*!
+    * \brief userDataPath - locate game data files directory.
+    * \return path to the user data files directory.
     */
-	virtual boost::filesystem::path userDataPath() const = 0;
+    virtual boost::filesystem::path userDataPath() const = 0;
 
 	// Path to "cache" directory, can be used for any non-essential files
 	virtual boost::filesystem::path userCachePath() const = 0;

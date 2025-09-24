@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../StdInc.h"
+#include "usr_data_mgr.h"
 
 namespace Ui
 {
@@ -17,7 +18,7 @@ class AboutProjectView;
 
 class CModListView;
 
-class AboutProjectView : public QWidget
+class AboutProjectView : public UsrDataMgr
 {
 	Q_OBJECT
 
@@ -30,10 +31,13 @@ public:
 	explicit AboutProjectView(QWidget * parent = nullptr);
 	~AboutProjectView() override;
 
+    QString setUsrDataPath() override;
+
 private slots:
 	void on_updatesButton_clicked();
 
 	void on_openGameDataDir_clicked();
+    void on_changeGameDataDir_clicked();
 
 	void on_openUserDataDir_clicked();
 

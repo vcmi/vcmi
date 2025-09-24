@@ -32,7 +32,7 @@ void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHi
 }
 
 AboutProjectView::AboutProjectView(QWidget * parent)
-	: QWidget(parent)
+    : UsrDataMgr(parent)
 	, ui(std::make_unique<Ui::AboutProjectView>())
 {
 	ui->setupUi(this);
@@ -66,6 +66,32 @@ void AboutProjectView::changeEvent(QEvent *event)
 	QWidget::changeEvent(event);
 }
 
+QString AboutProjectView::setUsrDataPath()
+{
+    const QString previousPath = AboutProjectView::ui->lineEditUserDataDir->text();
+
+    QString currentPath = QFileDialog().getExistingDirectory();
+
+    if(currentPath.isEmpty())
+    {
+        return QString();
+    }
+
+    currentPath.append("/vcmi");
+
+    const QString dataDirTransferResult = UsrDataMgr::moveUsrDataDir(previousPath, currentPath);
+
+    if(dataDirTransferResult.isEmpty())
+    {
+        return QString();
+    }
+
+    VCMIDirs::get().setUserDataPath(VCMIDirs::get().userDataPtrPath(), boost::filesystem::path(currentPath.toStdString()));
+    AboutProjectView::ui->lineEditUserDataDir->setText(currentPath);
+
+    return currentPath;
+}
+
 void AboutProjectView::on_updatesButton_clicked()
 {
 	UpdateDialog::showUpdateDialog(true);
@@ -74,6 +100,11 @@ void AboutProjectView::on_updatesButton_clicked()
 void AboutProjectView::on_openGameDataDir_clicked()
 {
 	Helper::revealDirectoryInFileBrowser(ui->lineEditGameDir->text());
+}
+
+void AboutProjectView::on_changeGameDataDir_clicked()
+{
+    setUsrDataPath();
 }
 
 void AboutProjectView::on_openUserDataDir_clicked()

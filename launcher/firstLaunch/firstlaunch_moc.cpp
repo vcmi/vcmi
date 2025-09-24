@@ -40,8 +40,8 @@ extern "C" JNIEXPORT void JNICALL Java_eu_vcmi_vcmi_NativeMethods_heroesDataUpda
 #endif
 
 FirstLaunchView::FirstLaunchView(QWidget * parent)
-	: QWidget(parent)
-	, ui(std::make_unique<Ui::FirstLaunchView>())
+    : UsrDataMgr(parent)
+    , ui(std::make_unique<Ui::FirstLaunchView>())
 {
 	ui->setupUi(this);
 
@@ -49,7 +49,7 @@ FirstLaunchView::FirstLaunchView(QWidget * parent)
 	activateTabLanguage();
 
 	ui->lineEditDataSystem->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().dataPaths().front())));
-	ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
+    ui->lineEditDataUser->setText(pathToQString(boost::filesystem::absolute(VCMIDirs::get().userDataPath())));
 
 	Helper::enableScrollBySwiping(ui->listWidgetLanguage);
 
@@ -128,9 +128,7 @@ void FirstLaunchView::on_pushButtonDataBack_clicked()
 
 void FirstLaunchView::on_pushButtonDataBrowse_clicked()
 {
-    setGameDataPath();
-
-    return;
+    setUsrDataPath();
 }
 
 void FirstLaunchView::on_pushButtonDataSearch_clicked()
@@ -338,35 +336,7 @@ QString FirstLaunchView::getHeroesInstallDir()
 	return QString{};
 }
 
-/*!
- * \brief FirstLaunchView::moveGameDataDir - move existing game data files from one location to another.
- * \param previousPath - previously set path.
- * \param currentPath - desired path.
- * \return path to the game data directory.
- * \return empty string if parent directory is set as read-only or as immutable.
- */
-QString FirstLaunchView::moveGameDataDir(QString previousPath, QString currentPath)
-{
-    //
-    // Requested directory can either be read-only or immutable.
-    //
-    if(QFileInfo(currentPath).exists() && !QFileInfo(currentPath).isWritable())
-    {
-        return QString();
-    }
-
-    QDir().rename(previousPath, currentPath);
-
-    return currentPath;
-}
-
-/*!
- * \brief FirstLaunchView::setGameDataPath - set a path to the game data files.
- * \return a path to the game data files.
- * \return empty string if nothing was selected in the directory browser window.
- * \return empty string on directory transfer failure.
- */
-QString FirstLaunchView::setGameDataPath()
+QString FirstLaunchView::setUsrDataPath()
 {
     const QString previousPath = FirstLaunchView::ui->lineEditDataUser->text();
 
@@ -379,13 +349,15 @@ QString FirstLaunchView::setGameDataPath()
 
     currentPath.append("/vcmi");
 
-    const QString dataDirTransferResult = FirstLaunchView::moveGameDataDir(previousPath, currentPath);
+    const QString dataDirTransferResult = UsrDataMgr::moveUsrDataDir(previousPath, currentPath);
 
     if(dataDirTransferResult.isEmpty())
     {
         return QString();
     }
 
+    VCMIDirs::get().setUserDataPath(VCMIDirs::get().userDataPtrPath(), boost::filesystem::path(currentPath.toStdString()));
+    heroesDataUpdate();
     FirstLaunchView::ui->lineEditDataUser->setText(currentPath);
 
     return currentPath;
@@ -460,7 +432,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 	QString filterBin = tr("GOG data") + " (*.bin)";
 	QString filterExe = tr("GOG installer") + " (*.exe)";
 
-	QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
+    QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
 	if(tempDir.cd("tmp"))
 	{
 		logGlobal->info("Cleaning up old data");
@@ -633,7 +605,7 @@ void FirstLaunchView::copyHeroesData(const QString & path, bool move)
 	if (!dirMp3.empty())
 		copyDirectories += dirMp3.front();
 
-	QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
+    QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
 
 	for(const QString & dirName : copyDirectories)
 	{

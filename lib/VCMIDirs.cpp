@@ -45,7 +45,7 @@ std::string IVCMIDirs::genHelpString() const
 		"  libraries:		" + libraryPath().string() + "\n"
 		"  server:			" + serverPath().string() + "\n"
 		"\n"
-		"  user data:		" + userDataPath().string() + "\n"
+        "  user data:		" + userDataPath().string() + "\n"
 		"  user cache:		" + userCachePath().string() + "\n"
 		"  user config:		" + userConfigPath().string() + "\n"
 		"  user logs:		" + userLogsPath().string() + "\n"
@@ -56,7 +56,7 @@ std::string IVCMIDirs::genHelpString() const
 void IVCMIDirs::init()
 {
 	// TODO: Log errors
-	bfs::create_directories(userDataPath());
+    bfs::create_directories(userDataPath());
 	bfs::create_directories(userCachePath());
 	bfs::create_directories(userConfigPath());
 	bfs::create_directories(userLogsPath());
@@ -80,6 +80,8 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 {
 	public:
 		VCMIDirsWIN32();
+        bfs::path userDataPtrPath() const override;
+        bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
 		bfs::path userDataPath() const override;
 		bfs::path userCachePath() const override;
 		bfs::path userConfigPath() const override;
@@ -163,32 +165,48 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 		return bfs::path(raw);
 }
 
-bool VCMIDirsWIN32::validateUsrDataPtr(bfs::path homeDir) const
+bfs::path VCMIDirsWIN32::userDataPtrPath() const
 {
-    const std::string usrDataPtrFileName = ".vcmi";
-    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName;
+    const std::string ptrFileName = ".vcmi";
+
+    wchar_t homeDir[MAX_PATH];
+    bfs::path ptrPath = bfs::path();
+
+    if(SHGetSpecialFolderPathW(nullptr, homeDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
+        ptrPath = bfs::path(homeDir) / "My Games" / "vcmi" / ptrFileName;
+    else
+        ptrPath = bfs::path(".") / ptrFileName;
 
     bool status = true;
     bfs::path usrDataPath = bfs::path(homeDir) / "My Games" / "vcmi";
 
-    if(!bfs::exists(usrDataPtrPath))
+    ptrPath = bfs::path(homeDir) / ptrFileName;
+
+    if(!bfs::exists(ptrPath))
         status = false;
 
-    if(bfs::file_size(usrDataPtrPath) <= 0)
+    if(bfs::file_size(ptrPath) <= 0)
         status = false;
 
-    if(bfs::file_size(usrDataPtrPath) >= MAX_PATH)
+    if(bfs::file_size(ptrPath) >= MAX_PATH)
         status = false;
 
     if(!status)
     {
-        std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
-
-        vcmiDataPointerFile << (usrDataPath).string();
-        vcmiDataPointerFile.close();
+        setUserDataPath(ptrPath, usrDataPath)
     }
 
-    return status;
+    return ptrPath;
+}
+
+bfs::path VCMIDirsWIN32::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const
+{
+    std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
+
+    vcmiDataPointerFile << (usrDataPath).string();
+    vcmiDataPointerFile.close();
+
+    return usrDataPath;
 }
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
@@ -196,14 +214,14 @@ bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
     const std::string usrDataPtrFileName = ".vcmi";
 
     wchar_t homeDir[MAX_PATH];
-    bfs::path usrDataPtrPath = bfs::path();
+    bfs::path ptrPath = bfs::path();
 
     if(SHGetSpecialFolderPathW(nullptr, homeDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-        usrDataPtrPath = bfs::path(homeDir) / "My Games" / "vcmi" / usrDataPtrFileName;
+        ptrPath = bfs::path(homeDir) / "My Games" / "vcmi" / usrDataPtrFileName;
     else
-        usrDataPtrPath = bfs::path(".") / usrDataPtrFileName;
+        ptrPath = bfs::path(".") / usrDataPtrFileName;
 
-    validateUsrDataPtr(bfs::path(homeDir));
+    userDataPtrPath();
 
     std::string usrDataPtrContents = std::string();
     std::ifstream usrDataPtrFile = std::ifstream(usrDataPtrPath);
@@ -566,8 +584,10 @@ std::string VCMIDirsPM::libraryName(const std::string& basename) const { return 
 class VCMIDirsXDG : public IVCMIDirsUNIX
 {
 public:
-    bool validateUsrDataPtr(bfs::path homeDir) const override;
-	bfs::path userDataPath() const override;
+    bfs::path userDataPtrPath() const override;
+    bfs::path setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const override;
+    bfs::path userDataPath() const override;
+
 	bfs::path userCachePath() const override;
 	bfs::path userConfigPath() const override;
 
@@ -579,13 +599,14 @@ public:
 	std::string libraryName(const std::string& basename) const override;
 };
 
-bool VCMIDirsXDG::validateUsrDataPtr(bfs::path homeDir) const
+bfs::path VCMIDirsXDG::userDataPtrPath() const
 {
+    const char *homeDir = getenv("HOME");
     const std::string usrDataPtrFileName = ".vcmi";
-    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
     const bfs::path usrDataPath = bfs::path(homeDir) / ".local" / "share" / "vcmi";
 
     bool status = true;
+    bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
 
     if(!bfs::exists(usrDataPtrPath))
         status = false;
@@ -601,31 +622,39 @@ bool VCMIDirsXDG::validateUsrDataPtr(bfs::path homeDir) const
     //
     if(!status)
     {
-        std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
-
-        vcmiDataPointerFile << (usrDataPath).string();
-        vcmiDataPointerFile.close();
+        setUserDataPath(usrDataPtrPath, usrDataPath);
     }
 
-    return status;
+    return usrDataPtrPath;
+}
+
+bfs::path VCMIDirsXDG::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDataPath) const
+{
+    std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
+
+    vcmiDataPointerFile << (usrDataPath).string();
+    vcmiDataPointerFile.close();
+
+    return usrDataPath;
 }
 
 bfs::path VCMIDirsXDG::userDataPath() const
 {
     const char *homeDir = getenv("HOME");
     const std::string usrDataPtrFileName = ".vcmi";
-    const bfs::path usrDataPtrPath = bfs::path(homeDir) / usrDataPtrFileName ;
+    const bfs::path ptrPath = bfs::path(homeDir) / usrDataPtrFileName ;
 
-    validateUsrDataPtr(bfs::path(homeDir));
+    userDataPtrPath();
 
     std::string usrDataPtrContents = std::string();
-    std::ifstream usrDataPtrFile = std::ifstream(usrDataPtrPath);
+    std::ifstream usrDataPtrFile = std::ifstream(ptrPath);
 
     usrDataPtrFile >> usrDataPtrContents;
     usrDataPtrFile.close();
 
     return bfs::path(usrDataPtrContents);
 }
+
 bfs::path VCMIDirsXDG::userCachePath() const
 {
 	// $XDG_CACHE_HOME, default: $HOME/.cache
@@ -637,6 +666,7 @@ bfs::path VCMIDirsXDG::userCachePath() const
 	else
 		return ".";
 }
+
 bfs::path VCMIDirsXDG::userConfigPath() const
 {
 	// $XDG_CONFIG_HOME, default: $HOME/.config

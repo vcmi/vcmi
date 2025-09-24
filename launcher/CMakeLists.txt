@@ -154,7 +154,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
-	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
+
+add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON}
+	        usr_data_mgr.h usr_data_mgr.cpp)
 	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
@@ -260,7 +263,8 @@ if(IOS)
 			Qt${QT_VERSION_MAJOR}::QIOSIntegrationPlugin
 			qt::QIOSIntegrationPlugin
 		)
-	endif()
+target_link_libraries(vcmilauncher PRIVATE Qt5::Widgets)
+endif()
 elseif(ANDROID)
 	set(androidSdkDir "$ENV{ANDROID_HOME}")
 	configure_file(

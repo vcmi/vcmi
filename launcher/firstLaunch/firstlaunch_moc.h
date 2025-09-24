@@ -9,6 +9,7 @@
  */
 #pragma once
 #include "../StdInc.h"
+#include "usr_data_mgr.h"
 
 namespace Ui
 {
@@ -17,7 +18,7 @@ class FirstLaunchView;
 
 class CModListView;
 
-class FirstLaunchView : public QWidget
+class FirstLaunchView : public UsrDataMgr
 {
 	Q_OBJECT
 
@@ -40,9 +41,9 @@ class FirstLaunchView : public QWidget
 	void heroesDataMissing();
 	void heroesDataDetected();
 
+    QString setUsrDataPath() override;
+
 	QString getHeroesInstallDir();
-    QString setGameDataPath();
-    QString moveGameDataDir(QString previousPath, QString currentPath);
 
 	void extractGogData();
 	void extractGogDataAsync(QString filePathBin, QString filePathExe);
