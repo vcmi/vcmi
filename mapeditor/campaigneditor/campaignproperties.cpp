@@ -38,13 +38,18 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
 	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
 	
-	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaign_regions.json"));
-	int legacyRegionNumber = legacyRegionConfig["campaign_regions"].Vector().size();
+	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaignRegions.json"));
+	auto legacyRegions = legacyRegionConfig.Struct();
+	int legacyRegionNumber = legacyRegions.size();
 
 	for (int i = 0; i < legacyRegionNumber; i++)
-		ui->comboBoxRegionPreset->insertItem(i, QString::fromStdString(LIBRARY->generaltexth->translate("core.camptext.names", i)));
+	{
+		auto it = legacyRegions.begin();
+		std::advance(it, i);
+		ui->comboBoxRegionPreset->insertItem(i, QString::fromStdString(it->first));
+	}
 	ui->comboBoxRegionPreset->insertItem(legacyRegionNumber, tr("Custom"));
-	ui->comboBoxRegionPreset->setCurrentIndex(20);
+	ui->comboBoxRegionPreset->setCurrentIndex(ui->comboBoxRegionPreset->count() - 1);
 
 	loadRegion();
 
@@ -89,7 +94,7 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 
 void CampaignProperties::on_comboBoxRegionPreset_currentIndexChanged(int index)
 {
-	if(ui->comboBoxRegionPreset->count() == 21 && ui->comboBoxRegionPreset->currentIndex() != 20)
+	if(ui->comboBoxRegionPreset->currentIndex() != ui->comboBoxRegionPreset->count() - 1)
 		regions = *LIBRARY->campaignRegions->getByIndex(index);
 	
 	loadRegion();

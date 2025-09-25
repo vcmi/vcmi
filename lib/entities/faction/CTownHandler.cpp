@@ -361,14 +361,18 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		// building id and upgrades can't be the same
 		if(stringID == source["upgrades"].String())
 		{
-			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-												stringID % ret->town->faction->getNameTranslated()));
+			auto townName = ret->town->faction->getNameTranslated();
+			logMod->error("Building with ID '%s' of town '%s' can't be an upgrade of the same building.", stringID, townName);
+			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.")
+												% stringID % townName));
 		}
-
-		LIBRARY->identifiers()->requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+		else
 		{
-			ret->upgrade = BuildingID(identifier);
-		});
+			LIBRARY->identifiers()->requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+			{
+				ret->upgrade = BuildingID(identifier);
+			});
+		}
 	}
 	else
 		ret->upgrade = BuildingID::NONE;
