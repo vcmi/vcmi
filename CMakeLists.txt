@@ -496,7 +496,11 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-find_package(minizip REQUIRED)
+find_package(minizip)
+if(NOT minizip_FOUND)
+	find_package(minizip-ng REQUIRED)
+	add_library(minizip::minizip ALIAS MINIZIP::minizip-ng)
+endif()
 
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)

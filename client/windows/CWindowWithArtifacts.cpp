@@ -52,7 +52,7 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 	const CGHeroInstance * hero = nullptr;
 
 	for(const auto & artSet : artSets)
-		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
+		if(artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS) != nullptr)
 		{
 			hero = artSet->getHero();
 			break;

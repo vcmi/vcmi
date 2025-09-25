@@ -47,6 +47,7 @@ public:
 	const IOwnableObject * asOwnable() const final;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
+	AnimationPath getKingdomOverviewImage() const;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

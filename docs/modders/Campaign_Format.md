@@ -188,7 +188,7 @@ If `startOptions` is `hero`, hero can be chosen as a starting bonus. Bonus forma
 
 ### Regions description
 
-Predefined campaign regions are located in file `campaign_regions.json`
+Predefined campaign regions are located in file `campaignRegions.json`
 
 ```json
 {
