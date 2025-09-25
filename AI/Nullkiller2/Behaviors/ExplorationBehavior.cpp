@@ -33,8 +33,12 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	for (auto obj : aiNk->memory->visitableObjs)
+	for (const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
+		const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+		if(!obj)
+			continue;
+
 		switch (obj->ID.num)
 		{
 			case Obj::REDWOOD_OBSERVATORY:

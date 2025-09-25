@@ -41,12 +41,11 @@ class AIPathfinder
 {
 private:
 	std::shared_ptr<AINodeStorage> storage;
-	CPlayerSpecificInfoCallback * cb;
 	Nullkiller * aiNk;
 	static std::map<ObjectInstanceID, std::unique_ptr<GraphPaths>>  heroGraphs;
 
 public:
-	AIPathfinder(CPlayerSpecificInfoCallback * cb, Nullkiller * aiNk);
+	explicit AIPathfinder(Nullkiller * aiNk);
 	void calculatePathInfo(std::vector<AIPath> & paths, const int3 & tile, bool includeGraph = false) const;
 	bool isTileAccessible(const HeroPtr & hero, const int3 & tile) const;
 	void updatePaths(const std::map<const CGHeroInstance *, HeroRole> & heroes, PathfinderSettings pathfinderSettings);

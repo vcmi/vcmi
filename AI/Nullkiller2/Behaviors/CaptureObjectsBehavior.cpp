@@ -219,12 +219,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * aiNk) const
 	}
 	else if(objectTypes.size())
 	{
-		decomposeObjects(
-			tasks,
-			std::vector<const CGObjectInstance *>(
-				aiNk->memory->visitableObjs.begin(),
-				aiNk->memory->visitableObjs.end()),
-			aiNk);
+		decomposeObjects(tasks, aiNk->memory->visitableIdsToObjsVector(*aiNk->cc), aiNk);
 	}
 	else
 	{

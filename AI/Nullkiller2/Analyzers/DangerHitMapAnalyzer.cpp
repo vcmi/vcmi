@@ -88,8 +88,12 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	std::map<PlayerColor, std::map<const CGHeroInstance *, HeroRole>> heroes;
 
-	for(const CGObjectInstance * obj : aiNk->memory->visitableObjs)
+	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
+		const CGObjectInstance * obj = cc->getObj(objId, false);
+		if(!obj)
+			continue;
+
 		if(obj->ID == Obj::HERO)
 		{
 			auto hero = dynamic_cast<const CGHeroInstance *>(obj);
@@ -236,12 +240,11 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 			townHeroes[townHero] = HeroRole::MAIN;
 	};
 
-	for(const auto *obj : aiNk->memory->visitableObjs)
+	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
+		const CGObjectInstance * obj = cc->getObj(objId, false);
 		if(obj && obj->ID == Obj::TOWN)
-		{
 			addTownHero(dynamic_cast<const CGTownInstance *>(obj));
-		}
 	}
 
 	for(const auto *town : cc->getTownsInfo())
@@ -336,7 +339,6 @@ uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & 
 const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance * obj) const
 {
 	auto tile = obj->visitablePos();
-
 	return getTileThreat(tile);
 }
 

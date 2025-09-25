@@ -55,6 +55,8 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 					&*townArmyAvailableToBuy,
 					TerrainId::NONE);
 
+				// TODO: Mircea: Shouldn't matter if hero is MAIN when buying reinforcements if there's a threat around
+				// Evaluate the entire code with the outside towns loop too.
 				if(reinforcement)
 					vstd::amin(reinforcement, aiNk->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town));
 

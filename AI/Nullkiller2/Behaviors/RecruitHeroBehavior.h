@@ -46,15 +46,23 @@ namespace Goals
 			const PlayerColor & playerID,
 			const DangerHitMapAnalyzer & dangerHitMap,
 			int & treasureSourcesCount,
-			const CGTownInstance * town
+			const CGTownInstance & town
 		);
 		static void calculateBestHero(
 			const std::vector<const CGHeroInstance *> & availableHeroes,
 			const HeroManager & heroManager,
 			const RecruitHeroChoice & bestChoice,
-			const CGTownInstance * town,
+			const CGTownInstance & town,
 			uint8_t closestThreatTurn,
 			float visitabilityRatio
+		);
+		static void calculateFinalDecision(
+			const Nullkiller & aiNk,
+			Goals::TGoalVec tasks,
+			const std::vector<const CGHeroInstance *> & ourHeroes,
+			const RecruitHeroChoice & bestChoice,
+			bool haveCapitol,
+			int treasureSourcesCount
 		);
 	};
 }

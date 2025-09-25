@@ -145,9 +145,10 @@ namespace AIPathfinding
 				shipyards.push_back(t);
 		}
 
-		for(const CGObjectInstance * obj : aiNk->memory->visitableObjs)
+		for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 		{
-			if(obj->ID != Obj::TOWN) //towns were handled in the previous loop
+			const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+			if(obj && obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
 				if(const auto * shipyard = dynamic_cast<const IShipyard *>(obj))
 					shipyards.push_back(shipyard);

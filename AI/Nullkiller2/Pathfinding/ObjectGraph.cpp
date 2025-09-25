@@ -94,8 +94,9 @@ void ObjectGraph::removeObject(const CGObjectInstance * obj, CCallback & cc)
 
 void ObjectGraph::connectHeroes(const Nullkiller * aiNk)
 {
-	for(auto obj : aiNk->memory->visitableObjs)
+	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
+		const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
 		if(obj && obj->ID == Obj::HERO)
 		{
 			addObject(obj);

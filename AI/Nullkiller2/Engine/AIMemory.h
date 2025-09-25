@@ -18,8 +18,8 @@ namespace NK2AI
 class AIMemory
 {
 public:
-	std::set<const CGObjectInstance *> visitableObjs;
-	std::set<const CGObjectInstance *> alreadyVisited;
+	std::set<ObjectInstanceID> visitableObjs;
+	std::set<ObjectInstanceID> alreadyVisited;
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel>> knownTeleportChannels;
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 
@@ -30,7 +30,10 @@ public:
 	void markObjectVisited(const CGObjectInstance * obj);
 	void markObjectUnvisited(const CGObjectInstance * obj);
 	bool wasVisited(const CGObjectInstance * obj) const;
-	void removeInvisibleObjects(CCallback * cb);
+	void removeInvisibleOrDeletedObjects(const CCallback & cb);
+	// Utility method to reuse code, use visitableIds directly where possible to a
+	std::vector<const CGObjectInstance *> visitableIdsToObjsVector(const CCallback & cb) const;
+	std::set<const CGObjectInstance *> visitableIdsToObjsSet(const CCallback & cb) const;
 };
 
 }

@@ -107,7 +107,7 @@ void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * ai
 	buildAnalyzer.reset(new BuildAnalyzer(this));
 	objectClusterizer.reset(new ObjectClusterizer(this));
 	dangerEvaluator.reset(new FuzzyHelper(this));
-	pathfinder.reset(new AIPathfinder(cc.get(), this));
+	pathfinder.reset(new AIPathfinder(this));
 	armyManager.reset(new ArmyManager(cc.get(), this));
 	heroManager.reset(new HeroManager(cc.get(), this));
 	decomposer.reset(new DeepDecomposer(this));
@@ -268,7 +268,7 @@ void Nullkiller::updateState()
 		logAi->trace("Skipping full state regeneration - up to date");
 	else
 	{
-		memory->removeInvisibleObjects(cc.get());
+		memory->removeInvisibleOrDeletedObjects(*cc);
 		dangerHitMap->updateHitMap();
 		dangerHitMap->calculateTileOwners();
 
@@ -504,7 +504,9 @@ bool Nullkiller::updateStateAndExecutePriorityPass(Goals::TGoalVec & tempResults
 	{
 		tempResults.clear();
 
+		// TODO: Mircea: Should merge recruiting from DefenseBehavior
 		decompose(tempResults, sptr(RecruitHeroBehavior()), 1);
+		// TODO: Mircea: Should merge recruiting from DefenseBehavior
 		decompose(tempResults, sptr(BuyArmyBehavior()), 1);
 		decompose(tempResults, sptr(BuildingBehavior()), 1);
 

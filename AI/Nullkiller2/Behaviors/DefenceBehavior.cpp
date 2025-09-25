@@ -38,7 +38,7 @@ Goals::TGoalVec DefenceBehavior::decompose(const Nullkiller * aiNk) const
 {
 	Goals::TGoalVec tasks;
 
-	for(auto town : aiNk->cc->getTownsInfo())
+	for(const auto town : aiNk->cc->getTownsInfo())
 	{
 		evaluateDefence(tasks, town, aiNk);
 	}
@@ -95,9 +95,7 @@ void handleCounterAttack(
 				continue;
 
 			Composition composition;
-
 			composition.addNext(DefendTown(town, threat, path, true)).addNext(goal);
-
 			tasks.push_back(Goals::sptr(composition));
 		}
 	}
@@ -108,7 +106,6 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 	if(aiNk->isHeroLocked(town->getGarrisonHero()))
 	{
 		logAi->trace("Hero %s in garrison of town %s is supposed to defend the town", town->getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
-
 		return true;
 	}
 
@@ -117,12 +114,11 @@ bool handleGarrisonHeroFromPreviousTurn(const CGTownInstance * town, Goals::TGoa
 		if(aiNk->cc->getHeroCount(aiNk->playerID, false) < GameConstants::MAX_HEROES_PER_PLAYER)
 		{
 			logAi->trace("Extracting hero %s from garrison of town %s", town->getGarrisonHero()->getNameTranslated(), town->getNameTranslated());
-
 			tasks.push_back(Goals::sptr(Goals::ExchangeSwapTownHeroes(town, nullptr).setpriority(5)));
-
 			return false;
 		}
-		else if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(town->getGarrisonHero()) == HeroRole::MAIN)
+
+		if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(town->getGarrisonHero()) == HeroRole::MAIN)
 		{
 			auto armyDismissLimit = 1000;
 			auto heroToDismiss = aiNk->heroManager->findWeakHeroToDismiss(armyDismissLimit);
@@ -145,13 +141,13 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 
 	auto threatNode = aiNk->dangerHitMap->getObjectThreat(town);
 	std::vector<HitMapInfo> threats = aiNk->dangerHitMap->getTownThreats(town);
-
+	// TODO: Mircea: Why don't we check if there's any danger in threadNode? Maybe map is still unexplored and no danger
+	// or simply no one is around
 	threats.push_back(threatNode.fastestDanger); // no guarantee that fastest danger will be there
 
 	if(town->getGarrisonHero() && handleGarrisonHeroFromPreviousTurn(town, tasks, aiNk))
-	{
 		return;
-	}
+
 	if(!threatNode.fastestDanger.heroPtr.isVerified())
 	{
 #if NK2AI_TRACE_LEVEL >= 1
@@ -160,13 +156,14 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		return;
 	}
 
-	uint64_t reinforcement = aiNk->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
-
+	const uint64_t reinforcement = aiNk->armyManager->howManyReinforcementsCanBuy(town->getUpperArmy(), town);
 	if(reinforcement)
 	{
 #if NK2AI_TRACE_LEVEL >= 1
 		logAi->trace("Town %s can buy defence army %lld", town->getNameTranslated(), reinforcement);
 #endif
+
+		// TODO: Mircea: This won't have any money left because BuyArmyBehavior runs first and could have used all resources by now
 		tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(0.5f)));
 	}
 
@@ -205,7 +202,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		for(int i = 0; i < paths.size(); i++)
 		{
 			auto & path = paths[i];
-
 			if(!closestWay || path.movementCost() < closestWay->movementCost())
 				closestWay = &path;
 
@@ -317,7 +313,6 @@ void DefenceBehavior::evaluateDefence(Goals::TGoalVec & tasks, const CGTownInsta
 		for(int i : pathsToDefend)
 		{
 			AIPath & path = paths[i];
-
 			for(int j : defferedPaths[path.targetHero])
 			{
 				AIPath & defferedPath = paths[j];
@@ -419,7 +414,7 @@ void DefenceBehavior::evaluateRecruitingHero(Goals::TGoalVec & tasks, const HitM
 			bool heroAlreadyHiredInOtherTown = false;
 			for(const auto & task : tasks)
 			{
-				if(const auto recruitGoal = dynamic_cast<Goals::RecruitHero *>(task.get()))
+				if(auto * const recruitGoal = dynamic_cast<Goals::RecruitHero *>(task.get()))
 				{
 					if(recruitGoal->getHero() == hero)
 					{

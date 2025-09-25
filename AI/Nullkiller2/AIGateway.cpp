@@ -222,7 +222,7 @@ void AIGateway::tileHidden(const FowTilesType & pos)
 {
 	LOG_TRACE(logAi);
 
-	nullkiller->memory->removeInvisibleObjects(cc.get());
+	nullkiller->memory->removeInvisibleOrDeletedObjects(*cc);
 }
 
 void AIGateway::tileRevealed(const FowTilesType & pos)
@@ -1008,9 +1008,10 @@ void AIGateway::waitTillFree()
 std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 {
 	std::vector<const CGObjectInstance *> ret;
-	for(const CGObjectInstance * obj : nullkiller->memory->visitableObjs)
+	for(const ObjectInstanceID objId : nullkiller->memory->visitableObjs)
 	{
-		if(obj->tempOwner == playerID)
+		const CGObjectInstance * obj = cc->getObj(objId, false);
+		if(obj && obj->tempOwner == playerID)
 			ret.push_back(obj);
 	}
 	return ret;
@@ -1628,12 +1629,11 @@ void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory
 {
 	if(cc->getDate(Date::DAY_OF_WEEK) == 1)
 	{
-		for(const CGObjectInstance * obj : memory->visitableObjs)
+		for(const ObjectInstanceID objId : memory->visitableObjs)
 		{
-			if(isWeeklyRevisitable(playerID, obj))
-			{
+			const CGObjectInstance * obj = cc->getObj(objId, false);
+			if(obj && isWeeklyRevisitable(playerID, obj))
 				memory->markObjectUnvisited(obj);
-			}
 		}
 	}
 }

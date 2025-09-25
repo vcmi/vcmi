@@ -8,6 +8,7 @@
 *
 */
 #include "../StdInc.h"
+
 #include "AIMemory.h"
 
 namespace NK2AI
@@ -15,25 +16,25 @@ namespace NK2AI
 
 void AIMemory::removeFromMemory(const CGObjectInstance * obj)
 {
-	vstd::erase_if_present(visitableObjs, obj);
-	vstd::erase_if_present(alreadyVisited, obj);
+	vstd::erase_if_present(visitableObjs, obj->id);
+	vstd::erase_if_present(alreadyVisited, obj->id);
 
 	//TODO: Find better way to handle hero boat removal
-	if(auto hero = dynamic_cast<const CGHeroInstance *>(obj))
+	if(const auto * hero = dynamic_cast<const CGHeroInstance *>(obj))
 	{
 		if(hero->inBoat())
 		{
-			vstd::erase_if_present(visitableObjs, hero->getBoat());
-			vstd::erase_if_present(alreadyVisited, hero->getBoat());
+			vstd::erase_if_present(visitableObjs, hero->getBoat()->id);
+			vstd::erase_if_present(alreadyVisited, hero->getBoat()->id);
 		}
 	}
 }
 
-void AIMemory::removeFromMemory(ObjectIdRef obj)
+void AIMemory::removeFromMemory(const ObjectIdRef obj)
 {
-	auto matchesId = [&](const CGObjectInstance * hlpObj) -> bool
+	auto matchesId = [&](const ObjectInstanceID & objId) -> bool
 	{
-		return hlpObj->id == obj.id;
+		return objId == obj.id;
 	};
 
 	vstd::erase_if(visitableObjs, matchesId);
@@ -45,19 +46,15 @@ void AIMemory::addSubterraneanGate(const CGObjectInstance * entrance, const CGOb
 	knownSubterraneanGates[entrance] = exit;
 	knownSubterraneanGates[exit] = entrance;
 
-	logAi->trace(
-		"Found a pair of subterranean gates between %s and %s!",
-		entrance->visitablePos().toString(),
-		exit->visitablePos().toString());
+	logAi->trace("Found a pair of subterranean gates between %s and %s!", entrance->visitablePos().toString(), exit->visitablePos().toString());
 }
 
 void AIMemory::addVisitableObject(const CGObjectInstance * obj)
 {
-	visitableObjs.insert(obj);
+	visitableObjs.insert(obj->id);
 
 	// All teleport objects seen automatically assigned to appropriate channels
-	auto teleportObj = dynamic_cast<const CGTeleport *>(obj);
-	if(teleportObj)
+	if(const auto teleportObj = dynamic_cast<const CGTeleport *>(obj))
 	{
 		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 	}
@@ -67,45 +64,64 @@ void AIMemory::markObjectVisited(const CGObjectInstance * obj)
 {
 	if(!obj)
 		return;
-	
+
 	// TODO: maybe this logic belongs to CaptureObjects::shouldVisit
 	if(const auto * rewardable = dynamic_cast<const CRewardableObject *>(obj))
 	{
-		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
+		if(rewardable->configuration.getVisitMode() == Rewardable::VISIT_HERO) //we may want to visit it with another hero
 			return;
 
-		if (rewardable->configuration.getVisitMode() == Rewardable::VISIT_BONUS) //or another time
+		if(rewardable->configuration.getVisitMode() == Rewardable::VISIT_BONUS) //or another time
 			return;
 	}
 
 	if(obj->ID == Obj::MONSTER)
 		return;
 
-	alreadyVisited.insert(obj);
+	alreadyVisited.insert(obj->id);
 }
 
 void AIMemory::markObjectUnvisited(const CGObjectInstance * obj)
 {
-	vstd::erase_if_present(alreadyVisited, obj);
+	vstd::erase_if_present(alreadyVisited, obj->id);
 }
 
 bool AIMemory::wasVisited(const CGObjectInstance * obj) const
 {
-	return vstd::contains(alreadyVisited, obj);
+	return vstd::contains(alreadyVisited, obj->id);
 }
 
-void AIMemory::removeInvisibleObjects(CCallback * cb)
+void AIMemory::removeInvisibleOrDeletedObjects(const CCallback & cb)
 {
-	auto shouldBeErased = [&](const CGObjectInstance * obj) -> bool
+	auto shouldBeErased = [&](const ObjectInstanceID objId) -> bool
 	{
-		if(obj)
-			return !cb->getObj(obj->id, false); // no verbose output needed as we check object visibility
-		else
-			return true;
+		return !cb.getObj(objId, false);
 	};
 
 	vstd::erase_if(visitableObjs, shouldBeErased);
 	vstd::erase_if(alreadyVisited, shouldBeErased);
+}
+
+std::vector<const CGObjectInstance *> AIMemory::visitableIdsToObjsVector(const CCallback & cb) const
+{
+	auto objs = std::vector<const CGObjectInstance *>();
+	for(const ObjectInstanceID objId : visitableObjs)
+	{
+		if(const auto * obj = cb.getObj(objId, false))
+			objs.push_back(obj);
+	}
+	return objs;
+}
+
+std::set<const CGObjectInstance *> AIMemory::visitableIdsToObjsSet(const CCallback & cb) const
+{
+	auto objs = std::set<const CGObjectInstance *>();
+	for(const ObjectInstanceID objId : visitableObjs)
+	{
+		if(const auto * obj = cb.getObj(objId, false))
+			objs.insert(obj);
+	}
+	return objs;
 }
 
 }
