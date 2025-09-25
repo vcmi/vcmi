@@ -5,7 +5,7 @@ if(ENABLE_INNOEXTRACT)
 endif()
 
 set(launcher_SRCS
-		StdInc.cpp
+	        StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/modstateitemmodel_moc.cpp
@@ -26,6 +26,7 @@ set(launcher_SRCS
 		languages.cpp
 		updatedialog_moc.cpp
 		prepare.cpp
+		usr_data_mgr.cpp
 )
 if(IOS)
 	list(APPEND launcher_SRCS
@@ -43,7 +44,7 @@ elseif(ANDROID)
 endif()
 
 set(launcher_HEADERS
-		StdInc.h
+	        StdInc.h
 		aboutProject/aboutproject_moc.h
 		modManager/cdownloadmanager_moc.h
 		modManager/modstateitemmodel_moc.h
@@ -65,10 +66,11 @@ set(launcher_HEADERS
 		innoextract.h
 		prepare.h
 		prepare_p.h
+		usr_data_mgr.h
 )
 
 set(launcher_FORMS
-		aboutProject/aboutproject_moc.ui
+	        aboutProject/aboutproject_moc.ui
 		modManager/cmodlistview_moc.ui
 		modManager/imageviewer_moc.ui
 		settingsView/configeditordialog_moc.ui
@@ -129,8 +131,8 @@ if(ENABLE_TRANSLATIONS)
 ${rccQmFiles}
 </qresource>
 </RCC>"
-		)
-	endif()
+                )
+        endif()
 endif()
 
 if(WIN32)
@@ -154,10 +156,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmilauncher OBJECT ${launcher_QM})
 else()
-find_package(Qt5 REQUIRED COMPONENTS Widgets)
-
-add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON}
-	        usr_data_mgr.h usr_data_mgr.cpp)
+	add_executable(vcmilauncher WIN32 ${launcher_QM} ${launcher_ICON})
 	vcmi_create_exe_shim(vcmilauncher)
 endif()
 
@@ -167,7 +166,7 @@ if(ENABLE_TRANSLATIONS)
 			TS_FILES ${launcher_TS}
 			RESOURCE_PREFIX "/${translationsDir}"
 			INCLUDE_DIRECTORIES
-				${CMAKE_CURRENT_BINARY_DIR})
+			        ${CMAKE_CURRENT_BINARY_DIR})
 	endif()
 endif()
 
@@ -175,23 +174,23 @@ if(ANDROID)
 	get_target_property(rccPath Qt${QT_VERSION_MAJOR}::rcc IMPORTED_LOCATION)
 	get_filename_component(qtDir "${rccPath}/../../" ABSOLUTE)
 	set(qtDir "${qtDir}" PARENT_SCOPE)
- 
+
 	function(generate_binary_resource resourceName resourceDir)
 		file(CREATE_LINK "${resourceDir}" "${CMAKE_CURRENT_BINARY_DIR}/${resourceName}"
 			COPY_ON_ERROR
 			SYMBOLIC
 		)
-		set(qrcFile "${CMAKE_CURRENT_BINARY_DIR}/${resourceName}.qrc")
+	        set(qrcFile "${CMAKE_CURRENT_BINARY_DIR}/${resourceName}.qrc")
 		execute_process(COMMAND
 			"${rccPath}" --project
 			WORKING_DIRECTORY "${resourceDir}"
 			OUTPUT_VARIABLE rccOutput
 		)
-		# add parent directory
+	        # add parent directory
 		string(REPLACE "<file>." "<file>${resourceName}" rccOutput "${rccOutput}")
 		file(WRITE "${qrcFile}" "${rccOutput}")
 	endfunction()
- 
+
 	generate_binary_resource("config" "${CMAKE_SOURCE_DIR}/config")
 	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/config.qrc")
 	generate_binary_resource("Mods" "${CMAKE_SOURCE_DIR}/Mods")
@@ -208,11 +207,11 @@ target_sources(vcmilauncher PRIVATE
 if(WIN32)
 	set_target_properties(vcmilauncher
 		PROPERTIES
-			OUTPUT_NAME "VCMI_launcher"
+		        OUTPUT_NAME "VCMI_launcher"
 			PROJECT_LABEL "VCMI_launcher"
 	)
 
-	# FIXME: Can't to get CMP0020 working with Vcpkg and CMake 3.8.2
+        # FIXME: Can't to get CMP0020 working with Vcpkg and CMake 3.8.2
 	# So far I tried:
 	# - cmake_minimum_required set to 2.8.11 globally and in this file
 	# - cmake_policy in all possible places
@@ -254,17 +253,16 @@ if(IOS)
 		"-framework UniformTypeIdentifiers"
 	)
 
-	# workaround https://github.com/conan-io/conan-center-index/issues/13332
+        # workaround https://github.com/conan-io/conan-center-index/issues/13332
 	if(USING_CONAN)
 		file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/QIOSIntegrationPlugin.h
 			"#include <QtPlugin>\nQ_IMPORT_PLUGIN(QIOSIntegrationPlugin)"
 		)
-		target_link_libraries(vcmilauncher
+	        target_link_libraries(vcmilauncher
 			Qt${QT_VERSION_MAJOR}::QIOSIntegrationPlugin
 			qt::QIOSIntegrationPlugin
 		)
-target_link_libraries(vcmilauncher PRIVATE Qt5::Widgets)
-endif()
+        endif()
 elseif(ANDROID)
 	set(androidSdkDir "$ENV{ANDROID_HOME}")
 	configure_file(

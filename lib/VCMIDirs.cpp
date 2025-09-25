@@ -226,10 +226,9 @@ bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
     std::string usrDataPtrContents = std::string();
     std::ifstream usrDataPtrFile = std::ifstream(ptrPath.string());
 
-    usrDataPtrFile >> usrDataPtrContents;
-    usrDataPtrFile.close();
+	usrDataPtrFile >> usrDataPtrContents;
 
-    return bfs::path(usrDataPtrContents);
+	return bfs::path(usrDataPtrContents);
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
@@ -674,10 +673,9 @@ bfs::path VCMIDirsXDG::userDataPath() const
     std::string usrDataPtrContents = std::string();
     std::ifstream usrDataPtrFile = std::ifstream(ptrPath);
 
-    usrDataPtrFile >> usrDataPtrContents;
-    usrDataPtrFile.close();
+	usrDataPtrFile >> usrDataPtrContents;
 
-    return bfs::path(usrDataPtrContents);
+	return bfs::path(usrDataPtrContents);
 }
 
 bfs::path VCMIDirsXDG::userCachePath() const

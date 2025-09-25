@@ -94,10 +94,6 @@ void CSettingsView::updateCheckbuttonText(QToolButton * button)
 void CSettingsView::loadSettings()
 {
 #ifdef VCMI_MOBILE
-    ui->lineEditUserDataPath->setDisabled(true);
-    ui->lineEditUserDataPath->hide();
-    ui->pushButtonUserDataBrowse->setDisabled(true);
-    ui->pushButtonUserDataBrowse->hide();
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
 
