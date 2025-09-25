@@ -204,7 +204,6 @@ bfs::path VCMIDirsWIN32::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usr
     std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath.string());
 
     vcmiDataPointerFile << (usrDataPath).string();
-    vcmiDataPointerFile.close();
 
     return usrDataPath;
 }
@@ -657,7 +656,6 @@ bfs::path VCMIDirsXDG::setUserDataPath(bfs::path usrDataPtrPath, bfs::path usrDa
     std::ofstream vcmiDataPointerFile = std::ofstream(usrDataPtrPath);
 
     vcmiDataPointerFile << (usrDataPath).string();
-    vcmiDataPointerFile.close();
 
     return usrDataPath;
 }
