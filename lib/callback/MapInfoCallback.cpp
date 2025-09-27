@@ -72,7 +72,7 @@ const CArtifactInstance * MapInfoCallback::getArtInstance(ArtifactInstanceID aid
 
 const CGObjectInstance * MapInfoCallback::getObjInstance(ObjectInstanceID oid) const
 {
-	return getMapConstPtr()->getObject((oid));
+	return getMapConstPtr()->getObject(oid);
 }
 
 bool MapInfoCallback::isInTheMap(const int3 & pos) const
