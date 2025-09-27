@@ -58,7 +58,7 @@ namespace Goals
 		);
 		static void calculateFinalDecision(
 			const Nullkiller & aiNk,
-			Goals::TGoalVec tasks,
+			Goals::TGoalVec & tasks,
 			const std::vector<const CGHeroInstance *> & ourHeroes,
 			const RecruitHeroChoice & bestChoice,
 			bool haveCapitol,

@@ -132,7 +132,7 @@ void RecruitHeroBehavior::calculateBestHero(
 
 void RecruitHeroBehavior::calculateFinalDecision(
 	const Nullkiller & aiNk,
-	Goals::TGoalVec tasks,
+	Goals::TGoalVec & tasks,
 	const std::vector<const CGHeroInstance *> & ourHeroes,
 	const RecruitHeroChoice & bestChoice,
 	const bool haveCapitol,
@@ -149,7 +149,7 @@ void RecruitHeroBehavior::calculateFinalDecision(
 		   || (aiNk.getFreeResources()[EGameResID::GOLD] > 10000 && !aiNk.buildAnalyzer->isGoldPressureOverMax() && haveCapitol)
 		   || (aiNk.getFreeResources()[EGameResID::GOLD] > 30000 && !aiNk.buildAnalyzer->isGoldPressureOverMax()))
 		{
-			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero).setpriority((float)3 / (ourHeroes.size() + 1))));
+			tasks.push_back(Goals::sptr(Goals::RecruitHero(bestChoice.town, bestChoice.hero).setpriority(3.0 / (ourHeroes.size() + 1))));
 		}
 	}
 }
