@@ -147,7 +147,7 @@ namespace AIPathfinding
 
 		for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 		{
-			const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+			const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
 			if(obj && obj->ID != Obj::TOWN) //towns were handled in the previous loop
 			{
 				if(const auto * shipyard = dynamic_cast<const IShipyard *>(obj))

@@ -1010,7 +1010,7 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 	std::vector<const CGObjectInstance *> ret;
 	for(const ObjectInstanceID objId : nullkiller->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = cc->getObj(objId, false);
+		const CGObjectInstance * obj = cc->getObjInstance(objId);
 		if(obj && obj->tempOwner == playerID)
 			ret.push_back(obj);
 	}
@@ -1631,7 +1631,7 @@ void AIGateway::memorizeRevisitableObjs(const std::unique_ptr<AIMemory> & memory
 	{
 		for(const ObjectInstanceID objId : memory->visitableObjs)
 		{
-			const CGObjectInstance * obj = cc->getObj(objId, false);
+			const CGObjectInstance * obj = cc->getObjInstance(objId);
 			if(obj && isWeeklyRevisitable(playerID, obj))
 				memory->markObjectUnvisited(obj);
 		}

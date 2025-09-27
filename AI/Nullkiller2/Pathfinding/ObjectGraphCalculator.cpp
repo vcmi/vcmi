@@ -29,7 +29,7 @@ void ObjectGraphCalculator::setGraphObjects()
 {
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+		const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
 		if(obj && obj->isVisitable() && obj->ID != Obj::HERO && obj->ID != Obj::EVENT)
 		{
 			addObjectActor(obj);

@@ -90,7 +90,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = cc->getObj(objId, false);
+		const CGObjectInstance * obj = cc->getObjInstance(objId);
 		if(!obj)
 			continue;
 
@@ -242,7 +242,7 @@ void DangerHitMapAnalyzer::calculateTileOwners()
 
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = cc->getObj(objId, false);
+		const CGObjectInstance * obj = cc->getObjInstance(objId);
 		if(obj && obj->ID == Obj::TOWN)
 			addTownHero(dynamic_cast<const CGTownInstance *>(obj));
 	}

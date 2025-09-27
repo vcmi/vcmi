@@ -96,7 +96,7 @@ void ObjectGraph::connectHeroes(const Nullkiller * aiNk)
 {
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+		const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
 		if(obj && obj->ID == Obj::HERO)
 		{
 			addObject(obj);

@@ -35,7 +35,7 @@ Goals::TGoalVec ExplorationBehavior::decompose(const Nullkiller * aiNk) const
 
 	for (const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const CGObjectInstance * obj = aiNk->cc->getObj(objId, false);
+		const CGObjectInstance * obj = aiNk->cc->getObjInstance(objId);
 		if(!obj)
 			continue;
 

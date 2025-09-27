@@ -30,10 +30,11 @@ public:
 	void markObjectVisited(const CGObjectInstance * obj);
 	void markObjectUnvisited(const CGObjectInstance * obj);
 	bool wasVisited(const CGObjectInstance * obj) const;
-	void removeInvisibleOrDeletedObjects(const CCallback & cb);
-	// Utility method to reuse code, use visitableIds directly where possible to a
-	std::vector<const CGObjectInstance *> visitableIdsToObjsVector(const CCallback & cb) const;
-	std::set<const CGObjectInstance *> visitableIdsToObjsSet(const CCallback & cb) const;
+	void removeInvisibleOrDeletedObjects(const CCallback & cc);
+	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
+	std::vector<const CGObjectInstance *> visitableIdsToObjsVector(const CCallback & cc) const;
+	// Utility method to reuse code, use visitableIds directly where possible to avoid time-of-check-to-time-of-use (TOCTOU) race condition
+	std::set<const CGObjectInstance *> visitableIdsToObjsSet(const CCallback & cc) const;
 };
 
 }

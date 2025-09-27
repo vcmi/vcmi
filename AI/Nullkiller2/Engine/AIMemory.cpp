@@ -54,7 +54,7 @@ void AIMemory::addVisitableObject(const CGObjectInstance * obj)
 	visitableObjs.insert(obj->id);
 
 	// All teleport objects seen automatically assigned to appropriate channels
-	if(const auto teleportObj = dynamic_cast<const CGTeleport *>(obj))
+	if(const auto * const teleportObj = dynamic_cast<const CGTeleport *>(obj))
 	{
 		CGTeleport::addToChannel(knownTeleportChannels, teleportObj);
 	}
@@ -91,34 +91,34 @@ bool AIMemory::wasVisited(const CGObjectInstance * obj) const
 	return vstd::contains(alreadyVisited, obj->id);
 }
 
-void AIMemory::removeInvisibleOrDeletedObjects(const CCallback & cb)
+void AIMemory::removeInvisibleOrDeletedObjects(const CCallback & cc)
 {
 	auto shouldBeErased = [&](const ObjectInstanceID objId) -> bool
 	{
-		return !cb.getObj(objId, false);
+		return !cc.getObj(objId, false);
 	};
 
 	vstd::erase_if(visitableObjs, shouldBeErased);
 	vstd::erase_if(alreadyVisited, shouldBeErased);
 }
 
-std::vector<const CGObjectInstance *> AIMemory::visitableIdsToObjsVector(const CCallback & cb) const
+std::vector<const CGObjectInstance *> AIMemory::visitableIdsToObjsVector(const CCallback & cc) const
 {
 	auto objs = std::vector<const CGObjectInstance *>();
 	for(const ObjectInstanceID objId : visitableObjs)
 	{
-		if(const auto * obj = cb.getObj(objId, false))
+		if(const auto * obj = cc.getObjInstance(objId))
 			objs.push_back(obj);
 	}
 	return objs;
 }
 
-std::set<const CGObjectInstance *> AIMemory::visitableIdsToObjsSet(const CCallback & cb) const
+std::set<const CGObjectInstance *> AIMemory::visitableIdsToObjsSet(const CCallback & cc) const
 {
 	auto objs = std::set<const CGObjectInstance *>();
 	for(const ObjectInstanceID objId : visitableObjs)
 	{
-		if(const auto * obj = cb.getObj(objId, false))
+		if(const auto * obj = cc.getObjInstance(objId))
 			objs.insert(obj);
 	}
 	return objs;
