@@ -18,6 +18,7 @@
 #include "../../../lib/mapObjects/CGMarket.h"
 #include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/constants/StringConstants.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 
 using namespace Goals;
 
@@ -171,7 +172,7 @@ TSubgoal CollectRes::whatToDoToTrade()
 		const IMarket * m = markets.back();
 		//attempt trade at back (best prices)
 		int howManyCanWeBuy = 0;
-		for (GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
+		for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if (i.getNum() == resID)
 				continue;

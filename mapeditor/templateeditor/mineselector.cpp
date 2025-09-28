@@ -15,10 +15,12 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
-auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+auto resourcesToShow = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS}; //todo: configurable resource support
 
-MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
+MineSelector::MineSelector(std::map<GameResID, ui16> & mines) :
 	ui(new Ui::MineSelector),
 	minesSelected(mines)
 {
@@ -29,18 +31,18 @@ MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	setWindowModality(Qt::ApplicationModal);
 
 	ui->tableWidgetMines->setColumnCount(2);
-	ui->tableWidgetMines->setRowCount(resources.size());
+	ui->tableWidgetMines->setRowCount(resourcesToShow.size());
 	ui->tableWidgetMines->setHorizontalHeaderLabels({tr("Resource"), tr("Mines")});
-	for (int row = 0; row < resources.size(); ++row)
+	for (int row = 0; row < resourcesToShow.size(); ++row)
 	{
-		auto name = LIBRARY->generaltexth->translate(TextIdentifier("core.restypes", resources[row].getNum()).get());
+		auto name = resourcesToShow[row].toResource()->getNameTranslated();
 		auto label = new QLabel(QString::fromStdString(name));
 		label->setAlignment(Qt::AlignCenter);
 		ui->tableWidgetMines->setCellWidget(row, 0, label);
 
 		auto spinBox = new QSpinBox();
 		spinBox->setRange(0, 100);
-		spinBox->setValue(mines[resources[row]]);
+		spinBox->setValue(mines[resourcesToShow[row]]);
 		ui->tableWidgetMines->setCellWidget(row, 1, spinBox);
 	}
 	ui->tableWidgetMines->resizeColumnsToContents();
@@ -48,7 +50,7 @@ MineSelector::MineSelector(std::map<TResource, ui16> & mines) :
 	show();
 }
 
-void MineSelector::showMineSelector(std::map<TResource, ui16> & mines)
+void MineSelector::showMineSelector(std::map<GameResID, ui16> & mines)
 {
 	auto * dialog = new MineSelector(mines);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -57,8 +59,8 @@ void MineSelector::showMineSelector(std::map<TResource, ui16> & mines)
 
 void MineSelector::on_buttonBoxResult_accepted()
 {
-	for (int row = 0; row < resources.size(); ++row)
-		minesSelected[resources[row]] = static_cast<QSpinBox *>(ui->tableWidgetMines->cellWidget(row, 1))->value();
+	for (int row = 0; row < resourcesToShow.size(); ++row)
+		minesSelected[resourcesToShow[row]] = static_cast<QSpinBox *>(ui->tableWidgetMines->cellWidget(row, 1))->value();
 
 	close();
 }

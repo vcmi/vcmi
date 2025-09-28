@@ -41,6 +41,7 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
 #include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -161,8 +162,6 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 				return GEM;
 			case EGameResID::GOLD:
 				return GOLD;
-			case EGameResID::MITHRIL:
-				return MITHRIL;
 			}
 		}
 		}
@@ -1057,7 +1056,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry(const PlayerSettings & S, con
 		{
 			auto str = MetaString::createFromTextID("vcmi.lobby.handicap");
 			str.appendRawString(":\n");
-			for(auto & res : EGameResID::ALL_RESOURCES())
+			for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 				if(s->handicap.startBonus[res] != 0)
 				{
 					str.appendRawString("\n");

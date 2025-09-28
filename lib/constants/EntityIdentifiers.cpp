@@ -21,6 +21,8 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroClass.h>
 #include <vcmi/HeroClassService.h>
+#include <vcmi/ResourceType.h>
+#include <vcmi/ResourceTypeService.h>
 #include <vcmi/Services.h>
 
 #include <vcmi/spells/Spell.h>
@@ -37,6 +39,7 @@
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "entities/hero/CHeroClass.h"
+#include "entities/ResourceTypeHandler.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"
@@ -398,6 +401,16 @@ const HeroType * HeroTypeID::toEntity(const Services * services) const
 	return services->heroTypes()->getByIndex(num);
 }
 
+const Resource * GameResID::toResource() const
+{
+	return dynamic_cast<const Resource*>(toEntity(LIBRARY));
+}
+
+const ResourceType * GameResID::toEntity(const Services * services) const
+{
+	return services->resources()->getByIndex(num);
+}
+
 si32 SpellID::decode(const std::string & identifier)
 {
 	if (identifier == "preset")
@@ -628,7 +641,7 @@ si32 GameResID::decode(const std::string & identifier)
 
 std::string GameResID::encode(const si32 index)
 {
-	return GameConstants::RESOURCE_NAMES[index];
+	return GameResID(index).toResource()->getJsonKey();
 }
 
 si32 BuildingTypeUniqueID::decode(const std::string & identifier)
@@ -674,21 +687,6 @@ const std::array<PrimarySkill, 4> & PrimarySkill::ALL_SKILLS()
 	};
 
 	return allSkills;
-}
-
-const std::array<GameResID, 7> & GameResID::ALL_RESOURCES()
-{
-	static const std::array allResources = {
-		GameResID(WOOD),
-		GameResID(MERCURY),
-		GameResID(ORE),
-		GameResID(SULFUR),
-		GameResID(CRYSTAL),
-		GameResID(GEMS),
-		GameResID(GOLD)
-	};
-
-	return allResources;
 }
 
 std::string SecondarySkill::entityType()

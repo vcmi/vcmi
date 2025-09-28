@@ -296,47 +296,47 @@
         <translation type="unfinished">Video de cierre</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="46"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="51"/>
         <source>Custom</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Personalizado</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Infix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Infijo</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>X</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Y</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Label Pos X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Posición de la etiqueta X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Label Pos Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Posición de la etiqueta Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
         <source>Fewer Scenarios</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Menos escenarios</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">La nueva configuración de la región admite menos escenarios que antes. Algunos serán eliminados. ¿Continuar?</translation>

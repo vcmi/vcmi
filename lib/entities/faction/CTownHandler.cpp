@@ -53,12 +53,9 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	JsonNode ret;
 	JsonNode & cost = ret["cost"];
 
-	//note: this code will try to parse mithril as well but wil always return 0 for it
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
-
-	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
-
+	
 	parser.endLine();
 
 	return ret;
@@ -284,8 +281,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-	ret->resources = TResources(source["cost"]);
-	ret->produce =   TResources(source["produce"]);
+	ret->resources.resolveFromJson(source["cost"]);
+	ret->produce.resolveFromJson(source["produce"]);
 
 	ret->manualHeroVisit = source["manualHeroVisit"].Bool();
 	ret->upgradeReplacesBonuses = source["upgradeReplacesBonuses"].Bool();

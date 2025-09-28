@@ -23,6 +23,7 @@
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClassHandler.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CBonusTypeHandler.h"
 #include "../CSkillHandler.h"
@@ -263,6 +264,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
 	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
 	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
+	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
 }
 
 bool CContentHandler::preloadData(const ModDescription & mod, bool validate)

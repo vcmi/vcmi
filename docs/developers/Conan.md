@@ -29,8 +29,8 @@ The following platforms are supported and known to work, others might require ch
 0. If your platform is not on the list of supported ones or you don't want to use our prebuilt binaries, you can still build dependencies from source or try consuming prebuilt binaries from the central Conan repository - [ConanCenter](https://conan.io/center/). In this case skip to the [next section](#generate-cmake-integration) directly.
 
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
-    - *macOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode / Xcode CLT 14.x and later
-    - *iOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode 14.x and later
+    - *macOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode / Xcode CLT 16.x and later
+    - *iOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode 16.x and later
     - *Windows*: libraries are built with MSVC 19.4x (v143 toolset)
     - *Android*: libraries are built with NDK r25c (25.2.9519653)
 
@@ -59,7 +59,7 @@ However, Qt for Android requires one more executable that can't be found in your
 
 #### Option 2
 
-Building all those executables is rather fast as it doesn't require building whole Qt. This is how you do it in Bash shell:
+Building all those executables is rather fast as it doesn't require building whole Qt. This is how you do it in a Bash-like shell (this is not a ready script that can be run as is, read it and adjust to your platform / needs):
 
 ```sh
 # set Qt version that you're going to download and build
@@ -129,7 +129,7 @@ The highlighted parts can be adjusted:
 
 - ***conan-generated***: directory (absolute or relative) where the generated files will appear. This value is used in CMake presets from VCMI, but you can actually use any directory and override it in your local CMake presets.
 - ***never***: use this value to avoid building any dependency from source. You can also use `missing` to build binary packages, that are not present in your local cache, from source. There're also other values, see `conan install -h` or the full documentation linked below.
-- ***dependencies/conan_profiles/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](../../dependencies/conan_profiles) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile, will build for your desktop OS) or create your own profile for the desired platform.
+- ***dependencies/conan_profiles/PROFILE***: if you want to consume our prebuilt binaries, ***PROFILE*** must be replaced with one of filenames from our [Conan profiles directory](https://github.com/vcmi/vcmi-dependencies/tree/main/conan_profiles) (determining the right file should be straight-forward). Otherwise, either select one of our profiles or replace ***CI/conan/PROFILE*** with `default` (your default profile, will build for your desktop OS) or create your own profile for the desired platform.
 - ***EXTRA PARAMS***: additional params to the `conan install` command, you can specify multiple:
 
   - if you want to consume our prebuilt binaries for Apple platforms (macOS / iOS), pass `--profile=dependencies/conan_profiles/base/apple-system`
@@ -140,7 +140,7 @@ The highlighted parts can be adjusted:
 
 If you use `--build=never` and this command fails, then it means that you can't use prebuilt binaries out of the box. For example, try using `--build=missing` instead.
 
-VCMI "recipe" also has some options that you can specify. For example, if you don't care about game videos, you can disable FFmpeg dependency by passing `-o "&:with_ffmpeg=False"`. Check [the recipe](../../dependencies/conanfile.py) for details.
+VCMI "recipe" also has some options that you can specify. For example, if you don't care about game videos, you can disable FFmpeg dependency by passing `-o "&:with_ffmpeg=False"`. Check [the recipe](https://github.com/vcmi/vcmi-dependencies/tree/main/conanfile.py) for details.
 
 *Note*: you can find full reference of this command [in the official documentation](https://docs.conan.io/2/reference/commands/install.html) or by executing `conan install -h`.
 
@@ -152,7 +152,7 @@ You must adjust the above `conan install` command by replacing ***dependencies/c
 
 ### Building dependencies from source
 
-This subsection describes platform specifics to build libraries from source properly. Commands that our CI uses to build the dependencies can also be used as a reference, you can find them inside the [`dependencies` submodule](../../dependencies/.github/workflows/rebuildDependencies.yml) or in the [repository](https://github.com/vcmi/vcmi-dependencies/blob/main/.github/workflows/rebuildDependencies.yml).
+This subsection describes platform specifics to build libraries from source properly. Commands that our CI uses to build the dependencies can also be used as a reference, you can find them in the [dependcies repository](https://github.com/vcmi/vcmi-dependencies/blob/main/.github/workflows/rebuildDependencies.yml).
 
 You can use our Conan profiles or create your own (e.g. with different options), the choice is yours.
 
@@ -169,17 +169,17 @@ If you're going to build for iOS without using our profile: to build Qt 5 with `
 
 #### Building for Android
 
-It's highly recommended to use NDK recipe provided by Conan, otherwise build may fail. If you're using your own Conan profile, you can include our [NDK profile](../../dependencies/conan_profiles/base/android-ndk) via an additional `--profile` parameter on the command line.
+It's highly recommended to use NDK recipe provided by Conan, otherwise build may fail. If you're using your own Conan profile, you can include our [NDK profile](https://github.com/vcmi/vcmi-dependencies/tree/main/conan_profiles/base/android-ndk) via an additional `--profile` parameter on the command line.
 
 Android has issues loading self-built shared zlib library because binary name is identical to the system one, so we enforce using the OS-provided library. To achieve that, follow [below instructions](#using-recipes-for-system-libraries), you only need `zlib` directory.
 
-Also, Android requires a few patches, but they are needed only for specific use cases, so you may evaluate whether you need them. The patches can be found inside the [`dependencies` submodule](../../dependencies/conan_patches/qt/patches) or in the [repository](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches).
+Also, Android requires a few patches, but they are needed only for specific use cases, so you may evaluate whether you need them. The patches can be found in the [dependcies repository](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches).
 
 ##### Qt patches
 
 1. [Safety measure for Xiaomi devices](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/xiaomi.diff). It's unclear whether it's really needed, but without it [I faced a crash once](https://bugreports.qt.io/browse/QTBUG-111960).
 2. [Fix running on Android 5.0-5.1](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/android-21-22.diff) (API level 21-22).
-3. Enable running on Android 4.4 (API level 19-20, 32-bit only): [patch 1](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/android-19-jar.diff), [patch 1](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/android-19-java.diff).
+3. Enable running on Android 4.4 (API level 19-20, 32-bit only): [patch 1](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/android-19-jar.diff), [patch 2](https://github.com/vcmi/vcmi-dependencies/blob/main/conan_patches/qt/patches/android-19-java.diff).
 
 ##### Patches for other libraries
 
@@ -197,7 +197,7 @@ Also, to build Flac, Luajit and Opusfile for 32-bit targeting API Level < 24, a 
 
 First, you must build separate libraries with `conan create` if:
 
-- you chose to use patches (ours listed above or your own) for a library. You must also pass `--core-conf core.sources.patch:extra_path=<patches path>` parameter where `<patches path>` is the path to the patches directory, ours is located at [dependencies/conan_patches](../../dependencies/conan_patches).
+- you chose to use patches (ours listed above or your own) for a library. You must also pass `--core-conf core.sources.patch:extra_path=<patches path>` parameter where `<patches path>` is the path to the patches directory, ours is located at [dependencies/conan_patches](https://github.com/vcmi/vcmi-dependencies/tree/main/conan_patches).
 - you want to build LuaJIT for iOS or Android (they also require patches, see the above point). Upstream Conan recipe doesn't support this yet (but there's a [pull request](https://github.com/conan-io/conan-center-index/pull/26577)), so you'll have to use [fork](https://github.com/kambala-decapitator/conan-center-index/tree/package/luajit) where it works. *Note*: to build for 32-bit architecture (e.g. Android armv7) your OS must be able to run 32-bit executables, see [this issue](https://github.com/LuaJIT/LuaJIT/issues/664) for details (for example, macOS since 10.15 can't do that); on Linux amd64 you'll have to install `libc6-dev-i386` package.
 
 After that you can execute `conan install` to build the rest of the dependencies.
@@ -207,7 +207,7 @@ After that you can execute `conan install` to build the rest of the dependencies
 You must pass the generated toolchain file to CMake invocation.
 
 - if using custom CMake presets, define the path to the generated toolchain in `toolchainFile` field (or `CMAKE_TOOLCHAIN_FILE` cache variable) or include CMake presets file generated by Conan.
-- otherwise, if passing CMake options on the command line, use `--toolchain` option (available in CMake 3.21+) or `CMAKE_TOOLCHAIN_FILE` variable.
+- otherwise (passing CMake options on the command line, configuring them in an IDE etc.), use `--toolchain` CLI option (available in CMake 3.21+) or `CMAKE_TOOLCHAIN_FILE` variable.
 
 ## Examples
 

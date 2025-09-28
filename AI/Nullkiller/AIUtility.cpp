@@ -15,6 +15,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CQuest.h"
 #include "../../lib/mapping/TerrainTile.h"
@@ -470,7 +471,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return bonus->val * 400;
 		case BonusType::GENERATE_RESOURCE:
-			return bonus->val * LIBRARY->objh->resVals.at(bonus->subtype.as<GameResID>().getNum()) * 10;
+			return bonus->val * bonus->subtype.as<GameResID>().toResource()->getPrice() * 10;
 		case BonusType::SPELL_DURATION:
 			return bonus->val * 200;
 		case BonusType::MAGIC_RESISTANCE:

@@ -464,7 +464,7 @@ private:
 
 	enum class State { UNAFFORDABLE, ALREADY_UPGRADED, MAKE_UPGRADE, EMPTY, UNAVAILABLE };
 	static constexpr std::size_t slotsCount = 7;
-	//todo: mithril support
+	//todo: configurable resource support
 	static constexpr std::size_t resCount = 7;
 
 	const CGObjectInstance * fort;
