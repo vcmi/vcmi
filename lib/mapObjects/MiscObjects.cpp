@@ -18,6 +18,7 @@
 #include "../constants/StringConstants.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../CConfigHandler.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CSkillHandler.h"
@@ -143,7 +144,7 @@ ResourceSet CGMine::dailyIncome() const
 {
 	ResourceSet result;
 
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	result[producedResource] += defaultResProduction();
@@ -164,7 +165,7 @@ std::string CGMine::getHoverText(PlayerColor player) const
 	std::string hoverName = CArmedInstance::getHoverText(player);
 
 	if (tempOwner != PlayerColor::NEUTRAL)
-		hoverName += "\n(" + LIBRARY->generaltexth->restypes[producedResource.getNum()] + ")";
+		hoverName += "\n(" + producedResource.toResource()->getNameTranslated() + ")";
 
 	if(stacksCount())
 	{
@@ -238,7 +239,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 		{
 			JsonNode node;
 			for(const auto & resID : abandonedMineResources)
-				node.Vector().emplace_back(GameConstants::RESOURCE_NAMES[resID.getNum()]);
+				node.Vector().emplace_back(resID.toResource()->getJsonKey());
 
 			handler.serializeRaw("possibleResources", node, std::nullopt);
 		}
@@ -251,7 +252,10 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			for(const std::string & s : names)
 			{
-				int raw_res = vstd::find_pos(GameConstants::RESOURCE_NAMES, s);
+				std::vector<std::string> resNames;
+				for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
+					resNames.push_back(res.toResource()->getJsonKey());
+				int raw_res = vstd::find_pos(resNames, s);
 				if(raw_res < 0)
 					logGlobal->error("Invalid resource name: %s", s);
 				else
@@ -872,7 +876,7 @@ const IOwnableObject * CGGarrison::asOwnable() const
 ResourceSet CGGarrison::dailyIncome() const
 {
 	ResourceSet result;
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		result[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	return result;

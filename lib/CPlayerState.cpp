@@ -98,7 +98,7 @@ const IBonusBearer * PlayerState::getBonusBearer() const
 
 int PlayerState::getResourceAmount(int type) const
 {
-	return vstd::atOrDefault(resources, static_cast<size_t>(type), 0);
+	return resources[type];
 }
 
 template<typename T>

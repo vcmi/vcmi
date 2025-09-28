@@ -93,17 +93,10 @@
 		},
 		"cost" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"description" : "Cost to recruit this creature",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Cost to recruit this creature"
 		},
 		"speed" :     { "type" : "number" },
 		"hitPoints" : { "type" : "number" },

@@ -12,6 +12,7 @@
 
 #include "Nullkiller.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
@@ -22,6 +23,7 @@
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/GameSettings.h"
 #include "../../../lib/filesystem/Filesystem.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/BuildThis.h"
 #include "../Goals/StayAtTown.h"
@@ -136,7 +138,7 @@ int32_t getResourcesGoldReward(const TResources & res)
 {
 	int32_t result = 0;
 
-	for(auto r : GameResID::ALL_RESOURCES())
+	for(auto r : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(res[r] > 0)
 			result += r == EGameResID::GOLD ? res[r] : res[r] * 100;
@@ -1589,7 +1591,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						needed.positive();
 						int turnsTo = needed.maxPurchasableCount(income);
 						bool haveEverythingButGold = true;
-						for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+						for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 						{
 							if (i != GameResID::GOLD && resourcesAvailable[i] < evaluationContext.buildingCost[i])
 								haveEverythingButGold = false;

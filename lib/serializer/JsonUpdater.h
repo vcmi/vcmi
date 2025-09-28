@@ -36,6 +36,7 @@ protected:
 	void serializeInternal(const std::string & fieldName, si64 & value, const std::optional<si64> & defaultValue) override;
 	void serializeInternal(const std::string & fieldName, si32 & value, const std::optional<si32> & defaultValue, const std::vector<std::string> & enumMap) override;
 	void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) override;
+	void serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value) override;
 
 	void serializeInternal(std::string & value) override;
 	void serializeInternal(int64_t & value) override;

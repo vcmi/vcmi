@@ -75,6 +75,17 @@ void JsonSerializer::serializeInternal(const std::string & fieldName, std::vecto
 		data.emplace_back(rawId);
 }
 
+void JsonSerializer::serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value)
+{
+	if(value.empty())
+		return;
+
+	JsonMap & data = currentObject->operator[](fieldName).Struct();
+
+	for(const auto & [rawId, val] : value)
+		data[rawId].Integer() = val;
+}
+
 void JsonSerializer::serializeInternal(std::string & value)
 {
 	currentObject->String() = value;

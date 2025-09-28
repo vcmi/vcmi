@@ -227,7 +227,7 @@ void CMinorResDataBar::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 
-	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i)
+	for (GameResID i=EGameResID::WOOD; i<=EGameResID::GOLD; ++i) //todo: configurable resource support
 	{
 		std::string text = std::to_string(GAME->interface()->cb->getResourceAmount(i));
 
