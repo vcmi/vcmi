@@ -1668,6 +1668,8 @@ void CObjectListWindow::trimTextIfTooWide(std::string & text, int id) const
 {
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
 	std::string idStr = '(' + std::to_string(id) + ')';
+	if(text[0] == '{')
+		idStr = '}' + idStr;
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	std::string suffix = " ... " + idStr;
 
