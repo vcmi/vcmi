@@ -486,7 +486,7 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
 	assert(animationLayouts.empty());
 	assetGenerator->initialize();
-	animationLayouts = assetGenerator->generateAllAnimations();
+	updateGeneratedAssets();
 
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());
@@ -539,4 +539,15 @@ void RenderHandler::exportGeneratedAssets()
 {
 	for (const auto & entry : assetGenerator->generateAllImages())
 		entry.second->exportBitmap(VCMIDirs::get().userDataPath() / "Generated" / (entry.first.getOriginalName() + ".png"), nullptr);
+}
+
+std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
+{
+	return assetGenerator;
+}
+
+void RenderHandler::updateGeneratedAssets()
+{
+	for (const auto& [key, value] : assetGenerator->generateAllAnimations())
+        animationLayouts[key] = value;
 }
