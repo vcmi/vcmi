@@ -69,6 +69,8 @@ void AssetGenerator::initialize()
 		imageFiles[ImagePath::builtin("CampaignHc" + std::to_string(i) + "Image.png")] = [this, i](){ return createChroniclesCampaignImages(i);};
 	
 	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"), true);
+	
+	animationFiles[AnimationPath::builtin("SPRITES/GSPButtonClear")] = createGSPButtonClear();
 
 	createPaletteShiftedSprites();
 }
@@ -763,4 +765,28 @@ AssetGenerator::CanvasPtr AssetGenerator::createQuestWindow() const
 	canvas.drawBorder(r, borderColor);
 
 	return image;
+}
+
+AssetGenerator::AnimationLayoutMap AssetGenerator::createGSPButtonClear()
+{
+	auto baseImg = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("GSPBUTT"), EImageBlitMode::OPAQUE);
+	auto overlayImg = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("GSPBUT2"), EImageBlitMode::OPAQUE);
+
+	AnimationLayoutMap layout;
+	for(int i = 0; i < 4; i++)
+	{
+		ImagePath spriteName = ImagePath::builtin("GSPButtonClear" + std::to_string(i) + ".png");
+
+		imageFiles[spriteName] = [baseImg, overlayImg, i](){
+			auto newImg = ENGINE->renderHandler().createImage(baseImg->getImage(i)->dimensions(), CanvasScalingPolicy::IGNORE);
+			auto canvas = newImg->getCanvas();
+			canvas.draw(baseImg->getImage(i), Point(0, 0));
+			canvas.draw(overlayImg->getImage(i), Point(0, 0), Rect(0, 0, 20, 20));
+			return newImg;
+		};
+
+		layout[0].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+	}
+
+	return layout;
 }

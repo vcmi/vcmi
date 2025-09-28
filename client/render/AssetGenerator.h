@@ -62,6 +62,7 @@ private:
 	enum CreatureInfoPanelElement{ BONUS_EFFECTS, SPELL_EFFECTS, BUTTON_PANEL, COMMANDER_BACKGROUND, COMMANDER_ABILITIES };
 	CanvasPtr createCreatureInfoPanelElement(CreatureInfoPanelElement element) const;
 	CanvasPtr createQuestWindow() const;
+	AnimationLayoutMap createGSPButtonClear();
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);
