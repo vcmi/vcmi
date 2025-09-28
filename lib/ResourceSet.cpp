@@ -31,7 +31,7 @@ ResourceSet::ResourceSet(const ResourceSet& rhs)
 
 void ResourceSet::resizeContainer()
 {
-	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	container.resize(std::max(static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size()), GameConstants::RESOURCE_QUANTITY));
 }
 
 void ResourceSet::resolveFromJson(const JsonNode & node)

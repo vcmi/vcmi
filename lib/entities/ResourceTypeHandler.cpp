@@ -74,7 +74,8 @@ std::vector<GameResID> ResourceTypeHandler::getAllObjects() const
 	std::vector<GameResID> result;
 
 	for (const auto & resource : objects)
-		result.push_back(resource->getId());
+		if(resource)
+			result.push_back(resource->getId());
 
 	return result;
 }
