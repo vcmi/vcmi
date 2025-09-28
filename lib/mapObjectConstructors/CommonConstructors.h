@@ -70,6 +70,8 @@ public:
 	void initTypeData(const JsonNode & input) override;
 
 	GameResID getResourceType() const;
+	std::string getDescriptionTextID() const;
+	std::string getDescriptionTranslated() const;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>

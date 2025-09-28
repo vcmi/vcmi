@@ -25,6 +25,7 @@
 #include "../mapping/TerrainTile.h"
 #include "../modding/IdentifierStorage.h"
 #include "../texts/TextIdentifier.h"
+#include "../texts/CGeneralTextHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -99,11 +100,27 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 	{
 		resourceType = GameResID(index);
 	});
+
+	if (!config["name"].isNull())
+		LIBRARY->generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
+
+	if (!config["description"].isNull())
+		LIBRARY->generaltexth->registerString(config.getModScope(), getDescriptionTextID(), config["description"]);
 }
 
 GameResID MineInstanceConstructor::getResourceType() const
 {
 	return resourceType;
+}
+
+std::string MineInstanceConstructor::getDescriptionTextID() const
+{
+	return TextIdentifier(getBaseTextID(), "description").get();
+}
+
+std::string MineInstanceConstructor::getDescriptionTranslated() const
+{
+	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)

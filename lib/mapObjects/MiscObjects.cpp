@@ -171,7 +171,7 @@ std::string CGMine::getObjectName() const
 	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
 		return LIBRARY->generaltexth->translate("core.minename", getObjTypeIndex());
 	else
-		return getResourceHandler()->getResourceType().toResource()->getNameTranslated() + " " + LIBRARY->generaltexth->translate("core.genrltxt.617"); // TODO: new strings for new mines
+		return getResourceHandler()->getNameTranslated();
 }
 
 std::string CGMine::getHoverText(PlayerColor player) const
@@ -201,7 +201,7 @@ void CGMine::flagMine(IGameEventCallback & gameEvents, const PlayerColor & playe
 	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
 		iw.text.appendTextID(TextIdentifier("core.mineevnt", producedResource.getNum()).get()); //not use subID, abandoned mines uses default mine texts
 	else
-		iw.text.appendRawString(getObjectName()); // TODO: new strings for new mines
+		iw.text.appendRawString(getResourceHandler()->getDescriptionTranslated());
 	iw.player = player;
 	iw.components.emplace_back(ComponentType::RESOURCE_PER_DAY, producedResource, getProducedQuantity());
 	gameEvents.showInfoDialog(&iw);
