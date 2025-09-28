@@ -267,16 +267,7 @@ ResourcesPanel::ResourcesPanel(const CTradeableItem::ClickPressedFunctor & click
 {
 	OBJECT_CONSTRUCTION;
 
-	// TODO: replace with LIBRARY->resourceTypeHandler->getAllObjects() -> also check order after doing this
-	resourcesForTrade =
-	{
-		GameResID::WOOD, GameResID::MERCURY, GameResID::ORE,
-		GameResID::SULFUR, GameResID::CRYSTAL, GameResID::GEMS,
-		GameResID::GOLD,
-		GameResID::GOLD, // TODO: remove
-		GameResID::GOLD, // TODO: remove
-		GameResID::GOLD // TODO: remove
-	};
+	resourcesForTrade = LIBRARY->resourceTypeHandler->getAllObjects();
 
 	int lines = vstd::divideAndCeil(resourcesForTrade.size(), 3);
 	if(lines > 3)

@@ -30,6 +30,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -202,7 +203,7 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 
 ImagePath CMarketWindow::getImagePathBasedOnResources(std::string name)
 {
-	int res = 9; //TODO: replace with LIBRARY->resourceTypeHandler->getAllObjects();
+	int res = LIBRARY->resourceTypeHandler->getAllObjects().size();
 	if(res == 8)
 		name += "-R8";
 	else if(res > 8)
