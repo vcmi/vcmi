@@ -21,6 +21,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/SThievesGuildInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -58,7 +59,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.resources.empty())
 		{
 			gameHandler->giveResources(color, event.resources);
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -94,7 +95,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		{
 			gameHandler->giveResources(player, event.resources);
 
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -256,9 +257,9 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
 
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
-		for (GameResID i : GameResID::ALL_RESOURCES())
+		for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			const std::string & name = GameConstants::RESOURCE_NAMES[i.getNum()];
+			const std::string & name = i.toResource()->getJsonKey();
 			int64_t weeklyBonus = difficultyConfig[name].Integer();
 			int64_t dayOfWeek = gameHandler->gameState().getDate(Date::DAY_OF_WEEK);
 			int64_t dailyIncome = incomeHandicapped[i];

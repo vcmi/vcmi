@@ -118,7 +118,7 @@ public:
 	void deselect() override;
 	void makeDeal() override;
 
-	const Point traderTextDimensions = Point(260, 75);
+	const Point traderTextDimensions = Point(256, 75);
 	std::shared_ptr<CTextBox> traderText;
 	bool madeTransaction;
 

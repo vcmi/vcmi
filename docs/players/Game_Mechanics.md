@@ -41,10 +41,6 @@ Stack experience interface has been merged with regular creature window. Among o
 
 VCMI offers native support for Commanders. Commanders are part of WoG mod for VCMI and require it to be enabled. However, once this is done, any new faction can use its own Commander, too.
 
-### Mithril module
-
-VCMI natively supports Mithril resource known from WoG. However, it is not currently used by any mod.
-
 ### Stack Artifact module
 
 In original WoG, there is one available Stack Artifact - Warlord's Banner, which is related directly to stack experience. VCMI natively supports any number of Stack Artifacts regardless if of Stack Experience module is enabled or not. However, currently no mods make use of this feature and it hasn't been tested for many years.

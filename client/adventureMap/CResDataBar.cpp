@@ -18,15 +18,21 @@
 #include "../GameInstance.h"
 #include "../gui/TextAlignment.h"
 #include "../widgets/Images.h"
+#include "../widgets/CComponent.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/networkPacks/Component.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 {
+	addUsedEvents(SHOW_POPUP);
+
 	pos.x += position.x;
 	pos.y += position.y;
 
@@ -88,4 +94,13 @@ void CResDataBar::showAll(Canvas & to)
 void CResDataBar::setPlayerColor(PlayerColor player)
 {
 	background->setPlayerColor(player);
+}
+
+void CResDataBar::showPopupWindow(const Point & cursorPosition)
+{
+	std::vector<std::shared_ptr<CComponent>> comp;
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
+		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, GAME->interface()->cb->getResourceAmount(i)));
+	
+	CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.270"), comp);
 }

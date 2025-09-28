@@ -16,6 +16,8 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/rmg/CRmgTemplate.h"
+#include "../../../lib/GameLibrary.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 
 QDomElement CardItem::getElementById(const QDomDocument& doc, const QString& id)
 {
@@ -149,11 +151,11 @@ int CardItem::getId()
 
 void CardItem::setResAmount(GameResID res, int val)
 {
-	auto textElem = getElementById(doc, "text" + QString::fromStdString(GameConstants::RESOURCE_NAMES[res]));
+	auto textElem = getElementById(doc, "text" + QString::fromStdString(res.toResource()->getJsonKey()));
 	textElem.setAttribute("style", textElem.attribute("style").replace(QRegularExpression("fill:.*?;"), "fill:" + QColor(useBlackText ? Qt::black : Qt::white).name() + ";"));
 	textElem.firstChild().setNodeValue(val ? QString::number(val) : "");
 
-	auto iconElem = getElementById(doc, "icon" + QString::fromStdString(GameConstants::RESOURCE_NAMES[res]));
+	auto iconElem = getElementById(doc, "icon" + QString::fromStdString(res.toResource()->getJsonKey()));
 	iconElem.setAttribute("opacity", val ? "1.0" : "0.1");
 }
 

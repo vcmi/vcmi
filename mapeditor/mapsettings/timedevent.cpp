@@ -14,6 +14,8 @@
 #include "../mapeditorroles.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) : 
 	controller(c),
@@ -45,13 +47,13 @@ TimedEvent::TimedEvent(MapController & c, QListWidgetItem * t, QWidget *parent) 
 		ui->playersAffected->addItem(item);
 	}
 
-	ui->resources->setRowCount(GameConstants::RESOURCE_QUANTITY);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	ui->resources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
 		auto name = QString::fromStdString(str.toString());
-		int val = params.value("resources").toMap().value(QString::fromStdString(GameConstants::RESOURCE_NAMES[i])).toInt();
+		int val = params.value("resources").toMap().value(QString::fromStdString(i.toResource()->getJsonKey())).toInt();
 		ui->resources->setItem(i, 0, new QTableWidgetItem(name));
 		auto nval = new QTableWidgetItem(QString::number(val));
 		nval->setFlags(nval->flags() | Qt::ItemIsEditable);
@@ -94,9 +96,9 @@ void TimedEvent::on_TimedEvent_finished(int result)
 	descriptor["players"] = QVariant::fromValue(players);
 
 	auto res = target->data(Qt::UserRole).toMap().value("resources").toMap();
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		auto itemType = QString::fromStdString(GameConstants::RESOURCE_NAMES[i]);
+		auto itemType = QString::fromStdString(i.toResource()->getJsonKey());
 		auto * itemQty = ui->resources->item(i, 1);
 		res[itemType] = QVariant::fromValue(itemQty->text().toInt());
 	}

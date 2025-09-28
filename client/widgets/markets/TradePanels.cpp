@@ -24,6 +24,7 @@
 #include "../../../lib/entities/artifact/CArtHandler.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 
 CTradeableItem::CTradeableItem(const Rect & area, EType Type, int32_t ID, int32_t serial)
 	: SelectableSlot(area, Point(1, 1))
@@ -176,7 +177,7 @@ void CTradeableItem::hover(bool on)
 			ENGINE->statusbar()->write(LIBRARY->artifacts()->getByIndex(id)->getNameTranslated());
 		break;
 	case EType::RESOURCE:
-		ENGINE->statusbar()->write(LIBRARY->generaltexth->restypes[id]);
+		ENGINE->statusbar()->write(GameResID(id).toResource()->getNameTranslated());
 		break;
 	case EType::PLAYER:
 		ENGINE->statusbar()->write(LIBRARY->generaltexth->capColors[id]);

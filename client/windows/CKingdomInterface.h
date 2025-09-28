@@ -207,6 +207,7 @@ private:
 	struct OwnedObjectInfo
 	{
 		int imageID;
+		AnimationPath imagePath;
 		ui32 count;
 		std::string hoverText;
 		OwnedObjectInfo():

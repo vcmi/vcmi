@@ -425,6 +425,7 @@
 	"vcmi.keyBindings.keyBinding.lobbySelectScenario": "Lobby select scenario",
 	"vcmi.keyBindings.keyBinding.lobbyToggleChat": "Lobby toggle chat",
 	"vcmi.keyBindings.keyBinding.lobbyTurnOptions": "Lobby turn options",
+	"vcmi.keyBindings.keyBinding.lobbyCampaignSets": "Lobby campaign sets",
 	"vcmi.keyBindings.keyBinding.mainMenuBack": "Main menu back",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaign": "Main menu campaign",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaignAb": "Main menu campaign ab",
@@ -835,6 +836,9 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "Simturns: 1 week, contacts blocked",
 	"vcmi.optionsTab.simturns.blocked2"       : "Simturns: 2 weeks, contacts blocked",
 	"vcmi.optionsTab.simturns.blocked4"       : "Simturns: 1 month, contacts blocked",
+
+	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
+	"vcmi.campaignSet.hota" : "Horn of the Abyss",
 	
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
@@ -847,6 +851,9 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d months",
 	"vcmi.optionsTab.simturns.months.1" : " %d month",
 	"vcmi.optionsTab.simturns.months.2" : " %d months",
+
+	"vcmi.selectionTab.campaignSets.hover" : "Campaign sets",
+	"vcmi.selectionTab.campaignSets.help" : "Multiple campaigns bundeled as set",
 
 	"vcmi.optionsTab.extraOptions.hover" : "Extra Options",
 	"vcmi.optionsTab.extraOptions.help" : "Additional settings for the game",

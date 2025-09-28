@@ -568,7 +568,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		data["name"]["plural"].String() =  parser.readString();
 
-		for(int v=0; v<7; ++v)
+		for(int v=0; v<GameConstants::RESOURCE_QUANTITY; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
 		data["fightValue"].Float() = parser.readNumber();
@@ -623,7 +623,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = ResourceSet(node["cost"]);
+	cre->cost.resolveFromJson(node["cost"]);
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
 	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);

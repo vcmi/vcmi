@@ -31,7 +31,7 @@
 
 	// Type of mod, list of all possible values:
 	// "Translation", "Town", "Test", "Templates", "Spells", "Music", "Maps", "Sounds", "Skills", "Other", "Objects", 
-	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI"
+	// "Mechanics", "Interface", "Heroes", "Graphical", "Expansion", "Creatures", "Compatibility", "Campaigns", "Artifacts", "AI", "Resources"
 	//
 	// Some mod types have additional effects on your mod:
 	// Translation: mod of this type is only active if player uses base language of this mod. See "language" property. 

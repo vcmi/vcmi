@@ -22,9 +22,9 @@ class MineSelector : public QDialog
 	Q_OBJECT
 
 public:
-	explicit MineSelector(std::map<TResource, ui16> & mines);
+	explicit MineSelector(std::map<GameResID, ui16> & mines);
 
-	static void showMineSelector(std::map<TResource, ui16> & mines);
+	static void showMineSelector(std::map<GameResID, ui16> & mines);
 
 private slots:
 	void on_buttonBoxResult_accepted();
@@ -33,5 +33,5 @@ private slots:
 private:
 	Ui::MineSelector *ui;
 
-	std::map<TResource, ui16> & minesSelected;
+	std::map<GameResID, ui16> & minesSelected;
 };

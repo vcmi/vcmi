@@ -3,11 +3,14 @@
 if(MACOS)
 	set(bundleDir "\${CMAKE_INSTALL_PREFIX}/${APP_BUNDLE_DIR}")
 	set(bundleContentsDir "${bundleDir}/Contents")
+	set(executablesDir "${bundleContentsDir}/MacOS")
 
-	if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
-		# note: cross-compiled Qt 5 builds macdeployqt for target platform instead of host
-		vcmi_deploy_qt(macdeployqt "\"${bundleDir}\"")
+	set(macdeployqtParams "\"${bundleDir}\"")
+	if(ENABLE_EDITOR)
+		string(APPEND macdeployqtParams " \"-executable=${executablesDir}/vcmieditor\"")
 	endif()
+	# note: cross-compiled Qt 5 builds macdeployqt for target platform instead of host
+	vcmi_deploy_qt(macdeployqt "${macdeployqtParams}")
 
 	# perform ad-hoc codesigning
 	# Intel Macs don't need it
@@ -29,11 +32,11 @@ if(MACOS)
 	set(codesignCommandWithEntitlements "${codesignCommand} --entitlements \"${CMAKE_SOURCE_DIR}/osx/entitlements.plist\"")
 	install(CODE "
 		execute_process(COMMAND
-			${codesignCommand} \"${bundleContentsDir}/MacOS/vcmibuilder\"
+			${codesignCommand} \"${executablesDir}/vcmibuilder\"
 		)
 		foreach(executable ${executablesToSign})
 			execute_process(COMMAND
-				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${bundleContentsDir}/MacOS/\${executable}\"
+				${codesignCommandWithEntitlements} --identifier eu.vcmi.\${executable} \"${executablesDir}/\${executable}\"
 			)
 		endforeach()
 	")

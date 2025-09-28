@@ -25,6 +25,9 @@ class CHero;
 class CHeroClass;
 class HeroClass;
 class HeroTypeService;
+class Resource;
+class ResourceType;
+class ResourceTypeService;
 class CFaction;
 class Faction;
 class Skill;
@@ -1061,7 +1064,6 @@ public:
 		CRYSTAL,
 		GEMS,
 		GOLD,
-		MITHRIL,
 		COUNT,
 
 		WOOD_AND_ORE = -4,  // special case for town bonus resource
@@ -1080,7 +1082,8 @@ public:
 	static std::string encode(const si32 index);
 	static std::string entityType();
 
-	static const std::array<GameResID, 7> & ALL_RESOURCES();
+	const Resource * toResource() const;
+	const ResourceType * toEntity(const Services * services) const;
 };
 
 class DLL_LINKAGE BuildingTypeUniqueID : public Identifier<BuildingTypeUniqueID>

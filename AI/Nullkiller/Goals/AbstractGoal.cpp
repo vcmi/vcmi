@@ -12,6 +12,7 @@
 #include "../AIGateway.h"
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 
 namespace NKAI
 {
@@ -43,13 +44,13 @@ std::string AbstractGoal::toString() const
 	switch(goalType)
 	{
 	case COLLECT_RES:
-		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + std::to_string(value) + ")";
+		desc = "COLLECT RESOURCE " + GameResID(resID).toResource()->getJsonKey() + " (" + std::to_string(value) + ")";
 		break;
 	case TRADE:
 	{
 		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 		if (obj)
-			desc = (boost::format("TRADE %d of %s at %s") % value % GameConstants::RESOURCE_NAMES[resID] % obj->getObjectName()).str();
+			desc = (boost::format("TRADE %d of %s at %s") % value % GameResID(resID).toResource()->getJsonKey() % obj->getObjectName()).str();
 	}
 	break;
 	case GATHER_TROOPS:

@@ -13,10 +13,10 @@
 
 #include "CCreatureHandler.h"
 #include "CGObjectInstance.h"
-#include "CObjectHandler.h"
 
 #include "../GameLibrary.h"
 #include "../entities/artifact/CArtHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -33,8 +33,8 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 1.0) / 20.0, 0.5);
 
-			double r = LIBRARY->objh->resVals[id1]; //value of given resource
-			double g = LIBRARY->objh->resVals[id2] / effectiveness; //value of wanted resource
+			double r = GameResID(id1).toResource()->getPrice(); //value of given resource
+			double g = GameResID(id2).toResource()->getPrice() / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
 			{
@@ -54,7 +54,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			double effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
 
 			double r = LIBRARY->creatures()->getByIndex(id1)->getRecruitCost(EGameResID::GOLD); //value of given creature in gold
-			double g = LIBRARY->objh->resVals[id2] / effectiveness; //value of wanted resource
+			double g = GameResID(id2).toResource()->getPrice() / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
 			{
@@ -75,7 +75,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
-			double r = LIBRARY->objh->resVals[id1]; //value of offered resource
+			double r = GameResID(id1).toResource()->getPrice(); //value of offered resource
 			double g = LIBRARY->artifacts()->getByIndex(id2)->getPrice() / effectiveness; //value of bought artifact in gold
 
 			if(id1 != 6) //non-gold prices are doubled
@@ -89,7 +89,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
 			double r = LIBRARY->artifacts()->getByIndex(id1)->getPrice() * effectiveness;
-			double g = LIBRARY->objh->resVals[id2];
+			double g = GameResID(id2).toResource()->getPrice();
 
 // 			if(id2 != 6) //non-gold prices are doubled
 // 				r /= 2;
@@ -163,7 +163,7 @@ std::vector<TradeItemBuy> IMarket::availableItemsIds(const EMarketMode mode) con
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::ARTIFACT_RESOURCE:
 	case EMarketMode::CREATURE_RESOURCE:
-		for(const auto & res : GameResID::ALL_RESOURCES())
+		for(const auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 			ret.push_back(res);
 	}
 	return ret;

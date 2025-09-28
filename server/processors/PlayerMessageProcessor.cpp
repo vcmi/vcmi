@@ -23,6 +23,7 @@
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -593,7 +594,7 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 
 	TResources resources;
 	resources[EGameResID::GOLD] = baseResourceAmount * 1000;
-	for (GameResID i = EGameResID::WOOD; i < EGameResID::GOLD; ++i)
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		resources[i] = baseResourceAmount;
 
 	gameHandler->giveResources(player, resources);

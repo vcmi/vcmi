@@ -17,6 +17,7 @@
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
 #include "../lib/entities/artifact/CArtifact.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/modding/IdentifierStorage.h"
 #include "../lib/modding/ModScope.h"
@@ -55,16 +56,16 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->rResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
-	ui->lResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; ++i)
+	ui->rResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
 		for(auto * w : {ui->rResources, ui->lResources})
 		{
 			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
-			item->setData(Qt::UserRole, QVariant::fromValue(i));
+			item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
 			w->setItem(i, 0, item);
 			auto * spinBox = new QSpinBox;
 			spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
@@ -779,8 +780,6 @@ void RewardsDelegate::updateModelData(QAbstractItemModel * model, const QModelIn
 		QStringList resourcesList;
 		for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
 		{
-			if(resource == GameResID::MITHRIL)
-				continue; // translated as "Abandoned"?
 			if(vinfo.reward.resources[resource] == 0)
 				continue;
 			MetaString str;

@@ -19,6 +19,7 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/SkillService.h>
 #include <vcmi/spells/Service.h>
+#include <vcmi/ResourceTypeService.h>
 
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/CBinaryReader.h"
@@ -342,4 +343,5 @@ void Graphics::initializeImageLists()
 	addImageListEntries(LIBRARY->factions());
 	addImageListEntries(LIBRARY->spells());
 	addImageListEntries(LIBRARY->skills());
+	addImageListEntries(LIBRARY->resources());
 }

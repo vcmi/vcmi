@@ -1,5 +1,5 @@
 /*
- * CObjectHandler.h, part of VCMI engine
+ * ResourceTypeService.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -7,21 +7,19 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 #pragma once
 
-#include "../GameConstants.h"
+#include "EntityService.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CGObjectInstance;
-class int3;
+class GameResID;
+class ResourceType;
 
-class DLL_LINKAGE CObjectHandler
+class DLL_LINKAGE ResourceTypeService : public EntityServiceT<GameResID, ResourceType>
 {
 public:
-	std::vector<ui32> resVals; //default values of resources in gold
-
-	CObjectHandler();
 };
 
 VCMI_LIB_NAMESPACE_END

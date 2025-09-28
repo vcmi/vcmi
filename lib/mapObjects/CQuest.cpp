@@ -22,6 +22,7 @@
 #include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
 #include "../entities/hero/CHeroHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
 #include "../GameConstants.h"
@@ -233,7 +234,7 @@ void CQuest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text
 	if(mission.resources.nonZero())
 	{
 		MetaString loot;
-		for(auto i : GameResID::ALL_RESOURCES())
+		for(auto i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if(mission.resources[i])
 			{
@@ -372,11 +373,9 @@ void CQuest::serializeJson(JsonSerializeFormat & handler, const std::string & fi
 		if(missionType == "Resources")
 		{
 			auto r = handler.enterStruct("resources");
-
-			for(size_t idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-			{
-				handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], mission.resources[idx], 0);
-			}
+			
+			for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+				handler.serializeInt(idx.toResource()->getJsonKey(), mission.resources[idx], 0);
 		}
 		
 		if(missionType == "Hero")

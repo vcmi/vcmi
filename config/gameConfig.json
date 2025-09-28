@@ -111,6 +111,10 @@
 	[
 		"config/terrains.json"
 	],
+	"resources" :
+	[
+		"config/resources.json"
+	],
 	"roads":
 	[
 		"config/roads.json"

@@ -55,6 +55,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	}
 	guards = input["guards"];
 	bannedForRandomDwelling = input["bannedForRandomDwelling"].Bool();
+	kingdomOverviewImage = AnimationPath::fromJson(input["kingdomOverviewImage"]);
 
 	for (const auto & mapTemplate : getTemplates())
 		onTemplateAdded(mapTemplate);
@@ -177,6 +178,11 @@ std::vector<const CCreature *> DwellingInstanceConstructor::getProducedCreatures
 			creatures.push_back(cre);
 	}
 	return creatures;
+}
+
+AnimationPath DwellingInstanceConstructor::getKingdomOverviewImage() const
+{
+	return kingdomOverviewImage;
 }
 
 VCMI_LIB_NAMESPACE_END
