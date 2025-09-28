@@ -2212,7 +2212,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			return;
 		}
 
-		auto costBase = TResources(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		ResourceSet costBase;
+		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
 		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 

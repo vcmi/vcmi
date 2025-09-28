@@ -53,7 +53,9 @@ TResources resourcesFromVariant(const QVariant & v)
 	JsonNode vJson;
 	for(auto r : v.toMap().keys())
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
-	return TResources(vJson);
+	ResourceSet res;
+	res.resolveFromJson(vJson);
+	return res;
 }
 
 QVariant toVariant(std::vector<ObjectInstanceID> objects)

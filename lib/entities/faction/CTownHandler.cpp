@@ -281,8 +281,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-	ret->resources = TResources(source["cost"]);
-	ret->produce =   TResources(source["produce"]);
+	ret->resources.resolveFromJson(source["cost"]);
+	ret->produce.resolveFromJson(source["produce"]);
 
 	ret->manualHeroVisit = source["manualHeroVisit"].Bool();
 	ret->upgradeReplacesBonuses = source["upgradeReplacesBonuses"].Bool();

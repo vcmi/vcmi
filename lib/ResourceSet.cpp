@@ -20,19 +20,27 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 ResourceSet::ResourceSet()
 {
-	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
+	resizeContainer();
 };
-
-ResourceSet::ResourceSet(const JsonNode & node)
-{
-	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
-	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		container[i] = static_cast<int>(node[i.toResource()->getJsonKey()].Float());
-}
 
 ResourceSet::ResourceSet(const ResourceSet& rhs)
 	: container(rhs.container) // vector copy constructor
 {
+	resizeContainer();
+}
+
+void ResourceSet::resizeContainer()
+{
+	container.resize(LIBRARY->resourceTypeHandler->getAllObjects().size());
+}
+
+void ResourceSet::resolveFromJson(const JsonNode & node)
+{
+	for(auto & n : node.Struct())
+		LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
+		{
+			(*this)[identifier] = static_cast<int>(n.second.Float());
+		});
 }
 
 void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string & fieldName)
