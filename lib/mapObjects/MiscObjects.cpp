@@ -251,35 +251,7 @@ void CGMine::serializeJsonOptions(JsonSerializeFormat & handler)
 	CArmedInstance::serializeJsonOptions(handler);
 	serializeJsonOwner(handler);
 	if(isAbandoned())
-	{
-		if(handler.saving)
-		{
-			JsonNode node;
-			for(const auto & resID : abandonedMineResources)
-				node.Vector().emplace_back(resID.toResource()->getJsonKey());
-
-			handler.serializeRaw("possibleResources", node, std::nullopt);
-		}
-		else
-		{
-			auto guard = handler.enterArray("possibleResources");
-			const JsonNode & node = handler.getCurrent();
-
-			auto names = node.convertTo<std::vector<std::string>>();
-
-			for(const std::string & s : names)
-			{
-				std::vector<std::string> resNames;
-				for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
-					resNames.push_back(res.toResource()->getJsonKey());
-				int raw_res = vstd::find_pos(resNames, s);
-				if(raw_res < 0)
-					logGlobal->error("Invalid resource name: %s", s);
-				else
-					abandonedMineResources.emplace(raw_res);
-			}
-		}
-	}
+		handler.serializeIdArray<GameResID>("possibleResources", abandonedMineResources);
 }
 
 bool CGTeleport::isEntrance() const
