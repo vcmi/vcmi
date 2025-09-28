@@ -297,7 +297,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	auto result = std::make_shared<CResDataBar>(image, area.topLeft());
 
-	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
+	for (const auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		const auto & node = input[i.toResource()->getJsonKey()];
 
@@ -340,7 +340,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceAdditional(const Js
 	int remainingSpace = area.w;
 	int resElementSize = 84;
 	int fitOffset = 2;
-	for(auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
+	for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(resource.getNum() < GameConstants::RESOURCE_QUANTITY)
 			continue;
