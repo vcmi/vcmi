@@ -13,7 +13,7 @@ To compile, the following packages (and their development counterparts) are need
 
 - CMake
 - SDL2 with devel packages: mixer, image, ttf
-- minizip
+- minizip or minizip-ng
 - zlib and zlib-devel
 - Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
 - Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules

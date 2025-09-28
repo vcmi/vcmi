@@ -119,6 +119,16 @@ void JsonDeserializer::serializeInternal(const std::string & fieldName, std::vec
 	}
 }
 
+void JsonDeserializer::serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value)
+{
+	const JsonMap & data = currentObject->operator[](fieldName).Struct();
+
+	value.clear();
+
+	for(const auto & [id, elem] : data)
+		value[id] = elem.Integer();
+}
+
 void JsonDeserializer::serializeInternal(std::string & value)
 {
 	value = currentObject->String();

@@ -304,6 +304,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyRandomTown",          EShortcut::LOBBY_RANDOM_TOWN         },
 		{"lobbyRandomTownVs",        EShortcut::LOBBY_RANDOM_TOWN_VS      },
 		{"lobbyHandicap",            EShortcut::LOBBY_HANDICAP            },
+		{"lobbyCampaignSets",        EShortcut::LOBBY_CAMPAIGN_SETS       },
 		{"mapsSizeS",                EShortcut::MAPS_SIZE_S               },
 		{"mapsSizeM",                EShortcut::MAPS_SIZE_M               },
 		{"mapsSizeL",                EShortcut::MAPS_SIZE_L               },

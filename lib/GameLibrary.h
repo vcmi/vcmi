@@ -20,7 +20,6 @@ class CHeroClassHandler;
 class CCreatureHandler;
 class CSpellHandler;
 class CSkillHandler;
-class CObjectHandler;
 class CObjectClassesHandler;
 class ObstacleSetHandler;
 class CTownHandler;
@@ -31,6 +30,7 @@ class BattleFieldHandler;
 class IBonusTypeHandler;
 class CBonusTypeHandler;
 class TerrainTypeHandler;
+class ResourceTypeHandler;
 class RoadTypeHandler;
 class RiverTypeHandler;
 class ObstacleHandler;
@@ -60,6 +60,7 @@ public:
 	const FactionService * factions() const override;
 	const HeroClassService * heroClasses() const override;
 	const HeroTypeService * heroTypes() const override;
+	const ResourceTypeService * resources() const override;
 #if SCRIPTING_ENABLED
 	const scripting::Service * scripts() const override;
 #endif
@@ -83,13 +84,12 @@ public:
 	std::unique_ptr<CSpellHandler> spellh;
 	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
 	std::unique_ptr<CSkillHandler> skillh;
-	// TODO: Remove ObjectHandler altogether?
-	std::unique_ptr<CObjectHandler> objh;
 	std::unique_ptr<CObjectClassesHandler> objtypeh;
 	std::unique_ptr<CTownHandler> townh;
 	std::unique_ptr<CGeneralTextHandler> generaltexth;
 	std::unique_ptr<CModHandler> modh;
 	std::unique_ptr<TerrainTypeHandler> terrainTypeHandler;
+	std::unique_ptr<ResourceTypeHandler> resourceTypeHandler;
 	std::unique_ptr<RoadTypeHandler> roadTypeHandler;
 	std::unique_ptr<RiverTypeHandler> riverTypeHandler;
 	std::unique_ptr<CIdentifierStorage> identifiersHandler;

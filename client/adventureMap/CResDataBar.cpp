@@ -26,11 +26,13 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/networkPacks/Component.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 {
 	addUsedEvents(SHOW_POPUP);
+ 
 	pos.x += position.x;
 	pos.y += position.y;
 
@@ -100,7 +102,7 @@ void CResDataBar::showPopupWindow(const Point & cursorPosition)
 		return;
 
 	std::vector<std::shared_ptr<CComponent>> comp;
-	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; i++)
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(i), GAME->interface()->cb->getResourceAmount(i)));
 
 	CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.270"), comp);

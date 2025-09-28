@@ -37,7 +37,7 @@ namespace GameConstants
 
 	constexpr int SKILL_QUANTITY=28;
 	constexpr int PRIMARY_SKILLS=4;
-	constexpr int RESOURCE_QUANTITY=8;
+	constexpr int RESOURCE_QUANTITY=7;
 	constexpr int HEROES_PER_TYPE=8; //amount of heroes of each type
 
 	// amounts of OH3 objects. Can be changed by mods, should be used only during H3 loading phase

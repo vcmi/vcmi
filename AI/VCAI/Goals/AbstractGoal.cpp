@@ -16,6 +16,7 @@
 #include "../BuildingManager.h"
 #include "../../../lib/constants/StringConstants.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
+#include "../../../lib/entities/ResourceTypeHandler.h"
 
 using namespace Goals;
 
@@ -56,13 +57,13 @@ std::string AbstractGoal::name() const //TODO: virtualize
 	case BUILD_STRUCTURE:
 		return "BUILD STRUCTURE";
 	case COLLECT_RES:
-		desc = "COLLECT RESOURCE " + GameConstants::RESOURCE_NAMES[resID] + " (" + std::to_string(value) + ")";
+		desc = "COLLECT RESOURCE " + GameResID(resID).toResource()->getJsonKey() + " (" + std::to_string(value) + ")";
 		break;
 	case TRADE:
 	{
 		auto obj = cb->getObjInstance(ObjectInstanceID(objid));
 		if (obj)
-			desc = (boost::format("TRADE %d of %s at %s") % value % GameConstants::RESOURCE_NAMES[resID] % obj->getObjectName()).str();
+			desc = (boost::format("TRADE %d of %s at %s") % value % GameResID(resID).toResource()->getJsonKey() % obj->getObjectName()).str();
 	}
 	break;
 	case GATHER_TROOPS:

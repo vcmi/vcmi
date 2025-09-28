@@ -209,8 +209,8 @@ public:
 
 	void setMonsterTypes(const std::set<FactionID> & value);
 
-	void setMinesInfo(const std::map<TResource, ui16> & value);
-	std::map<TResource, ui16> getMinesInfo() const;
+	void setMinesInfo(const std::map<GameResID, ui16> & value);
+	std::map<GameResID, ui16> getMinesInfo() const;
 
 	void setTreasureInfo(const std::vector<CTreasureInfo> & value);
 	void addTreasureInfo(const CTreasureInfo & value);
@@ -277,7 +277,7 @@ protected:
 	std::set<FactionID> monsterTypes;
 	std::set<FactionID> bannedMonsters;
 
-	std::map<TResource, ui16> mines; //obligatory mines to spawn in this zone
+	std::map<GameResID, ui16> mines; //obligatory mines to spawn in this zone
 
 	std::vector<CTreasureInfo> treasureInfo;
 
@@ -373,7 +373,7 @@ private:
 	std::set<HeroTypeID> bannedHeroes;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
-	std::map<TResource, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 
 	void inheritTownProperties(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

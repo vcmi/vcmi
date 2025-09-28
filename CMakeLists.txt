@@ -370,20 +370,6 @@ if(MINGW OR MSVC)
 		# https://developercommunity.visualstudio.com/content/problem/224597/linker-failing-because-of-multiple-definitions-of.html
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 	endif(MSVC)
-
-	if(MINGW)
-		# Temporary (?) workaround for failing builds on MinGW CI due to bug in TBB
-		set(CMAKE_CXX_EXTENSIONS ON)
-
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} ole32 oleaut32 ws2_32 mswsock dbghelp bcrypt)
-
-		# Check for iconv (may be needed for Boost.Locale)
-		include(CheckLibraryExists)
-		check_library_exists(iconv libiconv_open "" ICONV_FOUND)
-		if(ICONV_FOUND)
-			set(SYSTEM_LIBS ${SYSTEM_LIBS} iconv)
-		endif()
-	endif(MINGW)
 endif(MINGW OR MSVC)
 
 if(ANDROID)
@@ -455,27 +441,6 @@ if(ENABLE_LUA)
 	add_definitions(-DSCRIPTING_ENABLED=1)
 endif()
 
-if(USING_CONAN AND (MINGW AND CMAKE_HOST_UNIX))
-	# Hack for workaround https://github.com/conan-io/conan-center-index/issues/15405
-	# Remove once it will be fixed
-	execute_process(COMMAND
-		bash -c "grep -rl Mf ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/Mf/mf/g'"
-	)
-	# Hack for workaround ffmpeg broken linking (conan ffmpeg forgots to link to ws2_32)
-	# Remove once it will be fixed
-	execute_process(COMMAND
-		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32)/secur32 ws2_32)/g'"
-	)
-	execute_process(COMMAND
-		bash -c "grep -rl secur32 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/secur32 mfplat/secur32 ws2_32 mfplat/g'"
-	)
-	# Fixup tbb for cross-compiling on Conan
-	# Remove once it will be fixed
-	execute_process(COMMAND
-		bash -c "grep -rl tbb12 ${CONAN_INSTALL_FOLDER} | xargs sed -i 's/tbb tbb12/tbb12/g'"
-	)
-endif()
-
 ############################################
 #        Finding packages                  #
 ############################################
@@ -496,7 +461,11 @@ if(TARGET zlib::zlib)
 	add_library(ZLIB::ZLIB ALIAS zlib::zlib)
 endif()
 
-find_package(minizip REQUIRED)
+find_package(minizip)
+if(NOT minizip_FOUND)
+	find_package(minizip-ng REQUIRED)
+	add_library(minizip::minizip ALIAS MINIZIP::minizip-ng)
+endif()
 
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)
@@ -823,12 +792,6 @@ if(WIN32)
 		ExecShell '' 'netsh' 'advfirewall firewall delete rule name=vcmi_client' SW_HIDE
 	")
 
-	# Strip MinGW CPack target if build configuration without debug info
-	if(MINGW)
-		if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
-			set(CPACK_STRIP_FILES ON)
-		endif()
-	endif()
 	# set the install/unistall icon used for the installer itself
 	# There is a bug in NSI that does not handle full unix paths properly.
 	set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/clientapp/icons\\\\vcmi.ico")
@@ -845,7 +808,7 @@ if(WIN32)
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://vcmi.eu/")
 	set(CPACK_NSIS_CONTACT @CPACK_PACKAGE_CONTACT@)
 	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-	# Use BundleUtilities to fix build when Vcpkg is used and disable it for mingw
+
 	if(NOT (${CMAKE_CROSSCOMPILING}))
 		add_subdirectory(win)
 	endif()

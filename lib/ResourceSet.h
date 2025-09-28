@@ -26,16 +26,19 @@ class ResourceSet;
 class ResourceSet
 {
 private:
-	std::array<TResource, GameConstants::RESOURCE_QUANTITY> container = {};
+	std::vector<TResource> container = {};
+	DLL_LINKAGE void resizeContainer();
 public:
-	// read resources set from json. Format example: { "gold": 500, "wood":5 }
-	DLL_LINKAGE ResourceSet(const JsonNode & node);
 	DLL_LINKAGE ResourceSet();
+	DLL_LINKAGE ResourceSet(const ResourceSet& rhs);
+
+	DLL_LINKAGE void resolveFromJson(const JsonNode & node);
 
 
 #define scalarOperator(OPSIGN)									\
 	ResourceSet& operator OPSIGN ## =(const TResource &rhs) \
 	{														\
+		resizeContainer(); \
 		for(auto i = 0; i < container.size(); i++)						\
 			container.at(i) OPSIGN ## = rhs;						\
 															\
@@ -45,6 +48,7 @@ public:
 #define vectorOperator(OPSIGN)										\
 	ResourceSet& operator OPSIGN ## =(const ResourceSet &rhs)	\
 	{															\
+		resizeContainer(); \
 		for(auto i = 0; i < container.size(); i++)							\
 			container.at(i) OPSIGN ## = rhs[i];						\
 																\
@@ -84,21 +88,31 @@ public:
 	// Array-like interface
 	TResource & operator[](GameResID index)
 	{
+		resizeContainer();
 		return operator[](index.getNum());
 	}
 
 	const TResource & operator[](GameResID index) const 
 	{
+		if (index.getNum() >= container.size()) {
+			static const TResource defaultValue{};
+			return defaultValue;
+		}
 		return operator[](index.getNum());
 	}
 
 	TResource & operator[](size_t index)
 	{
+		resizeContainer();
 		return container.at(index);
 	}
 
 	const TResource & operator[](size_t index) const 
 	{
+		if (index >= container.size()) {
+			static const TResource defaultValue{};
+			return defaultValue;
+		}
 		return container.at(index);
 	}
 
@@ -173,6 +187,15 @@ public:
 		for(int & i : container)
 			i = rhs;
 
+		return *this;
+	}
+
+	ResourceSet& operator=(const ResourceSet& rhs)
+	{
+		if (this != &rhs)
+		{
+			container = rhs.container;
+		}
 		return *this;
 	}
 

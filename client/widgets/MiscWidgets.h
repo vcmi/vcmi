@@ -62,7 +62,7 @@ public:
 	void showPopupWindow(const Point & cursorPosition) override;
 };
 
-/// base class for hero/town/garrison tooltips
+/// base class for hero/town tooltips
 class CArmyTooltip : public CIntObject
 {
 	std::shared_ptr<CLabel> title;
@@ -72,6 +72,17 @@ class CArmyTooltip : public CIntObject
 public:
 	CArmyTooltip(Point pos, const InfoAboutArmy & army);
 	CArmyTooltip(Point pos, const CArmedInstance * army);
+};
+
+/// base class garrison tooltips
+class CGarrisonTooltip : public CIntObject
+{
+	std::shared_ptr<CLabel> title;
+	std::vector<std::shared_ptr<CAnimImage>> icons;
+	std::vector<std::shared_ptr<CLabel>> subtitles;
+	void init(const InfoAboutArmy& army);
+public:
+	CGarrisonTooltip(Point pos, const InfoAboutArmy& army);
 };
 
 /// Class for hero tooltip. Does not have any background!

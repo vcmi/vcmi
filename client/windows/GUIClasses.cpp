@@ -46,6 +46,7 @@
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
@@ -830,7 +831,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(LIBRARY->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	build->addCallback(onBuy);
 
-	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(cost[i] > GAME->interface()->cb->getResourceAmount(i))
 		{
@@ -1215,7 +1216,6 @@ void CHillFortWindow::updateGarrisons()
 
 	for(int i=0; i<slotsCount; i++)
 	{
-		std::fill(costs[i].begin(), costs[i].end(), 0);
 		State newState = getState(SlotID(i));
 		if(newState != State::EMPTY)
 		{
@@ -1668,6 +1668,8 @@ void CObjectListWindow::trimTextIfTooWide(std::string & text, int id) const
 {
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
 	std::string idStr = '(' + std::to_string(id) + ')';
+	if(text[0] == '{')
+		idStr = '}' + idStr;
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
 	std::string suffix = " ... " + idStr;
 

@@ -25,6 +25,7 @@
 #include "entities/faction/CTownHandler.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "entities/hero/CHeroHandler.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "campaign/CampaignRegionsHandler.h"
 #include "mapping/MapFormatSettings.h"
@@ -36,7 +37,6 @@
 #include "filesystem/Filesystem.h"
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
-#include "mapObjects/CObjectHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
 #include "mapping/CMapEditManager.h"
 #include "ScriptHandler.h"
@@ -73,6 +73,11 @@ const HeroClassService * GameLibrary::heroClasses() const
 const HeroTypeService * GameLibrary::heroTypes() const
 {
 	return heroh.get();
+}
+
+const ResourceTypeService * GameLibrary::resources() const
+{
+	return resourceTypeHandler.get();
 }
 
 #if SCRIPTING_ENABLED
@@ -171,6 +176,7 @@ void GameLibrary::initializeLibrary()
 
 	createHandler(generaltexth);
 	createHandler(bth);
+	createHandler(resourceTypeHandler);
 	createHandler(roadTypeHandler);
 	createHandler(riverTypeHandler);
 	createHandler(terrainTypeHandler);
@@ -180,7 +186,6 @@ void GameLibrary::initializeLibrary()
 	createHandler(creh);
 	createHandler(townh);
 	createHandler(biomeHandler);
-	createHandler(objh);
 	createHandler(objtypeh);
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);

@@ -86,31 +86,17 @@
 		},
 		"cost" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"description" : "Resources needed to build building",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Resources needed to build building"
 		},
 		"produce" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"description" : "Resources produced each day by this building",
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
-			}
+			"additionalProperties" : {
+				"type" : "number"
+			},
+			"description" : "Resources produced each day by this building"
 		},
 		"warMachine" : {
 			"type" : "string",
