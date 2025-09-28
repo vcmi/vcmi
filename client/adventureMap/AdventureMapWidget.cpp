@@ -21,6 +21,7 @@
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
+#include "../render/AssetGenerator.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
@@ -152,6 +153,15 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & 
 	auto image = AnimationPath::fromJson(input["image"]);
 	auto help = readHintText(input["help"]);
 	bool playerColored = input["playerColored"].Bool();
+
+	if(!input["generateFromBaseImage"].isNull())
+	{
+		bool small = input["generateSmall"].Bool();
+		auto assetGenerator = ENGINE->renderHandler().getAssetGenerator();
+		auto layout = assetGenerator->createAdventureMapButton(ImagePath::fromJson(input["generateFromBaseImage"]), small);
+		assetGenerator->addAnimationFile(AnimationPath::builtin("SPRITES/" + input["image"].String()), layout);
+		ENGINE->renderHandler().updateGeneratedAssets();
+	}
 
 	auto button = std::make_shared<CButton>(position.topLeft(), image, help, 0, EShortcut::NONE, playerColored);
 
@@ -398,7 +408,7 @@ void CAdventureMapOverlayWidget::show(Canvas & to)
 	CIntObject::showAll(to);
 }
 
-void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
+void AdventureMapWidget::updateActiveStateChildren(CIntObject * widget)
 {
 	for(auto & entry : widget->children)
 	{
@@ -413,6 +423,15 @@ void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 
 			if (container->disableCondition == "heroSleeping")
 				container->setEnabled(shortcuts->optionHeroSleeping());
+
+			if (container->disableCondition == "heroGround")
+				container->setEnabled(shortcuts->optionHeroGround());
+
+			if (container->disableCondition == "heroBoat")
+				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::SAIL));
+
+			if (container->disableCondition == "heroAirship")
+				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::AIR));
 
 			if (container->disableCondition == "mapLayerSurface")
 				container->setEnabled(shortcuts->optionMapLevel() == 0);
@@ -429,14 +448,14 @@ void AdventureMapWidget::updateActiveStateChildden(CIntObject * widget)
 			if (container->disableCondition == "worldViewMode")
 				container->setEnabled(!shortcuts->optionInWorldView());
 
-			updateActiveStateChildden(container);
+			updateActiveStateChildren(container);
 		}
 	}
 }
 
 void AdventureMapWidget::updateActiveState()
 {
-	updateActiveStateChildden(this);
+	updateActiveStateChildren(this);
 
 	for (auto entry: shortcuts->getShortcuts())
 		setShortcutBlocked(entry.shortcut, !entry.isEnabled);

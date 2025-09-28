@@ -294,6 +294,18 @@ void CGEvent::init()
 	}
 }
 
+void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
+{
+	if(result.winner == BattleSide::ATTACKER)
+	{
+		CRewardableObject::onHeroVisit(gameEvents, hero);
+	}
+	if(result.winner == BattleSide::NONE && removeAfterVisit)	//rewards are lost if therer is a draw and an event is not repeatable
+	{
+		gameEvents.removeObject(this, result.attacker);
+	}
+}
+
 void CGEvent::grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const
 {
 	CRewardableObject::grantRewardWithMessage(gameEvents, contextHero, rewardIndex, markAsVisit);
