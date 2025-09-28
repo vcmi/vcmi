@@ -316,14 +316,22 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
-	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin(settings["general"]["enableUiEnhancements"].Bool() ? "GARRIPOP" : "TOWNQVBK"), position)
 {
 	InfoAboutTown iah;
 	GAME->interface()->cb->getTownInfo(garr, iah);
 
 	OBJECT_CONSTRUCTION;
-	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
-	
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+        tooltip = std::make_shared<CGarrisonTooltip>(Point(9, 10), iah);
+	}
+	else
+	{
+        tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
+	}
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
