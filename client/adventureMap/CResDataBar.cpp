@@ -32,7 +32,7 @@
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
 {
 	addUsedEvents(SHOW_POPUP);
- 
+
 	pos.x += position.x;
 	pos.y += position.y;
 

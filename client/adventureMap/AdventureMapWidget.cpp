@@ -340,12 +340,13 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceAdditional(const Js
 	int remainingSpace = area.w;
 	int resElementSize = 84;
 	int fitOffset = 2;
-	for (int i = 0; i < 15; i++) // TODO: Replace with resources amount
+	for(auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
+		if(resource.getNum() < GameConstants::RESOURCE_QUANTITY)
+			continue;
+
 		if(remainingSpace < resElementSize)
 			break;
-		
-		auto resource = GameResID::SULFUR; // TODO: Replace with resource
 
 		auto res = std::make_shared<CResDataBar>(ImagePath::builtin("ResBarElement"), area.topRight() + Point(remainingSpace - area.w - resElementSize + fitOffset, 0));
 		res->setResourcePosition(resource, Point(35, 3));
