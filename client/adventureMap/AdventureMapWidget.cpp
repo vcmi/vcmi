@@ -421,13 +421,14 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		if(container)
 			setPlayerChildren(container, player);
 
-		if (textureColored)
+		if(textureColored)
 			textureColored->setPlayerColor(player);
 
-		if (textureIndexed)
+		if(textureIndexed)
 			textureIndexed->setPlayerColor(player);
 
-		setPlayerChildren(entry, player);
+		if(entry)
+			setPlayerChildren(entry, player);
 	}
 
 	redraw();
