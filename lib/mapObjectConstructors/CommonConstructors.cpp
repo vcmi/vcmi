@@ -90,6 +90,22 @@ void ResourceInstanceConstructor::randomizeObject(CGResource * object, IGameRand
 		object->amount = 5 * getAmountMultiplier();
 }
 
+void MineInstanceConstructor::initTypeData(const JsonNode & input)
+{
+	config = input;
+
+	resourceType = GameResID::NONE; //set up fallback
+	LIBRARY->identifiers()->requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
+	{
+		resourceType = GameResID(index);
+	});
+}
+
+GameResID MineInstanceConstructor::getResourceType() const
+{
+	return resourceType;
+}
+
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
 	LIBRARY->identifiers()->requestIdentifier("faction", input["faction"], [&](si32 index)

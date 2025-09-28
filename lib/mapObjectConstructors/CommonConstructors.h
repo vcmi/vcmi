@@ -62,6 +62,16 @@ public:
 	void randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const override;
 };
 
+class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGMine>
+{
+	JsonNode config;
+	GameResID resourceType;
+public:
+	void initTypeData(const JsonNode & input) override;
+
+	GameResID getResourceType() const;
+};
+
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
 {
 	JsonNode filtersJson;

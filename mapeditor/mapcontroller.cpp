@@ -17,6 +17,7 @@
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/CMap.h"
@@ -208,7 +209,10 @@ void MapController::repairMap(CMap * map)
 		{
 			if(!mine->isAbandoned())
 			{
-				mine->producedResource = GameResID(mine->subID);
+				if(mine->getResourceHandler()->getResourceType() == GameResID::NONE) // fallback
+					mine->producedResource = GameResID(mine->subID);
+				else
+					mine->producedResource = mine->getResourceHandler()->getResourceType();
 				mine->producedQuantity = mine->defaultResProduction();
 			}
 		}
