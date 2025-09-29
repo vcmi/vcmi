@@ -23,6 +23,7 @@
 #include "RoadPlacer.h"
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
+#include "../../entities/ResourceTypeHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -65,6 +66,12 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 				auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
 				if(handler->getResourceType() == res)
 					mineHandler = handler;
+			}
+
+			if(!mineHandler)
+			{
+				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+				continue;
 			}
 
 			const auto & rmginfo = mineHandler->getRMGInfo();
