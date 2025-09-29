@@ -115,7 +115,7 @@ bool performNativeCopy(QString src, QString dst)
 
 	return QFileInfo(dst).exists();
 #else
-	QFile::copy(src, dst);
+	return QFile::copy(src, dst);
 #endif
 }
 
