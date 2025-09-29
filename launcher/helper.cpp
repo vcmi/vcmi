@@ -21,6 +21,7 @@
 
 #ifdef VCMI_ANDROID
 #include <QAndroidJniObject>
+#include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #endif
 
@@ -87,7 +88,7 @@ QString getRealPath(QString path)
 #endif
 }
 
-void performNativeCopy(QString src, QString dst)
+bool performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
 	// %-encode unencoded parts of string.
@@ -104,6 +105,15 @@ void performNativeCopy(QString src, QString dst)
 	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
 	auto dstStr = QAndroidJniObject::fromString(safeEncode(dst));
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
+
+	if(env->ExceptionCheck())
+	{
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+		return false;
+	}
+
+	return QFileInfo(dst).exists();
 #else
 	QFile::copy(src, dst);
 #endif
