@@ -102,6 +102,7 @@ bool performNativeCopy(QString src, QString dst)
 		return QString::fromUtf8(QUrl::toPercentEncoding(uri, "!#$&'()*+,/:;=?@[]<>{}\"`^~%"));
 	};
 
+	QAndroidJniEnvironment env;
 	auto srcStr = QAndroidJniObject::fromString(safeEncode(src));
 	auto dstStr = QAndroidJniObject::fromString(safeEncode(dst));
 	QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", srcStr.object<jstring>(), dstStr.object<jstring>(), QtAndroid::androidContext().object());
