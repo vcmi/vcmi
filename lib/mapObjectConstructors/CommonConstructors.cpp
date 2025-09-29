@@ -100,6 +100,7 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 	{
 		resourceType = GameResID(index);
 	});
+	defaultQuantity = !config["defaultQuantity"].isNull() ? config["defaultQuantity"].Integer() : 1;
 
 	if (!config["name"].isNull())
 		LIBRARY->generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
@@ -111,6 +112,11 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 GameResID MineInstanceConstructor::getResourceType() const
 {
 	return resourceType;
+}
+
+ui32 MineInstanceConstructor::getDefaultQuantity() const
+{
+	return defaultQuantity;
 }
 
 std::string MineInstanceConstructor::getDescriptionTextID() const

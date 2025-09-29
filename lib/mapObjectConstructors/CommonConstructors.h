@@ -66,10 +66,12 @@ class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGM
 {
 	JsonNode config;
 	GameResID resourceType;
+	ui32 defaultQuantity;
 public:
 	void initTypeData(const JsonNode & input) override;
 
 	GameResID getResourceType() const;
+	ui32 getDefaultQuantity() const;
 	std::string getDescriptionTextID() const;
 	std::string getDescriptionTranslated() const;
 };
