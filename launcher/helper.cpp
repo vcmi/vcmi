@@ -75,13 +75,19 @@ void enableScrollBySwiping(QObject * scrollTarget)
 QString getRealPath(QString path)
 {
 #ifdef VCMI_ANDROID
-	if(path.contains("content://", Qt::CaseInsensitive))
+	// same as in performNativeCopy
+	if (path.contains("content://", Qt::CaseInsensitive))
 	{
-		auto str = QAndroidJniObject::fromString(path);
+		auto safeEncode = [&](QString uri) -> QString {
+			if (!uri.startsWith("content://", Qt::CaseInsensitive))
+				return uri;
+			return QString::fromUtf8(QUrl::toPercentEncoding(uri, "!#$&'()*+,/:;=?@[]<>{}\"`^~%"));
+		};
+
+		auto str = QAndroidJniObject::fromString(safeEncode(path));
 		return QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "getFilenameFromUri", "(Ljava/lang/String;Landroid/content/Context;)Ljava/lang/String;", str.object<jstring>(), QtAndroid::androidContext().object()).toString();
 	}
-	else
-		return path;
+	return path;
 #else
 	return path;
 #endif
