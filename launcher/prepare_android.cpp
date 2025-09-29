@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "prepare_p.h"
 #include "../lib/CAndroidVMHelper.h"
+#include "helper.h"
 
 #include <QDir>
 #include <QFile>
@@ -41,7 +42,7 @@ bool copyRecursively(const QString & srcFilePath, const QString & tgtFilePath)
 				return false;
 		}
 	} else {
-		if(!QFile::copy(srcFilePath, tgtFilePath))
+		if(!Helper::performNativeCopy(srcFilePath, tgtFilePath))
 			return false;
 	}
 	return true;
