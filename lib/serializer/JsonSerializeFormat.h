@@ -351,7 +351,7 @@ public:
 			{
 				Key key = Key::decode(keyStr);
 
-				LIBRARY->identifiers()->requestIdentifier(node.getModScope(), Key::entityType(), keyStr, [&value, key](int32_t index) {
+				LIBRARY->identifiers()->requestIdentifier(jsonVal.getModScope(), Key::entityType(), keyStr, [&value, key](int32_t index) {
 					value[key] = T(index);
 				});
 			}
