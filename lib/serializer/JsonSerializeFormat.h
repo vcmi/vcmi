@@ -346,7 +346,8 @@ public:
 		}
 		else
 		{
-			for (const auto & [keyStr, jsonVal] : getCurrent()[fieldName].Struct())
+			const auto & node = getCurrent()[fieldName].Struct();
+			for (const auto & [keyStr, jsonVal] : node)
 			{
 				LIBRARY->identifiers()->requestIdentifier(jsonVal.getModScope(), Key::entityType(), keyStr, [&value, jsonVal](int32_t index) {
 					value[Key(index)] = jsonVal.Integer(); // TODO: only int supported yet
