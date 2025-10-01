@@ -456,7 +456,7 @@ TResource BuildAnalyzer::goldApproximate(const TResources & res)
 		   goldApproximate(res[EGameResID::GOLD], EGameResID::GOLD) + goldApproximate(res[EGameResID::MITHRIL], EGameResID::MITHRIL);
 }
 
-TResource BuildAnalyzer::goldApproximate(const TResource & res, EGameResID resId)
+TResource BuildAnalyzer::goldApproximate(const TResource & res, const EGameResID resId)
 {
 	// TODO: Mircea: replace with LIBRARY->objh->resVals[resId]
 	switch(resId)
