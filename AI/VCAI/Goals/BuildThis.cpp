@@ -43,8 +43,7 @@ TSubgoal BuildThis::whatToDoToAchieve()
 			case EBuildingState::ALLOWED:
 				town = candidateTown;
 				break; //TODO: look for prerequisites? this is not our responsibility
-			default:
-				continue;
+			default:;
 			}
 		}
 	}
@@ -59,11 +58,9 @@ TSubgoal BuildThis::whatToDoToAchieve()
 			auto res = town->getTown()->buildings.at(BuildingID(bid))->resources;
 			return ai->ah->whatToDo(res, iAmElementar()); //realize immediately or gather resources
 		}
-		break;
 		default:
 			throw cannotFulfillGoalException("Not possible to build");
 		}
 	}
-	else
-		throw cannotFulfillGoalException("Cannot find town to build this");
+	throw cannotFulfillGoalException("Cannot find town to build this");
 }
