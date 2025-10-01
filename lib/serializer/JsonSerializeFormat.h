@@ -347,10 +347,10 @@ public:
 		else
 		{
 			const auto & node = getCurrent()[fieldName].Struct();
-			for (const auto & [keyStr, jsonVal] : node)
+			for (const auto & n : node)
 			{
-				LIBRARY->identifiers()->requestIdentifier(jsonVal.getModScope(), Key::entityType(), keyStr, [&value, jsonVal](int32_t index) {
-					value[Key(index)] = jsonVal.Integer(); // TODO: only int supported yet
+				LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
 				});
 			}
 		}
