@@ -111,6 +111,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClass.cpp
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
+	entities/ResourceTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -152,7 +153,6 @@ set(lib_MAIN_SRCS
 	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
-	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
 	mapObjects/FlaggableMapObject.cpp
@@ -428,6 +428,8 @@ set(lib_MAIN_HEADERS
 	../include/vcmi/HeroClassService.h
 	../include/vcmi/HeroType.h
 	../include/vcmi/HeroTypeService.h
+	../include/vcmi/ResourceType.h
+	../include/vcmi/ResourceTypeService.h
 	../include/vcmi/Metatype.h
 	../include/vcmi/Player.h
 	../include/vcmi/ServerCallback.h
@@ -534,6 +536,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroClassHandler.h
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
+	entities/ResourceTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -581,7 +584,6 @@ set(lib_MAIN_HEADERS
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
-	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
 	mapObjects/FlaggableMapObject.h

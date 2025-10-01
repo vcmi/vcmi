@@ -21,6 +21,7 @@
 #include "../GameInstance.h"
 #include "../gui/Shortcut.h"
 #include "../mapView/MapView.h"
+#include "../render/AssetGenerator.h"
 #include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
@@ -30,10 +31,12 @@
 #include "../CPlayerInterface.h"
 #include "../PlayerLocalState.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> shortcuts )
 	: shortcuts(shortcuts)
@@ -152,6 +155,15 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildMapButton(const JsonNode & 
 	auto image = AnimationPath::fromJson(input["image"]);
 	auto help = readHintText(input["help"]);
 	bool playerColored = input["playerColored"].Bool();
+
+	if(!input["generateFromBaseImage"].isNull())
+	{
+		bool small = input["generateSmall"].Bool();
+		auto assetGenerator = ENGINE->renderHandler().getAssetGenerator();
+		auto layout = assetGenerator->createAdventureMapButton(ImagePath::fromJson(input["generateFromBaseImage"]), small);
+		assetGenerator->addAnimationFile(AnimationPath::builtin("SPRITES/" + input["image"].String()), layout);
+		ENGINE->renderHandler().updateGeneratedAssets();
+	}
 
 	auto button = std::make_shared<CButton>(position.topLeft(), image, help, 0, EShortcut::NONE, playerColored);
 
@@ -284,14 +296,14 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	auto result = std::make_shared<CResDataBar>(image, area.topLeft());
 
-	for(auto i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		const auto & node = input[GameConstants::RESOURCE_NAMES[i]];
+		const auto & node = input[i.toResource()->getJsonKey()];
 
 		if(node.isNull())
 			continue;
 
-		result->setResourcePosition(GameResID(i), Point(node["x"].Integer(), node["y"].Integer()));
+		result->setResourcePosition(i, Point(node["x"].Integer(), node["y"].Integer()));
 	}
 
 	result->setDatePosition(Point(input["date"]["x"].Integer(), input["date"]["y"].Integer()));

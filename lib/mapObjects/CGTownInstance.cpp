@@ -32,6 +32,7 @@
 #include "../callback/IGameRandomizer.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -209,7 +210,7 @@ TResources CGTownInstance::dailyIncome() const
 {
 	ResourceSet ret;
 
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		ret[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	for(const auto & p : getTown()->buildings)

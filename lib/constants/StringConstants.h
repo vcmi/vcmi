@@ -19,7 +19,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 namespace GameConstants
 {
 	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
-		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
+		"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold"
 	};
 
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {

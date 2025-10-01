@@ -397,7 +397,7 @@ void CGameState::initDifficulty()
 	auto setDifficulty = [this](PlayerState & state, const JsonNode & json)
 	{
 		//set starting resources
-		state.resources = TResources(json["resources"]);
+		state.resources.resolveFromJson(json["resources"]);
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);

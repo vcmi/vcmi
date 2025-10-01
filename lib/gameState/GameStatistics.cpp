@@ -24,6 +24,7 @@
 #include "../entities/building/CBuilding.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonUpdater.h"
+#include "../entities/ResourceTypeHandler.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -105,8 +106,8 @@ void StatisticDataSetEntry::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("hasGrail", hasGrail);
 	{
 		auto zonesData = handler.enterStruct("numMines");
-		for(TResource idx = 0; idx < (GameConstants::RESOURCE_QUANTITY - 1); idx++)
-			handler.serializeInt(GameConstants::RESOURCE_NAMES[idx], numMines[idx], 0);
+		for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
+			handler.serializeInt(idx.toResource()->getJsonKey(), numMines[idx], 0);
 	}
 	handler.serializeInt("score", score);
 	handler.serializeInt("maxHeroLevel", maxHeroLevel);
@@ -158,7 +159,7 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 {
 	std::stringstream ss;
 
-	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS};
+	auto resources = std::vector<EGameResID>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS}; //todo: configurable resource support
 
 	ss << "Map" << sep;
 	ss << "Timestamp" << sep;
@@ -191,15 +192,15 @@ std::string StatisticDataSet::toCsv(std::string sep) const
 	ss << "EventDefeatedStrongestHero" << sep;
 	ss << "MovementPointsUsed";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource];
+		ss << sep << resource.toResource()->getJsonKey();
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "Mines";
+		ss << sep << resource.toResource()->getJsonKey() + "Mines";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForArmy";
+		ss << sep << resource.toResource()->getJsonKey() + "SpentResourcesForArmy";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "SpentResourcesForBuildings";
+		ss << sep << resource.toResource()->getJsonKey() + "SpentResourcesForBuildings";
 	for(auto & resource : resources)
-		ss << sep << GameConstants::RESOURCE_NAMES[resource] + "TradeVolume";
+		ss << sep << resource.toResource()->getJsonKey() + "TradeVolume";
 	ss << "\r\n";
 
 	for(auto & entry : data)
@@ -403,7 +404,7 @@ std::map<EGameResID, int> Statistic::getNumMines(const CGameState * gs, const Pl
 {
 	std::map<EGameResID, int> tmp;
 
-	for(auto & res : EGameResID::ALL_RESOURCES())
+	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 		tmp[res] = 0;
 
 	for(const auto * object : ps->getOwnedObjects())

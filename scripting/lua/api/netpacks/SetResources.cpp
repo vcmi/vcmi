@@ -82,7 +82,7 @@ int SetResourcesProxy::getAmount(lua_State * L)
 
 	S.clear();
 
-	const TQuantity amount = vstd::atOrDefault(object->res, static_cast<size_t>(type), 0);
+	const TQuantity amount = object->res[type];
 	S.push(amount);
 	return 1;
 }

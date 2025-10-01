@@ -20,6 +20,7 @@
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/entities/hero/CHeroClass.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
@@ -709,7 +710,7 @@ void CVCMIServer::setPlayerHandicap(PlayerColor color, Handicap handicap)
 		return;
 	}
 
-	for(auto & res : EGameResID::ALL_RESOURCES())
+	for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 		if(handicap.startBonus[res] != 0)
 		{
 			str.appendRawString(" ");
@@ -1008,7 +1009,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 			str.appendRawString(" ");
 			str.appendName(pi.first);
 			str.appendRawString(":");
-			for(auto & res : EGameResID::ALL_RESOURCES())
+			for(auto & res : LIBRARY->resourceTypeHandler->getAllObjects())
 				if(pi.second.handicap.startBonus[res] != 0)
 				{
 					str.appendRawString(" ");

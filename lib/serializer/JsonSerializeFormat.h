@@ -331,6 +331,33 @@ public:
 		}
 	}
 
+	/// si32-convertible identifier map <-> Json object of {key: string}
+	template <typename Key, typename T, typename E = T>
+	void serializeIdMap(const std::string & fieldName, std::map<Key, T> & value)
+	{
+		if (saving)
+		{
+			std::map<std::string, T> fieldValue;
+
+			for (const auto & [key, val] : value)
+				fieldValue[Key::encode(key.getNum())] = val;
+
+			serializeInternal(fieldName, fieldValue);
+		}
+		else
+		{
+			const JsonNode & node = getCurrent()[fieldName];
+			for (const auto & [keyStr, jsonVal] : node.Struct())
+			{
+				Key key = Key::decode(keyStr);
+
+				LIBRARY->identifiers()->requestIdentifier(node.getModScope(), Key::entityType(), keyStr, [&value, key](int32_t index) {
+					value[key] = T(index);
+				});
+			}
+		}
+	}
+
 	///si32-convertible identifier vector <-> Json array of string
 	template <typename T, typename E = T>
 	void serializeIdArray(const std::string & fieldName, std::vector<T> & value)
@@ -442,6 +469,9 @@ protected:
 
 	///String vector <-> Json string vector
 	virtual void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) = 0;
+
+	///String map <-> Json map of int
+	virtual void serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value) = 0;
 
 	virtual void pop() = 0;
 	virtual void pushStruct(const std::string & fieldName) = 0;

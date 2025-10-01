@@ -58,6 +58,7 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
@@ -292,7 +293,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[217] + text);
 	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[346]);
 
-	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		auto res = static_cast<EGameResID>(i);
 		if(creature->getRecruitCost(res))
@@ -1126,7 +1127,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr,"%s",LIBRARY->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr,"%s",GameResID(town->bonusValue.first).toResource()->getNameTranslated());
 			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}
@@ -1795,7 +1796,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	//Create components for all required resources
 	std::vector<std::shared_ptr<CComponent>> components;
 
-	for(GameResID i : GameResID::ALL_RESOURCES())
+	for(GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(building->resources[i])
 		{
@@ -2211,7 +2212,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			return;
 		}
 
-		auto costBase = TResources(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		ResourceSet costBase;
+		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
 		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 

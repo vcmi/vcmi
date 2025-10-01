@@ -320,6 +320,9 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	cab1.updateArmy(gameHandler);
 	cab2.updateArmy(gameHandler); //take casualties after battle is deleted
 
+	const auto attackerHero = battle.battleGetFightingHero(BattleSide::ATTACKER);
+	const auto defenderHero = battle.battleGetFightingHero(BattleSide::DEFENDER);
+
 	const auto winnerHero = battle.battleGetFightingHero(finishingBattle->winnerSide);
 	const auto loserHero = battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
 
@@ -358,8 +361,8 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 
 	BattleResultAccepted raccepted;
 	raccepted.battleID = battle.getBattle()->getBattleID();
-	raccepted.heroResult[finishingBattle->winnerSide].heroID = winnerHero ? winnerHero->id : ObjectInstanceID::NONE;
-	raccepted.heroResult[CBattleInfoEssentials::otherSide(finishingBattle->winnerSide)].heroID = loserHero ? loserHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::ATTACKER].heroID = attackerHero ? attackerHero->id : ObjectInstanceID::NONE;
+	raccepted.heroResult[BattleSide::DEFENDER].heroID = defenderHero ? defenderHero->id : ObjectInstanceID::NONE;
 	raccepted.heroResult[BattleSide::ATTACKER].armyID = battle.battleGetArmyObject(BattleSide::ATTACKER)->id;
 	raccepted.heroResult[BattleSide::DEFENDER].armyID = battle.battleGetArmyObject(BattleSide::DEFENDER)->id;
 	raccepted.heroResult[BattleSide::ATTACKER].exp = battleResult->exp[BattleSide::ATTACKER];
@@ -399,13 +402,42 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		});
 	assert(battle != gameHandler->gameState().currentBattles.end());
 
-	const auto winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
-	const auto loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
+	const CGHeroInstance * winnerHero = nullptr;
+	const CGHeroInstance * loserHero = nullptr;
+
+	const auto attackerHero = (*battle)->battleGetFightingHero(BattleSide::ATTACKER);
+	const auto defenderHero = (*battle)->battleGetFightingHero(BattleSide::DEFENDER);
+	const auto attackerSide = (*battle)->getSidePlayer(BattleSide::ATTACKER);
+	const auto defenderSide = (*battle)->getSidePlayer(BattleSide::DEFENDER);
+	bool winnerHasUnitsLeft = true;
+
+	if (!finishingBattle->isDraw())
+	{
+		winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
+		loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
+		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 : true;
+	}
+
 	BattleResultsApplied resultsApplied;
 
-	// Eagle Eye handling
-	if(!finishingBattle->isDraw() && winnerHero)
+	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
+			const ObjectInstanceID & id, const std::optional<SlotID> & creature = std::nullopt)
 	{
+		for(const auto & [slot, slotInfo] : artMap)
+		{
+			auto artInst = slotInfo.getArt();
+			assert(artInst);
+			if(const auto condition = artInst->getType()->getDischargeCondition(); condition == DischargeArtifactCondition::BATTLE)
+			{
+				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
+				discharging.artLoc.emplace(id, creature, slot);
+			}
+		}
+	};
+
+	if(winnerHero && winnerHasUnitsLeft)
+	{
+		// Eagle Eye handling
 		if(auto eagleEyeLevel = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
 		{
 			resultsApplied.learnedSpells.learn = 1;
@@ -422,10 +454,46 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 				}
 			}
 		}
+
+		// Growing artifacts handling
+		const auto addArtifactToGrowing = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
+		{
+			for(const auto & [slot, slotInfo] : artMap)
+			{
+				const auto artInst = slotInfo.getArt();
+				assert(artInst);
+				if(artInst->getType()->isGrowing())
+					resultsApplied.growingArtifacts.emplace_back(artInst->getId());
+			}
+		};
+
+		if(const auto commander = winnerHero->getCommander(); commander && commander->alive)
+			addArtifactToGrowing(commander->artifactsWorn);
+		addArtifactToGrowing(winnerHero->artifactsWorn);
+
+		// Charged artifacts handling
+		addArtifactToDischarging(winnerHero->artifactsWorn, winnerHero->id);
+		if(const auto commander = winnerHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn, winnerHero->id, winnerHero->findStack(winnerHero->getCommander()));
+
+		// Necromancy handling
+		// Give raised units to winner, if any were raised, units will be given after casualties are taken
+		resultsApplied.raisedStack = winnerHero->calculateNecromancy(result);
+		const SlotID necroSlot = resultsApplied.raisedStack.getCreature() ? winnerHero->getSlotFor(resultsApplied.raisedStack.getCreature()) : SlotID();
+		if(necroSlot != SlotID() && !finishingBattle->isDraw())
+			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.getCount());
+	}
+
+	if(loserHero)
+	{
+		// Charged artifacts handling
+		addArtifactToDischarging(loserHero->artifactsWorn, loserHero->id);
+		if(const auto commander = loserHero->getCommander())
+			addArtifactToDischarging(commander->artifactsWorn, loserHero->id, loserHero->findStack(loserHero->getCommander()));
 	}
 
 	// Moving artifacts handling
-	if(result.result == EBattleResult::NORMAL && !finishingBattle->isDraw() && winnerHero)
+	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
 		const auto addArtifactToTransfer = [&artFittingSet](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
@@ -441,7 +509,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			}
 		};
 
-		if(loserHero)
+		if (loserHero)
 		{
 			BulkMoveArtifacts packHero(finishingBattle->victor, finishingBattle->loserId, finishingBattle->winnerId, false);
 			packHero.srcArtHolder = finishingBattle->loserId;
@@ -486,63 +554,6 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		}
 	}
 
-	// Growing artifacts handling
-	if(!finishingBattle->isDraw() && winnerHero)
-	{
-		const auto addArtifactToGrowing = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap)
-		{
-			for(const auto & [slot, slotInfo] : artMap)
-			{
-				const auto artInst = slotInfo.getArt();
-				assert(artInst);
-				if(artInst->getType()->isGrowing())
-					resultsApplied.growingArtifacts.emplace_back(artInst->getId());
-			}
-		};
-
-		if(const auto commander = winnerHero->getCommander(); commander && commander->alive)
-			addArtifactToGrowing(commander->artifactsWorn);
-		addArtifactToGrowing(winnerHero->artifactsWorn);
-	}
-
-	// Charged artifacts handling
-	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
-			const ObjectInstanceID & id, const std::optional<SlotID> & creature = std::nullopt)
-	{
-		for(const auto & [slot, slotInfo] : artMap)
-		{
-			auto artInst = slotInfo.getArt();
-			assert(artInst);
-			if(const auto condition = artInst->getType()->getDischargeCondition(); condition == DischargeArtifactCondition::BATTLE)
-			{
-				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
-				discharging.artLoc.emplace(id, creature, slot);
-			}
-		}
-	};
-	if(winnerHero)
-	{
-		addArtifactToDischarging(winnerHero->artifactsWorn, winnerHero->id);
-		if(const auto commander = winnerHero->getCommander())
-			addArtifactToDischarging(commander->artifactsWorn, winnerHero->id, winnerHero->findStack(winnerHero->getCommander()));
-	}
-	if(loserHero)
-	{
-		addArtifactToDischarging(loserHero->artifactsWorn, loserHero->id);
-		if(const auto commander = loserHero->getCommander())
-			addArtifactToDischarging(commander->artifactsWorn, loserHero->id, loserHero->findStack(loserHero->getCommander()));
-	}
-
-	// Necromancy handling
-	// Give raised units to winner, if any were raised, units will be given after casualties are taken
-	if(winnerHero)
-	{
-		resultsApplied.raisedStack = winnerHero->calculateNecromancy(result);
-		const SlotID necroSlot = resultsApplied.raisedStack.getCreature() ? winnerHero->getSlotFor(resultsApplied.raisedStack.getCreature()) : SlotID();
-		if(necroSlot != SlotID() && !finishingBattle->isDraw())
-			gameHandler->addToSlot(StackLocation(finishingBattle->winnerId, necroSlot), resultsApplied.raisedStack.getCreature(), resultsApplied.raisedStack.getCount());
-	}
-
 	resultsApplied.battleID = battleID;
 	resultsApplied.victor = finishingBattle->victor;
 	resultsApplied.loser = finishingBattle->loser;
@@ -554,17 +565,39 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		RemoveObject ro(loserHero->id, finishingBattle->victor);
 		gameHandler->sendAndApply(ro);
 	}
-	// For draw case both heroes should be removed
-	if(finishingBattle->isDraw() && winnerHero)
+
+	//retreat the victor if he/she has no pernament creatures left
+	if (winnerHero && !winnerHasUnitsLeft)
 	{
 		RemoveObject ro(winnerHero->id, finishingBattle->loser);
 		gameHandler->sendAndApply(ro);
-		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
-			gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
+		gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
 	}
 
-	//handle victory/loss of engaged players
-	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
+	// For draw case both heroes should be removed
+	if(finishingBattle->isDraw())
+	{
+
+		if (attackerHero)
+		{
+			RemoveObject ro(attackerHero->id, defenderSide);
+			gameHandler->sendAndApply(ro);
+		}
+
+		if (defenderHero)
+		{
+			RemoveObject ro(defenderHero->id, attackerSide);
+			gameHandler->sendAndApply(ro);
+		}
+
+		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
+		{
+			if (attackerHero)
+				gameHandler->heroPool->onHeroEscaped(attackerSide, attackerHero);
+			if (defenderHero)
+				gameHandler->heroPool->onHeroEscaped(defenderSide, defenderHero);
+		}
+	}
 
 	if (result.result == EBattleResult::SURRENDER)
 	{
@@ -577,6 +610,9 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
+
+	//handle victory/loss of engaged players
+	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
 
 	finishingBattles.erase(battleID);
 	battleResults.erase(battleID);
@@ -592,6 +628,7 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	battleResult->battleID = battle.getBattle()->getBattleID();
 	battleResult->result = resultType;
 	battleResult->winner = victoriusSide; //surrendering side loses
+	battleResult->attacker = battle.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 
 	auto allStacks = battle.battleGetStacksIf([](const CStack * stack){
 

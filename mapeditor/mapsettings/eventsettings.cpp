@@ -14,6 +14,8 @@
 #include "../mapcontroller.h"
 #include "../../lib/constants/NumericConstants.h"
 #include "../../lib/constants/StringConstants.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 
 QString toQString(const PlayerColor & player)
 {
@@ -41,8 +43,8 @@ std::set<PlayerColor> playersFromVariant(const QVariant & v)
 QVariant toVariant(const TResources & resources)
 {
 	QVariantMap result;
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
-		result[QString::fromStdString(GameConstants::RESOURCE_NAMES[i])] = QVariant::fromValue(resources[i]);
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
+		result[QString::fromStdString(i.toResource()->getJsonKey())] = QVariant::fromValue(resources[i]);
 	return result;
 }
 
@@ -51,7 +53,9 @@ TResources resourcesFromVariant(const QVariant & v)
 	JsonNode vJson;
 	for(auto r : v.toMap().keys())
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
-	return TResources(vJson);
+	ResourceSet res;
+	res.resolveFromJson(vJson);
+	return res;
 }
 
 QVariant toVariant(std::vector<ObjectInstanceID> objects)
