@@ -126,10 +126,6 @@ bool ResourceTrader::tradeHelper(
 			if(income[GameResID::GOLD] > 0 && !buildAnalyzer.isGoldPressureOverMax())
 				okToSell = true;
 		}
-		else if (i == GameResID::MITHRIL)
-		{
-			okToSell = false;
-		}
 		else
 		{
 			okToSell = true;
