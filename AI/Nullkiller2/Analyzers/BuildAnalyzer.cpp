@@ -453,7 +453,7 @@ TResource BuildAnalyzer::goldApproximate(const TResources & res)
 	return goldApproximate(res[EGameResID::WOOD], EGameResID::WOOD) + goldApproximate(res[EGameResID::MERCURY], EGameResID::MERCURY) +
 		   goldApproximate(res[EGameResID::ORE], EGameResID::ORE) + goldApproximate(res[EGameResID::SULFUR], EGameResID::SULFUR) +
 		   goldApproximate(res[EGameResID::CRYSTAL], EGameResID::CRYSTAL) + goldApproximate(res[EGameResID::GEMS], EGameResID::GEMS) +
-		   goldApproximate(res[EGameResID::GOLD], EGameResID::GOLD) + goldApproximate(res[EGameResID::MITHRIL], EGameResID::MITHRIL);
+		   goldApproximate(res[EGameResID::GOLD], EGameResID::GOLD);
 }
 
 TResource BuildAnalyzer::goldApproximate(const TResource & res, const EGameResID resId)
@@ -471,8 +471,6 @@ TResource BuildAnalyzer::goldApproximate(const TResource & res, const EGameResID
 			return res * 150;
 		case EGameResID::GOLD:
 			return res;
-		case EGameResID::MITHRIL:
-			return res; // TODO: Mircea: What multiplier to give for mithril?
 		default:
 			throw std::runtime_error("Unsupported resource ID" + std::to_string(resId));
 	}
