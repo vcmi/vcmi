@@ -51,7 +51,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		if(missingNow.empty())
 			break;
 
-		TResources income = buildAnalyzer.getDailyIncome();
+		const TResources income = buildAnalyzer.getDailyIncome();
 		// We don't want to sell something that's necessary later on, though that could make short term a bit harder sometimes
 		// TODO: Mircea: Consider allowing the sale of just a few resources even if necessary long term if critical short term
 		// to buy a capitol for example
@@ -64,7 +64,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 			missingNow.toString()
 		);
 
-		if(ResourceTrader::tradeHelper(EXPENDABLE_BULK_RATIO, *market, missingNow, income, freeAfterMissingTotal, buildAnalyzer, cc))
+		if(tradeHelper(EXPENDABLE_BULK_RATIO, *market, missingNow, income, freeAfterMissingTotal, buildAnalyzer, cc))
 		{
 			haveTraded = true;
 			shouldTryToTrade = true;
@@ -126,12 +126,16 @@ bool ResourceTrader::tradeHelper(
 			if(income[GameResID::GOLD] > 0 && !buildAnalyzer.isGoldPressureOverMax())
 				okToSell = true;
 		}
+		else if (i == GameResID::MITHRIL)
+		{
+			okToSell = false;
+		}
 		else
 		{
 			okToSell = true;
 		}
 
-		if(amountToSell > mostExpendableAmountPos && okToSell)
+		if(okToSell && amountToSell > mostExpendableAmountPos)
 		{
 			mostExpendable = i;
 			mostExpendableAmountPos = amountToSell;
