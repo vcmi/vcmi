@@ -2,17 +2,17 @@
 	"items":
 	[
 		{
+			// fix transparent gap between content and border
+			"type": "transparentFilledRectangle",
+			"rect": {"x": 0, "y": 555, "w": 801, "h": 46},
+			"color": [0, 0, 0, 255]
+		},
+		{
 			"type": "picture",
 			"name": "menuTactics",
 			"playerColored" : true,
 			"position": {"x": 0, "y": 556},
 			"image": "COPLACBR.bmp"
-		},
-		{
-			// fix transparent gap between content and border
-			"type": "transparentFilledRectangle",
-			"rect": {"x": 0, "y": 555, "w": 801, "h": 46},
-			"color": [0, 0, 0, 255]
 		},
 		{
 			"type": "picture",
