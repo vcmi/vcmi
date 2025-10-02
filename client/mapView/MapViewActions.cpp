@@ -18,6 +18,7 @@
 #include "../GameEngine.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/MouseButton.h"
+#include "../render/IScreenHandler.h"
 
 #include "../CPlayerInterface.h"
 #include "../adventureMap/CInGameConsole.h"
@@ -99,7 +100,7 @@ void MapViewActions::mouseDragged(const Point & cursorPosition, const Point & la
 {
 	dragDistance += lastUpdateDistance;
 
-	if (dragDistance.length() > 16)
+	if ((dragDistance.length() * ENGINE->screenHandler().getInterfaceScalingPercentage() / 100) > 12)
 		dragActive = true;
 
 	if (dragActive && settings["adventure"]["leftButtonDrag"].Bool())
