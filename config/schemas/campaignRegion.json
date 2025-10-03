@@ -16,6 +16,14 @@
 			"type" : "number",
 			"description" : "Number of symbols used to encode color, 1 or 2"
 		},
+		"background" : {
+			"type" : "string",
+			"description" : "Background image path"
+		},
+		"suffix" : {
+			"type" : "array",
+			"description" : "Enabled, Selected, Conquered"
+		},
 		"desc" :
 		{
 			"type" : "array",
