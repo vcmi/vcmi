@@ -665,12 +665,6 @@ bool AdventureMapShortcuts::optionMarketplace()
 	return false;
 }
 
-bool AdventureMapShortcuts::optionHeroGround()
-{
-	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
-	return optionInMapView() && hero && !hero->inBoat();
-}
-
 bool AdventureMapShortcuts::optionHeroBoat(EPathfindingLayer layer)
 {
 	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
