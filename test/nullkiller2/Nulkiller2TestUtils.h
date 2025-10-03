@@ -13,7 +13,7 @@ class Nulkiller2TestUtils
 {
 public:
 	static TResources
-	res(const int wood, const int mercury, const int ore, const int sulfur, const int crystals, const int gems, const int gold, const int mithril)
+	res(const int wood, const int mercury, const int ore, const int sulfur, const int crystals, const int gems, const int gold)
 	{
 		TResources resources;
 		resources[0] = wood;
@@ -23,7 +23,6 @@ public:
 		resources[4] = crystals;
 		resources[5] = gems;
 		resources[6] = gold;
-		resources[7] = mithril;
 		return resources;
 	}
 };

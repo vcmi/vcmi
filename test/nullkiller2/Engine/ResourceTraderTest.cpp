@@ -54,10 +54,10 @@ public:
 
 TEST(Nullkiller2_Engine_ResourceTrader, tradeHelper_crystalsToGold)
 {
-	const TResources missingNow01 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 0, 75000, 0);
-	const TResources missingNow02 = Nulkiller2TestUtils::res(0, 0, 0, 0, 0, 0, 10000, 0);
-	const TResources income = Nulkiller2TestUtils::res(2, 2, 2, 4000, 2, 2, 1000, 0);
-	const TResources freeAfterMissingTotal = Nulkiller2TestUtils::res(1000, 1000, 1000, 0, 1002, 1000, 0, 0);
+	const TResources missingNow01 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 0, 75000);
+	const TResources missingNow02 = Nulkiller2TestUtils::res(0, 0, 0, 0, 0, 0, 10000);
+	const TResources income = Nulkiller2TestUtils::res(2, 2, 2, 4000, 2, 2, 1000);
+	const TResources freeAfterMissingTotal = Nulkiller2TestUtils::res(1000, 1000, 1000, 0, 1002, 1000, 0);
 
 	MockBuildAnalyzer ba;
 	EXPECT_CALL(ba, isGoldPressureOverMax()).Times(0);
@@ -80,13 +80,13 @@ TEST(Nullkiller2_Engine_ResourceTrader, tradeHelper_crystalsToGold)
 
 TEST(Nullkiller2_Engine_ResourceTrader, tradeHelper_goldToGems)
 {
-	const TResources missingNow01 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 200, 0, 0);
-	const TResources missingNow02 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 4, 0, 0);
-	const TResources income = Nulkiller2TestUtils::res(2, 2, 2, 4000, 2, 2, 1000, 0);
-	const TResources freeAfterMissingTotal = Nulkiller2TestUtils::res(100, 100, 100, 0, 0, 0, 100000, 0);
+	const TResources missingNow01 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 200, 0);
+	const TResources missingNow02 = Nulkiller2TestUtils::res(0, 0, 0, 4000, 0, 4, 0);
+	const TResources income = Nulkiller2TestUtils::res(2, 2, 2, 4000, 2, 2, 1000);
+	const TResources freeAfterMissingTotal = Nulkiller2TestUtils::res(100, 100, 100, 0, 0, 0, 100000);
 
 	MockBuildAnalyzer ba;
-	EXPECT_CALL(ba, isGoldPressureOverMax()).Times(2).WillRepeatedly(testing::Return(false));
+	EXPECT_CALL(ba, isGoldPressureOverMax()).Times(3).WillRepeatedly(testing::Return(false));
 	MockMarket m(1);
 	MockMarket m20(20); // maxes out at 0.5 effectiveness anyway after 9 castles
 	MockCCallback cc;
