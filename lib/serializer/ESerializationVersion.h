@@ -49,8 +49,9 @@ enum class ESerializationVersion : int32_t
 	CAMPAIGN_BONUSES, // new format for scenario bonuses in campaigns
 	BONUS_HIDDEN, // hidden bonus
 	MORE_MAP_LAYERS, // more map layers
+	CONFIGURABLE_RESOURCES, // configurable resources
 
-	CURRENT = MORE_MAP_LAYERS,
+	CURRENT = CONFIGURABLE_RESOURCES,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
