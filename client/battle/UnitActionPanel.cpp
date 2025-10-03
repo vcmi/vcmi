@@ -35,7 +35,7 @@ UnitActionPanel::UnitActionPanel(BattleInterface & owner)
 {
 	OBJECT_CONSTRUCTION;
 
-	addUsedEvents(LCLICK | SHOW_POPUP | MOVE | INPUT_MODE_CHANGE);
+	addUsedEvents(LCLICK | SHOW_POPUP | MOVE);
 
 	pos = Rect(0, 0, 52, 600);
 	background = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
