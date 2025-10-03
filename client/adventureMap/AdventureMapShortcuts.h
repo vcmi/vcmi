@@ -101,7 +101,6 @@ public:
 	bool optionMapScrollingActive();
 	bool optionMapViewActive();
 	bool optionMarketplace();
-	bool optionHeroGround();
 	bool optionHeroBoat(EPathfindingLayer layer);
 	bool optionHeroDig();
 
