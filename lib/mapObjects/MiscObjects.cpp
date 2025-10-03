@@ -209,6 +209,19 @@ void CGMine::flagMine(IGameEventCallback & gameEvents, const PlayerColor & playe
 
 ui32 CGMine::defaultResProduction() const
 {
+	if(isAbandoned())
+	{
+		switch(producedResource.toEnum())
+		{
+		case EGameResID::WOOD:
+		case EGameResID::ORE:
+			return 2;
+		case EGameResID::GOLD:
+			return 1000;
+		default:
+			return 1;
+		}
+	}
 	return getResourceHandler()->getDefaultQuantity();
 }
 
