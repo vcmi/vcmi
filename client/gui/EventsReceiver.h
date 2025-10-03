@@ -91,21 +91,21 @@ public:
 	/// These are the arguments that can be used to determine what kind of input UI element will receive
 	enum
 	{
-		LCLICK = 1,
-		SHOW_POPUP = 2,
-		HOVER = 4,
-		MOVE = 8,
-		KEYBOARD = 16,
-		TIME = 32,
-		GENERAL = 64,
-		WHEEL = 128,
-		DOUBLECLICK = 256,
-		TEXTINPUT = 512,
-		GESTURE = 1024,
-		DRAG = 2048,
-		INPUT_MODE_CHANGE = 4096,
-		DRAG_POPUP = 8192,
-		KEY_NAME = 16384
+		LCLICK              = 1 <<  0,
+		SHOW_POPUP          = 1 <<  1,
+		HOVER               = 1 <<  2,
+		MOVE                = 1 <<  3,
+		KEYBOARD            = 1 <<  4,
+		TIME                = 1 <<  5,
+		GENERAL             = 1 <<  6,
+		WHEEL               = 1 <<  7,
+		DOUBLECLICK         = 1 <<  8,
+		TEXTINPUT           = 1 <<  9,
+		GESTURE             = 1 << 10,
+		DRAG                = 1 << 11,
+		INPUT_MODE_CHANGE   = 1 << 12,
+		DRAG_POPUP          = 1 << 13,
+		KEY_NAME            = 1 << 14
 	};
 
 	/// Returns true if element is currently hovered by mouse
