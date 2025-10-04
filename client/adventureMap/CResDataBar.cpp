@@ -98,9 +98,12 @@ void CResDataBar::setPlayerColor(PlayerColor player)
 
 void CResDataBar::showPopupWindow(const Point & cursorPosition)
 {
+	if((cursorPosition.x - pos.x) > 600)
+		return;
+
 	std::vector<std::shared_ptr<CComponent>> comp;
 	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, GAME->interface()->cb->getResourceAmount(i)));
-	
+		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(i), GAME->interface()->cb->getResourceAmount(i)));
+
 	CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.270"), comp);
 }
