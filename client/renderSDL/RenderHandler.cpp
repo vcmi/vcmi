@@ -231,7 +231,10 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 
 		auto generated = assetGenerator->generateImage(imagePath);
 		if (generated)
+		{
+			generated->setAsyncUpscale(false); // do not async upscale base image for generated images -> fixes #6201
 			return generated;
+		}
 
 		logGlobal->error("Failed to load image %s", locator.image->getOriginalName());
 		return std::make_shared<SDLImageShared>(ImagePath::builtin("DEFAULT"));

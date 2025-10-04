@@ -15,6 +15,7 @@
 #include "../lib/CRandomGenerator.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/constants/StringConstants.h"
@@ -228,7 +229,10 @@ void Initializer::initialize(CGMine * o)
 	}
 	else
 	{
-		o->producedResource = GameResID(o->subID);
+		if(o->getResourceHandler()->getResourceType() == GameResID::NONE) // fallback
+			o->producedResource = GameResID(o->subID);
+		else
+			o->producedResource = o->getResourceHandler()->getResourceType();
 		o->producedQuantity = o->defaultResProduction();
 	}
 }
@@ -398,7 +402,8 @@ void Inspector::updateProperties(CGMine * o)
 	if(!o) return;
 	
 	addProperty(QObject::tr("Owner"), o->tempOwner, new OwnerDelegate(controller), false);
-	addProperty(QObject::tr("Resource"), o->producedResource);
+	if(o->producedResource != GameResID::NONE)
+		addProperty(QObject::tr("Resource"), o->producedResource);
 	addProperty(QObject::tr("Productivity"), o->producedQuantity);
 }
 
