@@ -11,6 +11,8 @@
 
 #include "CWindowWithArtifacts.h"
 
+#include "../../lib/mapObjectConstructors/CommonConstructors.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class CGObjectInstance;
 VCMI_LIB_NAMESPACE_END
@@ -241,6 +243,8 @@ private:
 	std::shared_ptr<CResDataBar> resdatabar;
 
 	void activateTab(size_t which);
+
+	std::shared_ptr<MineInstanceConstructor> getMineHandler(const GameResID & res);
 
 	//Internal functions used during construction
 	void generateButtons();
