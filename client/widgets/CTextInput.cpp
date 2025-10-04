@@ -83,15 +83,10 @@ void CTextInputWithConfirm::textInputted(const std::string & enteredText)
 	if(!hasFocus())
 		return;
 
-	CTextInput::textInputted(enteredText);
-
-	std::string visibleText = getVisibleText();
+	std::string visibleText = getVisibleText() + enteredText;
 	const auto & font = ENGINE->renderHandler().loadFont(label->font);
-	while(limitToRect && font->getStringWidth(visibleText) > pos.w)
-	{
-		TextOperations::trimRightUnicode(currentText);
-		visibleText = getVisibleText();
-	}
+	if(!limitToRect || font->getStringWidth(visibleText) < pos.w)
+		CTextInput::textInputted(enteredText);
 }
 
 void CTextInputWithConfirm::confirm()
