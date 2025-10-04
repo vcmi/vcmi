@@ -852,7 +852,7 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 
 std::string CGTownInstance::getNameTranslated() const
 {
-	return LIBRARY->generaltexth->translate(nameTextId);
+	return customName.empty() ? LIBRARY->generaltexth->translate(nameTextId) : customName;
 }
 
 std::string CGTownInstance::getNameTextID() const
@@ -863,6 +863,11 @@ std::string CGTownInstance::getNameTextID() const
 void CGTownInstance::setNameTextId( const std::string & newName )
 {
 	nameTextId = newName;
+}
+
+void CGTownInstance::setCustomName( const std::string & newName )
+{
+	customName = newName;
 }
 
 const CArmedInstance * CGTownInstance::getUpperArmy() const

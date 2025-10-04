@@ -45,8 +45,9 @@ public:
 };
 
 /// Text input box where players can enter text
-class CTextInput final : public CFocusable
+class CTextInput : public CFocusable
 {
+protected:
 	using TextEditedCallback = std::function<void(const std::string &)>;
 	using TextFilterCallback = std::function<void(std::string &, const std::string &)>;
 
@@ -71,12 +72,12 @@ class CTextInput final : public CFocusable
 	void createLabel(bool giveFocusToInput);
 	void updateLabel();
 
-	void clickPressed(const Point & cursorPosition) final;
-	void textInputted(const std::string & enteredText) final;
-	void textEdited(const std::string & enteredText) final;
-	void onFocusGot() final;
-	void onFocusLost() final;
-	void showPopupWindow(const Point & cursorPosition) final;
+	void clickPressed(const Point & cursorPosition) override;
+	void textInputted(const std::string & enteredText) override;
+	void textEdited(const std::string & enteredText) override;
+	void onFocusGot() override;
+	void onFocusLost() override;
+	void showPopupWindow(const Point & cursorPosition) override;
 
 	CTextInput(const Rect & Pos);
 public:
@@ -105,7 +106,26 @@ public:
 	void setAlignment(ETextAlignment alignment);
 
 	// CIntObject interface impl
-	void keyPressed(EShortcut key) final;
-	void activate() final;
-	void deactivate() final;
+	void keyPressed(EShortcut key) override;
+	void activate() override;
+	void deactivate() override;
+};
+
+class CTextInputWithConfirm final : public CTextInput
+{
+	std::string initialText;
+	std::function<void()> confirmCb;
+	bool limitToRect;
+
+	void confirm();
+public:
+	CTextInputWithConfirm(const Rect & Pos, EFonts font, ETextAlignment alignment, std::string text, bool limitToRect, std::function<void()> confirmCallback);
+
+	bool captureThisKey(EShortcut key) override;
+	void keyPressed(EShortcut key) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void clickPressed(const Point & cursorPosition) override;
+	bool receiveEvent(const Point & position, int eventType) const override;
+	void onFocusGot() override;
+	void textInputted(const std::string & enteredText) override;
 };
