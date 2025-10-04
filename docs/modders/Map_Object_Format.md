@@ -49,6 +49,7 @@ These are object types that are available for modding and have configurable prop
 - `bank` - see [Creature Bank](Map_Objects/Creature_Bank.md). Object that grants award on defeating guardians. Deprectated in favor of [Rewardable](Map_Objects/Rewardable.md)
 - `dwelling` - see [Dwelling](Map_Objects/Dwelling.md). Object that allows recruitments of units outside of towns
 - `market` - see [Market](Map_Objects/Market.md). Trading resources, artifacts, creatures and such
+- `mine` - see [Mine](Map_Objects/Mine.md). for Mines
 - `boat` - see [Boat](Map_Objects/Boat.md). Object to move across different terrains, such as water
 - `flaggable` - see [Flaggable](Map_Objects/Flaggable.md). Object that can be flagged by a player to provide [Bonus](Bonus_Format.md) or resources
 - `hillFort` - TODO: documentation. See config files in vcmi installation for reference
@@ -64,7 +65,6 @@ These are types that don't have configurable properties, however it is possible 
 - `borderGate`
 - `borderGuard`
 - `magi`
-- `mine`
 - `obelisk`
 - `subterraneanGate`
 - `whirlpool`

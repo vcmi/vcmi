@@ -47,7 +47,7 @@ VCMI allows overriding HoMM3 .def files with .json replacement. Compared to .def
             // Group of this image. Optional, default = 0
             "group" : 0,
 
-            // Imdex of the image in group
+            // Index of the image in group
             "frame" : 0,
 
             // Filename for this frame
