@@ -648,15 +648,16 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		std::string value = std::to_string(minesCount[i]);
+		int resID = line * GameConstants::RESOURCE_QUANTITY + i;
+		if(resID >= LIBRARY->resourceTypeHandler->getAllObjects().size())
+			break;
+
+		std::string value = std::to_string(minesCount[resID]);
 		std::shared_ptr<InfoBoxCustom> data;
 		if(line == 0)
 			data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, LIBRARY->generaltexth->translate("core.minename", i));
 		else
 		{
-			int resID = line * GameConstants::RESOURCE_QUANTITY + i;
-			if(resID >= LIBRARY->resourceTypeHandler->getAllObjects().size())
-				break;
 			auto mine = getMineHandler(GameResID(resID));
 			if(!mine || mine->getKingdomOverviewImage().empty())
 				continue;
