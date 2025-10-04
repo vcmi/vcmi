@@ -820,6 +820,7 @@ OptionsTab::HandicapWindow::HandicapWindow()
 		INCOME = 1000,
 		GROWTH = 2000,
 	};
+	// TODO: configurable resources
 	auto columns = std::vector<int>{EGameResID::GOLD, EGameResID::WOOD, EGameResID::MERCURY, EGameResID::ORE, EGameResID::SULFUR, EGameResID::CRYSTAL, EGameResID::GEMS, Columns::INCOME, Columns::GROWTH};
 
 	int i = 0;

@@ -12,6 +12,7 @@
 #include "../RmgMap.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../mapObjectConstructors/CommonConstructors.h"
 #include "../../mapObjects/CGResource.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMapEditManager.h"
@@ -22,6 +23,7 @@
 #include "RoadPlacer.h"
 #include "WaterAdopter.h"
 #include "../TileInfo.h"
+#include "../../entities/ResourceTypeHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -58,7 +60,20 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		const auto res = GameResID(mineInfo.first);
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			auto mineHandler = LIBRARY->objtypeh->getHandlerFor(Obj::MINE, res);
+			TObjectTypeHandler mineHandler;
+			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
+			{
+				auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+				if(handler->getResourceType() == res)
+					mineHandler = handler;
+			}
+
+			if(!mineHandler)
+			{
+				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+				continue;
+			}
+
 			const auto & rmginfo = mineHandler->getRMGInfo();
 			auto mine = std::dynamic_pointer_cast<CGMine>(mineHandler->create(map.mapInstance->cb, nullptr));
 			mine->producedResource = res;
