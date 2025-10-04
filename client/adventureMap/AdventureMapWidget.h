@@ -55,6 +55,7 @@ class AdventureMapWidget : public InterfaceObjectConfigurable
 	std::shared_ptr<CIntObject> buildResourceDateBar(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildStatusBar(const JsonNode & input);
 	std::shared_ptr<CIntObject> buildTexturePlayerColored(const JsonNode &);
+	std::shared_ptr<CIntObject> buildResourceAdditional(const JsonNode &);
 
 	void setPlayerChildren(CIntObject * widget, const PlayerColor & player);
 	void updateActiveStateChildren(CIntObject * widget);

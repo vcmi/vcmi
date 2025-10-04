@@ -346,13 +346,11 @@ public:
 		}
 		else
 		{
-			const JsonNode & node = getCurrent()[fieldName];
-			for (const auto & [keyStr, jsonVal] : node.Struct())
+			const auto & node = getCurrent()[fieldName].Struct();
+			for (const auto & n : node)
 			{
-				Key key = Key::decode(keyStr);
-
-				LIBRARY->identifiers()->requestIdentifier(node.getModScope(), Key::entityType(), keyStr, [&value, key](int32_t index) {
-					value[key] = T(index);
+				LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
 				});
 			}
 		}

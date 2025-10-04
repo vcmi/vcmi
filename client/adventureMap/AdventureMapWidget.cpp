@@ -46,18 +46,19 @@ AdventureMapWidget::AdventureMapWidget( std::shared_ptr<AdventureMapShortcuts> s
 	pos.w = ENGINE->screenDimensions().x;
 	pos.h = ENGINE->screenDimensions().y;
 
-	REGISTER_BUILDER("adventureInfobar",         &AdventureMapWidget::buildInfobox         );
-	REGISTER_BUILDER("adventureMapImage",        &AdventureMapWidget::buildMapImage        );
-	REGISTER_BUILDER("adventureMapButton",       &AdventureMapWidget::buildMapButton       );
-	REGISTER_BUILDER("adventureMapContainer",    &AdventureMapWidget::buildMapContainer    );
-	REGISTER_BUILDER("adventureMapGameArea",     &AdventureMapWidget::buildMapGameArea     );
-	REGISTER_BUILDER("adventureMapHeroList",     &AdventureMapWidget::buildMapHeroList     );
-	REGISTER_BUILDER("adventureMapIcon",         &AdventureMapWidget::buildMapIcon         );
-	REGISTER_BUILDER("adventureMapTownList",     &AdventureMapWidget::buildMapTownList     );
-	REGISTER_BUILDER("adventureMinimap",         &AdventureMapWidget::buildMinimap         );
-	REGISTER_BUILDER("adventureResourceDateBar", &AdventureMapWidget::buildResourceDateBar );
-	REGISTER_BUILDER("adventureStatusBar",       &AdventureMapWidget::buildStatusBar       );
-	REGISTER_BUILDER("adventurePlayerTexture",   &AdventureMapWidget::buildTexturePlayerColored);
+	REGISTER_BUILDER("adventureInfobar",            &AdventureMapWidget::buildInfobox             );
+	REGISTER_BUILDER("adventureMapImage",           &AdventureMapWidget::buildMapImage            );
+	REGISTER_BUILDER("adventureMapButton",          &AdventureMapWidget::buildMapButton           );
+	REGISTER_BUILDER("adventureMapContainer",       &AdventureMapWidget::buildMapContainer        );
+	REGISTER_BUILDER("adventureMapGameArea",        &AdventureMapWidget::buildMapGameArea         );
+	REGISTER_BUILDER("adventureMapHeroList",        &AdventureMapWidget::buildMapHeroList         );
+	REGISTER_BUILDER("adventureMapIcon",            &AdventureMapWidget::buildMapIcon             );
+	REGISTER_BUILDER("adventureMapTownList",        &AdventureMapWidget::buildMapTownList         );
+	REGISTER_BUILDER("adventureMinimap",            &AdventureMapWidget::buildMinimap             );
+	REGISTER_BUILDER("adventureResourceDateBar",    &AdventureMapWidget::buildResourceDateBar     );
+	REGISTER_BUILDER("adventureStatusBar",          &AdventureMapWidget::buildStatusBar           );
+	REGISTER_BUILDER("adventurePlayerTexture",      &AdventureMapWidget::buildTexturePlayerColored);
+	REGISTER_BUILDER("adventureResourceAdditional", &AdventureMapWidget::buildResourceAdditional  );
 
 	for (const auto & entry : shortcuts->getShortcuts())
 		addShortcut(entry.shortcut, entry.callback);
@@ -296,7 +297,7 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceDateBar(const JsonN
 
 	auto result = std::make_shared<CResDataBar>(image, area.topLeft());
 
-	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
+	for (const auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		const auto & node = input[i.toResource()->getJsonKey()];
 
@@ -326,6 +327,45 @@ std::shared_ptr<CIntObject> AdventureMapWidget::buildTexturePlayerColored(const 
 	logGlobal->debug("Building widget CFilledTexture");
 	Rect area = readTargetArea(input["area"]);
 	return std::make_shared<FilledTexturePlayerColored>(area);
+}
+
+std::shared_ptr<CIntObject> AdventureMapWidget::buildResourceAdditional(const JsonNode & input)
+{
+	OBJECT_CONSTRUCTION;
+
+	logGlobal->debug("Building widget ResourceAdditional");
+	Rect area = readTargetArea(input["area"]);
+	auto obj = std::make_shared<CIntObject>();
+
+	int remainingSpace = area.w;
+	int resElementSize = 84;
+	int fitOffset = 2;
+	for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
+	{
+		if(resource.getNum() < GameConstants::RESOURCE_QUANTITY)
+			continue;
+
+		if(remainingSpace < resElementSize)
+			break;
+
+		auto res = std::make_shared<CResDataBar>(ImagePath::builtin("ResBarElement"), area.topRight() + Point(remainingSpace - area.w - resElementSize + fitOffset, 0));
+		res->setResourcePosition(resource, Point(35, 3));
+		addWidget("", res);
+		obj->addChild(res.get());
+
+		auto resIcon = std::make_shared<CAnimImage>(AnimationPath::builtin("SMALRES"), GameResID(resource), 0, res->pos.x + 4, res->pos.y + 2);
+		addWidget("", resIcon);
+		obj->addChild(resIcon.get());
+
+		remainingSpace -= resElementSize;
+	}
+	
+	area.w = remainingSpace + fitOffset;
+	auto texture = std::make_shared<FilledTexturePlayerColored>(area);
+	addWidget("", texture);
+	obj->addChild(texture.get());
+
+	return obj;
 }
 
 std::shared_ptr<CHeroList> AdventureMapWidget::getHeroList()
@@ -381,11 +421,14 @@ void AdventureMapWidget::setPlayerChildren(CIntObject * widget, const PlayerColo
 		if(container)
 			setPlayerChildren(container, player);
 
-		if (textureColored)
+		if(textureColored)
 			textureColored->setPlayerColor(player);
 
-		if (textureIndexed)
+		if(textureIndexed)
 			textureIndexed->setPlayerColor(player);
+
+		if(entry)
+			setPlayerChildren(entry, player);
 	}
 
 	redraw();
@@ -427,7 +470,7 @@ void AdventureMapWidget::updateActiveStateChildren(CIntObject * widget)
 				container->setEnabled(shortcuts->optionHeroSleeping());
 
 			if (container->disableCondition == "heroGround")
-				container->setEnabled(shortcuts->optionHeroGround());
+				container->setEnabled(!shortcuts->optionHeroBoat(EPathfindingLayer::SAIL) && !shortcuts->optionHeroBoat(EPathfindingLayer::AIR));
 
 			if (container->disableCondition == "heroBoat")
 				container->setEnabled(shortcuts->optionHeroBoat(EPathfindingLayer::SAIL));
