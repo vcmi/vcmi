@@ -232,6 +232,7 @@ private:
 	std::shared_ptr<CButton> dwellBottom;
 
 	std::array<std::shared_ptr<InfoBox>, 7> minesBox;
+	std::shared_ptr<CSlider> minesSlider;
 
 	std::shared_ptr<CHoverableArea> incomeArea;
 	std::shared_ptr<CLabel> incomeAmount;
@@ -244,7 +245,7 @@ private:
 	//Internal functions used during construction
 	void generateButtons();
 	void generateObjectsList(const std::vector<const CGObjectInstance * > &ownedObjects);
-	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects);
+	void generateMinesList(const std::vector<const CGObjectInstance * > &ownedObjects, int line);
 
 	std::shared_ptr<CIntObject> createOwnedObject(size_t index);
 	std::shared_ptr<CIntObject> createMainTab(size_t index);
