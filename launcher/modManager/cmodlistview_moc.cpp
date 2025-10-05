@@ -1212,7 +1212,7 @@ void CModListView::installMaps(QStringList maps)
 				QFile::remove(destFile);
 			}
 
-			if (QFile::copy(map, destFile))
+			if (Helper::performNativeCopy(map, destFile))
 				successCount++;
 			else
 			{

@@ -249,7 +249,7 @@
 	"vcmi.server.errors.existingProcess"  : "En annan VCMI-serverprocess är igång. Vänligen avsluta den innan du startar ett nytt spel.",
 	"vcmi.server.errors.modsToEnable"     : "{Följande modd(ar) krävs}",
 	"vcmi.server.errors.modsToDisable"    : "{Följande modd(ar) måste inaktiveras}",
-	"vcmi.server.errors.unknownEntity"    : "Misslyckades med att ladda sparat spel! Okänd enhet '%s' hittades i sparat spel! Sparningen kanske inte är kompatibel med den aktuella versionen av moddarna!",
+	"vcmi.server.errors.saveFile.unknownEntity"    : "Misslyckades med att ladda sparat spel! Okänd enhet '%s' hittades i sparat spel! Sparningen kanske inte är kompatibel med den aktuella versionen av moddarna!",
 	"vcmi.server.errors.wrongIdentified"  : "Du identifierades som spelare %s när du förväntade dig %s",
 	"vcmi.server.errors.notAllowed"       : "Du får inte utföra denna åtgärd!",
 

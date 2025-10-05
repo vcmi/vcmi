@@ -244,7 +244,7 @@
 	"vcmi.server.errors.existingProcess" : "Outro processo do servidor VCMI está em execução. Por favor, termine-o antes de iniciar um novo jogo.",
 	"vcmi.server.errors.modsToEnable"    : "{Os seguintes mods são necessários}",
 	"vcmi.server.errors.modsToDisable"   : "{Os seguintes mods devem ser desativados}",
-	"vcmi.server.errors.unknownEntity" : "Falha ao carregar o jogo salvo! Entidade desconhecida '%s' encontrada no jogo salvo! O jogo salvo pode não ser compatível com a versão atualmente instalada dos mods!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Falha ao carregar o jogo salvo! Entidade desconhecida '%s' encontrada no jogo salvo! O jogo salvo pode não ser compatível com a versão atualmente instalada dos mods!",
 	"vcmi.server.errors.wrongIdentified"   : "Você foi identificado como o jogador %s, mas esperava-se %s",
 	"vcmi.server.errors.notAllowed"   : "Você não tem permissão para realizar esta ação!",
 	

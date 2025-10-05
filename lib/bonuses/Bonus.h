@@ -29,22 +29,78 @@ using TConstBonusListPtr = std::shared_ptr<const BonusList>;
 using TPropagatorPtr = std::shared_ptr<const IPropagator>;
 using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 
-class DLL_LINKAGE CAddInfo : public std::vector<si32>
+class DLL_LINKAGE CAddInfo final
 {
 public:
+	using container = std::vector<si32>;
+	using size_type = container::size_type;
 	enum { NONE = -1 };
 
 	CAddInfo();
 	CAddInfo(si32 value);
 
-	bool operator==(si32 value) const;
-	bool operator!=(si32 value) const;
+	// Inline definitions in the header to avoid missing symbols across TUs
+	bool operator==(const CAddInfo& other) const noexcept {
+		return data_ == other.data_;
+	}
 
-	si32 & operator[](size_type pos);
-	si32 operator[](size_type pos) const;
+	bool operator!=(const CAddInfo& other) const noexcept {
+		return !(*this == other);
+	}
+
+	bool operator==(si32 value) const
+	{
+		switch(data_.size())
+		{
+		case 0:
+			return value == CAddInfo::NONE;
+		case 1:
+			return data_[0] == value;
+		default:
+			return false;
+		}
+	}
+
+	bool operator!=(si32 value) const
+	{
+		return !(*this == value);
+	}
+
+
+	si32 & operator[](size_type pos)
+	{
+		if(pos >= data_.size())
+			data_.resize(pos + 1, CAddInfo::NONE);
+		return data_[pos];
+	}
+
+	si32 operator[](size_type pos) const
+	{
+		return pos < data_.size() ? data_[pos] : CAddInfo::NONE;
+	}
 
 	std::string toString() const;
 	JsonNode toJsonNode() const;
+
+	// Minimal vector-like facade
+	size_type size() const noexcept { return data_.size(); }
+	bool empty() const noexcept { return data_.empty(); }
+	void push_back(si32 v) { data_.push_back(v); }
+	void resize(size_type n, si32 fill = CAddInfo::NONE) { data_.resize(n, fill); }
+
+	container::iterator begin() noexcept { return data_.begin(); }
+	container::iterator end() noexcept { return data_.end(); }
+	container::const_iterator begin() const noexcept { return data_.begin(); }
+	container::const_iterator end() const noexcept { return data_.end(); }
+
+	// expose const view for free operators
+	const container& data() const noexcept { return data_; }
+
+	template <class H>
+	void serialize(H& h) { h & data_; }
+
+private:
+	container data_;
 };
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero

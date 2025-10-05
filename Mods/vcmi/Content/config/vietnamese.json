@@ -249,7 +249,7 @@
 	"vcmi.server.errors.existingProcess" : "Một chương trình máy chủ VCMI khác đang chạy. Hãy đóng nó trước khi bắt đầu một trò chơi mới.",
 	"vcmi.server.errors.modsToEnable"    : "{Các mod sau đây là bắt buộc}",
 	"vcmi.server.errors.modsToDisable"   : "{Bạn phải tắt các mod sau đây}",
-	"vcmi.server.errors.unknownEntity" : "Không tải được tệp tin đã lưu! Có lỗi chưa xác định trong tệp tin đã lưu '%s'! Tệp tin có thể không tương thích với phiên bản mod hiện đang cài đặt!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Không tải được tệp tin đã lưu! Có lỗi chưa xác định trong tệp tin đã lưu '%s'! Tệp tin có thể không tương thích với phiên bản mod hiện đang cài đặt!",
 	"vcmi.server.errors.wrongIdentified"   : "Bạn được chỉ định là người chơi %s trong khi bạn muốn %s",
 	"vcmi.server.errors.notAllowed"   : "Bạn không được phép thực hiện hành động này!",
 	

@@ -225,7 +225,7 @@
 	"vcmi.server.errors.existingProcess" : "Egy másik VCMI szerver folyamat fut. Kérjük, zárja be, mielőtt új játékot indítana.",
 	"vcmi.server.errors.modsToEnable"    : "{Az alábbi modok szükségesek}",
 	"vcmi.server.errors.modsToDisable"   : "{Az alábbi modokat le kell tiltani}",
-	"vcmi.server.errors.unknownEntity" : "Nem sikerült betölteni a mentést! Ismeretlen entitás '%s' található a mentett játékban! A mentés nem kompatibilis a jelenleg telepített modverziókkal!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Nem sikerült betölteni a mentést! Ismeretlen entitás '%s' található a mentett játékban! A mentés nem kompatibilis a jelenleg telepített modverziókkal!",
 	"vcmi.server.errors.wrongIdentified"   : "Önt %s játékosként azonosították, miközben %s játékosra számítottak",
 	"vcmi.server.errors.notAllowed"   : "Nem engedélyezett művelet!",
 	

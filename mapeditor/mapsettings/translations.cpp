@@ -20,8 +20,11 @@ void Translations::cleanupRemovedItems(CMap & map)
 {
 	std::set<std::string> existingObjects{"map", "header"};
 	for(auto object : map.objects)
-		existingObjects.insert(object->instanceName);
-	
+	{
+		if(object)
+			existingObjects.insert(object->instanceName);
+	}
+
 	for(auto & translations : map.translations.Struct())
 	{
 		JsonNode updateTranslations;

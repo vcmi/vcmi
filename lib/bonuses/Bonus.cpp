@@ -36,38 +36,8 @@ CAddInfo::CAddInfo() = default;
 
 CAddInfo::CAddInfo(si32 value)
 {
-	if(value != CAddInfo::NONE)
-		push_back(value);
-}
-
-bool CAddInfo::operator==(si32 value) const
-{
-	switch(size())
-	{
-	case 0:
-		return value == CAddInfo::NONE;
-	case 1:
-		return operator[](0) == value;
-	default:
-		return false;
-	}
-}
-
-bool CAddInfo::operator!=(si32 value) const
-{
-	return !operator==(value);
-}
-
-si32 & CAddInfo::operator[](size_type pos)
-{
-	if(pos >= size())
-		resize(pos + 1, CAddInfo::NONE);
-	return vector::operator[](pos);
-}
-
-si32 CAddInfo::operator[](size_type pos) const
-{
-	return pos < size() ? vector::operator[](pos) : CAddInfo::NONE;
+	if (value != CAddInfo::NONE)
+		data_.push_back(value);
 }
 
 std::string CAddInfo::toString() const
@@ -79,12 +49,12 @@ JsonNode CAddInfo::toJsonNode() const
 {
 	if(size() < 2)
 	{
-		return JsonNode(operator[](0));
+		return JsonNode((*this)[0]);
 	}
 	else
 	{
 		JsonNode node;
-		for(si32 value : *this)
+		for(si32 value : data_)
 			node.Vector().emplace_back(value);
 		return node;
 	}
