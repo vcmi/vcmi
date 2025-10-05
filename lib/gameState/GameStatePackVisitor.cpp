@@ -123,6 +123,11 @@ void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 	gs.getHero(pack.hid)->setFormation(pack.formation);
 }
 
+void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
+{
+	gs.getTown(pack.tid)->setCustomName(pack.name);
+}
+
 void GameStatePackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.hid);

@@ -91,6 +91,9 @@ void CTextInputWithConfirm::textInputted(const std::string & enteredText)
 
 void CTextInputWithConfirm::confirm()
 {
+	if(getText().empty())
+		setText(initialText);
+
 	if(confirmCb && initialText != getText())
 		confirmCb();
 	removeFocus();

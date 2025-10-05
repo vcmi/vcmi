@@ -362,6 +362,14 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 	result = gh.setFormation(pack.hid, pack.formation);
 }
 
+void ApplyGhNetPackVisitor::visitSetTownName(SetTownName & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.tid);
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.setTownName(pack.tid, pack.name);
+}
+
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
