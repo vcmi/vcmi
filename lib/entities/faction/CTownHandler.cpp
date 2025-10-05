@@ -282,7 +282,31 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 	ret->resources.resolveFromJson(source["cost"]);
-	ret->produce.resolveFromJson(source["produce"]);
+
+	//MODS COMPATIBILITY FOR pre-1.6
+	bool produceEmpty = true;
+	for(auto & res : source["produce"].Struct())
+		if(res.second.Integer() != 0)
+			produceEmpty = false;
+	if(!produceEmpty)
+		ret->produce.resolveFromJson(source["produce"]); // non legacy
+	else if(ret->bid == BuildingID::RESOURCE_SILO)
+	{
+		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
+		switch (ret->town->primaryRes.toEnum())
+		{
+			case EGameResID::GOLD:
+				ret->produce[ret->town->primaryRes] = 500;
+				break;
+			case EGameResID::WOOD_AND_ORE:
+				ret->produce[EGameResID::WOOD] = 1;
+				ret->produce[EGameResID::ORE] = 1;
+				break;
+			default:
+				ret->produce[ret->town->primaryRes] = 1;
+				break;
+		}
+	}
 
 	ret->manualHeroVisit = source["manualHeroVisit"].Bool();
 	ret->upgradeReplacesBonuses = source["upgradeReplacesBonuses"].Bool();
@@ -325,24 +349,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	if(!source["configuration"].isNull())
 		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
 
-	//MODS COMPATIBILITY FOR pre-1.6
-	if(ret->produce.empty() && ret->bid == BuildingID::RESOURCE_SILO)
-	{
-		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
-		switch (ret->town->primaryRes.toEnum())
-		{
-			case EGameResID::GOLD:
-				ret->produce[ret->town->primaryRes] = 500;
-				break;
-			case EGameResID::WOOD_AND_ORE:
-				ret->produce[EGameResID::WOOD] = 1;
-				ret->produce[EGameResID::ORE] = 1;
-				break;
-			default:
-				ret->produce[ret->town->primaryRes] = 1;
-				break;
-		}
-	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
 
 	if (!source["warMachine"].isNull())

@@ -148,8 +148,9 @@ void BattleWindow::createQueue()
 		//re-center, taking into account stack queue position
 		pos.y -= queue->pos.h;
 		pos.h += queue->pos.h;
-		pos = center();
 	}
+	if(showQueue)
+		pos = center();
 
 	if (!showQueue)
 		queue->disable();
@@ -236,6 +237,9 @@ void BattleWindow::showStickyQuickSpellWindow()
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
 	unitActionWindow->setEnabled(unitActionWindowVisible);
 
+	if(owner.actionsController && unitActionWindowVisible) // needed after resize of window
+		owner.actionsController->activateStack();
+
 	createTimerInfoWindows();
 	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
@@ -317,8 +321,8 @@ void BattleWindow::hideQueue()
 		//re-center, taking into account stack queue position
 		pos.y += queue->pos.h;
 		pos.h -= queue->pos.h;
-		pos = center();
 	}
+	pos = center();
 	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
@@ -857,6 +861,25 @@ void BattleWindow::show(Canvas & to)
 {
 	CIntObject::show(to);
 	GAME->interface()->cingconsole->show(to);
+}
+
+void BattleWindow::onScreenResize()
+{
+	if(settings["battle"]["showQueue"].Bool())
+	{
+		hideQueue();
+		showQueue();
+	}
+	if(settings["battle"]["enableQuickSpellPanel"].Bool())
+	{
+		hideStickyQuickSpellWindow();
+		showStickyQuickSpellWindow();
+	}
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+	{
+		hideStickyHeroWindows();
+		showStickyHeroWindows();
+	}
 }
 
 void BattleWindow::close()

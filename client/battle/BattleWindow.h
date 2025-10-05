@@ -133,6 +133,7 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void onScreenResize() override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();

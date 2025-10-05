@@ -619,7 +619,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
-	for(int i=0; i<7; i++)
+	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++) // TODO: configurable resources - show up more mines
 	{
 		std::string value = std::to_string(minesCount[i]);
 		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, LIBRARY->generaltexth->translate("core.minename", i));
