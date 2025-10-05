@@ -128,4 +128,5 @@ public:
 	bool receiveEvent(const Point & position, int eventType) const override;
 	void onFocusGot() override;
 	void textInputted(const std::string & enteredText) override;
+	void deactivate() override;
 };

@@ -1443,6 +1443,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 			name = ""; // use textID again
 		GAME->interface()->cb->setTownName(town, name);
 	});
+	if(town->tempOwner != GAME->interface()->playerID) // disable changing for allied towns
+		title->deactivate();
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), 0, 0, 15, 387);
 

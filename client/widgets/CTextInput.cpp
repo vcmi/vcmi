@@ -85,8 +85,15 @@ void CTextInputWithConfirm::textInputted(const std::string & enteredText)
 
 	std::string visibleText = getVisibleText() + enteredText;
 	const auto & font = ENGINE->renderHandler().loadFont(label->font);
-	if(!limitToRect || font->getStringWidth(visibleText) < pos.w)
+	if(!limitToRect || (font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) < pos.w)
 		CTextInput::textInputted(enteredText);
+}
+
+void CTextInputWithConfirm::deactivate()
+{
+	removeUsedEvents(LCLICK);
+
+	CTextInput::deactivate();
 }
 
 void CTextInputWithConfirm::confirm()
@@ -268,7 +275,7 @@ void CTextInput::updateLabel()
 	label->alignment = originalAlignment;
 	const auto & font = ENGINE->renderHandler().loadFont(label->font);
 
-	while (font->getStringWidth(visibleText) > pos.w)
+	while ((font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) > pos.w)
 	{
 		label->alignment = ETextAlignment::CENTERRIGHT;
 		visibleText = visibleText.substr(TextOperations::getUnicodeCharacterSize(visibleText[0]));
