@@ -76,7 +76,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Se requieren los siguientes mods}",
 	"vcmi.server.errors.modsToDisable"   : "{Deben desactivarse los siguientes mods}",
 	"vcmi.server.confirmReconnect"       : "¿Quieres reconectar a la última sesión?",
-	"vcmi.server.errors.unknownEntity" : "Error al cargar la partida guardada. ¡Se encontró una entidad desconocida '%s' en la partida guardada! Es posible que la partida no sea compatible con la versión actualmente instalada de los mods.",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Error al cargar la partida guardada. ¡Se encontró una entidad desconocida '%s' en la partida guardada! Es posible que la partida no sea compatible con la versión actualmente instalada de los mods.",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Cambiar a la pestaña de opciones generales, que contiene ajustes relacionados con el comportamiento general del juego",

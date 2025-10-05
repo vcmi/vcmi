@@ -250,7 +250,8 @@
 	"vcmi.server.errors.modsToDisable"   : "{Następujące mody muszą zostać wyłączone}",
 	"vcmi.server.errors.modDependencyLoop" : "Nie udało się wczytać moda {'%s'}!\n Być może znajduje się w pętli zależności",
 	"vcmi.server.errors.notAllowed" : "To działanie nie jest dozwolone!",
-	"vcmi.server.errors.unknownEntity" : "Nie udało się wczytać zapisu! Nieznany element '%s' znaleziony w pliku zapisu! Zapis może nie być zgodny z aktualnie zainstalowaną wersją modów!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Nie udało się wczytać zapisu! Nieznany element '%s' znaleziony w pliku zapisu! Zapis może nie być zgodny z aktualnie zainstalowaną wersją modów!",
+	"vcmi.server.errors.campOrMapFile.unknownEntity" : "Nie udało się wczytać pliku! Nieznany element '%s' znaleziony w pliku! Plik może nie być zgodny z aktualnie zainstalowaną wersją modów!",
 	"vcmi.server.errors.wrongIdentified" : "Zostałeś zidentyfikowany jako gracz %s natomiast powinieneś być %s",
 	
 	"vcmi.dimensionDoor.seaToLandError" : "Nie jest możliwa teleportacja przez drzwi wymiarów z wód na ląd i na odwrót.",

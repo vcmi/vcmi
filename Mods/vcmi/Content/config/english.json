@@ -249,7 +249,8 @@
 	"vcmi.server.errors.existingProcess" : "Another VCMI server process is running. Please terminate it before starting a new game.",
 	"vcmi.server.errors.modsToEnable"    : "{Following mods are required}",
 	"vcmi.server.errors.modsToDisable"   : "{Following mods must be disabled}",
-	"vcmi.server.errors.unknownEntity" : "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
+	"vcmi.server.errors.campOrMapFile.unknownEntity" : "Failed to load file! Unknown entity '%s' found! File may not be compatible with currently installed version of mods!",
 	"vcmi.server.errors.wrongIdentified"   : "You were identified as player %s while expecting %s",
 	"vcmi.server.errors.notAllowed"   : "You are not allowed to perform this action!",
 	
