@@ -133,7 +133,7 @@ void ChroniclesExtractor::createBaseMod() const
 		{
 			QDir().mkpath(pathToQString(destFolder));
 			QFile::remove(destFile);
-			QFile::copy(file, destFile);
+			Helper::performNativeCopy(file, destFile);
 		}
 	}
 }
@@ -237,7 +237,7 @@ void ChroniclesExtractor::extractFiles(int no) const
 				continue;
 			auto srcName = vstd::reverseMap(mapping).at(no);
 			auto dstName = (no == 7 || no == 8) ? srcName : "Intro";
-			QFile::copy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
+			Helper::performNativeCopy(tmpDir.filePath(QString::fromStdString(srcName + ending)), outDirVideo.filePath(QString::fromStdString(dstName + ending)));
 		}
 	}
 

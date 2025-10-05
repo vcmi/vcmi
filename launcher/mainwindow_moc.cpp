@@ -295,7 +295,7 @@ void MainWindow::manualInstallFile(QString filePath)
 			{
 				const auto configFilePath = configDir.filePath(configFile[0]);
 				QFile::remove(configFilePath);
-				QFile::copy(filePath, configFilePath);
+				Helper::performNativeCopy(filePath, configFilePath);
 
 				Helper::reLoadSettings();
 			}
