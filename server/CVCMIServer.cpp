@@ -437,7 +437,8 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 {
 	assert(getState() == EServerState::LOBBY);
 
-	c->connectionID = vstd::next(currentClientId, 1);
+	c->connectionID = currentClientId;
+	currentClientId = vstd::next(currentClientId, 1);
 	c->uuid = uuid;
 
 	if(hostClientId == GameConnectionID::INVALID)
@@ -451,7 +452,8 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 	for(auto & name : names)
 	{
 		logNetwork->info("Client %d player: %s", static_cast<int>(c->connectionID), name);
-		PlayerConnectionID id = vstd::next(currentPlayerId, 1);
+		PlayerConnectionID id = currentPlayerId;
+		currentPlayerId = vstd::next(currentPlayerId, 1);
 
 		ClientPlayer cp;
 		cp.connection = c->connectionID;
