@@ -75,15 +75,15 @@ protected:
 	void redrawWithSurroundingTiles(const std::vector<int3> & tiles);
 	void redraw(const std::set<CGObjectInstance *> & objects);
 	void redraw(const std::vector<QRectF> & areas);
-	QRectF getObjectArea(const CGObjectInstance * object);
+	QRectF getObjectArea(const CGObjectInstance * object) const;
 private:
 	void addSector(QGraphicsItem * item);
 	void removeSector(QGraphicsItem * item);
 	void redrawSectors(std::set<QGraphicsItem *> & items);
-	const QList<QGraphicsItem *> getAllSectors();
+	const QList<QGraphicsItem *> getAllSectors() const;
 
-	std::set<QGraphicsItem *> getContainingSectors(const std::vector<int3> & tiles);
-	std::set<QGraphicsItem *> getIntersectingSectors(const std::vector<QRectF> & areas);
+	std::set<QGraphicsItem *> getContainingSectors(const std::vector<int3> & tiles) const;
+	std::set<QGraphicsItem *> getIntersectingSectors(const std::vector<QRectF> & areas) const;
 	std::unique_ptr<QGraphicsItemGroup> items;
 	const int sectorSizeInTiles = 10;
 	const int sectorSize = sectorSizeInTiles * tileSize;

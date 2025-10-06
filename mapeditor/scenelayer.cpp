@@ -194,7 +194,7 @@ void AbstractViewportLayer::redraw(const std::vector<QRectF> & areas)
 	redrawSectors(intersectingSectors);
 }
 
-QRectF AbstractViewportLayer::getObjectArea(const CGObjectInstance * object)
+QRectF AbstractViewportLayer::getObjectArea(const CGObjectInstance * object) const
 {
 	auto pos = object->pos;
 	int x = ((pos.x + 1) * tileSize) - (object->getWidth() * tileSize);	//Qt set 0,0 point on the top right corner, CGObjectInstance on the bottom left
@@ -233,13 +233,13 @@ void AbstractViewportLayer::redrawSectors(std::set<QGraphicsItem *> & sectors)
 	}
 }
 
-const QList<QGraphicsItem *> AbstractViewportLayer::getAllSectors()	//returning const is necessary to avoid "range-loop might detach Qt container" problem
+const QList<QGraphicsItem *> AbstractViewportLayer::getAllSectors() const	//returning const is necessary to avoid "range-loop might detach Qt container" problem
 {
 	QList<QGraphicsItem *> emptyList;
 	return items ? items->childItems() : emptyList;
 }
 
-std::set<QGraphicsItem *> AbstractViewportLayer::getContainingSectors(const std::vector<int3> & tiles)
+std::set<QGraphicsItem *> AbstractViewportLayer::getContainingSectors(const std::vector<int3> & tiles) const
 {
 	std::set<QGraphicsItem *> result;
 	for (QGraphicsItem * existingSector : getAllSectors()) {
@@ -255,7 +255,7 @@ std::set<QGraphicsItem *> AbstractViewportLayer::getContainingSectors(const std:
 	return result;
 }
 
-std::set<QGraphicsItem *> AbstractViewportLayer::getIntersectingSectors(const std::vector<QRectF> & areas)
+std::set<QGraphicsItem *> AbstractViewportLayer::getIntersectingSectors(const std::vector<QRectF> & areas) const
 {
 	std::set<QGraphicsItem *> result;
 	for (QGraphicsItem * existingSector : getAllSectors()) {
