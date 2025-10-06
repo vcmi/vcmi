@@ -109,18 +109,17 @@ void MapHandler::initTerrainGraphics()
 	loadFlipped(roadAnimations, roadImages, roadFiles);
 }
 
-void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z)
+void MapHandler::drawTerrainTile(QPainter & painter, int x, int y, int z, QPointF offset)
 {
 	const auto & tinfo = map->getTile(int3(x, y, z));
 
 	auto terrainName = tinfo.getTerrain()->getJsonKey();
 	if(terrainImages.at(terrainName).size() <= tinfo.terView)
 		return;
-
-	painter.drawImage(x * tileSize, y * tileSize, flippedImage(terrainImages.at(terrainName)[tinfo.terView], tinfo.extTileFlags));
+	painter.drawImage(x * tileSize - offset.x(), y * tileSize - offset.y(), flippedImage(terrainImages.at(terrainName)[tinfo.terView], tinfo.extTileFlags));
 }
 
-void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
+void MapHandler::drawRoad(QPainter & painter, int x, int y, int z, QPointF offset)
 {
 	const auto & tinfo = map->getTile(int3(x, y, z));
 	auto * tinfoUpper = map->isInTheMap(int3(x, y - 1, z)) ? &map->getTile(int3(x, y - 1, z)) : nullptr;
@@ -132,7 +131,7 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		{
 			const QRect source{0, tileSize / 2, tileSize, tileSize / 2};
 			const ui8 rotationFlags = tinfoUpper->extTileFlags >> 4;
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), flippedImage(roadImages.at(roadName)[tinfoUpper->roadDir], rotationFlags), source);
+			painter.drawImage(QPoint(x * tileSize - offset.x(), y * tileSize - offset.y()), flippedImage(roadImages.at(roadName)[tinfoUpper->roadDir], rotationFlags), source);
 		}
 	}
 
@@ -143,12 +142,12 @@ void MapHandler::drawRoad(QPainter & painter, int x, int y, int z)
 		{
 			const QRect source{0, 0, tileSize, tileSize / 2};
 			const ui8 rotationFlags = tinfo.extTileFlags >> 4;
-			painter.drawImage(QPoint(x * tileSize, y * tileSize + tileSize / 2), flippedImage(roadImages.at(roadName)[tinfo.roadDir], rotationFlags), source);
+			painter.drawImage(QPoint(x * tileSize - offset.x(), y * tileSize + tileSize / 2 - offset.y()), flippedImage(roadImages.at(roadName)[tinfo.roadDir], rotationFlags), source);
 		}
 	}
 }
 
-void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
+void MapHandler::drawRiver(QPainter & painter, int x, int y, int z, QPointF offset)
 {
 	const auto & tinfo = map->getTile(int3(x, y, z));
 
@@ -162,7 +161,7 @@ void MapHandler::drawRiver(QPainter & painter, int x, int y, int z)
 		return;
 
 	const ui8 rotationFlags = tinfo.extTileFlags >> 2;
-	painter.drawImage(x * tileSize, y * tileSize, flippedImage(riverImages.at(riverName)[tinfo.riverDir], rotationFlags));
+	painter.drawImage(x * tileSize - offset.x(), y * tileSize - offset.y(), flippedImage(riverImages.at(riverName)[tinfo.riverDir], rotationFlags));
 }
 
 void setPlayerColor(QImage * sur, PlayerColor player)
@@ -366,7 +365,7 @@ std::vector<ObjectRect> & MapHandler::getObjects(int x, int y, int z)
 	return tileObjects[index(x, y, z)];
 }
 
-void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked)
+void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, QPointF offset, const std::set<const CGObjectInstance *> & locked)
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
@@ -390,7 +389,7 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std:
 		{
 			auto pos = obj->anchorPos();
 
-			painter.drawImage(QPoint(x * tileSize, y * tileSize), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
+			painter.drawImage(QPoint(x * tileSize - offset.x(), y * tileSize - offset.y()), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
 
 			if(locked.count(obj))
 			{
@@ -402,13 +401,13 @@ void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, const std:
 			if(objData.flagBitmap)
 			{
 				if(x == pos.x && y == pos.y)
-					painter.drawImage(QPoint((x - 2) * tileSize, (y - 1) * tileSize), *objData.flagBitmap);
+					painter.drawImage(QPoint((x - 2) * tileSize - offset.x(), (y - 1) * tileSize - offset.y()), *objData.flagBitmap);
 			}
 		}
 	}
 }
 
-void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y)
+void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y, QPointF offset)
 {
 	if (!obj)
 	{
@@ -424,10 +423,10 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 
 	if (objData.objBitmap)
 	{
-		painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.objBitmap);
+		painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width() - offset.x(), (y + 1) * tileSize - objData.objBitmap->height() - offset.y()), *objData.objBitmap);
 
 		if (objData.flagBitmap)
-			painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width(), (y + 1) * tileSize - objData.objBitmap->height()), *objData.flagBitmap);
+			painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width() - offset.x(), (y + 1) * tileSize - objData.objBitmap->height() - offset.y()), *objData.flagBitmap);
 	}
 }
 

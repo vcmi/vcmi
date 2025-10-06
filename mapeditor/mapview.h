@@ -31,12 +31,11 @@ public:
 	MapSceneBase(int lvl);
 	
 	const int level;
-	
-	virtual void updateViews();
+	virtual void createMap();
+	virtual void updateMap();
 	virtual void initialize(MapController &);
-	
-protected:
-	virtual std::list<AbstractLayer *> getAbstractLayers() = 0;
+	virtual std::list<AbstractFixedLayer *> getStaticLayers() = 0;
+	virtual std::list<AbstractViewportLayer *> getDynamicLayers() = 0;
 };
 
 class MinimapScene : public MapSceneBase
@@ -44,13 +43,12 @@ class MinimapScene : public MapSceneBase
 public:
 	MinimapScene(int lvl);
 	
-	void updateViews() override;
+	void createMap() override;
 	
 	MinimapLayer minimapView;
 	MinimapViewLayer viewport;
-	
-protected:
-	std::list<AbstractLayer *> getAbstractLayers() override;
+	std::list<AbstractFixedLayer *> getStaticLayers() override;
+	std::list<AbstractViewportLayer *> getDynamicLayers() override;
 };
 
 class MapScene : public MapSceneBase
@@ -59,8 +57,11 @@ class MapScene : public MapSceneBase
 public:
 	MapScene(int lvl);
 	
-	void updateViews() override;
+	void createMap() override;
+	std::list<AbstractFixedLayer *> getStaticLayers() override;
+	std::list<AbstractViewportLayer *> getDynamicLayers() override;
 	
+	EmptyLayer emptyLayer;
 	GridLayer gridView;
 	PassabilityLayer passabilityView;
 	SelectionTerrainLayer selectionTerrainView;
@@ -75,10 +76,8 @@ signals:
 public slots:
 	void terrainSelected(bool anything);
 	void objectSelected(bool anything);
-	
-protected:
-	std::list<AbstractLayer *> getAbstractLayers() override;
 
+protected:
 	bool isTerrainSelected;
 	bool isObjectSelected;
 
@@ -100,6 +99,7 @@ public:
 	SelectionTool selectionTool;
 
 public slots:
+	void resizeEvent (QResizeEvent * event) override;
 	void mouseMoveEvent(QMouseEvent * mouseEvent) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
@@ -107,8 +107,8 @@ public slots:
 	void dragMoveEvent(QDragMoveEvent *event) override;
 	void dragLeaveEvent(QDragLeaveEvent *event) override;
 	void dropEvent(QDropEvent * event) override;
-	
 	void cameraChanged(const QPointF & pos);
+	void setViewports();
 	
 signals:
 	void openObjectProperties(CGObjectInstance *, bool switchTab);
@@ -116,7 +116,6 @@ signals:
 	//void viewportChanged(const QRectF & rect);
 
 protected:
-	bool viewportEvent(QEvent *event) override;
 	
 private:
 	MapController * controller = nullptr;
