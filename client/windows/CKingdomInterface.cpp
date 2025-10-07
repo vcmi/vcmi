@@ -38,10 +38,13 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/mapObjectConstructors/CommonConstructors.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "../../lib/GameSettings.h"
 
@@ -476,7 +479,7 @@ CKingdomInterface::CKingdomInterface()
 
 	std::vector<const CGObjectInstance * > ownedObjects = GAME->interface()->cb->getMyObjects();
 	generateObjectsList(ownedObjects);
-	generateMinesList(ownedObjects);
+	generateMinesList(ownedObjects, 0);
 	generateButtons();
 
 	statusbar = CGStatusBar::create(std::make_shared<CPicture>(ImagePath::builtin("KSTATBAR"), 10,pos.h - 45));
@@ -594,11 +597,35 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	}
 }
 
-void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance *> & ownedObjects)
+std::shared_ptr<MineInstanceConstructor> CKingdomInterface::getMineHandler(const GameResID & res)
 {
+	std::shared_ptr<MineInstanceConstructor> mineHandler;
+	for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
+	{
+		auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+		if(handler->getResourceType() == res)
+			mineHandler = handler;
+	}
+
+	if(!mineHandler)
+	{
+		logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+		return nullptr;
+	}
+
+	return mineHandler;
+}
+
+void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstance *> & ownedObjects, int line)
+{
+	OBJECT_CONSTRUCTION;
+
 	ui32 footerPos = OVERVIEW_SIZE * 116;
 	ResourceSet minesCount = ResourceSet();
 	int totalIncome=0;
+
+	for(auto & ptr : minesBox)
+    	ptr.reset();
 
 	for(const CGObjectInstance * object : ownedObjects)
 	{
@@ -619,13 +646,40 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
-	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++) // TODO: configurable resources - show up more mines
+	for(int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
-		std::string value = std::to_string(minesCount[i]);
-		auto data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, LIBRARY->generaltexth->translate("core.minename", i));
+		int resID = line * GameConstants::RESOURCE_QUANTITY + i;
+		if(resID >= LIBRARY->resourceTypeHandler->getAllObjects().size())
+			break;
+
+		std::string value = std::to_string(minesCount[resID]);
+		std::shared_ptr<InfoBoxCustom> data;
+		if(line == 0)
+			data = std::make_shared<InfoBoxCustom>(value, "", AnimationPath::builtin("OVMINES"), i, LIBRARY->generaltexth->translate("core.minename", i));
+		else
+		{
+			auto mine = getMineHandler(GameResID(resID));
+			if(!mine || mine->getKingdomOverviewImage().empty())
+				continue;
+			data = std::make_shared<InfoBoxCustom>(value, "", mine->getKingdomOverviewImage(), 0, mine->getNameTranslated());
+		}
 		minesBox[i] = std::make_shared<InfoBox>(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL, data);
 		minesBox[i]->removeUsedEvents(LCLICK|SHOW_POPUP); //fixes #890 - mines boxes ignore clicks
 	}
+
+	if(LIBRARY->resourceTypeHandler->getAllObjects().size() > GameConstants::RESOURCE_QUANTITY)
+	{
+		int lines = vstd::divideAndCeil(LIBRARY->resourceTypeHandler->getAllObjects().size(), GameConstants::RESOURCE_QUANTITY);
+		minesSlider = std::make_shared<CSlider>(Point(723, 495), 57, [this, ownedObjects](int to){
+			generateMinesList(ownedObjects, to);
+			statusbar->clear();
+			setRedrawParent(true);
+			redraw();
+		}, 1, lines, line, Orientation::VERTICAL, CSlider::BROWN);
+		minesSlider->setPanningStep(57);
+		minesSlider->setScrollBounds(Rect(-735, 0, 735, 57));
+	}
+
 	incomeArea = std::make_shared<CHoverableArea>();
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = LIBRARY->generaltexth->allTexts[255];
@@ -722,6 +776,7 @@ CKingdHeroList::CKingdHeroList(size_t maxSize, const CreateHeroItemFunctor & onC
 				return std::make_shared<CAnimImage>(AnimationPath::builtin("OVSLOT"), (idx - 2) % GameConstants::KINGDOM_WINDOW_HEROES_SLOTS);
 			}
 		}, Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
+	heroes->getSlider()->setScrollBounds(Rect(0, 0, 725, 483));
 }
 
 void CKingdHeroList::updateGarrisons()
@@ -755,6 +810,7 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	ui32 size = OVERVIEW_SIZE*116 + 19;
 	towns = std::make_shared<CListBox>(std::bind(&CKingdTownList::createTownItem, this, _1),
 		Point(19,21), Point(0,116), maxSize, townCount, 0, 1, Rect(-19, -21, size, size));
+	towns->getSlider()->setScrollBounds(Rect(0, 0, 725, 483));
 }
 
 void CKingdTownList::townChanged(const CGTownInstance * town)
