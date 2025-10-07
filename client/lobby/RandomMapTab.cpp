@@ -43,7 +43,8 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 
 RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+	InterfaceObjectConfigurable(),
+	templateIndex(0)
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
@@ -164,6 +165,20 @@ RandomMapTab::RandomMapTab():
 				return readText(variables["randomTemplate"]);
 			return std::string("");
 		};
+
+		w->addCallback([this]()
+		{
+			std::vector<std::string> texts;
+			texts.push_back(readText(variables["randomTemplate"]));
+			for(auto & t : LIBRARY->tplh->getTemplates())
+				texts.push_back(t->getName());
+
+			ENGINE->windows().popWindows(1); // no real dropdown...
+			ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
+				widget<ComboBox>("templateList")->setItem(index);
+				templateIndex = index;
+			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true);
+		});
 	}
 	
 	loadOptions();

@@ -138,6 +138,8 @@
 	"vcmi.lobby.deleteFile" : "Möchtet Ihr folgende Datei löschen?",
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
+	"vcmi.lobby.templatesSelect.hover" : "Templates",
+	"vcmi.lobby.templatesSelect.help" : "Suche und wähle Template aus",
 
 	"vcmi.broadcast.failedLoadGame" : "Spiel konnte nicht geladen werden",
 	"vcmi.broadcast.command" : "Benutze '!help' um alle verfügbaren Befehle aufzulisten",
