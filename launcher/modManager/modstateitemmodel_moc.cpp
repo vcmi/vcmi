@@ -55,6 +55,7 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
 		QT_TR_NOOP("Resources"),
+		QT_TR_NOOP("Patch"),
 	};
 
 	if (modTypes.contains(modTypeID))
