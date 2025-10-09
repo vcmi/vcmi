@@ -26,7 +26,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation>Versionsinformation</translation>
+        <translation>Kompilationsinformation</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
