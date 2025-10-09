@@ -354,7 +354,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>Installing Heroes Chronicles</source>
-        <translation>Installerar Hjältarnas krönikor (Heroes Chronicles)</translation>
+        <translation>Installerar Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
@@ -364,43 +364,44 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartan existerar</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kartan ’%1’ finns redan. Vill du skriva över den?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ja till alla</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Nej till alla</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Importen är klar</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 karta/kartor importerades utan problem.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Importen misslyckades</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att importera följande kartor:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
@@ -417,7 +418,7 @@ Installation framgångsrikt nedladdad?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
         <source>screenshots</source>
-        <translation>skärmdumpar/skärmbilder</translation>
+        <translation>skärmbilder</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
@@ -883,7 +884,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation>Du måste välja en installationsfil för Hjältarnas krönikor (Heroes Chronicles)!</translation>
+        <translation>Du måste välja en installationsfil för Hjältarnas Krönikor (Heroes Chronicles)!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
@@ -899,12 +900,12 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
-        <translation>Hjältarnas krönikor (Heroes Chronicles)</translation>
+        <translation>Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation>Hjältarnas krönikor (Heroes Chronicles) %1 - %2</translation>
+        <translation>Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1130,7 +1131,7 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
         <source>Horn of the Abyss</source>
-        <translation>Avgrundens horn (Horn of the Abyss)</translation>
+        <translation>Avgrundens Horn (Horn of the Abyss)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
@@ -1140,7 +1141,7 @@ När dessa två filer finns på din enhet kan VCMI börja importera nödvändiga
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
-        <translation>I gudars kölvatten (In The Wake of Gods)</translation>
+        <translation>I Gudars Kölvatten (In The Wake of Gods)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
@@ -1871,9 +1872,9 @@ Orsak: %2</translation>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
         <translation>
-            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
+            <numerusform>Heroes Chronicles:
 %n/%1 installerad</numerusform>
-            <numerusform>Hjältarnas krönikor (Heroes Chronicles):
+            <numerusform>Heroes Chronicles:
 %n/%1 installerade</numerusform>
         </translation>
     </message>
@@ -1936,7 +1937,7 @@ Orsak: %2</translation>
 
  - Heroes III kartor (.h3m eller .vmap).
  - Heroes III kampanjer (.h3c eller .vcmp).
- - Heroes III Hjältarnas krönikor (Heroes Chronicles) använder offline backup installerare från GOG.com (.exe).
+ - Heroes III Hjältarnas Krönikor (Heroes Chronicles) använder offline backup installerare från GOG.com (.exe).
  - VCMI-moddar i zip-format (.zip)
  - VCMI-konfigurationsfiler (.json)
 </translation>
@@ -1964,8 +1965,8 @@ VARNING: I vissa fall kanske uppdaterade versioner av moddar inte är kompatibla
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation>Om du äger Hjältarnas krönikor (Heroes Chronicles) på gog.com kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
-För att importera Hjältarnas krönikor (Heroes Chronicles) ska du först ladda ner &quot;offline backup game installers&quot; av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
+        <translation>Om du äger Hjältarnas Krönikor (Heroes Chronicles) på gog.com kan du använda &quot;offline backup game installers&quot; som tillhandahålls av GOG för att importera Heroes Chronicles data till VCMI så att man kan spela dem i VCMI.
+För att importera Hjältarnas Krönikor (Heroes Chronicles) ska du först ladda ner &quot;offline backup game installers&quot; av varje krönika som du vill installera. Välj alternativet &apos;Importera filer&apos; och välj nedladdad fil. Detta kommer att generera och installera modden för VCMI som innehåller importerade krönikor</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="350"/>
