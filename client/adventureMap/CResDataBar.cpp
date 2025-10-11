@@ -22,11 +22,14 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/ResourceSet.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/networkPacks/Component.h"
 
 CResDataBar::CResDataBar(const ImagePath & imageName, const Point & position)
@@ -101,9 +104,28 @@ void CResDataBar::showPopupWindow(const Point & cursorPosition)
 	if((cursorPosition.x - pos.x) > 600)
 		return;
 
+	// only daily income
+	ResourceSet income;
+	auto playerState = GAME->interface()->cb->getPlayerState(GAME->interface()->playerID);
+	auto playerSettings = GAME->interface()->cb->getPlayerSettings(GAME->interface()->playerID);
+	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
+	{
+		income += playerState->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
+		income += playerState->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * playerState->getTowns().size();
+	}
+	TResources incomeHandicapped = income;
+	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);
+	for(auto & mapObject : playerState->getOwnedObjects())
+		incomeHandicapped += mapObject->asOwnable()->dailyIncome();
+
 	std::vector<std::shared_ptr<CComponent>> comp;
 	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, GameResID(i), GAME->interface()->cb->getResourceAmount(i)));
+	{
+		std::string text = std::to_string(GAME->interface()->cb->getResourceAmount(i));
+		if(incomeHandicapped[i])
+			text += " {lightgreen|(+" + std::to_string(incomeHandicapped[i]) + ")}";
+		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, text));
+	}
 
 	CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.270"), comp);
 }
