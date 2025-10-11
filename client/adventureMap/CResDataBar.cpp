@@ -123,7 +123,7 @@ void CResDataBar::showPopupWindow(const Point & cursorPosition)
 	{
 		std::string text = std::to_string(GAME->interface()->cb->getResourceAmount(i));
 		if(incomeHandicapped[i])
-			text += " {lightgreen|(+" + std::to_string(incomeHandicapped[i]) + ")}";
+			text += "\n{lightgreen|(+" + std::to_string(incomeHandicapped[i]) + ")}";
 		comp.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i, text));
 	}
 
