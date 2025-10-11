@@ -38,6 +38,8 @@ private:
 	void createAltarArtifacts(const IMarket * market, const CGHeroInstance * hero);
 	void createAltarCreatures(const IMarket * market, const CGHeroInstance * hero);
 
+	ImagePath getImagePathBasedOnResources(std::string name);
+
 	const int buttonHeightWithMargin = 32 + 3;
 	std::vector<std::shared_ptr<CButton>> changeModeButtons;
 	std::shared_ptr<CButton> quitButton;

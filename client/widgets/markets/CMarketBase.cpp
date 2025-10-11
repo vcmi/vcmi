@@ -46,7 +46,8 @@ void CMarketBase::deselect()
 		offerTradePanel->highlightedSlot->selectSlot(false);
 		offerTradePanel->highlightedSlot.reset();
 	}
-	deal->block(true);
+	if(deal)
+		deal->block(true);
 	bidQty = 0;
 	offerQty = 0;
 	updateShowcases();
@@ -54,7 +55,12 @@ void CMarketBase::deselect()
 
 void CMarketBase::onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel)
 {
-	assert(newSlot);
+	if(!newSlot)
+	{
+		deselect();
+		return;
+	}
+
 	assert(curPanel);
 	if(newSlot == curPanel->highlightedSlot)
 		return;
@@ -81,13 +87,14 @@ void CMarketBase::updateSubtitlesForBid(EMarketMode marketMode, int bidId)
 	}
 	else
 	{
-		for(const auto & slot : offerTradePanel->slots)
-		{
-			int slotBidQty = 0;
-			int slotOfferQty = 0;
-			market->getOffer(bidId, slot->id, slotBidQty, slotOfferQty, marketMode);
-			offerTradePanel->updateOffer(*slot, slotBidQty, slotOfferQty);
-		}
+		if(offerTradePanel)
+			for(const auto & slot : offerTradePanel->slots)
+			{
+				int slotBidQty = 0;
+				int slotOfferQty = 0;
+				market->getOffer(bidId, slot->id, slotBidQty, slotOfferQty, marketMode);
+				offerTradePanel->updateOffer(*slot, slotBidQty, slotOfferQty);
+			}
 	}
 };
 
@@ -118,6 +125,11 @@ void CMarketBase::highlightingChanged()
 {
 	offerTradePanel->update();
 	updateShowcases();
+}
+
+CMarketBase::MarketShowcasesParams CMarketBase::getShowcasesParams() const
+{
+	return {};
 }
 
 CExperienceAltar::CExperienceAltar()
@@ -164,8 +176,9 @@ bool CCreaturesSelling::slotDeletingCheck(const std::shared_ptr<CTradeableItem> 
 
 void CCreaturesSelling::updateSubtitles() const
 {
-	for(const auto & heroSlot : bidTradePanel->slots)
-		heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
+	if(bidTradePanel)
+		for(const auto & heroSlot : bidTradePanel->slots)
+			heroSlot->subtitle->setText(std::to_string(this->hero->getStackCount(SlotID(heroSlot->serial))));
 }
 
 CResourcesBuying::CResourcesBuying(const CTradeableItem::ClickPressedFunctor & clickPressedCallback,
@@ -188,8 +201,9 @@ CResourcesSelling::CResourcesSelling(const CTradeableItem::ClickPressedFunctor &
 
 void CResourcesSelling::updateSubtitles() const
 {
-	for(const auto & slot : bidTradePanel->slots)
-		slot->subtitle->setText(std::to_string(GAME->interface()->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
+	if(bidTradePanel)
+		for(const auto & slot : bidTradePanel->slots)
+			slot->subtitle->setText(std::to_string(GAME->interface()->cb->getResourceAmount(static_cast<EGameResID>(slot->serial))));
 }
 
 CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback)
@@ -197,6 +211,7 @@ CMarketSlider::CMarketSlider(const CSlider::SliderMovingFunctor & movingCallback
 	OBJECT_CONSTRUCTION;
 
 	offerSlider = std::make_shared<CSlider>(Point(230, 489), 137, movingCallback, 0, 0, 0, Orientation::HORIZONTAL);
+	offerSlider->setScrollBounds(Rect(-215, -50, 575, 120));
 	maxAmount = std::make_shared<CButton>(Point(228, 520), AnimationPath::builtin("IRCBTNS.DEF"), LIBRARY->generaltexth->zelp[596],
 		[this]()
 		{
