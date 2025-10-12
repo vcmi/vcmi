@@ -63,6 +63,7 @@ public:
 	virtual int32_t getBaseHitPoints() const = 0;
 	virtual int32_t getBaseSpellPoints() const = 0;
 	virtual int32_t getBaseSpeed() const = 0;
+	virtual int32_t getBaseInitiative() const = 0;
 	virtual int32_t getBaseShots() const = 0;
 
 	virtual int32_t getRecruitCost(GameResID resIndex) const = 0;

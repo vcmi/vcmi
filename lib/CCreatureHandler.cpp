@@ -166,6 +166,12 @@ int32_t CCreature::getBaseSpeed() const
 	return getExportedBonusList().valOfBonuses(SELECTOR);
 }
 
+int32_t CCreature::getBaseInitiative() const
+{
+	static const auto SELECTOR = Selector::type()(BonusType::STACKS_INITIATIVE).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
+	return getExportedBonusList().valOfBonuses(SELECTOR);
+}
+
 int32_t CCreature::getBaseShots() const
 {
 	static const auto SELECTOR = Selector::type()(BonusType::SHOTS).And(Selector::sourceTypeSel(BonusSource::CREATURE_ABILITY));
@@ -408,6 +414,9 @@ void CCreature::updateFrom(const JsonNode & data)
 		if(!configNode["speed"].isNull())
 			addBonus(configNode["speed"].Integer(), BonusType::STACKS_SPEED);
 
+		if(!configNode["initiative"].isNull())
+			addBonus(configNode["initiative"].Integer(), BonusType::STACKS_INITIATIVE);
+
 		if(!configNode["attack"].isNull())
 			addBonus(configNode["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 
@@ -632,6 +641,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
+	cre->addBonus(node["initiative"].Integer(), BonusType::STACKS_INITIATIVE);
 	cre->addBonus(node["attack"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::ATTACK));
 	cre->addBonus(node["defense"].Integer(), BonusType::PRIMARY_SKILL, BonusSubtypeID(PrimarySkill::DEFENSE));
 

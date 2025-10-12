@@ -153,6 +153,7 @@ public:
 	int32_t getBaseHitPoints() const override;
 	int32_t getBaseSpellPoints() const override;
 	int32_t getBaseSpeed() const override;
+	int32_t getBaseInitiative() const override;
 	int32_t getBaseShots() const override;
 
 	int32_t getRecruitCost(GameResID resIndex) const override;

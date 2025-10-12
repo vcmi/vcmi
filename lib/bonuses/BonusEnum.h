@@ -204,6 +204,7 @@ class JsonNode;
 	BONUS_NAME(DEITYOFFIRE) /* Controls special week */ \
 	BONUS_NAME(ON_COMBAT_EVENT) /* Allows triggering various effects on combat events */ \
 	BONUS_NAME(LONG_WEAPON) /* melee attack from one hex away (attacker-empty-victim), without retaliation */ \
+	BONUS_NAME(STACKS_INITIATIVE)  /*additional info - percent of initiative bonus applied after direct bonuses; >0 - added, <0 - subtracted to this part*/ \
 
 	/* end of list */
 
