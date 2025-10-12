@@ -168,7 +168,8 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 - `headless` - run without GUI, implies `onlyAI` is set  
 - `showGrid` - display a square grid overlay on top of adventure map  
 - `showBlocked` - show blocked tiles on map  
-- `showVisitable` - show visitable tiles on map  
+- `showVisitable` - show visitable tiles on map    
+- `showInvisible` - show invisible tiles (events, grail) on map (only singleplayer)
 - `hideSystemMessages` - suppress server messages in chat  
 - `antilag` - toggles network lag compensation in multiplayer on or off
 

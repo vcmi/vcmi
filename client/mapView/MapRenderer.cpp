@@ -14,6 +14,9 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
+#include "../CServerHandler.h"
+#include "../GameInstance.h"
+#include "../Client.h"
 #include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -23,12 +26,14 @@
 #include "../render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
@@ -592,8 +597,15 @@ MapRendererOverlay::MapRendererOverlay()
 	, imageBlocked(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::COLORKEY))
 	, imageVisitable(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::COLORKEY))
 	, imageSpellRange(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
+	, imageEvent(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZevnt0"), EImageBlitMode::COLORKEY)->getImage(0))
+	, imageGrail(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZgrail"), EImageBlitMode::COLORKEY)->getImage(0))
+	, grailPos(GAME->server().client->gameState().getMap().grailPos)
 {
-
+	int humanPlayer = 0;
+	for (const auto & pi : GAME->server().client->gameState().getStartInfo()->playerInfos)
+		if(pi.second.isControlledByHuman())
+			humanPlayer++;
+	isSinglePlayer = humanPlayer < 2;
 }
 
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -601,7 +613,7 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(context.showVisitable() || context.showBlocked())
+	if(context.showVisitable() || context.showBlocked() || context.showInvisible())
 	{
 		bool blocking = false;
 		bool visitable = false;
@@ -609,6 +621,12 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 		for(const auto & objectID : context.getObjects(coordinates))
 		{
 			const auto * object = context.getObject(objectID);
+
+			if(object->ID == Obj::EVENT && context.showInvisible() && isSinglePlayer)
+				target.draw(imageEvent, Point(0,0));
+			
+			if(grailPos == coordinates && context.showInvisible() && isSinglePlayer)
+				target.draw(imageGrail, Point(0,0));
 
 			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))
 			{
@@ -642,6 +660,9 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 
 	if (context.showSpellRange(coordinates))
 		result += 8;
+
+	if (context.showInvisible())
+		result += 16;
 
 	return result;
 }
