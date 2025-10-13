@@ -56,6 +56,7 @@ jobs:
 
           - platform: msvc-x64
             arch: x64
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -70,6 +71,7 @@ jobs:
 
           - platform: msvc-x86
             arch: x86
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -178,6 +180,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{ matrix.arch }}
+        toolset: ${{ matrix.toolset }}
 
     # ensure the cache for each PR is separate so they don't interfere with each other
     # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
