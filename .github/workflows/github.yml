@@ -67,7 +67,6 @@ jobs:
             conan_prebuilts: dependencies-windows-x64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x64
-            cl: Hostx64/x64/cl.exe
 
           - platform: msvc-x86
             arch: amd64_x86
@@ -82,7 +81,6 @@ jobs:
             conan_prebuilts: dependencies-windows-x86
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x86
-            cl: Hostx64/x86/cl.exe
 
           - platform: msvc-arm64
             arch: arm64
@@ -96,7 +94,6 @@ jobs:
             conan_prebuilts: dependencies-windows-arm64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
             artifact_platform: arm64
-            cl: HostARM64/ARM64/cl.exe
 
           - platform: android-32
             os: ubuntu-latest
@@ -295,11 +292,7 @@ jobs:
       run: |
         & conan-generated\conanrun.ps1
 
-        $CL = "$($env:VCToolsInstallDir)/bin/${{ matrix.cl }}"
-        cmake `
-          -D "CMAKE_C_COMPILER:FILEPATH=$CL" `
-          -D "CMAKE_CXX_COMPILER:FILEPATH=$CL" `
-          --preset ${{ matrix.preset }}
+        cmake --preset ${{ matrix.preset }}
       shell: pwsh
 
     - name: Build
