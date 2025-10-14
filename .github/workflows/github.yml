@@ -224,11 +224,13 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       run: |
         conan profile detect
+        outFolder=conan-generated
         conan install . \
-          --output-folder=conan-generated \
+          --output-folder="$outFolder" \
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           ${{ matrix.conan_options }}
+        ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
     # Can't be set in Gradle project
     - name: Configure enableUncompressedNativeLibs
@@ -290,14 +292,14 @@ jobs:
     - name: Configure (MSVC)
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: |
-        & conan-generated\conanrun.ps1
+        & $env:CONANRUN_PWSH_SCRIPT
 
         cmake --preset ${{ matrix.preset }}
       shell: pwsh
 
     - name: Build
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cmake --build --preset ${{matrix.preset}}
       shell: pwsh
       env:
@@ -316,7 +318,7 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
         cpack -C ${{matrix.pack_type}}
       shell: pwsh
