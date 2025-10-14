@@ -374,7 +374,6 @@ jobs:
       id: make_partial_json
       env:
         PLATFORM: ${{ matrix.platform }}
-        ARCH: ${{ matrix.arch }}
         ARTIFACT_URL: ${{ steps.upload_artifact.outputs.artifact-url }}
         DEBUG_SYMBOLS_URL: ${{ steps.upload_symbols.outputs.artifact-url }}
         AAB_URL: ${{ steps.upload_aab.outputs.artifact-url }}
