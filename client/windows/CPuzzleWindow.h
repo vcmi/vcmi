@@ -16,6 +16,7 @@ class CLabel;
 class CButton;
 class CResDataBar;
 class PuzzleMapView;
+class GraphicalPrimitiveCanvas;
 
 /// Puzzle screen which gets uncovered when you visit obilisks
 class CPuzzleWindow : public CWindowObject
@@ -24,6 +25,7 @@ private:
 	int3 grailPos;
 	std::shared_ptr<PuzzleMapView> mapView;
 	std::shared_ptr<CPicture> logo;
+	std::shared_ptr<GraphicalPrimitiveCanvas> border;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CButton> quitb;
 	std::shared_ptr<CResDataBar> resDataBar;

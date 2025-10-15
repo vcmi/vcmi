@@ -1466,13 +1466,13 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	const auto multihexAnimation = attacker->getBonusesOfType(BonusType::MULTIHEX_ANIMATION);
 
 	for (const auto & bonus : *multihexUnit)
-		at.friendlyCreaturePositions.insert(processTargets(bonus->additionalInfo));
+		at.friendlyCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
 
 	for (const auto & bonus : *multihexEnemy)
-		at.hostileCreaturePositions.insert(processTargets(bonus->additionalInfo));
+		at.hostileCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
 
 	for (const auto & bonus : *multihexAnimation)
-		at.overrideAnimationPositions.insert(processTargets(bonus->additionalInfo));
+		at.overrideAnimationPositions.insert(processTargets(bonus->additionalInfo.data()));
 
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
 		at.hostileCreaturePositions.insert(processTargets({2,6}));

@@ -538,6 +538,16 @@
             "inherits": "default-release"
         },
         {
+          "name": "linux-gcc-test",
+          "configurePreset": "linux-gcc-test",
+          "inherits": "default-release"
+        },
+        {
+          "name": "linux-clang-test",
+          "configurePreset": "linux-clang-test",
+          "inherits": "default-release"
+        },
+        {
             "name": "macos-xcode-release",
             "configurePreset": "macos-xcode-release",
             "inherits": "default-release"

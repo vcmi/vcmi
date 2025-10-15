@@ -55,7 +55,7 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	bool runByClient;
 
 
-	bool loadSavedGame(const StartInfo &info);
+	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
 
 	// IGameServer impl

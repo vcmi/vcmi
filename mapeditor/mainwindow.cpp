@@ -295,6 +295,7 @@ MainWindow::MainWindow(QWidget* parent) :
 			
 			mapLevel = combo->currentIndex();
 			ui->mapView->setScene(controller.scene(mapLevel));
+			ui->mapView->setViewports();
 			ui->minimapView->setScene(controller.miniScene(mapLevel));
 		});
 		layout->addWidget(combo, c == ui->menuView ? 1 : 0);
@@ -467,9 +468,19 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, tr("Mods are required"), QString::fromStdString(e.whatMissing()));
+		auto qstrError = QString::fromStdString(e.getFullErrorMsg()).remove('{').remove('}');
+		QMessageBox::warning(this, tr("Mods are required"), qstrError);
 		return false;
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		return false;
+	}
+
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
@@ -618,6 +629,9 @@ void MainWindow::saveMap()
 
 	for(auto obj : controller.map()->objects)
 	{
+		if(!obj)
+			continue;
+
 		if(obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			auto hero = dynamic_cast<CGHeroPlaceholder *>(obj.get());
@@ -1323,9 +1337,10 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
 			}
-			
+			std::vector<int3> selectedTiles;
 			for(auto & offset : obj->appearance->getBlockedOffsets())
-				controller.scene(mapLevel)->selectionTerrainView.select(obj->pos + offset);
+				selectedTiles.push_back(obj->pos + offset);
+			controller.scene(mapLevel)->selectionTerrainView.select(selectedTiles);
 		}
 		else
 		{
@@ -1484,8 +1499,6 @@ void MainWindow::on_actionLock_triggered()
 			}
 			controller.scene(mapLevel)->selectionObjectsView.clear();
 		}
-		controller.scene(mapLevel)->objectsView.update();
-		controller.scene(mapLevel)->selectionObjectsView.update();
 	}
 }
 
@@ -1497,7 +1510,6 @@ void MainWindow::on_actionUnlock_triggered()
 		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
 		controller.scene(mapLevel)->objectsView.unlockAll();
 	}
-	controller.scene(mapLevel)->objectsView.update();
 }
 
 
