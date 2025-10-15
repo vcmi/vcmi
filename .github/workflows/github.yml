@@ -70,7 +70,7 @@ jobs:
             cl: Hostx64/x64/cl.exe
 
           - platform: msvc-x86
-            arch: x86
+            arch: amd64_x86
             toolset: '14.29'
             os: windows-2025
             pack: 1
