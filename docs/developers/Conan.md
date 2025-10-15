@@ -31,7 +31,7 @@ The following platforms are supported and known to work, others might require ch
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
     - *macOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode / Xcode CLT 16.x and later
     - *iOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode 16.x and later
-    - *Windows*: libraries are built with MSVC 19.4x (v143 toolset)
+    - *Windows*: libraries are built with MSVC 19.29 (v142 toolset, but can be consumed by v143) for Intel and with MSVC 19.4x (v143 toolset) for ARM64
     - *Android*: libraries are built with NDK r25c (25.2.9519653)
 
 2. Download the binaries archive from <https://github.com/vcmi/vcmi-dependencies/releases> (pre-release is for development version and the latest release is for respective VCMI release) and use `conan cache restore <path to archive>` command to unpack them.
