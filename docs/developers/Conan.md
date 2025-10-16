@@ -115,7 +115,7 @@ Make sure that you've cloned VCMI repository with submodules! (or initialized th
 
 In terminal `cd` to the VCMI source directory and run the following command (it's written in Bash syntax, for other shells like Cmd or Powershell use appropriate line continuation character instead of `\` or type everything on a single line). Also check subsections for additional requirements on consuming prebuilt binaries.
 
-*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then run the below command twice appending `-c tools.env.virtualenv:powershell=powershell.exe` on the second run.
+*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the below command.
 
 <pre>
 conan install . \
