@@ -16,6 +16,7 @@ class FirstLaunchView;
 }
 
 class CModListView;
+class ProgressOverlay;
 
 class FirstLaunchView : public QWidget
 {
@@ -43,7 +44,7 @@ class FirstLaunchView : public QWidget
 	QString getHeroesInstallDir();
 	void extractGogData();
 	void extractGogDataAsync(QString filePathBin, QString filePathExe);
-	void copyHeroesData(const QString & path = {}, bool move = false);
+	void copyHeroesData(const QString & path = {}, bool removeSource = false);
 
 	// Tab Mod Preset
 	void modPresetUpdate();
@@ -51,9 +52,12 @@ class FirstLaunchView : public QWidget
 	QString findTranslationModName();
 
 	bool checkCanInstallTranslation();
-	bool checkCanInstallWog();
-	bool checkCanInstallHota();
 	bool checkCanInstallExtras();
+	bool checkCanInstallDemo();
+	bool checkCanInstallHota();
+	bool checkCanInstallWog();
+	bool checkCanInstallTow();
+	bool checkCanInstallFod();
 	bool checkCanInstallMod(const QString & modID);
 
 public:
