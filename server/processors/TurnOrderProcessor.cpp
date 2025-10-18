@@ -19,6 +19,7 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -364,6 +365,15 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 void TurnOrderProcessor::onGameStarted()
 {
+	if(gameHandler->gameInfo().getMapHeader()->battleOnly)
+	{
+		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
+		auto hero1 = heroes.at(0);
+		auto hero2 = heroes.at(1);
+		gameHandler->startBattle(hero1, hero2);
+		return;
+	}
+
 	if (actingPlayers.empty())
 		blockedContacts = computeContactStatus();
 

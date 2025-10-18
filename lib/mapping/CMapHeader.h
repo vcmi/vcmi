@@ -272,6 +272,8 @@ public:
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
+	bool battleOnly; /// Battle only mode
+
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
 	
@@ -316,6 +318,8 @@ public:
 
 		h & levelLimit;
 		h & areAnyPlayers;
+		if (h.version >= Handler::Version::BATTLE_ONLY)
+			h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;

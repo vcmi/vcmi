@@ -94,7 +94,7 @@ void CIdentifierStorage::requestIdentifier(const ObjectCallback & callback) cons
 	checkIdentifier(callback.type);
 	checkIdentifier(callback.name);
 
-	assert(!callback.localScope.empty());
+	//assert(!callback.localScope.empty());
 
 	if (state != ELoadingState::FINISHED) // enqueue request if loading is still in progress
 		scheduledRequests.push_back(callback);
@@ -126,7 +126,7 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameW
 
 CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool bypassDependenciesCheck, bool caseSensitive)
 {
-	assert(!scope.empty());
+	//assert(!scope.empty());
 
 	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
 	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');

@@ -3478,6 +3478,16 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 	if(!p || p->status != EPlayerStatus::INGAME) return;
 
+	if(gameState().getMap().battleOnly)
+	{
+		PlayerEndsGame peg;
+		peg.player = player;
+		peg.silentEnd = true;
+		sendAndApply(peg);
+		gameServer().setState(EServerState::SHUTDOWN);
+		return;
+	}
+
 	auto victoryLossCheckResult = gameState().checkForVictoryAndLoss(player);
 
 	if (victoryLossCheckResult.victory() || victoryLossCheckResult.loss())

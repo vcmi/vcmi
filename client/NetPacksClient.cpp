@@ -15,6 +15,7 @@
 #include "windows/GUIClasses.h"
 #include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
+#include "mainmenu/CMainMenu.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
@@ -409,7 +410,13 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 			adventureInt.reset();
 		}
 
-		GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		if(!pack.silentEnd)
+			GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		else
+		{
+			GAME->server().endGameplay();
+			GAME->mainmenu()->menu->switchToTab("main");
+		}
 	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose

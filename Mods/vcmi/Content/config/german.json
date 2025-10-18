@@ -138,6 +138,7 @@
 	"vcmi.lobby.deleteFile" : "Möchtet Ihr folgende Datei löschen?",
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
+	"vcmi.lobby.battleOnlyMode" : "Nur Kämpfen Modus",
 
 	"vcmi.broadcast.failedLoadGame" : "Spiel konnte nicht geladen werden",
 	"vcmi.broadcast.command" : "Benutze '!help' um alle verfügbaren Befehle aufzulisten",

@@ -138,6 +138,7 @@
 	"vcmi.lobby.deleteFile" : "Do you want to delete following file?",
 	"vcmi.lobby.deleteFolder" : "Do you want to delete following folder?",
 	"vcmi.lobby.deleteMode" : "Switch to delete mode and back",
+	"vcmi.lobby.battleOnlyMode" : "Battle only mode",
 
 	"vcmi.broadcast.failedLoadGame" : "Failed to load game",
 	"vcmi.broadcast.command" : "Use '!help' to list available commands",
