@@ -313,7 +313,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</string>
+            <string>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -828,7 +828,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install the exclusive underground, mushroom-themed expansion Fallen of the Depth, available only in VCMI</string>
+            <string>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
