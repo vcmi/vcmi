@@ -111,8 +111,8 @@ public:
 	std::set<int3> addObject(const CGObjectInstance * object);
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
-	void drawObjects(QPainter & painter, int x, int y, int z, QPointF offset, const std::set<const CGObjectInstance *> & locked);
-	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y, QPointF offset);
+	void drawObjects(QPainter & painter, const QRectF & section, int z, std::set<const CGObjectInstance *> & locked);
+	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y, QPointF offset, bool locked = false);
 	
 	void drawMinimapTile(QPainter & painter, int x, int y, int z);
 
