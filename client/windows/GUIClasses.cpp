@@ -1596,7 +1596,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	for(int id : _items)
 	{
 		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
-		trimTextIfTooWide(objectName, id);
+		trimTextIfTooWide(objectName);
 		items.emplace_back(id, objectName);
 	}
 	itemsVisible = items;
@@ -1620,7 +1620,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	for(size_t i = 0; i < _items.size(); i++)
 	{
 		std::string objectName = _items[i];
-		trimTextIfTooWide(objectName, static_cast<int>(i));
+		trimTextIfTooWide(objectName);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
@@ -1664,19 +1664,21 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
 }
 
-void CObjectListWindow::trimTextIfTooWide(std::string & text, int id) const
+void CObjectListWindow::trimTextIfTooWide(std::string & text) const
 {
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
-	std::string idStr = '(' + std::to_string(id) + ')';
+	auto posBrace = text.find('(');
+	auto posClosing = text.find(')');
+	std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
 	if(text[0] == '{')
-		idStr = '}' + idStr;
+		objCount = '}' + objCount;
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
-	std::string suffix = " ... " + idStr;
+	std::string suffix = "... " + objCount;
 
 	if(font->getStringWidth(text) >= maxWidth)
 	{
-		logGlobal->warn("Mapobject name '%s' is too long and probably needs to be fixed! Trimming...", 
-			text.substr(0, text.size() - idStr.size() + 1));
+		logGlobal->trace("Mapobject name '%s' is too long and probably needs to be fixed! "
+						 "Trimming it to fit into CObjectListWindow...", text);
 
 		// Trim text until it fits
 		while(!text.empty())
