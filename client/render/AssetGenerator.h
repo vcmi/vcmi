@@ -67,6 +67,7 @@ private:
 	CanvasPtr createQuestWindow() const;
 	AnimationLayoutMap createGSPButtonClear();
 	CanvasPtr createGateListColored(PlayerColor color, PlayerColor backColor) const;
+	CanvasPtr createHeroSlotsColored(PlayerColor backColor) const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);

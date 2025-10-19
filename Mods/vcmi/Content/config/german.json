@@ -139,6 +139,11 @@
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
 	"vcmi.lobby.battleOnlyMode" : "Nur Kämpfen Modus",
+	"vcmi.lobby.battleOnlyModeBattleground" : "Schlachtfeld",
+	"vcmi.lobby.battleOnlyModeBattlegroundSelect" : "Schlachtfeld auswählen",
+	"vcmi.lobby.battleOnlyModeHeroSelect" : "Helden auswählen",
+	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Kreatur auswählen",
+	"vcmi.lobby.battleOnlyModeSelect" : "Wählen",
 
 	"vcmi.broadcast.failedLoadGame" : "Spiel konnte nicht geladen werden",
 	"vcmi.broadcast.command" : "Benutze '!help' um alle verfügbaren Befehle aufzulisten",

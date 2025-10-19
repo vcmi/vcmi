@@ -95,9 +95,11 @@ void AssetGenerator::initialize()
 
 	for (PlayerColor color(-1); color < PlayerColor::PLAYER_LIMIT; ++color)
 	{
-		std::string name = "TowenPortalBackgroundBlue" + (color == -1 ? "" : "-" + color.toString());
+		std::string name = "TownPortalBackgroundBlue" + (color == -1 ? "" : "-" + color.toString());
 		imageFiles[ImagePath::builtin(name)] = [this, color](){ return createGateListColored(std::max(PlayerColor(0), color), PlayerColor(1)); };
 	}
+
+	imageFiles[ImagePath::builtin("heroSlotsBlue.png")] = [this](){ return createHeroSlotsColored(PlayerColor(1));};
 
 	createPaletteShiftedSprites();
 }
@@ -934,6 +936,26 @@ AssetGenerator::CanvasPtr AssetGenerator::createGateListColored(PlayerColor colo
 	};
 	for(auto & rect : keepOriginalRects)
 		canvas.draw(img, Point(rect.x, rect.y), rect);
+
+	std::vector<Rect> blackRect = {
+		Rect(14, 401, 66, 32),
+		Rect(227, 401, 66, 32)
+	};
+	for(auto & rect : blackRect)
+		canvas.drawBorder(rect, Colors::BLACK);
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createHeroSlotsColored(PlayerColor backColor) const
+{
+	auto img = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("OVSLOT"), EImageBlitMode::OPAQUE)->getImage(4);
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
+	img->adjustPalette(filters[backColor.getNum()], 0);
+
+	auto image = ENGINE->renderHandler().createImage(img->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img, Point(0, 0));
 
 	return image;
 }

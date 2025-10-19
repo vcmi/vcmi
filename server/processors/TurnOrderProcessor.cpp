@@ -20,6 +20,7 @@
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -367,10 +368,13 @@ void TurnOrderProcessor::onGameStarted()
 {
 	if(gameHandler->gameInfo().getMapHeader()->battleOnly)
 	{
+		auto towns = gameHandler->gameState().getMap().getObjects<CGTownInstance>();
 		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
-		auto hero1 = heroes.at(0);
-		auto hero2 = heroes.at(1);
-		gameHandler->startBattle(hero1, hero2);
+		if(!towns.size() && heroes.size() == 2)
+			gameHandler->startBattle(heroes.at(0), heroes.at(1));
+		else
+			towns.at(0)->onHeroVisit(*gameHandler, heroes.at(0));
+
 		return;
 	}
 
