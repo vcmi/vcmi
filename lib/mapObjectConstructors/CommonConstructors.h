@@ -67,6 +67,7 @@ class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGM
 	JsonNode config;
 	GameResID resourceType;
 	ui32 defaultQuantity;
+	AnimationPath kingdomOverviewImage;
 public:
 	void initTypeData(const JsonNode & input) override;
 
@@ -74,6 +75,7 @@ public:
 	ui32 getDefaultQuantity() const;
 	std::string getDescriptionTextID() const;
 	std::string getDescriptionTranslated() const;
+	AnimationPath getKingdomOverviewImage() const;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>

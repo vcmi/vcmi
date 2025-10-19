@@ -48,8 +48,8 @@ public:
 	
 	void resetMapHandler();
 	
+	void initializeMap();
 	void sceneForceUpdate();
-	void sceneForceUpdate(int level);
 	
 	void commitTerrainChange(int level, const TerrainId & terrain);
 	void commitRoadOrRiverChange(int level, ui8 type, bool isRoad);

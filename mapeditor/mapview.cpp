@@ -59,6 +59,8 @@ MapView::MapView(QWidget * parent):
 	QGraphicsView(parent),
 	selectionTool(MapView::SelectionTool::None)
 {
+	connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &MapView::setViewports);
+	connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &MapView::setViewports);
 }
 
 void MapView::cameraChanged(const QPointF & pos)
@@ -69,6 +71,11 @@ void MapView::cameraChanged(const QPointF & pos)
 void MapView::setController(MapController * ctrl)
 {
 	controller = ctrl;
+}
+
+void MapView::resizeEvent(QResizeEvent * event)
+{
+	setViewports();
 }
 
 void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
@@ -96,24 +103,24 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 	{
 	case MapView::SelectionTool::Brush:
 		if(mouseEvent->buttons() & Qt::RightButton)
-			sc->selectionTerrainView.erase(tile);
+			sc->selectionTerrainView.erase({tile});
 		else if(mouseEvent->buttons() == Qt::LeftButton)
-			sc->selectionTerrainView.select(tile);
-		sc->selectionTerrainView.draw();
+			sc->selectionTerrainView.select({tile});
 		break;
 
 	case MapView::SelectionTool::Brush2:
 		{
 			std::array<int3, 4> extra{ int3{0, 0, 0}, int3{1, 0, 0}, int3{0, 1, 0}, int3{1, 1, 0} };
+			std::vector<int3> tiles;
 			for(auto & e : extra)
 			{
-				if(mouseEvent->buttons() & Qt::RightButton)
-					sc->selectionTerrainView.erase(tile + e);
-				else if(mouseEvent->buttons() == Qt::LeftButton)
-					sc->selectionTerrainView.select(tile + e);
+				tiles.push_back(tile + e);
 			}
+			if(mouseEvent->buttons() & Qt::RightButton)
+				sc->selectionTerrainView.erase(tiles);
+			else if(mouseEvent->buttons() == Qt::LeftButton)
+				sc->selectionTerrainView.select(tiles);
 		}
-		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Brush4:
@@ -124,33 +131,37 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 			int3{-1, 1, 0}, int3{0, 1, 0}, int3{1, 1, 0}, int3{2, 1, 0},
 			int3{-1, 2, 0}, int3{0, 2, 0}, int3{1, 2, 0}, int3{2, 2, 0}
 		};
+		std::vector<int3> tiles;
 		for(auto & e : extra)
 		{
-			if(mouseEvent->buttons() & Qt::RightButton)
-				sc->selectionTerrainView.erase(tile + e);
-			else if(mouseEvent->buttons() == Qt::LeftButton)
-				sc->selectionTerrainView.select(tile + e);
+			tiles.push_back(tile + e);
 		}
+		if(mouseEvent->buttons() & Qt::RightButton)
+			sc->selectionTerrainView.erase(tiles);
+		else if(mouseEvent->buttons() == Qt::LeftButton)
+			sc->selectionTerrainView.select(tiles);
 	}
-		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Area:
+	{
 		if(mouseEvent->buttons() & Qt::RightButton || !(mouseEvent->buttons() & Qt::LeftButton))
 			break;
 
 		sc->selectionTerrainView.clear();
+		std::vector<int3> selectedTiles;
 		for(int j = std::min(tile.y, tileStart.y); j < std::max(tile.y, tileStart.y); ++j)
 		{
 			for(int i = std::min(tile.x, tileStart.x); i < std::max(tile.x, tileStart.x); ++i)
 			{
-				sc->selectionTerrainView.select(int3(i, j, sc->level));
+				selectedTiles.emplace_back(i, j, sc->level);
 			}
 		}
-		sc->selectionTerrainView.draw();
+		sc->selectionTerrainView.select(selectedTiles);
 		break;
-			
+	}
 	case MapView::SelectionTool::Line:
+	{
 		{
 			assert(tile.z == tileStart.z);
 			const auto diff = tile - tileStart;
@@ -174,39 +185,45 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 			
 			if(mouseEvent->buttons() == Qt::LeftButton)
 			{
-				for(auto & ts : temporaryTiles)
-					sc->selectionTerrainView.erase(ts);
-				
+				std::vector<int3>erasedTiles(temporaryTiles.begin(), temporaryTiles.end());
+				sc->selectionTerrainView.erase(erasedTiles);
+
+				std::vector<int3>selectedTiles;
 				for(auto ts = tileStart; ts.dist2d(tileStart) < edge; ts += dir)
 				{
 					if(!controller->map()->isInTheMap(ts))
 						break;
 					if(!sc->selectionTerrainView.selection().count(ts))
 						temporaryTiles.insert(ts);
-					sc->selectionTerrainView.select(ts);
+					selectedTiles.push_back(ts);
 				}
+				sc->selectionTerrainView.select(selectedTiles);
 			}
 			if(mouseEvent->buttons() == Qt::RightButton)
 			{
-				for(auto & ts : temporaryTiles)
-					sc->selectionTerrainView.select(ts);
-				
+				std::vector<int3>selectedTiles(temporaryTiles.begin(), temporaryTiles.end());
+				sc->selectionTerrainView.select(selectedTiles);
+
+				std::vector<int3>erasedTiles;
 				for(auto ts = tileStart; ts.dist2d(tileStart) < edge; ts += dir)
 				{
 					if(!controller->map()->isInTheMap(ts))
 						break;
 					if(sc->selectionTerrainView.selection().count(ts))
 						temporaryTiles.insert(ts);
-					sc->selectionTerrainView.erase(ts);
+					erasedTiles.push_back(ts);
 				}
+				sc->selectionTerrainView.erase(selectedTiles);
 			}
-			sc->selectionTerrainView.draw();
 			break;
 		}
-			
+	}
+
 	case MapView::SelectionTool::Lasso:
+	{
 		if(mouseEvent->buttons() == Qt::LeftButton)
 		{
+			std::vector<int3>tiles;
 			for(auto i = tilePrev; i != tile;)
 			{
 				int length = std::numeric_limits<int>::max();
@@ -220,18 +237,19 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 					}
 				}
 				i += dir;
-				sc->selectionTerrainView.select(i);
+				tiles.push_back(i);
 			}
-			sc->selectionTerrainView.draw();
+			sc->selectionTerrainView.select(tiles);
 		}
 		break;
+	}
 
 	case MapView::SelectionTool::None:
 		if(mouseEvent->buttons() & Qt::RightButton)
 			break;
 
 		auto sh = tile - tileStart;
-		sc->selectionObjectsView.shift = QPoint(sh.x, sh.y);
+		sc->selectionObjectsView.setShift(sh.x, sh.y);
 
 		if(sh.x || sh.y)
 		{
@@ -244,8 +262,6 @@ void MapView::mouseMoveEvent(QMouseEvent *mouseEvent)
 				}
 			}
 		}
-
-		sc->selectionObjectsView.draw();
 		break;
 	}
 	
@@ -276,34 +292,31 @@ void MapView::mousePressEvent(QMouseEvent *event)
 	case MapView::SelectionTool::Brush:
 	case MapView::SelectionTool::Line:
 		sc->selectionObjectsView.clear();
-		sc->selectionObjectsView.draw();
 
 		if(event->button() == Qt::RightButton)
-			sc->selectionTerrainView.erase(tileStart);
+			sc->selectionTerrainView.erase({tileStart});
 		else if(event->button() == Qt::LeftButton)
-			sc->selectionTerrainView.select(tileStart);
-		sc->selectionTerrainView.draw();
+			sc->selectionTerrainView.select({tileStart});
 		break;
 
 	case MapView::SelectionTool::Brush2:
 		sc->selectionObjectsView.clear();
-		sc->selectionObjectsView.draw();
 	{
 		std::array<int3, 4> extra{ int3{0, 0, 0}, int3{1, 0, 0}, int3{0, 1, 0}, int3{1, 1, 0} };
+		std::vector<int3> tiles;
 		for(auto & e : extra)
 		{
-			if(event->button() == Qt::RightButton)
-				sc->selectionTerrainView.erase(tileStart + e);
-			else if(event->button() == Qt::LeftButton)
-				sc->selectionTerrainView.select(tileStart + e);
+			tiles.push_back(tileStart + e);
 		}
+		if(event->buttons() & Qt::RightButton)
+			sc->selectionTerrainView.erase(tiles);
+		else if(event->buttons() == Qt::LeftButton)
+			sc->selectionTerrainView.select(tiles);
 	}
-		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Brush4:
 		sc->selectionObjectsView.clear();
-		sc->selectionObjectsView.draw();
 	{
 		std::array<int3, 16> extra{
 			int3{-1, -1, 0}, int3{0, -1, 0}, int3{1, -1, 0}, int3{2, -1, 0},
@@ -311,15 +324,16 @@ void MapView::mousePressEvent(QMouseEvent *event)
 			int3{-1, 1, 0}, int3{0, 1, 0}, int3{1, 1, 0}, int3{2, 1, 0},
 			int3{-1, 2, 0}, int3{0, 2, 0}, int3{1, 2, 0}, int3{2, 2, 0}
 		};
+		std::vector<int3> tiles;
 		for(auto & e : extra)
 		{
-			if(event->button() == Qt::RightButton)
-				sc->selectionTerrainView.erase(tileStart + e);
-			else if(event->button() == Qt::LeftButton)
-				sc->selectionTerrainView.select(tileStart + e);
+			tiles.push_back(tileStart + e);
 		}
+		if(event->buttons() & Qt::RightButton)
+			sc->selectionTerrainView.erase(tiles);
+		else if(event->buttons() == Qt::LeftButton)
+			sc->selectionTerrainView.select(tiles);
 	}
-		sc->selectionTerrainView.draw();
 		break;
 
 	case MapView::SelectionTool::Area:
@@ -328,63 +342,63 @@ void MapView::mousePressEvent(QMouseEvent *event)
 			break;
 
 		sc->selectionTerrainView.clear();
-		sc->selectionTerrainView.draw();
 		sc->selectionObjectsView.clear();
-		sc->selectionObjectsView.draw();
 		break;
-			
+
 	case MapView::SelectionTool::Fill:
-		{
-			if(event->button() != Qt::RightButton && event->button() != Qt::LeftButton)
-				break;
-			
-			std::vector<int3> queue;
-			queue.push_back(tileStart);
-			
-			const std::array<int3, 4> dirs{ int3{1, 0, 0}, int3{-1, 0, 0}, int3{0, 1, 0}, int3{0, -1, 0} };
-			
-			while(!queue.empty())
-			{
-				auto tile = queue.back();
-				queue.pop_back();
-				if(event->button() == Qt::LeftButton)
-					sc->selectionTerrainView.select(tile);
-				else
-					sc->selectionTerrainView.erase(tile);
-				for(auto & d : dirs)
-				{
-					auto tilen = tile + d;
-					if(!controller->map()->isInTheMap(tilen))
-						continue;
-					if(event->button() == Qt::LeftButton)
-					{
-						if(controller->map()->getTile(tile).roadType
-						   && controller->map()->getTile(tile).roadType != controller->map()->getTile(tilen).roadType)
-							continue;
-						else if(controller->map()->getTile(tile).riverType
-						   && controller->map()->getTile(tile).riverType != controller->map()->getTile(tilen).riverType)
-							continue;
-						else if(controller->map()->getTile(tile).terrainType != controller->map()->getTile(tilen).terrainType)
-							continue;
-					}
-					if(event->button() == Qt::LeftButton && sc->selectionTerrainView.selection().count(tilen))
-						continue;
-					if(event->button() == Qt::RightButton && !sc->selectionTerrainView.selection().count(tilen))
-						continue;
-					queue.push_back(tilen);
-				}
-			}
-			
-			
-			sc->selectionTerrainView.draw();
-			sc->selectionObjectsView.clear();
-			sc->selectionObjectsView.draw();
+	{
+		if(event->button() != Qt::RightButton && event->button() != Qt::LeftButton)
 			break;
+
+		std::vector<int3> queue;
+		std::set<int3> tilesToFill;
+		queue.push_back(tileStart);
+
+		const std::array<int3, 4> dirs{ int3{1, 0, 0}, int3{-1, 0, 0}, int3{0, 1, 0}, int3{0, -1, 0} };
+
+		while(!queue.empty())
+		{
+			auto tile = queue.back();
+			queue.pop_back();
+			tilesToFill.insert(tile);
+			for(auto & d : dirs)
+			{
+				auto tilen = tile + d;
+				if (tilesToFill.count(tilen))
+					continue;
+				if(!controller->map()->isInTheMap(tilen))
+					continue;
+				if(event->button() == Qt::LeftButton)
+				{
+					if(controller->map()->getTile(tile).roadType
+							&& controller->map()->getTile(tile).roadType != controller->map()->getTile(tilen).roadType)
+						continue;
+					else if(controller->map()->getTile(tile).riverType
+							&& controller->map()->getTile(tile).riverType != controller->map()->getTile(tilen).riverType)
+						continue;
+					else if(controller->map()->getTile(tile).terrainType != controller->map()->getTile(tilen).terrainType)
+						continue;
+				}
+				if(event->button() == Qt::LeftButton && sc->selectionTerrainView.selection().count(tilen))
+					continue;
+				if(event->button() == Qt::RightButton && !sc->selectionTerrainView.selection().count(tilen))
+					continue;
+				queue.push_back(tilen);
+			}
 		}
+		std::vector<int3> result(tilesToFill.begin(), tilesToFill.end());
+
+		if(event->button() == Qt::LeftButton)
+			sc->selectionTerrainView.select(result);
+		else
+			sc->selectionTerrainView.erase(result);
+
+		sc->selectionObjectsView.clear();
+		break;
+	}
 
 	case MapView::SelectionTool::None:
 		sc->selectionTerrainView.clear();
-		sc->selectionTerrainView.draw();
 
 		if(sc->selectionObjectsView.newObject && sc->selectionObjectsView.isSelected(sc->selectionObjectsView.newObject.get()))
 		{
@@ -426,15 +440,14 @@ void MapView::mousePressEvent(QMouseEvent *event)
 				{
 					sc->selectionObjectsView.clear();
 					sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::SELECTION;
-					
+
 					if(!rubberBand)
 						rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 					rubberBand->setGeometry(QRect(mapFromScene(mouseStart), QSize()));
 					rubberBand->show();
 				}
 			}
-			sc->selectionObjectsView.shift = QPoint(0, 0);
-			sc->selectionObjectsView.draw();
+			sc->selectionObjectsView.setShift(0, 0);
 		}
 		break;
 	}
@@ -474,7 +487,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 	case MapView::SelectionTool::Lasso: {
 		if(event->button() == Qt::RightButton)
 			break;
-		
+		std::vector<int3>initialTiles;
 		//connect with initial tile
 		for(auto i = tilePrev; i != tileStart;)
 		{
@@ -489,9 +502,10 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 				}
 			}
 			i += dir;
-			sc->selectionTerrainView.select(i);
+			initialTiles.push_back(i);
 		}
-				
+		sc->selectionTerrainView.select(initialTiles);
+
 		//key: y position of tile
 		//value.first: x position of left tile
 		//value.second: x postiion of right tile
@@ -532,10 +546,8 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 				selectionByY.insert(int3(selectionRange.first, i, sc->level));
 		}
 		std::set_intersection(selectionByX.begin(), selectionByX.end(), selectionByY.begin(), selectionByY.end(), std::back_inserter(finalSelection));
-		for(auto & lassoTile : finalSelection)
-			sc->selectionTerrainView.select(lassoTile);
-		
-		sc->selectionTerrainView.draw();
+		sc->selectionTerrainView.select(finalSelection);
+
 		break;
 	}
 			
@@ -556,8 +568,7 @@ void MapView::mouseReleaseEvent(QMouseEvent *event)
 		else
 		{
 			sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::NOTHING;
-			sc->selectionObjectsView.shift = QPoint(0, 0);
-			sc->selectionObjectsView.draw();
+			sc->selectionObjectsView.setShift(0, 0);
 			tab = true;
 		}
 		auto selection = sc->selectionObjectsView.getSelection();
@@ -642,10 +653,9 @@ void MapView::dragMoveEvent(QDragMoveEvent * event)
 	
 	if(sc->selectionObjectsView.newObject)
 	{
-		sc->selectionObjectsView.shift = QPoint(tile.x, tile.y);
-		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject.get());
 		sc->selectionObjectsView.selectionMode = SelectionObjectsLayer::MOVEMENT;
-		sc->selectionObjectsView.draw();
+		sc->selectionObjectsView.selectObject(sc->selectionObjectsView.newObject.get());
+		sc->selectionObjectsView.setShift(tile.x, tile.y);
 	}
 	
 	event->acceptProposedAction();
@@ -655,23 +665,25 @@ void MapView::dragLeaveEvent(QDragLeaveEvent * event)
 {
 	if(!controller || !controller->map())
 		return;
-	
+
 	auto * sc = static_cast<MapScene*>(scene());
 	if(!sc)
 		return;
-	
+
 	controller->discardObject(sc->level);
 }
 
-
-bool MapView::viewportEvent(QEvent *event)
+void MapView::setViewports()
 {
-	if(auto * sc = static_cast<MapScene*>(scene()))
+	if(auto * sc = dynamic_cast<MapScene*>(scene()))
 	{
 		auto rect = mapToScene(viewport()->geometry()).boundingRect();
 		controller->miniScene(sc->level)->viewport.setViewport(rect.x() / 32, rect.y() / 32, rect.width() / 32, rect.height() / 32);
+		for (auto * layer : sc->getDynamicLayers())
+		{
+			layer->setViewport(rect);
+		}
 	}
-	return QGraphicsView::viewportEvent(event);
 }
 
 MapSceneBase::MapSceneBase(int lvl):
@@ -682,18 +694,31 @@ MapSceneBase::MapSceneBase(int lvl):
 
 void MapSceneBase::initialize(MapController & controller)
 {
-	for(auto * layer : getAbstractLayers())
+	for(auto * layer : getStaticLayers())
+		layer->initialize(controller);
+	for(auto * layer : getDynamicLayers())
 		layer->initialize(controller);
 }
 
-void MapSceneBase::updateViews()
+void MapSceneBase::createMap()
 {
-	for(auto * layer : getAbstractLayers())
+	for(auto * layer : getStaticLayers())
 		layer->update();
+	for(auto * layer : getDynamicLayers())
+		layer->createLayer();
+}
+
+void MapSceneBase::updateMap()
+{
+	for(auto * layer : getStaticLayers())
+		layer->update();
+	for(auto * layer : getDynamicLayers())
+		layer->redraw();
 }
 
 MapScene::MapScene(int lvl):
 	MapSceneBase(lvl),
+	emptyLayer(this),
 	gridView(this),
 	passabilityView(this),
 	selectionTerrainView(this),
@@ -708,7 +733,14 @@ MapScene::MapScene(int lvl):
 	connect(&selectionObjectsView, &SelectionObjectsLayer::selectionMade, this, &MapScene::objectSelected);
 }
 
-std::list<AbstractLayer *> MapScene::getAbstractLayers()
+std::list<AbstractFixedLayer *> MapScene::getStaticLayers()
+{
+	return {
+		&emptyLayer
+	};
+}
+
+std::list<AbstractViewportLayer *> MapScene::getDynamicLayers()
 {
 	//sequence is important because it defines rendering order
 	return {
@@ -722,9 +754,9 @@ std::list<AbstractLayer *> MapScene::getAbstractLayers()
 	};
 }
 
-void MapScene::updateViews()
+void MapScene::createMap()
 {
-	MapSceneBase::updateViews();
+	MapSceneBase::createMap();
 
 	terrainView.show(true);
 	objectsView.show(true);
@@ -752,7 +784,7 @@ MinimapScene::MinimapScene(int lvl):
 {
 }
 
-std::list<AbstractLayer *> MinimapScene::getAbstractLayers()
+std::list<AbstractFixedLayer *> MinimapScene::getStaticLayers()
 {
 	//sequence is important because it defines rendering order
 	return {
@@ -761,10 +793,16 @@ std::list<AbstractLayer *> MinimapScene::getAbstractLayers()
 	};
 }
 
-void MinimapScene::updateViews()
+std::list<AbstractViewportLayer *> MinimapScene::getDynamicLayers()
 {
-	MapSceneBase::updateViews();
-	
+	//Nothing here
+	return {};
+}
+
+void MinimapScene::createMap()
+{
+	MapSceneBase::createMap();
+
 	minimapView.show(true);
 	viewport.show(true);
 }

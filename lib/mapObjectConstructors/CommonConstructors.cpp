@@ -107,6 +107,8 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 
 	if (!config["description"].isNull())
 		LIBRARY->generaltexth->registerString(config.getModScope(), getDescriptionTextID(), config["description"]);
+
+	kingdomOverviewImage = AnimationPath::fromJson(config["kingdomOverviewImage"]);
 }
 
 GameResID MineInstanceConstructor::getResourceType() const
@@ -127,6 +129,11 @@ std::string MineInstanceConstructor::getDescriptionTextID() const
 std::string MineInstanceConstructor::getDescriptionTranslated() const
 {
 	return LIBRARY->generaltexth->translate(getDescriptionTextID());
+}
+
+AnimationPath MineInstanceConstructor::getKingdomOverviewImage() const
+{
+	return kingdomOverviewImage;
 }
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)

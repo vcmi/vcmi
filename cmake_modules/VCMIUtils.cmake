@@ -164,8 +164,12 @@ function(vcmi_create_exe_shim tgt)
 	if(NOT CONAN_RUNENV_SCRIPT)
 		return()
 	endif()
-	file(GENERATE OUTPUT "$<TARGET_FILE_DIR:${tgt}>/$<TARGET_FILE_BASE_NAME:${tgt}>.bat" CONTENT
-"call ${CONAN_RUNENV_SCRIPT}
-@start $<TARGET_FILE_NAME:${tgt}>"
-	)
+
+	set(exe "%~dp0$<TARGET_FILE_NAME:${tgt}>")
+	if(EXISTS "${CONAN_RUNENV_SCRIPT}.bat")
+		set(batContent "call \"${CONAN_RUNENV_SCRIPT}.bat\" & start \"\" \"${exe}\"")
+	else()
+		set(batContent "powershell -ExecutionPolicy Bypass -Command \"& '${CONAN_RUNENV_SCRIPT}.ps1' ; & '${exe}'\"")
+	endif()
+	file(GENERATE OUTPUT "$<TARGET_FILE_DIR:${tgt}>/$<TARGET_FILE_BASE_NAME:${tgt}>.bat" CONTENT "${batContent}")
 endfunction()
