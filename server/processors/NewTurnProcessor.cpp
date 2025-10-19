@@ -219,7 +219,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		}
 	}
 
-	for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
+	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		income += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
 		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
