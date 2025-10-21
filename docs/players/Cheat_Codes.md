@@ -169,9 +169,11 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 - `showGrid` - display a square grid overlay on top of adventure map
 - `showBlocked` - show blocked tiles on map
 - `showVisitable` - show visitable tiles on map
-- `showInvisible` - show invisible tiles (events, grail) on map (only singleplayer)
+- `showInvisible` - show invisible tiles (events, grail) on map
 - `hideSystemMessages` - suppress server messages in chat
 - `antilag` - toggles network lag compensation in multiplayer on or off
+
+`showBlocked`, `showVisitable` and `showInvisible` only works if cheats are enabled.
 
 #### Developer Commands
 
