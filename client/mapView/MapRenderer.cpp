@@ -27,6 +27,7 @@
 #include "../render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
