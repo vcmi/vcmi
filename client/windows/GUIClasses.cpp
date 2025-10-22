@@ -1578,8 +1578,9 @@ void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 
 void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 {
+	int where = parent->itemsVisible[index].first;
 	if(parent->onPopup)
-		parent->onPopup(index);
+		parent->onPopup(where);
 }
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled, bool blue)
