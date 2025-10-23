@@ -1671,11 +1671,24 @@ void CObjectListWindow::trimTextIfTooWide(std::string & text) const
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
 	auto posBrace = text.find('(');
 	auto posClosing = text.find(')');
-	std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
-	if(text[0] == '{')
-		objCount = '}' + objCount;
+
+	std::string objCount;
+	if (posBrace != std::string::npos && posClosing != std::string::npos && posClosing > posBrace)
+	{
+		objCount = text.substr(posBrace, posClosing - posBrace) + ')';
+		if(text.size() > 0 && text[0] == '{')
+			objCount = '}' + objCount;
+	}
+	else
+	{
+		// fallback: if text starts with '{', keep a trailing '}' token, otherwise empty
+		if(text.size() > 0 && text[0] == '{')
+			objCount = "}";
+		else
+			objCount.clear();
+	}
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
-	std::string suffix = "... " + objCount;
+	std::string suffix = objCount.empty() ? "..." : std::string("... ") + objCount;
 
 	if(font->getStringWidth(text) >= maxWidth)
 	{
