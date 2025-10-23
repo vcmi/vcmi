@@ -31,7 +31,7 @@ The following platforms are supported and known to work, others might require ch
 1. Check if your build environment can use the prebuilt binaries: basically, that your compiler version (or Xcode major version) matches the information below. If you're unsure, simply advance to the next step.
     - *macOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode / Xcode CLT 16.x and later
     - *iOS*: libraries are built with Apple clang 16 (Xcode 16.2), should be consumable by Xcode 16.x and later
-    - *Windows*: libraries are built with MSVC 19.4x (v143 toolset)
+    - *Windows*: libraries are built with MSVC 19.29 (v142 toolset, but can be consumed by v143) for Intel and with MSVC 19.4x (v143 toolset) for ARM64
     - *Android*: libraries are built with NDK r25c (25.2.9519653)
 
 2. Download the binaries archive from <https://github.com/vcmi/vcmi-dependencies/releases> (pre-release is for development version and the latest release is for respective VCMI release) and use `conan cache restore <path to archive>` command to unpack them.
@@ -115,7 +115,7 @@ Make sure that you've cloned VCMI repository with submodules! (or initialized th
 
 In terminal `cd` to the VCMI source directory and run the following command (it's written in Bash syntax, for other shells like Cmd or Powershell use appropriate line continuation character instead of `\` or type everything on a single line). Also check subsections for additional requirements on consuming prebuilt binaries.
 
-*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then run the below command twice appending `-c tools.env.virtualenv:powershell=powershell.exe` on the second run.
+*Note*: if you're going to build for Windows MSVC, it's recommended to use Cmd shell. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the below command.
 
 <pre>
 conan install . \

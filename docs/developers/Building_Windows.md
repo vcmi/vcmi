@@ -43,7 +43,7 @@ On the step where you need to replace **PROFILE**, choose:
 - `msvc-arm64` to build for ARM 64-bit (arm64)
 - `msvc-x86` to build for Intel 32-bit (x86)
 
-*Note*: we recommend using CMD (`cmd.exe`) for the next steps. If you absolutely want to use Powershell, then run `conan install` twice appending `-c tools.env.virtualenv:powershell=powershell.exe` on the second run.
+*Note*: we recommend using CMD (`cmd.exe`) for the next steps. If you absolutely want to use Powershell, then append `-c tools.env.virtualenv:powershell=powershell.exe` to the `conan install` command.
 
 ## Install CCache
 
@@ -98,7 +98,7 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv
     - Specify the following CMake variable: `ENABLE_CCACHE=ON`
     - See the [Visual Studio documentation](https://learn.microsoft.com/en-us/cpp/build/customize-cmake-settings?view=msvc-170#cmake-variables-and-cache) for details
 4. Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer. You can also build individual targets if you want.
-5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. Use `bat` files to launch executables, e.g. `VCMI_launcher.bat`.
+5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. To launch the built executables from a file manager, use respective `bat` files, e.g. `VCMI_launcher.bat`.
 
 ### Compile VCMI with MinGW via MSYS2
 

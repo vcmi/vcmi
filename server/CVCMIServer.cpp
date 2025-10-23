@@ -437,7 +437,8 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 {
 	assert(getState() == EServerState::LOBBY);
 
-	c->connectionID = vstd::next(currentClientId, 1);
+	c->connectionID = currentClientId;
+	currentClientId = vstd::next(currentClientId, 1);
 	c->uuid = uuid;
 
 	if(hostClientId == GameConnectionID::INVALID)
@@ -446,20 +447,19 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 		si->mode = mode;
 	}
 
-	auto connID = static_cast<int>(c->connectionID);
+	logNetwork->info("Connection with client %d established. UUID: %s", static_cast<int>(c->connectionID), c->uuid);
 
-	logNetwork->info("Connection with client %d established. UUID: %s", connID, c->uuid);
-
-	PlayerConnectionID id = currentPlayerId;
 	for(auto & name : names)
 	{
-		logNetwork->info("Client %d player: %s", connID, name);
+		logNetwork->info("Client %d player: %s", static_cast<int>(c->connectionID), name);
+		PlayerConnectionID id = currentPlayerId;
+		currentPlayerId = vstd::next(currentPlayerId, 1);
 
 		ClientPlayer cp;
 		cp.connection = c->connectionID;
 		cp.name = name;
 		playerNames.try_emplace(id, cp);
-		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % static_cast<int>(id) % connID));
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % static_cast<int>(id) % static_cast<int>(c->connectionID)));
 
 		//put new player in first slot with AI
 		for(auto & elem : si->playerInfos)
@@ -470,7 +470,6 @@ void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, std::vector
 				break;
 			}
 		}
-		id = vstd::next(id, 1);
 	}
 }
 

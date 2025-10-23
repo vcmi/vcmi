@@ -365,49 +365,39 @@ std::vector<ObjectRect> & MapHandler::getObjects(int x, int y, int z)
 	return tileObjects[index(x, y, z)];
 }
 
-void MapHandler::drawObjects(QPainter & painter, int x, int y, int z, QPointF offset, const std::set<const CGObjectInstance *> & locked)
+
+
+void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, std::set<const CGObjectInstance *> & locked)
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+	std::map<int3, std::set<const CGObjectInstance *>> objectMap;	//following the natural order of int3 we draw from north-west to south-east, in accordance with H3's perspective
 
-	for(auto & object : getObjects(x, y, z))
+
+	int left = static_cast<int>(std::round(section.left()))/tileSize;
+	int right = static_cast<int>(std::round(section.right()))/tileSize;
+	int top = static_cast<int>(std::round(section.top()))/tileSize;
+	int bottom = static_cast<int>(std::round(section.bottom()))/tileSize;
+
+	for(int x = left; x < right; ++x)
 	{
-		const CGObjectInstance * obj = object.obj;
-		if(!obj)
+		for(int y = top; y < bottom; ++y)
 		{
-			logGlobal->error("Stray map object that isn't fading");
-			return;
+			for(auto & object : getObjects(x, y, z))
+				objectMap[object.obj->pos].insert(object.obj);
 		}
+	}
 
-		uint8_t animationFrame = 0;
-
-		auto objData = findObjectBitmap(obj, animationFrame, obj->ID == Obj::HERO ? 2 : 0);
-		if(obj->ID == Obj::HERO && obj->tempOwner.isValidPlayer())
-			objData.flagBitmap = findFlagBitmap(dynamic_cast<const CGHeroInstance*>(obj), 0, obj->tempOwner, 4);
-
-		if(objData.objBitmap)
-		{
-			auto pos = obj->anchorPos();
-
-			painter.drawImage(QPoint(x * tileSize - offset.x(), y * tileSize - offset.y()), *objData.objBitmap, object.rect, Qt::AutoColor | Qt::NoOpaqueDetection);
-
-			if(locked.count(obj))
-			{
-				painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-				painter.fillRect(x * tileSize, y * tileSize, object.rect.width(), object.rect.height(), Qt::Dense4Pattern);
-				painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-			}
-
-			if(objData.flagBitmap)
-			{
-				if(x == pos.x && y == pos.y)
-					painter.drawImage(QPoint((x - 2) * tileSize - offset.x(), (y - 1) * tileSize - offset.y()), *objData.flagBitmap);
-			}
-		}
+	for (auto const& objectsOnTile : objectMap)
+	{
+		auto tile = objectsOnTile.first;
+		auto objects = objectsOnTile.second;
+		for (const CGObjectInstance * object : objects)
+			drawObjectAt(painter, object, tile.x, tile.y, section.topLeft(), locked.count(object));
 	}
 }
 
-void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y, QPointF offset)
+void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, int x, int y, QPointF offset, bool locked)
 {
 	if (!obj)
 	{
@@ -423,10 +413,19 @@ void MapHandler::drawObjectAt(QPainter & painter, const CGObjectInstance * obj, 
 
 	if (objData.objBitmap)
 	{
-		painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width() - offset.x(), (y + 1) * tileSize - objData.objBitmap->height() - offset.y()), *objData.objBitmap);
+		QPoint point((x + 1) * tileSize - (objData.objBitmap->width() + offset.x()), (y + 1) * tileSize - (objData.objBitmap->height() + offset.y()));
+		QRect rect(point, QSize(objData.objBitmap->width(), objData.objBitmap->height()));
+		painter.drawImage(rect, *objData.objBitmap);
+
+		if (locked)
+		{
+			painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+			painter.fillRect(rect, Qt::Dense4Pattern);
+			painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+		}
 
 		if (objData.flagBitmap)
-			painter.drawImage(QPoint((x + 1) * tileSize - objData.objBitmap->width() - offset.x(), (y + 1) * tileSize - objData.objBitmap->height() - offset.y()), *objData.flagBitmap);
+			painter.drawImage(point, *objData.flagBitmap);
 	}
 }
 

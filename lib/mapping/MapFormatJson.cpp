@@ -1046,6 +1046,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		return;
 	}
 
+	configuration.setModScope(ModScope::scopeGame());
+
 	auto handler = LIBRARY->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
@@ -1297,6 +1299,8 @@ void CMapSaverJson::writeObjects()
 		auto temp = handler.enterStruct(obj->instanceName);
 
 		obj->serializeJson(handler);
+
+		data[obj->instanceName].setModScope(ModScope::scopeGame());
 	}
 
 	if(map->grailPos.isValid())
@@ -1309,6 +1313,8 @@ void CMapSaverJson::writeObjects()
 		grail["l"].Float() = map->grailPos.z;
 
 		grail["options"]["radius"].Float() = map->grailRadius;
+
+		grail.setModScope(ModScope::scopeGame());
 
 		data["grail"] = grail;
 	}

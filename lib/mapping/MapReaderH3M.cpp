@@ -199,9 +199,11 @@ RoadId MapReaderH3M::readRoad()
 
 RiverId MapReaderH3M::readRiver()
 {
-	RiverId result(readInt8());
-	assert(result.getNum() <= features.riversCount);
-	return result;
+	const uint8_t raw = readInt8();
+	// Keep low 3 bits as river type (0..4); discard high-bit flags set by some editors (HotA ?)
+	const uint8_t type = raw & 0x07;
+	assert(type <= features.riversCount);
+	return RiverId(type);
 }
 
 PrimarySkill MapReaderH3M::readPrimary()
