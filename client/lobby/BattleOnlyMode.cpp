@@ -262,7 +262,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			setHeroIcon();
 			parent.setOkButtonEnabled();
 		}, selectedIndex, images, true, true);
-		window->onPopup = [this, heroes](int index) {
+		window->onPopup = [heroes](int index) {
 			if(index == 0)
 				return;
 			index--;
@@ -344,7 +344,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 					setCreatureIcons();
 				});
 			}, selectedIndex, images, true, true);
-			window->onPopup = [this, creatures](int index) {
+			window->onPopup = [creatures](int index) {
 				if(index == 0)
 					return;
 				index--;

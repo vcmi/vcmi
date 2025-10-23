@@ -246,7 +246,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		if(tabType == ESelectionScreen::newGame && !isMultiplayer)
 		{
-			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [this, tabTitle, tabTitleDelete](){
+			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [tabTitle, tabTitleDelete](){
 				BattleOnlyMode::openBattleWindow();
 			});
 		}

@@ -12,14 +12,18 @@
 #include "../windows/CWindowObject.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
+
+VCMI_LIB_NAMESPACE_BEGIN
+class CGHeroInstance;
+class CCreatureSet;
+class CMap;
+class EditorCallback;
+VCMI_LIB_NAMESPACE_END
+
 class FilledTexturePlayerColored;
 class CButton;
 class CPicture;
 class CLabel;
-class CGHeroInstance;
-class CCreatureSet;
-class EditorCallback;
-class CMap;
 class BattleOnlyModeWindow;
 class CAnimImage;
 class GraphicalPrimitiveCanvas;
