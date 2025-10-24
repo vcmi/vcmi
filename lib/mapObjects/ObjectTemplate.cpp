@@ -66,7 +66,7 @@ void ObjectTemplate::afterLoadFixup()
 	if(id == Obj::EVENT)
 	{
 		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
+		usedTiles[0][0] = VISITABLE | VISIBLE;
 		visitDir = 0xFF;
 	}
 }
