@@ -299,6 +299,8 @@ TEST_F(BonusSystemTest, legionPieces)
 
 	heroAine.detachFrom(townAndVisitor);
 	EXPECT_EQ(town.valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(3)), 0);
+
+	heroAine.detachFromSource(legion);
 }
 
 }
