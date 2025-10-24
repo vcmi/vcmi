@@ -66,8 +66,8 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 {
 	OBJECT_CONSTRUCTION;
 
-	pos.w = 700;
-	pos.h = 330;
+	pos.w = 519;
+	pos.h = 238;
 
 	updateShadow();
 	center();
@@ -76,11 +76,11 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	backgroundTexture->setPlayerColor(PlayerColor(1));
-	buttonOk = std::make_shared<CButton>(Point(281, 288), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
-	buttonAbort = std::make_shared<CButton>(Point(355, 288), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
-	title = std::make_shared<CLabel>(350, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
+	buttonOk = std::make_shared<CButton>(Point(191, 203), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	title = std::make_shared<CLabel>(260, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
 
-	battlegroundSelector = std::make_shared<CButton>(Point(10, 294), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
+	battlegroundSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
 		std::vector<std::string> texts;
 		std::vector<std::shared_ptr<IImage>> images;
 
@@ -127,12 +127,33 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			setOkButtonEnabled();
 		}, (selectedTerrain != TerrainId::NONE ? static_cast<int>(selectedTerrain) : static_cast<int>(selectedTown + terrains.size())), images, true, true);
 	});
+	buttonReset = std::make_shared<CButton>(Point(289, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
+		selectedTerrain = TerrainId::DIRT;
+		selectedTown = FactionID::NONE;
+		setTerrainButtonText();
+		setOkButtonEnabled();
+		heroSelector1->selectedHero.reset();
+		heroSelector2->selectedHero.reset();
+		heroSelector1->selectedArmy->clearSlots();
+		heroSelector2->selectedArmy->clearSlots();
+		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
+		{
+			heroSelector1->selectedArmyInput.at(i)->setText("0");
+			heroSelector2->selectedArmyInput.at(i)->setText("0");
+		}
+		heroSelector1->setHeroIcon();
+	    heroSelector1->setCreatureIcons();
+		heroSelector2->setHeroIcon();
+	    heroSelector2->setCreatureIcons();
+		redraw();
+	});
+	buttonReset->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeReset"), EFonts::FONT_SMALL, Colors::WHITE);
 
 	setTerrainButtonText();
 	setOkButtonEnabled();
 
 	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(*this, Point(0, 40));
-	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(*this, Point(0, 160));
+	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(*this, Point(260, 40));
 }
 
 void BattleOnlyModeWindow::init()
@@ -178,7 +199,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& par
 	pos.x += position.x;
 	pos.y += position.y;
 
-	backgroundImage = std::make_shared<CPicture>(ImagePath::builtin("heroSlotsBlue"), Point(0, 0));
+	backgroundImage = std::make_shared<CPicture>(ImagePath::builtin("heroSlotsBlue"), Point(3, 4));
 
 	for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 	{
@@ -192,7 +213,12 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& par
 	}
 
 	creatureImage.resize(GameConstants::ARMY_SIZE);
-	creatureImageLabel.resize(GameConstants::ARMY_SIZE);
+	for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
+	{
+		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
+		selectedArmyInput.back()->setFilterNumber(0, 10000000, 3);
+		selectedArmyInput.back()->setText("0");
+	}
 
 	setHeroIcon();
 	setCreatureIcons();
@@ -287,15 +313,11 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 	for(int i = 0; i < creatureImage.size(); i++)
 	{
 		if(selectedArmy->slotEmpty(SlotID(i)))
-		{
 			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6 + i * 36, 78));
-			creatureImageLabel[i].reset();
-		}
 		else
 		{
 			auto creatureID = selectedArmy->Slots().at(SlotID(i))->getCreatureID();
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
-			creatureImageLabel[i] = std::make_shared<CLabel>(36 + i * 36, 112, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, TextOperations::formatMetric(selectedArmy->Slots().at(SlotID(i))->getCount(), 4));
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){
@@ -338,11 +360,9 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				}
 				index--;
 				auto creature = creatures[index];
-				int amount = selectedArmy->slotEmpty(SlotID(i)) ? 1 : selectedArmy->Slots().at(SlotID(i))->getCount();
-				ENGINE->windows().createAndPushWindow<NumberInputWindow>(amount, [this, creature, i](int quantity){
-					selectedArmy->setCreature(SlotID(i), creature->getId(), quantity);
-					setCreatureIcons();
-				});
+				selectedArmy->setCreature(SlotID(i), creature->getId(), 100);
+				selectedArmyInput[SlotID(i)]->setText("100");
+				setCreatureIcons();
 			}, selectedIndex, images, true, true);
 			window->onPopup = [creatures](int index) {
 				if(index == 0)
@@ -388,7 +408,10 @@ void BattleOnlyModeWindow::startBattle()
 		selector->selectedHero->clearSlots();
 		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
 			if(!selector->selectedArmy->slotEmpty(SlotID(slot)))
+			{
 				selector->selectedHero->putStack(SlotID(slot), selector->selectedArmy->detachStack(SlotID(slot)));
+				selector->selectedHero->getArmy()->setStackCount(SlotID(slot), TextOperations::parseMetric<int>(selector->selectedArmyInput[slot]->getText()));
+			}
 		map->getEditManager()->insertObject(selector->selectedHero);
 	};
 
@@ -409,7 +432,10 @@ void BattleOnlyModeWindow::startBattle()
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
 				if(!heroSelector2->selectedArmy->slotEmpty(SlotID(slot)))
+				{
 					townObj->getArmy()->putStack(SlotID(slot), heroSelector2->selectedArmy->detachStack(SlotID(slot)));
+					townObj->getArmy()->setStackCount(SlotID(slot), TextOperations::parseMetric<int>(heroSelector2->selectedArmyInput[slot]->getText()));
+				}
 		}
 		else
 			addHero(heroSelector2, PlayerColor(1), int3(5, 5, 0));
@@ -432,30 +458,4 @@ void BattleOnlyModeWindow::startBattle()
 	extraOptions.unlimitedReplay = true;
 	GAME->server().setExtraOptionsInfo(extraOptions);
 	GAME->server().sendStartGame();
-}
-
-NumberInputWindow::NumberInputWindow(int initialValue, std::function<void(int)> onValueSelected)
-	: CWindowObject(BORDERED)
-{
-	OBJECT_CONSTRUCTION;
-
-	pos.w = 200;
-	pos.h = 100;
-	center();
-
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	backgroundTexture->setPlayerColor(PlayerColor(1));
-
-	buttonOk = std::make_shared<CButton>(Point(68, 60), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, onValueSelected](){
-		int value = std::stoi(input->getText());
-		if(onValueSelected)
-			onValueSelected(value);
-		close();
-	}, EShortcut::GLOBAL_ACCEPT);
-
-	backgroundOverlay = std::make_shared<TransparentFilledRectangle>(Rect(50, 20, 100, 20), ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1);
-	input = std::make_shared<CTextInput>(Rect(50, 20, 100, 20), EFonts::FONT_MEDIUM, ETextAlignment::CENTER, false);
-	input->setFilterNumber(1, 99999999);
-	input->setText(std::to_string(initialValue));
-	input->giveFocus();
 }

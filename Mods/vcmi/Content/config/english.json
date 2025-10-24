@@ -144,6 +144,7 @@
 	"vcmi.lobby.battleOnlyModeHeroSelect" : "Select Hero",
 	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Select Creature",
 	"vcmi.lobby.battleOnlyModeSelect" : "Select",
+	"vcmi.lobby.battleOnlyModeReset" : "Reset",
 
 	"vcmi.broadcast.failedLoadGame" : "Failed to load game",
 	"vcmi.broadcast.command" : "Use '!help' to list available commands",

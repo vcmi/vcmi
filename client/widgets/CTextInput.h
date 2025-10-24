@@ -65,7 +65,7 @@ class CTextInput final : public CFocusable
 	static void filenameFilter(std::string & text, const std::string & oldText);
 	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
 	//min-max should be set via something like std::bind
-	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue);
+	static void numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue, int metricDigits);
 
 	std::string getVisibleText() const;
 	void createLabel(bool giveFocusToInput);
@@ -98,7 +98,7 @@ public:
 	/// Enables filtering entered text that ensures that text is valid filename (existing or not)
 	void setFilterFilename();
 	/// Enable filtering entered text that ensures that text is valid number in provided range [min, max]
-	void setFilterNumber(int minValue, int maxValue);
+	void setFilterNumber(int minValue, int maxValue, int metricDigits=0);
 
 	void setFont(EFonts Font);
 	void setColor(const ColorRGBA & Color);

@@ -36,16 +36,6 @@ public:
 	static void openBattleWindow();
 };
 
-class NumberInputWindow : public CWindowObject
-{
-	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
-	std::shared_ptr<TransparentFilledRectangle> backgroundOverlay;
-	std::shared_ptr<CButton> buttonOk;
-	std::shared_ptr<CTextInput> input;
-public:
-	NumberInputWindow(int initialValue, std::function<void(int)> onValueSelected);
-};
-
 class BattleOnlyModeHeroSelector : public CIntObject
 {
 private:
@@ -55,10 +45,6 @@ private:
 	std::shared_ptr<CPicture> heroImage;
 	std::shared_ptr<CLabel> heroLabel;
 	std::vector<std::shared_ptr<CPicture>> creatureImage;
-	std::vector<std::shared_ptr<CLabel>> creatureImageLabel;
-
-	void setHeroIcon();
-	void setCreatureIcons();
 public:
 	std::vector<std::shared_ptr<CAnimImage>> primSkills;
 	std::vector<std::shared_ptr<GraphicalPrimitiveCanvas>> primSkillsBorder;
@@ -66,7 +52,10 @@ public:
 
 	std::shared_ptr<CGHeroInstance> selectedHero;
 	std::shared_ptr<CCreatureSet> selectedArmy;
+	std::vector<std::shared_ptr<CTextInput>> selectedArmyInput;
 
+	void setHeroIcon();
+	void setCreatureIcons();
 	BattleOnlyModeHeroSelector(BattleOnlyModeWindow& parent, Point position);
 };
 
@@ -83,6 +72,7 @@ private:
 	std::shared_ptr<CLabel> title;
 
 	std::shared_ptr<CButton> battlegroundSelector;
+	std::shared_ptr<CButton> buttonReset;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector1;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
 
