@@ -462,19 +462,19 @@
             "inherits": "default-release"
         },
         {
-        	"name": "windows-msvc-ninja-release",
-        	"configurePreset": "windows-msvc-ninja-release",
-        	"inherits": "default-release"
+            "name": "windows-msvc-ninja-release",
+            "configurePreset": "windows-msvc-ninja-release",
+            "inherits": "default-release"
         },
         {
-        	"name": "windows-msvc-ninja-release-x86",
-        	"configurePreset": "windows-msvc-ninja-release-x86",
-        	"inherits": "default-release"
+            "name": "windows-msvc-ninja-release-x86",
+            "configurePreset": "windows-msvc-ninja-release-x86",
+            "inherits": "default-release"
         },
         {
-        	"name": "windows-msvc-ninja-release-arm64",
-        	"configurePreset": "windows-msvc-ninja-release-arm64",
-        	"inherits": "default-release"
+            "name": "windows-msvc-ninja-release-arm64",
+            "configurePreset": "windows-msvc-ninja-release-arm64",
+            "inherits": "default-release"
         },
         {
             "name": "ios-release-conan",
@@ -518,9 +518,9 @@
             }
         },
         {
-          "name": "linux-clang-debug",
-          "configurePreset": "linux-clang-debug",
-          "inherits": "default-release"
+            "name": "linux-clang-debug",
+            "configurePreset": "linux-clang-debug",
+            "inherits": "default-release"
         },
         {
             "name": "linux-clang-release",
@@ -528,9 +528,9 @@
             "inherits": "default-release"
         },
         {
-          "name": "linux-clang-test",
-          "configurePreset": "linux-clang-test",
-          "inherits": "default-release"
+            "name": "linux-clang-test",
+            "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
         },
         {
             "name": "linux-gcc-debug",
@@ -543,9 +543,9 @@
             "inherits": "default-release"
         },
         {
-          "name": "linux-gcc-test",
-          "configurePreset": "linux-gcc-test",
-          "inherits": "default-release"
+            "name": "linux-gcc-test",
+            "configurePreset": "linux-gcc-test",
+            "inherits": "default-release"
         },
         {
             "name": "macos-xcode-release",
