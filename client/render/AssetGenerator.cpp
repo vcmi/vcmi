@@ -949,7 +949,8 @@ AssetGenerator::CanvasPtr AssetGenerator::createGateListColored(PlayerColor colo
 
 AssetGenerator::CanvasPtr AssetGenerator::createHeroSlotsColored(PlayerColor backColor) const
 {
-	auto img = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("OVSLOT"), EImageBlitMode::OPAQUE)->getImage(4);
+	auto locator = ImageLocator(AnimationPath::builtin("OVSLOT"), 4, 0, EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
 	img->adjustPalette(filters[backColor.getNum()], 0);
 
