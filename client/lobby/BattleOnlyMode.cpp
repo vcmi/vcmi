@@ -139,12 +139,12 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			startInfo->selectedTerrain = TerrainId::DIRT;
 			startInfo->selectedTown = std::nullopt;
 			startInfo->selectedHero[0] = std::nullopt;
-			startInfo->selectedArmy[0]->clearSlots();
+			startInfo->selectedArmy[0].fill(std::nullopt);
 			for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 				heroSelector1->selectedArmyInput.at(i)->setText("1");
 		}
 		startInfo->selectedHero[1] = std::nullopt;
-		startInfo->selectedArmy[1]->clearSlots();
+		startInfo->selectedArmy[1].fill(std::nullopt);
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 			heroSelector2->selectedArmyInput.at(i)->setText("1");
 		onChange();
@@ -203,8 +203,10 @@ void BattleOnlyModeWindow::setTerrainButtonText()
 
 void BattleOnlyModeWindow::setOkButtonEnabled()
 {
+	bool army2Empty = std::all_of(startInfo->selectedArmy[1].begin(), startInfo->selectedArmy[1].end(), [](const auto x) { return !x; });
+
 	bool canStart = (startInfo->selectedTerrain || startInfo->selectedTown);
-	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && startInfo->selectedArmy[1]->stacksCount())));
+	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && !army2Empty)));
 	buttonOk->block(!canStart || GAME->server().isGuest());
 	buttonAbort->block(GAME->server().isGuest());
 }
@@ -251,9 +253,9 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 		selectedArmyInput.back()->setFilterNumber(1, 10000000, 3);
 		selectedArmyInput.back()->setText("1");
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
-			if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+			if(!parent.startInfo->selectedArmy[id][i])
 			{
-				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), parent.startInfo->selectedArmy[id]->getCreature(SlotID(i))->getId(), TextOperations::parseMetric<int>(text));
+				(*parent.startInfo->selectedArmy[id][i]).second = TextOperations::parseMetric<int>(text);
 				parent.onChange();
 			}
 		});
@@ -276,8 +278,8 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	}
 	else
 	{
-		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(parent.startInfo->selectedHero[id]->getHeroType()->imageIndex), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, parent.startInfo->selectedHero[id]->getNameTranslated());
+		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage((*parent.startInfo->selectedHero[id]).toHeroType()->imageIndex), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*parent.startInfo->selectedHero[id]).toHeroType()->getNameTranslated());
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText("0");
 	}
@@ -296,7 +298,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		});
 
 		int selectedIndex = !parent.startInfo->selectedHero[id] ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
-			return heroID == parent.startInfo->selectedHero[id]->getHeroType()->getId();
+			return heroID == (*parent.startInfo->selectedHero[id]);
     	})));
 		
 		std::vector<std::string> texts;
@@ -315,19 +317,13 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("object.core.hero.name"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 			if(index == 0)
 			{
-				parent.startInfo->selectedHero[id].reset();
+				parent.startInfo->selectedHero[id] = std::nullopt;
 				parent.onChange();
 				return;
 			}
 			index--;
-			auto hero = heroes[index];
 
-			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hero.toHeroType()->heroClass->getId());
-			auto templates = factory->getTemplates();
-			auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(parent.cb.get(), templates.front()));
-			obj->setHeroType(hero);
-
-			parent.startInfo->selectedHero[id] = obj;
+			parent.startInfo->selectedHero[id] = heroes[index];
 
 			for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 				parent.startInfo->primSkillLevel[id][i] = 0;
@@ -347,7 +343,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		if(!parent.startInfo->selectedHero[id])
 			return;
 		
-		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id]->getHeroType()->getId());
+		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id]->toHeroType()->getId());
 	});
 }
 
@@ -357,11 +353,11 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 
 	for(int i = 0; i < creatureImage.size(); i++)
 	{
-		if(parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+		if(!parent.startInfo->selectedArmy[id][i])
 			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6 + i * 36, 78));
 		else
 		{
-			auto creatureID = parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getCreatureID();
+			auto creatureID = (*parent.startInfo->selectedArmy[id][i]).first;
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
 		}
 
@@ -378,8 +374,8 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				return creatureA->getFactionID() < creatureB->getFactionID();
 			});
 
-			int selectedIndex = parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)) ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
-				return creatureID == parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getId();
+			int selectedIndex = !parent.startInfo->selectedArmy[id][i] ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
+				return creatureID == (*parent.startInfo->selectedArmy[id][i]).first;
 			})));
 			
 			std::vector<std::string> texts;
@@ -398,15 +394,15 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("core.genrltxt.42"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), [this, creatures, i](int index){
 				if(index == 0)
 				{
-					if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
-						parent.startInfo->selectedArmy[id]->eraseStack(SlotID(i));
+					if(parent.startInfo->selectedArmy[id][i])
+						parent.startInfo->selectedArmy[id][i] = std::nullopt;
 					parent.onChange();
 					return;
 				}
 				index--;
 
 				auto creature = creatures.at(index).toCreature();
-				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), creature->getId(), 100);
+				parent.startInfo->selectedArmy[id][i] = std::make_pair(creature->getId(), 100);
 				selectedArmyInput[SlotID(i)]->setText("100");
 				parent.onChange();
 			}, selectedIndex, images, true, true);
@@ -421,10 +417,10 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		});
 
 		creatureImage[i]->addRClickCallback([this, i](){
-			if(parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+			if(!parent.startInfo->selectedArmy[id][i])
 				return;
 			
-			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getCreatureID()).get(), true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(parent.startInfo->selectedArmy[id][i].first).get(), true);
 		});
 	}
 }
@@ -445,17 +441,22 @@ void BattleOnlyModeWindow::startBattle()
 
 	auto knownHeroes = LIBRARY->objtypeh->knownSubObjects(Obj::HERO);
 
-	auto addHero = [&](int sel, PlayerColor color, const int3 & position)
+	auto addHero = [&, this](int sel, PlayerColor color, const int3 & position)
 	{
-		startInfo->selectedHero[sel]->setOwner(color);
-		startInfo->selectedHero[sel]->pos = position;
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, (*startInfo->selectedHero[sel]).toHeroType()->heroClass->getId());
+		auto templates = factory->getTemplates();
+		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(cb.get(), templates.front()));
+		obj->setHeroType(*startInfo->selectedHero[sel]);
+
+		obj->setOwner(color);
+		obj->pos = position;
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			startInfo->selectedHero[sel]->pushPrimSkill(PrimarySkill(i), startInfo->primSkillLevel[sel][i]);
-		startInfo->selectedHero[sel]->clearSlots();
+			obj->pushPrimSkill(PrimarySkill(i), startInfo->primSkillLevel[sel][i]);
+		obj->clearSlots();
 		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-			if(!startInfo->selectedArmy[sel]->slotEmpty(SlotID(slot)))
-				startInfo->selectedHero[sel]->putStack(SlotID(slot), startInfo->selectedArmy[sel]->detachStack(SlotID(slot)));
-		map->getEditManager()->insertObject(startInfo->selectedHero[sel]);
+			if(startInfo->selectedArmy[sel][slot])
+				obj->setCreature(SlotID(slot), (*startInfo->selectedArmy[sel][slot]).first, (*startInfo->selectedArmy[sel][slot]).second);
+		map->getEditManager()->insertObject(obj);
 	};
 
 	addHero(0, PlayerColor(0), int3(5, 6, 0));
@@ -474,8 +475,8 @@ void BattleOnlyModeWindow::startBattle()
 		if(!startInfo->selectedHero[1])
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-				if(!startInfo->selectedArmy[1]->slotEmpty(SlotID(slot)))
-					townObj->getArmy()->putStack(SlotID(slot), startInfo->selectedArmy[1]->detachStack(SlotID(slot)));
+				if(startInfo->selectedArmy[1][slot])
+					townObj->getArmy()->setCreature(SlotID(slot), (*startInfo->selectedArmy[1][slot]).first, (*startInfo->selectedArmy[1][slot]).second);
 		}
 		else
 			addHero(1, PlayerColor(1), int3(5, 5, 0));

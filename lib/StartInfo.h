@@ -15,6 +15,7 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
+#include "mapObjects/army/CCreatureSet.h"
 #include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
 #include "serializer/PlayerConnectionID.h"
@@ -25,8 +26,6 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMapGenOptions;
 class CampaignState;
 class CMapInfo;
-class CGHeroInstance;
-class CCreatureSet;
 struct PlayerInfo;
 class PlayerColor;
 
@@ -247,8 +246,8 @@ public:
 	std::optional<TerrainId> selectedTerrain;
 	std::optional<FactionID> selectedTown;
 
-	std::array<std::shared_ptr<CGHeroInstance>, 2> selectedHero;
-	std::array<std::shared_ptr<CCreatureSet>, 2> selectedArmy;
+	std::array<std::optional<HeroTypeID>, 2> selectedHero;
+	std::array<std::array<std::optional<std::pair<CreatureID, int>>, 7>, 2> selectedArmy;
 
 	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
 

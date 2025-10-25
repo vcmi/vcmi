@@ -246,8 +246,6 @@ BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
 	: selectedTerrain(TerrainId::DIRT)
 	, selectedTown(std::nullopt)
 {
-	for(auto & element : selectedArmy)
-		element = std::make_shared<CCreatureSet>();
 	for(auto & element : primSkillLevel)
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			element[i] = 0;
