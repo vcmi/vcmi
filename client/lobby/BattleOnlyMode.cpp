@@ -32,6 +32,7 @@
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CRandomGenerator.h"
@@ -57,6 +58,7 @@
 
 void BattleOnlyMode::openBattleWindow()
 {
+	GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
 	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
 }
 
@@ -66,6 +68,9 @@ BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
 {
 	for(auto & element : selectedArmy)
 		element = std::make_shared<CCreatureSet>();
+	for(auto & element : primSkillLevel)
+		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+			element[i] = 0;
 }
 
 BattleOnlyModeWindow::BattleOnlyModeWindow()
@@ -85,7 +90,10 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 	buttonOk = std::make_shared<CButton>(Point(191, 203), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
-	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){
+		GAME->server().sendGuiAction(LobbyGuiAction::NO_TAB);
+		close();
+	}, EShortcut::GLOBAL_CANCEL);
 	title = std::make_shared<CLabel>(260, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
 
 	battlefieldSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
@@ -134,22 +142,28 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			setOkButtonEnabled();
 		}, (startInfo->selectedTerrain != TerrainId::NONE ? static_cast<int>(startInfo->selectedTerrain) : static_cast<int>(startInfo->selectedTown + terrains.size())), images, true, true);
 	});
+	battlefieldSelector->block(GAME->server().isGuest());
 	buttonReset = std::make_shared<CButton>(Point(289, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
-		startInfo->selectedTerrain = TerrainId::DIRT;
-		startInfo->selectedTown = FactionID::NONE;
+		if(GAME->server().isHost())
+		{
+			startInfo->selectedTerrain = TerrainId::DIRT;
+			startInfo->selectedTown = FactionID::NONE;
+		}
 		setTerrainButtonText();
 		setOkButtonEnabled();
-		startInfo->selectedHero[0].reset();
+		if(GAME->server().isHost())
+		{
+			startInfo->selectedHero[0].reset();
+			startInfo->selectedArmy[0]->clearSlots();
+			for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
+				heroSelector1->selectedArmyInput.at(i)->setText("1");
+			heroSelector1->setHeroIcon();
+			heroSelector1->setCreatureIcons();
+		}
 		startInfo->selectedHero[1].reset();
-		startInfo->selectedArmy[0]->clearSlots();
 		startInfo->selectedArmy[1]->clearSlots();
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
-		{
-			heroSelector1->selectedArmyInput.at(i)->setText("1");
 			heroSelector2->selectedArmyInput.at(i)->setText("1");
-		}
-		heroSelector1->setHeroIcon();
-	    heroSelector1->setCreatureIcons();
 		heroSelector2->setHeroIcon();
 	    heroSelector2->setCreatureIcons();
 		redraw();
@@ -161,6 +175,8 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 
 	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(0, 40));
 	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(260, 40));
+
+	heroSelector1->setInputEnabled(GAME->server().isHost());
 }
 
 void BattleOnlyModeWindow::init()
@@ -186,7 +202,8 @@ void BattleOnlyModeWindow::setOkButtonEnabled()
 {
 	bool canStart = (startInfo->selectedTerrain != TerrainId::NONE || startInfo->selectedTown != FactionID::NONE);
 	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown != FactionID::NONE && startInfo->selectedArmy[1]->stacksCount())));
-	buttonOk->block(!canStart);
+	buttonOk->block(!canStart || GAME->server().isGuest());
+	buttonAbort->block(GAME->server().isGuest());
 }
 
 std::shared_ptr<IImage> drawBlackBox(Point size, std::string text)
