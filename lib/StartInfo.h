@@ -15,7 +15,6 @@
 #include "TurnTimerInfo.h"
 #include "ExtraOptionsInfo.h"
 #include "campaign/CampaignConstants.h"
-#include "mapObjects/army/CCreatureSet.h"
 #include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
 #include "serializer/PlayerConnectionID.h"

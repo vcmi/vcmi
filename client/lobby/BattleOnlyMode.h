@@ -78,6 +78,8 @@ private:
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector1;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
 
+	ColorRGBA disabledColor;
+
 	void init();
 	void onChange();
 	void update();

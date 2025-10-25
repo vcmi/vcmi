@@ -276,7 +276,7 @@ void BattleResultProcessor::endBattle(const CBattleInfoCallback & battle)
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
 	// in battles against neutrals attacker can ask to replay battle manually, additionally in battles against AI player human side can also ask for replay
-	if(onlyOnePlayerHuman || gameHandler->gameState().getMap().battleOnly)
+	if(onlyOnePlayerHuman)
 	{
 		auto battleDialogQuery = std::make_shared<CBattleDialogQuery>(gameHandler, battle.getBattle(), battleQuery->result);
 		battleResult->queryID = battleDialogQuery->queryID;

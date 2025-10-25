@@ -323,6 +323,8 @@ void SelectionTab::toggleMode()
 	{
 		if(slider)
 			slider->block(true);
+		if(buttonBattleOnlyMode)
+			buttonBattleOnlyMode->block(true);
 	}
 	else
 	{

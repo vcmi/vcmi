@@ -58,8 +58,6 @@
 
 void BattleOnlyMode::openBattleWindow()
 {
-	if(GAME->server().isGuest())
-		return;
 	GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
 	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
 }
@@ -67,6 +65,7 @@ void BattleOnlyMode::openBattleWindow()
 BattleOnlyModeWindow::BattleOnlyModeWindow()
 	: CWindowObject(BORDERED)
 	, startInfo(std::make_shared<BattleOnlyModeStartInfo>())
+	, disabledColor(GAME->server().isHost() ? Colors::WHITE : Colors::ORANGE)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -81,10 +80,12 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	backgroundTexture->setPlayerColor(PlayerColor(1));
 	buttonOk = std::make_shared<CButton>(Point(191, 203), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
+	buttonOk->block(true);
 	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){
 		GAME->server().sendGuiAction(LobbyGuiAction::NO_TAB);
 		close();
 	}, EShortcut::GLOBAL_CANCEL);
+	buttonAbort->block(true);
 	title = std::make_shared<CLabel>(260, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
 
 	battlefieldSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
@@ -198,7 +199,7 @@ void BattleOnlyModeWindow::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInf
 
 void BattleOnlyModeWindow::setTerrainButtonText()
 {
-	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
+	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, disabledColor);
 }
 
 void BattleOnlyModeWindow::setOkButtonEnabled()
@@ -211,12 +212,12 @@ void BattleOnlyModeWindow::setOkButtonEnabled()
 	buttonAbort->block(GAME->server().isGuest());
 }
 
-std::shared_ptr<IImage> drawBlackBox(Point size, std::string text)
+std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA color)
 {
 	auto image = ENGINE->renderHandler().createImage(size, CanvasScalingPolicy::AUTO);
 	Canvas canvas = image->getCanvas();
 	canvas.drawColor(Rect(0, 0, size.x, size.y), Colors::BLACK);
-	canvas.drawText(Point(size.x / 2, size.y / 2), FONT_TINY, Colors::WHITE, ETextAlignment::CENTER, text);
+	canvas.drawText(Point(size.x / 2, size.y / 2), FONT_TINY, color, ETextAlignment::CENTER, text);
 	return image;
 }
 
@@ -238,6 +239,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 		primSkillsBorder.push_back(std::make_shared<GraphicalPrimitiveCanvas>(Rect(78 + i * 36, 26, 32, 32)));
 		primSkillsBorder.back()->addRectangle(Point(0, 0), Point(32, 32), ColorRGBA(44, 108, 255));
 		primSkillsInput.push_back(std::make_shared<CTextInput>(Rect(78 + i * 36, 58, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
+		primSkillsInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
 		primSkillsInput.back()->setFilterNumber(0, 100);
 		primSkillsInput.back()->setText("0");
 		primSkillsInput.back()->setCallback([this, i, id](const std::string & text){
@@ -250,20 +252,17 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 	for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 	{
 		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
+		selectedArmyInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
 		selectedArmyInput.back()->setFilterNumber(1, 10000000, 3);
 		selectedArmyInput.back()->setText("1");
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
-			if(!parent.startInfo->selectedArmy[id][i])
+			if(parent.startInfo->selectedArmy[id][i])
 			{
-				if(!parent.startInfo->selectedArmy[id][i])
-				{
-					selectedArmyInput[i]->setText("1");
-					return;
-				}
-
 				(*parent.startInfo->selectedArmy[id][i]).second = TextOperations::parseMetric<int>(text);
 				parent.onChange();
 			}
+			else
+				selectedArmyInput[i]->setText("1");
 		});
 	}
 
@@ -277,15 +276,15 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 
 	if(!parent.startInfo->selectedHero[id])
 	{
-		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.507"));
+		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, LIBRARY->generaltexth->translate("core.genrltxt.507"));
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText("0");
 	}
 	else
 	{
 		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage((*parent.startInfo->selectedHero[id]).toHeroType()->imageIndex), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*parent.startInfo->selectedHero[id]).toHeroType()->getNameTranslated());
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, (*parent.startInfo->selectedHero[id]).toHeroType()->getNameTranslated());
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
 	}
@@ -361,7 +360,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 	{
 		if(!parent.startInfo->selectedArmy[id][i])
 		{
-			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6 + i * 36, 78));
+			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->setText("1");
 		}
 		else
@@ -369,7 +368,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			auto unit = (*parent.startInfo->selectedArmy[id][i]);
 			auto creatureID = unit.first;
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
-			selectedArmyInput[i]->setText(std::to_string(unit.second));
+			selectedArmyInput[i]->setText(TextOperations::formatMetric(unit.second, 3));
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){

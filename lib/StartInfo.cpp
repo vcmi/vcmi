@@ -21,7 +21,6 @@
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
 #include "modding/ModIncompatibility.h"
-#include "mapObjects/army/CCreatureSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
