@@ -15,8 +15,6 @@
 #include "../lib/StartInfo.h"
 #include "../lib/gameState/GameStatistics.h"
 
-#include "lobby/BattleOnlyMode.h"
-
 VCMI_LIB_NAMESPACE_BEGIN
 
 class GameConnection;
