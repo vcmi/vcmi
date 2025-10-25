@@ -3480,10 +3480,13 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 
 	if(gameState().getMap().battleOnly)
 	{
-		PlayerEndsGame peg;
-		peg.player = player;
-		peg.silentEnd = true;
-		sendAndApply(peg);
+		for(const auto & playerIt : gameState().players)
+		{
+			PlayerEndsGame peg;
+			peg.player = playerIt.first;
+			peg.silentEnd = true;
+			sendAndApply(peg);
+		}
 		gameServer().setState(EServerState::SHUTDOWN);
 		return;
 	}
