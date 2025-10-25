@@ -51,6 +51,7 @@
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
 
@@ -59,10 +60,17 @@ void BattleOnlyMode::openBattleWindow()
 	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
 }
 
+BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
+	: selectedTerrain(TerrainId::DIRT)
+	, selectedTown(FactionID::NONE)
+{
+	for(auto & element : selectedArmy)
+		element = std::make_shared<CCreatureSet>();
+}
+
 BattleOnlyModeWindow::BattleOnlyModeWindow()
 	: CWindowObject(BORDERED)
-	, selectedTerrain(TerrainId::DIRT)
-	, selectedTown(FactionID::NONE)
+	, startInfo(std::make_shared<BattleOnlyModeStartInfo>())
 {
 	OBJECT_CONSTRUCTION;
 
@@ -112,29 +120,29 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefieldSelect"), [this, terrains, factions](int index){
 			if(terrains.size() > index)
 			{
-				selectedTerrain = terrains[index]->getId();
-				selectedTown = FactionID::NONE;
+				startInfo->selectedTerrain = terrains[index]->getId();
+				startInfo->selectedTown = FactionID::NONE;
 			}
 			else
 			{
-				selectedTerrain = TerrainId::NONE;
+				startInfo->selectedTerrain = TerrainId::NONE;
 				auto it = std::next(factions.begin(), index - terrains.size());
 				if (it != factions.end())
-    				selectedTown = *it;
+    				startInfo->selectedTown = *it;
 			}
 			setTerrainButtonText();
 			setOkButtonEnabled();
-		}, (selectedTerrain != TerrainId::NONE ? static_cast<int>(selectedTerrain) : static_cast<int>(selectedTown + terrains.size())), images, true, true);
+		}, (startInfo->selectedTerrain != TerrainId::NONE ? static_cast<int>(startInfo->selectedTerrain) : static_cast<int>(startInfo->selectedTown + terrains.size())), images, true, true);
 	});
 	buttonReset = std::make_shared<CButton>(Point(289, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
-		selectedTerrain = TerrainId::DIRT;
-		selectedTown = FactionID::NONE;
+		startInfo->selectedTerrain = TerrainId::DIRT;
+		startInfo->selectedTown = FactionID::NONE;
 		setTerrainButtonText();
 		setOkButtonEnabled();
-		heroSelector1->selectedHero.reset();
-		heroSelector2->selectedHero.reset();
-		heroSelector1->selectedArmy->clearSlots();
-		heroSelector2->selectedArmy->clearSlots();
+		startInfo->selectedHero[0].reset();
+		startInfo->selectedHero[1].reset();
+		startInfo->selectedArmy[0]->clearSlots();
+		startInfo->selectedArmy[1]->clearSlots();
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 		{
 			heroSelector1->selectedArmyInput.at(i)->setText("1");
@@ -151,8 +159,8 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 	setTerrainButtonText();
 	setOkButtonEnabled();
 
-	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(*this, Point(0, 40));
-	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(*this, Point(260, 40));
+	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(0, 40));
+	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(260, 40));
 }
 
 void BattleOnlyModeWindow::init()
@@ -164,19 +172,20 @@ void BattleOnlyModeWindow::init()
 	map->height = 10;
 	map->mapLevels = 1;
 	map->battleOnly = true;
+	map->name = MetaString::createFromTextID("vcmi.lobby.battleOnlyMode");
 
 	cb = std::make_unique<EditorCallback>(map.get());
 }
 
 void BattleOnlyModeWindow::setTerrainButtonText()
 {
-	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (selectedTerrain != TerrainId::NONE ? selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
+	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain != TerrainId::NONE ? startInfo->selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : startInfo->selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 void BattleOnlyModeWindow::setOkButtonEnabled()
 {
-	bool canStart = (selectedTerrain != TerrainId::NONE || selectedTown != FactionID::NONE);
-	canStart &= (heroSelector1 && heroSelector1->selectedHero && ((heroSelector2 && heroSelector2->selectedHero) || (selectedTown != FactionID::NONE && heroSelector2->selectedArmy->stacksCount())));
+	bool canStart = (startInfo->selectedTerrain != TerrainId::NONE || startInfo->selectedTown != FactionID::NONE);
+	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown != FactionID::NONE && startInfo->selectedArmy[1]->stacksCount())));
 	buttonOk->block(!canStart);
 }
 
@@ -189,9 +198,9 @@ std::shared_ptr<IImage> drawBlackBox(Point size, std::string text)
 	return image;
 }
 
-BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& parent, Point position)
-: parent(parent)
-, selectedArmy(std::make_shared<CCreatureSet>())
+BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWindow& p, Point position)
+: parent(p)
+, id(id)
 {
 	OBJECT_CONSTRUCTION;
 
@@ -209,6 +218,9 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& par
 		primSkillsInput.push_back(std::make_shared<CTextInput>(Rect(78 + i * 36, 58, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
 		primSkillsInput.back()->setFilterNumber(0, 100);
 		primSkillsInput.back()->setText("0");
+		primSkillsInput.back()->setCallback([this, i, id](const std::string & text){
+			parent.startInfo->primSkillLevel[id][i] = std::stoi(primSkillsInput[i]->getText());
+		});
 	}
 
 	creatureImage.resize(GameConstants::ARMY_SIZE);
@@ -217,9 +229,9 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& par
 		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
 		selectedArmyInput.back()->setFilterNumber(1, 10000000, 3);
 		selectedArmyInput.back()->setText("1");
-		selectedArmyInput.back()->setCallback([this, i](const std::string & text){
-			if(!selectedArmy->slotEmpty(SlotID(i)))
-				selectedArmy->setCreature(SlotID(i), selectedArmy->getCreature(SlotID(i))->getId(), TextOperations::parseMetric<int>(text));
+		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
+			if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), parent.startInfo->selectedArmy[id]->getCreature(SlotID(i))->getId(), TextOperations::parseMetric<int>(text));
 		});
 	}
 
@@ -231,15 +243,19 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 {
 	OBJECT_CONSTRUCTION;
 
-	if(!selectedHero)
+	if(!parent.startInfo->selectedHero[id])
 	{
 		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6, 7));
 		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.507"));
+		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
 	}
 	else
 	{
-		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(selectedHero->getHeroType()->imageIndex), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, selectedHero->getNameTranslated());
+		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(parent.startInfo->selectedHero[id]->getHeroType()->imageIndex), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, parent.startInfo->selectedHero[id]->getNameTranslated());
+		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+			primSkillsInput[i]->setText("0");
 	}
 
 	heroImage->addLClickCallback([this](){
@@ -255,8 +271,8 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			return heroA->heroClass->faction < heroB->heroClass->faction;
 		});
 
-		int selectedIndex = !selectedHero ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
-			return heroID == selectedHero->getHeroType()->getId();
+		int selectedIndex = !parent.startInfo->selectedHero[id] ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
+			return heroID == parent.startInfo->selectedHero[id]->getHeroType()->getId();
     	})));
 		
 		std::vector<std::string> texts;
@@ -275,7 +291,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("object.core.hero.name"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 			if(index == 0)
 			{
-				selectedHero.reset();
+				parent.startInfo->selectedHero[id].reset();
 				setHeroIcon();
 				return;
 			}
@@ -287,7 +303,10 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(parent.cb.get(), templates.front()));
 			obj->setHeroType(hero);
 
-			selectedHero = obj;
+			parent.startInfo->selectedHero[id] = obj;
+
+			for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+				parent.startInfo->primSkillLevel[id][i] = 0;
 			setHeroIcon();
 			parent.setOkButtonEnabled();
 		}, selectedIndex, images, true, true);
@@ -302,10 +321,10 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	});
 
 	heroImage->addRClickCallback([this](){
-		if(!selectedHero)
+		if(!parent.startInfo->selectedHero[id])
 			return;
 		
-		ENGINE->windows().createAndPushWindow<CHeroOverview>(selectedHero->getHeroType()->getId());
+		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id]->getHeroType()->getId());
 	});
 }
 
@@ -315,11 +334,11 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 
 	for(int i = 0; i < creatureImage.size(); i++)
 	{
-		if(selectedArmy->slotEmpty(SlotID(i)))
+		if(parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
 			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6 + i * 36, 78));
 		else
 		{
-			auto creatureID = selectedArmy->Slots().at(SlotID(i))->getCreatureID();
+			auto creatureID = parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getCreatureID();
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
 		}
 
@@ -336,8 +355,8 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				return creatureA->getFactionID() < creatureB->getFactionID();
 			});
 
-			int selectedIndex = selectedArmy->slotEmpty(SlotID(i)) ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
-				return creatureID == selectedArmy->Slots().at(SlotID(i))->getId();
+			int selectedIndex = parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)) ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
+				return creatureID == parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getId();
 			})));
 			
 			std::vector<std::string> texts;
@@ -356,15 +375,15 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("core.genrltxt.42"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), [this, creatures, i](int index){
 				if(index == 0)
 				{
-					if(!selectedArmy->slotEmpty(SlotID(i)))
-						selectedArmy->eraseStack(SlotID(i));
+					if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+						parent.startInfo->selectedArmy[id]->eraseStack(SlotID(i));
 					setCreatureIcons();
 					return;
 				}
 				index--;
 
 				auto creature = creatures.at(index).toCreature();
-				selectedArmy->setCreature(SlotID(i), creature->getId(), 100);
+				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), creature->getId(), 100);
 				selectedArmyInput[SlotID(i)]->setText("100");
 				setCreatureIcons();
 			}, selectedIndex, images, true, true);
@@ -379,10 +398,10 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		});
 
 		creatureImage[i]->addRClickCallback([this, i](){
-			if(selectedArmy->slotEmpty(SlotID(i)))
+			if(parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
 				return;
 			
-			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(selectedArmy->Slots().at(SlotID(i))->getCreatureID()).get(), true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(parent.startInfo->selectedArmy[id]->Slots().at(SlotID(i))->getCreatureID()).get(), true);
 		});
 	}
 }
@@ -395,7 +414,7 @@ void BattleOnlyModeWindow::startBattle()
 	map->getEditManager()->clearTerrain(rng);
 
 	map->getEditManager()->getTerrainSelection().selectAll();
-	map->getEditManager()->drawTerrain(selectedTerrain == TerrainId::NONE ? TerrainId::DIRT : selectedTerrain, 0, rng);
+	map->getEditManager()->drawTerrain(startInfo->selectedTerrain == TerrainId::NONE ? TerrainId::DIRT : startInfo->selectedTerrain, 0, rng);
 
 	map->players[0].canComputerPlay = true;
 	map->players[0].canHumanPlay = true;
@@ -403,25 +422,25 @@ void BattleOnlyModeWindow::startBattle()
 
 	auto knownHeroes = LIBRARY->objtypeh->knownSubObjects(Obj::HERO);
 
-	auto addHero = [&](auto & selector, PlayerColor color, const int3 & position)
+	auto addHero = [&](int sel, PlayerColor color, const int3 & position)
 	{
-		selector->selectedHero->setOwner(color);
-		selector->selectedHero->pos = position;
+		startInfo->selectedHero[sel]->setOwner(color);
+		startInfo->selectedHero[sel]->pos = position;
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			selector->selectedHero->pushPrimSkill(PrimarySkill(i), std::stoi(selector->primSkillsInput[i]->getText()));
-		selector->selectedHero->clearSlots();
+			startInfo->selectedHero[sel]->pushPrimSkill(PrimarySkill(i), startInfo->primSkillLevel[sel][i]);
+		startInfo->selectedHero[sel]->clearSlots();
 		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-			if(!selector->selectedArmy->slotEmpty(SlotID(slot)))
-				selector->selectedHero->putStack(SlotID(slot), selector->selectedArmy->detachStack(SlotID(slot)));
-		map->getEditManager()->insertObject(selector->selectedHero);
+			if(!startInfo->selectedArmy[sel]->slotEmpty(SlotID(slot)))
+				startInfo->selectedHero[sel]->putStack(SlotID(slot), startInfo->selectedArmy[sel]->detachStack(SlotID(slot)));
+		map->getEditManager()->insertObject(startInfo->selectedHero[sel]);
 	};
 
-	addHero(heroSelector1, PlayerColor(0), int3(5, 6, 0));
-	if(selectedTown == FactionID::NONE)
-		addHero(heroSelector2, PlayerColor(1), int3(5, 5, 0));
+	addHero(0, PlayerColor(0), int3(5, 6, 0));
+	if(startInfo->selectedTown == FactionID::NONE)
+		addHero(1, PlayerColor(1), int3(5, 5, 0));
 	else
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, selectedTown);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo->selectedTown);
 		auto templates = factory->getTemplates();
 		auto obj = factory->create(cb.get(), templates.front());
 		auto townObj = std::dynamic_pointer_cast<CGTownInstance>(obj);
@@ -429,14 +448,14 @@ void BattleOnlyModeWindow::startBattle()
 		obj->pos = int3(5, 5, 0);
 		for (const auto & building : townObj->getTown()->getAllBuildings())
 			townObj->addBuilding(building);
-		if(!heroSelector2->selectedHero)
+		if(!startInfo->selectedHero[1])
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-				if(!heroSelector2->selectedArmy->slotEmpty(SlotID(slot)))
-					townObj->getArmy()->putStack(SlotID(slot), heroSelector2->selectedArmy->detachStack(SlotID(slot)));
+				if(!startInfo->selectedArmy[1]->slotEmpty(SlotID(slot)))
+					townObj->getArmy()->putStack(SlotID(slot), startInfo->selectedArmy[1]->detachStack(SlotID(slot)));
 		}
 		else
-			addHero(heroSelector2, PlayerColor(1), int3(5, 5, 0));
+			addHero(1, PlayerColor(1), int3(5, 5, 0));
 
 		map->getEditManager()->insertObject(townObj);
 	}

@@ -36,6 +36,20 @@ public:
 	static void openBattleWindow();
 };
 
+class BattleOnlyModeStartInfo
+{
+public:
+	TerrainId selectedTerrain;
+	FactionID selectedTown;
+
+	std::array<std::shared_ptr<CGHeroInstance>, 2> selectedHero;
+	std::array<std::shared_ptr<CCreatureSet>, 2> selectedArmy;
+
+	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
+
+	BattleOnlyModeStartInfo();
+};
+
 class BattleOnlyModeHeroSelector : public CIntObject
 {
 private:
@@ -45,24 +59,25 @@ private:
 	std::shared_ptr<CPicture> heroImage;
 	std::shared_ptr<CLabel> heroLabel;
 	std::vector<std::shared_ptr<CPicture>> creatureImage;
+
+	int id;
 public:
 	std::vector<std::shared_ptr<CAnimImage>> primSkills;
 	std::vector<std::shared_ptr<GraphicalPrimitiveCanvas>> primSkillsBorder;
 	std::vector<std::shared_ptr<CTextInput>> primSkillsInput;
 
-	std::shared_ptr<CGHeroInstance> selectedHero;
-	std::shared_ptr<CCreatureSet> selectedArmy;
 	std::vector<std::shared_ptr<CTextInput>> selectedArmyInput;
 
 	void setHeroIcon();
 	void setCreatureIcons();
-	BattleOnlyModeHeroSelector(BattleOnlyModeWindow& parent, Point position);
+	BattleOnlyModeHeroSelector(int id, BattleOnlyModeWindow& parent, Point position);
 };
 
 class BattleOnlyModeWindow : public CWindowObject
 {
 	friend class BattleOnlyModeHeroSelector;
 private:
+	std::shared_ptr<BattleOnlyModeStartInfo> startInfo;
 	std::unique_ptr<CMap> map;
 	std::shared_ptr<EditorCallback> cb;
 
@@ -75,9 +90,6 @@ private:
 	std::shared_ptr<CButton> buttonReset;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector1;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
-
-	TerrainId selectedTerrain;
-	FactionID selectedTown;
 
 	void init();
 	void setTerrainButtonText();
