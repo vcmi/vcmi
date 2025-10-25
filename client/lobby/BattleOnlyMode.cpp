@@ -80,11 +80,11 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
 	title = std::make_shared<CLabel>(260, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
 
-	battlegroundSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
+	battlefieldSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
 		std::vector<std::string> texts;
 		std::vector<std::shared_ptr<IImage>> images;
 
-		auto terrains = LIBRARY->terrainTypeHandler->objects;
+		auto & terrains = LIBRARY->terrainTypeHandler->objects;
 		for (const auto & terrain : terrains)
 		{
 			texts.push_back(terrain->getNameTranslated());
@@ -99,20 +99,17 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			images.push_back(image);
 		}
 
-		auto factions = LIBRARY->townh->objects;
-		factions.erase(std::remove_if(factions.begin(), factions.end(), [](const std::shared_ptr<CFaction>& n) {
-			return !n->town;
-		}), factions.end());
+		auto factions = LIBRARY->townh->getDefaultAllowed();
 		for (const auto & faction : factions)
 		{
-			texts.push_back(faction->getNameTranslated());
+			texts.push_back(faction.toFaction()->getNameTranslated());
 
-			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction->town->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
+			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction.toFaction()->town->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
 			image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 			images.push_back(image);
 		}
 
-		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattleground"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlegroundSelect"), [this, terrains, factions](int index){
+		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefieldSelect"), [this, terrains, factions](int index){
 			if(terrains.size() > index)
 			{
 				selectedTerrain = terrains[index]->getId();
@@ -121,7 +118,9 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			else
 			{
 				selectedTerrain = TerrainId::NONE;
-				selectedTown = factions[index - terrains.size()]->getId();
+				auto it = std::next(factions.begin(), index - terrains.size());
+				if (it != factions.end())
+    				selectedTown = *it;
 			}
 			setTerrainButtonText();
 			setOkButtonEnabled();
@@ -171,7 +170,7 @@ void BattleOnlyModeWindow::init()
 
 void BattleOnlyModeWindow::setTerrainButtonText()
 {
-	battlegroundSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattleground") + ":   " + (selectedTerrain != TerrainId::NONE ? selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
+	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (selectedTerrain != TerrainId::NONE ? selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 void BattleOnlyModeWindow::setOkButtonEnabled()
@@ -240,20 +239,20 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	}
 
 	heroImage->addLClickCallback([this](){
-		auto heroes = LIBRARY->heroh->objects;
-		std::sort(heroes.begin(), heroes.end(), [](const std::shared_ptr<CHero>& a, const std::shared_ptr<CHero>& b) {
-			if (a->heroClass->getId() == b->heroClass->getId())
-				return a->getNameTranslated() < b->getNameTranslated();
-			if (a->heroClass->faction == b->heroClass->faction)
-				return a->heroClass->getId() < b->heroClass->getId();
-			return a->heroClass->faction < b->heroClass->faction;
+		auto allowedSet = LIBRARY->heroh->getDefaultAllowed();
+		std::vector<HeroTypeID> heroes(allowedSet.begin(), allowedSet.end());
+		std::sort(heroes.begin(), heroes.end(), [](auto a, auto b) {
+			auto heroA = a.toHeroType();
+			auto heroB = b.toHeroType();
+			if (heroA->heroClass->getId() == heroB->heroClass->getId())
+				return heroA->getNameTranslated() < heroB->getNameTranslated();
+			if (heroA->heroClass->faction == heroB->heroClass->faction)
+				return heroA->heroClass->getId() < heroB->heroClass->getId();
+			return heroA->heroClass->faction < heroB->heroClass->faction;
 		});
-		heroes.erase(std::remove_if(heroes.begin(), heroes.end(), [](const std::shared_ptr<CHero>& n) {
-			return n->special;
-		}), heroes.end());
 
-		int selectedIndex = !selectedHero ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](const std::shared_ptr<CHero>& heroPtr) {
-			return heroPtr.get() == selectedHero->getHeroType();
+		int selectedIndex = !selectedHero ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
+			return heroID == selectedHero->getHeroType()->getId();
     	})));
 		
 		std::vector<std::string> texts;
@@ -263,9 +262,9 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		images.push_back(nullptr);
 		for (const auto & h : heroes)
 		{
-			texts.push_back(h->getNameTranslated());
+			texts.push_back(h.toHeroType()->getNameTranslated());
 
-			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), h->imageIndex, 0, EImageBlitMode::OPAQUE);
+			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("PortraitsSmall"), h.toHeroType()->imageIndex, 0, EImageBlitMode::OPAQUE);
 			image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 			images.push_back(image);
 		}
@@ -279,10 +278,10 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			index--;
 			auto hero = heroes[index];
 
-			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hero->heroClass->getId());
+			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hero.toHeroType()->heroClass->getId());
 			auto templates = factory->getTemplates();
 			auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(parent.cb.get(), templates.front()));
-			obj->setHeroType(hero->getId());
+			obj->setHeroType(hero);
 
 			selectedHero = obj;
 			setHeroIcon();
@@ -293,7 +292,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 				return;
 			index--;
 
-			ENGINE->windows().createAndPushWindow<CHeroOverview>(heroes[index]->getId());
+			ENGINE->windows().createAndPushWindow<CHeroOverview>(heroes.at(index));
 		};
 		ENGINE->windows().pushWindow(window);
 	});
@@ -321,20 +320,20 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){
-			auto creatures = LIBRARY->creh->objects;
-			std::sort(creatures.begin(), creatures.end(), [](const std::shared_ptr<CCreature>& a, const std::shared_ptr<CCreature>& b) {
-				if (a->getLevel() == b->getLevel())
-					return a->getNameSingularTranslated() < b->getNameSingularTranslated();
-				if (a->getFactionID() == b->getFactionID())
-					return a->getLevel() < b->getLevel();
-				return a->getFactionID() < b->getFactionID();
+			auto allowedSet = LIBRARY->creh->getDefaultAllowed();
+			std::vector<CreatureID> creatures(allowedSet.begin(), allowedSet.end());
+			std::sort(creatures.begin(), creatures.end(), [](auto a, auto b) {
+				auto creatureA = a.toCreature();
+				auto creatureB = b.toCreature();
+				if (creatureA->getLevel() == creatureB->getLevel())
+					return creatureA->getNameSingularTranslated() < creatureB->getNameSingularTranslated();
+				if (creatureA->getFactionID() == creatureB->getFactionID())
+					return creatureA->getLevel() < creatureB->getLevel();
+				return creatureA->getFactionID() < creatureB->getFactionID();
 			});
-			creatures.erase(std::remove_if(creatures.begin(), creatures.end(), [](const std::shared_ptr<CCreature>& n) {
-				return n->special;
-			}), creatures.end());
 
-			int selectedIndex = selectedArmy->slotEmpty(SlotID(i)) ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](const std::shared_ptr<CCreature>& creaturePtr) {
-				return creaturePtr->getId() == selectedArmy->Slots().at(SlotID(i))->getId();
+			int selectedIndex = selectedArmy->slotEmpty(SlotID(i)) ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
+				return creatureID == selectedArmy->Slots().at(SlotID(i))->getId();
 			})));
 			
 			std::vector<std::string> texts;
@@ -344,9 +343,9 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			images.push_back(nullptr);
 			for (const auto & c : creatures)
 			{
-				texts.push_back(c->getNameSingularTranslated());
+				texts.push_back(c.toCreature()->getNameSingularTranslated());
 
-				auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("CPRSMALL"), c->getIconIndex(), 0, EImageBlitMode::OPAQUE);
+				auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("CPRSMALL"), c.toCreature()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
 				image->scaleTo(Point(23, 23), EScalingAlgorithm::NEAREST);
 				images.push_back(image);
 			}
@@ -359,7 +358,8 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 					return;
 				}
 				index--;
-				auto creature = creatures[index];
+
+				auto creature = creatures.at(index).toCreature();
 				selectedArmy->setCreature(SlotID(i), creature->getId(), 100);
 				selectedArmyInput[SlotID(i)]->setText("100");
 				setCreatureIcons();
@@ -369,7 +369,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 					return;
 				index--;
 
-				ENGINE->windows().createAndPushWindow<CStackWindow>(creatures.at(index).get(), true);
+				ENGINE->windows().createAndPushWindow<CStackWindow>(creatures.at(index).toCreature(), true);
 			};
 			ENGINE->windows().pushWindow(window);
 		});

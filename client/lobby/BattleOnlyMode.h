@@ -71,7 +71,7 @@ private:
 	std::shared_ptr<CButton> buttonAbort;
 	std::shared_ptr<CLabel> title;
 
-	std::shared_ptr<CButton> battlegroundSelector;
+	std::shared_ptr<CButton> battlefieldSelector;
 	std::shared_ptr<CButton> buttonReset;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector1;
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
