@@ -80,6 +80,7 @@ private:
 
 	void init();
 	void onChange();
+	void update();
 	void setTerrainButtonText();
 	void setOkButtonEnabled();
 	void startBattle();

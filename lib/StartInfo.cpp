@@ -244,7 +244,7 @@ TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 
 BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
 	: selectedTerrain(TerrainId::DIRT)
-	, selectedTown(FactionID::NONE)
+	, selectedTown(std::nullopt)
 {
 	for(auto & element : selectedArmy)
 		element = std::make_shared<CCreatureSet>();

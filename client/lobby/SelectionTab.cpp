@@ -247,7 +247,6 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [tabTitle, tabTitleDelete](){
 				BattleOnlyMode::openBattleWindow();
 			});
-			//buttonBattleOnlyMode->block(GAME->server().isGuest());
 		}
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)

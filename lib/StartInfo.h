@@ -244,8 +244,8 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 class DLL_LINKAGE BattleOnlyModeStartInfo : public Serializeable
 {
 public:
-	TerrainId selectedTerrain;
-	FactionID selectedTown;
+	std::optional<TerrainId> selectedTerrain;
+	std::optional<FactionID> selectedTown;
 
 	std::array<std::shared_ptr<CGHeroInstance>, 2> selectedHero;
 	std::array<std::shared_ptr<CCreatureSet>, 2> selectedArmy;

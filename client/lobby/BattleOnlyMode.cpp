@@ -58,6 +58,8 @@
 
 void BattleOnlyMode::openBattleWindow()
 {
+	if(GAME->server().isGuest())
+		return;
 	GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
 	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
 }
@@ -118,54 +120,43 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			if(terrains.size() > index)
 			{
 				startInfo->selectedTerrain = terrains[index]->getId();
-				startInfo->selectedTown = FactionID::NONE;
+				startInfo->selectedTown = std::nullopt;
 			}
 			else
 			{
-				startInfo->selectedTerrain = TerrainId::NONE;
+				startInfo->selectedTerrain = std::nullopt;
 				auto it = std::next(factions.begin(), index - terrains.size());
 				if (it != factions.end())
     				startInfo->selectedTown = *it;
 			}
-			setTerrainButtonText();
-			setOkButtonEnabled();
-		}, (startInfo->selectedTerrain != TerrainId::NONE ? static_cast<int>(startInfo->selectedTerrain) : static_cast<int>(startInfo->selectedTown + terrains.size())), images, true, true);
+			onChange();
+		}, (startInfo->selectedTerrain ? static_cast<int>(*startInfo->selectedTerrain) : static_cast<int>(*startInfo->selectedTown + terrains.size())), images, true, true);
 	});
 	battlefieldSelector->block(GAME->server().isGuest());
 	buttonReset = std::make_shared<CButton>(Point(289, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
 		if(GAME->server().isHost())
 		{
 			startInfo->selectedTerrain = TerrainId::DIRT;
-			startInfo->selectedTown = FactionID::NONE;
-		}
-		setTerrainButtonText();
-		setOkButtonEnabled();
-		if(GAME->server().isHost())
-		{
-			startInfo->selectedHero[0].reset();
+			startInfo->selectedTown = std::nullopt;
+			startInfo->selectedHero[0] = std::nullopt;
 			startInfo->selectedArmy[0]->clearSlots();
 			for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 				heroSelector1->selectedArmyInput.at(i)->setText("1");
-			heroSelector1->setHeroIcon();
-			heroSelector1->setCreatureIcons();
 		}
-		startInfo->selectedHero[1].reset();
+		startInfo->selectedHero[1] = std::nullopt;
 		startInfo->selectedArmy[1]->clearSlots();
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 			heroSelector2->selectedArmyInput.at(i)->setText("1");
-		heroSelector2->setHeroIcon();
-	    heroSelector2->setCreatureIcons();
-		redraw();
+		onChange();
 	});
 	buttonReset->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeReset"), EFonts::FONT_SMALL, Colors::WHITE);
-
-	setTerrainButtonText();
-	setOkButtonEnabled();
 
 	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(0, 40));
 	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(260, 40));
 
 	heroSelector1->setInputEnabled(GAME->server().isHost());
+
+	onChange();
 }
 
 void BattleOnlyModeWindow::init()
@@ -180,8 +171,6 @@ void BattleOnlyModeWindow::init()
 	map->name = MetaString::createFromTextID("vcmi.lobby.battleOnlyMode");
 
 	cb = std::make_unique<EditorCallback>(map.get());
-
-	onChange();
 }
 
 void BattleOnlyModeWindow::onChange()
@@ -189,20 +178,33 @@ void BattleOnlyModeWindow::onChange()
 	GAME->server().setBattleOnlyModeStartInfo(startInfo);
 }
 
+void BattleOnlyModeWindow::update()
+{
+	setTerrainButtonText();
+	setOkButtonEnabled();
+	
+	heroSelector1->setHeroIcon();
+	heroSelector1->setCreatureIcons();
+	heroSelector2->setHeroIcon();
+	heroSelector2->setCreatureIcons();
+	redraw();
+}
+
 void BattleOnlyModeWindow::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si)
 {
-
+	startInfo = si;
+	update();
 }
 
 void BattleOnlyModeWindow::setTerrainButtonText()
 {
-	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain != TerrainId::NONE ? startInfo->selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : startInfo->selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
+	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, Colors::WHITE);
 }
 
 void BattleOnlyModeWindow::setOkButtonEnabled()
 {
-	bool canStart = (startInfo->selectedTerrain != TerrainId::NONE || startInfo->selectedTown != FactionID::NONE);
-	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown != FactionID::NONE && startInfo->selectedArmy[1]->stacksCount())));
+	bool canStart = (startInfo->selectedTerrain || startInfo->selectedTown);
+	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && startInfo->selectedArmy[1]->stacksCount())));
 	buttonOk->block(!canStart || GAME->server().isGuest());
 	buttonAbort->block(GAME->server().isGuest());
 }
@@ -238,6 +240,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 		primSkillsInput.back()->setText("0");
 		primSkillsInput.back()->setCallback([this, i, id](const std::string & text){
 			parent.startInfo->primSkillLevel[id][i] = std::stoi(primSkillsInput[i]->getText());
+			parent.onChange();
 		});
 	}
 
@@ -249,7 +252,10 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 		selectedArmyInput.back()->setText("1");
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
 			if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
+			{
 				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), parent.startInfo->selectedArmy[id]->getCreature(SlotID(i))->getId(), TextOperations::parseMetric<int>(text));
+				parent.onChange();
+			}
 		});
 	}
 
@@ -310,7 +316,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			if(index == 0)
 			{
 				parent.startInfo->selectedHero[id].reset();
-				setHeroIcon();
+				parent.onChange();
 				return;
 			}
 			index--;
@@ -325,8 +331,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 
 			for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 				parent.startInfo->primSkillLevel[id][i] = 0;
-			setHeroIcon();
-			parent.setOkButtonEnabled();
+			parent.onChange();
 		}, selectedIndex, images, true, true);
 		window->onPopup = [heroes](int index) {
 			if(index == 0)
@@ -395,7 +400,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				{
 					if(!parent.startInfo->selectedArmy[id]->slotEmpty(SlotID(i)))
 						parent.startInfo->selectedArmy[id]->eraseStack(SlotID(i));
-					setCreatureIcons();
+					parent.onChange();
 					return;
 				}
 				index--;
@@ -403,7 +408,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				auto creature = creatures.at(index).toCreature();
 				parent.startInfo->selectedArmy[id]->setCreature(SlotID(i), creature->getId(), 100);
 				selectedArmyInput[SlotID(i)]->setText("100");
-				setCreatureIcons();
+				parent.onChange();
 			}, selectedIndex, images, true, true);
 			window->onPopup = [creatures](int index) {
 				if(index == 0)
@@ -432,7 +437,7 @@ void BattleOnlyModeWindow::startBattle()
 	map->getEditManager()->clearTerrain(rng);
 
 	map->getEditManager()->getTerrainSelection().selectAll();
-	map->getEditManager()->drawTerrain(startInfo->selectedTerrain == TerrainId::NONE ? TerrainId::DIRT : startInfo->selectedTerrain, 0, rng);
+	map->getEditManager()->drawTerrain(!startInfo->selectedTerrain ? TerrainId::DIRT : *startInfo->selectedTerrain, 0, rng);
 
 	map->players[0].canComputerPlay = true;
 	map->players[0].canHumanPlay = true;
@@ -454,11 +459,11 @@ void BattleOnlyModeWindow::startBattle()
 	};
 
 	addHero(0, PlayerColor(0), int3(5, 6, 0));
-	if(startInfo->selectedTown == FactionID::NONE)
+	if(startInfo->selectedTown)
 		addHero(1, PlayerColor(1), int3(5, 5, 0));
 	else
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo->selectedTown);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, *startInfo->selectedTown);
 		auto templates = factory->getTemplates();
 		auto obj = factory->create(cb.get(), templates.front());
 		auto townObj = std::dynamic_pointer_cast<CGTownInstance>(obj);
