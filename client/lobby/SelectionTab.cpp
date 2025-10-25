@@ -242,13 +242,12 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
-		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
-
-		if(tabType == ESelectionScreen::newGame && !isMultiplayer)
+		if(tabType == ESelectionScreen::newGame)
 		{
 			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [tabTitle, tabTitleDelete](){
 				BattleOnlyMode::openBattleWindow();
 			});
+			//buttonBattleOnlyMode->block(GAME->server().isGuest());
 		}
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)

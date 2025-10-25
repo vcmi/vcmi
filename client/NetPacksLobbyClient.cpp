@@ -239,3 +239,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 	lobby->buttonStart->block(false);
 	handler.showServerError(pack.message.toString());
 }
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	if(auto topWindow = ENGINE->windows().topWindow<BattleOnlyModeWindow>())
+		topWindow->applyStartInfo(pack.startInfo);
+}

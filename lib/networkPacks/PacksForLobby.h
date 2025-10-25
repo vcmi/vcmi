@@ -230,6 +230,18 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 	}
 };
 
+struct DLL_LINKAGE LobbySetBattleOnlyModeStartInfo : public CLobbyPackToPropagate
+{
+	std::shared_ptr<BattleOnlyModeStartInfo> startInfo;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & startInfo;
+	}
+};
+
 struct DLL_LINKAGE LobbyChangePlayerOption : public CLobbyPackToServer
 {
 	enum EWhat : ui8 {UNKNOWN, TOWN, HERO, BONUS, TOWN_ID, HERO_ID, BONUS_ID};

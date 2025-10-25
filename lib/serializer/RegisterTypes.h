@@ -291,6 +291,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<TimesStackSizeUpdater>(249);
 	s.template registerType<TimesArmySizeUpdater>(250);
 	s.template registerType<PackageReceived>(251);
+	s.template registerType<LobbySetBattleOnlyModeStartInfo>(252);
 }
 
 VCMI_LIB_NAMESPACE_END

@@ -15,6 +15,8 @@
 #include "../lib/StartInfo.h"
 #include "../lib/gameState/GameStatistics.h"
 
+#include "lobby/BattleOnlyMode.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 class GameConnection;
@@ -77,6 +79,7 @@ public:
 	virtual void setCampaignState(std::shared_ptr<CampaignState> newCampaign) = 0;
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
+	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
@@ -186,6 +189,7 @@ public:
 	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
+	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;

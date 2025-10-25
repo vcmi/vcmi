@@ -18,6 +18,7 @@ class CGHeroInstance;
 class CCreatureSet;
 class CMap;
 class EditorCallback;
+class BattleOnlyModeStartInfo;
 VCMI_LIB_NAMESPACE_END
 
 class FilledTexturePlayerColored;
@@ -34,20 +35,6 @@ class BattleOnlyMode
 {
 public:
 	static void openBattleWindow();
-};
-
-class BattleOnlyModeStartInfo
-{
-public:
-	TerrainId selectedTerrain;
-	FactionID selectedTown;
-
-	std::array<std::shared_ptr<CGHeroInstance>, 2> selectedHero;
-	std::array<std::shared_ptr<CCreatureSet>, 2> selectedArmy;
-
-	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
-
-	BattleOnlyModeStartInfo();
 };
 
 class BattleOnlyModeHeroSelector : public CIntObject
@@ -92,9 +79,11 @@ private:
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
 
 	void init();
+	void onChange();
 	void setTerrainButtonText();
 	void setOkButtonEnabled();
 	void startBattle();
 public:
 	BattleOnlyModeWindow();
+	void applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si);
 };

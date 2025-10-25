@@ -21,6 +21,7 @@
 #include "mapping/CMapHeader.h"
 #include "mapping/CMapService.h"
 #include "modding/ModIncompatibility.h"
+#include "mapObjects/army/CCreatureSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -239,6 +240,17 @@ TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 		return getPlayerInfo(color).team;
 	else
 		return TeamID::NO_TEAM;
+}
+
+BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
+	: selectedTerrain(TerrainId::DIRT)
+	, selectedTown(FactionID::NONE)
+{
+	for(auto & element : selectedArmy)
+		element = std::make_shared<CCreatureSet>();
+	for(auto & element : primSkillLevel)
+		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+			element[i] = 0;
 }
 
 VCMI_LIB_NAMESPACE_END

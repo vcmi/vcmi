@@ -25,6 +25,8 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CMapGenOptions;
 class CampaignState;
 class CMapInfo;
+class CGHeroInstance;
+class CCreatureSet;
 struct PlayerInfo;
 class PlayerColor;
 
@@ -239,5 +241,27 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 
+class DLL_LINKAGE BattleOnlyModeStartInfo : public Serializeable
+{
+public:
+	TerrainId selectedTerrain;
+	FactionID selectedTown;
+
+	std::array<std::shared_ptr<CGHeroInstance>, 2> selectedHero;
+	std::array<std::shared_ptr<CCreatureSet>, 2> selectedArmy;
+
+	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
+
+	BattleOnlyModeStartInfo();
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & selectedTerrain;
+		h & selectedTown;
+		h & selectedHero;
+		h & selectedArmy;
+		h & primSkillLevel;
+	}
+};
 
 VCMI_LIB_NAMESPACE_END

@@ -62,17 +62,6 @@ void BattleOnlyMode::openBattleWindow()
 	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
 }
 
-BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
-	: selectedTerrain(TerrainId::DIRT)
-	, selectedTown(FactionID::NONE)
-{
-	for(auto & element : selectedArmy)
-		element = std::make_shared<CCreatureSet>();
-	for(auto & element : primSkillLevel)
-		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			element[i] = 0;
-}
-
 BattleOnlyModeWindow::BattleOnlyModeWindow()
 	: CWindowObject(BORDERED)
 	, startInfo(std::make_shared<BattleOnlyModeStartInfo>())
@@ -191,6 +180,18 @@ void BattleOnlyModeWindow::init()
 	map->name = MetaString::createFromTextID("vcmi.lobby.battleOnlyMode");
 
 	cb = std::make_unique<EditorCallback>(map.get());
+
+	onChange();
+}
+
+void BattleOnlyModeWindow::onChange()
+{
+	GAME->server().setBattleOnlyModeStartInfo(startInfo);
+}
+
+void BattleOnlyModeWindow::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si)
+{
+
 }
 
 void BattleOnlyModeWindow::setTerrainButtonText()

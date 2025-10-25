@@ -432,6 +432,13 @@ void CServerHandler::setCampaignBonus(int bonusId) const
 	sendLobbyPack(lscb);
 }
 
+void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const
+{
+	LobbySetBattleOnlyModeStartInfo lsbomsui;
+	lsbomsui.startInfo = startInfo;
+	sendLobbyPack(lsbomsui);
+}
+
 void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts) const
 {
 	LobbySetMap lsm;
