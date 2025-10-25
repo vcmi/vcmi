@@ -255,6 +255,12 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
 			if(!parent.startInfo->selectedArmy[id][i])
 			{
+				if(!parent.startInfo->selectedArmy[id][i])
+				{
+					selectedArmyInput[i]->setText("1");
+					return;
+				}
+
 				(*parent.startInfo->selectedArmy[id][i]).second = TextOperations::parseMetric<int>(text);
 				parent.onChange();
 			}
@@ -274,14 +280,14 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6, 7));
 		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("core.genrltxt.507"));
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
+			primSkillsInput[i]->setText("0");
 	}
 	else
 	{
 		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage((*parent.startInfo->selectedHero[id]).toHeroType()->imageIndex), Point(6, 7));
 		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, (*parent.startInfo->selectedHero[id]).toHeroType()->getNameTranslated());
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			primSkillsInput[i]->setText("0");
+			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
 	}
 
 	heroImage->addLClickCallback([this](){
@@ -354,11 +360,16 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 	for(int i = 0; i < creatureImage.size(); i++)
 	{
 		if(!parent.startInfo->selectedArmy[id][i])
+		{
 			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect")), Point(6 + i * 36, 78));
+			selectedArmyInput[i]->setText("1");
+		}
 		else
 		{
-			auto creatureID = (*parent.startInfo->selectedArmy[id][i]).first;
+			auto unit = (*parent.startInfo->selectedArmy[id][i]);
+			auto creatureID = unit.first;
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
+			selectedArmyInput[i]->setText(std::to_string(unit.second));
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){
@@ -403,7 +414,6 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 
 				auto creature = creatures.at(index).toCreature();
 				parent.startInfo->selectedArmy[id][i] = std::make_pair(creature->getId(), 100);
-				selectedArmyInput[SlotID(i)]->setText("100");
 				parent.onChange();
 			}, selectedIndex, images, true, true);
 			window->onPopup = [creatures](int index) {
@@ -420,7 +430,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			if(!parent.startInfo->selectedArmy[id][i])
 				return;
 			
-			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(parent.startInfo->selectedArmy[id][i].first).get(), true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at((*parent.startInfo->selectedArmy[id][i]).first).get(), true);
 		});
 	}
 }
@@ -460,7 +470,7 @@ void BattleOnlyModeWindow::startBattle()
 	};
 
 	addHero(0, PlayerColor(0), int3(5, 6, 0));
-	if(startInfo->selectedTown)
+	if(!startInfo->selectedTown)
 		addHero(1, PlayerColor(1), int3(5, 5, 0));
 	else
 	{
