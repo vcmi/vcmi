@@ -137,8 +137,8 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 		heroSelector2->selectedArmy->clearSlots();
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 		{
-			heroSelector1->selectedArmyInput.at(i)->setText("0");
-			heroSelector2->selectedArmyInput.at(i)->setText("0");
+			heroSelector1->selectedArmyInput.at(i)->setText("1");
+			heroSelector2->selectedArmyInput.at(i)->setText("1");
 		}
 		heroSelector1->setHeroIcon();
 	    heroSelector1->setCreatureIcons();
@@ -215,8 +215,12 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(BattleOnlyModeWindow& par
 	for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 	{
 		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
-		selectedArmyInput.back()->setFilterNumber(0, 10000000, 3);
-		selectedArmyInput.back()->setText("0");
+		selectedArmyInput.back()->setFilterNumber(1, 10000000, 3);
+		selectedArmyInput.back()->setText("1");
+		selectedArmyInput.back()->setCallback([this, i](const std::string & text){
+			if(!selectedArmy->slotEmpty(SlotID(i)))
+				selectedArmy->setCreature(SlotID(i), selectedArmy->getCreature(SlotID(i))->getId(), TextOperations::parseMetric<int>(text));
+		});
 	}
 
 	setHeroIcon();
@@ -408,10 +412,7 @@ void BattleOnlyModeWindow::startBattle()
 		selector->selectedHero->clearSlots();
 		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
 			if(!selector->selectedArmy->slotEmpty(SlotID(slot)))
-			{
 				selector->selectedHero->putStack(SlotID(slot), selector->selectedArmy->detachStack(SlotID(slot)));
-				selector->selectedHero->getArmy()->setStackCount(SlotID(slot), TextOperations::parseMetric<int>(selector->selectedArmyInput[slot]->getText()));
-			}
 		map->getEditManager()->insertObject(selector->selectedHero);
 	};
 
@@ -432,10 +433,7 @@ void BattleOnlyModeWindow::startBattle()
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
 				if(!heroSelector2->selectedArmy->slotEmpty(SlotID(slot)))
-				{
 					townObj->getArmy()->putStack(SlotID(slot), heroSelector2->selectedArmy->detachStack(SlotID(slot)));
-					townObj->getArmy()->setStackCount(SlotID(slot), TextOperations::parseMetric<int>(heroSelector2->selectedArmyInput[slot]->getText()));
-				}
 		}
 		else
 			addHero(heroSelector2, PlayerColor(1), int3(5, 5, 0));
