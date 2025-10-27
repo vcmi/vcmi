@@ -170,7 +170,8 @@ void AbstractViewportLayer::redrawWithSurroundingTiles(const std::vector<int3> &
 
 void AbstractViewportLayer::redraw(const std::set<CGObjectInstance *> & objects)
 {
-	std::vector<QRectF> areas(objects.size());
+	std::vector<QRectF> areas;
+	areas.reserve(objects.size());
 	for (const CGObjectInstance * object : objects)
 	{
 		areas.push_back(getObjectArea(object));
