@@ -9,11 +9,11 @@
  */
 #pragma once
 
+#include "../../lib/int3.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class int3;
 class ObjectInstanceID;
 class CGObjectInstance;
 
@@ -139,6 +139,10 @@ class MapRendererOverlay
 	std::shared_ptr<IImage> imageVisitable;
 	std::shared_ptr<IImage> imageBlocked;
 	std::shared_ptr<IImage> imageSpellRange;
+	std::shared_ptr<IImage> imageEvent;
+	std::shared_ptr<IImage> imageGrail;
+
+	int3 grailPos;
 public:
 	MapRendererOverlay();
 

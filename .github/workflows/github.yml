@@ -56,6 +56,7 @@ jobs:
 
           - platform: msvc-x64
             arch: x64
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -66,10 +67,10 @@ jobs:
             conan_prebuilts: dependencies-windows-x64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x64
-            cl: Hostx64/x64/cl.exe
 
           - platform: msvc-x86
-            arch: x86
+            arch: amd64_x86
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -80,7 +81,6 @@ jobs:
             conan_prebuilts: dependencies-windows-x86
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x86
-            cl: Hostx64/x86/cl.exe
 
           - platform: msvc-arm64
             arch: arm64
@@ -94,7 +94,6 @@ jobs:
             conan_prebuilts: dependencies-windows-arm64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
             artifact_platform: arm64
-            cl: HostARM64/ARM64/cl.exe
 
           - platform: android-32
             os: ubuntu-latest
@@ -178,6 +177,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{ matrix.arch }}
+        toolset: ${{ matrix.toolset }}
 
     # ensure the cache for each PR is separate so they don't interfere with each other
     # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
@@ -224,11 +224,13 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       run: |
         conan profile detect
+        outFolder=conan-generated
         conan install . \
-          --output-folder=conan-generated \
+          --output-folder="$outFolder" \
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           ${{ matrix.conan_options }}
+        ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
     # Can't be set in Gradle project
     - name: Configure enableUncompressedNativeLibs
@@ -290,18 +292,14 @@ jobs:
     - name: Configure (MSVC)
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: |
-        & conan-generated\conanrun.ps1
+        & $env:CONANRUN_PWSH_SCRIPT
 
-        $CL = "$($env:VCToolsInstallDir)/bin/${{ matrix.cl }}"
-        cmake `
-          -D "CMAKE_C_COMPILER:FILEPATH=$CL" `
-          -D "CMAKE_CXX_COMPILER:FILEPATH=$CL" `
-          --preset ${{ matrix.preset }}
+        cmake --preset ${{ matrix.preset }}
       shell: pwsh
 
     - name: Build
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cmake --build --preset ${{matrix.preset}}
       shell: pwsh
       env:
@@ -320,7 +318,7 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
         cpack -C ${{matrix.pack_type}}
       shell: pwsh
@@ -376,7 +374,6 @@ jobs:
       id: make_partial_json
       env:
         PLATFORM: ${{ matrix.platform }}
-        ARCH: ${{ matrix.arch }}
         ARTIFACT_URL: ${{ steps.upload_artifact.outputs.artifact-url }}
         DEBUG_SYMBOLS_URL: ${{ steps.upload_symbols.outputs.artifact-url }}
         AAB_URL: ${{ steps.upload_aab.outputs.artifact-url }}

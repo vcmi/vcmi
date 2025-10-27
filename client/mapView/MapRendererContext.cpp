@@ -232,6 +232,11 @@ bool MapRendererBaseContext::showBlocked() const
 	return false;
 }
 
+bool MapRendererBaseContext::showInvisible() const
+{
+	return false;
+}
+
 bool MapRendererBaseContext::showSpellRange(const int3 & position) const
 {
 	return false;
@@ -360,6 +365,11 @@ bool MapRendererAdventureContext::showVisitable() const
 bool MapRendererAdventureContext::showBlocked() const
 {
 	return settingShowBlocked;
+}
+
+bool MapRendererAdventureContext::showInvisible() const
+{
+	return settingShowInvisible;
 }
 
 bool MapRendererAdventureContext::showTextOverlay() const
