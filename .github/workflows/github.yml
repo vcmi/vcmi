@@ -615,7 +615,7 @@ jobs:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
     - name: Download Artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
@@ -720,7 +720,7 @@ jobs:
 
       - name: Download all partial JSON artifacts
         continue-on-error: true
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: partial-json-*
           merge-multiple: true
