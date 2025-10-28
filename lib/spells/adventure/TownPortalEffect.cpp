@@ -140,7 +140,7 @@ void TownPortalEffect::endCast(SpellCastEnvironment * env, const AdventureSpellC
 {
 	const CGTownInstance * destination = nullptr;
 
-	if(parameters.caster->getSpellSchoolLevel(owner) < 2)
+	if(!allowTownSelection)
 	{
 		std::vector<const CGTownInstance *> pool = getPossibleTowns(env, parameters);
 		destination = findNearestTown(env, parameters, pool);
@@ -194,7 +194,7 @@ ESpellCastResult TownPortalEffect::beginCast(SpellCastEnvironment * env, const A
 		return ESpellCastResult::CANCEL;
 	}
 
-	if(!parameters.pos.isValid() && parameters.caster->getSpellSchoolLevel(owner) >= 2)
+	if(!parameters.pos.isValid() && allowTownSelection)
 	{
 		auto queryCallback = [&mechanics, env, parameters](std::optional<int32_t> reply) -> void
 		{
