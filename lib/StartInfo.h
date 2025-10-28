@@ -18,6 +18,7 @@
 #include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
 #include "serializer/PlayerConnectionID.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -246,7 +247,7 @@ public:
 	std::optional<FactionID> selectedTown;
 
 	std::array<std::optional<HeroTypeID>, 2> selectedHero;
-	std::array<std::array<std::optional<std::pair<CreatureID, int>>, 7>, 2> selectedArmy;
+	std::array<std::array<CStackBasicDescriptor, 7>, 2> selectedArmy;
 
 	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
 

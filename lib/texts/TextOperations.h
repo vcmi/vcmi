@@ -124,7 +124,6 @@ inline std::string TextOperations::formatMetric(Arithmetic number, int maxDigits
 template<typename Arithmetic>
 inline Arithmetic TextOperations::parseMetric(const std::string &text)
 {
-	static const std::string symbols = " kMGTPE";
 	if (text.empty())
 		return 0;
 
@@ -163,7 +162,7 @@ inline Arithmetic TextOperations::parseMetric(const std::string &text)
 
 	try
 	{
-		Arithmetic value = boost::lexical_cast<Arithmetic>(numberPart);
+		Arithmetic value = std::stoll(numberPart);
 
 		for (int i = 0; i < power; ++i)
 		{
@@ -178,7 +177,7 @@ inline Arithmetic TextOperations::parseMetric(const std::string &text)
 
 		return value;
 	}
-	catch (boost::bad_lexical_cast &)
+	catch (std::invalid_argument &)
 	{
 		return 0;
 	}
