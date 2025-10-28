@@ -3221,6 +3221,23 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 	return true;
 }
 
+bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
+{
+	const CGTownInstance *t = gameInfo().getTown(tid);
+	if (!t)
+	{
+		logGlobal->error("Town doesn't exist!");
+		return false;
+	}
+
+	ChangeTownName ctn;
+	ctn.tid = tid;
+	ctn.name = name;
+	sendAndApply(ctn);
+
+	return true;
+}
+
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
@@ -3883,8 +3900,14 @@ void CGameHandler::castSpell(const spells::Caster * caster, SpellID spellID, con
 	const CSpell * s = spellID.toSpell();
 	s->adventureCast(spellEnv.get(), p);
 
-	if(const auto * hero = caster->getHeroCaster())
-		useChargeBasedSpell(hero->id, spellID);
+	// FIXME: hack to avoid attempts to use charges when spell is casted externally
+	// For example, town gates map object in hota/wog
+	// Proper fix would be to instead spend charges similar to existing caster::spendMana call
+	if (dynamic_cast<const spells::ExternalCaster*>(caster) == nullptr)
+	{
+		if(const auto * hero = caster->getHeroCaster())
+			useChargeBasedSpell(hero->id, spellID);
+	}
 }
 
 bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)

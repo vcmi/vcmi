@@ -286,6 +286,12 @@ void CCallback::setFormation(const CGHeroInstance * hero, EArmyFormation mode)
 	sendRequest(pack);
 }
 
+void CCallback::setTownName(const CGTownInstance * town, std::string & name)
+{
+	SetTownName pack(town->id, name);
+	sendRequest(pack);
+}
+
 void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero, const HeroTypeID & nextHero)
 {
 	assert(townOrTavern);

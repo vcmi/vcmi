@@ -162,15 +162,18 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Settings
 
-- `set <command> <on/off>` - sets special temporary settings that reset on game quit. Below some of the most notable commands:  
-- `autoskip` - identical to `autoskip` option  
-- `onlyAI` - run without human player, all players will be *default AI*  
-- `headless` - run without GUI, implies `onlyAI` is set  
-- `showGrid` - display a square grid overlay on top of adventure map  
-- `showBlocked` - show blocked tiles on map  
-- `showVisitable` - show visitable tiles on map  
-- `hideSystemMessages` - suppress server messages in chat  
+- `set <command> <on/off>` - sets special temporary settings that reset on game quit. Below some of the most notable commands:
+- `autoskip` - identical to `autoskip` option
+- `onlyAI` - run without human player, all players will be *default AI*
+- `headless` - run without GUI, implies `onlyAI` is set
+- `showGrid` - display a square grid overlay on top of adventure map
+- `showBlocked` - show blocked tiles on map
+- `showVisitable` - show visitable tiles on map
+- `showInvisible` - show invisible tiles (events, grail) on map
+- `hideSystemMessages` - suppress server messages in chat
 - `antilag` - toggles network lag compensation in multiplayer on or off
+
+`showBlocked`, `showVisitable` and `showInvisible` only works if cheats are enabled.
 
 #### Developer Commands
 

@@ -86,7 +86,7 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
-	if(playerColored)
+	if(playerColored && GAME->interface())
 		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }

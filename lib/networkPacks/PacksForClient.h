@@ -614,6 +614,20 @@ struct DLL_LINKAGE ChangeFormation : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE ChangeTownName : public CPackForClient
+{
+	ObjectInstanceID tid;
+	std::string name;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & tid;
+		h & name;
+	}
+};
+
 struct DLL_LINKAGE RemoveObject : public CPackForClient
 {
 	RemoveObject() = default;

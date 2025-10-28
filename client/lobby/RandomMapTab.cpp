@@ -43,7 +43,8 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 
 RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+	InterfaceObjectConfigurable(),
+	templateIndex(0)
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
@@ -140,16 +141,18 @@ RandomMapTab::RandomMapTab():
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{
-		w->onConstructItems = [](std::vector<const void *> & curItems){
+		auto getTemplates = [](){
 			auto templates = LIBRARY->tplh->getTemplates();
-		
 			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
 			});
+			return templates;
+		};
 
+		w->onConstructItems = [getTemplates](std::vector<const void *> & curItems){
 			curItems.push_back(nullptr); //default template
 			
-			for(auto & t : templates)
+			for(auto & t : getTemplates())
 				curItems.push_back(t);
 		};
 		
@@ -164,6 +167,20 @@ RandomMapTab::RandomMapTab():
 				return readText(variables["randomTemplate"]);
 			return std::string("");
 		};
+
+		w->addCallback([this, getTemplates]() // no real dropdown... - instead open dialog
+		{
+			std::vector<std::string> texts;
+			texts.push_back(readText(variables["randomTemplate"]));
+			for(auto & t : getTemplates())
+				texts.push_back(t->getName());
+
+			ENGINE->windows().popWindows(1);
+			ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
+				widget<ComboBox>("templateList")->setItem(index);
+				templateIndex = index;
+			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true);
+		});
 	}
 	
 	loadOptions();
