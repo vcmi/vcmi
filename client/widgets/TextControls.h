@@ -31,6 +31,8 @@ protected:
 	CTextContainer(ETextAlignment alignment, EFonts font, ColorRGBA color);
 
 public:
+	static int getDelimitersWidth(EFonts font, std::string text);
+
 	ETextAlignment alignment;
 	EFonts font;
 	ColorRGBA color; // default font color. Can be overridden by placing "{}" into the string

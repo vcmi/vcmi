@@ -1071,3 +1071,16 @@ void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
 	if(pack.colorScheme != ColorScheme::KEEP && vstd::contains(cl.playerint, pack.player))
 		cl.playerint[pack.player]->setColorScheme(pack.colorScheme);
 }
+
+void ApplyClientNetPackVisitor::visitChangeTownName(ChangeTownName & pack)
+{
+	if(!adventureInt)
+		return;
+
+	const CGTownInstance *town = gs.getTown(pack.tid);
+	if(town)
+	{
+		adventureInt->onTownChanged(town);
+		ENGINE->windows().totalRedraw();
+	}
+}

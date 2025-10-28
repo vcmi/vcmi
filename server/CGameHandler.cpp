@@ -3219,6 +3219,23 @@ bool CGameHandler::setFormation(ObjectInstanceID hid, EArmyFormation formation)
 	return true;
 }
 
+bool CGameHandler::setTownName(ObjectInstanceID tid, std::string & name)
+{
+	const CGTownInstance *t = gameInfo().getTown(tid);
+	if (!t)
+	{
+		logGlobal->error("Town doesn't exist!");
+		return false;
+	}
+
+	ChangeTownName ctn;
+	ctn.tid = tid;
+	ctn.name = name;
+	sendAndApply(ctn);
+
+	return true;
+}
+
 bool CGameHandler::queryReply(QueryID qid, std::optional<int32_t> answer, PlayerColor player)
 {
 	logGlobal->trace("Player %s attempts answering query %d with answer:", player, qid);
