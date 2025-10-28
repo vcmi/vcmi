@@ -365,7 +365,6 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 void ApplyGhNetPackVisitor::visitSetTownName(SetTownName & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.tid);
-	gh.throwIfPlayerNotActive(connection, &pack);
 
 	result = gh.setTownName(pack.tid, pack.name);
 }
