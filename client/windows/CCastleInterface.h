@@ -37,6 +37,7 @@ class CGarrisonInt;
 class CComponent;
 class CComponentBox;
 class LRClickableArea;
+class CTextInputWithConfirm;
 
 /// Building "button"
 class CBuildingRect : public CShowableAnim
@@ -225,7 +226,7 @@ public:
 /// Class which manages the castle window
 class CCastleInterface final : public CStatusbarWindow, public IGarrisonHolder, public IArtifactsHolder
 {
-	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CTextInputWithConfirm> title;
 	std::shared_ptr<CLabel> income;
 	std::shared_ptr<CAnimImage> icon;
 
