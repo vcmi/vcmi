@@ -55,6 +55,8 @@ private:
 	std::set<int> playerTeamsAllowed;
 	std::set<int> compCountAllowed;
 	std::set<int> compTeamsAllowed;
+
+	int templateIndex;
 };
 
 class TeamAlignmentsWidget: public InterfaceObjectConfigurable
