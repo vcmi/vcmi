@@ -3894,8 +3894,14 @@ void CGameHandler::castSpell(const spells::Caster * caster, SpellID spellID, con
 	const CSpell * s = spellID.toSpell();
 	s->adventureCast(spellEnv.get(), p);
 
-	if(const auto * hero = caster->getHeroCaster())
-		useChargeBasedSpell(hero->id, spellID);
+	// FIXME: hack to avoid attempts to use charges when spell is casted externally
+	// For example, town gates map object in hota/wog
+	// Proper fix would be to instead spend charges similar to existing caster::spendMana call
+	if (dynamic_cast<const spells::ExternalCaster*>(caster) == nullptr)
+	{
+		if(const auto * hero = caster->getHeroCaster())
+			useChargeBasedSpell(hero->id, spellID);
+	}
 }
 
 bool CGameHandler::swapStacks(const StackLocation & sl1, const StackLocation & sl2)

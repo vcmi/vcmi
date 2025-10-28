@@ -239,7 +239,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
+			loadedMaps.push_back(mapService.loadMap(mapName, GAME->interface()->cb.get()));
 		}
 		catch(std::exception & e)
 		{
@@ -260,7 +260,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, nullptr);
+				loadedCampaigns.back()->getMap(part, GAME->interface()->cb.get());
 		}
 		catch(std::exception & e)
 		{

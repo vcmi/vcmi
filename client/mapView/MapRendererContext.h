@@ -62,6 +62,7 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlocked() const override;
+	bool showInvisible() const override;
 	bool showSpellRange(const int3 & position) const override;
 };
 
@@ -72,6 +73,7 @@ public:
 	bool settingShowGrid = false;
 	bool settingShowVisitable = false;
 	bool settingShowBlocked = false;
+	bool settingShowInvisible = false;
 	bool settingTextOverlay = false;
 	bool settingsAdventureObjectAnimation = true;
 	bool settingsAdventureTerrainAnimation = true;
@@ -88,6 +90,7 @@ public:
 	bool showGrid() const override;
 	bool showVisitable() const override;
 	bool showBlocked() const override;
+	bool showInvisible() const override;
 	bool showTextOverlay() const override;
 
 	bool showSpellRange(const int3 & position) const override;

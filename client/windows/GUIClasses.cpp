@@ -1598,7 +1598,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	for(int id : _items)
 	{
 		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
-		trimTextIfTooWide(objectName);
+		trimTextIfTooWide(objectName, false);
 		items.emplace_back(id, objectName);
 	}
 	itemsVisible = items;
@@ -1622,7 +1622,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	for(size_t i = 0; i < _items.size(); i++)
 	{
 		std::string objectName = _items[i];
-		trimTextIfTooWide(objectName);
+		trimTextIfTooWide(objectName, true);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
@@ -1666,29 +1666,24 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
 }
 
-void CObjectListWindow::trimTextIfTooWide(std::string & text) const
+void CObjectListWindow::trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const
 {
+	std::string suffix = "...";
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
-	auto posBrace = text.find('(');
-	auto posClosing = text.find(')');
 
-	std::string objCount;
-	if (posBrace != std::string::npos && posClosing != std::string::npos && posClosing > posBrace)
+	if(text[0] == '{')
+		suffix += "}";
+
+	if (preserveCountSuffix)
 	{
-		objCount = text.substr(posBrace, posClosing - posBrace) + ')';
-		if(text.size() > 0 && text[0] == '{')
-			objCount = '}' + objCount;
+		auto posBrace = text.find_last_of("(");
+		auto posClosing = text.find_last_of(")");
+		std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
+		suffix += " ";
+		suffix += objCount;
 	}
-	else
-	{
-		// fallback: if text starts with '{', keep a trailing '}' token, otherwise empty
-		if(text.size() > 0 && text[0] == '{')
-			objCount = "}";
-		else
-			objCount.clear();
-	}
+
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
-	std::string suffix = objCount.empty() ? "..." : std::string("... ") + objCount;
 
 	if(font->getStringWidth(text) >= maxWidth)
 	{
