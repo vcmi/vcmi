@@ -32,7 +32,7 @@ enum class ModFilterMask : uint8_t
 	ALL,
 	AVAILABLE,
 	INSTALLED,
-	UPDATEABLE,
+	UPDATABLE,
 	ENABLED,
 	DISABLED
 };
