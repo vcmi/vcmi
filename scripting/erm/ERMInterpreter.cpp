@@ -77,7 +77,7 @@ namespace ERMConverter
 			}
 			else if(isMacro())
 			{
-				return boost::to_string(boost::format("M['%s']") % macro);
+				return (boost::format("M['%s']") % macro).str();
 			}
 			else if(isSpecial() && (name.size() == 1))
 			{
@@ -206,7 +206,7 @@ namespace ERMConverter
 		}
 		std::string operator()(const int & flag) const
 		{
-			return boost::to_string(boost::format("F['%d']") % flag);
+			return (boost::format("F['%d']") % flag).str();
 		}
 	};
 
