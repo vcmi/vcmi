@@ -15,7 +15,7 @@
 
 #include <QJsonArray>
 #include <QCryptographicHash>
-#include <QRegularExpression>e
+#include <QRegularExpression>
 
 #include "modstatemodel.h"
 #include "modstateitemmodel_moc.h"
