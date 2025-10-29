@@ -1732,6 +1732,7 @@ namespace VERMInterpreter
 	}
 	VermTreeIterator & VermTreeIterator::operator=( const VOptionList & opt )
 	{
+		// TODO: warning: all paths through this function will call itself [-Winfinite-recursion]
 		return *this = opt;
 	}
 	VOption & VermTreeIterator::getAsItem()
