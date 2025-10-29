@@ -85,6 +85,24 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 		server->apply(blm);
 }
 
+SpellEffectValue Damage::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result {};
+
+	auto targets = m->getAffectedStacks(spellTarget);
+
+	size_t targetIndex = 0;
+	for(auto const * target : targets)
+	{
+		auto dmgForTarget = damageForTarget(targetIndex, m, target);
+		result.hpDelta += -dmgForTarget;
+		result.unitsDelta += std::max(-target->getCount(), int32_t(-dmgForTarget / target->getMaxHealth()));
+		targetIndex++;
+	}
+
+	return result;
+}
+
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const
 {
 	if(!UnitEffect::isReceptive(m, unit))

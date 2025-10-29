@@ -572,6 +572,12 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	DamageRange killsDealt = getCasualties(damageDealt);
 
+	if(killsDealt.min > 0)
+	{
+		damageDealt.min = std::min(killsDealt.min * info.defender->getMaxHealth(), damageDealt.min);
+		damageDealt.max = std::min(killsDealt.max * info.defender->getMaxHealth(), damageDealt.max);
+	}
+
 	return DamageEstimation{damageDealt, killsDealt};
 }
 

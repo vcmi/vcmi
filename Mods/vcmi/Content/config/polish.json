@@ -418,7 +418,10 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
-
+	"vcmi.battleWindow.healValuePreview.0" : "przywróci %d pkt. zdrowia",
+	"vcmi.battleWindow.healValuePreview.1" : "przywróci %d pkt. zdrowia",
+	"vcmi.battleWindow.healValuePreview.2" : "przywróci %d pkt. zdrowia",
+	
 	"vcmi.battleWindow.damageRetaliation.will" : "Nastąpi odwet ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Możliwy odwet ",
 	"vcmi.battleWindow.damageRetaliation.never" : "Nie będzie odwetu.",

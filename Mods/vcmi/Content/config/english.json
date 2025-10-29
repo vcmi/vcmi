@@ -716,6 +716,9 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d damage",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d will perish",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d will perish",
+	"vcmi.battleWindow.healValuePreview.0" : "%d health will be healed",
+	"vcmi.battleWindow.healValuePreview.1" : "%d health will be healed",
+	"vcmi.battleWindow.healValuePreview.2" : "%d health will be healed",
 	
 	"vcmi.battleWindow.damageRetaliation.will" : "Will retaliate ",
 	"vcmi.battleWindow.damageRetaliation.may" : "May retaliate ",

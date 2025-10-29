@@ -29,6 +29,7 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../BattleFieldHandler.h"
 #include "../Rect.h"
+#include "../lib/spells/effects/UnitEffect.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -886,6 +887,87 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const battle::Unit * 
 	const bool shooting = battleCanShoot(attacker, defender->getPosition());
 	const BattleAttackInfo bai(attacker, defender, movementRange, shooting);
 	return battleEstimateDamage(bai, retaliationDmg);
+}
+
+int64_t CBattleInfoCallback::getFirstAidHealValue(const CGHeroInstance * owner, const battle::Unit * target) const
+{
+	RETURN_IF_NOT_BATTLE(0);
+	if(!owner || !target)
+		return 0;
+
+	int64_t base = owner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT)));
+
+	if(base <= 0)
+		return 0;
+
+	auto state = target->acquireState();
+
+	return state->heal(base, EHealLevel::HEAL, EHealPower::PERMANENT).healedHealthPoints;
+}
+
+SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const BattleHex & targetHex) const
+{
+	SpellEffectValUptr result = std::make_unique<spells::effects::SpellEffectValue>();
+	RETURN_IF_NOT_BATTLE(result);
+	if(!spell || !caster || !targetHex.isValid())
+		return result;
+
+	spells::BattleCast params(this, caster, spellMode, spell);
+	std::unique_ptr<spells::Mechanics> mech = spell->battleMechanics(&params);
+	if(!mech)
+		return result;
+
+	spells::Target spellTarget;
+	if(const auto *u = battleGetUnitByPos(targetHex, false))
+		spellTarget.emplace_back(spells::Destination(u));
+	else
+		spellTarget.emplace_back(targetHex);
+
+	mech->forEachEffect([&](const spells::effects::Effect &e) {
+		if(const auto * ue = dynamic_cast<const spells::effects::UnitEffect *>(&e))
+		{
+			*result += ue->getHealthChange(mech.get(), spellTarget);
+		}
+		return false;
+	});
+
+	return result;
+}
+
+DamageEstimation CBattleInfoCallback::estimateSpellLikeAttackDamage(const battle::Unit * shooter,
+																	const CSpell * spell,
+																	const BattleHex & aimHex) const
+{
+	RETURN_IF_NOT_BATTLE({});
+	if(!spell || !shooter || !aimHex.isValid())
+		return {};
+
+	spells::ProxyCaster proxy(shooter);
+	spells::BattleCast params(this, &proxy, spells::Mode::PASSIVE, spell);
+	std::unique_ptr<spells::Mechanics> mech = spell->battleMechanics(&params);
+	if(!mech)
+		return {};
+
+	spells::Target aim;
+	aim.emplace_back(aimHex);
+	const auto affected = mech->getAffectedStacks(aim);
+	if(affected.empty())
+		return {};
+
+	DamageEstimation total {};
+
+	for(const battle::Unit * u : affected)
+	{
+		BattleAttackInfo bai(shooter, u, 0, true);
+		DamageEstimation de = calculateDmgRange(bai);
+
+		total.damage.min += de.damage.min;
+		total.damage.max += de.damage.max;
+		total.kills.min  += de.kills.min;
+		total.kills.max  += de.kills.max;
+	}
+
+	return total;
 }
 
 DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInfo & bai, DamageEstimation * retaliationDmg) const
