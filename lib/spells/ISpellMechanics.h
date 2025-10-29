@@ -35,6 +35,10 @@ class IAdventureSpellEffect;
 namespace spells
 {
 class Service;
+	namespace effects
+	{
+		class Effect;
+	}
 }
 
 namespace vstd
@@ -179,6 +183,25 @@ class DLL_LINKAGE Mechanics
 {
 public:
 	virtual ~Mechanics();
+
+	virtual void forEachEffect(const std::function<bool(const effects::Effect &)> & fn) const
+	{ }
+
+	template<class T>
+	const T * findEffect() const
+	{
+		const T * found = nullptr;
+		forEachEffect([&found](const effects::Effect & e)
+		{
+			if(auto p = dynamic_cast<const T *>(&e))
+			{
+				found = p;
+				return true;
+			}
+			return false;
+		});
+		return found;
+	}
 
 	virtual bool adaptProblem(ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;

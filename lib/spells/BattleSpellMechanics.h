@@ -32,6 +32,8 @@ public:
 	BattleSpellMechanics(const IBattleCast * event, std::shared_ptr<effects::Effects> effects_, std::shared_ptr<IReceptiveCheck> targetCondition_);
 	virtual ~BattleSpellMechanics();
 
+	void forEachEffect(const std::function<bool(const spells::effects::Effect &)> & fn) const override final;
+
 	// TODO: ??? (what's the difference compared to cast?)
 	void applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const override;
 
