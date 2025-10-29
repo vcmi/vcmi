@@ -15,7 +15,7 @@
 
 #include <QJsonArray>
 #include <QCryptographicHash>
-#include <QRegularExpression>
+#include <QRegularExpression>e
 
 #include "modstatemodel.h"
 #include "modstateitemmodel_moc.h"
@@ -1113,7 +1113,7 @@ void CModListView::installMaps(QStringList maps)
 		    QString srcPath = Helper::getRealPath(map);
 		    QString fileName = QFileInfo(srcPath).fileName();
 		    QString destFile = destDir + fileName;
-			if (QFile::exists(destDir + fileName))
+			if (QFile::exists(destFile))
 				conflictCount++;
 		}
 	}
