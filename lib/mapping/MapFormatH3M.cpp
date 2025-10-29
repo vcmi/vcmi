@@ -1100,6 +1100,8 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 			SpellID scrollSpell = reader->readSpell16();
 			if (grantedArtifact == ArtifactID::SPELL_SCROLL)
 				reward.grantedScrolls.push_back(scrollSpell);
+			else
+				reward.grantedArtifacts.push_back(grantedArtifact);
 		}
 		else
 			reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2306,6 +2308,8 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 					SpellID scrollSpell = reader->readSpell16();
 					if (grantedArtifact == ArtifactID::SPELL_SCROLL)
 						reward.grantedScrolls.push_back(scrollSpell);
+					else
+						reward.grantedArtifacts.push_back(grantedArtifact);
 				}
 				else
 					reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2381,6 +2385,8 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 					SpellID scrollSpell = reader->readSpell16();
 					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
 						guard->getQuest().mission.scrolls.push_back(scrollSpell);
+					else
+						guard->getQuest().mission.artifacts.push_back(requiredArtifact);
 				}
 				else
 					guard->getQuest().mission.artifacts.push_back(requiredArtifact);

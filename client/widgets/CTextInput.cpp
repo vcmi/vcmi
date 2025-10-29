@@ -27,6 +27,85 @@
 std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
+CTextInputWithConfirm::CTextInputWithConfirm(const Rect & Pos, EFonts font, ETextAlignment alignment, std::string text, bool limitToRect, std::function<void()> confirmCallback)
+	: CTextInput(Pos, font, alignment, false), confirmCb(confirmCallback), limitToRect(limitToRect), initialText(text)
+{
+	setText(text);
+}
+
+bool CTextInputWithConfirm::captureThisKey(EShortcut key)
+{
+	return hasFocus() && (key == EShortcut::GLOBAL_ACCEPT || key == EShortcut::GLOBAL_CANCEL || key == EShortcut::GLOBAL_BACKSPACE);
+}
+
+void CTextInputWithConfirm::keyPressed(EShortcut key)
+{
+	if(!hasFocus())
+		return;
+
+	if(key == EShortcut::GLOBAL_ACCEPT)
+		confirm();
+	else if(key == EShortcut::GLOBAL_CANCEL)
+	{
+		setText(initialText);
+		removeFocus();
+	}
+	
+	CTextInput::keyPressed(key);
+}
+
+bool CTextInputWithConfirm::receiveEvent(const Point & position, int eventType) const
+{
+	return eventType == AEventsReceiver::LCLICK; // capture all left clicks (not only within control)
+}
+
+void CTextInputWithConfirm::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition)) // clicked outside
+		confirm();
+}
+
+void CTextInputWithConfirm::clickPressed(const Point & cursorPosition)
+{
+	if(pos.isInside(cursorPosition)) // clickPressed should respect control area (receiveEvent also affects this)
+		CTextInput::clickPressed(cursorPosition);
+}
+
+void CTextInputWithConfirm::onFocusGot()
+{
+	initialText = getText();
+
+	CTextInput::onFocusGot();
+}
+
+void CTextInputWithConfirm::textInputted(const std::string & enteredText)
+{
+	if(!hasFocus())
+		return;
+
+	std::string visibleText = getVisibleText() + enteredText;
+	const auto & font = ENGINE->renderHandler().loadFont(label->font);
+	if(!limitToRect || (font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) < pos.w)
+		CTextInput::textInputted(enteredText);
+}
+
+void CTextInputWithConfirm::deactivate()
+{
+	removeUsedEvents(LCLICK);
+
+	CTextInput::deactivate();
+}
+
+void CTextInputWithConfirm::confirm()
+{
+	if(getText().empty())
+		setText(initialText);
+
+	if(confirmCb && initialText != getText())
+		confirmCb();
+	removeFocus();
+}
+
 CTextInput::CTextInput(const Rect & Pos)
 	:originalAlignment(ETextAlignment::CENTERLEFT)
 {
@@ -196,7 +275,7 @@ void CTextInput::updateLabel()
 	label->alignment = originalAlignment;
 	const auto & font = ENGINE->renderHandler().loadFont(label->font);
 
-	while (font->getStringWidth(visibleText) > pos.w)
+	while ((font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) > pos.w)
 	{
 		label->alignment = ETextAlignment::CENTERRIGHT;
 		visibleText = visibleText.substr(TextOperations::getUnicodeCharacterSize(visibleText[0]));

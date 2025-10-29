@@ -213,6 +213,11 @@ void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 	visitor.visitChangeFormation(*this);
 }
 
+void ChangeTownName::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeTownName(*this);
+}
+
 void RemoveObject::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRemoveObject(*this);
@@ -641,6 +646,11 @@ void TradeOnMarketplace::visitTyped(ICPackVisitor & visitor)
 void SetFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetFormation(*this);
+}
+
+void SetTownName::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetTownName(*this);
 }
 
 void HireHero::visitTyped(ICPackVisitor & visitor)

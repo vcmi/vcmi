@@ -311,7 +311,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		if(!pattern.diffImages)
 		{
 			tile.terView = gen->nextInt(mapping.first, mapping.second);
-			tile.extTileFlags = valRslt.flip;
+			tile.extTileFlags = (tile.extTileFlags & 0b11111100) | valRslt.flip;
 		}
 		else
 		{
