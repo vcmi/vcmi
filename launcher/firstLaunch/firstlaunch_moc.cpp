@@ -23,77 +23,10 @@
 #include "../helper.h"
 #include "../languages.h"
 #include "../innoextract.h"
-
-#ifdef VCMI_IOS
-#include "iOS_utils.h"
-#endif
-
-#ifdef VCMI_ANDROID
-#include <QtAndroid>
-#endif
-
-// Unified progress overlay
-class ProgressOverlay final : public QWidget
-{
-public:
-    explicit ProgressOverlay(QWidget *parent, int topOffsetPx = 50)
-        : QWidget(parent)
-    {
-        // Match parent background to feel native
-        setAutoFillBackground(true);
-        QPalette pal = palette();
-        pal.setColor(QPalette::Window, parent->palette().color(QPalette::Window));
-        setPalette(pal);
-
-        // Cover whole view except top offset
-        setGeometry(parent->rect().adjusted(0, topOffsetPx, 0, 0));
-
-        auto *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(24, 24, 24, 24);
-        layout->setSpacing(12);
-
-        titleLabel = new QLabel("", this);
-        titleLabel->setAlignment(Qt::AlignCenter);
-        titleLabel->setStyleSheet("font-size: 16px; font-weight: 600;");
-
-        fileLabel = new QLabel("", this);
-        fileLabel->setAlignment(Qt::AlignCenter);
-        fileLabel->setWordWrap(true);
-
-        progressBar = new QProgressBar(this);
-        progressBar->setMinimumHeight(18);
-        setIndeterminate(true); // start indeterminate
-
-        layout->addStretch();
-        layout->addWidget(titleLabel);
-        layout->addWidget(fileLabel);
-        layout->addWidget(progressBar);
-        layout->addStretch();
-
-		Helper::keepScreenOn(true);
-    }
-
-    ~ProgressOverlay() override
-    {
-        Helper::keepScreenOn(false);
-    }
-
-    void setTitle(const QString &t)        { titleLabel->setText(t); }
-    void setFileName(const QString &name)  { fileLabel->setText(name); }
-
-    // Switch between indeterminate and determinate progress
-    void setIndeterminate(bool on)         { on ? progressBar->setRange(0,0) : progressBar->setRange(0,100); }
-    void setRange(int max)                 { progressBar->setRange(0, qMax(1, max)); progressBar->setValue(0); }
-    void setValue(int v)                   { progressBar->setValue(v); }
-
-private:
-    QLabel *titleLabel = nullptr;
-    QLabel *fileLabel = nullptr;
-    QProgressBar *progressBar = nullptr;
-};
+#include "progressoverlay.h"
 
 // Create and show overlay immediately
-static inline ProgressOverlay* createOverlay(QWidget *parent, const QString &title, bool indeterminate = true)
+static ProgressOverlay* createOverlay(QWidget *parent, const QString &title, bool indeterminate = true)
 {
     auto *overlay = new ProgressOverlay(parent, 50);
     overlay->setTitle(title);
@@ -292,15 +225,7 @@ void FirstLaunchView::heroesDataMissing()
 	ui->labelDataManualDescr->setVisible(true);
 	ui->pushButtonDataSearch->setVisible(true);
 
-#ifdef VCMI_ANDROID
-	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
-	const bool canUseDataCopy = QtAndroid::androidSdkVersion() >= 21;
-#elif defined(VCMI_IOS)
-	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
-	const bool canUseDataCopy = iOS_utils::isOsVersionAtLeast(13);
-#else
-	const bool canUseDataCopy = true;
-#endif
+	const bool canUseDataCopy = Helper::canUseFolderPicker();
 
 	ui->labelDataCopyTitle->setVisible(canUseDataCopy);
 	ui->labelDataCopyDescr->setVisible(canUseDataCopy);
@@ -415,17 +340,15 @@ void FirstLaunchView::extractGogData()
 #endif
 }
 
-bool performCopyFlow(const QString &path, FirstLaunchView *self, ProgressOverlay *overlay, bool removeSource = false)
+bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* overlay, bool removeSource)
 {
     // 1) Scan -> "src \t Target \t Name"
-    overlay->setTitle(QObject::tr("Scanning selected folder..."));
     overlay->setIndeterminate(true);
 
     const QStringList items = Helper::findFilesForCopy(path);
     if(items.isEmpty())
 	{
-        overlay->deleteLater();
-        QMessageBox::critical(self, QObject::tr("Heroes III data not found!"), QObject::tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data."));
+        QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data."));
         return false;
     }
 
@@ -433,44 +356,43 @@ bool performCopyFlow(const QString &path, FirstLaunchView *self, ProgressOverlay
 	// TODO: Find proper way for pure SoD check in import or way to block pure RoE / AB
 	//       Or prepare RoE / AB Ban mod and allow VCMI to with any H3 version
     auto validate = [](const QStringList &items)->QString {
-        bool anyLOD=false;
+		bool anyLOD=false;
 		bool anySOD=false;
 		bool anyHD=false;
-		
-        for(const QString &line : items)
+
+		for(const QString &line : items)
 		{
-            const auto part = line.split('\t');
-            if(part.size() < 3 || part[1].compare("Data", Qt::CaseInsensitive) != 0)
+			const auto part = line.split('\t');
+			if(part.size() < 3 || part[1].compare("Data", Qt::CaseInsensitive) != 0)
 				continue;
-			
-            const QString &name = part[2];
-            if(name.endsWith(".lod", Qt::CaseInsensitive))
+
+			const QString &name = part[2];
+			if(name.endsWith(".lod", Qt::CaseInsensitive))
 			{
-                anyLOD = true;
-                if(name.startsWith("H3ab", Qt::CaseInsensitive))
-                    anySOD = true;
-            }
-			
+				anyLOD = true;
+				if(name.startsWith("H3ab", Qt::CaseInsensitive))
+					anySOD = true;
+			}
+
 			if(name.endsWith(".pak", Qt::CaseInsensitive))
-                anyHD = true;
-        }
-		
-        if(anySOD) return {};
+				anyHD = true;
+		}
 
-        if(!anyLOD)
-            return QObject::tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data.");
+		if(anySOD) return {};
 
-        if(anyHD)
-            return QObject::tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+		if(!anyLOD)
+			return tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data.");
 
-        return QObject::tr("Unknown or unsupported Heroes III version found.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
-    };
+		if(anyHD)
+			return tr("Heroes III: HD Edition files are not supported by VCMI.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+
+		return tr("Unknown or unsupported Heroes III version found.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
+	};
 
     const QString err = validate(items);
     if(!err.isEmpty())
 	{
-        overlay->deleteLater();
-        QMessageBox::critical(self, QObject::tr("Heroes III data not found!"), err);
+        QMessageBox::critical(this, tr("Heroes III data not found!"), err);
         return false;
     }
 
@@ -492,9 +414,6 @@ bool performCopyFlow(const QString &path, FirstLaunchView *self, ProgressOverlay
         const QString &tgt  = part[1]; // Data / Maps / Mp3
         const QString &file = part[2];
 
-        if(tgt.compare("Data", Qt::CaseInsensitive)!=0 && tgt.compare("Maps", Qt::CaseInsensitive)!=0 && tgt.compare("Mp3",  Qt::CaseInsensitive)!=0)
-            continue;
-
         if(!created.contains(tgt))
 		{
             QDir{}.mkpath(targetRoot.filePath(tgt));
@@ -505,15 +424,8 @@ bool performCopyFlow(const QString &path, FirstLaunchView *self, ProgressOverlay
         plan.push_back({ src, dstDir.filePath(file) });
     }
 
-    if(plan.isEmpty())
-	{
-        overlay->deleteLater();
-        QMessageBox::critical(self, QObject::tr("Heroes III data not found!"), QObject::tr("No matching files found in the selected folder."));
-        return false;
-    }
-
     // 4) Copy with progress
-    overlay->setTitle(QObject::tr("Importing Heroes III data..."));
+    overlay->setTitle(tr("Importing Heroes III data..."));
     overlay->setIndeterminate(false);
     overlay->setRange(plan.size());
 
@@ -535,7 +447,6 @@ bool performCopyFlow(const QString &path, FirstLaunchView *self, ProgressOverlay
     if(removeSource)
         QDir(path).removeRecursively();
 
-    overlay->deleteLater();
     return true;
 }
 
@@ -544,15 +455,14 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
     logGlobal->info("Extracting gog data from '%s' and '%s'", filePathBin.toStdString(), filePathExe.toStdString());
 
 #ifdef ENABLE_INNOEXTRACT
-    //  Show overlay immediately so the UI doesn't look frozen
-    auto *overlay = createOverlay(this, tr("Checking installer..."), true);
-    overlay->setFileName(QFileInfo(filePathExe).fileName());
-    overlay->raise();
-    qApp->processEvents();
-
     // Defer heavy work to next event-loop tick to ensure overlay is painted
-    QTimer::singleShot(0, this, [this, overlay, filePathBin, filePathExe]() mutable
-    {
+	QTimer::singleShot(0, this, [this, filePathBin, filePathExe]()
+	{
+		QScopedPointer<ProgressOverlay> overlay(createOverlay(this, tr("Checking installer..."), true));
+		overlay->setFileName(QFileInfo(filePathExe).fileName());
+		overlay->raise();
+		qApp->processEvents();
+
         const QString filterBin = tr("GOG data") + " (*.bin)";
         const QString filterExe = tr("GOG installer") + " (*.exe)";
 
@@ -561,15 +471,16 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
         if(tempDir.cd("tmp"))
         {
             logGlobal->info("Cleaning up old temp data");
-            tempDir.removeRecursively();
+            tempDir.removeRecursively(); // remove if already exists (e.g. previous crash)
             tempDir.cdUp();
         }
         tempDir.mkdir("tmp");
         if(!tempDir.cd("tmp"))
         {
-            overlay->deleteLater();
-            return; // should not happen - safety bail out
+            return; // should not happen - but avoid deleting wrong folder in any case
         }
+
+        logGlobal->info("Using '%s' as temporary directory", tempDir.path().toStdString());
 
         const QString tmpFileExe = tempDir.filePath("h3_gog.exe");
         const QString tmpFileBin = tempDir.filePath("h3_gog-1.bin");
@@ -589,21 +500,21 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
             if(!tmpFile.open(QIODevice::ReadOnly))
             {
                 logGlobal->info("File cannot be opened: %s", tmpFile.errorString().toStdString());
-                return QObject::tr("Failed to open file: %1").arg(tmpFile.errorString());
+                return tr("Failed to open file: %1").arg(tmpFile.errorString());
             }
 
             QByteArray magicFile = tmpFile.read(magic.length());
             if(!magicFile.startsWith(magic))
             {
                 logGlobal->info("Invalid file selected: %s", filter.toStdString());
-                return QObject::tr("You have to select %1 file!", "param is file extension").arg(filter);
+                return tr("You have to select %1 file!", "param is file extension").arg(filter);
             }
 
             logGlobal->info("Checking file %s", filename.toStdString());
             return QString();
         };
 
-        QString errorText{};
+        QString errorText;
 
         if(errorText.isEmpty())
             errorText = checkMagic(tmpFileBin, filterBin, QByteArray{"idska32"});
@@ -614,8 +525,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
         logGlobal->info("Installing exe '%s' ('%s')", tmpFileExe.toStdString(), filePathExe.toStdString());
         logGlobal->info("Installing bin '%s' ('%s')", tmpFileBin.toStdString(), filePathBin.toStdString());
 
-        auto isGogGalaxyExe = [](QString fileToTest)
-        {
+        auto isGogGalaxyExe = [](QString fileToTest) {
             QFile file(fileToTest);
             quint64 fileSize = file.size();
 
@@ -626,7 +536,11 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
                 return false;
 
             QByteArray data = file.readAll();
-            const QByteArray magicId{reinterpret_cast<const char*>(u"GOG Galaxy"), 20};
+
+            constexpr std::u16string_view galaxyID = u"GOG Galaxy";
+            const auto galaxyIDBytes = reinterpret_cast<const char*>(galaxyID.data());
+            const auto magicId = QByteArray::fromRawData(galaxyIDBytes, galaxyID.size() * sizeof(decltype(galaxyID)::value_type));
+
             return data.contains(magicId);
         };
 
@@ -649,8 +563,8 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 
             logGlobal->info("Performing extraction using innoextract...");
 
-            errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [overlay](float progress){
-                overlay->setValue(int(progress * 100));
+			errorText = Innoextract::extract(tmpFileExe, tempDir.path(), [overlayPtr = overlay.data()](float progress) {
+				overlayPtr->setValue(static_cast<int>(progress * 100));
                 qApp->processEvents();
             });
 
@@ -665,8 +579,6 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
         QStringList dirData = tempDir.entryList({"data"}, QDir::Filter::Dirs);
         if(!errorText.isEmpty() || dirData.empty() || QDir(tempDir.filePath(dirData.front())).entryList({"*.lod"}, QDir::Filter::Files).empty())
         {
-            overlay->deleteLater();
-
             if(!errorText.isEmpty())
             {
                 logGlobal->error("Gog installer extraction failure! Reason: %s", errorText.toStdString());
@@ -678,9 +590,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
                 }
             }
             else
-            {
                 QMessageBox::critical(this, tr("No Heroes III data!"),  tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
-            }
             tempDir.removeRecursively();
             return;
         }
@@ -693,7 +603,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
         overlay->setRange(100); // performCopyFlow will reset to plan size internally
         overlay->setValue(0);
 
-        if(performCopyFlow(tempDir.path(), this, overlay, true))
+        if(performCopyFlow(tempDir.path(), overlay.data(), true))
         {
             if(heroesDataUpdate())
                 activateTabModPreset();
@@ -704,12 +614,14 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 
 void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 {
-    auto *overlay = createOverlay(this, tr("Scanning selected folder..."), true);
-
-    auto work = [this, path, overlay]() {
-        if(performCopyFlow(path, this, overlay, false))
-            if(heroesDataUpdate())
+    QPointer<ProgressOverlay> overlay = createOverlay(this, tr("Scanning selected folder..."), true);
+    overlay->raise();
+    auto work = [this, path, removeSource, overlay]() {
+        if (performCopyFlow(path, overlay, removeSource))
+            if (heroesDataUpdate())
                 activateTabModPreset();
+
+        overlay->deleteLater();
     };
 
     QTimer::singleShot(0, this, work);
@@ -723,24 +635,32 @@ void FirstLaunchView::modPresetUpdate()
 	ui->labelPresetLanguageDescr->setVisible(translationExists);
 	ui->buttonPresetLanguage->setVisible(translationExists);
 
-	ui->buttonPresetLanguage->setVisible(checkCanInstallTranslation());
-	ui->buttonPresetExtras->setVisible(checkCanInstallExtras());
-	ui->buttonPresetDemo->setVisible(checkCanInstallDemo());
-	ui->buttonPresetHota->setVisible(checkCanInstallHota());
-	ui->buttonPresetWog->setVisible(checkCanInstallWog());
-	ui->buttonPresetTow->setVisible(checkCanInstallTow());
-	ui->buttonPresetFod->setVisible(checkCanInstallFod());
+	bool canTrans  = checkCanInstallTranslation();
+	bool canExtras = checkCanInstallExtras();
+	bool canDemo   = checkCanInstallDemo();
+	bool canHota   = checkCanInstallHota();
+	bool canWog    = checkCanInstallWog();
+	bool canTow    = checkCanInstallTow();
+	bool canFod    = checkCanInstallFod();
 
-	ui->labelPresetLanguageDescr->setVisible(checkCanInstallTranslation());
-	ui->labelPresetExtrasDescr->setVisible(checkCanInstallExtras());
-	ui->labelPresetDemoDescr->setVisible(checkCanInstallDemo());
-	ui->labelPresetHotaDescr->setVisible(checkCanInstallHota());
-	ui->labelPresetWogDescr->setVisible(checkCanInstallWog());
-	ui->labelPresetTowDescr->setVisible(checkCanInstallTow());
-	ui->labelPresetFodDescr->setVisible(checkCanInstallFod());
+	ui->buttonPresetLanguage->setVisible(canTrans);
+	ui->buttonPresetExtras->setVisible(canExtras);
+	ui->buttonPresetDemo->setVisible(canDemo);
+	ui->buttonPresetHota->setVisible(canHota);
+	ui->buttonPresetWog->setVisible(canWog);
+	ui->buttonPresetTow->setVisible(canTow);
+	ui->buttonPresetFod->setVisible(canFod);
+
+	ui->labelPresetLanguageDescr->setVisible(canTrans);
+	ui->labelPresetExtrasDescr->setVisible(canExtras);
+	ui->labelPresetDemoDescr->setVisible(canDemo);
+	ui->labelPresetHotaDescr->setVisible(canHota);
+	ui->labelPresetWogDescr->setVisible(canWog);
+	ui->labelPresetTowDescr->setVisible(canTow);
+	ui->labelPresetFodDescr->setVisible(canFod);
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
-	if (!checkCanInstallTranslation() && !checkCanInstallExtras() && !checkCanInstallDemo() && !checkCanInstallHota() && !checkCanInstallWog() && !checkCanInstallTow() && !checkCanInstallFod())
+	if (!canTrans && !canExtras && !canDemo && !canHota && !canWog && !canTow && !canFod)
 		exitSetup(false);
 }
 
@@ -784,16 +704,19 @@ bool FirstLaunchView::checkCanInstallDemo()
     QStringList mapFiles = mapsDir.entryList(QDir::Files | QDir::Readable);
     for(const QString &name : mapFiles)
         if(name.compare(QStringLiteral("h3demo.h3m"), Qt::CaseInsensitive) == 0)
+		{
             hasDemoMap = true;
+			break;
+		}
 	
     QStringList files = dataDir.entryList(QDir::Files | QDir::Readable);
     for(const QString &name : files)
     {
         if(name.compare(QStringLiteral("H3ab_spr.lod"), Qt::CaseInsensitive) == 0)
         {
-            QFile lod(dataDir.filePath(name));
-            quint64 fileSize = lod.size();
-			logGlobal->error("H3ab_spr.lod size: %s", static_cast<unsigned long long>(fileSize));
+			QFileInfo lodInfo(dataDir.filePath(name));
+			quint64 fileSize = static_cast<quint64>(lodInfo.size());
+			logGlobal->error("H3ab_spr.lod size: %llu", fileSize);
             if(fileSize < 8000000 && hasDemoMap) // 8 MB + Demo map = Merged Windows and MacOS Demo
             	return true;
         }
@@ -854,7 +777,7 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 
 	if (ui->buttonPresetDemo->isChecked() && checkCanInstallDemo())
 		modsToInstall.push_back("demo-support");
-	
+
 	if (ui->buttonPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");
 

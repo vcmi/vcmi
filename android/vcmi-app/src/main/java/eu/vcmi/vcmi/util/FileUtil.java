@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.provider.DocumentsContract;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
@@ -18,6 +19,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.Exception;
 import java.util.List;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.Locale;
 
 import eu.vcmi.vcmi.Const;
 import eu.vcmi.vcmi.Storage;
@@ -153,135 +160,199 @@ public class FileUtil
         return fileName;
     }
 
-	// Build a flat list of copy tasks for a SAF tree selection.
-	// Output rows are "srcUri\tTarget\tName" where Target is one of Data/Maps/Mp3 decided by file extension.
-	// Heuristic: if user picked "Data" and we found no Maps/Mp3, also scan ../Maps and ../Mp3 one level up.
-	public static String[] findFilesForCopy(String treeUriStr, android.content.Context ctx) {
-	    // Build a DocumentFile tree from the SAF tree URI
-	    final android.net.Uri treeUri = android.net.Uri.parse(treeUriStr);
-	    final androidx.documentfile.provider.DocumentFile root =  androidx.documentfile.provider.DocumentFile.fromTreeUri(ctx, treeUri);
-	    if (root == null) return new String[0];
-	
-	    final java.util.ArrayList<String> out = new java.util.ArrayList<>();
-	    int foundMaps = 0, foundMp3 = 0;
-	
-	    // 1) Traverse the selected tree, collect files by extension
-	    {
-	        final java.util.ArrayDeque<androidx.documentfile.provider.DocumentFile> stack = new java.util.ArrayDeque<>();
-	        stack.push(root);
-	
-	        while (!stack.isEmpty()) {
-	            final androidx.documentfile.provider.DocumentFile d = stack.pop();
-	            final androidx.documentfile.provider.DocumentFile[] kids = d.listFiles();
-	            if (kids == null) continue;
-	
-	            for (androidx.documentfile.provider.DocumentFile f : kids) {
-	                if (f.isDirectory()) { stack.push(f); continue; }
-	                final String name = f.getName();
-	                if (name == null) continue;
-	                final String lower = name.toLowerCase(java.util.Locale.ROOT);
-	
-	                String target = null;
-	                if (lower.endsWith(".lod") || lower.endsWith(".snd") || lower.endsWith(".vid") || lower.endsWith(".pak"))
-	                    target = "Data";
-	                else if (lower.endsWith(".h3m"))
-	                    target = "Maps";
-	                else if (lower.endsWith(".mp3"))
-	                    target = "Mp3";
-	
-	                if (target != null) {
-	                    out.add(f.getUri().toString() + "\t" + target + "\t" + name);
-	                    if ("Maps".equals(target)) foundMaps++;
-	                    if ("Mp3".equals(target))  foundMp3++;
-	                }
-	            }
-	        }
-	    }
-	
-	    // 2) If user picked the "Data" folder itself and Maps/Mp3 were not found, also scan siblings ../Maps and ../Mp3 one level up (heuristic).
-	    try {
-	        final String display = root.getName(); // tree top display name
-	        if (display != null && display.equalsIgnoreCase("Data") && (foundMaps == 0 || foundMp3 == 0)) {
-	            // Compute parent tree docId: trim last path segment of current treeDocId
-	            final String treeDocId = android.provider.DocumentsContract.getTreeDocumentId(treeUri);
-	            final int colon = (treeDocId != null) ? treeDocId.indexOf(':') : -1;
-	            final String type = (colon < 0) ? treeDocId : treeDocId.substring(0, colon);
-	            final String rel  = (colon < 0) ? ""         : treeDocId.substring(colon + 1);
-	
-	            final int slash = rel.lastIndexOf('/');
-	            final String parentRel = (slash >= 0) ? rel.substring(0, slash) : "";
-	            final String parentDocId = type + ":" + parentRel;
-	
-	            final android.net.Uri parentTree = android.provider.DocumentsContract.buildTreeDocumentUri(treeUri.getAuthority(), parentDocId);
-	            final androidx.documentfile.provider.DocumentFile parentRoot = androidx.documentfile.provider.DocumentFile.fromTreeUri(ctx, parentTree);
-	
-	            if (parentRoot != null) {
-	                // Helper to find a child folder by (case-insensitive) name under parentRoot
-	                java.util.function.Function<String, androidx.documentfile.provider.DocumentFile> childByName =
-	                        (folderName) -> {
-	                            final androidx.documentfile.provider.DocumentFile[] kids = parentRoot.listFiles();
-	                            if (kids == null) return null;
-	                            for (androidx.documentfile.provider.DocumentFile f : kids) {
-	                                if (f.isDirectory()) {
-	                                    final String nm = f.getName();
-	                                    if (nm != null && nm.equalsIgnoreCase(folderName)) return f;
-	                                }
-	                            }
-	                            return null;
-	                        };
-	
-	                // Append files from ../Maps (*.h3m)
-	                if (foundMaps == 0) {
-	                    final androidx.documentfile.provider.DocumentFile maps = childByName.apply("Maps");
-	                    if (maps != null) {
-	                        final java.util.ArrayDeque<androidx.documentfile.provider.DocumentFile> st = new java.util.ArrayDeque<>();
-	                        st.push(maps);
-	                        while (!st.isEmpty()) {
-	                            final androidx.documentfile.provider.DocumentFile d = st.pop();
-	                            final androidx.documentfile.provider.DocumentFile[] kids = d.listFiles();
-	                            if (kids == null) continue;
-	                            for (androidx.documentfile.provider.DocumentFile f : kids) {
-	                                if (f.isDirectory()) { st.push(f); continue; }
-	                                final String name = f.getName();
-	                                if (name == null) continue;
-	                                if (name.toLowerCase(java.util.Locale.ROOT).endsWith(".h3m")) {
-	                                    out.add(f.getUri().toString() + "\tMaps\t" + name);
-	                                    foundMaps++;
-	                                }
-	                            }
-	                        }
-	                    }
-	                }
-	
-	                // Append files from ../Mp3 (*.mp3)
-	                if (foundMp3 == 0) {
-	                    final androidx.documentfile.provider.DocumentFile mp3 = childByName.apply("Mp3");
-	                    if (mp3 != null) {
-	                        final java.util.ArrayDeque<androidx.documentfile.provider.DocumentFile> st = new java.util.ArrayDeque<>();
-	                        st.push(mp3);
-	                        while (!st.isEmpty()) {
-	                            final androidx.documentfile.provider.DocumentFile d = st.pop();
-	                            final androidx.documentfile.provider.DocumentFile[] kids = d.listFiles();
-	                            if (kids == null) continue;
-	                            for (androidx.documentfile.provider.DocumentFile f : kids) {
-	                                if (f.isDirectory()) { st.push(f); continue; }
-	                                final String name = f.getName();
-	                                if (name == null) continue;
-	                                if (name.toLowerCase(java.util.Locale.ROOT).endsWith(".mp3")) {
-	                                    out.add(f.getUri().toString() + "\tMp3\t" + name);
-	                                    foundMp3++;
-	                                }
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	    } catch (Throwable ignore) {
-	        // If heuristic fails, just return what we already have
-	    }
-	
-	    return out.toArray(new String[0]);
-	}
-	
+
+	private static final String TARGET_DATA = "Data";
+	private static final String TARGET_MAPS = "Maps";
+	private static final String TARGET_MP3  = "Mp3";
+
+/**
+ * Build a flat list of copy tasks for a user-selected folder
+ * Storage Access Framework (SAF) — i.e. a "SAF tree" from ACTION_OPEN_DOCUMENT_TREE.
+ *
+ * Output lines: "<uri>\t<Target>\t<Name>", where Target is {Data, Maps, Mp3}
+ * decided by file extension:
+ *  - Data:  .lod .snd .vid .pak
+ *  - Maps:  .h3m
+ *  - Mp3:   .mp3
+ *
+ * Heuristic: if user picked the "Data" folder and no Maps/Mp3 were found inside it,
+ * also scan sibling folders ../Maps and ../Mp3 (one level up).
+ */
+public static String[] findFilesForCopy(String treeUriStr, Context ctx)
+{
+    final Uri treeUri = Uri.parse(treeUriStr);
+    final DocumentFile root = DocumentFile.fromTreeUri(ctx, treeUri);
+    
+	if (root == null)
+        return new String[0];
+
+    final List<String> out = new ArrayList<>();
+    int foundMaps = 0;
+    int foundMp3  = 0;
+
+    // 1) Traverse the selected tree, collect files by extension
+    final Deque<DocumentFile> stack = new ArrayDeque<>();
+    stack.push(root);
+
+    while (!stack.isEmpty())
+	{
+        final DocumentFile entry = stack.pop();
+        if (entry == null)
+            continue;
+
+        if (entry.isDirectory())
+		{
+            final DocumentFile[] children = entry.listFiles();
+            if (children == null)
+                continue;
+
+            for (final DocumentFile child : children) {
+                if (child != null)
+                    stack.push(child);
+            }
+            continue;
+		}
+
+        final String name = entry.getName();
+        if (name == null)
+            continue;
+
+        final String lower = name.toLowerCase(Locale.ROOT);
+        String target = null;
+
+        if (lower.endsWith(".lod") || lower.endsWith(".snd") || lower.endsWith(".vid") || lower.endsWith(".pak"))
+		{
+            target = TARGET_DATA;
+		}
+		else if (lower.endsWith(".h3m"))
+		{
+            target = TARGET_MAPS;
+            foundMaps++;
+		}
+		else if (lower.endsWith(".mp3"))
+		{
+            target = TARGET_MP3;
+            foundMp3++;
+		}
+
+        if (target != null)
+			out.add(String.format(Locale.ROOT, "%s\t%s\t%s", entry.getUri().toString(), target, name));
+
+    }
+
+    // 2) If user picked "Data" and Maps/Mp3 were not found, also scan ../Maps and ../Mp3
+    final String display = root.getName();
+    if (display != null && display.equalsIgnoreCase(TARGET_DATA) && (foundMaps == 0 || foundMp3 == 0))
+	{
+        final DocumentFile parentRoot = tryResolveParentOfTree(ctx, treeUri);
+        if (parentRoot != null)
+		{
+            if (foundMaps == 0)
+			{
+                final DocumentFile maps = findChildDirIgnoreCase(parentRoot, TARGET_MAPS);
+                if (maps != null)
+                    foundMaps += collectFilesByExt(maps, ".h3m", TARGET_MAPS, out);
+            }
+            if (foundMp3 == 0)
+			{
+                final DocumentFile mp3 = findChildDirIgnoreCase(parentRoot, TARGET_MP3);
+                if (mp3 != null)
+                    foundMp3 += collectFilesByExt(mp3, ".mp3", TARGET_MP3, out);
+            }
+        }
+    }
+
+    return out.toArray(new String[0]);
+}
+
+
+private static int collectFilesByExt(final DocumentFile start, final String extLower, final String target, final List<String> out)
+{
+    int count = 0;
+    final Deque<DocumentFile> stack = new ArrayDeque<>();
+    stack.push(start);
+
+    while (!stack.isEmpty())
+	{
+        final DocumentFile entry = stack.pop();
+        if (entry == null)
+            continue;
+
+        if (entry.isDirectory())
+		{
+            final DocumentFile[] children = entry.listFiles();
+            if (children == null)
+                continue;
+
+            for (final DocumentFile child : children)
+			{
+                if (child != null)
+                    stack.push(child);
+            }
+            continue;
+        }
+
+        final String name = entry.getName();
+        if (name == null)
+            continue;
+
+        if (name.toLowerCase(Locale.ROOT).endsWith(extLower))
+		{
+            out.add(String.format(Locale.ROOT, "%s\t%s\t%s", entry.getUri().toString(), target, name));
+            count++;
+        }
+    }
+    return count;
+}
+
+@Nullable
+private static DocumentFile findChildDirIgnoreCase(final DocumentFile parent, final String childName)
+{
+    final DocumentFile[] children = parent.listFiles();
+    if (children == null)
+        return null;
+
+    for (final DocumentFile child : children)
+	{
+        if (child != null && child.isDirectory())
+		{
+            final String name = child.getName();
+            if (name != null && name.equalsIgnoreCase(childName))
+                return child;
+        }
+    }
+    return null;
+}
+
+/**
+ * Tries to resolve the parent folder of the current SAF tree.
+ * Returns null if the tree is already at top-level (no parent).
+ */
+@Nullable
+private static DocumentFile tryResolveParentOfTree(final Context ctx, final Uri treeUri) {
+    try {
+        final String treeDocId = DocumentsContract.getTreeDocumentId(treeUri);
+        if (treeDocId == null)
+            return null;
+
+        final String[] parts = treeDocId.split(":", 2);
+        final String type = parts.length > 0 ? parts[0] : "";
+        final String rel  = parts.length > 1 ? parts[1] : "";
+
+        final int slash = rel.lastIndexOf('/');
+        if (slash < 0) {
+            return null; // already at the top of the type root
+        }
+
+        final String parentRel = rel.substring(0, slash);
+        final String parentDocId = type + ":" + parentRel;
+
+        final Uri parentTree = DocumentsContract.buildTreeDocumentUri(treeUri.getAuthority(), parentDocId);
+
+        return DocumentFile.fromTreeUri(ctx, parentTree);
+    } catch (Exception e) {
+        return null;
+    }
+}
+
 }
