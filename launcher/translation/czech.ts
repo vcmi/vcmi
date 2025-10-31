@@ -364,43 +364,52 @@ Nainstalovat úspěšně stažené?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mapa existuje</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mapa &apos;%1&apos; již existuje. Chcete ji přepsat?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ano pro všechny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ne pro všechny</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Import dokončen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Úspěšně importováno %1 map.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Import se nezdařil</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nepodařilo se importovat následující mapy:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
@@ -1730,7 +1739,8 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zdroje</translation>
     </message>
 </context>
 <context>
