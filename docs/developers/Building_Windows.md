@@ -100,12 +100,19 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv
 4. Right click on `BUILD_ALL` project. This `BUILD_ALL` project should be in `CMakePredefinedTargets` tree in Solution Explorer. You can also build individual targets if you want.
 5. VCMI will be built in `%VCMI_DIR%/build/bin/<config>` folder where `<config>` is e.g. `RelWithDebInfo`. To launch the built executables from a file manager, use respective `bat` files, e.g. `VCMI_launcher.bat`.
 
-### Compile VCMI with MinGW via MSYS2
+### Compile VCMI with MinGW64 or UCRT64 via MSYS2
 
-- Install MSYS2 from <https://www.msys2.org/>
-- Start the `MSYS MinGW x64`-shell
-- Install dependencies: `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt5-tools mingw-w64-x86_64-tbb`
-- Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
+1. Install MSYS2 from <https://www.msys2.org/>
+2. Open the correct shell
+   - For MinGW64 (MSVCRT): start `MSYS2 MinGW x64`
+   - For UCRT64: start `MSYS2 UCRT64`
+   
+   (Sanity check: `echo $MSYSTEM` should be MINGW64 or UCRT64; don’t mix them.)
+3. Update MSYS2 packages: `pacman -Syu`
+4. Install dependencies
+   - For MinGW64 (MSVCRT): `pacman -S mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-boost mingw-w64-x86_64-gcc mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5-static mingw-w64-x86_64-qt5-tools mingw-w64-x86_64-tbb`
+   - For UCRT64: `pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-boost mingw-w64-ucrt-x86_64-minizip mingw-w64-ucrt-x86_64-ffmpeg mingw-w64-ucrt-x86_64-SDL2_image mingw-w64-ucrt-x86_64-SDL2_mixer mingw-w64-ucrt-x86_64-SDL2_ttf mingw-w64-ucrt-x86_64-qt5-static mingw-w64-ucrt-x86_64-tbb`
+5. Generate and build solution from VCMI-root dir: `cmake --preset windows-mingw-release && cmake --build --preset windows-mingw-release`
 
 **NOTE:** This will link Qt5 statically to `VCMI_launcher.exe` and `VCMI_Mapeditor.exe`. See [PR #3421](https://github.com/vcmi/vcmi/pull/3421) for some background.
 
