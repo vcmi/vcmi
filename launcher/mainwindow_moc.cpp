@@ -154,10 +154,7 @@ void MainWindow::detectPreferredLanguage()
 
 void MainWindow::enterSetup()
 {
-	ui->startGameButton->setEnabled(false);
-	ui->settingsButton->setEnabled(false);
-	ui->aboutButton->setEnabled(false);
-	ui->modslistButton->setEnabled(false);
+	ui->sidePanel->setVisible(false);
 	ui->tabListWidget->setCurrentIndex(TabRows::SETUP);
 }
 
@@ -166,14 +163,11 @@ void MainWindow::exitSetup(bool goToMods)
 	Settings writer = settings.write["launcher"]["setupCompleted"];
 	writer->Bool() = true;
 
-	ui->startGameButton->setEnabled(true);
-	ui->settingsButton->setEnabled(true);
-	ui->aboutButton->setEnabled(true);
-	ui->modslistButton->setEnabled(true);
+	ui->sidePanel->setVisible(true);
 	if (goToMods)
-		ui->tabListWidget->setCurrentIndex(TabRows::MODS);
+		switchToModsTab();
 	else
-		ui->tabListWidget->setCurrentIndex(TabRows::START);
+		switchToStartTab();
 }
 
 void MainWindow::switchToStartTab()
