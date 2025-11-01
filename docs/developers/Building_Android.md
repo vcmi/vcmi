@@ -34,7 +34,8 @@ On the step where you need to replace **PROFILE**, choose:
 
 - `android-32-ndk` to build for ARM 32-bit (armeabi-v7a)
 - `android-64-ndk` to build for ARM 64-bit (aarch64-v8a)
-- `android-x64-ndk` to build for Intel 64-bit (x86_64)
+- `android-x86-ndk` to build for 32-bit (x86)
+- `android-x64-ndk` to build for 64-bit (x86_64)
 
 Advanced users may choose profile without `-ndk` suffix to use NDK that's already installed in their system.
 
