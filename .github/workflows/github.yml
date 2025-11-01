@@ -125,7 +125,7 @@ jobs:
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: x86
 
-          - platform: android-x64
+          - platform: android-x86_64
             os: ubuntu-latest
             upload: 1
             extension: apk
