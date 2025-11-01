@@ -106,7 +106,7 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv
 2. Open the correct shell
    - For MinGW64 (MSVCRT): start `MSYS2 MinGW x64`
    - For UCRT64: start `MSYS2 UCRT64`
-   
+
    (Sanity check: `echo $MSYSTEM` should be MINGW64 or UCRT64; don’t mix them.)
 3. Update MSYS2 packages: `pacman -Syu`
 4. Install dependencies
