@@ -1726,7 +1726,8 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Resurser</translation>
     </message>
 </context>
 <context>
