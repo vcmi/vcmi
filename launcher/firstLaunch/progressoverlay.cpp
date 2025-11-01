@@ -10,7 +10,6 @@
 #include "progressoverlay.h"
 #include "../helper.h"
 #include <QVBoxLayout>
-#include <QApplication>
 #include <QPalette>
 
 ProgressOverlay::ProgressOverlay(QWidget *parent, int topOffsetPx)
