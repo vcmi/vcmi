@@ -1676,9 +1676,12 @@ void CObjectListWindow::trimTextIfTooWide(std::string & text, bool preserveCount
 	{
 		auto posBrace = text.find_last_of("(");
 		auto posClosing = text.find_last_of(")");
-		std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
-		suffix += " ";
-		suffix += objCount;
+		if (posBrace != std::string::npos && posClosing != std::string::npos && posClosing > posBrace)
+		{
+			std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
+			suffix += " ";
+			suffix += objCount;
+		}
 	}
 
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
