@@ -28,12 +28,12 @@
 // Create and show overlay immediately
 static ProgressOverlay* createOverlay(QWidget *parent, const QString &title, bool indeterminate = true)
 {
-    auto *overlay = new ProgressOverlay(parent, 50);
-    overlay->setTitle(title);
-    overlay->setIndeterminate(indeterminate);
-    overlay->show();
-    qApp->processEvents(); // paint before heavy work
-    return overlay;
+	auto *overlay = new ProgressOverlay(parent, 50);
+	overlay->setTitle(title);
+	overlay->setIndeterminate(indeterminate);
+	overlay->show();
+	qApp->processEvents(); // paint before heavy work
+	return overlay;
 }
 
 FirstLaunchView::FirstLaunchView(QWidget * parent)
@@ -116,14 +116,14 @@ void FirstLaunchView::on_pushButtonDataSearch_clicked()
 
 void FirstLaunchView::on_pushButtonDataCopy_clicked()
 {
-    // iOS can't display modal dialogs when called directly on button press
-    // https://bugreports.qt.io/browse/QTBUG-98651
-    MessageBoxCustom::showDialog(this, [this]{
-        Helper::nativeFolderPicker(this, [this](const QString &picked){
-            if(!picked.isEmpty())
-            	copyHeroesData(picked, false);
-        });
-    });
+	// iOS can't display modal dialogs when called directly on button press
+	// https://bugreports.qt.io/browse/QTBUG-98651
+	MessageBoxCustom::showDialog(this, [this]{
+		Helper::nativeFolderPicker(this, [this](const QString &picked){
+			if(!picked.isEmpty())
+				copyHeroesData(picked, false);
+		});
+	});
 }
 
 void FirstLaunchView::on_pushButtonGogInstall_clicked()
@@ -288,11 +288,11 @@ QString FirstLaunchView::getHeroesInstallDir()
 {
 #ifdef VCMI_WINDOWS
 	QVector<QPair<QString, QString>> regKeys = {
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",                                            "path"    }, // Gog on x86 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",                               "path"    }, // Gog on x64 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",              "AppPath" }, // H3 Complete on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\GOG.com\\Games\\1207658787",											 "path"	   }, // Gog on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\GOG.com\\Games\\1207658787",							     "path"	   }, // Gog on x64 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic® III\\1.0",			     "AppPath" }, // H3 Complete on x86 system
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic® III\\1.0", "AppPath" }, // H3 Complete on x64 system
-		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic III\\1.0",               "AppPath" }, // some localized H3 on x86 system
+		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\New World Computing\\Heroes of Might and Magic III\\1.0",			     "AppPath" }, // some localized H3 on x86 system
 		{ "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\New World Computing\\Heroes of Might and Magic III\\1.0",  "AppPath" }, // some localized H3 on x64 system
 	};
 
@@ -305,35 +305,35 @@ QString FirstLaunchView::getHeroesInstallDir()
 #endif
 	return QString{};
 }
-
+	
 static QString defaultStartDirForOpen()
 {
 #if defined(VCMI_MOBILE)
-    const QStandardPaths::StandardLocation mobilePrefs[] = {
-        QStandardPaths::DocumentsLocation,
-        QStandardPaths::HomeLocation
-    };
+	const QStandardPaths::StandardLocation mobilePrefs[] = {
+		QStandardPaths::DocumentsLocation,
+		QStandardPaths::HomeLocation
+	};
 	for(auto location : mobilePrefs)
 	{
 		for(const QString &path : QStandardPaths::standardLocations(location))
 			if(QDir(path).exists() && !path.isEmpty())
 				return path;
-    }
-    return QDir::homePath();
+	}
+	return QDir::homePath();
 #else
-    // Desktop: prefer Downloads, then Home, then Desktop
-    const QStandardPaths::StandardLocation desktopPrefs[] = {
-        QStandardPaths::DownloadLocation,
-        QStandardPaths::HomeLocation,
-        QStandardPaths::DesktopLocation
-    };
-    for(auto location : desktopPrefs)
+	// Desktop: prefer Downloads, then Home, then Desktop
+	const QStandardPaths::StandardLocation desktopPrefs[] = {
+		QStandardPaths::DownloadLocation,
+		QStandardPaths::HomeLocation,
+		QStandardPaths::DesktopLocation
+	};
+	for(auto location : desktopPrefs)
 	{
-        for(const QString &path : QStandardPaths::standardLocations(location))
-            if(QDir(path).exists() && !path.isEmpty())
+		for(const QString &path : QStandardPaths::standardLocations(location))
+			if(QDir(path).exists() && !path.isEmpty())
 				return path;
-    }
-    return QDir::homePath();
+	}
+	return QDir::homePath();
 #endif
 }
 
@@ -370,8 +370,8 @@ void FirstLaunchView::extractGogData()
 		
 		// On mobile platforms it is not possible to filter selection by extension in the file picker
 #if defined(VCMI_MOBILE)
-			if(fileInfo.suffix().compare(ext, Qt::CaseInsensitive) != 0)
-				return QObject::tr("You need to select a %1 file!", "param is file extension").arg(ext);
+		if(fileInfo.suffix().compare(ext, Qt::CaseInsensitive) != 0)
+			return QObject::tr("You need to select a %1 file!", "param is file extension").arg(ext);
 #endif
 
 		if(fileInfo.suffix().compare("exe", Qt::CaseInsensitive) == 0){
@@ -435,20 +435,20 @@ void FirstLaunchView::extractGogData()
 
 bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* overlay, bool removeSource)
 {
-    // 1) Scan -> "src \t Target \t Name"
-    overlay->setIndeterminate(true);
+	// 1) Scan -> "src \t Target \t Name"
+	overlay->setIndeterminate(true);
 
-    const QStringList items = Helper::findFilesForCopy(path);
-    if(items.isEmpty())
+	const QStringList items = Helper::findFilesForCopy(path);
+	if(items.isEmpty())
 	{
-        QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data."));
-        return false;
-    }
+		QMessageBox::critical(this, tr("Heroes III data not found!"), tr("Failed to detect valid Heroes III data in chosen directory.\nPlease select the directory with installed Heroes III data."));
+		return false;
+	}
 
-    // 2) Validate signature
+	// 2) Validate signature
 	// TODO: Find proper way for pure SoD check in import or way to block pure RoE / AB
-	//       Or prepare RoE / AB Ban mod and allow VCMI to with any H3 version
-    auto validate = [](const QStringList &items)->QString {
+	//	   Or prepare RoE / AB Ban mod and allow VCMI to with any H3 version
+	auto validate = [](const QStringList &items)->QString {
 		bool anyLOD=false;
 		bool anySOD=false;
 		bool anyHD=false;
@@ -456,7 +456,7 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 		for(const QString &line : items)
 		{
 			const auto part = line.split('\t');
-			if(part.size() < 3 || part[1].compare("Data", Qt::CaseInsensitive) != 0)
+			if(part[1].compare("Data", Qt::CaseInsensitive) != 0)
 				continue;
 
 			const QString &name = part[2];
@@ -482,65 +482,63 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 		return tr("Unknown or unsupported Heroes III version found.\nPlease select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.");
 	};
 
-    const QString err = validate(items);
-    if(!err.isEmpty())
+	const QString err = validate(items);
+	if(!err.isEmpty())
 	{
-        QMessageBox::critical(this, tr("Heroes III data not found!"), err);
-        return false;
-    }
+		QMessageBox::critical(this, tr("Heroes III data not found!"), err);
+		return false;
+	}
 
-    // 3) Plan destination, create target dirs on demand
-    QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
-    QSet<QString> created;
+	// 3) Plan destination, create target dirs on demand
+	QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
+	QSet<QString> created;
 
-    struct CopyItem { QString src, dst; };
-    QVector<CopyItem> plan;
+	struct CopyItem { QString src, dst; };
+	QVector<CopyItem> plan;
 	plan.reserve(items.size());
 
-    for(const QString &line : items)
+	for(const QString &line : items)
 	{
-        const auto part = line.split('\t');
-        if(part.size() < 3)
-			continue;
+		const auto part = line.split('\t');
 
-        const QString &src  = part[0];
-        const QString &tgt  = part[1]; // Data / Maps / Mp3
-        const QString &file = part[2];
+		const QString &src  = part[0];
+		const QString &tgt  = part[1]; // Data / Maps / Mp3
+		const QString &file = part[2];
 
-        if(!created.contains(tgt))
+		if(!created.contains(tgt))
 		{
-            QDir{}.mkpath(targetRoot.filePath(tgt));
-            created.insert(tgt);
-        }
+			QDir{}.mkpath(targetRoot.filePath(tgt));
+			created.insert(tgt);
+		}
 
-        const QDir dstDir = targetRoot.filePath(tgt);
-        plan.push_back({ src, dstDir.filePath(file) });
-    }
+		const QDir dstDir = targetRoot.filePath(tgt);
+		plan.push_back({ src, dstDir.filePath(file) });
+	}
 
-    // 4) Copy with progress
-    overlay->setTitle(tr("Importing Heroes III data..."));
-    overlay->setIndeterminate(false);
-    overlay->setRange(plan.size());
+	// 4) Copy with progress
+	overlay->setTitle(tr("Importing Heroes III data..."));
+	overlay->setIndeterminate(false);
+	overlay->setRange(plan.size());
 
-    for(int i = 0; i < plan.size(); ++i)
+	for(int i = 0; i < plan.size(); ++i)
 	{
-        overlay->setFileName(QFileInfo(plan[i].dst).fileName());
-        overlay->setValue(i + 1);
-        qApp->processEvents();
+		overlay->setFileName(QFileInfo(plan[i].dst).fileName());
+		overlay->setValue(i + 1);
+		qApp->processEvents();
 
-        if (QFile::exists(plan[i].dst))
-            QFile::remove(plan[i].dst);
+		if(QFile::exists(plan[i].dst))
+			QFile::remove(plan[i].dst);
 
-        Helper::performNativeCopy(plan[i].src, plan[i].dst);
+		Helper::performNativeCopy(plan[i].src, plan[i].dst);
 
-        logGlobal->info("Copying '%s' -> '%s'", plan[i].src.toStdString(), plan[i].dst.toStdString());
-    }
+		logGlobal->info("Copying '%s' -> '%s'", plan[i].src.toStdString(), plan[i].dst.toStdString());
+	}
 
-    // 5) Optional cleanup
-    if(removeSource)
-        QDir(path).removeRecursively();
+	// 5) Optional cleanup
+	if(removeSource)
+		QDir(path).removeRecursively();
 
-    return true;
+	return true;
 }
 
 void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathExe)
@@ -548,7 +546,7 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 	logGlobal->info("Extracting gog data from '%s' and '%s'", filePathBin.toStdString(), filePathExe.toStdString());
 
 #ifdef ENABLE_INNOEXTRACT
-    // Defer heavy work to next event-loop tick to ensure overlay is painted
+	// Defer heavy work to next event-loop tick to ensure overlay is painted
 	QTimer::singleShot(0, this, [this, filePathBin, filePathExe]()
 	{
 		QScopedPointer<ProgressOverlay> overlay(createOverlay(this, tr("Preparing installer..."), true));
@@ -556,10 +554,10 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		overlay->raise();
 		qApp->processEvents();
 
-        // 1) Prepare temp dir
+		// 1) Prepare temp dir
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
 		if(tempDir.cd("tmp"))
-        {
+		{
 			logGlobal->info("Cleaning up old temp data");
 			tempDir.removeRecursively(); // remove if already exists (e.g. previous crash)
 			tempDir.cdUp();
@@ -631,27 +629,25 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		overlay->setValue(0);
 
 		if(performCopyFlow(tempDir.path(), overlay.data(), true))
-		{
 			if(heroesDataUpdate())
 				activateTabModPreset();
-		}
 	});
 #endif
 }
 
 void FirstLaunchView::copyHeroesData(const QString &path, bool removeSource)
 {
-    QPointer<ProgressOverlay> overlay = createOverlay(this, tr("Scanning selected folder..."), true);
-    overlay->raise();
-    auto work = [this, path, removeSource, overlay]() {
-        if (performCopyFlow(path, overlay, removeSource))
-            if (heroesDataUpdate())
-                activateTabModPreset();
+	QPointer<ProgressOverlay> overlay = createOverlay(this, tr("Scanning selected folder..."), true);
+	overlay->raise();
+	auto work = [this, path, removeSource, overlay]() {
+		if(performCopyFlow(path, overlay, removeSource))
+			if(heroesDataUpdate())
+				activateTabModPreset();
 
-        overlay->deleteLater();
-    };
+		overlay->deleteLater();
+	};
 
-    QTimer::singleShot(0, this, work);
+	QTimer::singleShot(0, this, work);
 }
 
 // Tab Mod Preset
@@ -666,9 +662,9 @@ void FirstLaunchView::modPresetUpdate()
 	bool canExtras = checkCanInstallExtras();
 	bool canDemo   = checkCanInstallDemo();
 	bool canHota   = checkCanInstallHota();
-	bool canWog    = checkCanInstallWog();
-	bool canTow    = checkCanInstallTow();
-	bool canFod    = checkCanInstallFod();
+	bool canWog	= checkCanInstallWog();
+	bool canTow	= checkCanInstallTow();
+	bool canFod	= checkCanInstallFod();
 
 	ui->buttonPresetLanguage->setVisible(canTrans);
 	ui->buttonPresetExtras->setVisible(canExtras);
@@ -687,7 +683,7 @@ void FirstLaunchView::modPresetUpdate()
 	ui->labelPresetFodDescr->setVisible(canFod);
 
 	// we can't install anything - either repository checkout is off or all recommended mods are already installed
-	if (!canTrans && !canExtras && !canDemo && !canHota && !canWog && !canTow && !canFod)
+	if(!canTrans && !canExtras && !canDemo && !canHota && !canWog && !canTow && !canFod)
 		exitSetup(false);
 }
 
@@ -696,7 +692,7 @@ QString FirstLaunchView::findTranslationModName()
 	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
 	auto status = mainWindow->getTranslationStatus();
 
-	if (status == ETranslationStatus::ACTIVE || status == ETranslationStatus::NOT_AVAILABLE)
+	if(status == ETranslationStatus::ACTIVE || status == ETranslationStatus::NOT_AVAILABLE)
 		return QString();
 
 	QString preferredlanguage = QString::fromStdString(settings["general"]["language"].String());
@@ -720,35 +716,35 @@ bool FirstLaunchView::checkCanInstallExtras()
 
 bool FirstLaunchView::checkCanInstallDemo()
 {
-    if(!checkCanInstallMod("demo-support"))
-        return false;
+	if(!checkCanInstallMod("demo-support"))
+		return false;
 
-    QDir userRoot = pathToQString(VCMIDirs::get().userDataPath());
-    QDir dataDir(userRoot.filePath(QStringLiteral("Data")));
+	QDir userRoot = pathToQString(VCMIDirs::get().userDataPath());
+	QDir dataDir(userRoot.filePath(QStringLiteral("Data")));
 	QDir mapsDir(userRoot.filePath(QStringLiteral("Maps")));
 
-    bool hasDemoMap = false;
-    QStringList mapFiles = mapsDir.entryList(QDir::Files | QDir::Readable);
-    for(const QString &name : mapFiles)
-        if(name.compare(QStringLiteral("h3demo.h3m"), Qt::CaseInsensitive) == 0)
+	bool hasDemoMap = false;
+	QStringList mapFiles = mapsDir.entryList(QDir::Files | QDir::Readable);
+	for(const QString &name : mapFiles)
+		if(name.compare(QStringLiteral("h3demo.h3m"), Qt::CaseInsensitive) == 0)
 		{
-            hasDemoMap = true;
+			hasDemoMap = true;
 			break;
 		}
 	
-    QStringList files = dataDir.entryList(QDir::Files | QDir::Readable);
-    for(const QString &name : files)
-    {
-        if(name.compare(QStringLiteral("H3ab_spr.lod"), Qt::CaseInsensitive) == 0)
-        {
+	QStringList files = dataDir.entryList(QDir::Files | QDir::Readable);
+	for(const QString &name : files)
+	{
+		if(name.compare(QStringLiteral("H3ab_spr.lod"), Qt::CaseInsensitive) == 0)
+		{
 			QFileInfo lodInfo(dataDir.filePath(name));
 			quint64 fileSize = static_cast<quint64>(lodInfo.size());
 			logGlobal->error("H3ab_spr.lod size: %llu", fileSize);
-            if(fileSize < 8000000 && hasDemoMap) // 8 MB + Demo map = Merged Windows and MacOS Demo
-            	return true;
-        }
-    }
-    return false;
+			if(fileSize < 8000000 && hasDemoMap) // 8 MB + Demo map = Merged Windows and MacOS Demo
+				return true;
+		}
+	}
+	return false;
 }
 
 bool FirstLaunchView::checkCanInstallHota()
@@ -776,7 +772,7 @@ CModListView * FirstLaunchView::getModView()
 	auto * mainWindow = dynamic_cast<MainWindow *>(QApplication::activeWindow());
 
 	assert(mainWindow);
-	if (!mainWindow)
+	if(!mainWindow)
 		return nullptr;
 
 	return mainWindow->getModView();
@@ -796,31 +792,31 @@ void FirstLaunchView::on_pushButtonPresetNext_clicked()
 {
 	QStringList modsToInstall;
 
-	if (ui->buttonPresetLanguage->isChecked() && checkCanInstallTranslation())
+	if(ui->buttonPresetLanguage->isChecked() && checkCanInstallTranslation())
 		modsToInstall.push_back(findTranslationModName());
 
-	if (ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
+	if(ui->buttonPresetExtras->isChecked() && checkCanInstallExtras())
 		modsToInstall.push_back("vcmi-extras");
 
-	if (ui->buttonPresetDemo->isChecked() && checkCanInstallDemo())
+	if(ui->buttonPresetDemo->isChecked() && checkCanInstallDemo())
 		modsToInstall.push_back("demo-support");
 
-	if (ui->buttonPresetWog->isChecked() && checkCanInstallWog())
+	if(ui->buttonPresetWog->isChecked() && checkCanInstallWog())
 		modsToInstall.push_back("wake-of-gods");
 
-	if (ui->buttonPresetHota->isChecked() && checkCanInstallHota())
+	if(ui->buttonPresetHota->isChecked() && checkCanInstallHota())
 		modsToInstall.push_back("hota");
 
-	if (ui->buttonPresetTow->isChecked() && checkCanInstallTow())
+	if(ui->buttonPresetTow->isChecked() && checkCanInstallTow())
 		modsToInstall.push_back("tides-of-war");
 
-	if (ui->buttonPresetFod->isChecked() && checkCanInstallFod())
+	if(ui->buttonPresetFod->isChecked() && checkCanInstallFod())
 		modsToInstall.push_back("fallen-of-the-depth");
 
 	bool goToMods = !modsToInstall.empty();
 	exitSetup(goToMods);
 
-	for (auto const & modName : modsToInstall)
+	for(auto const & modName : modsToInstall)
 		getModView()->doInstallMod(modName);
 }
 
