@@ -616,10 +616,8 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 					QMessageBox::critical(this, tr("Hash error!"), hashError, QMessageBox::Ok, QMessageBox::Ok);
 				}
 			}
-		}
-		else
-		{
-			QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
+			else
+				QMessageBox::critical(this, tr("No Heroes III data!"), tr("Selected files do not contain Heroes III data!"), QMessageBox::Ok, QMessageBox::Ok);
 			tempDir.removeRecursively();
 			return;
 		}
