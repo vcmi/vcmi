@@ -184,6 +184,7 @@ CBonusSystemNode::~CBonusSystemNode()
 
 void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 {
+	assert(!vstd::contains(parentsToPropagate, &parent));
 	parentsToPropagate.push_back(&parent);
 
 	attachToSource(parent);
@@ -193,6 +194,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 		if(!parent.actsAsBonusSourceOnly())
 			newRedDescendant(parent);
 
+		assert(!vstd::contains(parent.children, this));
 		parent.children.push_back(this);
 	}
 
@@ -201,6 +203,7 @@ void CBonusSystemNode::attachTo(CBonusSystemNode & parent)
 
 void CBonusSystemNode::attachToSource(const CBonusSystemNode & parent)
 {
+	assert(!vstd::contains(parentsToInherit, &parent));
 	parentsToInherit.push_back(&parent);
 
 	++globalCounter;
