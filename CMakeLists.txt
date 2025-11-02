@@ -223,8 +223,9 @@ include(UseDoxygen OPTIONAL)
 #        Compile and linking options       #
 ############################################
 
-#Enable C++17 Globally
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #General visibility options
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -423,18 +424,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32 AND NOT IOS)
-	include(CheckLibraryExists)
-
-	# Shared memory functions used by Boost.Interprocess
-	# FindBoost handle linking with pthreads, but doesn't handle this
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
-	endif()
-	if(HAIKU)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
-	endif()
+if(HAIKU)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
 endif()
 
 if(ENABLE_LUA)
@@ -449,10 +440,10 @@ set(BOOST_COMPONENTS date_time filesystem locale program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()
-find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(Boost 1.74.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 if(Boost_MAJOR_VERSION EQUAL 1 AND Boost_MINOR_VERSION LESS 69)
 	list(APPEND BOOST_COMPONENTS system)
-	find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+	find_package(Boost 1.74.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 endif()
 
 find_package(ZLIB REQUIRED)

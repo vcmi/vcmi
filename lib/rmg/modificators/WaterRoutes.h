@@ -13,7 +13,13 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct RouteInfo;
+struct RouteInfo
+{
+	rmg::Area blocked;
+	int3 visitable;
+	int3 boarding;
+	rmg::Area water;
+};
 
 class WaterRoutes: public Modificator
 {
