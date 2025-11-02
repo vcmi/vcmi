@@ -1319,6 +1319,7 @@ void CGHeroInstance::setBoat(CGBoat* newBoat)
 	if (newBoat)
 	{
 		boardedBoat = newBoat->id;
+		attachTo(*newBoat);
 		newBoat->setBoardedHero(this);
 	}
 	else if (boardedBoat.hasValue())
