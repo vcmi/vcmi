@@ -548,7 +548,7 @@ Affected unit will deal more damage when attacking specific creature
 
 ### HATES_TRAIT
 
-Affected unit will deal more damage when attacking unit that has specific bonus
+Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
 
 - subtype - identifier of hated bonus, ie. `UNDEAD`
 - val - additional damage, percentage
