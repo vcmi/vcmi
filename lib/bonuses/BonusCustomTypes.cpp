@@ -10,6 +10,8 @@
 
 #include "StdInc.h"
 #include "BonusCustomTypes.h"
+#include "CBonusTypeHandler.h"
+#include "GameLibrary.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -73,6 +75,21 @@ si32 BonusCustomSource::decode(const std::string & identifier)
 std::string BonusCustomSource::encode(const si32 index)
 {
 	return std::to_string(index);
+}
+
+std::string BonusTypeID::encode(int32_t index)
+{
+	if (index == static_cast<int32_t>(BonusType::NONE))
+		return "";
+	return LIBRARY->bth->bonusToString(static_cast<BonusType>(index));
+}
+
+si32 BonusTypeID::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return RiverId::NO_RIVER.getNum();
+
+	return resolveIdentifier("bonus", identifier);
 }
 
 VCMI_LIB_NAMESPACE_END
