@@ -2781,7 +2781,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 			std::reverse(bma.artsPack0.begin(), bma.artsPack0.end());
 
 		backpackSlot = ArtifactPosition::BACKPACK_START;
-		for (auto & slots : bma.artsPack0)
+		for(auto & slots : bma.artsPack0)
 			slots.dstPos = backpackSlot++;
 	};
 	
