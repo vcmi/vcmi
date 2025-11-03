@@ -2754,16 +2754,15 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		std::map<int32_t, std::vector<MoveArtifactInfo>> packsSorted;
 		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
-
 		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
 			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
 
 		auto sortPack = [artSet](std::vector<MoveArtifactInfo> & pack)
 		{
-			std::sort(pack.begin(), pack.end(), [artSet](const auto & a, const auto & b)
+			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1)
 			{
-				const auto art0 = artSet->getArt(a.srcPos);
-				const auto art1 = artSet->getArt(b.srcPos);
+				const auto art0 = artSet->getArt(slots0.srcPos);
+				const auto art1 = artSet->getArt(slots1.srcPos);
 				if (art0->isScroll() && art1->isScroll())
 					return art0->getScrollSpellID() > art1->getScrollSpellID();
 				return art0->getTypeId().num > art1->getTypeId().num;
