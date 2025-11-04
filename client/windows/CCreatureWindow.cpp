@@ -428,7 +428,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 
 			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(342, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
 			parent->switchButtons[buttonIndex]->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
