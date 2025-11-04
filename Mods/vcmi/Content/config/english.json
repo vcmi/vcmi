@@ -1016,6 +1016,7 @@
 	"core.bonus.MANA_DRAIN.description" : "{Drains enemy mana}\nDrains ${val} mana every turn from enemy hero",
 	"core.bonus.MECHANICAL.description" : "{Mechanical}\nThis unit is immune to effects that only affect living and can be repaired",
 	"core.bonus.MIND_IMMUNITY.description" : "{Mind Spell Immunity}\nThis unit cannot be targeted by spells that affect its mind",
+	"core.bonus.MORE_DAMAGE_FROM_SPELL.description" : "{Vulnerable to ${subtype.spell}}\nThe damage taken by this unit when hit by a ${subtype.spell} is increased by ${val}%",
 	"core.bonus.NO_DISTANCE_PENALTY.description" : "{No distance penalty}\nRanged attacks deal full damage at any distance",
 	"core.bonus.NO_MELEE_PENALTY.description" : "{No melee penalty}\nThis ranged unit deals full damage with melee attacks",
 	"core.bonus.NO_MORALE.description" : "{Neutral Morale}\nCreature is immune to morale effects",

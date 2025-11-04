@@ -905,13 +905,6 @@ bool CGTownInstance::hasBuilt(const BuildingID & buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
-bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) const
-{
-	if (townID == getTown()->faction->getId() || townID == FactionID::ANY)
-		return hasBuilt(buildingID);
-	return false;
-}
-
 void CGTownInstance::addBuilding(const BuildingID & buildingID)
 {
 	if(buildingID == BuildingID::NONE)

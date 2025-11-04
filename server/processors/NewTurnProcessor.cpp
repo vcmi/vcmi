@@ -512,7 +512,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 	for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
 	{
 		const auto * t = gameHandler->gameState().getTown(townID);
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
+		if (t->hasBuilt(BuildingSubID::DEITY_OF_FIRE))
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
 

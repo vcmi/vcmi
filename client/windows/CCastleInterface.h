@@ -37,6 +37,7 @@ class CGarrisonInt;
 class CComponent;
 class CComponentBox;
 class LRClickableArea;
+class LRClickableAreaWText;
 class CTextInputWithConfirm;
 
 /// Building "button"
@@ -394,10 +395,21 @@ class CMageGuildScreen : public CStatusbarWindow
 		void showPopupWindow(const Point & cursorPosition) override;
 		void hover(bool on) override;
 	};
+
+	class ScrollAllSpells : public CIntObject
+	{
+		std::shared_ptr<CAnimImage> image;
+		std::shared_ptr<LRClickableAreaWText> text;
+
+	public:
+		ScrollAllSpells(Point position, const std::string & buildingName);
+	};
+
 	std::shared_ptr<CPicture> window;
 	std::shared_ptr<CButton> exit;
 	std::vector<std::shared_ptr<Scroll>> spells;
 	std::vector<std::shared_ptr<CAnimImage>> emptyScrolls;
+	std::vector<std::shared_ptr<ScrollAllSpells>> auroraBorealisScrolls;
 
 	std::shared_ptr<CMinorResDataBar> resdatabar;
 

@@ -773,7 +773,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	ChangeSpells cs;
 	cs.hid = h->id;
 	cs.learn = true;
-	if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
+	if (t->hasBuilt(BuildingSubID::AURORA_BOREALIS) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		// Aurora Borealis give spells of all levels even if only level 1 mages guild built
 		for (int i = 0; i < h->maxSpellLevel(); i++)
@@ -2115,22 +2115,6 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		}
 	};
 
-	//Performs stuff that has to be done after new building is built
-	auto processAfterBuiltStructure = [t, this](const BuildingID buildingID)
-	{
-		auto isMageGuild = (buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1);
-		auto isLibrary = isMageGuild ? false
-			: t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
-
-		if(isMageGuild || isLibrary || (t->getFactionID() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
-		{
-			if(t->getVisitingHero())
-				giveSpells(t,t->getVisitingHero());
-			if(t->getGarrisonHero())
-				giveSpells(t,t->getGarrisonHero());
-		}
-	};
-
 	//Checks if all requirements will be met with expected building list "buildingsThatWillBe"
 	auto areRequirementsFulfilled = [&buildingsThatWillBe](const BuildingID & buildID)
 	{
@@ -2192,8 +2176,20 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	sendAndApply(ns);
 
 	//Other post-built events. To some logic like giving spells to work gamestate changes for new building must be already in place!
-	for(auto builtID : ns.bid)
-		processAfterBuiltStructure(builtID);
+	for(auto buildingID : ns.bid)
+	{
+		bool isMageGuild = buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1;
+		bool isLibrary = t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::LIBRARY;
+		bool isAurora = t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::AURORA_BOREALIS;
+
+		if(isMageGuild || isLibrary || isAurora)
+		{
+			if(t->getVisitingHero())
+				giveSpells(t,t->getVisitingHero());
+			if(t->getGarrisonHero())
+				giveSpells(t,t->getGarrisonHero());
+		}
+	};
 
 	// now when everything is built - reveal tiles for lookout tower
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);

@@ -953,7 +953,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
-		if (!spell->isCreatureAbility())
+		if (!levelNode["description"].String().empty())
 			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());

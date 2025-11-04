@@ -1448,7 +1448,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	}
 
 	//life drain handling
-	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving())
+	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving() && attackerState->getTotalHealth() != attackerState->getAvailableHealth())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
 		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);
