@@ -105,21 +105,21 @@ QString getRealPath(QString path)
 bool performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
-    const bool srcIsContent = src.startsWith("content://", Qt::CaseInsensitive);
-    const bool dstIsContent = dst.startsWith("content://", Qt::CaseInsensitive);
+	const bool srcIsContent = src.startsWith("content://", Qt::CaseInsensitive);
+	const bool dstIsContent = dst.startsWith("content://", Qt::CaseInsensitive);
 
-    if(srcIsContent || dstIsContent)
-    {
-        const QAndroidJniObject jSrc = QAndroidJniObject::fromString(srcIsContent ? safeEncode(src) : src);
-        const QAndroidJniObject jDst = QAndroidJniObject::fromString(dstIsContent ? safeEncode(dst) : dst);
-        QAndroidJniObject::callStaticMethod<void>("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", jSrc.object<jstring>(), jDst.object<jstring>(), QtAndroid::androidContext().object());
-        return QFileInfo(dst).exists();
-    }
+	if(srcIsContent || dstIsContent)
+	{
+		const QAndroidJniObject jSrc = QAndroidJniObject::fromString(srcIsContent ? safeEncode(src) : src);
+		const QAndroidJniObject jDst = QAndroidJniObject::fromString(dstIsContent ? safeEncode(dst) : dst);
+		QAndroidJniObject::callStaticMethod<void>("eu/vcmi/vcmi/util/FileUtil", "copyFileFromUri", "(Ljava/lang/String;Ljava/lang/String;Landroid/content/Context;)V", jSrc.object<jstring>(), jDst.object<jstring>(), QtAndroid::androidContext().object());
+		return QFileInfo(dst).exists();
+	}
 #endif
 
-    // Pure filesystem -> use Qt copy
-    QFile::remove(dst);
-    return QFile::copy(src, dst);
+	// Pure filesystem -> use Qt copy
+	QFile::remove(dst);
+	return QFile::copy(src, dst);
 }
 
 void revealDirectoryInFileBrowser(QString path)
@@ -155,23 +155,26 @@ void keepScreenOn(bool isEnabled)
 bool canUseFolderPicker()
 {
 #if defined(VCMI_ANDROID)
-	// selecting directory with ACTION_OPEN_DOCUMENT_TREE is available only since API level 21
-	if(QtAndroid::androidSdkVersion() < 21)
-		return false;
+	// Folder picker is available on API >= 21.
+	// Android/Google TV usually lacks DocumentsUI — hide this option.
 
-    QAndroidJniObject action = QAndroidJniObject::fromString("android.intent.action.OPEN_DOCUMENT_TREE");
-    QAndroidJniObject intent("android/content/Intent", "(Ljava/lang/String;)V", action.object<jstring>());
+	QAndroidJniObject context = QtAndroid::androidContext();
+	QAndroidJniObject uiModeMgr = context.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;", QAndroidJniObject::fromString("uimode").object<jstring>());
 
-    QAndroidJniObject manager = QtAndroid::androidContext().callObjectMethod("getPackageManager", "()Landroid/content/pm/PackageManager;");
-    QAndroidJniObject resolve = intent.callObjectMethod("resolveActivity", "(Landroid/content/pm/PackageManager;)Landroid/content/ComponentName;", manager.object());
+	if(uiModeMgr.isValid())
+	{
+		jint mode = uiModeMgr.callMethod<jint>("getCurrentModeType", "()I");
+		jint TV = QAndroidJniObject::getStaticField<jint>("android/content/res/Configuration", "UI_MODE_TYPE_TELEVISION");
+		if(mode == TV)
+			return false;
+	}
 
-    return resolve.isValid(); // Determine if system can use DocumentsUI
-
+	return true;
 #elif defined(VCMI_IOS)
 	// selecting directory through UIDocumentPickerViewController is available only since iOS 13
-    return iOS_utils::isOsVersionAtLeast(13);
+	return iOS_utils::isOsVersionAtLeast(13);
 #else
-    return true;
+	return true;
 #endif
 }
 
@@ -180,7 +183,7 @@ static constexpr int  kFolderPickerReqCode = 4242;
 
 static jint intentFlags()
 {
-	const jint fRead    = QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_GRANT_READ_URI_PERMISSION");
+	const jint fRead	= QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_GRANT_READ_URI_PERMISSION");
 	const jint fWrite   = QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_GRANT_WRITE_URI_PERMISSION");
 	const jint fPersist = QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_GRANT_PERSISTABLE_URI_PERMISSION");
 	const jint fPrefix  = QAndroidJniObject::getStaticField<jint>("android/content/Intent", "FLAG_GRANT_PREFIX_URI_PERMISSION");
@@ -191,34 +194,34 @@ static jint intentFlags()
 class FolderPickReceiver final : public QAndroidActivityResultReceiver
 {
 public:
-    std::function<void(QString)> onDone;
+	std::function<void(QString)> onDone;
 
-    // One-shot result handler for ACTION_OPEN_DOCUMENT_TREE
-    void handleActivityResult(int req, int res, const QAndroidJniObject &data) override
-    {
-        auto cb = std::exchange(onDone, {}); // guarantee single-use
+	// One-shot result handler for ACTION_OPEN_DOCUMENT_TREE
+	void handleActivityResult(int req, int res, const QAndroidJniObject &data) override
+	{
+		auto cb = std::exchange(onDone, {}); // guarantee single-use
 		if(!cb)
 			return;
 
-        if(req != kFolderPickerReqCode || res != -1 /*RESULT_OK*/ || !data.isValid())
-        {
-            QMetaObject::invokeMethod(qApp, [cb]{ if (cb) cb({}); }, Qt::QueuedConnection);
-            return;
-        }
+		if(req != kFolderPickerReqCode || res != -1 /*RESULT_OK*/ || !data.isValid())
+		{
+			QMetaObject::invokeMethod(qApp, [cb]{ if (cb) cb({}); }, Qt::QueuedConnection);
+			return;
+		}
 
-        // Always return content:// tree URI
-        const QAndroidJniObject uri = data.callObjectMethod("getData","()Landroid/net/Uri;");
-        const QAndroidJniObject us  = uri.callObjectMethod("toString","()Ljava/lang/String;");
-        const QString pickedTree    = us.toString();
+		// Always return content:// tree URI
+		const QAndroidJniObject uri = data.callObjectMethod("getData","()Landroid/net/Uri;");
+		const QAndroidJniObject us  = uri.callObjectMethod("toString","()Ljava/lang/String;");
+		const QString pickedTree	= us.toString();
 
-        // Persist read+write permission
-        const QAndroidJniObject ctx = QtAndroid::androidContext();
-        const QAndroidJniObject cr  = ctx.callObjectMethod("getContentResolver","()Landroid/content/ContentResolver;");
-        cr.callMethod<void>("takePersistableUriPermission", "(Landroid/net/Uri;I)V", uri.object<jobject>(), jint(1 | 2));
+		// Persist read+write permission
+		const QAndroidJniObject ctx = QtAndroid::androidContext();
+		const QAndroidJniObject cr  = ctx.callObjectMethod("getContentResolver","()Landroid/content/ContentResolver;");
+		cr.callMethod<void>("takePersistableUriPermission", "(Landroid/net/Uri;I)V", uri.object<jobject>(), jint(1 | 2));
 
-        // Bounce back to Qt thread
-        QMetaObject::invokeMethod(qApp, [cb, pickedTree]{ if (cb) cb(pickedTree); }, Qt::QueuedConnection);
-    }
+		// Bounce back to Qt thread
+		QMetaObject::invokeMethod(qApp, [cb, pickedTree]{ if (cb) cb(pickedTree); }, Qt::QueuedConnection);
+	}
 };
 
 static FolderPickReceiver g_receiver;
@@ -230,29 +233,29 @@ void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb)
 		return;
 
 #if defined(VCMI_ANDROID)
-    Q_UNUSED(parent);
-    g_receiver.onDone = std::move(cb);
+	Q_UNUSED(parent);
+	g_receiver.onDone = std::move(cb);
 
-    QAndroidJniObject intent("android/content/Intent","()V");
-    intent.callObjectMethod("setAction", "(Ljava/lang/String;)Landroid/content/Intent;", QAndroidJniObject::fromString("android.intent.action.OPEN_DOCUMENT_TREE").object<jstring>());
-    intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", intentFlags());
+	QAndroidJniObject intent("android/content/Intent","()V");
+	intent.callObjectMethod("setAction", "(Ljava/lang/String;)Landroid/content/Intent;", QAndroidJniObject::fromString("android.intent.action.OPEN_DOCUMENT_TREE").object<jstring>());
+	intent.callObjectMethod("addFlags", "(I)Landroid/content/Intent;", intentFlags());
 
-    QtAndroid::startActivity(intent, kFolderPickerReqCode, &g_receiver);
+	QtAndroid::startActivity(intent, kFolderPickerReqCode, &g_receiver);
 
 #elif defined(VCMI_IOS)
-    SelectDirectory iosDirectorySelector;
-    const QString dir = iosDirectorySelector.getExistingDirectory();
-    cb(dir);
+	SelectDirectory iosDirectorySelector;
+	const QString dir = iosDirectorySelector.getExistingDirectory();
+	cb(dir);
 
 #else
-    const QString dir = QFileDialog::getExistingDirectory(parent, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    cb(dir);
+	const QString dir = QFileDialog::getExistingDirectory(parent, {}, {}, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	cb(dir);
 #endif
 }
 
 static inline QString classifyTargetByExt(const QString &baseName)
 {
-    // Case-insensitive suffix checks without making a lowercase copy
+	// Case-insensitive suffix checks without making a lowercase copy
 	auto ends = [&](const char *s){ return baseName.endsWith(QLatin1String(s), Qt::CaseInsensitive); };
 
 	if(ends(".lod") || ends(".snd") || ends(".vid") || ends(".pak"))
@@ -264,82 +267,82 @@ static inline QString classifyTargetByExt(const QString &baseName)
 	if(ends(".mp3"))
 		return QStringLiteral("Mp3");
 
-    return {};
+	return {};
 }
 
 static void addIfExists(QVector<QDir> &scan, const QDir &base, const char *child)
 {
-    QDir dir(base.filePath(QLatin1String(child)));
-    if(dir.exists())
+	QDir dir(base.filePath(QLatin1String(child)));
+	if(dir.exists())
 		scan << dir;
 }
 
 QStringList findFilesForCopy(const QString &path)
 {
 #ifdef VCMI_ANDROID
-    if(path.startsWith(QLatin1String("content://"), Qt::CaseInsensitive))
-    {
-        const QAndroidJniObject jUri = QAndroidJniObject::fromString(safeEncode(path));
-        const QAndroidJniObject jArr = QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "findFilesForCopy", "(Ljava/lang/String;Landroid/content/Context;)[Ljava/lang/String;", jUri.object<jstring>(), QtAndroid::androidContext().object());
+	if(path.startsWith(QLatin1String("content://"), Qt::CaseInsensitive))
+	{
+		const QAndroidJniObject jUri = QAndroidJniObject::fromString(safeEncode(path));
+		const QAndroidJniObject jArr = QAndroidJniObject::callStaticObjectMethod("eu/vcmi/vcmi/util/FileUtil", "findFilesForCopy", "(Ljava/lang/String;Landroid/content/Context;)[Ljava/lang/String;", jUri.object<jstring>(), QtAndroid::androidContext().object());
 
-        QStringList out;
-        if(!jArr.isValid())
-            return out;
+		QStringList out;
+		if(!jArr.isValid())
+			return out;
 
-        QAndroidJniEnvironment env;
-        const jobjectArray arr = static_cast<jobjectArray>(jArr.object<jobject>());
-        const jsize n = env->GetArrayLength(arr);
-        out.reserve(n);
+		QAndroidJniEnvironment env;
+		const jobjectArray arr = static_cast<jobjectArray>(jArr.object<jobject>());
+		const jsize n = env->GetArrayLength(arr);
+		out.reserve(n);
 
-        for(jsize i = 0; i < n; ++i)
-        {
-            QAndroidJniObject s((jstring)env->GetObjectArrayElement(arr, i));
-            out.push_back(s.toString());                                                       // "src \t Target \t Name"
-        }
+		for(jsize i = 0; i < n; ++i)
+		{
+			QAndroidJniObject s((jstring)env->GetObjectArrayElement(arr, i));
+			out.push_back(s.toString());																// "src \t Target \t Name"
+		}
 
-        return out;
-    }
+		return out;
+	}
 #endif
 
-    // Non-Android, or Android with real FS path
-    QStringList out;
-    QDir root(path);
-    if(!root.exists())
-        return out;
+	// Non-Android, or Android with real FS path
+	QStringList out;
+	QDir root(path);
+	if(!root.exists())
+		return out;
 
-    // Build list of directories to scan
-    QVector<QDir> scan;
-    scan << root;
+	// Build list of directories to scan
+	QVector<QDir> scan;
+	scan << root;
 
-    // If user picked "Data", also scan ../Maps and ../Mp3 (if present)
-    if(root.dirName().compare(QLatin1String("Data"), Qt::CaseInsensitive) == 0)
-    {
-        QDir parent = root;
-        if(parent.cdUp())
-        {
-            addIfExists(scan, parent, "Maps");
-            addIfExists(scan, parent, "Mp3");
-        }
-    }
+	// If user picked "Data", also scan ../Maps and ../Mp3 (if present)
+	if(root.dirName().compare(QLatin1String("Data"), Qt::CaseInsensitive) == 0)
+	{
+		QDir parent = root;
+		if(parent.cdUp())
+		{
+			addIfExists(scan, parent, "Maps");
+			addIfExists(scan, parent, "Mp3");
+		}
+	}
 
-    // Depth-first traversal on each directory; classify by extension
-    for(const QDir &dir : scan)
-    {
-        QDirIterator it(dir.absolutePath(), QDir::Files | QDir::Readable | QDir::NoSymLinks, QDirIterator::Subdirectories);
+	// Depth-first traversal on each directory; classify by extension
+	for(const QDir &dir : scan)
+	{
+		QDirIterator it(dir.absolutePath(), QDir::Files | QDir::Readable | QDir::NoSymLinks, QDirIterator::Subdirectories);
 
-        while(it.hasNext())
-        {
-            const QString filePath = it.next();
-            const QFileInfo file(filePath);
-            const QString target = classifyTargetByExt(file.fileName());
-            if(target.isEmpty())
-                continue;
+		while(it.hasNext())
+		{
+			const QString filePath = it.next();
+			const QFileInfo file(filePath);
+			const QString target = classifyTargetByExt(file.fileName());
+			if(target.isEmpty())
+				continue;
 
-            out.push_back(filePath + QLatin1Char('\t') + target + QLatin1Char('\t') + file.fileName());   // "src \t Target \t Name"
-        }
-    }
+			out.push_back(filePath + QLatin1Char('\t') + target + QLatin1Char('\t') + file.fileName());	// "src \t Target \t Name"
+		}
+	}
 
-    return out;
+	return out;
 }
 
 }

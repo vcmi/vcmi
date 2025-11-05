@@ -1,5 +1,5 @@
 /*
- * firstlaunch_moc.cpp, part of VCMI engine
+ * progressoverlay.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -10,6 +10,7 @@
 #include "progressoverlay.h"
 #include "../helper.h"
 #include <QVBoxLayout>
+#include <QApplication>
 #include <QPalette>
 
 ProgressOverlay::ProgressOverlay(QWidget *parent, int topOffsetPx)

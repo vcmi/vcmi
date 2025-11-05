@@ -414,7 +414,18 @@ void FirstLaunchView::extractGogData()
 	QString filterBin = tr("GOG data") + " (*.bin)";
 	QString titleBin = tr("Select the offline GOG installer data file: %1", "param is file name").arg(expectedBinName);
 
-	QString fileBin = fileSelection(titleBin, filterBin, exeInfo.absolutePath());
+	// Try to access BIN based on selected EXE
+	QString fileBinCandidate = exeInfo.absoluteDir().filePath(expectedBinName);
+	bool haveCandidate = false;
+
+	QFile file(fileBinCandidate);
+	if(file.open(QIODevice::ReadOnly))
+	{
+		haveCandidate = true;
+		file.close();
+	}
+
+    QString fileBin = haveCandidate ? fileBinCandidate : fileSelection(titleBin, filterBin, exeInfo.absolutePath());
 	if(fileBin.isEmpty())
 		return;
 
@@ -435,7 +446,7 @@ void FirstLaunchView::extractGogData()
 
 bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* overlay, bool removeSource)
 {
-	// 1) Scan -> "src \t Target \t Name"
+	// 1) Scan -> "Source \t Target \t Name"
 	overlay->setIndeterminate(true);
 
 	const QStringList items = Helper::findFilesForCopy(path);
@@ -493,7 +504,7 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 	QDir targetRoot = pathToQString(VCMIDirs::get().userDataPath());
 	QSet<QString> created;
 
-	struct CopyItem { QString src, dst; };
+	struct CopyItem { QString source, destination; };
 	QVector<CopyItem> plan;
 	plan.reserve(items.size());
 
@@ -501,18 +512,18 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 	{
 		const auto part = line.split('\t');
 
-		const QString &src  = part[0];
-		const QString &tgt  = part[1]; // Data / Maps / Mp3
-		const QString &file = part[2];
+		const QString &source = part[0];
+		const QString &target = part[1]; // Data / Maps / Mp3
+		const QString &file   = part[2];
 
-		if(!created.contains(tgt))
+		if(!created.contains(target))
 		{
-			QDir{}.mkpath(targetRoot.filePath(tgt));
-			created.insert(tgt);
+			QDir{}.mkpath(targetRoot.filePath(target));
+			created.insert(target);
 		}
 
-		const QDir dstDir = targetRoot.filePath(tgt);
-		plan.push_back({ src, dstDir.filePath(file) });
+		const QDir destinationDir = targetRoot.filePath(target);
+		plan.push_back({ source, destinationDir.filePath(file) });
 	}
 
 	// 4) Copy with progress
@@ -522,16 +533,16 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 
 	for(int i = 0; i < plan.size(); ++i)
 	{
-		overlay->setFileName(QFileInfo(plan[i].dst).fileName());
+		overlay->setFileName(QFileInfo(plan[i].destination).fileName());
 		overlay->setValue(i + 1);
 		qApp->processEvents();
 
-		if(QFile::exists(plan[i].dst))
-			QFile::remove(plan[i].dst);
+		if(QFile::exists(plan[i].destination))
+			QFile::remove(plan[i].destination);
 
-		Helper::performNativeCopy(plan[i].src, plan[i].dst);
+		Helper::performNativeCopy(plan[i].source, plan[i].destination);
 
-		logGlobal->info("Copying '%s' -> '%s'", plan[i].src.toStdString(), plan[i].dst.toStdString());
+		logGlobal->info("Copying '%s' -> '%s'", plan[i].source.toStdString(), plan[i].destination.toStdString());
 	}
 
 	// 5) Optional cleanup
@@ -739,7 +750,7 @@ bool FirstLaunchView::checkCanInstallDemo()
 		{
 			QFileInfo lodInfo(dataDir.filePath(name));
 			quint64 fileSize = static_cast<quint64>(lodInfo.size());
-			logGlobal->error("H3ab_spr.lod size: %llu", fileSize);
+			logGlobal->trace("H3ab_spr.lod size: %llu", fileSize);
 			if(fileSize < 8000000 && hasDemoMap) // 8 MB + Demo map = Merged Windows and MacOS Demo
 				return true;
 		}

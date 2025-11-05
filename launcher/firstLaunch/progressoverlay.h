@@ -1,5 +1,5 @@
 /*
- * firstlaunch_moc.h, part of VCMI engine
+ * progressoverlay.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
