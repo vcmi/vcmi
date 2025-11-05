@@ -95,6 +95,9 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 		auto & terrains = LIBRARY->terrainTypeHandler->objects;
 		for (const auto & terrain : terrains)
 		{
+			if(!terrain->isPassable())
+				continue;
+
 			texts.push_back(terrain->getNameTranslated());
 
 			const auto & patterns = LIBRARY->terviewh->getTerrainViewPatterns(terrain->getId());
@@ -142,12 +145,12 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 			startInfo->selectedHero[0] = std::nullopt;
 			startInfo->selectedArmy[0].fill(CStackBasicDescriptor(CreatureID::NONE, 1));
 			for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
-				heroSelector1->selectedArmyInput.at(i)->setText("1");
+				heroSelector1->selectedArmyInput.at(i)->disable();
 		}
 		startInfo->selectedHero[1] = std::nullopt;
 		startInfo->selectedArmy[1].fill(CStackBasicDescriptor(CreatureID::NONE, 1));
 		for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
-			heroSelector2->selectedArmyInput.at(i)->setText("1");
+			heroSelector2->selectedArmyInput.at(i)->disable();
 		onChange();
 	});
 	buttonReset->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeReset"), EFonts::FONT_SMALL, Colors::WHITE);
@@ -260,9 +263,10 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWin
 			{
 				parent.startInfo->selectedArmy[id][i].setCount(TextOperations::parseMetric<int>(text));
 				parent.onChange();
+				selectedArmyInput[i]->enable();
 			}
 			else
-				selectedArmyInput[i]->setText("1");
+				selectedArmyInput[i]->disable();
 		});
 	}
 
@@ -295,11 +299,11 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		std::sort(heroes.begin(), heroes.end(), [](auto a, auto b) {
 			auto heroA = a.toHeroType();
 			auto heroB = b.toHeroType();
-			if (heroA->heroClass->getId() == heroB->heroClass->getId())
-				return heroA->getNameTranslated() < heroB->getNameTranslated();
-			if (heroA->heroClass->faction == heroB->heroClass->faction)
+			if(heroA->heroClass->faction != heroB->heroClass->faction)
+				return heroA->heroClass->faction < heroB->heroClass->faction;
+			if(heroA->heroClass->getId() != heroB->heroClass->getId())
 				return heroA->heroClass->getId() < heroB->heroClass->getId();
-			return heroA->heroClass->faction < heroB->heroClass->faction;
+			return heroA->getNameTranslated() < heroB->getNameTranslated();
 		});
 
 		int selectedIndex = !parent.startInfo->selectedHero[id] ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
@@ -319,7 +323,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 			images.push_back(image);
 		}
-		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("object.core.hero.name"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
+		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 			if(index == 0)
 			{
 				parent.startInfo->selectedHero[id] = std::nullopt;
@@ -361,7 +365,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		if(parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
 		{
 			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), Point(6 + i * 36, 78));
-			selectedArmyInput[i]->setText("1");
+			selectedArmyInput[i]->disable();
 		}
 		else
 		{
@@ -369,6 +373,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			auto creatureID = unit.getId();
 			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->setText(TextOperations::formatMetric(unit.getCount(), 3));
+			selectedArmyInput[i]->enable();
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){
@@ -377,11 +382,13 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			std::sort(creatures.begin(), creatures.end(), [](auto a, auto b) {
 				auto creatureA = a.toCreature();
 				auto creatureB = b.toCreature();
-				if (creatureA->getLevel() == creatureB->getLevel())
-					return creatureA->getNameSingularTranslated() < creatureB->getNameSingularTranslated();
-				if (creatureA->getFactionID() == creatureB->getFactionID())
+				if(creatureA->getFactionID() != creatureB->getFactionID())
+					return creatureA->getFactionID() < creatureB->getFactionID();
+				if(creatureA->getLevel() != creatureB->getLevel())
 					return creatureA->getLevel() < creatureB->getLevel();
-				return creatureA->getFactionID() < creatureB->getFactionID();
+				if(creatureA->upgrades.size() != creatureB->upgrades.size())
+					return creatureA->upgrades.size() > creatureB->upgrades.size();
+				return creatureA->getNameSingularTranslated() < creatureB->getNameSingularTranslated();
 			});
 
 			int selectedIndex = parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE ? 0 : (1 + std::distance(creatures.begin(), std::find_if(creatures.begin(), creatures.end(), [this, i](auto creatureID) {
@@ -401,11 +408,10 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 				image->scaleTo(Point(23, 23), EScalingAlgorithm::NEAREST);
 				images.push_back(image);
 			}
-			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("core.genrltxt.42"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), [this, creatures, i](int index){
+			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeCreatureSelect"), [this, creatures, i](int index){
 				if(index == 0)
 				{
-					if(parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
-						parent.startInfo->selectedArmy[id][i] = CStackBasicDescriptor(CreatureID::NONE, 1);
+					parent.startInfo->selectedArmy[id][i] = CStackBasicDescriptor(CreatureID::NONE, 1);
 					parent.onChange();
 					return;
 				}
