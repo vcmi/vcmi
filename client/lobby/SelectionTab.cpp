@@ -12,7 +12,7 @@
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
-#include "BattleOnlyMode.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"

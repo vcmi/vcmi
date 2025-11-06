@@ -16,7 +16,7 @@
 #include "OptionsTab.h"
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
-#include "BattleOnlyMode.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"

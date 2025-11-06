@@ -1,5 +1,5 @@
 /*
- * BattleOnlyMode.cpp, part of VCMI engine
+ * BattleOnlyModeTab.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -9,7 +9,7 @@
  */
 
 #include "StdInc.h"
-#include "BattleOnlyMode.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"

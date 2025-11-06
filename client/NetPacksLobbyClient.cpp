@@ -19,7 +19,7 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
-#include "lobby/BattleOnlyMode.h"
+#include "lobby/BattleOnlyModeTab.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
