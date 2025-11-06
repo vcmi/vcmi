@@ -524,6 +524,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	PlayerColor player;
 	EVictoryLossCheckResult victoryLossCheckResult;
 	StatisticDataSet statistic;
+	bool silentEnd = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -532,6 +533,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 		h & player;
 		h & victoryLossCheckResult;
 		h & statistic;
+		h & silentEnd;
 	}
 };
 

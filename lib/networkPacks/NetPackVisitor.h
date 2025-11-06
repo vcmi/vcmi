@@ -170,6 +170,7 @@ public:
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
 	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) {}
 	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) {}
+	virtual void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) {}
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}

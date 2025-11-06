@@ -47,6 +47,7 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)

@@ -97,6 +97,7 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapHeader.h"
 
 #include "../lib/networkPacks/PacksForClient.h"
@@ -658,7 +659,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool();
+	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool() || GAME->map().getMap()->battleOnly;
 	bool forceQuickCombat = settings["adventure"]["forceQuickCombat"].Bool();
 
 	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
@@ -1482,7 +1483,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false)
+		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false && !GAME->map().getMap()->battleOnly)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);

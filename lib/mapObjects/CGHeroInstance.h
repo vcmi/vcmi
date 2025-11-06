@@ -311,8 +311,6 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
-	void attachToBonusSystem(CGameState & gs) override;
-	void detachFromBonusSystem(CGameState & gs) override;
 	void restoreBonusSystem(CGameState & gs) override;
 
 	void updateFrom(const JsonNode & data) override;

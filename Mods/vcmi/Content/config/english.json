@@ -138,6 +138,13 @@
 	"vcmi.lobby.deleteFile" : "Do you want to delete following file?",
 	"vcmi.lobby.deleteFolder" : "Do you want to delete following folder?",
 	"vcmi.lobby.deleteMode" : "Switch to delete mode and back",
+	"vcmi.lobby.battleOnlyMode" : "Battle only mode",
+	"vcmi.lobby.battleOnlyModeBattlefield" : "Battlefield",
+	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Select Battlefield",
+	"vcmi.lobby.battleOnlyModeHeroSelect" : "Select Hero",
+	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Select Creature",
+	"vcmi.lobby.battleOnlyModeSelect" : "Select",
+	"vcmi.lobby.battleOnlyModeReset" : "Reset",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
 

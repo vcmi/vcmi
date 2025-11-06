@@ -129,6 +129,7 @@ CMapHeader::CMapHeader()
 	, defeatIconIndex(0)
 	, howManyTeams(0)
 	, areAnyPlayers(false)
+	, battleOnly(false)
 {
 	setupEvents();
 	allowedHeroes = LIBRARY->heroh->getDefaultAllowed();

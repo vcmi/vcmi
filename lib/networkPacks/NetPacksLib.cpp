@@ -773,6 +773,11 @@ void LobbySetCampaignBonus::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbySetCampaignBonus(*this);
 }
 
+void LobbySetBattleOnlyModeStartInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetBattleOnlyModeStartInfo(*this);
+}
+
 void LobbyChangePlayerOption::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyChangePlayerOption(*this);

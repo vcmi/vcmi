@@ -1021,7 +1021,7 @@ void CVCMIServer::multiplayerWelcomeMessage()
 		if(pi.second.isControlledByHuman())
 			humanPlayer++;
 
-	if(humanPlayer < 2) // Singleplayer
+	if(humanPlayer < 2 || mi->mapHeader->battleOnly) // Singleplayer or Battle only mode
 		return;
 
 	gh->playerMessages->broadcastSystemMessage(MetaString::createFromTextID("vcmi.broadcast.command"));

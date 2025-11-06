@@ -241,4 +241,13 @@ TeamID LobbyInfo::getPlayerTeamId(const PlayerColor & color)
 		return TeamID::NO_TEAM;
 }
 
+BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
+	: selectedTerrain(TerrainId::DIRT)
+	, selectedTown(std::nullopt)
+{
+	for(auto & element : primSkillLevel)
+		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
+			element[i] = 0;
+}
+
 VCMI_LIB_NAMESPACE_END
