@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 #include "BattleOnlyModeTab.h"
+#include "CLobbyScreen.h"
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -65,8 +66,6 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 	init();
 
 	backgroundImage = std::make_shared<CPicture>(ImagePath::builtin("AdventureOptionsBackgroundClear"), 0, 6);
-	buttonOk = std::make_shared<CButton>(Point(148, 430), AnimationPath::builtin("CBBEGIB"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
-	buttonOk->block(true);
 	title = std::make_shared<CLabel>(220, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
 	subTitle = std::make_shared<CMultiLineLabel>(Rect(55, 40, 333, 40), FONT_SMALL, ETextAlignment::BOTTOMCENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSubTitle"));
 
@@ -167,7 +166,7 @@ void BattleOnlyModeTab::onChange()
 void BattleOnlyModeTab::update()
 {
 	setTerrainButtonText();
-	setOkButtonEnabled();
+	setStartButtonEnabled();
 	
 	heroSelector1->setHeroIcon();
 	heroSelector1->setCreatureIcons();
@@ -187,13 +186,13 @@ void BattleOnlyModeTab::setTerrainButtonText()
 	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, disabledColor);
 }
 
-void BattleOnlyModeTab::setOkButtonEnabled()
+void BattleOnlyModeTab::setStartButtonEnabled()
 {
 	bool army2Empty = std::all_of(startInfo->selectedArmy[1].begin(), startInfo->selectedArmy[1].end(), [](const auto x) { return x.getId() == CreatureID::NONE; });
 
 	bool canStart = (startInfo->selectedTerrain || startInfo->selectedTown);
 	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && !army2Empty)));
-	buttonOk->block(!canStart || GAME->server().isGuest());
+	(static_cast<CLobbyScreen *>(parent))->buttonStart->block(!canStart || GAME->server().isGuest());
 }
 
 std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA color)

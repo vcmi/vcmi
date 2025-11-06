@@ -65,7 +65,6 @@ private:
 	std::shared_ptr<EditorCallback> cb;
 
 	std::shared_ptr<CPicture> backgroundImage;
-	std::shared_ptr<CButton> buttonOk;
 	std::shared_ptr<CLabel> title;
 	std::shared_ptr<CMultiLineLabel> subTitle;
 
@@ -80,9 +79,9 @@ private:
 	void onChange();
 	void update();
 	void setTerrainButtonText();
-	void setOkButtonEnabled();
-	void startBattle();
 public:
 	BattleOnlyModeTab();
 	void applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si);
+	void startBattle();
+	void setStartButtonEnabled();
 };
