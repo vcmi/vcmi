@@ -16,6 +16,7 @@
 #include "OptionsTab.h"
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
+#include "BattleOnlyMode.h"
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -146,6 +147,8 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 		GAME->server().sendGuiAction(LobbyGuiAction::OPEN_TURN_OPTIONS);
 	else if(tab == tabExtraOptions)
 		GAME->server().sendGuiAction(LobbyGuiAction::OPEN_EXTRA_OPTIONS);
+	else if(tab == tabBattleOnlyMode)
+		GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
 	CSelectionBase::toggleTab(tab);
 }
 
@@ -239,6 +242,13 @@ void CLobbyScreen::toggleChat()
 
 void CLobbyScreen::updateAfterStateChange()
 {
+	OBJECT_CONSTRUCTION;
+	if(!tabBattleOnlyMode)
+	{
+		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
+		tabBattleOnlyMode->setEnabled(false);
+	}
+
 	if(GAME->server().isHost() && screenType == ESelectionScreen::newGame)
 	{
 		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;

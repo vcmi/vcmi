@@ -11,6 +11,7 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/mapping/CMap.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,22 +26,17 @@ class FilledTexturePlayerColored;
 class CButton;
 class CPicture;
 class CLabel;
-class BattleOnlyModeWindow;
+class CMultiLineLabel;
+class BattleOnlyModeTab;
 class CAnimImage;
 class GraphicalPrimitiveCanvas;
 class CTextInput;
 class TransparentFilledRectangle;
 
-class BattleOnlyMode
-{
-public:
-	static void openBattleWindow();
-};
-
 class BattleOnlyModeHeroSelector : public CIntObject
 {
 private:
-	BattleOnlyModeWindow& parent;
+	BattleOnlyModeTab& parent;
 
 	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CPicture> heroImage;
@@ -57,10 +53,10 @@ public:
 
 	void setHeroIcon();
 	void setCreatureIcons();
-	BattleOnlyModeHeroSelector(int id, BattleOnlyModeWindow& parent, Point position);
+	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& parent, Point position);
 };
 
-class BattleOnlyModeWindow : public CWindowObject
+class BattleOnlyModeTab : public CIntObject
 {
 	friend class BattleOnlyModeHeroSelector;
 private:
@@ -68,10 +64,10 @@ private:
 	std::unique_ptr<CMap> map;
 	std::shared_ptr<EditorCallback> cb;
 
-	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
+	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CButton> buttonOk;
-	std::shared_ptr<CButton> buttonAbort;
 	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CMultiLineLabel> subTitle;
 
 	std::shared_ptr<CButton> battlefieldSelector;
 	std::shared_ptr<CButton> buttonReset;
@@ -87,6 +83,6 @@ private:
 	void setOkButtonEnabled();
 	void startBattle();
 public:
-	BattleOnlyModeWindow();
+	BattleOnlyModeTab();
 	void applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si);
 };

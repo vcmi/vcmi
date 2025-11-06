@@ -139,6 +139,7 @@
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
 	"vcmi.lobby.battleOnlyMode" : "Nur Kämpfen Modus",
+	"vcmi.lobby.battleOnlyModeSubTitle" : "Wähle Helden und eine Armee für einen einfachen Kampf ohne Abenteuerkarte",
 	"vcmi.lobby.battleOnlyModeBattlefield" : "Schlachtfeld",
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Schlachtfeld auswählen",
 	"vcmi.lobby.battleOnlyModeHeroSelect" : "Helden auswählen",

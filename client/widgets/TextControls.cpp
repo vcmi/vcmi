@@ -351,12 +351,13 @@ Rect CMultiLineLabel::getTextLocation()
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
-	case ETextAlignment::CENTERLEFT:  return Rect(pos.topLeft() + Point(0, textOffset.y / 2), textSizeComputed);
-	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
-	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::TOPLEFT:      return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::TOPCENTER:    return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::CENTER:       return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
+	case ETextAlignment::CENTERLEFT:   return Rect(pos.topLeft() + Point(0, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::CENTERRIGHT:  return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::BOTTOMRIGHT:  return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::BOTTOMCENTER: return Rect(pos.topLeft() + Point(textOffset.x / 2, textOffset.y), textSizeComputed);
 	}
 	assert(0);
 	return Rect();

@@ -56,39 +56,21 @@
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-void BattleOnlyMode::openBattleWindow()
-{
-	GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
-	ENGINE->windows().createAndPushWindow<BattleOnlyModeWindow>();
-}
-
-BattleOnlyModeWindow::BattleOnlyModeWindow()
-	: CWindowObject(BORDERED)
-	, startInfo(std::make_shared<BattleOnlyModeStartInfo>())
+BattleOnlyModeTab::BattleOnlyModeTab()
+	: startInfo(std::make_shared<BattleOnlyModeStartInfo>())
 	, disabledColor(GAME->server().isHost() ? Colors::WHITE : Colors::ORANGE)
 {
 	OBJECT_CONSTRUCTION;
 
-	pos.w = 519;
-	pos.h = 238;
-
-	updateShadow();
-	center();
-
 	init();
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	backgroundTexture->setPlayerColor(PlayerColor(1));
-	buttonOk = std::make_shared<CButton>(Point(191, 203), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
+	backgroundImage = std::make_shared<CPicture>(ImagePath::builtin("AdventureOptionsBackgroundClear"), 0, 6);
+	buttonOk = std::make_shared<CButton>(Point(148, 430), AnimationPath::builtin("CBBEGIB"), CButton::tooltip(), [this](){ startBattle(); }, EShortcut::GLOBAL_ACCEPT);
 	buttonOk->block(true);
-	buttonAbort = std::make_shared<CButton>(Point(265, 203), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){
-		GAME->server().sendGuiAction(LobbyGuiAction::NO_TAB);
-		close();
-	}, EShortcut::GLOBAL_CANCEL);
-	buttonAbort->block(true);
-	title = std::make_shared<CLabel>(260, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
+	title = std::make_shared<CLabel>(220, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
+	subTitle = std::make_shared<CMultiLineLabel>(Rect(55, 40, 333, 40), FONT_SMALL, ETextAlignment::BOTTOMCENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSubTitle"));
 
-	battlefieldSelector = std::make_shared<CButton>(Point(29, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
+	battlefieldSelector = std::make_shared<CButton>(Point(120, 370), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
 		std::vector<std::string> texts;
 		std::vector<std::shared_ptr<IImage>> images;
 
@@ -137,7 +119,7 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 		}, (startInfo->selectedTerrain ? static_cast<int>(*startInfo->selectedTerrain) : static_cast<int>(*startInfo->selectedTown + terrains.size())), images, true, true);
 	});
 	battlefieldSelector->block(GAME->server().isGuest());
-	buttonReset = std::make_shared<CButton>(Point(289, 174), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
+	buttonReset = std::make_shared<CButton>(Point(120, 400), AnimationPath::builtin("GSPButtonClear"), CButton::tooltip(), [this](){
 		if(GAME->server().isHost())
 		{
 			startInfo->selectedTerrain = TerrainId::DIRT;
@@ -155,15 +137,15 @@ BattleOnlyModeWindow::BattleOnlyModeWindow()
 	});
 	buttonReset->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeReset"), EFonts::FONT_SMALL, Colors::WHITE);
 
-	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(0, 40));
-	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(260, 40));
+	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(91, 90));
+	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(91, 225));
 
 	heroSelector1->setInputEnabled(GAME->server().isHost());
 
 	onChange();
 }
 
-void BattleOnlyModeWindow::init()
+void BattleOnlyModeTab::init()
 {
 	map = std::make_unique<CMap>(nullptr);
 	map->version = EMapFormat::VCMI;
@@ -177,12 +159,12 @@ void BattleOnlyModeWindow::init()
 	cb = std::make_unique<EditorCallback>(map.get());
 }
 
-void BattleOnlyModeWindow::onChange()
+void BattleOnlyModeTab::onChange()
 {
 	GAME->server().setBattleOnlyModeStartInfo(startInfo);
 }
 
-void BattleOnlyModeWindow::update()
+void BattleOnlyModeTab::update()
 {
 	setTerrainButtonText();
 	setOkButtonEnabled();
@@ -194,25 +176,24 @@ void BattleOnlyModeWindow::update()
 	redraw();
 }
 
-void BattleOnlyModeWindow::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si)
+void BattleOnlyModeTab::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si)
 {
 	startInfo = si;
 	update();
 }
 
-void BattleOnlyModeWindow::setTerrainButtonText()
+void BattleOnlyModeTab::setTerrainButtonText()
 {
 	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, disabledColor);
 }
 
-void BattleOnlyModeWindow::setOkButtonEnabled()
+void BattleOnlyModeTab::setOkButtonEnabled()
 {
 	bool army2Empty = std::all_of(startInfo->selectedArmy[1].begin(), startInfo->selectedArmy[1].end(), [](const auto x) { return x.getId() == CreatureID::NONE; });
 
 	bool canStart = (startInfo->selectedTerrain || startInfo->selectedTown);
 	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && !army2Empty)));
 	buttonOk->block(!canStart || GAME->server().isGuest());
-	buttonAbort->block(GAME->server().isGuest());
 }
 
 std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA color)
@@ -224,7 +205,7 @@ std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA col
 	return image;
 }
 
-BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeWindow& p, Point position)
+BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& p, Point position)
 : parent(p)
 , id(id)
 {
@@ -440,7 +421,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 	}
 }
 
-void BattleOnlyModeWindow::startBattle()
+void BattleOnlyModeTab::startBattle()
 {
 	auto rng = &CRandomGenerator::getDefault();
 	
