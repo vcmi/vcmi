@@ -4092,7 +4092,7 @@ Add hozzá a térkép kötelező moduljaihoz a Térkép → Általános beállí
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">A zóna: %1
 B zóna: %2
 Őrség: %3</translation>

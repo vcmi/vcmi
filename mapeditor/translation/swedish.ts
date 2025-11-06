@@ -4511,7 +4511,7 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zon A: %1
 Zon B: %2
 Vakt: %3</translation>

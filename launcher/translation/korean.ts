@@ -398,7 +398,7 @@
 Encountered errors:
 
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모든 파일을 다운로드할 수 없습니다.
 
 발생한 오류:
@@ -410,7 +410,7 @@ Encountered errors:
         <source>
 
 Install successfully downloaded?</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
 
 
@@ -429,77 +429,77 @@ Install successfully downloaded?</source>
         <translation type="unfinished">모드 %1 설치 중</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도가 존재합니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">지도 &apos;%1&apos; 이(가) 이미 존재합니다. 덮어쓰시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모두 예</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모두 아니오</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">가져오기 완료</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1개의 지도를 성공적으로 가져왔습니다.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">다음 지도를 가져오지 못했습니다:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">작업 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">발생한 오류:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스크린샷</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">스크린샷 %1</translation>
@@ -699,7 +699,7 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">게임 표시 모드를 선택하세요
 
 창 모드 - 화면의 일부를 차지하는 창에서 게임이 실행됩니다.
@@ -1271,7 +1271,7 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI를 설치해 주셔서 감사합니다!
 
 플레이를 시작하기 전에 몇 가지 단계를 더 완료해야 합니다.
@@ -1321,7 +1321,7 @@ Heroes® of Might and Magic® III HD는 현재 지원되지 않습니다!</trans
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">gog.com에서 Heroes III를 보유하고 있다면 오프라인 백업 설치 관리자를 다운로드해 VCMI가 해당 설치 관리자를 사용하여 데이터를 가져올 수 있습니다.
 오프라인 설치 관리자는 두 파일(&quot;.exe&quot;와 &quot;.bin&quot;)로 구성됩니다. 둘 다 다운로드해야 합니다.</translation>
     </message>
@@ -1411,7 +1411,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III: HD Edition 파일은 VCMI에서 지원되지 않습니다.
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death가 설치된 디렉터리를 선택하세요.</translation>
     </message>
@@ -1419,7 +1419,7 @@ Heroes III: Complete Edition 또는 Heroes III: Shadow of Death가 설치된 디
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">알 수 없거나 지원되지 않는 Heroes III 버전이 감지되었습니다.
 Heroes III: Complete Edition 또는 Heroes III: Shadow of Death 디렉터리를 선택하세요.</translation>
     </message>
@@ -1464,7 +1464,7 @@ Heroes III: Complete Edition 또는 Heroes III: Shadow of Death 디렉터리를 
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">선택한 디렉터리에서 올바른 Heroes III 데이터를 감지하지 못했습니다.
 설치된 Heroes III 데이터가 있는 디렉터리를 선택하세요.</translation>
     </message>
@@ -1493,7 +1493,7 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">파일을 추출하는 동안 스트림 오류!
 오류 원인:</translation>
     </message>
@@ -1534,7 +1534,7 @@ Bin (%n bytes):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">내부 복사 과정에 실패했습니다. 장치에 충분한 공간이 있습니까?
 
 %1</translation>
@@ -1557,7 +1557,7 @@ Bin (%n bytes):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">언어 불일치!
 %1
 
@@ -1569,7 +1569,7 @@ Bin (%n bytes):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">파일이 하나만 인식됩니다! 파일이 손상되었을 수 있습니다. 다시 다운로드하세요.
 %1
 
@@ -1580,7 +1580,7 @@ Bin (%n bytes):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">알 수 없는 파일입니다! 파일이 손상되었을 수 있습니다. 다시 다운로드하세요.
 
 %1</translation>
@@ -1889,7 +1889,7 @@ Bin (%n bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">모드가 보호된 디렉터리에 있습니다. 다음 위치에서 수동으로 삭제하세요:
 </translation>
     </message>
@@ -2042,7 +2042,7 @@ Bin (%n bytes):
         <location filename="../main.cpp" line="125"/>
         <source>Failed to start %1
 Reason: %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1을(를) 시작하지 못했습니다
 이유: %2</translation>
     </message>
@@ -2268,7 +2268,7 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">이 옵션을 사용하면 VCMI 설치에 추가 데이터 파일을 가져올 수 있습니다. 현재 다음을 지원합니다:
 
 - Heroes III 지도(.h3m 또는 .vmap)
@@ -2295,7 +2295,7 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">설치된 일부 모드의 새 버전이 저장소에 있습니다. 이 옵션으로 모드를 자동 업데이트하세요.
 
 경고: 일부 경우 업데이트된 모드는 기존 저장과 호환되지 않을 수 있습니다. 진행 중인 게임을 마칠 때까지 업데이트를 미루는 것이 좋습니다.</translation>
@@ -2304,7 +2304,7 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">gog.com에서 Heroes Chronicles를 보유하고 있다면 오프라인 백업 설치 관리자로 데이터를 가져와 VCMI 맞춤 캠페인으로 설치할 수 있습니다.
 가져오려면 설치하려는 각 연대기의 오프라인 설치 관리자를 다운로드한 후 &apos;파일 가져오기&apos;를 선택하고 해당 파일을 선택하세요. 그러면 연대기를 포함한 VCMI 모드가 생성·설치됩니다</translation>
     </message>
@@ -2313,7 +2313,7 @@ To import Heroes Chronicles, download offline backup installer of each chronicle
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI가 설치에서 Heroes III 음악 파일이 누락된 것을 감지했습니다. VCMI는 실행되지만 게임 내 음악은 재생되지 않습니다.
 
 해결하려면 Heroes III의 mp3 파일을 수동으로 VCMI 데이터 디렉터리에 복사하거나 VCMI를 재설치하고 데이터를 다시 가져오세요</translation>
@@ -2323,7 +2323,7 @@ To resolve this problem, please copy missing mp3 files from Heroes III to VCMI d
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI가 설치에서 Heroes III 비디오 파일이 누락된 것을 감지했습니다. VCMI는 실행되지만 컷신은 재생되지 않습니다.
 
 해결하려면 Heroes III의 VIDEO.VID 파일을 VCMI 데이터 디렉터리에 수동으로 복사하거나 VCMI를 재설치하고 데이터를 다시 가져오세요</translation>
@@ -2333,7 +2333,7 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI가 설치에서 일부 Heroes III 데이터 파일이 누락된 것을 감지했습니다. 실행을 시도할 수 있으나 게임이 비정상 동작하거나 크래시할 수 있습니다.
 
 해결하려면 지원되는 Heroes III 버전으로 게임을 재설치하고 데이터를 다시 가져오세요. VCMI는 Heroes III: Shadow of Death 또는 Complete Edition이 필요하며, gog.com 등에서 구할 수 있습니다</translation>
@@ -2343,7 +2343,7 @@ To resolve this problem, please reinstall game and reimport data files using sup
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI가 설치에서 Heroes III: Armageddon&apos;s Blade의 일부 데이터 파일이 누락된 것을 감지했습니다. VCMI는 동작하지만 해당 캠페인은 사용할 수 없습니다.
 
 해결하려면 누락된 데이터를 VCMI 데이터 디렉터리에 수동 복사하거나 VCMI를 재설치하고 데이터를 다시 가져오세요</translation>

@@ -7,7 +7,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Discord'da VCMI</translation>
+        <translation type="unfinished">Discord&apos;da VCMI</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
@@ -19,7 +19,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">GitHub'da VCMI</translation>
+        <translation type="unfinished">GitHub&apos;da VCMI</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
@@ -398,7 +398,7 @@
 Encountered errors:
 
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tüm dosyalar indirilemedi.
 
 Karşılaşılan hatalar:
@@ -410,7 +410,7 @@ Karşılaşılan hatalar:
         <source>
 
 Install successfully downloaded?</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
 
 
@@ -429,77 +429,77 @@ Kurulum başarıyla indirildi mi?</translation>
         <translation type="unfinished">%1 modu yükleniyor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita mevcut</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Harita &apos;%1&apos; zaten mevcut. Üzerine yazmak ister misiniz?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tümüne Evet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Tümüne Hayır</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İçe aktarma tamamlandı</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 harita başarıyla içe aktarıldı.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İçe aktarma başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Şu haritalar içe aktarılamadı:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">İşlem başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Karşılaşılan hatalar:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">ekran görüntüleri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ekran görüntüsü %1</translation>
@@ -566,7 +566,7 @@ Kurulum başarıyla indirildi mi?</translation>
         <location filename="../settingsView/csettingsview_moc.ui" line="703"/>
         <source>Autocombat AI in battles</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Savaşlarda otomatik savaş YZ'si</translation>
+        <translation type="unfinished">Savaşlarda otomatik savaş YZ&apos;si</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1459"/>
@@ -699,7 +699,7 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Oyun için bir görüntüleme modu seçin
 
 Pencereli - oyun, ekranınızın bir kısmını kaplayan bir pencerede çalışır.
@@ -1254,13 +1254,13 @@ Pencereli - oyun, ekranınızın bir kısmını kaplayan bir pencerede çalış�
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
         <source>VCMI on Github</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">GitHub'da VCMI</translation>
+        <translation type="unfinished">GitHub&apos;da VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
         <source>VCMI on Discord</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Discord'da VCMI</translation>
+        <translation type="unfinished">Discord&apos;da VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
@@ -1271,12 +1271,12 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI'yi yüklediğiniz için teşekkürler!
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI&apos;yi yüklediğiniz için teşekkürler!
 
 Oynamaya başlamadan önce birkaç adım daha var.
 
-Lütfen VCMI'yi kullanmak için Heroes® of Might and Magic® III: Complete veya The Shadow of Death'in orijinal veri dosyalarına sahip olmanız gerektiğini unutmayın.
+Lütfen VCMI&apos;yi kullanmak için Heroes® of Might and Magic® III: Complete veya The Shadow of Death&apos;in orijinal veri dosyalarına sahip olmanız gerektiğini unutmayın.
 
 Heroes® of Might and Magic® III HD şu anda desteklenmemektedir!</translation>
     </message>
@@ -1321,8 +1321,8 @@ Heroes® of Might and Magic® III HD şu anda desteklenmemektedir!</translation>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Heroes III'e gog.com üzerinden sahipseniz gog.com'dan çevrimdışı yedek yükleyiciyi indirebilirsiniz. VCMI daha sonra bu yükleyiciyle Heroes III verilerini içe aktarır.
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes III&apos;e gog.com üzerinden sahipseniz gog.com&apos;dan çevrimdışı yedek yükleyiciyi indirebilirsiniz. VCMI daha sonra bu yükleyiciyle Heroes III verilerini içe aktarır.
 Çevrimdışı yükleyici iki dosyadan oluşur: &quot;.exe&quot; ve &quot;.bin&quot; - ikisini de indirmeniz gerekir.</translation>
     </message>
     <message>
@@ -1411,7 +1411,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Heroes III: HD Edition dosyaları VCMI tarafından desteklenmez.
 Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini seçin.</translation>
     </message>
@@ -1419,7 +1419,7 @@ Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini s
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bilinmeyen veya desteklenmeyen bir Heroes III sürümü bulundu.
 Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini seçin.</translation>
     </message>
@@ -1464,7 +1464,7 @@ Lütfen Heroes III: Complete Edition veya Heroes III: Shadow of Death dizinini s
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Seçilen dizinde geçerli Heroes III verileri tespit edilemedi.
 Lütfen kurulu Heroes III verilerinin bulunduğu dizini seçin.</translation>
     </message>
@@ -1493,7 +1493,7 @@ Lütfen kurulu Heroes III verilerinin bulunduğu dizini seçin.</translation>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dosyalar çıkarılırken akış hatası!
 hata nedeni:</translation>
     </message>
@@ -1534,7 +1534,7 @@ Bin (%n bytes):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dahili kopyalama işlemi başarısız. Cihazda yeterli alan var mı?
 
 %1</translation>
@@ -1557,7 +1557,7 @@ Bin (%n bytes):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Dil uyuşmazlığı!
 %1
 
@@ -1569,7 +1569,7 @@ Bin (%n bytes):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yalnızca tek dosya biliniyor! Dosyalar bozulmuş olabilir mi? Lütfen yeniden indirin.
 %1
 
@@ -1580,7 +1580,7 @@ Bin (%n bytes):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bilinmeyen dosyalar! Dosyalar bozulmuş olabilir mi? Lütfen yeniden indirin.
 
 %1</translation>
@@ -1841,7 +1841,7 @@ Bin (%n bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Mod uyumlu değil, lütfen VCMI'yi güncelleyin ve en son mod revizyonlarını kontrol edin</translation>
+        <translation type="unfinished">Mod uyumlu değil, lütfen VCMI&apos;yi güncelleyin ve en son mod revizyonlarını kontrol edin</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="167"/>
@@ -1889,7 +1889,7 @@ Bin (%n bytes):
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Mod korumalı bir dizinde bulunuyor, lütfen elle kaldırın:
 </translation>
     </message>
@@ -2042,7 +2042,7 @@ Bin (%n bytes):
         <location filename="../main.cpp" line="125"/>
         <source>Failed to start %1
 Reason: %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">%1 başlatılamadı
 Neden: %2</translation>
     </message>
@@ -2268,7 +2268,7 @@ Neden: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bu seçenek, VCMI kurulumunuza ek veri dosyaları içe aktarmanıza olanak tanır. Şu anda aşağıdaki seçenekler desteklenmektedir:
 
 - Heroes III Haritaları (.h3m veya .vmap).
@@ -2288,14 +2288,14 @@ Neden: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="315"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Heroes III'ün dilinize çevirisi yüklü ancak kapalı. Bu seçeneği kullanarak etkinleştirin.</translation>
+        <translation type="unfinished">Heroes III&apos;ün dilinize çevirisi yüklü ancak kapalı. Bu seçeneği kullanarak etkinleştirin.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="325"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Yüklü modlarınızdan bazıları için depoda yeni bir sürüm mevcut. Bu seçeneği kullanarak tüm modları en son sürüme otomatik olarak güncelleyebilirsiniz.
 
 UYARI: Bazı durumlarda güncellenen modlar mevcut kayıtlarla uyumlu olmayabilir. Devam eden oyunlarınızı bitirene kadar güncellemeyi ertelemek isteyebilirsiniz.</translation>
@@ -2304,37 +2304,37 @@ UYARI: Bazı durumlarda güncellenen modlar mevcut kayıtlarla uyumlu olmayabili
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Heroes Chronicles'a gog.com üzerinden sahipseniz, gog'un sağladığı çevrimdışı yedek yükleyicileri kullanarak Heroes Chronicles verilerini VCMI'ye özel seferler olarak içe aktarabilirsiniz.
-Heroes Chronicles'ı içe aktarmak için yüklemek istediğiniz her kroniğin çevrimdışı yükleyicisini indirin, &apos;Dosyaları içe aktar&apos; seçeneğini seçin ve indirdiğiniz dosyayı gösterin. Bu, içe aktarılan kronikleri içeren bir VCMI modu oluşturup yükleyecektir</translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes Chronicles&apos;a gog.com üzerinden sahipseniz, gog&apos;un sağladığı çevrimdışı yedek yükleyicileri kullanarak Heroes Chronicles verilerini VCMI&apos;ye özel seferler olarak içe aktarabilirsiniz.
+Heroes Chronicles&apos;ı içe aktarmak için yüklemek istediğiniz her kroniğin çevrimdışı yükleyicisini indirin, &apos;Dosyaları içe aktar&apos; seçeneğini seçin ve indirdiğiniz dosyayı gösterin. Bu, içe aktarılan kronikleri içeren bir VCMI modu oluşturup yükleyecektir</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="350"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI, kurulumunuzda Heroes III müzik dosyalarının eksik olduğunu tespit etti. VCMI çalışacak, ancak oyun içi müzik kullanılmayacak.
 
-Bu sorunu çözmek için eksik mp3 dosyalarını Heroes III'ten VCMI veri dizinine elle kopyalayın veya VCMI'yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
+Bu sorunu çözmek için eksik mp3 dosyalarını Heroes III&apos;ten VCMI veri dizinine elle kopyalayın veya VCMI&apos;yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="361"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI, kurulumunuzda Heroes III video dosyalarının eksik olduğunu tespit etti. VCMI çalışacak, ancak ara sahneler oynatılamayacak.
 
-Bu sorunu çözmek için VIDEO.VID dosyasını Heroes III'ten VCMI veri dizinine elle kopyalayın veya VCMI'yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
+Bu sorunu çözmek için VIDEO.VID dosyasını Heroes III&apos;ten VCMI veri dizinine elle kopyalayın veya VCMI&apos;yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="372"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">VCMI, kurulumunuzda bazı Heroes III veri dosyalarının eksik olduğunu tespit etti. VCMI'yi çalıştırmayı deneyebilirsiniz, ancak oyun beklenmedik şekilde çalışabilir veya çökebilir.
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI, kurulumunuzda bazı Heroes III veri dosyalarının eksik olduğunu tespit etti. VCMI&apos;yi çalıştırmayı deneyebilirsiniz, ancak oyun beklenmedik şekilde çalışabilir veya çökebilir.
 
 Bu sorunu çözmek için oyunu yeniden yükleyin ve desteklenen bir Heroes III sürümü kullanarak veri dosyalarını yeniden içe aktarın. VCMI, çalışmak için Heroes III: Shadow of Death veya Complete Edition gerektirir (örneğin gog.com üzerinden edinebilirsiniz)</translation>
     </message>
@@ -2343,10 +2343,10 @@ Bu sorunu çözmek için oyunu yeniden yükleyin ve desteklenen bir Heroes III s
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI, kurulumunuzda bazı Heroes III: Armageddon&apos;s Blade veri dosyalarının eksik olduğunu tespit etti. VCMI çalışacak, ancak Armageddon&apos;s Blade seferleri mevcut olmayacak.
 
-Bu sorunu çözmek için eksik veri dosyalarını Heroes III'ten VCMI veri dizinine elle kopyalayın veya VCMI'yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
+Bu sorunu çözmek için eksik veri dosyalarını Heroes III&apos;ten VCMI veri dizinine elle kopyalayın veya VCMI&apos;yi yeniden yükleyip Heroes III verilerini yeniden içe aktarın</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
@@ -2405,7 +2405,7 @@ Bu sorunu çözmek için eksik veri dosyalarını Heroes III'ten VCMI veri dizin
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">URL'den JSON okunamıyor veya JSON verisi hatalı</translation>
+        <translation type="unfinished">URL&apos;den JSON okunamıyor veya JSON verisi hatalı</translation>
     </message>
 </context>
 </TS>
