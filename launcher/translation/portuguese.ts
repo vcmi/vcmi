@@ -364,43 +364,52 @@ O download da instalação foi bem-sucedido?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">O mapa existe</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">O mapa &apos;%1&apos; já existe. Pretende substituí-lo?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sim para todos</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Não para todos</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Importação concluída</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 mapa(s) importado(s) com êxito.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Falha na importação</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Falha ao importar os seguintes mapas:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
@@ -1725,7 +1734,8 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Recursos</translation>
     </message>
 </context>
 <context>
