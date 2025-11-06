@@ -338,7 +338,11 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
+
+	"MORE_DAMAGE_FROM_SPELL":
+	{
+	},
+
 	"MOVEMENT":
 	{
 		"blockDescriptionPropagation": true
