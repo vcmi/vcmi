@@ -129,6 +129,7 @@ public:
 	InfoCard();
 	void disableLabelRedraws();
 	void changeSelection();
+	void clearSelection();
 	void toggleChat();
 	void setChat(bool activateChat);
 };

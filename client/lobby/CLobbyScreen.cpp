@@ -149,6 +149,18 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 		GAME->server().sendGuiAction(LobbyGuiAction::OPEN_EXTRA_OPTIONS);
 	else if(tab == tabBattleOnlyMode)
 		GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
+
+	if(tab == tabBattleOnlyMode)
+	{
+		buttonStart->block(true);
+		card->clearSelection();
+	}
+	else
+	{
+		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		card->changeSelection();
+	}
+
 	CSelectionBase::toggleTab(tab);
 }
 
