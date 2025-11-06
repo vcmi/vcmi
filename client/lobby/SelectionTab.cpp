@@ -247,7 +247,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [this](){
 				auto lobby = static_cast<CLobbyScreen *>(parent);
 				lobby->toggleTab(lobby->tabBattleOnlyMode);
-			}, EShortcut::LOBBY_ADDITIONAL_OPTIONS);
+			}, EShortcut::LOBBY_BATTLE_MODE);
 		}
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)

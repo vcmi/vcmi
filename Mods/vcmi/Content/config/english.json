@@ -437,6 +437,7 @@
 	"vcmi.keyBindings.keyBinding.lobbyToggleChat": "Lobby toggle chat",
 	"vcmi.keyBindings.keyBinding.lobbyTurnOptions": "Lobby turn options",
 	"vcmi.keyBindings.keyBinding.lobbyCampaignSets": "Lobby campaign sets",
+	"vcmi.keyBindings.keyBinding.lobbyBattleMode": "Lobby battle mode",
 	"vcmi.keyBindings.keyBinding.mainMenuBack": "Main menu back",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaign": "Main menu campaign",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaignAb": "Main menu campaign ab",
