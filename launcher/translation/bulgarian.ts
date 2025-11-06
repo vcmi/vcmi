@@ -398,7 +398,7 @@
 Encountered errors:
 
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Неуспех при изтеглянето на всички файлове.
 
 Възникнаха грешки:
@@ -410,7 +410,7 @@ Encountered errors:
         <source>
 
 Install successfully downloaded?</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
 
 
@@ -429,77 +429,77 @@ Install successfully downloaded?</source>
         <translation type="unfinished">Инсталиране на мод %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Картата съществува</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Карта &apos;%1&apos; вече съществува. Искате ли да я презапишете?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Да за всички</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Не за всички</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Импортът завърши</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Успешно импортирани %1 карти.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Неуспешен импорт</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Неуспешен импорт на следните карти:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Операцията е неуспешна</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Възникнаха грешки:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">скрийншотове</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Скрийншот %1</translation>
@@ -699,7 +699,7 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Изберете режим на показване за играта
 
 В прозорец — играта ще се изпълнява в прозорец, който покрива част от екрана.
@@ -1271,7 +1271,7 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Благодарим ви, че инсталирахте VCMI!
 
 Преди да започнете да играете, има още няколко стъпки.
@@ -1321,7 +1321,7 @@ Heroes® of Might and Magic® III HD понастоящем не се поддъ
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ако притежавате Heroes III в gog.com, можете да изтеглите резервен офлайн инсталатор от gog.com. След това VCMI ще импортира данните на Heroes III чрез офлайн инсталатора.
 Офлайн инсталаторът се състои от два файла: &quot;.exe&quot; и &quot;.bin&quot; — трябва да изтеглите и двата.</translation>
     </message>
@@ -1411,7 +1411,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Файловете на Heroes III: HD Edition не се поддържат от VCMI.
 Моля, изберете папката с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
@@ -1419,7 +1419,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Намерена е непозната или неподдържана версия на Heroes III.
 Моля, изберете папката с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
@@ -1464,7 +1464,7 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Неуспех при откриване на валидни данни на Heroes III в избраната папка.
 Моля, изберете папка с инсталирани данни на Heroes III.</translation>
     </message>
@@ -1493,7 +1493,7 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Грешка на потока при извличане на файлове!
 причина за грешката:</translation>
     </message>
@@ -1548,7 +1548,7 @@ Bin (%n байта):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Вътрешен неуспех при копиране. Има ли достатъчно място на устройството?
 
 %1</translation>
@@ -1571,7 +1571,7 @@ Bin (%n байта):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Несъответствие на езика!
 %1
 
@@ -1583,7 +1583,7 @@ Bin (%n байта):
 %1
 
 %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Известен е само един файл! Може би файловете са повредени? Моля, изтеглете отново.
 %1
 
@@ -1594,7 +1594,7 @@ Bin (%n байта):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Непознати файлове! Може би файловете са повредени? Моля, изтеглете отново.
 
 %1</translation>
@@ -1903,7 +1903,7 @@ Bin (%n байта):
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Модът се намира в защитена папка, моля, премахнете го ръчно:
 </translation>
     </message>
@@ -2056,7 +2056,7 @@ Bin (%n байта):
         <location filename="../main.cpp" line="125"/>
         <source>Failed to start %1
 Reason: %2</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Неуспех при стартиране на %1
 Причина: %2</translation>
     </message>
@@ -2216,7 +2216,7 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
             <numerusform>Heroes Chronicles:
 %n/%1 инсталирани</numerusform>
@@ -2288,7 +2288,7 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Тази опция позволява да импортирате допълнителни файлове с данни във вашата инсталация на VCMI. Понастоящем се поддържат следните опции:
 
 - Карти на Heroes III (.h3m или .vmap).
@@ -2315,7 +2315,7 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">В хранилището на модове е налична нова версия на някои от инсталираните при вас модове. Използвайте тази опция, за да актуализирате автоматично всички модове до последна версия.
 
 ВНИМАНИЕ: Понякога обновените версии на модовете може да не са съвместими със съществуващите ви записи. Може да отложите обновяването, докато приключите текущите игри.</translation>
@@ -2324,7 +2324,7 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ако притежавате Heroes Chronicles в gog.com, можете да използвате офлайн резервните инсталатори, предоставени от gog, за да импортирате данните на Heroes Chronicles във VCMI като потребителски кампании.
 За да импортирате Heroes Chronicles, изтеглете офлайн резервен инсталатор за всяка хроника, която искате да инсталирате, изберете опцията &apos;Импортирай файлове&apos; и изберете изтегления файл. Това ще създаде и инсталира мод за VCMI, който съдържа импортираните хроники</translation>
     </message>
@@ -2333,7 +2333,7 @@ To import Heroes Chronicles, download offline backup installer of each chronicle
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI откри, че липсват музикални файлове на Heroes III във вашата инсталация. VCMI ще работи, но музика в играта няма да има.
 
 За да решите проблема, копирайте липсващите mp3 файлове от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>
@@ -2343,7 +2343,7 @@ To resolve this problem, please copy missing mp3 files from Heroes III to VCMI d
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI откри, че липсват видео файлове на Heroes III във вашата инсталация. VCMI ще работи, но синематиките няма да са налични.
 
 За да решите проблема, копирайте файла VIDEO.VID от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>
@@ -2353,7 +2353,7 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI откри, че липсват някои от файловете с данни на Heroes III във вашата инсталация. Може да опитате да стартирате VCMI, но играта може да не работи както се очаква или да крашва.
 
 За да решите проблема, преинсталирайте играта и преимпортирайте данните с поддържана версия на Heroes III. VCMI изисква Heroes III: Shadow of Death или Complete Edition, които може да получите например от gog.com</translation>
@@ -2363,7 +2363,7 @@ To resolve this problem, please reinstall game and reimport data files using sup
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">VCMI откри, че липсват някои от файловете с данни на Heroes III: Armageddon&apos;s Blade във вашата инсталация. VCMI ще работи, но кампаниите на Armageddon&apos;s Blade няма да са налични.
 
 За да решите проблема, копирайте липсващите файлове с данни от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>

@@ -4215,7 +4215,7 @@ Ajoutez-le aux mods requis dans Carte → Paramètres généraux.</translation>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zone A : %1
 Zone B : %2
 Garde : %3</translation>

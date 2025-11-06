@@ -1836,7 +1836,7 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.ui" line="14"/>
         <source>Select Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Абраць аб'екты</translation>
+        <translation type="unfinished">Абраць аб&apos;екты</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="20"/>
@@ -1847,19 +1847,19 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Banned Objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Забароненыя аб'екты</translation>
+        <translation type="unfinished">Забароненыя аб&apos;екты</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Object Categories</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Забароненыя катэгорыі аб'ектаў</translation>
+        <translation type="unfinished">Забароненыя катэгорыі аб&apos;ектаў</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="33"/>
         <source>Object Selector</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Выбар аб'екта</translation>
+        <translation type="unfinished">Выбар аб&apos;екта</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="95"/>
@@ -1961,7 +1961,7 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Object</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Аб'ект</translation>
+        <translation type="unfinished">Аб&apos;ект</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
@@ -4114,7 +4114,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../templateeditor/templateeditor.ui" line="1255"/>
         <source>Custom objects</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Карыстальніцкія аб'екты</translation>
+        <translation type="unfinished">Карыстальніцкія аб&apos;екты</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="749"/>
@@ -4511,7 +4511,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Зона A: %1
 Зона B: %2
 Ахова: %3</translation>

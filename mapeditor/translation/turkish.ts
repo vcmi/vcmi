@@ -1934,7 +1934,7 @@ Bunu şimdi yapmak ister misiniz?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Pandoras box</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Pandora'nın kutusu</translation>
+        <translation type="unfinished">Pandora&apos;nın kutusu</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="110"/>
@@ -4511,7 +4511,7 @@ Harita → Genel ayarlar kısmından gerekli modlar listesine ekleyin.</translat
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Bölge A: %1
 Bölge B: %2
 Muhafız: %3</translation>

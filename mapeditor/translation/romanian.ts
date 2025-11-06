@@ -4512,7 +4512,7 @@ Adaugă-l în modurile necesare ale hărții din Hartă-&gt;Setări generale.</t
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zona A: %1
 Zona B: %2
 Gardă: %3</translation>

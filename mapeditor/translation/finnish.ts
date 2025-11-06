@@ -4510,7 +4510,7 @@ Lisää se kartan vaadittuihin lisäosiin valikosta Kartta → Yleiset asetukset
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Vyöhyke A: %1
 Vyöhyke B: %2
 Vartio: %3</translation>

@@ -4516,7 +4516,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Ζώνη Α: %1
 Ζώνη Β: %2
 Φρουρά: %3</translation>

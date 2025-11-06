@@ -3966,7 +3966,7 @@ Přidejte ho do povinných modů mapy v nabídce Mapa-&gt;Obecné nastavení.</t
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Zóna A: %1
 Zóna B: %2
 Stráž: %3</translation>

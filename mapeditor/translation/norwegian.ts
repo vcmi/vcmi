@@ -4510,7 +4510,7 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-<translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Sone A: %1
 Sone B: %2
 Vakt: %3</translation>
