@@ -653,7 +653,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			{
-				if (owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
+				auto activeStackHex = owner.stacksController->getActiveStack()->getPosition();
+				if (targetHex != activeStackHex && owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
 				{
 					BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
 					if(owner.getBattle()->battleCanAttack(owner.stacksController->getActiveStack(), targetStack, attackFromHex))
