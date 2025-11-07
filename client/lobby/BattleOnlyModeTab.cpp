@@ -30,6 +30,7 @@
 #include "../windows/GUIClasses.h"
 #include "../windows/CHeroOverview.h"
 #include "../windows/CCreatureWindow.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/CGameState.h"
@@ -73,12 +74,10 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 		std::vector<std::string> texts;
 		std::vector<std::shared_ptr<IImage>> images;
 
-		auto & terrains = LIBRARY->terrainTypeHandler->objects;
+		std::vector<std::shared_ptr<TerrainType>> terrains;
+		std::copy_if(LIBRARY->terrainTypeHandler->objects.begin(), LIBRARY->terrainTypeHandler->objects.end(), std::back_inserter(terrains), [](auto terrain) { return terrain->isPassable(); });
 		for (const auto & terrain : terrains)
 		{
-			if(!terrain->isPassable())
-				continue;
-
 			texts.push_back(terrain->getNameTranslated());
 
 			const auto & patterns = LIBRARY->terviewh->getTerrainViewPatterns(terrain->getId());
@@ -274,6 +273,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	}
 
 	heroImage->addLClickCallback([this](){
+		ENGINE->input().hapticFeedback();
 		auto allowedSet = LIBRARY->heroh->getDefaultAllowed();
 		std::vector<HeroTypeID> heroes(allowedSet.begin(), allowedSet.end());
 		std::sort(heroes.begin(), heroes.end(), [](auto a, auto b) {
@@ -357,6 +357,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		}
 
 		creatureImage[i]->addLClickCallback([this, i](){
+			ENGINE->input().hapticFeedback();
 			auto allowedSet = LIBRARY->creh->getDefaultAllowed();
 			std::vector<CreatureID> creatures(allowedSet.begin(), allowedSet.end());
 			std::sort(creatures.begin(), creatures.end(), [](auto a, auto b) {
