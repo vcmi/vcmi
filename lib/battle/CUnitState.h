@@ -205,7 +205,6 @@ public:
 	bool canShootBlocked() const override;
 	bool canShoot() const override;
 	bool isShooter() const override;
-	bool isMeleeAttacker() const override;
 
 	int32_t getKilled() const override;
 	int32_t getCount() const override;

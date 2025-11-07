@@ -545,22 +545,6 @@ bool CUnitState::isShooter() const
 	return shots.total() > 0;
 }
 
-bool CUnitState::isMeleeAttacker() const
-{
-	//exclude non melee attackers
-	static const std::set<CreatureID> nonMeleeAttackers{
-		CreatureID::FIRST_AID_TENT,
-		CreatureID::CATAPULT,
-		CreatureID::BALLISTA,
-		CreatureID::AMMO_CART,
-		CreatureID::ARROW_TOWERS
-	};
-	if (vstd::contains(nonMeleeAttackers, creatureId()))
-		return false;
-
-	return true;
-}
-
 int32_t CUnitState::getKilled() const
 {
 	int32_t res = unitBaseAmount() - health.getCount() + health.getResurrected();

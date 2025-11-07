@@ -38,6 +38,22 @@ bool Unit::isTurret() const
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
 }
 
+bool Unit::isMeleeAttacker() const
+{
+	//exclude non melee attackers
+	static const std::set<CreatureID> nonMeleeAttackers{
+		CreatureID::FIRST_AID_TENT,
+		CreatureID::CATAPULT,
+		CreatureID::BALLISTA,
+		CreatureID::AMMO_CART,
+		CreatureID::ARROW_TOWERS
+	};
+	if (vstd::contains(nonMeleeAttackers, creatureId()))
+		return false;
+
+	return true;
+}
+
 std::string Unit::getDescription() const
 {
 	boost::format fmt("Unit %d of side %d");
