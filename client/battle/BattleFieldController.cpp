@@ -819,7 +819,7 @@ bool BattleFieldController::isTileAttackable(const BattleHex & number) const
 
 	for (auto & elem : occupiableHexes)
 	{
-		if (BattleHex::mutualPosition(elem, number) != BattleHex::EDir::NONE || elem == number)
+		if (BattleHex::mutualPosition(elem, number) != BattleHex::EDir::NONE)
 			return true;
 	}
 	return false;
