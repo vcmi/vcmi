@@ -140,6 +140,7 @@ public:
 	ESelectionScreen screenType; // To create lobby UI only after server is setup
 	EServerMode serverMode;
 	ELoadMode loadMode; // For saves filtering in SelectionTab
+	bool battleMode;
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;

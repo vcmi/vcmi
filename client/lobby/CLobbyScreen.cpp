@@ -269,6 +269,9 @@ void CLobbyScreen::updateAfterStateChange()
 	{
 		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
 		tabBattleOnlyMode->setEnabled(false);
+
+		if(GAME->server().battleMode)
+			toggleTab(tabBattleOnlyMode);
 	}
 
 	if(GAME->server().isHost() && screenType == ESelectionScreen::newGame)
@@ -291,9 +294,12 @@ void CLobbyScreen::updateAfterStateChange()
 			tabExtraOptions->recreate();
 	}
 
-	buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+	if(curTab && curTab != tabBattleOnlyMode)
+	{
+		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		card->changeSelection();
+	}
 
-	card->changeSelection();
 	if (card->iconDifficulty)
 	{
 		if (screenType == ESelectionScreen::loadGame)
