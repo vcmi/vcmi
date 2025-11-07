@@ -280,8 +280,11 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
 
-		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
-		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
+		{
+			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
+			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
+		}
 
 		if(stack->canMove() && stack->getMovementRange(0)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
@@ -683,6 +686,9 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 	if(!battleMatchOwner(stack, target))
 		return false;
 
+	if (!stack->isMeleeAttacker())
+		return false;
+
 	if (stack->getPosition() != dest)
 	{
 		for (const auto & obstacle : battleGetAllObstacles())
@@ -694,10 +700,6 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 				return false;
 		}
 	}
-
-	auto id = stack->unitType()->getId();
-	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
-		return false;
 
 	return target->alive();
 }
