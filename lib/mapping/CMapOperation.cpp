@@ -421,9 +421,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
 				{
-					if(terType->getId() == centerTerType->getId())
+					if(centerTerType->getId() == terType->getId() || (centerTerType->getId() == ETerrainId::DIRT && !terType->isTransitionRequired()))
 					{
-						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
+						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(terType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(p->get()), 1);
