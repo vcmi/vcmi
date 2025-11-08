@@ -150,8 +150,8 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 	});
 	buttonReset->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeReset"), EFonts::FONT_SMALL, Colors::WHITE);
 
-	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(55, 88));
-	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(55, 307));
+	heroSelector1 = std::make_shared<BattleOnlyModeHeroSelector>(0, *this, Point(55, 90));
+	heroSelector2 = std::make_shared<BattleOnlyModeHeroSelector>(1, *this, Point(55, 320));
 
 	heroSelector1->setInputEnabled(GAME->server().isHost());
 
