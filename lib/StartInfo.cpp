@@ -248,6 +248,10 @@ BattleOnlyModeStartInfo::BattleOnlyModeStartInfo()
 	for(auto & element : primSkillLevel)
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			element[i] = 0;
+	for(auto & element : warMachines)
+		element = false;
+	for(auto & element : spellBook)
+		element = true;
 }
 
 VCMI_LIB_NAMESPACE_END

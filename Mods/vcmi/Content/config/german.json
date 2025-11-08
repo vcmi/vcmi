@@ -144,6 +144,8 @@
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Schlachtfeld auswählen",
 	"vcmi.lobby.battleOnlyModeHeroSelect" : "Helden auswählen",
 	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Kreatur auswählen",
+	"vcmi.lobby.battleOnlyModeSecSkillSelect" : "Sekundären Skill auswählen",
+	"vcmi.lobby.battleOnlyModeArtifactSelect" : "Artifakt auswählen",
 	"vcmi.lobby.battleOnlyModeSelect" : "Wählen",
 	"vcmi.lobby.battleOnlyModeReset" : "Zurücksetzen",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",

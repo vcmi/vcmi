@@ -144,6 +144,8 @@
 	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Select Battlefield",
 	"vcmi.lobby.battleOnlyModeHeroSelect" : "Select Hero",
 	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Select Creature",
+	"vcmi.lobby.battleOnlyModeSecSkillSelect" : "Select Secondary Skill",
+	"vcmi.lobby.battleOnlyModeArtifactSelect" : "Select Artifact",
 	"vcmi.lobby.battleOnlyModeSelect" : "Select",
 	"vcmi.lobby.battleOnlyModeReset" : "Reset",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",

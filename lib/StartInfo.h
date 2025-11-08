@@ -247,9 +247,16 @@ public:
 	std::optional<FactionID> selectedTown;
 
 	std::array<std::optional<HeroTypeID>, 2> selectedHero;
-	std::array<std::array<CStackBasicDescriptor, 7>, 2> selectedArmy;
+	std::array<std::array<CStackBasicDescriptor, GameConstants::ARMY_SIZE>, 2> selectedArmy;
 
 	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
+	std::array<std::array<std::pair<SecondarySkill, MasteryLevel::Type>, 8>, 2> secSkillLevel;
+
+	std::array<std::map<ArtifactPosition, ArtifactID>, 2> artifacts;
+
+	std::array<bool, 2> warMachines;
+
+	std::array<bool, 2> spellBook;
 
 	BattleOnlyModeStartInfo();
 
@@ -260,6 +267,10 @@ public:
 		h & selectedHero;
 		h & selectedArmy;
 		h & primSkillLevel;
+		h & secSkillLevel;
+		h & artifacts;
+		h & warMachines;
+		h & spellBook;
 	}
 };
 

@@ -32,6 +32,7 @@ class CAnimImage;
 class GraphicalPrimitiveCanvas;
 class CTextInput;
 class TransparentFilledRectangle;
+class CToggleButton;
 
 class BattleOnlyModeHeroSelector : public CIntObject
 {
@@ -42,6 +43,10 @@ private:
 	std::shared_ptr<CPicture> heroImage;
 	std::shared_ptr<CLabel> heroLabel;
 	std::vector<std::shared_ptr<CPicture>> creatureImage;
+	std::vector<std::shared_ptr<CPicture>> secSkillImage;
+	std::vector<std::shared_ptr<CPicture>> artifactImage;
+
+	std::vector<std::shared_ptr<CPicture>> addIcon;
 
 	int id;
 public:
@@ -50,9 +55,15 @@ public:
 	std::vector<std::shared_ptr<CTextInput>> primSkillsInput;
 
 	std::vector<std::shared_ptr<CTextInput>> selectedArmyInput;
+	std::vector<std::shared_ptr<CTextInput>> selectedSecSkillInput;
+
+	std::shared_ptr<CToggleButton> spellBook;
+	std::shared_ptr<CToggleButton> warMachines;
 
 	void setHeroIcon();
 	void setCreatureIcons();
+	void setSecSkillIcons();
+	void setArtifactIcons();
 	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& parent, Point position);
 };
 
