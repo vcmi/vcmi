@@ -20,6 +20,7 @@
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
 #include "../render/CanvasImage.h"
+#include "../render/IFont.h"
 #include "../gui/Shortcut.h"
 #include "../gui/WindowHandler.h"
 #include "../widgets/Buttons.h"
@@ -66,6 +67,8 @@
 BattleOnlyModeTab::BattleOnlyModeTab()
 	: startInfo(std::make_shared<BattleOnlyModeStartInfo>())
 	, disabledColor(GAME->server().isHost() ? Colors::WHITE : Colors::ORANGE)
+	, boxColor(ColorRGBA(128, 128, 128))
+	, disabledBoxColor(GAME->server().isHost() ? boxColor : ColorRGBA(116, 92, 16))
 {
 	OBJECT_CONSTRUCTION;
 
@@ -223,7 +226,16 @@ std::shared_ptr<IImage> drawBlackBox(Point size, std::string text, ColorRGBA col
 	auto image = ENGINE->renderHandler().createImage(size, CanvasScalingPolicy::AUTO);
 	Canvas canvas = image->getCanvas();
 	canvas.drawColor(Rect(0, 0, size.x, size.y), Colors::BLACK);
-	canvas.drawText(Point(size.x / 2, size.y / 2), FONT_TINY, color, ETextAlignment::CENTER, text);
+
+	std::vector<std::string> lines;
+	boost::split(lines, text, boost::is_any_of("\n"));
+	int lineH = ENGINE->renderHandler().loadFont(FONT_TINY)->getLineHeight();
+	int totalH = lines.size() * lineH;
+	int startY = (size.y - totalH) / 2 + lineH / 2;
+
+	for (size_t i = 0; i < lines.size(); ++i)
+		canvas.drawText(Point(size.x / 2, startY + i * lineH), FONT_TINY, color, ETextAlignment::CENTER, lines[i]);
+
 	return image;
 }
 
@@ -330,7 +342,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 
 	if(!parent.startInfo->selectedHero[id])
 	{
-		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), Point(6, 7));
+		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelectHero"), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6, 7));
 		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, LIBRARY->generaltexth->translate("core.genrltxt.507"));
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText("0");
@@ -414,7 +426,10 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 	{
 		if(parent.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
 		{
-			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), Point(6 + i * 36, 78));
+			MetaString str;
+			str.appendTextID("vcmi.lobby.battleOnlyModeSelectUnit");
+			str.replaceNumber(i + 1);
+			creatureImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->disable();
 		}
 		else
@@ -502,7 +517,10 @@ void BattleOnlyModeHeroSelector::setSecSkillIcons()
 		auto skillInfo = parent.startInfo->secSkillLevel[id][i];
 		if(skillInfo.second == MasteryLevel::NONE)
 		{
-			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), imgPos);
+			MetaString str;
+			str.appendTextID("vcmi.lobby.battleOnlyModeSelectSkill");
+			str.replaceNumber(i + 1);
+			secSkillImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
 			selectedSecSkillInput[i]->disable();
 		}
 		else
@@ -606,7 +624,12 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 		Point imgPos(6 + xPos * 36, 137 + yPos * 36);
 		auto artifactId = parent.startInfo->artifacts[id][artPos[i]];
 		if(artifactId == ArtifactID::NONE)
-			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelect"), id == 1 ? Colors::WHITE : parent.disabledColor), imgPos);
+		{
+			MetaString str;
+			str.appendTextID("vcmi.lobby.battleOnlyModeSelectArtifact");
+			str.replaceTextID("vcmi.lobby.battleOnlyModeSelectArtifact." + std::to_string(artPos[i]));
+			artifactImage[i] = std::make_shared<CPicture>(drawBlackBox(Point(32, 32), str.toString(), id == 1 ? parent.boxColor : parent.disabledBoxColor), imgPos);
+		}
 		else
 		{
 			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("Artifact"), artifactId.toArtifact()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
