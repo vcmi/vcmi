@@ -34,6 +34,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
@@ -99,6 +100,7 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, const std::f
 
 void CSpellWindow::InteractiveArea::clickPressed(const Point & cursorPosition)
 {
+	ENGINE->input().hapticFeedback();
 	onLeft();
 }
 
@@ -687,6 +689,8 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 {
 	if(mySpell)
 	{
+		ENGINE->input().hapticFeedback();
+
 		if(owner->onSpellSelect)
 		{
 			owner->onSpellSelect(mySpell->id);
