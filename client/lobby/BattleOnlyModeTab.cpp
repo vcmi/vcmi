@@ -640,7 +640,7 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 				return artifactA->getNameTranslated() < artifactB->getNameTranslated();
 			});
 
-			int selectedIndex = artifactId == ArtifactID::NONE ? 0 : (1 + std::distance(artifacts.begin(), std::find_if(artifacts.begin(), artifacts.end(), [this, i, artifactId](auto artID) {
+			int selectedIndex = artifactId == ArtifactID::NONE ? 0 : (1 + std::distance(artifacts.begin(), std::find_if(artifacts.begin(), artifacts.end(), [artifactId](auto artID) {
 				return artID == artifactId;
 			})));
 			
