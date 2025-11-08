@@ -137,6 +137,7 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 			startInfo->artifacts[0].clear();
 			startInfo->spellBook[0] = true;
 			startInfo->warMachines[0] = false;
+			startInfo->spells[0].clear();
 			for(size_t i=0; i<GameConstants::ARMY_SIZE; i++)
 				heroSelector1->selectedArmyInput.at(i)->disable();
 			for(size_t i=0; i<8; i++)
@@ -148,6 +149,7 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 		startInfo->artifacts[1].clear();
 		startInfo->spellBook[1] = true;
 		startInfo->warMachines[1] = false;
+		startInfo->spells[1].clear();
 		for(size_t i=0; i<8; i++)
 			heroSelector2->selectedSecSkillInput.at(i)->disable();
 		onChange();
@@ -315,9 +317,11 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	tmpIcon->scaleTo(Point(16, 16), EScalingAlgorithm::NEAREST);
 	addIcon.push_back(std::make_shared<CPicture>(tmpIcon, Point(220, 32)));
 	addIcon.back()->addLClickCallback([this](){ manageSpells(); });
-	addIcon.back()->addRClickCallback([this](){ 
-		//std::shared_ptr<CComponent> comp = std::make_shared<CComponent>(ComponentType::SPELL, list[index]);
-		//CRClickPopup::createAndPush("", CInfoWindow::TCompsInfo(1, comp));
+	addIcon.back()->addRClickCallback([this, id](){
+		std::vector<std::shared_ptr<CComponent>> comps;
+		for(auto & spell : parent.startInfo->spells[id])
+			comps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell, std::nullopt, CComponent::ESize::large));
+		CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("artifact.core.spellBook.name"), comps);
 	});
 
 	spellBook = std::make_shared<CToggleButton>(Point(235, 31), AnimationPath::builtin("lobby/checkboxSmall"), CButton::tooltip(), [this, id](bool enabled){
@@ -347,7 +351,7 @@ void BattleOnlyModeHeroSelector::manageSpells()
 {
 	std::vector<std::shared_ptr<CComponent>> resComps;
 	for(auto & spellId : parent.startInfo->spells[id])
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spellId));
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spellId, std::nullopt, CComponent::ESize::large));
 
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
 	for(int i = 0; i < 3; i++)
@@ -355,6 +359,9 @@ void BattleOnlyModeHeroSelector::manageSpells()
 
 	auto allowedSet = LIBRARY->spellh->getDefaultAllowed();
 	std::vector<SpellID> allSpells(allowedSet.begin(), allowedSet.end());
+	allSpells.erase(std::remove_if(allSpells.begin(), allSpells.end(), [](const SpellID& spell) {
+		return !spell.toSpell()->isCombat();
+	}), allSpells.end());
 	std::sort(allSpells.begin(), allSpells.end(), [](auto a, auto b) {
 		auto A = a.toSpell();
 		auto B = b.toSpell();
@@ -390,8 +397,8 @@ void BattleOnlyModeHeroSelector::manageSpells()
 		{
 			texts.push_back(s.toSpell()->getNameTranslated());
 
-			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("Spells"), s.toSpell()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
-			image->scaleTo(Point(23, 23), EScalingAlgorithm::NEAREST);
+			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("SpellInt"), s.toSpell()->getIconIndex() + 1, 0, EImageBlitMode::OPAQUE);
+			image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 			images.push_back(image);
 		}
 
