@@ -165,6 +165,10 @@
 	"vcmi.lobby.battleOnlyModeSelectArtifact.12" : "Misc 4",
 	"vcmi.lobby.battleOnlyModeSelectArtifact.18" : "Misc 5",
 	"vcmi.lobby.battleOnlyModeReset" : "Zurücksetzen",
+	"vcmi.lobby.battleOnlySpellSelect" : "Zauber zum Zauberbuch hinzufügen",
+	"vcmi.lobby.battleOnlySpellSelectCurrent" : "Zauber zum Zauberbuch hinzufügen oder entfernen\n\nAktuelle Zauber:",
+	"vcmi.lobby.battleOnlySpellAdd" : "Zauber hinzufügen",
+	"vcmi.lobby.battleOnlySpellRemove" : "Zauber entfernen",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Suche und wähle Template aus",
 

@@ -59,6 +59,7 @@
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/SpellSchoolHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
@@ -313,6 +314,12 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	auto tmpIcon = ENGINE->renderHandler().loadImage(AnimationPath::builtin("Artifact"), ArtifactID(ArtifactID::SPELLBOOK).toArtifact()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
 	tmpIcon->scaleTo(Point(16, 16), EScalingAlgorithm::NEAREST);
 	addIcon.push_back(std::make_shared<CPicture>(tmpIcon, Point(220, 32)));
+	addIcon.back()->addLClickCallback([this](){ manageSpells(); });
+	addIcon.back()->addRClickCallback([this](){ 
+		//std::shared_ptr<CComponent> comp = std::make_shared<CComponent>(ComponentType::SPELL, list[index]);
+		//CRClickPopup::createAndPush("", CInfoWindow::TCompsInfo(1, comp));
+	});
+
 	spellBook = std::make_shared<CToggleButton>(Point(235, 31), AnimationPath::builtin("lobby/checkboxSmall"), CButton::tooltip(), [this, id](bool enabled){
 		parent.startInfo->spellBook[id] = enabled;
 		parent.onChange();
@@ -334,6 +341,90 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	setCreatureIcons();
 	setSecSkillIcons();
 	setArtifactIcons();
+}
+
+void BattleOnlyModeHeroSelector::manageSpells()
+{
+	std::vector<std::shared_ptr<CComponent>> resComps;
+	for(auto & spellId : parent.startInfo->spells[id])
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spellId));
+
+	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
+	for(int i = 0; i < 3; i++)
+		pom.emplace_back(AnimationPath::builtin("settingsWindow/button80"), nullptr);
+
+	auto allowedSet = LIBRARY->spellh->getDefaultAllowed();
+	std::vector<SpellID> allSpells(allowedSet.begin(), allowedSet.end());
+	std::sort(allSpells.begin(), allSpells.end(), [](auto a, auto b) {
+		auto A = a.toSpell();
+		auto B = b.toSpell();
+		if(A->getLevel() < B->getLevel())
+			return true;
+		if(A->getLevel() > B->getLevel())
+			return false;
+		for (const auto schoolId : LIBRARY->spellSchoolHandler->getAllObjects())
+		{
+			if(A->schools.count(schoolId) && !B->schools.count(schoolId))
+				return true;
+			if(!A->schools.count(schoolId) && B->schools.count(schoolId))
+				return false;
+		}
+		return TextOperations::compareLocalizedStrings(A->getNameTranslated(), B->getNameTranslated());
+	});
+
+	std::vector<SpellID> toAdd;
+	std::vector<SpellID> toRemove;
+	for (const auto& spell : allSpells)
+	{
+		bool inCurrent = std::find(parent.startInfo->spells[id].begin(), parent.startInfo->spells[id].end(), spell) != parent.startInfo->spells[id].end();
+		if (inCurrent)
+			toRemove.push_back(spell);
+		else
+			toAdd.push_back(spell);
+	}
+
+	auto openList = [this](std::vector<SpellID> list, bool add){
+		std::vector<std::string> texts;
+		std::vector<std::shared_ptr<IImage>> images;
+		for (const auto & s : list)
+		{
+			texts.push_back(s.toSpell()->getNameTranslated());
+
+			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("Spells"), s.toSpell()->getIconIndex(), 0, EImageBlitMode::OPAQUE);
+			image->scaleTo(Point(23, 23), EScalingAlgorithm::NEAREST);
+			images.push_back(image);
+		}
+
+		std::string title = LIBRARY->generaltexth->translate(add ? "vcmi.lobby.battleOnlySpellAdd" : "vcmi.lobby.battleOnlySpellRemove");
+		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, title, title, [this, list, add](int index){
+			auto & v = parent.startInfo->spells[id];
+			if(add)	
+				v.push_back(list[index]);
+			else
+				v.erase(std::remove(v.begin(), v.end(), list[index]), v.end());
+
+			parent.onChange();
+			manageSpells();
+		}, 0, images, true, true);
+		window->onPopup = [list](int index) {
+			std::shared_ptr<CComponent> comp = std::make_shared<CComponent>(ComponentType::SPELL, list[index]);
+			CRClickPopup::createAndPush(list[index].toSpell()->getDescriptionTranslated(0), CInfoWindow::TCompsInfo(1, comp));
+		};
+		ENGINE->windows().pushWindow(window);
+	};
+
+	auto temp = std::make_shared<CInfoWindow>(LIBRARY->generaltexth->translate(parent.startInfo->spells[id].size() ? "vcmi.lobby.battleOnlySpellSelectCurrent" : "vcmi.lobby.battleOnlySpellSelect"), PlayerColor(0), resComps, pom);
+	temp->buttons[0]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/addChannel")));
+	temp->buttons[0]->addCallback([openList, toAdd](){ openList(toAdd, true); });
+	temp->buttons[0]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellAdd")); });
+	temp->buttons[1]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/removeChannel")));
+	temp->buttons[1]->addCallback([openList, toRemove](){ openList(toRemove, false); });
+	temp->buttons[1]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlySpellRemove")); });
+	temp->buttons[1]->setEnabled(parent.startInfo->spells[id].size());
+	temp->buttons[2]->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("spellResearch/close")));
+	temp->buttons[2]->addPopupCallback([](){ CRClickPopup::createAndPush(LIBRARY->generaltexth->translate("core.genrltxt.600")); });
+
+	ENGINE->windows().pushWindow(temp);
 }
 
 void BattleOnlyModeHeroSelector::setHeroIcon()
@@ -761,8 +852,7 @@ void BattleOnlyModeTab::startBattle()
 			obj->putArtifact(ArtifactPosition::MACH3, map->createArtifact(ArtifactID::FIRST_AID_TENT));
 		}
 		
-		// give all spells (TODO: make selectable)
-		for(const auto & spell : LIBRARY->spellh->getDefaultAllowed())
+		for(const auto & spell : startInfo->spells[sel])
 			obj->addSpellToSpellbook(spell);
 
 		for(auto & artifact : startInfo->artifacts[sel])

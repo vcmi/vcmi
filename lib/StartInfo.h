@@ -253,6 +253,7 @@ public:
 	std::array<std::array<std::pair<SecondarySkill, MasteryLevel::Type>, 8>, 2> secSkillLevel;
 
 	std::array<std::map<ArtifactPosition, ArtifactID>, 2> artifacts;
+	std::array<std::vector<SpellID>, 2> spells;
 
 	std::array<bool, 2> warMachines;
 
@@ -271,6 +272,7 @@ public:
 		h & artifacts;
 		h & warMachines;
 		h & spellBook;
+		h & spells;
 	}
 };
 

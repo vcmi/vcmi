@@ -64,6 +64,7 @@ public:
 	void setCreatureIcons();
 	void setSecSkillIcons();
 	void setArtifactIcons();
+	void manageSpells();
 	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& parent, Point position);
 };
 

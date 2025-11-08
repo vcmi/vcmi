@@ -165,6 +165,10 @@
 	"vcmi.lobby.battleOnlyModeSelectArtifact.12" : "Misc 4",
 	"vcmi.lobby.battleOnlyModeSelectArtifact.18" : "Misc 5",
 	"vcmi.lobby.battleOnlyModeReset" : "Reset",
+	"vcmi.lobby.battleOnlySpellSelect" : "Add spells to spellbook",
+	"vcmi.lobby.battleOnlySpellSelectCurrent" : "Add or remove spells from spellbook\n\nCurrent spells:",
+	"vcmi.lobby.battleOnlySpellAdd" : "Add spell",
+	"vcmi.lobby.battleOnlySpellRemove" : "Remove spell",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
 
