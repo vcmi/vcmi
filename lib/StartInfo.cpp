@@ -259,6 +259,9 @@ void BattleOnlyModeStartInfo::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeId("selectedTerrain", selectedTerrain);
 	handler.serializeId("selectedTown", selectedTown);
+	if(!handler.saving && selectedTown == FactionID::NONE)
+		selectedTown = FactionID::ANY;
+
 	auto slots = handler.enterArray("slots");
 	slots.resize(2);
 	for(int i = 0; i < 2; i++)
@@ -305,10 +308,13 @@ void BattleOnlyModeStartInfo::serializeJson(JsonSerializeFormat & handler)
 			s->serializeIdMap("artifacts", tmp);
 			std::map<ArtifactID, ArtifactPosition> converted;
 			for (auto &[id, pos] : tmp)
-    			converted[id] = ArtifactPosition(pos);
+				if(id != ArtifactID::NONE)
+					converted[id] = ArtifactPosition(pos);
 			artifacts[i] = vstd::reverseMap(converted);
 		}
 		s->serializeIdArray("spells", spells[i]);
+		if(!handler.saving)
+			spells[i].erase(std::remove(spells[i].begin(), spells[i].end(), SpellID::NONE), spells[i].end());
 		s->serializeBool("warMachines", warMachines[i]);
 		s->serializeBool("spellBook", spellBook[i]);
 	}

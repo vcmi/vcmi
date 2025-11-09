@@ -76,9 +76,20 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 {
 	OBJECT_CONSTRUCTION;
 
-	//JsonNode node = persistentStorage["lobby"]["battleModeSettings"];
-	//JsonDeserializer handler(nullptr, node);
-	//startInfo->serializeJson(handler);
+	try
+	{
+		JsonNode node = persistentStorage["battleModeSettings"];
+		if(!node.isNull())
+		{
+			node.setModScope(ModScope::scopeGame());
+			JsonDeserializer handler(nullptr, node);
+			startInfo->serializeJson(handler);
+		}
+	}
+	catch(std::exception & e)
+	{
+		logGlobal->error("Error loading saved battleModeSettings, received exception: %s", e.what());
+	}
 
 	init();
 
@@ -213,7 +224,7 @@ void BattleOnlyModeTab::update()
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
 	startInfo->serializeJson(handler);
-	Settings storage = persistentStorage.write["lobby"]["battleModeSettings"];
+	Settings storage = persistentStorage.write["battleModeSettings"];
 	storage->Struct() = node.Struct();
 }
 
