@@ -298,7 +298,7 @@ BattleOnlyModeHeroSelector::BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab
 	{
 		selectedArmyInput.push_back(std::make_shared<CTextInput>(Rect(5 + i * 36, 113, 32, 16), EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
 		selectedArmyInput.back()->setColor(id == 1 ? Colors::WHITE : parent.disabledColor);
-		selectedArmyInput.back()->setFilterNumber(1, 10000000, 3);
+		selectedArmyInput.back()->setFilterNumber(0, 10000000, 3);
 		selectedArmyInput.back()->setText("1");
 		selectedArmyInput.back()->setCallback([this, i, id](const std::string & text){
 			if(parent.startInfo->selectedArmy[id][i].getId() != CreatureID::NONE)
@@ -878,7 +878,7 @@ void BattleOnlyModeTab::startBattle()
 			obj->pushPrimSkill(PrimarySkill(i), startInfo->primSkillLevel[sel][i]);
 		obj->clearSlots();
 		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-			if(startInfo->selectedArmy[sel][slot].getId() != CreatureID::NONE)
+			if(startInfo->selectedArmy[sel][slot].getId() != CreatureID::NONE && startInfo->selectedArmy[sel][slot].getCount() > 0)
 				obj->setCreature(SlotID(slot), startInfo->selectedArmy[sel][slot].getId(), startInfo->selectedArmy[sel][slot].getCount());
 
 		// give spellbook
@@ -925,7 +925,7 @@ void BattleOnlyModeTab::startBattle()
 		if(startInfo->selectedHero[1] == HeroTypeID::NONE)
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-				if(startInfo->selectedArmy[1][slot].getId() != CreatureID::NONE)
+				if(startInfo->selectedArmy[1][slot].getId() != CreatureID::NONE && startInfo->selectedArmy[1][slot].getCount() > 0)
 					townObj->getArmy()->setCreature(SlotID(slot), startInfo->selectedArmy[1][slot].getId(), startInfo->selectedArmy[1][slot].getCount());
 		}
 		else
