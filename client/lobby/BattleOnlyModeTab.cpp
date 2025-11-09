@@ -578,6 +578,8 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			std::sort(creatures.begin(), creatures.end(), [](auto a, auto b) {
 				auto creatureA = a.toCreature();
 				auto creatureB = b.toCreature();
+				if ((creatureA->getFactionID() == FactionID::NEUTRAL) != (creatureB->getFactionID() == FactionID::NEUTRAL))
+					return creatureA->getFactionID() != FactionID::NEUTRAL;
 				if(creatureA->getFactionID() != creatureB->getFactionID())
 					return creatureA->getFactionID() < creatureB->getFactionID();
 				if(creatureA->getLevel() != creatureB->getLevel())
