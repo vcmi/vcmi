@@ -243,10 +243,10 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 class DLL_LINKAGE BattleOnlyModeStartInfo : public Serializeable
 {
 public:
-	std::optional<TerrainId> selectedTerrain;
-	std::optional<FactionID> selectedTown;
+	TerrainId selectedTerrain;
+	FactionID selectedTown;
 
-	std::array<std::optional<HeroTypeID>, 2> selectedHero;
+	std::array<HeroTypeID, 2> selectedHero;
 	std::array<std::array<CStackBasicDescriptor, GameConstants::ARMY_SIZE>, 2> selectedArmy;
 
 	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
@@ -260,6 +260,8 @@ public:
 	std::array<bool, 2> spellBook;
 
 	BattleOnlyModeStartInfo();
+
+	void serializeJson(JsonSerializeFormat & handler);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

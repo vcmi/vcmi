@@ -34,6 +34,7 @@
 #include "../windows/CCreatureWindow.h"
 #include "../windows/InfoWindows.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
@@ -64,6 +65,8 @@
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/serializer/JsonSerializer.h"
+#include "../../lib/serializer/JsonDeserializer.h"
 
 BattleOnlyModeTab::BattleOnlyModeTab()
 	: startInfo(std::make_shared<BattleOnlyModeStartInfo>())
@@ -72,6 +75,10 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 	, disabledBoxColor(GAME->server().isHost() ? boxColor : ColorRGBA(116, 92, 16))
 {
 	OBJECT_CONSTRUCTION;
+
+	//JsonNode node = persistentStorage["lobby"]["battleModeSettings"];
+	//JsonDeserializer handler(nullptr, node);
+	//startInfo->serializeJson(handler);
 
 	init();
 
@@ -113,25 +120,25 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 			if(terrains.size() > index)
 			{
 				startInfo->selectedTerrain = terrains[index]->getId();
-				startInfo->selectedTown = std::nullopt;
+				startInfo->selectedTown = FactionID::ANY;
 			}
 			else
 			{
-				startInfo->selectedTerrain = std::nullopt;
+				startInfo->selectedTerrain = TerrainId::NONE;
 				auto it = std::next(factions.begin(), index - terrains.size());
 				if (it != factions.end())
     				startInfo->selectedTown = *it;
 			}
 			onChange();
-		}, (startInfo->selectedTerrain ? static_cast<int>(*startInfo->selectedTerrain) : static_cast<int>(*startInfo->selectedTown + terrains.size())), images, true, true);
+		}, (startInfo->selectedTerrain != TerrainId::NONE ? static_cast<int>(startInfo->selectedTerrain) : static_cast<int>(startInfo->selectedTown + terrains.size())), images, true, true);
 	});
 	battlefieldSelector->block(GAME->server().isGuest());
 	buttonReset = std::make_shared<CButton>(Point(259, 552), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){
 		if(GAME->server().isHost())
 		{
 			startInfo->selectedTerrain = TerrainId::DIRT;
-			startInfo->selectedTown = std::nullopt;
-			startInfo->selectedHero[0] = std::nullopt;
+			startInfo->selectedTown = FactionID::ANY;
+			startInfo->selectedHero[0] = HeroTypeID::NONE;
 			startInfo->selectedArmy[0].fill(CStackBasicDescriptor(CreatureID::NONE, 1));
 			startInfo->secSkillLevel[0].fill(std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE));
 			startInfo->artifacts[0].clear();
@@ -143,7 +150,7 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 			for(size_t i=0; i<8; i++)
 				heroSelector1->selectedSecSkillInput.at(i)->disable();
 		}
-		startInfo->selectedHero[1] = std::nullopt;
+		startInfo->selectedHero[1] = HeroTypeID::NONE;
 		startInfo->selectedArmy[1].fill(CStackBasicDescriptor(CreatureID::NONE, 1));
 		startInfo->secSkillLevel[1].fill(std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE));
 		startInfo->artifacts[1].clear();
@@ -202,6 +209,12 @@ void BattleOnlyModeTab::update()
 	heroSelector2->spellBook->setSelectedSilent(startInfo->spellBook[1]);
 	heroSelector2->warMachines->setSelectedSilent(startInfo->warMachines[1]);
 	redraw();
+
+	JsonNode node;
+	JsonSerializer handler(nullptr, node);
+	startInfo->serializeJson(handler);
+	Settings storage = persistentStorage.write["lobby"]["battleModeSettings"];
+	storage->Struct() = node.Struct();
 }
 
 void BattleOnlyModeTab::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si)
@@ -212,15 +225,15 @@ void BattleOnlyModeTab::applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> 
 
 void BattleOnlyModeTab::setTerrainButtonText()
 {
-	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain ? (*startInfo->selectedTerrain).toEntity(LIBRARY)->getNameTranslated() : (*startInfo->selectedTown).toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, disabledColor);
+	battlefieldSelector->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeBattlefield") + ":   " + (startInfo->selectedTerrain != TerrainId::NONE ? startInfo->selectedTerrain.toEntity(LIBRARY)->getNameTranslated() : startInfo->selectedTown.toEntity(LIBRARY)->getNameTranslated()), EFonts::FONT_SMALL, disabledColor);
 }
 
 void BattleOnlyModeTab::setStartButtonEnabled()
 {
 	bool army2Empty = std::all_of(startInfo->selectedArmy[1].begin(), startInfo->selectedArmy[1].end(), [](const auto x) { return x.getId() == CreatureID::NONE; });
 
-	bool canStart = (startInfo->selectedTerrain || startInfo->selectedTown);
-	canStart &= (startInfo->selectedHero[0] && ((startInfo->selectedHero[1]) || (startInfo->selectedTown && !army2Empty)));
+	bool canStart = (startInfo->selectedTerrain != TerrainId::NONE || startInfo->selectedTown != FactionID::ANY);
+	canStart &= (startInfo->selectedHero[0] != HeroTypeID::NONE && ((startInfo->selectedHero[1] != HeroTypeID::NONE) || (startInfo->selectedTown != FactionID::ANY && !army2Empty)));
 	(static_cast<CLobbyScreen *>(parent))->buttonStart->block(!canStart || GAME->server().isGuest());
 }
 
@@ -438,7 +451,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 {
 	OBJECT_CONSTRUCTION;
 
-	if(!parent.startInfo->selectedHero[id])
+	if(parent.startInfo->selectedHero[id] == HeroTypeID::NONE)
 	{
 		heroImage = std::make_shared<CPicture>(drawBlackBox(Point(58, 64), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeSelectHero"), id == 1 ? parent.boxColor : parent.disabledBoxColor), Point(6, 7));
 		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, LIBRARY->generaltexth->translate("core.genrltxt.507"));
@@ -447,8 +460,8 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	}
 	else
 	{
-		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage((*parent.startInfo->selectedHero[id]).toHeroType()->imageIndex), Point(6, 7));
-		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, (*parent.startInfo->selectedHero[id]).toHeroType()->getNameTranslated());
+		heroImage = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("PortraitsLarge"), EImageBlitMode::COLORKEY)->getImage(parent.startInfo->selectedHero[id].toHeroType()->imageIndex), Point(6, 7));
+		heroLabel = std::make_shared<CLabel>(160, 16, FONT_SMALL, ETextAlignment::CENTER, id == 1 ? Colors::WHITE : parent.disabledColor, parent.startInfo->selectedHero[id].toHeroType()->getNameTranslated());
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 			primSkillsInput[i]->setText(std::to_string(parent.startInfo->primSkillLevel[id][i]));
 	}
@@ -466,8 +479,8 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			return heroA->getNameTranslated() < heroB->getNameTranslated();
 		});
 
-		int selectedIndex = !parent.startInfo->selectedHero[id] ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
-			return heroID == (*parent.startInfo->selectedHero[id]);
+		int selectedIndex = parent.startInfo->selectedHero[id] == HeroTypeID::NONE ? 0 : (1 + std::distance(heroes.begin(), std::find_if(heroes.begin(), heroes.end(), [this](auto heroID) {
+			return heroID == parent.startInfo->selectedHero[id];
     	})));
 		
 		std::vector<std::string> texts;
@@ -486,7 +499,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 		auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyModeHeroSelect"), [this, heroes](int index){
 			if(index == 0)
 			{
-				parent.startInfo->selectedHero[id] = std::nullopt;
+				parent.startInfo->selectedHero[id] = HeroTypeID::NONE;
 				parent.onChange();
 				return;
 			}
@@ -509,10 +522,10 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 	});
 
 	heroImage->addRClickCallback([this](){
-		if(!parent.startInfo->selectedHero[id])
+		if(parent.startInfo->selectedHero[id] == HeroTypeID::NONE)
 			return;
 		
-		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id]->toHeroType()->getId());
+		ENGINE->windows().createAndPushWindow<CHeroOverview>(parent.startInfo->selectedHero[id].toHeroType()->getId());
 	});
 }
 
@@ -822,7 +835,7 @@ void BattleOnlyModeTab::startBattle()
 	map->getEditManager()->clearTerrain(rng);
 
 	map->getEditManager()->getTerrainSelection().selectAll();
-	map->getEditManager()->drawTerrain(!startInfo->selectedTerrain ? TerrainId::DIRT : *startInfo->selectedTerrain, 0, rng);
+	map->getEditManager()->drawTerrain(startInfo->selectedTerrain == TerrainId::NONE ? TerrainId::DIRT : startInfo->selectedTerrain, 0, rng);
 
 	map->players[0].canComputerPlay = true;
 	map->players[0].canHumanPlay = true;
@@ -832,10 +845,10 @@ void BattleOnlyModeTab::startBattle()
 
 	auto addHero = [&, this](int sel, PlayerColor color, const int3 & position)
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, (*startInfo->selectedHero[sel]).toHeroType()->heroClass->getId());
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo->selectedHero[sel].toHeroType()->heroClass->getId());
 		auto templates = factory->getTemplates();
 		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(cb.get(), templates.front()));
-		obj->setHeroType(*startInfo->selectedHero[sel]);
+		obj->setHeroType(startInfo->selectedHero[sel]);
 
 		obj->setOwner(color);
 		obj->pos = position;
@@ -879,11 +892,11 @@ void BattleOnlyModeTab::startBattle()
 	};
 
 	addHero(0, PlayerColor(0), int3(5, 6, 0));
-	if(!startInfo->selectedTown)
+	if(startInfo->selectedTown == FactionID::ANY)
 		addHero(1, PlayerColor(1), int3(5, 5, 0));
 	else
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, *startInfo->selectedTown);
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo->selectedTown);
 		auto templates = factory->getTemplates();
 		auto obj = factory->create(cb.get(), templates.front());
 		auto townObj = std::dynamic_pointer_cast<CGTownInstance>(obj);
@@ -891,7 +904,7 @@ void BattleOnlyModeTab::startBattle()
 		obj->pos = int3(5, 5, 0);
 		for (const auto & building : townObj->getTown()->getAllBuildings())
 			townObj->addBuilding(building);
-		if(!startInfo->selectedHero[1])
+		if(startInfo->selectedHero[1] == HeroTypeID::NONE)
 		{
 			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
 				if(startInfo->selectedArmy[1][slot].getId() != CreatureID::NONE)
