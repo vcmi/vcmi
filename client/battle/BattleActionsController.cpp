@@ -527,7 +527,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				const auto * attacker = owner.stacksController->getActiveStack();
-				BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
+				BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+				assert(attackFromHex.isValid());
 				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
 				DamageEstimation retaliation;
 				BattleAttackInfo attackInfo(attacker, targetStack, distance, false );
@@ -644,8 +645,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::MOVE_STACK:
 			if (!(targetStack && targetStack->alive())) //we can walk on dead stacks
 			{
-				if(canStackMoveHere(owner.stacksController->getActiveStack(), targetHex))
-					return true;
+				const CStack * currentStack = owner.stacksController->getActiveStack();
+				return currentStack && owner.getBattle()->toWhichHexMove(currentStack, targetHex).isValid();
 			}
 			return false;
 
@@ -653,16 +654,11 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			{
-				auto activeStack = owner.stacksController->getActiveStack();
-				if (targetStack && targetStack != activeStack && owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
-				{
-					BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-					if(owner.getBattle()->battleCanAttack(activeStack, targetStack, attackFromHex))
-						return true;
-				}
-				return false;
+				const CStack * currentStack = owner.stacksController->getActiveStack();
+				return currentStack &&
+					owner.getBattle()->battleCanAttackUnit(currentStack, targetStack) &&
+					owner.getBattle()->battleCanAttackHex(currentStack, targetHex);
 			}
-
 		case PossiblePlayerBattleAction::SHOOT:
 			{
 				auto currentStack = owner.stacksController->getActiveStack();
@@ -740,26 +736,9 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::MOVE_STACK:
 		{
 			const auto * activeStack = owner.stacksController->getActiveStack();
-
-			if(activeStack->doubleWide())
-			{
-				BattleHexArray availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
-				BattleHex shiftedDest = targetHex.cloneInDirection(activeStack->destShiftDir(), false);
-				const bool canMoveHeadHere = availableHexes.contains(targetHex);
-				const bool canMoveTailHere = availableHexes.contains(shiftedDest);
-				const bool backwardsMove = activeStack->unitSide() == BattleSide::ATTACKER ?
-											   targetHex.getX() < activeStack->getPosition().getX():
-											   targetHex.getX() > activeStack->getPosition().getX();
-
-				if(canMoveTailHere && (backwardsMove || !canMoveHeadHere))
-					owner.giveCommand(EActionType::WALK, shiftedDest);
-				else
-					owner.giveCommand(EActionType::WALK, targetHex);
-			}
-			else
-			{
-				owner.giveCommand(EActionType::WALK, targetHex);
-			}
+			auto toHex = owner.getBattle()->toWhichHexMove(activeStack, targetHex);
+			assert(toHex.isValid());
+			owner.giveCommand(EActionType::WALK, toHex);
 			return;
 		}
 
@@ -768,12 +747,11 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
 		{
 			bool returnAfterAttack = action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
-			BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-			if(attackFromHex.isValid()) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-			{
-				BattleAction command = BattleAction::makeMeleeAttack(owner.stacksController->getActiveStack(), targetHex, attackFromHex, returnAfterAttack);
-				owner.sendCommand(command, owner.stacksController->getActiveStack());
-			}
+			auto attacker = owner.stacksController->getActiveStack();
+			BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, owner.fieldController->selectAttackDirection(targetHex));
+			assert(attackFromHex.isValid());
+			BattleAction command = BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
+			owner.sendCommand(command, attacker);
 			return;
 		}
 
@@ -1030,19 +1008,6 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 	spells::detail::ProblemImpl problem; //todo: display problem in status bar
 
 	return m->canBeCastAt(target, problem);
-}
-
-bool BattleActionsController::canStackMoveHere(const CStack * stackToMove, const BattleHex & myNumber) const
-{
-	BattleHexArray acc = owner.getBattle()->battleGetAvailableHexes(stackToMove, false);
-	BattleHex shiftedDest = myNumber.cloneInDirection(stackToMove->destShiftDir(), false);
-
-	if (acc.contains(myNumber))
-		return true;
-	else if (stackToMove->doubleWide() && acc.contains(shiftedDest))
-		return true;
-	else
-		return false;
 }
 
 void BattleActionsController::activateStack()
