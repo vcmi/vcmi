@@ -520,6 +520,15 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 
 			for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 				parent.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->heroClass->primarySkillInitial[i];
+
+			for(size_t i=0; i<8; i++)
+				if(heroes[index].toHeroType()->secSkillsInit.size() > i)
+					parent.startInfo->secSkillLevel[id][i] = std::make_pair(heroes[index].toHeroType()->secSkillsInit[i].first, MasteryLevel::Type(heroes[index].toHeroType()->secSkillsInit[i].second));
+				else
+					parent.startInfo->secSkillLevel[id][i] = std::make_pair(SecondarySkill::NONE, MasteryLevel::NONE);
+			
+			parent.startInfo->spellBook[id] = heroes[index].toHeroType()->haveSpellBook;
+
 			parent.onChange();
 		}, selectedIndex, images, true, true);
 		window->onPopup = [heroes](int index) {
@@ -890,14 +899,10 @@ void BattleOnlyModeTab::startBattle()
 			if(artifact.second != ArtifactID::NONE)
 				obj->putArtifact(artifact.first, map->createArtifact(artifact.second));
 
-		bool skillSetted = std::any_of(startInfo->secSkillLevel[sel].begin(), startInfo->secSkillLevel[sel].end(),[](const auto& p){ return p.second != MasteryLevel::NONE; });
-		if(skillSetted)
-		{
-			for(const auto & skill : LIBRARY->skillh->objects) // reset all standard skills
-				obj->setSecSkillLevel(SecondarySkill(skill->getId()), MasteryLevel::NONE, ChangeValueMode::ABSOLUTE);
-			for(int skillSlot = 0; skillSlot < 8; skillSlot++)
-				obj->setSecSkillLevel(startInfo->secSkillLevel[sel][skillSlot].first, startInfo->secSkillLevel[sel][skillSlot].second, ChangeValueMode::ABSOLUTE);
-		}
+		for(const auto & skill : LIBRARY->skillh->objects) // reset all standard skills
+			obj->setSecSkillLevel(SecondarySkill(skill->getId()), MasteryLevel::NONE, ChangeValueMode::ABSOLUTE);
+		for(int skillSlot = 0; skillSlot < 8; skillSlot++)
+			obj->setSecSkillLevel(startInfo->secSkillLevel[sel][skillSlot].first, startInfo->secSkillLevel[sel][skillSlot].second, ChangeValueMode::ABSOLUTE);
 
 		map->getEditManager()->insertObject(obj);
 	};
