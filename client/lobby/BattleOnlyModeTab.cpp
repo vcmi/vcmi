@@ -519,7 +519,7 @@ void BattleOnlyModeHeroSelector::setHeroIcon()
 			parent.startInfo->selectedHero[id] = heroes[index];
 
 			for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-				parent.startInfo->primSkillLevel[id][i] = 0;
+				parent.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->heroClass->primarySkillInitial[i];
 			parent.onChange();
 		}, selectedIndex, images, true, true);
 		window->onPopup = [heroes](int index) {
