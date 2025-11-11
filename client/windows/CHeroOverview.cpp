@@ -214,8 +214,8 @@ void CHeroOverview::genControls()
 	{
 		secSkills.push_back(std::make_shared<CSecSkillPlace>(Point(302, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset)),
 															 CSecSkillPlace::ImageSize::SMALL, skill.first, skill.second));
-		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->levels[skill.second - 1]));
-		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*LIBRARY->skillh)[skill.first]->getNameTranslated()));
+		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) - 5, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, LIBRARY->generaltexth->levels[skill.second - 1], 90));
+		labelSecSkillsNames.push_back(std::make_shared<CLabel>(334 + 2 * borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 10, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*LIBRARY->skillh)[skill.first]->getNameTranslated(), 90));
 		i++;
 	}
 
@@ -240,7 +240,8 @@ void CHeroOverview::genControls()
 		}
 
 		imageSpells.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLBON"), (*LIBRARY->spellh)[spell]->getIconIndex(), Rect(302 + (292 / 2) + 2 * borderOffset, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), 32, 32), 0));
-		labelSpellsNames.push_back(std::make_shared<CLabel>(302 + (292 / 2) + 3 * borderOffset + 32 + borderOffset, 8 * borderOffset + yOffset + 186 + i * (32 + borderOffset) + 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, (*LIBRARY->spellh)[spell]->getNameTranslated()));
+		Rect labelPos(302 + (292 / 2) + 2 * borderOffset + 32 + borderOffset + 5, 7 * borderOffset + yOffset + 186 + i * (32 + borderOffset), (292 / 2) - 32 - 3 * borderOffset - 10, 32);
+		labelSpellsNames.push_back(std::make_shared<CMultiLineLabel>(labelPos, FONT_SMALL, ETextAlignment::CENTERLEFT, Colors::WHITE, (*LIBRARY->spellh)[spell]->getNameTranslated()));
 		i++;
 	}
 }
