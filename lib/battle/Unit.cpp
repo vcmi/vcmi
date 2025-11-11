@@ -40,17 +40,11 @@ bool Unit::isTurret() const
 
 bool Unit::isMeleeAttacker() const
 {
-	//exclude non melee attackers
-	static const std::set<CreatureID> nonMeleeAttackers{
-		CreatureID::FIRST_AID_TENT,
-		CreatureID::CATAPULT,
-		CreatureID::BALLISTA,
-		CreatureID::AMMO_CART,
-		CreatureID::ARROW_TOWERS
-	};
-	if (vstd::contains(nonMeleeAttackers, creatureId()))
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
 		return false;
 
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
 	return true;
 }
 
