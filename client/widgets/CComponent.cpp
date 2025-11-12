@@ -96,14 +96,29 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 	if(Type == ComponentType::RESOURCE && !ValText.empty())
 		max = 80;
 
-	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
+	{
+		std::string s = getSubtitle();
+
+		// remove color markup: "{color|"
+		s = std::regex_replace(s, std::regex("\\{[^|}]*\\|"), "");
+		// remove closing braces "}"
+		s.erase(std::remove(s.begin(), s.end(), '}'), s.end());
+
+		size_t longestWordLen = 0;
+		for(std::istringstream iss(s); iss >> s; )
+			longestWordLen = std::max(longestWordLen, fontPtr->getStringWidth(s));
+
+		max = std::max<int>(max, longestWordLen + 8);
+	}
+
+	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
+
 	const int height = static_cast<int>(fontPtr->getLineHeight());
 
 	for(auto & line : textLines)
 	{
 		auto label = std::make_shared<CLabel>(pos.w/2, pos.h + height/2, font, ETextAlignment::CENTER, Colors::WHITE, line);
-
 		pos.h += height;
 		if(label->pos.w > pos.w)
 		{
