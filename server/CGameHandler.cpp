@@ -2726,31 +2726,73 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "manageBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
-	const auto makeSortBackpackRequest = [artSet, &bma](const std::function<int32_t(const ArtSlotInfo&)> & getSortId)
+
+	const auto sortPack = [artSet](std::vector<MoveArtifactInfo> & pack)
+	{
+		// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
+		std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
+		{
+			const auto art0 = artSet->getArt(slots0.srcPos);
+			const auto art1 = artSet->getArt(slots1.srcPos);
+			if(art0->isScroll() && art1->isScroll())
+				return art0->getScrollSpellID() > art1->getScrollSpellID();
+			return art0->getTypeId().num > art1->getTypeId().num;
+		});
+	};
+
+	const auto buildAscendingOrder = [artSet, &sortPack](auto && getSortId)
 	{
 		std::map<int32_t, std::vector<MoveArtifactInfo>> packsSorted;
 		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
+
 		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
 			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
 
-		for(auto & [sortId, pack] : packsSorted)
+		std::vector<MoveArtifactInfo> orderAsc;
+		for(auto & entry : packsSorted)
 		{
-			// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
-			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
-				{
-					const auto art0 = artSet->getArt(slots0.srcPos);
-					const auto art1 = artSet->getArt(slots1.srcPos);
-					if(art0->isScroll() && art1->isScroll())
-						return art0->getScrollSpellID() > art1->getScrollSpellID();
-					return art0->getTypeId().num > art1->getTypeId().num;
-				});
-			bma.artsPack0.insert(bma.artsPack0.end(), pack.begin(), pack.end());
+		    auto & pack = entry.second;
+		    sortPack(pack);
+		    orderAsc.insert(orderAsc.end(), pack.begin(), pack.end());
 		}
-		backpackSlot = ArtifactPosition::BACKPACK_START;
+
+		return orderAsc;
+	};
+
+	const auto isAlreadyAscending = [artSet](const std::vector<MoveArtifactInfo> & orderAsc)
+	{
+		std::vector<ArtifactInstanceID> curIds;
+		curIds.reserve(artSet->artifactsInBackpack.size());
+		for(const auto & slotInfo : artSet->artifactsInBackpack)
+			curIds.push_back(slotInfo.getArt()->getId());
+
+		std::vector<ArtifactInstanceID> ascIds;
+		ascIds.reserve(orderAsc.size());
+		for(const auto & mi : orderAsc)
+			ascIds.push_back(artSet->getArt(mi.srcPos)->getId());
+
+		return curIds == ascIds;
+	};
+
+	const auto buildRequestFromOrder = [&bma](const std::vector<MoveArtifactInfo> & order, bool reverseAll)
+	{
+		if(!reverseAll)
+			bma.artsPack0.insert(bma.artsPack0.end(), order.begin(), order.end());
+		else
+			bma.artsPack0.insert(bma.artsPack0.end(), order.rbegin(), order.rend());
+
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
 		for(auto & slots : bma.artsPack0)
 			slots.dstPos = backpackSlot++;
 	};
-	
+
+	const auto makeSortBackpackRequest = [&](auto && getSortId)
+	{
+		auto orderAsc = buildAscendingOrder(getSortId);
+		const bool reverseAll = isAlreadyAscending(orderAsc);
+		buildRequestFromOrder(orderAsc, reverseAll);
+	};
+
 	if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
@@ -2786,7 +2828,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-									return static_cast<int32_t>(inf.getArt()->getType()->aClass);
+				return static_cast<int32_t>(inf.getArt()->getType()->aClass);
 			});
 	}
 	else
