@@ -48,6 +48,11 @@ private:
 
 	std::vector<std::shared_ptr<CPicture>> addIcon;
 
+	void selectHero();
+	void selectCreature(int slot);
+	void selectSecSkill(int slot);
+	void selectArtifact(int slot, ArtifactID artifactId);
+
 	int id;
 public:
 	std::vector<std::shared_ptr<CAnimImage>> primSkills;
@@ -93,6 +98,8 @@ private:
 	void onChange();
 	void update();
 	void setTerrainButtonText();
+	void selectTerrain();
+	void reset();
 public:
 	BattleOnlyModeTab();
 	void applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si);
