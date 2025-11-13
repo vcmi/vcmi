@@ -239,12 +239,14 @@ public:
 
 	ui8 levels() const;
 
+	void banWaterHeroes(bool isWaterMap);
+
 	EMapFormat version; /// The default value is EMapFormat::SOD.
 	ModCompatibilityInfo mods; /// set of mods required to play a map
 
 	si32 height; /// The default value is 72.
 	si32 width; /// The default value is 72.
-	bool twoLevel; /// The default value is true.
+	si32 mapLevels; /// The default value is 2.
 	MetaString name;
 	MetaString description;
 	EMapDifficulty difficulty;
@@ -270,6 +272,8 @@ public:
 
 	bool areAnyPlayers; /// Unused. True if there are any playable players on the map.
 
+	bool battleOnly; /// Battle only mode
+
 	/// "main quests" of the map that describe victory and loss conditions
 	std::vector<TriggeredEvent> triggeredEvents;
 	
@@ -293,11 +297,29 @@ public:
 		h & creationDateTime;
 		h & width;
 		h & height;
-		h & twoLevel;
+		if (h.version >= Handler::Version::MORE_MAP_LAYERS)
+			h & mapLevels;
+		else
+		{
+			if (h.saving)
+			{
+				bool hasTwoLevels = mapLevels == 2;
+				h & hasTwoLevels;
+			}
+			else
+			{
+				bool hasTwoLevels;
+				h & hasTwoLevels;
+				mapLevels = hasTwoLevels ? 2 : 1;
+			}
+		}
+
 		h & difficulty;
 
 		h & levelLimit;
 		h & areAnyPlayers;
+		if (h.version >= Handler::Version::BATTLE_ONLY)
+			h & battleOnly;
 		h & players;
 		h & howManyTeams;
 		h & allowedHeroes;

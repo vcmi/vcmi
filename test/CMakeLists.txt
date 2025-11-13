@@ -24,6 +24,8 @@ set(test_SRCS
 		battle/CUnitStateMagicTest.cpp
 		battle/battle_UnitTest.cpp
 
+		bonus/BonusSystemTest.cpp
+
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/CFactionTest.cpp
@@ -73,7 +75,7 @@ set(test_SRCS
  		spells/targetConditions/TargetConditionItemFixture.cpp
 		
 		mock/BattleFake.cpp
- 		mock/mock_IGameCallback.cpp
+		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
  		mock/mock_BonusBearer.cpp
 		mock/mock_CPSICallback.cpp
@@ -95,7 +97,7 @@ set(test_HEADERS
 
 		mock/BattleFake.h
 		mock/mock_BonusBearer.h
- 		mock/mock_IGameCallback.h
+		mock/mock_IGameEventCallback.h
  		mock/mock_MapService.h
 		mock/mock_BonusBearer.h
 

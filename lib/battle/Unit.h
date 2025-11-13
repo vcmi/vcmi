@@ -97,6 +97,7 @@ public:
 	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
+	bool isMeleeAttacker() const;
 
 	/// returns initial size of this unit
 	virtual int32_t getCount() const = 0;
@@ -132,6 +133,8 @@ public:
 	virtual std::string getDescription() const;
 
 	const BattleHexArray & getSurroundingHexes(const BattleHex & assumedPosition = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+
+	/// Returns list of hexes from which attacker can attack this unit
 	BattleHexArray getAttackableHexes(const Unit * attacker) const;
 	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 

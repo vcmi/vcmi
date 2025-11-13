@@ -12,6 +12,7 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/mapObjects/CompoundMapObjectID.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -68,7 +69,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	{
 		//special case handling: in-game heroes have hero ID as object subID, but when reading configs available hero object subID's are hero classes
 		auto hero = dynamic_cast<const CGHeroInstance*>(obj);
-		return getObjectValue(obj->ID, hero->getHeroClassID());
+		return getObjectValue(obj->ID.getNum(), hero->getHeroClassID().getNum());
 	}
 	else if(obj->ID == Obj::PRISON)
 	{
@@ -92,17 +93,17 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::ARTIFACT)
 	{
 		auto artifactObject = dynamic_cast<const CGArtifact *>(obj);
-		switch(artifactObject->storedArtifact->getType()->aClass)
+		switch(artifactObject->getArtifactInstance()->getType()->aClass)
 		{
-		case CArtifact::EartClass::ART_TREASURE:
+		case EArtifactClass::ART_TREASURE:
 			return 2000;
-		case CArtifact::EartClass::ART_MINOR:
+		case EArtifactClass::ART_MINOR:
 			return 5000;
-		case CArtifact::EartClass::ART_MAJOR:
+		case EArtifactClass::ART_MAJOR:
 			return 10000;
-		case CArtifact::EartClass::ART_RELIC:
+		case EArtifactClass::ART_RELIC:
 			return 20000;
-		case CArtifact::EartClass::ART_SPECIAL:
+		case EArtifactClass::ART_SPECIAL:
 			return 20000;
 		default:
 			return 0; //invalid artifact class
@@ -111,7 +112,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 	else if(obj->ID == Obj::SPELL_SCROLL)
 	{
 		auto scrollObject = dynamic_cast<const CGArtifact *>(obj);
-		auto spell = scrollObject->storedArtifact->getScrollSpellID().toSpell();
+		auto spell = scrollObject->getArtifactInstance()->getScrollSpellID().toSpell();
 		if(spell)
 		{
 			switch(spell->getLevel())
@@ -126,7 +127,7 @@ std::optional<int> MapObjectsEvaluator::getObjectValue(const CGObjectInstance * 
 			}
 		}
 		else
-			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->storedArtifact->getScrollSpellID());
+			logAi->warn("AI found spell scroll with invalid spell ID: %s", scrollObject->getArtifactInstance()->getScrollSpellID());
 	}
 
 	return getObjectValue(obj->ID, obj->subID);

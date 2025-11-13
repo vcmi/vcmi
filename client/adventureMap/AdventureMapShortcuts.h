@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "../lib/constants/EntityIdentifiers.h"
+
 VCMI_LIB_NAMESPACE_BEGIN
 class Point;
 class Rect;
@@ -84,7 +86,7 @@ public:
 
 	bool optionCanViewQuests();
 	bool optionCanToggleLevel();
-	bool optionMapLevelSurface();
+	int optionMapLevel();
 	bool optionHeroSleeping();
 	bool optionHeroAwake();
 	bool optionHeroSelected();
@@ -98,6 +100,9 @@ public:
 	bool optionSidePanelActive();
 	bool optionMapScrollingActive();
 	bool optionMapViewActive();
+	bool optionMarketplace();
+	bool optionHeroBoat(EPathfindingLayer layer);
+	bool optionHeroDig();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;

@@ -15,6 +15,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:236",
+			"mapAttackFromLeft": "AvWattak.def:0:237",
 			"animation": "CPIXIE.DEF"
 		},
 		"sound" :
@@ -44,6 +46,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:238",
+			"mapAttackFromLeft": "AvWattak.def:0:239",
 			"animation": "CSPRITE.DEF"
 		},
 		"sound" :
@@ -111,6 +115,8 @@
 		"upgrades": ["stormElemental"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:224",
+			"mapAttackFromLeft": "AvWattak.def:0:225",
 			"animation": "CAELEM.DEF"
 		},
 		"sound" :
@@ -196,6 +202,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:254",
+			"mapAttackFromLeft": "AvWattak.def:0:255",
 			"animation": "CSTORM.DEF",
 			"missile" :
 			{
@@ -285,6 +293,8 @@
 		"upgrades": ["iceElemental"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:230",
+			"mapAttackFromLeft": "AvWattak.def:0:231",
 			"animation": "CWELEM.DEF"
 		},
 		"sound" :
@@ -388,6 +398,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:246",
+			"mapAttackFromLeft": "AvWattak.def:0:247",
 			"animation": "CICEE.DEF",
 			"missile" :
 			{
@@ -452,6 +464,8 @@
 		"upgrades": ["energyElemental"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:228",
+			"mapAttackFromLeft": "AvWattak.def:0:229",
 			"animation": "CFELEM.DEF"
 		},
 		"sound" :
@@ -530,6 +544,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:258",
+			"mapAttackFromLeft": "AvWattak.def:0:259",
 			"animation": "CNRG.DEF"
 		},
 		"sound" :
@@ -593,6 +609,8 @@
 		"upgrades": ["magmaElemental"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:226",
+			"mapAttackFromLeft": "AvWattak.def:0:227",
 			"animation": "CEELEM.DEF"
 		},
 		"sound" :
@@ -671,6 +689,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:250",
+			"mapAttackFromLeft": "AvWattak.def:0:251",
 			"animation": "CSTONE.DEF"
 		},
 		"sound" :
@@ -710,6 +730,8 @@
 		"upgrades": ["magicElemental"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:240",
+			"mapAttackFromLeft": "AvWattak.def:0:241",
 			"animation": "CPSYEL.DEF"
 		},
 		"sound" :
@@ -749,6 +771,8 @@
 		"doubleWide" : false,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:242",
+			"mapAttackFromLeft": "AvWattak.def:0:243",
 			"animation": "CMAGEL.DEF"
 		},
 		"sound" :
@@ -790,6 +814,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:260",
+			"mapAttackFromLeft": "AvWattak.def:0:261",
 			"animation": "CFBIRD.DEF"
 		},
 		"sound" :
@@ -840,6 +866,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:262",
+			"mapAttackFromLeft": "AvWattak.def:0:263",
 			"animation": "CPHX.DEF"
 		},
 		"sound" :

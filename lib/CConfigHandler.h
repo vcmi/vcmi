@@ -48,6 +48,7 @@ class DLL_LINKAGE SettingsStorage
 public:
 	// Initialize config structure
 	SettingsStorage();
+	~SettingsStorage();
 	void init(const std::string & dataFilename, const std::string & schema);
 	
 	// Get write access to config node at path
@@ -73,11 +74,15 @@ class DLL_LINKAGE SettingsListener
 	// Callback
 	std::function<void(const JsonNode&)> callback;
 
+	// hack for crash due to static destruction order
+	bool wasTerminated = false;
+
 	SettingsListener(SettingsStorage & _parent, std::vector<std::string> _path);
 
 	// Executes callback if changedpath begins with path
 	void nodeInvalidated(const std::vector<std::string> & changedPath);
 
+	void terminate();
 public:
 	SettingsListener(const SettingsListener &sl);
 	~SettingsListener();
@@ -117,5 +122,6 @@ public:
 
 extern DLL_LINKAGE SettingsStorage settings;
 extern DLL_LINKAGE SettingsStorage persistentStorage;
+extern DLL_LINKAGE SettingsStorage keyBindingsConfig;
 
 VCMI_LIB_NAMESPACE_END

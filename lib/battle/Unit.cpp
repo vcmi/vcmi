@@ -38,6 +38,16 @@ bool Unit::isTurret() const
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
 }
 
+bool Unit::isMeleeAttacker() const
+{
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return false;
+
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
+	return true;
+}
+
 std::string Unit::getDescription() const
 {
 	boost::format fmt("Unit %d of side %d");
@@ -68,22 +78,28 @@ const BattleHexArray & Unit::getSurroundingHexes(const BattleHex & position, boo
 
 BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 {
-	const BattleHexArray & defenderHexes = getHexes();
-	
-	BattleHexArray targetableHexes;
-
-	for(const auto & defenderHex : defenderHexes)
+	if (!attacker->doubleWide())
 	{
-		auto hexes = battle::Unit::getHexes(defenderHex);
-
-		if(hexes.size() == 2 && BattleHex::getDistance(hexes.front(), hexes.back()) != 1)
-			hexes.pop_back();
-
-		for(const auto & hex : hexes)
-			targetableHexes.insert(hex.getNeighbouringTiles());
+		return getSurroundingHexes();
 	}
+	else
+	{
+		BattleHexArray result;
 
-	return targetableHexes;
+		for (const auto & attackOrigin : getSurroundingHexes())
+		{
+			if (!coversPos(attacker->occupiedHex(attackOrigin)) && attackOrigin.isAvailable())
+				result.insert(attackOrigin);
+
+			bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
+			BattleHex::EDir headDirection = isAttacker ? BattleHex::RIGHT : BattleHex::LEFT;
+			BattleHex headHex = attackOrigin.cloneInDirection(headDirection);
+
+			if (!coversPos(headHex) && headHex.isAvailable())
+				result.insert(headHex);
+		}
+		return result;
+	}
 }
 
 bool Unit::coversPos(const BattleHex & pos) const
@@ -237,8 +253,8 @@ void UnitInfo::save(JsonNode & data)
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("newUnitInfo", *this);
+	JsonDeserializer deser(nullptr, data);
+	deser.serializeStruct("newUnitInfo", *this);
 }
 
 }

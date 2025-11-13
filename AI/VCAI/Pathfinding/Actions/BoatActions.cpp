@@ -23,7 +23,7 @@ namespace AIPathfinding
 
 	Goals::TSubgoal SummonBoatAction::whatToDo(const HeroPtr & hero) const
 	{
-		return Goals::sptr(Goals::AdventureSpellCast(hero, SpellID::SUMMON_BOAT));
+		return Goals::sptr(Goals::AdventureSpellCast(hero, usedSpell));
 	}
 
 	void SummonBoatAction::applyOnDestination(
@@ -53,8 +53,6 @@ namespace AIPathfinding
 
 	uint32_t SummonBoatAction::getManaCost(const CGHeroInstance * hero) const
 	{
-		SpellID summonBoat = SpellID::SUMMON_BOAT;
-
-		return hero->getSpellCost(summonBoat.toSpell());
+		return hero->getSpellCost(usedSpell.toSpell());
 	}
 }

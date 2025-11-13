@@ -13,14 +13,14 @@
 #include "CGPathNode.h"
 #include "PathfinderOptions.h"
 
-#include "../CGameInfoCallback.h"
+#include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 std::shared_ptr<PathfinderConfig> PathfinderCache::createConfig(const CGHeroInstance * h, CPathsInfo & out)
 {
-	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, cb, h);
+	auto config = std::make_shared<SingleHeroPathfinderConfig>(out, *cb, h);
 	config->options = options;
 
 	return config;
@@ -35,7 +35,7 @@ std::shared_ptr<CPathsInfo> PathfinderCache::buildPaths(const CGHeroInstance * h
 	return result;
 }
 
-PathfinderCache::PathfinderCache(const CGameInfoCallback * cb, const PathfinderOptions & options)
+PathfinderCache::PathfinderCache(const IGameInfoCallback * cb, const PathfinderOptions & options)
 	: cb(cb)
 	, options(options)
 {

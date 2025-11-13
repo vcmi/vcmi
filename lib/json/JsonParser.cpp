@@ -423,7 +423,7 @@ bool JsonParser::extractStruct(JsonNode & node)
 bool JsonParser::extractArray(JsonNode & node)
 {
 	if(currentDepth > settings.maxDepth)
-		error("Macimum allowed depth of json structure has been reached", true);
+		error("Maximum allowed depth of json structure has been reached", true);
 
 	currentDepth++;
 	auto guard = vstd::makeScopeGuard([this]()

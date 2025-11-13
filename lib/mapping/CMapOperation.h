@@ -94,7 +94,8 @@ private:
 		InvalidTiles() : centerPosValid(false) { }
 	};
 
-	void updateTerrainTypes();
+	void drawTerrain(TerrainId terrain, CTerrainSelection selection);
+	void updateTerrainTypes(CTerrainSelection selection);
 	void invalidateTerrainViews(const int3 & centerPos);
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
@@ -106,6 +107,7 @@ private:
 
 	CTerrainSelection terrainSel;
 	TerrainId terType;
+	std::map<TerrainId, CTerrainSelection> formerState;
 	int decorationsPercentage;
 	vstd::RNG* gen;
 	std::set<int3> invalidatedTerViews;
@@ -124,7 +126,7 @@ public:
 class CInsertObjectOperation : public CMapOperation
 {
 public:
-	CInsertObjectOperation(CMap * map, CGObjectInstance * obj);
+	CInsertObjectOperation(CMap * map, std::shared_ptr<CGObjectInstance> obj);
 
 	void execute() override;
 	void undo() override;
@@ -132,7 +134,7 @@ public:
 	std::string getLabel() const override;
 
 private:
-	CGObjectInstance * obj;
+	std::shared_ptr<CGObjectInstance> obj;
 };
 
 /// The CMoveObjectOperation class moves object to another position
@@ -157,7 +159,6 @@ class CRemoveObjectOperation : public CMapOperation
 {
 public:
 	CRemoveObjectOperation(CMap* map, CGObjectInstance * obj);
-	~CRemoveObjectOperation();
 
 	void execute() override;
 	void undo() override;
@@ -165,7 +166,8 @@ public:
 	std::string getLabel() const override;
 
 private:
-	CGObjectInstance* obj;
+	CGObjectInstance * targetedObject;
+	std::shared_ptr<CGObjectInstance> removedObject;
 };
 
 VCMI_LIB_NAMESPACE_END

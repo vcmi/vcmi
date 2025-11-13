@@ -46,7 +46,7 @@ EffectFixture::EffectFixture(std::string effectName_)
 	battleFake(),
 	effectName(effectName_)
 {
-
+	mechanicsMock.casterSide = BattleSide::ATTACKER;
 }
 
 EffectFixture::~EffectFixture() = default;
@@ -56,7 +56,9 @@ void EffectFixture::setupEffect(const JsonNode & effectConfig)
 	subject = Effect::create(GlobalRegistry::get(), effectName);
 	ASSERT_TRUE(subject);
 
-	JsonDeserializer deser(nullptr, effectConfig);
+	JsonNode effectConfigActual = effectConfig;
+	effectConfigActual.setModScope("game");
+	JsonDeserializer deser(nullptr, effectConfigActual);
 	subject->serializeJson(deser);
 }
 
@@ -65,7 +67,9 @@ void EffectFixture::setupEffect(Registry * registry, const JsonNode & effectConf
 	subject = Effect::create(registry, effectName);
 	ASSERT_TRUE(subject);
 
-	JsonDeserializer deser(nullptr, effectConfig);
+	JsonNode effectConfigActual = effectConfig;
+	effectConfigActual.setModScope("game");
+	JsonDeserializer deser(nullptr, effectConfigActual);
 	subject->serializeJson(deser);
 }
 
@@ -89,6 +93,7 @@ void EffectFixture::setUp()
 
 	ON_CALL(mechanicsMock, creatures()).WillByDefault(Return(&creatureServiceMock));
 	ON_CALL(creatureServiceMock, getById(_)).WillByDefault(Return(&creatureStub));
+	ON_CALL(creatureServiceMock, getByIndex(_)).WillByDefault(Return(&creatureStub));
 
 	ON_CALL(serverMock, getRNG()).WillByDefault(Return(&rngMock));
 

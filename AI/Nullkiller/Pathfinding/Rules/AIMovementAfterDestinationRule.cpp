@@ -14,6 +14,7 @@
 #include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
+#include "../../../../lib/mapObjects/CQuest.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
 
@@ -165,12 +166,12 @@ namespace AIPathfinding
 	{
 		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
 		auto questObj = dynamic_cast<const IQuestObject *>(destination.nodeObject);
-		auto questInfo = QuestInfo(questObj->quest, destination.nodeObject, destination.coord);
+		auto questInfo = QuestInfo(destination.nodeObject->id);
 		QuestAction questAction(questInfo);
 
 		if(destination.nodeObject->ID == Obj::QUEST_GUARD
-		   && questObj->quest->mission == Rewardable::Limiter{}
-		   && questObj->quest->killTarget == ObjectInstanceID::NONE)
+		   && questObj->getQuest().mission == Rewardable::Limiter{}
+		   && questObj->getQuest().killTarget == ObjectInstanceID::NONE)
 		{
 			return false;
 		}

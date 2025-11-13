@@ -28,6 +28,7 @@ class AboutProjectView : public QWidget
 
 public:
 	explicit AboutProjectView(QWidget * parent = nullptr);
+	~AboutProjectView() override;
 
 private slots:
 	void on_updatesButton_clicked();
@@ -49,5 +50,5 @@ private slots:
 	void on_openConfigDir_clicked();
 
 private:
-	Ui::AboutProjectView * ui;
+	std::unique_ptr<Ui::AboutProjectView> ui;
 };

@@ -124,6 +124,7 @@
 					"rarity"	: 20
 				},
 				"modes" : ["resource-skill"],
+				"description" : "@core.xtrainfo.24",
 				"speech" : "@core.genrltxt.603",
 				"offer": 
 				[

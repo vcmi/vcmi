@@ -29,10 +29,10 @@
 #include "../windows/InfoWindows.h"
 #include "../render/Canvas.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
 #include "../../lib/mapObjects/CGCreature.h"
@@ -257,11 +257,50 @@ CMinorResDataBar::CMinorResDataBar()
 
 CMinorResDataBar::~CMinorResDataBar() = default;
 
+void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slotsPos, std::vector<std::shared_ptr<CAnimImage>>& icons, std::vector<std::shared_ptr<CLabel>>& subtitles)
+{
+	for(const auto& slot : army.army)
+	{
+		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
+		{
+			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
+			continue;
+		}
+
+		// Creature icon
+		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+
+		// Subtitle
+		std::string subtitle;
+		if(army.army.isDetailed)
+		{
+			subtitle = TextOperations::formatMetric(slot.second.getCount(), 4);
+		}
+		else
+		{
+			//if =0 - we have no information about stack size at all
+			if(slot.second.getCount())
+			{
+				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
+				{
+					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.getCount());
+				}
+				else
+				{
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
+				}
+			}
+		}
+
+		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
+	}
+}
+
 void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJECT_CONSTRUCTION;
 
-	title = std::make_shared<CLabel>(66, 2, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
+	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36, 73));
@@ -272,44 +311,35 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	slotsPos.push_back(Point(90, 122));
 	slotsPos.push_back(Point(126, 122));
 
-	for(auto & slot : army.army)
-	{
-		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
-		{
-			logGlobal->warn("%s has stack in slot %d", army.name, slot.first.getNum());
-			continue;
-		}
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
+}
 
-		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
+void CGarrisonTooltip::init(const InfoAboutArmy& army)
+{
+	OBJECT_CONSTRUCTION;
 
-		std::string subtitle;
-		if(army.army.isDetailed)
-		{
-			subtitle = TextOperations::formatMetric(slot.second.count, 4);
-		}
-		else
-		{
-			//if =0 - we have no information about stack size at all
-			if(slot.second.count)
-			{
-				if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
-				{
-					subtitle = CCreature::getQuantityRangeStringForId((CCreature::CreatureQuantityId)slot.second.count);
-				}
-				else
-				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.count)];
-				}
-			}
-		}
+	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name);
 
-		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
-	}
+	std::vector<Point> slotsPos;
+	slotsPos.push_back(Point(14, 48));
+	slotsPos.push_back(Point(50, 48));
+	slotsPos.push_back(Point(86, 48));
+	slotsPos.push_back(Point(122, 48));
+	slotsPos.push_back(Point(158, 48));
+	slotsPos.push_back(Point(194, 48));
+	slotsPos.push_back(Point(230, 48));
 
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
 	CIntObject(0, pos)
+{
+	init(army);
+}
+
+CGarrisonTooltip::CGarrisonTooltip(Point pos, const InfoAboutArmy & army)
+	: CIntObject(0, pos)
 {
 	init(army);
 }
@@ -327,11 +357,13 @@ void CHeroTooltip::init(const InfoAboutHero & hero)
 
 	if(hero.details)
 	{
-		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-					   std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(77, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[0]), 25));
+		labels.push_back(std::make_shared<CLabel>(104, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[1]), 25));
+		labels.push_back(std::make_shared<CLabel>(132, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[2]), 25));
+		labels.push_back(std::make_shared<CLabel>(160, 60, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[3]), 25));
+
+		labels.push_back(std::make_shared<CLabel>(158, 100, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana), 30));
 
 		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), std::clamp(hero.details->morale + 3, 0 , 6), 0, 5, 74);
 		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), std::clamp(hero.details->luck + 3, 0, 6), 0, 5, 91);
@@ -366,11 +398,13 @@ void CInteractableHeroTooltip::init(const InfoAboutHero & hero)
 
 	if(hero.details)
 	{
-		for(size_t i = 0; i < hero.details->primskills.size(); i++)
-			labels.push_back(std::make_shared<CLabel>(75 + 28 * (int)i, 58, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE,
-													  std::to_string(hero.details->primskills[i])));
 
-		labels.push_back(std::make_shared<CLabel>(158, 98, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana)));
+		labels.push_back(std::make_shared<CLabel>(77, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[0]), 25));
+		labels.push_back(std::make_shared<CLabel>(104, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[1]), 25));
+		labels.push_back(std::make_shared<CLabel>(132, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[2]), 25));
+		labels.push_back(std::make_shared<CLabel>(160, 59, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->primskills[3]), 25));
+
+		labels.push_back(std::make_shared<CLabel>(158, 99, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, std::to_string(hero.details->mana), 30));
 
 		morale = std::make_shared<CAnimImage>(AnimationPath::builtin("IMRL22"), std::clamp(hero.details->morale + 3, 0 ,6), 0, 5, 74);
 		luck = std::make_shared<CAnimImage>(AnimationPath::builtin("ILCK22"), std::clamp(hero.details->luck + 3, 0, 6), 0, 5, 91);
@@ -444,7 +478,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 	OBJECT_CONSTRUCTION;
 
 	const InfoAboutTown townInfo = InfoAboutTown(town, true);
-	int townId = town->id;
+	ObjectInstanceID townId = town->id;
 
 	//order of icons in def: fort, citadel, castle, no fort
 	size_t fortIndex = townInfo.fortLevel ? townInfo.fortLevel - 1 : 3;
@@ -581,9 +615,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	text = LIBRARY->generaltexth->arraytxt[textId[morale]];
 	boost::algorithm::replace_first(text,"%s",LIBRARY->generaltexth->arraytxt[neutralDescr[morale]-mrlt]);
 
-	if (morale && node && (node->getBonusBearer()->hasBonusOfType(BonusType::UNDEAD)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::NON_LIVING)
-			|| node->getBonusBearer()->hasBonusOfType(BonusType::MECHANICAL)))
+	if (morale && node && node->unaffectedByMorale())
 	{
 		text += LIBRARY->generaltexth->arraytxt[113]; //unaffected by morale
 		component.value = 0;
@@ -591,13 +623,15 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
-		text += "\n" + noMorale->Description(GAME->interface()->cb.get());
+		if(GAME->interface())
+			text += "\n" + noMorale->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
-		text += "\n" + noLuck->Description(GAME->interface()->cb.get());
+		if(GAME->interface())
+			text += "\n" + noLuck->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else
@@ -605,7 +639,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		std::string addInfo = "";
 		for(auto & bonus : * modifierList)
 		{
-			if(bonus->val) {
+			if(GAME->interface() && bonus->val) {
 				const std::string& description = bonus->Description(GAME->interface()->cb.get());
 				//arraytxt already contains \n
 				if (description.size() && description[0] != '\n')

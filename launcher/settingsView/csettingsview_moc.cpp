@@ -113,6 +113,8 @@ void CSettingsView::loadSettings()
 	ui->labelHapticFeedback->hide();
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
+	ui->labelAllowPortrait->hide();
+	ui->buttonAllowPortrait->hide();
 	if (settings["video"]["realFullscreen"].Bool())
 		ui->comboBoxFullScreen->setCurrentIndex(2);
 	else
@@ -121,8 +123,6 @@ void CSettingsView::loadSettings()
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
 	ui->labelHandleBackRightMouseButton->hide();
-	ui->buttonAllowPortrait->hide();
-	ui->labelAllowPortrait->hide();
 #endif
 #ifndef VCMI_IOS
 	ui->labelIgnoreMuteSwitch->hide();
@@ -338,9 +338,16 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	bool fullscreen = settings["video"]["fullscreen"].Bool();
 	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
 
+	int resX = settings["video"]["resolution"]["width"].Integer();
+	int resY = settings["video"]["resolution"]["height"].Integer();
+	QSize currentRes(resX, resY);
+
 	if (!fullscreen || realFullscreen)
 	{
 		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
+
+		if(!resolutions.contains(currentRes))
+			resolutions.append(currentRes);
 
 		for(const auto & entry : resolutions)
 			ui->comboBoxResolution->addItem(resolutionToString(entry));
@@ -351,8 +358,6 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	}
 	ui->comboBoxResolution->setEnabled(ui->comboBoxResolution->count() > 1);
 
-	int resX = settings["video"]["resolution"]["width"].Integer();
-	int resY = settings["video"]["resolution"]["height"].Integer();
 	int resIndex = ui->comboBoxResolution->findText(resolutionToString({resX, resY}));
 	ui->comboBoxResolution->setCurrentIndex(resIndex);
 

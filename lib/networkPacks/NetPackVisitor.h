@@ -28,6 +28,7 @@ public:
 	virtual void visitForServer(CPackForServer & pack) {}
 	virtual void visitForClient(CPackForClient & pack) {}
 	virtual void visitPackageApplied(PackageApplied & pack) {}
+	virtual void visitPackageReceived(PackageReceived & pack) {}
 	virtual void visitSystemMessage(SystemMessage & pack) {}
 	virtual void visitPlayerBlocked(PlayerBlocked & pack) {}
 	virtual void visitPlayerCheated(PlayerCheated & pack) {}
@@ -38,7 +39,9 @@ public:
 	virtual void visitEntitiesChanged(EntitiesChanged & pack) {}
 	virtual void visitSetRewardableConfiguration(SetRewardableConfiguration & pack) {}
 	virtual void visitSetResources(SetResources & pack) {}
-	virtual void visitSetPrimSkill(SetPrimSkill & pack) {}
+	virtual void visitSetPrimarySkill(SetPrimarySkill & pack) {}
+	virtual void visitSetHeroExperience(SetHeroExperience & pack) {}
+	virtual void visitGiveStackExperience(GiveStackExperience & pack) {}
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}
 	virtual void visitHeroVisitCastle(HeroVisitCastle & pack) {}
 	virtual void visitChangeSpells(ChangeSpells & pack) {}
@@ -46,17 +49,16 @@ public:
 	virtual void visitSetMana(SetMana & pack) {}
 	virtual void visitSetMovePoints(SetMovePoints & pack) {}
 	virtual void visitFoWChange(FoWChange & pack) {}
-	virtual void visitSetAvailableHeroes(SetAvailableHero & pack) {}
+	virtual void visitSetAvailableHero(SetAvailableHero & pack) {}
 	virtual void visitGiveBonus(GiveBonus & pack) {}
 	virtual void visitChangeObjPos(ChangeObjPos & pack) {}
 	virtual void visitPlayerEndsTurn(PlayerEndsTurn & pack) {};
 	virtual void visitPlayerEndsGame(PlayerEndsGame & pack) {}
-	virtual void visitPlayerReinitInterface(PlayerReinitInterface & pack) {}
 	virtual void visitRemoveBonus(RemoveBonus & pack) {}
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
-	virtual void visitUpdateArtHandlerLists(UpdateArtHandlerLists & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
+	virtual void visitChangeTownName(ChangeTownName & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
 	virtual void visitNewStructures(NewStructures & pack) {}
@@ -77,10 +79,11 @@ public:
 	virtual void visitInsertNewStack(InsertNewStack & pack) {}
 	virtual void visitRebalanceStacks(RebalanceStacks & pack) {}
 	virtual void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) {}
-	virtual void visitBulkSmartRebalanceStacks(BulkSmartRebalanceStacks & pack) {}
+	virtual void visitGrowUpArtifact(GrowUpArtifact & pack) {}
 	virtual void visitPutArtifact(PutArtifact & pack) {}
-	virtual void visitEraseArtifact(BulkEraseArtifacts & pack) {}
+	virtual void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) {}
 	virtual void visitBulkMoveArtifacts(BulkMoveArtifacts & pack) {}
+	virtual void visitDischargeArtifact(DischargeArtifact & pack) {}
 	virtual void visitAssembledArtifact(AssembledArtifact & pack) {}
 	virtual void visitDisassembledArtifact(DisassembledArtifact & pack) {}
 	virtual void visitHeroVisit(HeroVisit & pack) {}
@@ -124,7 +127,7 @@ public:
 	virtual void visitBulkMoveArmy(BulkMoveArmy & pack) {}
 	virtual void visitBulkSplitStack(BulkSplitStack & pack) {}
 	virtual void visitBulkMergeStacks(BulkMergeStacks & pack) {}
-	virtual void visitBulkSmartSplitStack(BulkSmartSplitStack & pack) {}
+	virtual void visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack) {}
 	virtual void visitDisbandCreature(DisbandCreature & pack) {}
 	virtual void visitBuildStructure(BuildStructure & pack) {}
 	virtual void visitVisitTownBuilding(VisitTownBuilding & pack) {}
@@ -142,6 +145,7 @@ public:
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) {}
 	virtual void visitSetFormation(SetFormation & pack) {}
+	virtual void visitSetTownName(SetTownName & pack) {}
 	virtual void visitHireHero(HireHero & pack) {}
 	virtual void visitBuildBoat(BuildBoat & pack) {}
 	virtual void visitQueryReply(QueryReply & pack) {}
@@ -166,6 +170,7 @@ public:
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
 	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) {}
 	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) {}
+	virtual void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) {}
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
@@ -179,6 +184,9 @@ public:
 	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
 	virtual void visitLobbyDelete(LobbyDelete & pack) {}
 	virtual void visitSaveLocalState(SaveLocalState & pack) {}
+	virtual void visitBattleCancelled(BattleCancelled & pack) {}
+	virtual void visitBattleResultAccepted(BattleResultAccepted & pack) {}
+	virtual void visitBattleStackMoved(BattleLogMessage & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

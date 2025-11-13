@@ -49,6 +49,7 @@ class ScreenHandler final : public IScreenHandler
 	SDL_Surface * screen = nullptr;
 
 	EUpscalingFilter upscalingFilter = EUpscalingFilter::AUTO;
+	ColorScheme colorScheme = ColorScheme::NONE;
 
 	/// Dimensions of target surfaces/textures, this value is what game logic views as screen size
 	Point getPreferredLogicalResolution() const;
@@ -99,7 +100,7 @@ public:
 	~ScreenHandler();
 
 	/// Updates and potentially recreates target screen to match selected fullscreen status
-	void onScreenResize() final;
+	bool onScreenResize(bool keepWindowResolution) final;
 
 	/// Fills screen with black color, erasing any existing content
 	void clearScreen() final;
@@ -124,4 +125,6 @@ public:
 	std::vector<Point> getSupportedResolutions(int displayIndex) const;
 	std::tuple<int, int> getSupportedScalingRange() const final;
 	Rect convertLogicalPointsToWindow(const Rect & input) const final;
+
+	void setColorScheme(ColorScheme filter) final;
 };

@@ -11,12 +11,11 @@
 
 #include "AIUtility.h"
 #include "Goals/AbstractGoal.h"
-#include "../../lib/AI_Base.h"
-#include "../../CCallback.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/GameConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "Pathfinding/AIPathfinder.h"
@@ -31,6 +30,7 @@ namespace NKAI
 
 class AIStatus
 {
+	AIGateway * gateway;
 	std::mutex mx;
 	std::condition_variable cv;
 
@@ -44,7 +44,7 @@ class AIStatus
 	bool havingTurn;
 
 public:
-	AIStatus();
+	AIStatus(AIGateway * gateway);
 	~AIStatus();
 	void setBattle(BattleState BS);
 	void setMove(bool ongoing);
@@ -106,7 +106,7 @@ public:
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
 	void heroInGarrisonChange(const CGTownInstance * town) override;
 	void centerView(int3 pos, int focusTime) override;
-	void tileHidden(const std::unordered_set<int3> & pos) override;
+	void tileHidden(const FowTilesType & pos) override;
 	void artifactMoved(const ArtifactLocation & src, const ArtifactLocation & dst) override;
 	void artifactAssembled(const ArtifactLocation & al) override;
 	void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) override;
@@ -121,8 +121,9 @@ public:
 	void heroVisit(const CGHeroInstance * visitor, const CGObjectInstance * visitedObj, bool start) override;
 	void availableArtifactsChanged(const CGBlackMarket * bm = nullptr) override;
 	void heroVisitsTown(const CGHeroInstance * hero, const CGTownInstance * town) override;
-	void tileRevealed(const std::unordered_set<int3> & pos) override;
+	void tileRevealed(const FowTilesType & pos) override;
 	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) override;
+	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
 	void showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID) override;
 	void heroMovePointsChanged(const CGHeroInstance * hero) override;

@@ -23,3 +23,9 @@
 	// List of battle hexes that will be always blocked on this battlefield (e.g. ship to ship battles)
 	"impassableHexes" : [ 10, 20, 50 ],
 ```
+
+### Impassable Hexes
+
+Impassable hexes operate in absolute coordinates. For reference on tiles indexes see image below:
+
+![Battlefield Hexes Layout](../../images/Battle_Field_Hexes.svg)

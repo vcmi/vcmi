@@ -14,9 +14,10 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/CSkillHandler.h"
 #include "../lib/spells/CSpellHandler.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/constants/StringConstants.h"
+#include "../lib/entities/artifact/CArtHandler.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGCreature.h"
@@ -40,13 +41,13 @@ QuestWidget::QuestWidget(MapController & _controller, CQuest & _sh, QWidget *par
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->lResources->setRowCount(GameConstants::RESOURCE_QUANTITY - 1);
-	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY - 1; ++i)
+	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size() - 1);
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
 		auto * item = new QTableWidgetItem(QString::fromStdString(str.toString()));
-		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
 		ui->lResources->setItem(i, 0, item);
 		auto * spinBox = new QSpinBox;
 		spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
@@ -175,7 +176,7 @@ void QuestWidget::obtainData()
 	{
 		int index = i.getType()->getIndex();
 		ui->lCreatureId->setCurrentIndex(index);
-		ui->lCreatureAmount->setValue(i.count);
+		ui->lCreatureAmount->setValue(i.getCount());
 		onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
 	}
 	for(auto & i : quest.mission.heroes)
@@ -455,8 +456,6 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	QStringList resourcesList;
 	for(GameResID resource = GameResID::WOOD; resource < GameResID::COUNT ; resource++)
 	{
-		if(resource == GameResID::MITHRIL)
-			continue;
 		if(quest.mission.resources[resource] == 0)
 			continue;
 		MetaString str;
@@ -489,7 +488,7 @@ void QuestDelegate::updateModelData(QAbstractItemModel * model, const QModelInde
 	QStringList creaturesList;
 	for(const auto & creature : quest.mission.creatures)
 	{
-		creaturesList += QString("%1 %2").arg(creature.count).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
+		creaturesList += QString("%1 %2").arg(creature.getCount()).arg(QString::fromStdString(creature.getType()->getNamePluralTranslated()));
 	}
 	textList += QObject::tr("Creatures: %1").arg(creaturesList.join(", "));
 

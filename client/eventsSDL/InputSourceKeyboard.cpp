@@ -56,7 +56,7 @@ std::string InputSourceKeyboard::getKeyNameWithModifiers(const std::string & key
 
 void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 {
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), false);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), false);
 	logGlobal->trace("keyboard: key '%s' pressed", keyName);
 	assert(key.state == SDL_PRESSED);
 
@@ -88,6 +88,8 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
 
+	ENGINE->events().dispatchKeyPressed(keyName);
+
 	if (vstd::contains(shortcutsVector, EShortcut::MAIN_MENU_LOBBY))
 		ENGINE->user().onGlobalLobbyInterfaceActivated();
 
@@ -95,7 +97,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 	{
 		Settings full = settings.write["video"]["fullscreen"];
 		full->Bool() = !full->Bool();
-		ENGINE->onScreenResize(true);
+		ENGINE->onScreenResize(true, false);
 	}
 
 	if (vstd::contains(shortcutsVector, EShortcut::SPECTATE_TRACK_HERO))
@@ -130,7 +132,7 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 		return;
 	}
 
-	std::string keyName = getKeyNameWithModifiers(SDL_GetKeyName(key.keysym.sym), true);
+	std::string keyName = getKeyNameWithModifiers(SDL_GetScancodeName(key.keysym.scancode), true);
 	logGlobal->trace("keyboard: key '%s' released", keyName);
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
@@ -142,6 +144,8 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 	assert(key.state == SDL_RELEASED);
 
 	auto shortcutsVector = ENGINE->shortcuts().translateKeycode(keyName);
+	
+	ENGINE->events().dispatchKeyReleased(keyName);
 
 	ENGINE->events().dispatchShortcutReleased(shortcutsVector);
 }

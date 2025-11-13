@@ -316,18 +316,42 @@ public:
 		}
 		else
 		{
-			std::string fieldValue;
-			serializeString(fieldName, fieldValue);
+			const JsonNode & fieldValue = getCurrent()[fieldName];
 
-			if (!fieldValue.empty())
+			if (!fieldValue.String().empty())
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
 					value = IdentifierType(index);
 				});
 			}
 			else
 			{
 				value = IdentifierType(defaultValue);
+			}
+		}
+	}
+
+	/// si32-convertible identifier map <-> Json object of {key: string}
+	template <typename Key, typename T, typename E = T>
+	void serializeIdMap(const std::string & fieldName, std::map<Key, T> & value)
+	{
+		if (saving)
+		{
+			std::map<std::string, T> fieldValue;
+
+			for (const auto & [key, val] : value)
+				fieldValue[Key::encode(key.getNum())] = val;
+
+			serializeInternal(fieldName, fieldValue);
+		}
+		else
+		{
+			const auto & node = getCurrent()[fieldName].Struct();
+			for (const auto & n : node)
+			{
+				LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
+				});
 			}
 		}
 	}
@@ -347,14 +371,12 @@ public:
 		}
 		else
 		{
-			std::vector<std::string> fieldValue;
-			serializeInternal(fieldName, fieldValue);
-
+			const JsonVector & fieldValue = getCurrent()[fieldName].Vector();
 			value.resize(fieldValue.size());
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), E::entityType(), fieldValue[i], [&value, i](int32_t index){
+				LIBRARY->identifiers()->requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
 					value[i] = T(index);
 				});
 			}
@@ -376,12 +398,9 @@ public:
 		}
 		else
 		{
-			std::vector<std::string> fieldValue;
-			serializeInternal(fieldName, fieldValue);
-
-			for(size_t i = 0; i < fieldValue.size(); ++i)
+			for (const auto & element : getCurrent()[fieldName].Vector())
 			{
-				LIBRARY->identifiers()->requestIdentifier(ModScope::scopeGame(), U::entityType(), fieldValue[i], [&value](int32_t index){
+				LIBRARY->identifiers()->requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
 					value.insert(T(index));
 				});
 			}
@@ -448,6 +467,9 @@ protected:
 
 	///String vector <-> Json string vector
 	virtual void serializeInternal(const std::string & fieldName, std::vector<std::string> & value) = 0;
+
+	///String map <-> Json map of int
+	virtual void serializeInternal(const std::string & fieldName, std::map<std::string, uint16_t> & value) = 0;
 
 	virtual void pop() = 0;
 	virtual void pushStruct(const std::string & fieldName) = 0;

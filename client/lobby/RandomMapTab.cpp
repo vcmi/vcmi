@@ -43,7 +43,8 @@
 #include "../../lib/serializer/JsonDeserializer.h"
 
 RandomMapTab::RandomMapTab():
-	InterfaceObjectConfigurable()
+	InterfaceObjectConfigurable(),
+	templateIndex(0)
 {
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
@@ -54,15 +55,15 @@ RandomMapTab::RandomMapTab():
 		mapGenOptions->setWidth(mapSizeVal[btnId]);
 		mapGenOptions->setHeight(mapSizeVal[btnId]);
 		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
 		updateMapInfoByHost();
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
-		mapGenOptions->setHasTwoLevels(on);
+		mapGenOptions->setLevels(on ? 2 : 1); // TODO: multilevel support
 		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), 1 + mapGenOptions->getHasTwoLevels()}))
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
 		updateMapInfoByHost();
 	});
@@ -140,16 +141,18 @@ RandomMapTab::RandomMapTab():
 	//set combo box callbacks
 	if(auto w = widget<ComboBox>("templateList"))
 	{
-		w->onConstructItems = [](std::vector<const void *> & curItems){
+		auto getTemplates = [](){
 			auto templates = LIBRARY->tplh->getTemplates();
-		
 			boost::range::sort(templates, [](const CRmgTemplate * a, const CRmgTemplate * b){
 				return a->getName() < b->getName();
 			});
+			return templates;
+		};
 
+		w->onConstructItems = [getTemplates](std::vector<const void *> & curItems){
 			curItems.push_back(nullptr); //default template
 			
-			for(auto & t : templates)
+			for(auto & t : getTemplates())
 				curItems.push_back(t);
 		};
 		
@@ -164,6 +167,32 @@ RandomMapTab::RandomMapTab():
 				return readText(variables["randomTemplate"]);
 			return std::string("");
 		};
+
+		w->addCallback([this, getTemplates]() // no real dropdown... - instead open dialog
+		{
+			std::vector<std::string> texts;
+			texts.push_back(readText(variables["randomTemplate"]));
+
+			auto selectedTemplate = mapGenOptions->getMapTemplate();
+			const auto& templates = getTemplates();
+			for(int i = 0; i < templates.size(); i++)
+			{
+				if(selectedTemplate)
+				{
+					if(templates[i]->getId() == selectedTemplate->getId())
+						templateIndex = i + 1;
+				}
+				else
+					templateIndex = 0;
+
+				texts.push_back(templates[i]->getName());
+			}
+
+			ENGINE->windows().popWindows(1);
+			ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
+				widget<ComboBox>("templateList")->setItem(index);
+			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true, true);
+		});
 	}
 	
 	loadOptions();
@@ -182,6 +211,9 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	mapInfo->mapHeader->description.appendLocalString(EMetaText::GENERAL_TXT, 741);
 
+	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
+		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
+
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
@@ -191,12 +223,15 @@ void RandomMapTab::updateMapInfoByHost()
 			auto description = std::string("\n\n") + randomTemplateDescription;
 			mapInfo->mapHeader->description.appendRawString(description);
 		}
+
+		for (const auto & hero : temp->getBannedHeroes())
+			mapInfo->mapHeader->allowedHeroes.erase(hero);
 	}
 
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
 	mapInfo->mapHeader->height = mapGenOptions->getHeight();
 	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
+	mapInfo->mapHeader->mapLevels = mapGenOptions->getLevels();
 
 	// Generate player information
 	int playersToGen = mapGenOptions->getMaxPlayersCount();
@@ -229,7 +264,7 @@ void RandomMapTab::updateMapInfoByHost()
 		playerInfo.team = team;
 		playerInfo.hasMainTown = true;
 		playerInfo.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[player.first] = playerInfo;
+		mapInfo->mapHeader->players[player.first.getNum()] = playerInfo;
 		vstd::erase(availableColors, player.first);
 	}
 
@@ -315,7 +350,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 			{
 				const auto & mapSizes = getPossibleMapSizes();
-				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], 1 + mapGenOptions->getHasTwoLevels());
+				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], mapGenOptions->getLevels());
 
 				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
 				button->block(!sizeAllowed);
@@ -325,12 +360,14 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
-		int3 size( opts->getWidth(), opts->getWidth(), 2);
-
-		bool undergoundAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-
-		w->setSelected(opts->getHasTwoLevels());
-		w->block(!undergoundAllowed);
+		int possibleLevelCount = 2;
+		if(mapGenOptions->getMapTemplate())
+		{
+			auto sizes = mapGenOptions->getMapTemplate()->getMapSizes();
+			possibleLevelCount = sizes.second.z - sizes.first.z + 1;
+		}
+		w->setSelected(opts->getLevels() == 2); // TODO: multilevel support
+		w->block(possibleLevelCount < 2);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
 	{
@@ -590,9 +627,11 @@ void RandomMapTab::saveOptions(const CMapGenOptions & options)
 
 void RandomMapTab::loadOptions()
 {
-	auto rmgSettings = persistentStorage["rmg"]["rmg"];
+	JsonNode rmgSettings = persistentStorage["rmg"]["rmg"];
+
 	if (!rmgSettings.Struct().empty())
 	{
+		rmgSettings.setModScope(ModScope::scopeGame());
 		mapGenOptions.reset(new CMapGenOptions());
 		JsonDeserializer handler(nullptr, rmgSettings);
 		handler.serializeStruct("lastSettings", *mapGenOptions);

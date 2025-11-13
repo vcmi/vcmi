@@ -17,7 +17,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-class CConnection;
+class GameConnection;
 class PlayerColor;
 struct StartInfo;
 struct TurnTimerInfo;
@@ -26,12 +26,14 @@ class CMapInfo;
 class CGameState;
 struct ClientPlayer;
 struct CPackForLobby;
+struct CPackForServer;
 struct CPackForClient;
 
 class HighScoreParameter;
 
 VCMI_LIB_NAMESPACE_END
 
+class NetworkLagCompensator;
 class CClient;
 class CBaseForLobbyApply;
 class GlobalLobbyClient;
@@ -75,6 +77,7 @@ public:
 	virtual void setCampaignState(std::shared_ptr<CampaignState> newCampaign) = 0;
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
+	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
@@ -100,6 +103,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GlobalLobbyClient> lobbyClient;
 	std::unique_ptr<GameChatHandler> gameChat;
 	std::unique_ptr<IServerRunner> serverRunner;
+	std::unique_ptr<NetworkLagCompensator> networkLagCompensator;
 	std::shared_ptr<CMapInfo> mapToStart;
 	std::vector<std::string> localPlayerNames;
 
@@ -125,7 +129,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 public:
 	/// High-level connection overlay that is capable of (de)serializing network data
-	std::shared_ptr<CConnection> logicConnection;
+	std::shared_ptr<GameConnection> logicConnection;
 
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
@@ -147,6 +151,7 @@ public:
 	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
+	void enableLagCompensation(bool on);
 
 	GameChatHandler & getGameChat();
 	GlobalLobbyClient & getGlobalLobby();
@@ -156,7 +161,7 @@ public:
 	std::set<PlayerColor> getHumanColors();
 	PlayerColor myFirstColor() const;
 	bool isMyColor(PlayerColor color) const;
-	ui8 myFirstId() const; // Used by chat only!
+	PlayerConnectionID myFirstId() const; // Used by chat only!
 
 	EClientState getState() const;
 	void setState(EClientState newState);
@@ -182,6 +187,7 @@ public:
 	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
+	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
@@ -200,7 +206,7 @@ public:
 	bool validateGameStart(bool allowOnlyAI = false) const;
 	void debugStartTest(std::string filename, bool save = false);
 
-	void startGameplay(VCMI_LIB_WRAP_NAMESPACE(CGameState) * gameState = nullptr);
+	void startGameplay(std::shared_ptr<CGameState> gameState);
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void endNetwork();
 	void endGameplay();
@@ -214,4 +220,6 @@ public:
 
 	void visitForLobby(CPackForLobby & lobbyPack);
 	void visitForClient(CPackForClient & clientPack);
+
+	void sendGamePack(const CPackForServer & pack) const;
 };

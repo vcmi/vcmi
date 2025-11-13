@@ -15,16 +15,17 @@
 #include "../GameLibrary.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../CRandomGenerator.h"
+#include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/hero/CHero.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapping/CMapEditManager.h"
-#include "../CArtHandler.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "CZonePlacer.h"
+#include "CRoadRandomizer.h"
 #include "TileInfo.h"
 #include "Zone.h"
 #include "Functions.h"
@@ -40,7 +41,7 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameCallback * cb, int RandomSeed) :
+CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
 	rand(std::make_unique<CRandomGenerator>(RandomSeed))
@@ -110,7 +111,7 @@ void CMapGenerator::initQuestArtsRemaining()
 	{
 		auto art = artID.toArtifact();
 		//Don't use parts of combined artifacts
-		if (art->aClass == CArtifact::ART_TREASURE && LIBRARY->arth->legalArtifact(art->getId()) && art->getPartOf().empty())
+		if (art->aClass == EArtifactClass::ART_TREASURE && LIBRARY->arth->legalArtifact(art->getId()) && art->getPartOf().empty())
 			questArtifacts.push_back(art->getId());
 	}
 }
@@ -328,6 +329,10 @@ void CMapGenerator::genZones()
 {
 	placer->placeZones(rand.get());
 	placer->assignZones(rand.get());
+	placer->RemoveRoadsForWideConnections();
+	
+	CRoadRandomizer roadRandomizer(*map);
+	roadRandomizer.dropRandomRoads(rand.get());
 
 	logGlobal->info("Zones generated successfully");
 }
@@ -458,7 +463,7 @@ void CMapGenerator::addHeaderInfo()
 	m.version = EMapFormat::VCMI;
 	m.width = mapGenOptions.getWidth();
 	m.height = mapGenOptions.getHeight();
-	m.twoLevel = mapGenOptions.getHasTwoLevels();
+	m.mapLevels = mapGenOptions.getLevels();
 	m.name.appendLocalString(EMetaText::GENERAL_TXT, 740);
 	m.description = getMapDescription();
 	m.difficulty = EMapDifficulty::NORMAL;
@@ -466,6 +471,18 @@ void CMapGenerator::addHeaderInfo()
 	m.waterMap = (mapGenOptions.getWaterContent() != EWaterContent::EWaterContent::NONE);
 	m.banWaterContent();
 	m.overrideGameSettings(mapGenOptions.getMapTemplate()->getMapSettings());
+
+	for (const auto & spell : mapGenOptions.getMapTemplate()->getBannedSpells())
+		m.allowedSpells.erase(spell);
+
+	for (const auto & artifact : mapGenOptions.getMapTemplate()->getBannedArtifacts())
+		m.allowedArtifact.erase(artifact);
+
+	for (const auto & skill : mapGenOptions.getMapTemplate()->getBannedSkills())
+		m.allowedAbilities.erase(skill);
+
+	for (const auto & hero : mapGenOptions.getMapTemplate()->getBannedHeroes())
+		m.allowedHeroes.erase(hero);
 }
 
 int CMapGenerator::getNextMonlithIndex()

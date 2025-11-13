@@ -43,6 +43,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::TEXTINPUT, textInterested);
 	processList(AEventsReceiver::GESTURE, panningInterested);
 	processList(AEventsReceiver::INPUT_MODE_CHANGE, inputModeChangeInterested);
+	processList(AEventsReceiver::KEY_NAME, keyNameInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -133,6 +134,22 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 	}
 }
 
+void EventDispatcher::dispatchKeyPressed(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyPressed(keyName);
+}
+
+void EventDispatcher::dispatchKeyReleased(const std::string & keyName)
+{
+	EventReceiversList miCopy = keyNameInterested;
+
+	for(auto & i : miCopy)
+		i->keyReleased(keyName);
+}
+
 void EventDispatcher::dispatchMouseDoubleClick(const Point & position, int tolerance)
 {
 	handleDoubleButtonClick(position, tolerance);
@@ -183,7 +200,7 @@ AEventsReceiver * EventDispatcher::findElementInToleranceRange(const EventReceiv
 
 void EventDispatcher::dispatchShowPopup(const Point & position, int tolerance)
 {
-	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::LCLICK, tolerance);
+	AEventsReceiver * nearestElement = findElementInToleranceRange(rclickable, position, AEventsReceiver::SHOW_POPUP, tolerance);
 
 	auto hlp = rclickable;
 
@@ -203,6 +220,11 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 {
 	bool popupOpen = ENGINE->windows().isTopWindowPopup(); // popup can already be closed for mouse dragging with RMB
 
+	if(popupOpen)
+	{
+		ENGINE->windows().popWindows(1);
+	}
+
 	auto hlp = rclickable;
 
 	for(auto & i : hlp)
@@ -212,9 +234,6 @@ void EventDispatcher::dispatchClosePopup(const Point & position)
 
 		i->closePopupWindow(!popupOpen);
 	}
-
-	if(popupOpen)
-		ENGINE->windows().popWindows(1);
 }
 
 void EventDispatcher::handleLeftButtonClick(const Point & position, int tolerance, bool isPressed)

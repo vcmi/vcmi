@@ -33,6 +33,7 @@
 #include <SDL_events.h>
 #include <SDL_timer.h>
 #include <SDL_clipboard.h>
+#include <SDL_power.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -148,6 +149,21 @@ void InputHandler::copyToClipBoard(const std::string & text)
 	SDL_SetClipboardText(text.c_str());
 }
 
+PowerState InputHandler::getPowerState()
+{
+	int seconds;
+	int percent;
+	auto sdlPowerState = SDL_GetPowerInfo(&seconds, &percent);
+
+	PowerStateMode powerState = PowerStateMode::UNKNOWN;
+	if(sdlPowerState == SDL_POWERSTATE_ON_BATTERY)
+		powerState = PowerStateMode::ON_BATTERY;
+	else if(sdlPowerState == SDL_POWERSTATE_CHARGING || sdlPowerState == SDL_POWERSTATE_CHARGED)
+		powerState = PowerStateMode::CHARGING;
+
+	return PowerState{powerState, seconds, percent};
+}
+
 std::vector<SDL_Event> InputHandler::acquireEvents()
 {
 	std::unique_lock<std::mutex> lock(eventsMutex);
@@ -232,17 +248,19 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(false);
+				ENGINE->onScreenResize(false, false);
 			}
 #endif
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-#ifdef VCMI_ANDROID
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(true);
-			}
+#ifdef VCMI_MOBILE
+				ENGINE->onScreenResize(true, false);
+#else
+				ENGINE->onScreenResize(true, true);
 #endif
+			}
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{
@@ -289,12 +307,14 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		return;
 	}
 
+#ifndef VCMI_EMULATE_TOUCHSCREEN_WITH_MOUSE
 	//preprocessing
 	if(ev.type == SDL_MOUSEMOTION)
 	{
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->cursor().cursorMove(ev.motion.x, ev.motion.y);
 	}
+#endif
 
 	{
 		std::unique_lock<std::mutex> lock(eventsMutex);
@@ -405,23 +425,28 @@ int InputHandler::getNumTouchFingers() const
 
 void InputHandler::dispatchMainThread(const std::function<void()> & functor)
 {
-	auto heapFunctor = new std::function<void()>(functor);
+	auto heapFunctor = std::make_unique<std::function<void()>>(functor);
 
 	SDL_Event event;
 	event.user.type = SDL_USEREVENT;
 	event.user.code = 0;
-	event.user.data1 = static_cast <void*>(heapFunctor);
+	event.user.data1 = nullptr;
 	event.user.data2 = nullptr;
 	SDL_PushEvent(&event);
+
+	// NOTE: approach with dispatchedTasks container is a bit excessive
+	// used mostly to prevent false-positives leaks in analyzers
+	dispatchedTasks.push(std::move(heapFunctor));
 }
 
 void InputHandler::handleUserEvent(const SDL_UserEvent & current)
 {
-	auto heapFunctor = static_cast<std::function<void()>*>(current.data1);
+	std::unique_ptr<std::function<void()>> task;
 
-	(*heapFunctor)();
+	if (!dispatchedTasks.try_pop(task))
+		throw std::runtime_error("InputHandler::handleUserEvent received without active task!");
 
-	delete heapFunctor;
+	(*task)();
 }
 
 const Point & InputHandler::getCursorPosition() const

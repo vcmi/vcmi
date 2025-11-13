@@ -121,7 +121,8 @@ void CListBox::updatePositions()
 		slider->scrollTo((int)first);
 		moveChildForeground(slider.get());
 	}
-	redraw();
+	parent->setRedrawParent(true);
+	parent->redraw();
 }
 
 void CListBox::reset()

@@ -22,7 +22,7 @@ namespace Goals
 	{
 	private:
 		uint64_t defenceArmyStrength;
-		HitMapInfo treat;
+		HitMapInfo threat;
 		uint8_t turn;
 		bool counterattack;
 
@@ -33,7 +33,7 @@ namespace Goals
 		bool operator==(const DefendTown & other) const override;
 		std::string toString() const override;
 
-		const HitMapInfo & getTreat() const { return treat; }
+		const HitMapInfo & getThreat() const { return threat; }
 
 		uint64_t getDefenceStrength() const { return defenceArmyStrength; }
 

@@ -58,7 +58,7 @@ protected:
 	virtual void onSlotClickPressed(const std::shared_ptr<CTradeableItem> & newSlot, std::shared_ptr<TradePanelBase> & curPanel);
 	virtual void updateSubtitlesForBid(EMarketMode marketMode, int bidId);
 	virtual void updateShowcases();
-	virtual MarketShowcasesParams getShowcasesParams() const = 0;
+	virtual MarketShowcasesParams getShowcasesParams() const;
 	virtual void highlightingChanged();
 };
 
@@ -118,7 +118,7 @@ public:
 	void deselect() override;
 	void makeDeal() override;
 
-	const Point traderTextDimensions = Point(260, 75);
+	const Point traderTextDimensions = Point(256, 75);
 	std::shared_ptr<CTextBox> traderText;
 	bool madeTransaction;
 

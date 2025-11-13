@@ -21,11 +21,8 @@
 #include "../render/Colors.h"
 
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
@@ -49,7 +46,7 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Point & position)
 	pos.w = bg->width();
 	pos.h = bg->height();
 
-	addUsedEvents(SHOW_POPUP);
+	addUsedEvents(LCLICK | SHOW_POPUP);
 }
 
 CPicture::CPicture( const ImagePath &bmpname, int x, int y )
@@ -78,7 +75,7 @@ CPicture::CPicture( const ImagePath & bmpname, const Point & position, EImageBli
 		pos.w = pos.h = 0;
 	}
 
-	addUsedEvents(SHOW_POPUP);
+	addUsedEvents(LCLICK | SHOW_POPUP);
 }
 
 CPicture::CPicture( const ImagePath & bmpname, const Point & position )
@@ -92,7 +89,7 @@ CPicture::CPicture(const ImagePath & bmpname, const Rect &SrcRect, int x, int y)
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
 
-	addUsedEvents(SHOW_POPUP);
+	addUsedEvents(LCLICK | SHOW_POPUP);
 }
 
 CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, int y)
@@ -102,7 +99,7 @@ CPicture::CPicture(std::shared_ptr<IImage> image, const Rect &SrcRect, int x, in
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
 
-	addUsedEvents(SHOW_POPUP);
+	addUsedEvents(LCLICK | SHOW_POPUP);
 }
 
 void CPicture::show(Canvas & to)
@@ -140,9 +137,20 @@ void CPicture::setPlayerColor(PlayerColor player)
 	bg->playerColored(player);
 }
 
+void CPicture::addLClickCallback(const std::function<void()> & callback)
+{
+	lCallback = callback;
+}
+
 void CPicture::addRClickCallback(const std::function<void()> & callback)
 {
 	rCallback = callback;
+}
+
+void CPicture::clickPressed(const Point & cursorPosition)
+{
+	if(lCallback)
+		lCallback();
 }
 
 void CPicture::showPopupWindow(const Point & cursorPosition)

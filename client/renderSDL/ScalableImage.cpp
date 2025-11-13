@@ -90,7 +90,8 @@ ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPal
 
 ScalableImageParameters::~ScalableImageParameters()
 {
-	SDL_FreePalette(palette);
+	if (palette)
+		SDL_FreePalette(palette);
 }
 
 void ScalableImageParameters::preparePalette(const SDL_Palette * originalPalette, EImageBlitMode blitMode)
@@ -439,6 +440,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 
 	loadingLocator.image = locator.image;
 	loadingLocator.defFile = locator.defFile;
+	loadingLocator.generateShadow = locator.generateShadow;
+	loadingLocator.generateOverlay = locator.generateOverlay;
 	loadingLocator.defFrame = locator.defFrame;
 	loadingLocator.defGroup = locator.defGroup;
 	loadingLocator.layer = mode;

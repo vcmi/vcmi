@@ -22,6 +22,7 @@ struct Component;
 class JsonSerializeFormat;
 class ObjectTemplate;
 class CMap;
+class CGameState;
 class AObjectTypeHandler;
 using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
@@ -44,7 +45,7 @@ public:
 
 	std::string instanceName;
 
-	CGObjectInstance(IGameCallback *cb);
+	CGObjectInstance(IGameInfoCallback *cb);
 	~CGObjectInstance() override;
 
 	MapObjectID getObjGroupIndex() const override;
@@ -130,14 +131,17 @@ public:
 
 	/** OVERRIDES OF IObjectInterface **/
 
-	void initObj(vstd::RNG & rand) override;
-	void pickRandomObject(vstd::RNG & rand) override;
-	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj(IGameRandomizer & gameRandomizer) override;
+	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
+	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	/// method for synchronous update. Note: For new properties classes should override setPropertyDer instead
 	void setProperty(ObjProperty what, ObjPropertyID identifier) final;
 
-	virtual void afterAddToMap(CMap * map);
-	virtual void afterRemoveFromMap(CMap * map);
+	virtual void afterAddToMap(CMap * map){};
+	virtual void afterRemoveFromMap(CMap * map){};
+	virtual void attachToBonusSystem(CGameState & gs){};
+	virtual void detachFromBonusSystem(CGameState & gs){};
+	virtual void restoreBonusSystem(CGameState & gs){};
 
 	///Entry point of binary (de-)serialization
 	template <typename Handler> void serialize(Handler &h)
@@ -166,7 +170,7 @@ protected:
 	void setType(MapObjectID ID, MapObjectSubID subID);
 
 	/// Gives dummy bonus from this object to hero. Can be used to track visited state
-	void giveDummyBonus(const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
+	void giveDummyBonus(IGameEventCallback & gameEvents, const ObjectInstanceID & heroID, BonusDuration::Type duration = BonusDuration::ONE_DAY) const;
 
 	///Serialize object-type specific options
 	virtual void serializeJsonOptions(JsonSerializeFormat & handler);

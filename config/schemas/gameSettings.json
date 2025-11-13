@@ -38,16 +38,22 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"perPlayerOnMapCap"  :        { "type" : "number" },
-				"perPlayerTotalCap"  :        { "type" : "number" },
-				"retreatOnWinWithoutTroops" : { "type" : "boolean" },
-				"startingStackChances" :      { "type" : "array" },
-				"backpackSize" :              { "type" : "number" },
-				"tavernInvite" :              { "type" : "boolean" },
-				"minimalPrimarySkills" :      { "type" : "array" },
-				"movementCostBase"  :         { "type" : "number" },
-				"movementPointsLand" :        { "type" : "array" },
-				"movementPointsSea" :         { "type" : "array" }
+				"perPlayerOnMapCap"  :            { "type" : "number" },
+				"perPlayerTotalCap"  :            { "type" : "number" },
+				"retreatOnWinWithoutTroops" :     { "type" : "boolean" },
+				"startingStackChances" :          { "type" : "array" },
+				"backpackSize" :                  { "type" : "number" },
+				"tavernInvite" :                  { "type" : "boolean" },
+				"minimalPrimarySkills" :          { "type" : "array" },
+				"movementCostBase"  :             { "type" : "number" },
+				"movementPointsLand" :            { "type" : "array" },
+				"movementPointsSea" :             { "type" : "array" },
+				"skillPerHero" :                  { "type" : "number" },
+				"specialtyCreatureGrowth" :       { "type" : "number" },
+				"specialtySecondarySkillGrowth" : { "type" : "number" },
+				"baseScoutingRange" :             { "type" : "number" },
+				"levelupTotalSkillsAmount" :      { "type" : "number" },
+				"levelupUpgradedSkillsAmount" :   { "type" : "number" }
 			}
 		},
 		"towns" : {
@@ -59,19 +65,30 @@
 				"spellResearch" :                        { "type" : "boolean" },
 				"spellResearchCost" :                    { "type" : "array" },
 				"spellResearchPerDay" :                  { "type" : "array" },
-				"spellResearchCostExponentPerResearch" : { "type" : "array" }
+				"spellResearchCostExponentPerResearch" : { "type" : "array" },
+				"baseScoutingRange" :                    { "type" : "number" }
+			}
+		},
+		"campaign": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"unlockAll" : { "type" : "boolean" }
 			}
 		},
 		"combat": {
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"abilityBias" :                   { "type" : "number" },
 				"goodMoraleChance" :              { "type" : "array" },
 				"badMoraleChance" :               { "type" : "array" },
 				"moraleDiceSize" :                { "type" : "number" },
+				"moraleBias" :                    { "type" : "number" },
 				"goodLuckChance" :                { "type" : "array" },
 				"badLuckChance" :                 { "type" : "array" },
 				"luckDiceSize" :                  { "type" : "number" },
+				"luckBias" :                      { "type" : "number" },
 				"backpackSize" :                { "type" : "number" },
 				"attackPointDamageFactor" :     { "type" : "number" },
 				"attackPointDamageFactorCap" :  { "type" : "number" },
@@ -109,6 +126,13 @@
 			"additionalProperties" : false,
 			"properties" : {
 				"blackMarketRestockPeriod" : { "type" : "number" }
+			}
+		},
+		"mapObjects": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"h3BugQuestTakesEntireArmy" : { "type" : "boolean" }
 			}
 		},
 		"banks": {
@@ -152,11 +176,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"dimensionDoorOnlyToUncoveredTiles" : { "type" : "boolean" },
-				"dimensionDoorExposesTerrainType" :   { "type" : "boolean" },
-				"dimensionDoorFailureSpendsPoints" :  { "type" : "boolean" },
 				"dimensionDoorTriggersGuards" :       { "type" : "boolean" },
-				"dimensionDoorTournamentRulesLimit" : { "type" : "boolean" }
+				"tomesGrantBannedSpells" : { "type" : "boolean" }
 			}
 		},
 		"bonuses": {

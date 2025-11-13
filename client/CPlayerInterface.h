@@ -11,8 +11,8 @@
 
 #include "ArtifactsUIController.h"
 
+#include "../lib/callback/CGameInterface.h"
 #include "../lib/FunctionList.h"
-#include "../lib/CGameInterface.h"
 #include "gui/CIntObject.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -109,6 +109,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) override;
 	void heroInGarrisonChange(const CGTownInstance *town) override;
 	void heroMoved(const TryMoveHero & details, bool verbose = true) override;
+	void heroExperienceChanged(const CGHeroInstance * hero, si64 val) override;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkill which, si64 val) override;
 	void heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val) override;
 	void heroManaPointsChanged(const CGHeroInstance * hero) override;
@@ -125,8 +126,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
-	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
+	void tileHidden(const FowTilesType &pos) override; //called when given tiles become hidden under fog of war
+	void tileRevealed(const FowTilesType &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn(QueryID queryID) override;
@@ -145,6 +146,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerStartsTurn(PlayerColor player) override; //called before yourTurn on active interface
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
+	void setColorScheme(ColorScheme scheme) override;
 
 	//for battles
 	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -205,6 +207,9 @@ public: // public interface for use by client via GAME->interface() access
 
 	///returns true if all events are processed internally
 	bool capturedAllEvents();
+
+	void registerBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
+	void unregisterBattleInterface(std::shared_ptr<CBattleGameInterface> battleEvents);
 
 	CPlayerInterface(PlayerColor Player);
 	~CPlayerInterface();

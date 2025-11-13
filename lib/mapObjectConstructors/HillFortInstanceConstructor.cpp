@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "HillFortInstanceConstructor.h"
 
+#include "../GameLibrary.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../texts/CGeneralTextHandler.h"
 

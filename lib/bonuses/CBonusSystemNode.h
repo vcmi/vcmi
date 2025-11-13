@@ -26,13 +26,6 @@ using TCNodesVector = std::vector<const CBonusSystemNode *>;
 class DLL_LINKAGE CBonusSystemNode : public virtual IBonusBearer, public virtual Serializeable, public boost::noncopyable
 {
 public:
-	enum ENodeTypes
-	{
-		NONE = -1, 
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALTY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE, COMMANDER, GLOBAL_EFFECTS, ALL_CREATURES, TOWN
-	};
-
 	struct HashStringCompare {
 		static size_t hash(const std::string& data)
 		{
@@ -46,14 +39,18 @@ public:
 	};
 
 private:
-	BonusList bonuses; //wielded bonuses (local or up-propagated here)
-	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
+	/// List of bonuses that affect this node, whether local, or propagated to this node
+	BonusList bonuses;
+
+	/// List of bonuses that ar ecoming from this node.
+	/// Also includes nodes that are propagated away from this node, and might not affect this node itself
+	BonusList exportedBonuses;
 
 	TCNodesVector parentsToInherit; // we inherit bonuses from them
 	TNodesVector parentsToPropagate; // we may attach our bonuses to them
 	TNodesVector children;
 
-	ENodeTypes nodeType;
+	BonusNodeType nodeType;
 	bool isHypotheticNode;
 
 	mutable BonusList cachedBonuses;
@@ -69,16 +66,14 @@ private:
 	mutable RequestsMap cachedRequests;
 	mutable std::shared_mutex sync;
 
-	void getAllBonusesRec(BonusList &out, const CSelector & selector) const;
-	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit) const;
+	void getAllBonusesRec(BonusList &out) const;
+	TConstBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector) const;
 	std::shared_ptr<Bonus> getUpdatedBonus(const std::shared_ptr<Bonus> & b, const TUpdaterPtr & updater) const;
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 
 	void getRedParents(TCNodes &out) const;  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TCNodes &out) const;
 	void getRedChildren(TNodes &out);
-
-	void getAllParents(TCNodes & out) const;
 
 	void propagateBonus(const std::shared_ptr<Bonus> & b, const CBonusSystemNode & source);
 	void unpropagateBonus(const std::shared_ptr<Bonus> & b);
@@ -96,12 +91,12 @@ protected:
 	void exportBonuses();
 
 public:
-	explicit CBonusSystemNode(bool isHypotetic = false);
-	explicit CBonusSystemNode(ENodeTypes NodeType);
+	explicit CBonusSystemNode(BonusNodeType nodeType, bool isHypotetic);
+	explicit CBonusSystemNode(BonusNodeType nodeType);
 	virtual ~CBonusSystemNode();
 
-	TConstBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const override;
-	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
+	TConstBonusListPtr getAllBonuses(const CSelector &selector, const std::string &cachingStr = "") const override;
+	void getDirectParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 
 	/// Returns first bonus matching selector
 	std::shared_ptr<const Bonus> getFirstBonus(const CSelector & selector) const;
@@ -123,16 +118,13 @@ public:
 
 	///updates count of remaining turns and removes outdated bonuses by selector
 	void reduceBonusDurations(const CSelector &s);
-	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus, bool description) const {return "";}; //description or bonus name
+	virtual std::string bonusToString(const std::shared_ptr<Bonus>& bonus) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 	bool isHypothetic() const { return isHypotheticNode; }
 
-	void deserializationFix();
-
 	BonusList & getExportedBonusList();
 	const BonusList & getExportedBonusList() const;
-	CBonusSystemNode::ENodeTypes getNodeType() const;
-	void setNodeType(CBonusSystemNode::ENodeTypes type);
+	BonusNodeType getNodeType() const;
 	const TCNodesVector & getParentNodes() const;
 
 	void nodeHasChanged();
@@ -148,7 +140,9 @@ public:
 	{
 		h & nodeType;
 		h & exportedBonuses;
-		BONUS_TREE_DESERIALIZATION_FIX
+
+		if(!h.saving && h.loadingGamestate)
+			exportBonuses();
 	}
 
 	friend class CBonusProxy;

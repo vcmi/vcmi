@@ -52,6 +52,11 @@ CSoundHandler::CSoundHandler():
 	}
 }
 
+void CSoundHandler::MixChunkDeleter::operator()(Mix_Chunk * ptr)
+{
+	Mix_FreeChunk(ptr);
+}
+
 CSoundHandler::~CSoundHandler()
 {
 	if(isInitialized())
@@ -59,36 +64,28 @@ CSoundHandler::~CSoundHandler()
 		Mix_ChannelFinished(nullptr);
 		Mix_HaltChannel(-1);
 
-		for(auto & chunk : soundChunks)
-		{
-			if(chunk.second.first)
-				Mix_FreeChunk(chunk.second.first);
-		}
-
-		for(auto & chunk : soundChunksRaw)
-		{
-			if(chunk.second.first)
-				Mix_FreeChunk(chunk.second.first);
-		}
+		soundChunks.clear();
+		uncachedPlayingChunks.clear();
 	}
 }
 
+Mix_Chunk * CSoundHandler::getSoundChunkCached(const AudioPath & sound)
+{
+	if (soundChunks.find(sound) == soundChunks.end())
+		soundChunks[sound].first = getSoundChunk(sound);
+
+	return soundChunks[sound].first.get();
+}
+
 // Allocate an SDL chunk and cache it.
-Mix_Chunk * CSoundHandler::GetSoundChunk(const AudioPath & sound, bool cache)
+CSoundHandler::MixChunkPtr CSoundHandler::getSoundChunk(const AudioPath & sound)
 {
 	try
 	{
-		if(cache && soundChunks.find(sound) != soundChunks.end())
-			return soundChunks[sound].first;
-
 		auto data = CResourceHandler::get()->load(sound.addPrefix("SOUNDS/"))->readAll();
 		SDL_RWops * ops = SDL_RWFromMem(data.first.get(), data.second);
 		Mix_Chunk * chunk = Mix_LoadWAV_RW(ops, 1); // will free ops
-
-		if(cache)
-			soundChunks.insert({sound, std::make_pair(chunk, std::move(data.first))});
-
-		return chunk;
+		return MixChunkPtr(chunk);
 	}
 	catch(std::exception & e)
 	{
@@ -97,22 +94,15 @@ Mix_Chunk * CSoundHandler::GetSoundChunk(const AudioPath & sound, bool cache)
 	}
 }
 
-Mix_Chunk * CSoundHandler::GetSoundChunk(std::pair<std::unique_ptr<ui8[]>, si64> & data, bool cache)
+CSoundHandler::MixChunkPtr CSoundHandler::getSoundChunk(std::pair<std::unique_ptr<ui8[]>, si64> & data)
 {
 	try
 	{
 		std::vector<ui8> startBytes = std::vector<ui8>(data.first.get(), data.first.get() + std::min(static_cast<si64>(100), data.second));
 
-		if(cache && soundChunksRaw.find(startBytes) != soundChunksRaw.end())
-			return soundChunksRaw[startBytes].first;
-
 		SDL_RWops * ops = SDL_RWFromMem(data.first.get(), data.second);
 		Mix_Chunk * chunk = Mix_LoadWAV_RW(ops, 1); // will free ops
-
-		if(cache)
-			soundChunksRaw.insert({startBytes, std::make_pair(chunk, std::move(data.first))});
-
-		return chunk;
+		return MixChunkPtr(chunk);
 	}
 	catch(std::exception & e)
 	{
@@ -174,22 +164,40 @@ uint32_t CSoundHandler::getSoundDurationMilliseconds(const AudioPath & sound)
 }
 
 // Plays a sound, and return its channel so we can fade it out later
-int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
+int CSoundHandler::playSound(soundBase::soundID soundID)
 {
 	assert(soundID < soundBase::sound_after_last);
 	auto sound = AudioPath::builtin(soundsList[soundID]);
 	logGlobal->trace("Attempt to play sound %d with file name %s with cache", soundID, sound.getOriginalName());
 
-	return playSound(sound, repeats, true);
+	return playSoundImpl(sound, 0, true);
 }
 
-int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
+int CSoundHandler::playSoundLooped(const AudioPath & sound)
+{
+	return playSoundImpl(sound, -1, true);
+}
+
+int CSoundHandler::playSound(const AudioPath & sound)
+{
+	return playSoundImpl(sound, 0, false);
+}
+
+int CSoundHandler::playSoundImpl(const AudioPath & sound, int repeats, bool useCache)
 {
 	if(!isInitialized() || sound.empty())
 		return -1;
 
 	int channel;
-	Mix_Chunk * chunk = GetSoundChunk(sound, cache);
+	MixChunkPtr chunkPtr = getSoundChunk(sound);
+	Mix_Chunk * chunk = nullptr;
+	if (!useCache)
+	{
+		chunkPtr = getSoundChunk(sound);
+		chunk = chunkPtr.get();
+	}
+	else
+		chunk = getSoundChunkCached(sound);
 
 	if(chunk)
 	{
@@ -197,13 +205,12 @@ int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 		if(channel == -1)
 		{
 			logGlobal->error("Unable to play sound file %s , error %s", sound.getOriginalName(), Mix_GetError());
-			if(!cache)
-				Mix_FreeChunk(chunk);
 		}
-		else if(cache)
-			initCallback(channel);
 		else
-			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
+		{
+			storeChunk(channel, std::move(chunkPtr));
+			initCallback(channel);
+		}
 	}
 	else
 		channel = -1;
@@ -211,22 +218,28 @@ int CSoundHandler::playSound(const AudioPath & sound, int repeats, bool cache)
 	return channel;
 }
 
-int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data, int repeats, bool cache)
+void CSoundHandler::storeChunk(int channel, MixChunkPtr chunk)
+{
+	std::scoped_lock lockGuard(mutexCallbacks);
+	uncachedPlayingChunks[channel] = std::move(chunk);
+}
+
+int CSoundHandler::playSound(std::pair<std::unique_ptr<ui8[]>, si64> & data)
 {
 	int channel = -1;
-	if(Mix_Chunk * chunk = GetSoundChunk(data, cache))
+	auto chunk = getSoundChunk(data);
+	if(chunk)
 	{
-		channel = Mix_PlayChannel(-1, chunk, repeats);
+		channel = Mix_PlayChannel(-1, chunk.get(), 0);
 		if(channel == -1)
 		{
 			logGlobal->error("Unable to play sound, error %s", Mix_GetError());
-			if(!cache)
-				Mix_FreeChunk(chunk);
 		}
-		else if(cache)
-			initCallback(channel);
 		else
-			initCallback(channel, [chunk](){ Mix_FreeChunk(chunk);});
+		{
+			storeChunk(channel, std::move(chunk));
+			initCallback(channel);
+		}
 	}
 	return channel;
 }
@@ -312,6 +325,8 @@ void CSoundHandler::soundFinishedCallback(int channel)
 {
 	std::scoped_lock lockGuard(mutexCallbacks);
 
+	uncachedPlayingChunks.erase(channel);
+
 	if(callbacks.count(channel) == 0)
 		return;
 
@@ -386,7 +401,7 @@ void CSoundHandler::ambientUpdateChannels(std::map<AudioPath, int> soundsArg)
 
 		if(!vstd::contains(ambientChannels, soundId))
 		{
-			int channel = playSound(soundId, -1);
+			int channel = playSoundLooped(soundId);
 			int channelVolume = ambientDistToVolume(distance);
 			channelVolumes[channel] = channelVolume;
 

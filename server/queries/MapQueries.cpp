@@ -13,6 +13,7 @@
 #include "QueriesProcessor.h"
 #include "../CGameHandler.h"
 #include "../TurnTimerHandler.h"
+#include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/networkPacks/PacksForServer.h"
@@ -25,6 +26,9 @@ TimerPauseQuery::TimerPauseQuery(CGameHandler * owner, PlayerColor player):
 
 bool TimerPauseQuery::blocksPack(const CPackForServer *pack) const
 {
+	if(dynamic_cast<const SaveGame*>(pack) != nullptr)
+		return false;
+
 	return blockAllButReply(pack);
 }
 
@@ -45,7 +49,7 @@ bool TimerPauseQuery::endsByPlayerAnswer() const
 
 void CGarrisonDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->garrisonDialogClosed(visitingHero);
+	visitedObject->garrisonDialogClosed(*gh, visitingHero);
 }
 
 CGarrisonDialogQuery::CGarrisonDialogQuery(CGameHandler * owner, const CArmedInstance * up, const CArmedInstance * down):
@@ -73,7 +77,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 	if(auto stacks = dynamic_cast<const BulkMergeStacks*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
-	if(auto stacks = dynamic_cast<const BulkSmartSplitStack*>(pack))
+	if(auto stacks = dynamic_cast<const BulkSplitAndRebalanceStack*>(pack))
 		return !vstd::contains(ourIds, stacks->srcOwner);
 
 	if(auto stacks = dynamic_cast<const BulkMoveArmy*>(pack))
@@ -81,13 +85,14 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
 	{
-		if(auto id1 = arts->src.artHolder)
-			if(!vstd::contains(ourIds, id1))
-				return true;
+		auto id1 = arts->src.artHolder;
+		if(id1.hasValue() && !vstd::contains(ourIds, id1))
+			return true;
 
-		if(auto id2 = arts->dst.artHolder)
-			if(!vstd::contains(ourIds, id2))
-				return true;
+		auto id2 = arts->dst.artHolder;
+		if(id2.hasValue() && !vstd::contains(ourIds, id2))
+			return true;
+
 		return false;
 	}
 	if(auto dismiss = dynamic_cast<const DisbandCreature*>(pack))
@@ -101,7 +106,8 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 
 	if(auto art = dynamic_cast<const EraseArtifactByClient*>(pack))
 	{
-		if(auto id = art->al.artHolder)
+		auto id = art->al.artHolder;
+		if(id.hasValue())
 			return !vstd::contains(ourIds, id);
 	}
 
@@ -120,7 +126,7 @@ bool CGarrisonDialogQuery::blocksPack(const CPackForServer * pack) const
 void CBlockingDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
 	assert(answer);
-	caller->blockingDialogAnswered(visitingHero, *answer);
+	caller->blockingDialogAnswered(*gh, visitingHero, *answer);
 }
 
 CBlockingDialogQuery::CBlockingDialogQuery(CGameHandler * owner, const IObjectInterface * caller, const BlockingDialog & bd):
@@ -195,7 +201,7 @@ void CTeleportDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * vis
 {
 	auto obj = dynamic_cast<const CGTeleport*>(visitedObject);
 	if(obj)
-		obj->teleportDialogAnswered(visitingHero, *answer, td.exits);
+		obj->teleportDialogAnswered(*gh, visitingHero, *answer, td.exits);
 	else
 		logGlobal->error("Invalid instance in teleport query");
 }
@@ -204,7 +210,7 @@ CTeleportDialogQuery::CTeleportDialogQuery(CGameHandler * owner, const TeleportD
 	CDialogQuery(owner)
 {
 	this->td = td;
-	addPlayer(gh->getHero(td.hero)->getOwner());
+	addPlayer(gh->gameInfo().getHero(td.hero)->getOwner());
 }
 
 CHeroLevelUpDialogQuery::CHeroLevelUpDialogQuery(CGameHandler * owner, const HeroLevelUp & Hlu, const CGHeroInstance * Hero):
@@ -223,7 +229,7 @@ void CHeroLevelUpDialogQuery::onRemoval(PlayerColor color)
 
 void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->heroLevelUpDone(visitingHero);
+	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
 
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(CGameHandler * owner, const CommanderLevelUp & Clu, const CGHeroInstance * Hero):
@@ -237,12 +243,12 @@ void CCommanderLevelUpDialogQuery::onRemoval(PlayerColor color)
 {
 	assert(answer);
 	logGlobal->trace("Completing commander level-up query. Commander of hero %s gains skill %s", hero->getObjectName(), answer.value());
-	gh->levelUpCommander(hero->commander, clu.skills[*answer]);
+	gh->levelUpCommander(hero->getCommander(), clu.skills[*answer]);
 }
 
 void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CGObjectInstance * visitedObject, const CGHeroInstance * visitingHero) const
 {
-	visitedObject->heroLevelUpDone(visitingHero);
+	visitedObject->heroLevelUpDone(*gh, visitingHero);
 }
 
 CHeroMovementQuery::CHeroMovementQuery(CGameHandler * owner, const TryMoveHero & Tmh, const CGHeroInstance * Hero, bool VisitDestAfterVictory):
@@ -256,12 +262,11 @@ void CHeroMovementQuery::onExposure(QueryPtr topQuery)
 	assert(players.size() == 1);
 
 	if(visitDestAfterVictory && hero->tempOwner == players[0]) //hero still alive, so he won with the guard
-		//TODO what if there were H4-like escape? we should also check pos
 	{
 		logGlobal->trace("Hero %s after victory over guard finishes visit to %s", hero->getNameTranslated(), tmh.end.toString());
 		//finish movement
 		visitDestAfterVictory = false;
-		gh->visitObjectOnTile(*gh->getTile(hero->convertToVisitablePos(tmh.end)), hero);
+		gh->visitObjectOnTile(*gh->gameInfo().getTile(hero->convertToVisitablePos(tmh.end)), hero);
 	}
 
 	owner->popIfTop(*this);

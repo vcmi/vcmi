@@ -56,6 +56,9 @@ public:
 	/// returns true if specified object is the currently active hero
 	virtual bool isActiveHero(const CGObjectInstance* obj) const = 0;
 
+	/// Returns moveDir of hero that attacked this wandering monster, or -1 on failure
+	virtual int attackedMonsterDirection(const CGObjectInstance * wanderingMonster) const = 0;
+
 	virtual size_t objectGroupIndex(ObjectInstanceID objectID) const = 0;
 	virtual Point objectImageOffset(ObjectInstanceID objectID, const int3 & coordinates) const = 0;
 
@@ -96,6 +99,7 @@ public:
 	virtual bool showGrid() const = 0;
 	virtual bool showVisitable() const = 0;
 	virtual bool showBlocked() const = 0;
+	virtual bool showInvisible() const = 0;
 
 	/// if true, spell range for teleport / scuttle boat will be visible
 	virtual bool showSpellRange(const int3 & position) const = 0;

@@ -32,7 +32,7 @@ protected:
 	FactionID getTownTypeFromHint(size_t hintIndex);
 	void placeTowns(ObjectManager & manager);
 	bool placeMines(ObjectManager & manager);
-	int3 placeMainTown(ObjectManager & manager, CGTownInstance & town);
+	int3 placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownInstance> town);
 
 protected:
 	int totalTowns = 0;

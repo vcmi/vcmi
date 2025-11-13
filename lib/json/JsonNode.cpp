@@ -306,28 +306,6 @@ bool JsonNode::isCompact() const
 	}
 }
 
-bool JsonNode::TryBoolFromString(bool & success) const
-{
-	success = true;
-	if(getType() == JsonNode::JsonType::DATA_BOOL)
-		return Bool();
-
-	success = getType() == JsonNode::JsonType::DATA_STRING;
-	if(success)
-	{
-		auto boolParamStr = String();
-		boost::algorithm::trim(boolParamStr);
-		boost::algorithm::to_lower(boolParamStr);
-		success = boolParamStr == "true";
-
-		if(success)
-			return true;
-
-		success = boolParamStr == "false";
-	}
-	return false;
-}
-
 void JsonNode::clear()
 {
 	setType(JsonType::DATA_NULL);

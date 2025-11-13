@@ -29,10 +29,9 @@
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../windows/CMessage.h"
 
-#include "../../CCallback.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../../lib/mapObjects/CArmedInstance.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
 
 CInGameConsole::CInGameConsole()

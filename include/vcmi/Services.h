@@ -19,6 +19,7 @@ class CreatureService;
 class FactionService;
 class HeroClassService;
 class HeroTypeService;
+class ResourceTypeService;
 class SkillService;
 class JsonNode;
 class BattleFieldService;
@@ -52,6 +53,7 @@ public:
 	virtual const FactionService * factions() const = 0;
 	virtual const HeroClassService * heroClasses() const = 0;
 	virtual const HeroTypeService * heroTypes() const = 0;
+	virtual const ResourceTypeService * resources() const = 0;
 #if SCRIPTING_ENABLED
 	virtual const scripting::Service * scripts() const = 0;
 #endif

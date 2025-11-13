@@ -68,7 +68,7 @@ std::vector<ObjectInstanceID> ExecuteHeroChain::getAffectedObjects() const
 
 bool ExecuteHeroChain::isObjectAffected(ObjectInstanceID id) const
 {
-	if(chainPath.targetHero->id == id || objid == id)
+	if(chainPath.targetHero->id == id || objid == id.getNum())
 		return true;
 
 	for(auto & node : chainPath.nodes)

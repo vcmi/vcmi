@@ -73,6 +73,9 @@ public:
 	void disable();
 	/// activates if needed, all activity enabled (Warning: may not be symmetric with disable if recActions was limited!)
 	void enable();
+	/// returns true if element was disabled via disable() call
+	bool isDisabled() const;
+
 	/// deactivates or activates UI element based on flag
 	void setEnabled(bool on);
 
@@ -157,6 +160,12 @@ public:
 
 	virtual bool holdsGarrison(const CArmedInstance * army) = 0;
 	virtual void updateGarrisons() = 0;
+};
+
+class IArtifactsHolder
+{
+public:
+	virtual void updateArtifacts() = 0;
 };
 
 class IMarketHolder

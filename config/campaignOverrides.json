@@ -1,11 +1,196 @@
 {
-	"DATA/GOOD3" : { // RoE - "Song for the Father"
-		"outroVideo": "Endgame"
+	/// RoE CAMPAIGNS
+	
+	"DATA/GOOD1" : { //Long live the Queen
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "G1A" },
+			{ "voiceProlog": "G1B" },
+			{ "voiceProlog": "G1C" }
+		]
 	},
-	"DATA/AB" : { // AB Intro
+	"DATA/EVIL1" : { // Dungeons and Devils
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "E1A" },
+			{ "voiceProlog": "E1B" },
+			{ "voiceProlog": "E1C" }
+		]
+	},
+	"DATA/GOOD2" : { // Liberation
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "G2A" },
+			{ "voiceProlog": "G2B" },
+			{ "voiceProlog": "G2C" },
+			{ "voiceProlog": "G2D" }
+		]
+	},
+	"DATA/NEUTRAL1" : { // Spoils of War
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "N1A" },
+			{ "voiceProlog": "N1B" },
+			{ "voiceProlog": "N1C_D" }
+		]
+	},
+	"DATA/EVIL2" : { // Long live the King
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "E2A", "voiceEpilog": "E2AE" },
+			{ "voiceProlog": "E2B" },
+			{ "voiceProlog": "E2C" },
+			{ "voiceProlog": "E2D" }
+		]
+	},
+	
+	"DATA/GOOD3" : { // Song for the Father
+		"outroVideo": "Endgame",
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "G3A" },
+			{ "voiceProlog": "G3B" },
+			{ "voiceProlog": "G3C" }
+		]
+	},
+	"DATA/SECRET1" : { // Seeds of discontent
+		"restrictedGarrisonsForAI" : true,
+		"scenarios": [
+			{ "voiceProlog": "S1A" },
+			{ "voiceProlog": "S1B" },
+			{ "voiceProlog": "S1C" }
+		]
+	},
+	
+	/// AB CAMPAIGNS
+
+	"DATA/AB" : { // Armageddon's Blade
 		"introVideo": "H3X1intr",
-		"videoRim": "IntroRm2"
+		"videoRim": "IntroRm2",
+		"scenarios": [
+			{ "voiceProlog": "ABvoAB1" },
+			{ "voiceProlog": "ABvoAB2" },
+			{ "voiceProlog": "ABvoAB3" },
+			{ "voiceProlog": "ABvoAB4" },
+			{ "voiceProlog": "ABvoAB5" },
+			{ "voiceProlog": "ABvoAB6" },
+			{ "voiceProlog": "ABvoAB7" },
+			{ "voiceProlog": "ABvoAB8", "voiceEpilog": "ABvoAB9" }
+		]
 	},
+	"DATA/BLOOD" : { // Dragon's Blood
+		"scenarios": [
+			{ "voiceProlog": "ABvoDB1" },
+			{ "voiceProlog": "ABvoDB2" },
+			{ "voiceProlog": "ABvoDB3" },
+			{ "voiceProlog": "ABvoDB4", "voiceEpilog": "ABvoDB5" }
+		]
+	},
+	"DATA/SLAYER" : { // Dragon Slayer
+		"scenarios": [
+			{ "voiceProlog": "ABvoDS1" },
+			{ "voiceProlog": "ABvoDS2" },
+			{ "voiceProlog": "ABvoDS3" },
+			{ "voiceProlog": "ABvoDS4", "voiceEpilog": "ABvoDS5" }
+		]
+	},
+	"DATA/FESTIVAL" : { // Festival of Life
+		"scenarios": [
+			{ "voiceProlog": "ABvoFL1" },
+			{ "voiceProlog": "ABvoFL2" },
+			{ "voiceProlog": "ABvoFL3" },
+			{ "voiceProlog": "ABvoFL4", "voiceEpilog": "ABvoFL5" }
+		]
+	},
+	"DATA/FIRE" : { // Playing with Fire
+		"scenarios": [
+			{ "voiceProlog": "ABvoPF1" },
+			{ "voiceProlog": "ABvoPF2" },
+			{ "voiceProlog": "ABvoPF3", "voiceEpilog": "ABvoPF4" }
+		]
+	},
+	"DATA/FOOL" : { // Foolhardy Waywardness
+		"scenarios": [
+			{ "voiceProlog": "ABvoFW1" },
+			{ "voiceProlog": "ABvoFW2" },
+			{ "voiceProlog": "ABvoFW3" },
+			{ "voiceProlog": "ABvoFW4", "voiceEpilog": "ABvoFW5" }
+		]
+	},
+
+	/// SoD CAMPAIGNS
+
+	"DATA/GELU" : { // Elixir of life
+		"scenarios": [
+			{ "voiceProlog": "H3x2ELa" },
+			{ "voiceProlog": "H3x2ELb" },
+			{ "voiceProlog": "H3x2ELc" },
+			{ "voiceProlog": "H3x2ELd", "voiceEpilog": "H3x2ELe" }
+		]
+	},
+	"DATA/CRAG" : { // Hack and Slash
+		"scenarios": [
+			{ "voiceProlog": "H3x2HSa" },
+			{ "voiceProlog": "H3x2HSb" },
+			{ "voiceProlog": "H3x2HSc" },
+			{ "voiceProlog": "H3x2HSd", "voiceEpilog": "H3x2HSe" }
+		]
+	},
+	"DATA/SANDRO" : { // Rise of the Necromancer
+		"scenarios": [
+			{ "voiceProlog": "H3x2RNa" },
+			{ "voiceProlog": "H3x2RNb" },
+			{ "voiceProlog": "H3x2RNc" },
+			{ "voiceProlog": "H3x2RNd", "voiceEpilog": "H3x2RNe" }
+		]
+	},
+	"DATA/GEM" : { // New Beginning
+		"heroGemSorceress" : "gem", // Gem (Sorceress class)
+		"scenarios": [
+			{ "voiceProlog": "H3x2NBa" },
+			{ "voiceProlog": "H3x2NBb" },
+			{ "voiceProlog": "H3x2NBc" },
+			{ "voiceProlog": "H3x2NBd", "voiceEpilog": "H3x2NBe" }
+		]
+	},
+	"DATA/YOG" : { // Birth of a Barbarian
+		"heroYogWizard" : "solmyr", // Yog (based on Solmyr)
+		"scenarios": [
+			{ "voiceProlog": "H3x2BBa" },
+			{ "voiceProlog": "H3x2BBb" },
+			{ "voiceProlog": "H3x2BBc" },
+			{ "voiceProlog": "H3x2BBd" },
+			{ "voiceProlog": "H3x2BBe", "voiceEpilog": "H3x2BBf" }
+		]
+	},
+	"DATA/FINAL" : { // Unholy Alliance
+		"heroGemSorceress" : "gem", // Gem (Sorceress class)
+		"scenarios": [
+			{ "voiceProlog": "H3x2UAa" },
+			{ "voiceProlog": "H3x2UAb" },
+			{ "voiceProlog": "H3x2UAc" },
+			{ "voiceProlog": "H3x2UAd" },
+			{ "voiceProlog": "H3x2UAe" },
+			{ "voiceProlog": "H3x2UAf" },
+			{ "voiceProlog": "H3x2UAg" },
+			{ "voiceProlog": "H3x2UAh" },
+			{ "voiceProlog": "H3x2UAi" },
+			{ "voiceProlog": "H3x2UAj" },
+			{ "voiceProlog": "H3x2UAk" },
+			{ "voiceProlog": "H3x2UAl", "voiceEpilog": "H3x2UAm" }
+		]
+	},
+	"DATA/SECRET" : { // Spectre of Power
+		"scenarios": [
+			{ "voiceProlog": "H3x2SPa" },
+			{ "voiceProlog": "H3x2Spb" },
+			{ "voiceProlog": "H3x2Spc" },
+			{ "voiceProlog": "H3x2Spd", "voiceEpilog": "H3x2Spe" }
+		]
+	},
+	
+	/// CHRONICLES CAMPAIGNS
+	
 	"MAPS/CHRONICLES/HC1_MAIN" : { // Heroes Chronicles 1
 		"regions":
 		{

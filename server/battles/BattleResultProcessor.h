@@ -46,16 +46,18 @@ struct FinishingBattleHelper
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
-	const CGHeroInstance *winnerHero, *loserHero;
-	PlayerColor victor, loser;
+	ObjectInstanceID winnerId;
+	ObjectInstanceID loserId;
+	PlayerColor victor;
+	PlayerColor loser;
 	BattleSide winnerSide;
 
 	int remainingBattleQueriesCount;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & winnerHero;
-		h & loserHero;
+		h & winnerId;
+		h & loserId;
 		h & victor;
 		h & loser;
 		h & winnerSide;
@@ -65,19 +67,18 @@ struct FinishingBattleHelper
 
 class BattleResultProcessor : boost::noncopyable
 {
-	//	BattleProcessor * owner;
 	CGameHandler * gameHandler;
 
 	std::map<BattleID, std::unique_ptr<BattleResult>> battleResults;
 	std::map<BattleID, std::unique_ptr<FinishingBattleHelper>> finishingBattles;
 
 public:
-	explicit BattleResultProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);
+	explicit BattleResultProcessor(CGameHandler * gameHandler);
 
 	bool battleIsEnding(const CBattleInfoCallback & battle) const;
 
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
-	void battleAfterLevelUp(const BattleID & battleID, const BattleResult & result);
+	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 };

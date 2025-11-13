@@ -17,7 +17,6 @@
 #include "../GameInstance.h"
 #include "../gui/CursorHandler.h"
 #include "../battle/BattleInterface.h"
-#include "../battle/BattleInterfaceClasses.h"
 #include "../windows/CMessage.h"
 #include "../renderSDL/SDL_PixelAccess.h"
 #include "../render/IImage.h"
@@ -27,8 +26,6 @@
 #include "../render/CanvasImage.h"
 
 #include "../CPlayerInterface.h"
-
-#include "../../CCallback.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h" //for Unicode related stuff
@@ -89,7 +86,9 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
-	if(playerColored)
+	if(!GAME->interface())
+		image->setPlayerColor(PlayerColor(1)); // in main menu we use blue
+	else if(playerColored)
 		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }

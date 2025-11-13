@@ -92,11 +92,11 @@ public:
 	
 	void reset(const CMap * Map);
 	
-	void drawTerrainTile(QPainter & painter, int x, int y, int z);
+	void drawTerrainTile(QPainter & painter, int x, int y, int z, QPointF offset);
 	/// draws a river segment on current tile
-	void drawRiver(QPainter & painter, int x, int y, int z);
+	void drawRiver(QPainter & painter, int x, int y, int z, QPointF offset);
 	/// draws a road segment on current tile
-	void drawRoad(QPainter & painter, int x, int y, int z);
+	void drawRoad(QPainter & painter, int x, int y, int z, QPointF offset);
 	
 	std::set<int3> invalidate(const CGObjectInstance *); //invalidates object rects
 	void invalidateObjects(); //invalidates all objects on the map
@@ -111,8 +111,8 @@ public:
 	std::set<int3> addObject(const CGObjectInstance * object);
 	
 	/// draws all objects on current tile (higher-level logic, unlike other draw*** methods)
-	void drawObjects(QPainter & painter, int x, int y, int z, const std::set<const CGObjectInstance *> & locked);
-	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y);
+	void drawObjects(QPainter & painter, const QRectF & section, int z, std::set<const CGObjectInstance *> & locked);
+	void drawObjectAt(QPainter & painter, const CGObjectInstance * object, int x, int y, QPointF offset, bool locked = false);
 	
 	void drawMinimapTile(QPainter & painter, int x, int y, int z);
 

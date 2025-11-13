@@ -21,8 +21,9 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 
-#include "../../CCallback.h"
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -42,21 +43,22 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb = std::make_shared<CButton>(Point(670, 538), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), EShortcut::GLOBAL_RETURN);
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
-	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
+	mapView = std::make_shared<PuzzleMapView>(Point(8,8), Point(592, 544), grailPos);
+	mapView->needFullUpdate = true;
 
 	logo = std::make_shared<CPicture>(ImagePath::builtin("PUZZLOGO"), 607, 3);
 	title = std::make_shared<CLabel>(700, 95, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[463]);
 	resDataBar = std::make_shared<CResDataBar>(ImagePath::builtin("ARESBAR.bmp"), 3, 575, 32, 2, 85, 85);
 
-	int faction = GAME->interface()->cb->getStartInfo()->playerInfos.find(GAME->interface()->playerID)->second.castle;
+	FactionID faction = GAME->interface()->cb->getStartInfo()->playerInfos.find(GAME->interface()->playerID)->second.castle;
 
-	auto & puzzleMap = (*LIBRARY->townh)[faction]->puzzleMap;
+	auto & puzzleMap = faction.toFaction()->puzzleMap;
 
 	for(auto & elem : puzzleMap)
 	{
 		const SPuzzleInfo & info = elem;
 
-		auto piece = std::make_shared<CPicture>(info.filename, info.position.x, info.position.y);
+		auto piece = std::make_shared<CPicture>(info.filename, info.position.x + 1, info.position.y);
 		piece->needRefresh = true;
 
 		//piece that will slowly disappear
@@ -70,6 +72,10 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 			visiblePieces.push_back(piece);
 		}
 	}
+
+	border = std::make_shared<GraphicalPrimitiveCanvas>(Rect(Point(6,6), Point(596, 548)));
+	for(int i = 0; i < 3; i++)
+		border->addRectangle(Point(i, i), Point(border->pos.w - i * 2, border->pos.h - i * 2), Colors::BLACK);
 }
 
 void CPuzzleWindow::showAll(Canvas & to)
@@ -93,4 +99,7 @@ void CPuzzleWindow::show(Canvas & to)
 		currentAlpha -= animSpeed;
 	}
 	CWindowObject::show(to);
+
+	if(mapView->needFullUpdate && piecesToRemove.empty())
+		mapView->needFullUpdate = false;
 }

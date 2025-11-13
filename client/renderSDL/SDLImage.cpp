@@ -70,7 +70,7 @@ SDLImageShared::SDLImageShared(SDL_Surface * from)
 	fullSize.y = surf->h;
 }
 
-SDLImageShared::SDLImageShared(const ImagePath & filename)
+SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
 	: surf(nullptr),
 	margins(0, 0),
 	fullSize(0, 0),
@@ -89,7 +89,8 @@ SDLImageShared::SDLImageShared(const ImagePath & filename)
 		fullSize.x = surf->w;
 		fullSize.y = surf->h;
 
-		optimizeSurface();
+		if(optimizeImage)
+			optimizeSurface();
 	}
 }
 
@@ -246,7 +247,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	else
 		algorithm = EScalingAlgorithm::XBRZ_ALPHA;
 
-	auto result = std::make_shared<SDLImageShared>(this, factor, algorithm);
+	auto result = SDLImageShared::createScaled(this, factor, algorithm);
 
 	if (surf->format->palette)
 		SDL_SetSurfacePalette(surf, originalPalette);
@@ -254,31 +255,43 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 	return result;
 }
 
-SDLImageShared::SDLImageShared(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
+std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
 {
-	upscalingInProgress = true;
+	auto self = std::make_shared<SDLImageShared>(nullptr);
+	self->upscalingInProgress = true;
 
 	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
 
-	const auto & scalingTask = [this, algorithm, scaler]()
+	const auto & scalingTask = [self, algorithm, scaler]()
 	{
 		scaler->scaleSurfaceIntegerFactor(ENGINE->screenHandler().getScalingFactor(), algorithm);
-		surf = scaler->acquireResultSurface();
-		fullSize = scaler->getResultDimensions().dimensions();
-		margins = scaler->getResultDimensions().topLeft();
-
-		upscalingInProgress = false;
+		self->surf = scaler->acquireResultSurface();
+		self->fullSize = scaler->getResultDimensions().dimensions();
+		self->margins = scaler->getResultDimensions().topLeft();
+		self->upscalingInProgress = false;
 	};
 
-	if(settings["video"]["asyncUpscaling"].Bool())
+	if(settings["video"]["asyncUpscaling"].Bool() && from->getAsyncUpscale())
 		ENGINE->async().run(scalingTask);
 	else
 		scalingTask();
+
+	return self;
 }
 
 bool SDLImageShared::isLoading() const
 {
 	return upscalingInProgress;
+}
+
+void SDLImageShared::setAsyncUpscale(bool on)
+{
+	asyncUpscale = on;
+}
+
+bool SDLImageShared::getAsyncUpscale() const
+{
+	return asyncUpscale;
 }
 
 std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, SDL_Palette * palette) const
@@ -361,9 +374,10 @@ Rect SDLImageShared::contentRect() const
 	if(upscalingInProgress)
 		throw std::runtime_error("Attempt to access images that is still being loaded!");
 
-	auto tmpMargins = margins;
-	auto tmpSize = Point(surf->w, surf->h);
-	return Rect(tmpMargins, tmpSize);
+	if (!surf)
+		return Rect();
+
+	return Rect(margins, Point(surf->w, surf->h));
 }
 
 const SDL_Palette * SDLImageShared::getPalette() const
@@ -426,6 +440,49 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	return ret;
 }
 
+std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
+{
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
+	if (!surf)
+		return nullptr;
+
+	SDL_Surface * shadow = CSDL_Ext::drawShadow(surf, doSheer);
+	auto ret = std::make_shared<SDLImageShared>(shadow);
+	ret->fullSize = fullSize;
+	ret->margins.x = margins.x;
+	ret->margins.y = margins.y;
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_FreeSurface(shadow);
+
+	return ret;
+}
+
+std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & color, int thickness) const
+{
+	if(upscalingInProgress)
+		throw std::runtime_error("Attempt to access images that is still being loaded!");
+
+	if (!surf)
+		return nullptr;
+
+	SDL_Color sdlColor = { color.r, color.g, color.b, color.a };
+	SDL_Surface * outline = CSDL_Ext::drawOutline(surf, sdlColor, thickness);
+	auto ret = std::make_shared<SDLImageShared>(outline);
+	ret->fullSize = fullSize;
+	ret->margins.x = margins.x;
+	ret->margins.y = margins.y;
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_FreeSurface(outline);
+
+	return ret;
+}
+
 // Keep the original palette, in order to do color switching operation
 void SDLImageShared::savePalette()
 {
@@ -445,5 +502,6 @@ void SDLImageShared::savePalette()
 SDLImageShared::~SDLImageShared()
 {
 	SDL_FreeSurface(surf);
-	SDL_FreePalette(originalPalette);
+	if (originalPalette)
+		SDL_FreePalette(originalPalette);
 }

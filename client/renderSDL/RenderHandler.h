@@ -24,11 +24,11 @@ class RenderHandler final : public IRenderHandler
 {
 	using AnimationLayoutMap = std::map<size_t, std::vector<ImageLocator>>;
 
-	std::map<AnimationPath, std::shared_ptr<CDefFile>> animationFiles;
+	std::map<AnimationPath, std::weak_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
-	std::map<SharedImageLocator, std::shared_ptr<ScalableImageShared>> imageFiles;
+	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
-	std::unique_ptr<AssetGenerator> assetGenerator;
+	std::shared_ptr<AssetGenerator> assetGenerator;
 
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
 	AnimationLayoutMap & getAnimationLayout(const AnimationPath & path, int scalingFactor, EImageBlitMode mode);
@@ -67,4 +67,7 @@ public:
 	std::shared_ptr<const IFont> loadFont(EFonts font) override;
 
 	void exportGeneratedAssets() override;
+
+	std::shared_ptr<AssetGenerator> getAssetGenerator() override;
+	void updateGeneratedAssets() override;
 };

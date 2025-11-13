@@ -35,6 +35,8 @@ protected:
 	void render(Canvas & target, bool fullUpdate);
 
 public:
+	bool needFullUpdate;
+
 	BasicMapView(const Point & offset, const Point & dimensions);
 	~BasicMapView() override;
 

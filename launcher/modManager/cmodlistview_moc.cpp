@@ -30,6 +30,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
+#include "../../lib/filesystem/CZipLoader.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/CModVersion.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -96,7 +97,7 @@ void CModListView::setupModsView()
 	ui->allModsView->setUniformRowHeights(true);
 
 	ui->allModsView->setContextMenuPolicy(Qt::CustomContextMenu);
-	
+
 	connect(ui->allModsView, SIGNAL(customContextMenuRequested(const QPoint &)),
 		this, SLOT(onCustomContextMenu(const QPoint &)));
 
@@ -149,10 +150,18 @@ CModListView::CModListView(QWidget * parent)
 #endif
 }
 
-void CModListView::reload()
+void CModListView::reload(const QString & modToSelect)
 {
 	modStateModel->reloadLocalState();
 	modModel->reloadViewModel();
+
+	if (!modToSelect.isEmpty())
+	{
+		QModelIndexList matches = filterModel->match(filterModel->index(0, 0), ModRoles::ModNameRole, modToSelect, 1, Qt::MatchExactly | Qt::MatchRecursive);
+
+		if (!matches.isEmpty())
+			ui->allModsView->setCurrentIndex(matches.first());
+	}
 }
 
 void CModListView::loadRepositories()
@@ -323,7 +332,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	if((!mod.isInstalled() || mod.isUpdateAvailable()) && !mod.getDownloadSizeFormatted().isEmpty())
 		result += replaceIfNotEmpty(mod.getDownloadSizeFormatted(), lineTemplate.arg(tr("Download size")));
-	
+
 	result += replaceIfNotEmpty(mod.getAuthors(), lineTemplate.arg(tr("Authors")));
 
 	if(!mod.getLicenseName().isEmpty())
@@ -741,7 +750,7 @@ void CModListView::on_uninstallButton_clicked()
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 
 	doUninstallMod(modName);
-	
+
 	checkManagerErrors();
 }
 
@@ -784,6 +793,7 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 		ui->progressBar->setFormat(progressBarFormat);
 	}
 
+	Helper::keepScreenOn(true);
 	dlManager->downloadFile(url, file, sizeBytes);
 }
 
@@ -836,13 +846,14 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	enqueuedModDownloads.clear();
 	dlManager->deleteLater();
 	dlManager = nullptr;
-	
+
 	ui->progressBar->setMaximum(0);
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
 		installFiles(savedFiles);
-	
+
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 
@@ -870,7 +881,33 @@ void CModListView::installFiles(QStringList files)
 		QString realFilename = Helper::getRealPath(filename);
 
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
-			mods.push_back(filename);
+		{
+			ZipArchive archive(qstringToPath(realFilename));
+			auto fileList = archive.listFiles();
+
+			bool hasModJson = false;
+			bool hasMaps = false;
+
+			for (const auto& file : fileList)
+			{
+				QString lower = QString::fromStdString(file).toLower();
+
+				// Check for mod.json anywhere in archive
+				if (lower.endsWith("mod.json"))
+					hasModJson = true;
+
+				// Check for map files anywhere
+				if (lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
+					hasMaps = true;
+			}
+
+			if (hasModJson)
+				mods.push_back(filename);
+			else if (hasMaps)
+				maps.push_back(filename);
+			else
+				mods.push_back(filename);
+		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
 		if(realFilename.endsWith(".exe", Qt::CaseInsensitive))
@@ -926,7 +963,6 @@ void CModListView::installFiles(QStringList files)
 	{
 		logGlobal->info("Installing mods: started");
 		installMods(mods);
-		reload();
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -942,33 +978,35 @@ void CModListView::installFiles(QStringList files)
 		logGlobal->info("Installing chronicles: started");
 		ui->progressBar->setFormat(tr("Installing Heroes Chronicles"));
 		ui->progressWidget->setVisible(true);
-		ui->pushButton->setEnabled(false);
+		ui->abortButton->setEnabled(false);
 
 		float prog = 0.0;
+
+		Helper::keepScreenOn(true);
 
 		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
 		{
 			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
 			ce.installChronicles(exe);
-			reload();
-			if (modStateModel->isModExists("chronicles"))
-				enableModByName("chronicles");
 			return true;
 		});
-		
+
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
 			extractionProgress(static_cast<int>(prog * 1000.f), 1000);
 			qApp->processEvents();
 		}
-		
+
 		if(futureExtract.get())
 		{
+			Helper::keepScreenOn(false);
 			hideProgressBar();
-			ui->pushButton->setEnabled(true);
+			ui->abortButton->setEnabled(true);
 			ui->progressWidget->setVisible(false);
 			//update
-			reload();
+			reload("chronicles");
+			if (modStateModel->isModExists("chronicles"))
+				enableModByName("chronicles");
 		}
 		logGlobal->info("Installing chronicles: ended");
 	}
@@ -1007,6 +1045,7 @@ void CModListView::installMods(QStringList archives)
 				modsToEnable.push_back(mod);
 
 			manager->uninstallMod(mod);
+			reload(mod);
 		}
 		else
 		{
@@ -1015,16 +1054,21 @@ void CModListView::installMods(QStringList archives)
 		}
 	}
 
-	reload(); // FIXME: better way that won't reset selection
+	QString lastInstalled;
 
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
-		ui->progressBar->setFormat(tr("Installing mod %1").arg(modNames[i]));
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modStateModel->getMod(modNames[i]).getName()));
+
 		manager->installMod(modNames[i], archives[i]);
+
+		if (i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
+			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
-	reload();
+
+	reload(lastInstalled);
 
 	if (!modsToEnable.empty())
 	{
@@ -1043,12 +1087,150 @@ void CModListView::installMods(QStringList archives)
 void CModListView::installMaps(QStringList maps)
 {
 	const auto destDir = CLauncherDirs::mapsPath() + QChar{'/'};
+	int successCount = 0;
+	QStringList failedMaps;
 
-	for(QString map : maps)
+	// Pre-scan maps to count total conflicts (used for Yes to All/No to All)
+	int conflictCount = 0;
+	for (const QString& map : maps)
 	{
-		logGlobal->info("Importing map '%s'", map.toStdString());
-		QFile(map).rename(destDir + map.section('/', -1, -1));
+		if (map.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			ZipArchive archive(qstringToPath(map));
+			for (const auto& file : archive.listFiles())
+			{
+				QString name = QString::fromStdString(file);
+				if (name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) ||
+					name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive))
+				{
+					if (QFile::exists(destDir + name))
+						conflictCount++;
+				}
+			}
+		}
+		else
+		{
+		    QString srcPath = Helper::getRealPath(map);
+		    QString fileName = QFileInfo(srcPath).fileName();
+		    QString destFile = destDir + fileName;
+			if (QFile::exists(destFile))
+				conflictCount++;
+		}
 	}
+
+	bool applyToAll = false;
+	bool overwriteAll = false;
+
+	auto askOverwrite = [&](const QString& name) -> bool {
+		if (applyToAll)
+			return overwriteAll;
+
+		QMessageBox msgBox(this);
+		msgBox.setIcon(QMessageBox::Question);
+		msgBox.setWindowTitle(tr("Map exists"));
+		msgBox.setText(tr("Map '%1' already exists. Do you want to overwrite it?").arg(name));
+
+		QPushButton* yes = msgBox.addButton(QMessageBox::Yes);
+		msgBox.addButton(QMessageBox::No);
+
+		QPushButton* yesAll = nullptr;
+		QPushButton* noAll = nullptr;
+		if (conflictCount > 1)
+		{
+			yesAll = msgBox.addButton(tr("Yes to All"), QMessageBox::YesRole);
+			noAll = msgBox.addButton(tr("No to All"), QMessageBox::NoRole);
+		}
+
+		msgBox.exec();
+		QAbstractButton* clicked = msgBox.clickedButton();
+
+		if (clicked == yes)
+			return true;
+		if (clicked == yesAll)
+		{
+			applyToAll = true;
+			overwriteAll = true;
+			return true;
+		}
+		if (clicked == noAll)
+		{
+			applyToAll = true;
+			overwriteAll = false;
+			return false;
+		}
+		return false;
+	};
+
+	// Process each map file and archive
+	for (const QString& map : maps)
+	{
+		if (map.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			// ZIP archive
+			ZipArchive archive(qstringToPath(map));
+			for (const auto& file : archive.listFiles())
+			{
+				QString name = QString::fromStdString(file);
+				if (!(name.endsWith(".h3m", Qt::CaseInsensitive) || name.endsWith(".h3c", Qt::CaseInsensitive) ||
+					name.endsWith(".vmap", Qt::CaseInsensitive) || name.endsWith(".vcmp", Qt::CaseInsensitive)))
+					continue;
+
+				QString destFile = destDir + name;
+				logGlobal->info("Importing map '%s' from ZIP '%s'", name.toStdString(), map.toStdString());
+
+				if (QFile::exists(destFile))
+				{
+					if (!askOverwrite(name))
+					{
+						logGlobal->info("Skipped map '%s'", name.toStdString());
+						continue;
+					}
+					QFile::remove(destFile);
+				}
+
+				if (archive.extract(qstringToPath(destDir), file))
+					successCount++;
+				else
+				{
+					logGlobal->warn("Failed to extract map '%s'", name.toStdString());
+					failedMaps.push_back(name);
+				}
+			}
+		}
+		else
+		{
+			// Single map file
+			QString srcPath = Helper::getRealPath(map);
+			QString fileName = QFileInfo(srcPath).fileName();
+			QString destFile = destDir + fileName;
+
+			logGlobal->info("Importing map '%s'", srcPath.toStdString());
+
+			if (QFile::exists(destFile))
+			{
+				if (!askOverwrite(fileName))
+				{
+					logGlobal->info("Skipped map '%s'", fileName.toStdString());
+					continue;
+				}
+				QFile::remove(destFile);
+			}
+
+			if (Helper::performNativeCopy(map, destFile))
+				successCount++;
+			else
+			{
+				logGlobal->warn("Failed to copy map '%s'", fileName.toStdString());
+				failedMaps.push_back(fileName);
+			}
+		}
+	}
+
+	if (successCount > 0)
+		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount));
+
+	if (!failedMaps.isEmpty())
+		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")));
 }
 
 void CModListView::on_refreshButton_clicked()
@@ -1056,10 +1238,11 @@ void CModListView::on_refreshButton_clicked()
 	loadRepositories();
 }
 
-void CModListView::on_pushButton_clicked()
+void CModListView::on_abortButton_clicked()
 {
 	delete dlManager;
 	dlManager = nullptr;
+	Helper::keepScreenOn(false);
 	hideProgressBar();
 }
 
@@ -1094,7 +1277,7 @@ void CModListView::loadScreenshots()
 
 	if (!ui->allModsView->currentIndex().isValid())
 		return;
-		
+
 	ui->screenshotsList->clear();
 	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
 	assert(modStateModel->isModExists(modName)); //should be filtered out by check above
@@ -1151,7 +1334,7 @@ void CModListView::doUninstallMod(const QString & modName)
 		if(modStateModel->isModEnabled(modName))
 			manager->disableMod(modName);
 		manager->uninstallMod(modName);
-		reload();
+		reload(modName);
 	}
 }
 
@@ -1232,10 +1415,10 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 {
 	if(!index.isValid())
 		return;
-	
+
 	auto modName = index.data(ModRoles::ModNameRole).toString();
 	auto mod = modStateModel->getMod(modName);
-	
+
 	QStringList notInstalledDependencies = this->getModsToInstall(mod.getID());
 	QStringList unavailableDependencies = this->findUnavailableMods(notInstalledDependencies);
 
@@ -1250,14 +1433,14 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		on_updateButton_clicked();
 		return;
 	}
-	
+
 	if(index.column() == ModFields::NAME)
 	{
 		if(ui->allModsView->isExpanded(index))
 			ui->allModsView->collapse(index);
 		else
 			ui->allModsView->expand(index);
-		
+
 		return;
 	}
 

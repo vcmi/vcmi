@@ -167,21 +167,21 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * ai, con
 
 			composition.addNext(heroExchange);
 
-			if(hero->inTownGarrison && path.turn() == 0)
+			if(hero->isGarrisoned() && path.turn() == 0)
 			{
 				auto lockReason = ai->getHeroLockedReason(hero);
 
-				if(path.targetHero->visitedTown == hero->visitedTown)
+				if(path.targetHero->getVisitedTown() == hero->getVisitedTown())
 				{
 					composition.addNextSequence({
-						sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))});
+						sptr(ExchangeSwapTownHeroes(hero->getVisitedTown(), hero, lockReason))});
 				}
 				else
 				{
 					composition.addNextSequence({
-						sptr(ExchangeSwapTownHeroes(hero->visitedTown)),
+						sptr(ExchangeSwapTownHeroes(hero->getVisitedTown())),
 						sptr(exchangePath),
-						sptr(ExchangeSwapTownHeroes(hero->visitedTown, hero, lockReason))});
+						sptr(ExchangeSwapTownHeroes(hero->getVisitedTown(), hero, lockReason))});
 				}
 			}
 			else
@@ -262,7 +262,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 			continue;
 		}
 
-		if(upgrader->visitingHero && (upgrader->visitingHero.get() != path.targetHero || path.exchangeCount == 1))
+		if(upgrader->getVisitingHero() && (upgrader->getVisitingHero() != path.targetHero || path.exchangeCount == 1))
 		{
 #if NKAI_TRACE_LEVEL >= 2
 			logAi->trace("Ignore path. Town has visiting hero.");
@@ -289,7 +289,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * ai, const CGT
 
 		auto upgrade = ai->armyManager->calculateCreaturesUpgrade(path.heroArmy, upgrader, availableResources);
 
-		if(!upgrader->garrisonHero
+		if(!upgrader->getGarrisonHero()
 			&& (
 				hasMainAround
 				|| ai->heroManager->getHeroRole(path.targetHero) == HeroRole::MAIN))

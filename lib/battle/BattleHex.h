@@ -118,7 +118,7 @@ public:
 		if(hasToBeValid)
 		{
 			if(x < 0 || x >= GameConstants::BFIELD_WIDTH || y < 0 || y >= GameConstants::BFIELD_HEIGHT)
-				throw std::runtime_error("Hex at (" + std::to_string(x) + ", " + std::to_string(y) + ") is not valid!");
+				throw std::out_of_range("Hex at (" + std::to_string(x) + ", " + std::to_string(y) + ") is not valid!");
 		}
 
 		hex = x + y * GameConstants::BFIELD_WIDTH;
@@ -212,8 +212,17 @@ public:
 	[[nodiscard]] static EDir mutualPosition(const BattleHex & hex1, const BattleHex & hex2)
 	{
 		for(auto dir : hexagonalDirections())
-			if(hex2 == hex1.cloneInDirection(dir, false))
-				return dir;
+		{
+			try
+			{
+				if(hex2 == hex1.cloneInDirection(dir, true))
+					return dir;
+			}
+			catch (const std::out_of_range &)
+			{
+				continue;
+			}
+		}
 		return NONE;
 	}
 

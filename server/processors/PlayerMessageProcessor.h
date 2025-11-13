@@ -10,11 +10,11 @@
 #pragma once
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/serializer/GameConnectionID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
 class CGTownInstance;
-class CConnection;
 class MetaString;
 VCMI_LIB_NAMESPACE_END
 
@@ -47,6 +47,7 @@ class PlayerMessageProcessor
 	void cheatGiveMachines(PlayerColor player, const CGHeroInstance * hero);
 	void cheatGiveArtifacts(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatGiveScrolls(PlayerColor player, const CGHeroInstance * hero);
+	void cheatColorSchemeChange(PlayerColor player, ColorScheme scheme);
 	void cheatLevelup(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 	void cheatMovement(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
@@ -58,6 +59,7 @@ class PlayerMessageProcessor
 	void cheatMaxLuck(PlayerColor player, const CGHeroInstance * hero);
 	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
+	void cheatSkill(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 
 	void commandExit(PlayerColor player, const std::vector<std::string> & words);
 	void commandKick(PlayerColor player, const std::vector<std::string> & words);
@@ -78,8 +80,8 @@ public:
 	void playerMessage(PlayerColor player, const std::string & message, ObjectInstanceID currObj);
 
 	/// Send message to specific client with "System" as sender
-	void sendSystemMessage(std::shared_ptr<CConnection> connection, const MetaString & message);
-	void sendSystemMessage(std::shared_ptr<CConnection> connection, const std::string & message);
+	void sendSystemMessage(GameConnectionID connectionID, const MetaString & message);
+	void sendSystemMessage(GameConnectionID connectionID, const std::string & message);
 
 	/// Send message to all players with "System" as sender
 	void broadcastSystemMessage(MetaString message);

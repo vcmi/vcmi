@@ -19,6 +19,7 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
+#include "lobby/BattleOnlyMode.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
@@ -36,9 +37,9 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/campaign/CampaignState.h"
+#include "../lib/serializer/GameConnection.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
@@ -113,6 +114,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	if(!lobby || !handler.isGuest())
 		return;
 
+	if(auto topWindow = ENGINE->windows().topWindow<BattleOnlyModeWindow>())
+		topWindow->close();
+
 	switch(pack.action)
 	{
 	case LobbyGuiAction::NO_TAB:
@@ -133,6 +137,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	case LobbyGuiAction::OPEN_EXTRA_OPTIONS:
 		lobby->toggleTab(lobby->tabExtraOptions);
 		break;
+	case LobbyGuiAction::BATTLE_MODE:
+		BattleOnlyMode::openBattleWindow();
+		break;
 	}
 }
 
@@ -146,26 +153,19 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame &
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
-	handler.client = std::make_unique<CClient>();
 	handler.logicConnection->enterLobbyConnectionMode();
-	handler.logicConnection->setCallback(handler.client.get());
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId != -1 && pack.clientId != handler.logicConnection->connectionID)
-	{
-		result = false;
-		return;
-	}
-	
 	handler.setState(EClientState::STARTING);
-	if(handler.si->mode != EStartMode::LOAD_GAME || pack.clientId == handler.logicConnection->connectionID)
+	if(handler.si->mode != EStartMode::LOAD_GAME)
 	{
 		auto modeBackup = handler.si->mode;
 		handler.si = pack.initializedStartInfo;
 		handler.si->mode = modeBackup;
 	}
+	handler.client = std::make_unique<CClient>();
 	handler.startGameplay(pack.initializedGameState);
 }
 
@@ -238,4 +238,10 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 	
 	lobby->buttonStart->block(false);
 	handler.showServerError(pack.message.toString());
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	if(auto topWindow = ENGINE->windows().topWindow<BattleOnlyModeWindow>())
+		topWindow->applyStartInfo(pack.startInfo);
 }

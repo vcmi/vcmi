@@ -20,10 +20,12 @@ namespace AIPathfinding
 	{
 	private:
 		const CGTownInstance * target;
+		SpellID spellToUse;
 
 	public:
-		TownPortalAction(const CGTownInstance * target)
+		TownPortalAction(const CGTownInstance * target, SpellID spellToUse)
 			:target(target)
+			,spellToUse(spellToUse)
 		{
 		}
 

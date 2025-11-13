@@ -21,6 +21,8 @@
 #include <vcmi/HeroTypeService.h>
 #include <vcmi/HeroClass.h>
 #include <vcmi/HeroClassService.h>
+#include <vcmi/ResourceType.h>
+#include <vcmi/ResourceTypeService.h>
 #include <vcmi/Services.h>
 
 #include <vcmi/spells/Spell.h>
@@ -29,17 +31,19 @@
 #include "modding/IdentifierStorage.h"
 #include "modding/ModScope.h"
 #include "GameLibrary.h"
-#include "CArtHandler.h"//todo: remove
-#include "CCreatureHandler.h"//todo: remove
-#include "spells/CSpellHandler.h" //todo: remove
-#include "CSkillHandler.h"//todo: remove
+#include "CCreatureHandler.h"
+#include "spells/CSpellHandler.h"
+#include "spells/SpellSchoolHandler.h"
+#include "CSkillHandler.h"
+#include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
 #include "entities/hero/CHeroClass.h"
+#include "entities/ResourceTypeHandler.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "constants/StringConstants.h"
 #include "texts/CGeneralTextHandler.h"
-#include "TerrainHandler.h" //TODO: remove
+#include "TerrainHandler.h"
 #include "RiverHandler.h"
 #include "RoadHandler.h"
 #include "BattleFieldHandler.h"
@@ -54,8 +58,9 @@ const QueryID QueryID::NONE(-1);
 const QueryID QueryID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
-const HeroTypeID HeroTypeID::GEM(27);
-const HeroTypeID HeroTypeID::SOLMYR(45);
+const HeroTypeID HeroTypeID::CAMP_STRONGEST(-3);
+const HeroTypeID HeroTypeID::CAMP_GENERATED(-2);
+const HeroTypeID HeroTypeID::CAMP_RANDOM(-1);
 
 const ObjectInstanceID ObjectInstanceID::NONE(-1);
 
@@ -74,8 +79,8 @@ const TeamID TeamID::NO_TEAM(-1);
 const SpellSchool SpellSchool::ANY(-1);
 const SpellSchool SpellSchool::AIR(0);
 const SpellSchool SpellSchool::FIRE(1);
-const SpellSchool SpellSchool::WATER(2);
-const SpellSchool SpellSchool::EARTH(3);
+const SpellSchool SpellSchool::EARTH(2);
+const SpellSchool SpellSchool::WATER(3);
 
 const FactionID FactionID::NONE(-2);
 const FactionID FactionID::DEFAULT(-1);
@@ -97,7 +102,6 @@ const PrimarySkill PrimarySkill::ATTACK(0);
 const PrimarySkill PrimarySkill::DEFENSE(1);
 const PrimarySkill PrimarySkill::SPELL_POWER(2);
 const PrimarySkill PrimarySkill::KNOWLEDGE(3);
-const PrimarySkill PrimarySkill::EXPERIENCE(4);
 
 const BoatId BoatId::NONE(-1);
 const BoatId BoatId::NECROPOLIS(0);
@@ -133,6 +137,11 @@ BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID build
 	assert(buildingID.getNum() < 0x10000);
 }
 
+std::string ArtifactInstanceID::encode(const si32 index)
+{
+	return "";
+}
+
 BuildingID BuildingTypeUniqueID::getBuilding() const
 {
 	return BuildingID(getNum() % 0x10000);
@@ -152,6 +161,16 @@ int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const 
 
 	if (rawId)
 		return rawId.value();
+
+	size_t semicolon = identifier.find(':');
+
+	if (semicolon != std::string::npos)
+	{
+		auto rawId2 = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), entityType, identifier.substr(semicolon + 1));
+		if (rawId2)
+			return rawId2.value();
+	}
+
 	throw IdentifierResolutionException(identifier);
 }
 
@@ -255,6 +274,8 @@ si32 HeroTypeID::decode(const std::string & identifier)
 {
 	if (identifier == "random")
 		return -2;
+	if (identifier == "strongest")
+		return -3;
 	return resolveIdentifier("hero", identifier);
 }
 
@@ -264,6 +285,8 @@ std::string HeroTypeID::encode(const si32 index)
 		return "";
 	if (index == -2)
 		return "random";
+	if (index == -3)
+		return "strongest";
 	return LIBRARY->heroTypes()->getByIndex(index)->getJsonKey();
 }
 
@@ -376,6 +399,16 @@ const CHero * HeroTypeID::toHeroType() const
 const HeroType * HeroTypeID::toEntity(const Services * services) const
 {
 	return services->heroTypes()->getByIndex(num);
+}
+
+const Resource * GameResID::toResource() const
+{
+	return dynamic_cast<const Resource*>(toEntity(LIBRARY));
+}
+
+const ResourceType * GameResID::toEntity(const Services * services) const
+{
+	return services->resources()->getByIndex(num);
 }
 
 si32 SpellID::decode(const std::string & identifier)
@@ -593,7 +626,7 @@ std::string SpellSchool::encode(const si32 index)
 	if (index == ANY.getNum())
 		return "any";
 
-	return SpellConfig::SCHOOL[index].jsonName;
+	return LIBRARY->spellSchoolHandler->getById(SpellSchool(index))->getJsonKey();
 }
 
 std::string SpellSchool::entityType()
@@ -608,7 +641,7 @@ si32 GameResID::decode(const std::string & identifier)
 
 std::string GameResID::encode(const si32 index)
 {
-	return GameConstants::RESOURCE_NAMES[index];
+	return GameResID(index).toResource()->getJsonKey();
 }
 
 si32 BuildingTypeUniqueID::decode(const std::string & identifier)
@@ -654,21 +687,6 @@ const std::array<PrimarySkill, 4> & PrimarySkill::ALL_SKILLS()
 	};
 
 	return allSkills;
-}
-
-const std::array<GameResID, 7> & GameResID::ALL_RESOURCES()
-{
-	static const std::array allResources = {
-		GameResID(WOOD),
-		GameResID(MERCURY),
-		GameResID(ORE),
-		GameResID(SULFUR),
-		GameResID(CRYSTAL),
-		GameResID(GEMS),
-		GameResID(GOLD)
-	};
-
-	return allResources;
 }
 
 std::string SecondarySkill::entityType()

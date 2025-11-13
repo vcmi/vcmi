@@ -28,25 +28,25 @@
 #include "../widgets/CGarrisonInt.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/Buttons.h"
+#include "../widgets/Slider.h"
 #include "../render/IRenderHandler.h"
 
-#include "../../CCallback.h"
-
-#include "../lib/ArtifactUtils.h"
-#include "../lib/CArtHandler.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/entities/hero/CHeroHandler.h"
-#include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/CSkillHandler.h"
+#include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/entities/artifact/ArtifactUtils.h"
+#include "../lib/entities/hero/CHeroHandler.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/networkPacks/ArtifactLocation.h"
+#include "../lib/texts/CGeneralTextHandler.h"
 
 void CHeroSwitcher::clickPressed(const Point & cursorPosition)
 {
 	//TODO: do not recreate window
 	if (false)
 	{
-		owner->update();
+		owner->updateArtifacts();
 	}
 	else
 	{
@@ -104,7 +104,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(heroscrn[23], heroscrn[29]), 0, EShortcut::HERO_TIGHT_FORMATION));
 	formations->addToggle(1, std::make_shared<CToggleButton>(Point(481, 519), AnimationPath::builtin("hsbtns7.def"), std::make_pair(heroscrn[24], heroscrn[30]), 0, EShortcut::HERO_LOOSE_FORMATION));
 
-	if(hero->commander)
+	if(hero->getCommander())
 	{
 		commanderButton = std::make_shared<CButton>(Point(317, 18), AnimationPath::builtin("heroCommander"), CButton::tooltipLocalized("vcmi.heroWindow.openCommander"), [&](){ commanderWindow(); }, EShortcut::HERO_COMMANDER);
 		commanderButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/commanderButtonIcon")));
@@ -149,16 +149,27 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	expValue = std::make_shared<CLabel>(68, 252);
 	manaValue = std::make_shared<CLabel>(211, 252);
 
+	if(hero->secSkills.size() > 8)
+	{
+		auto divisionRoundUp = [](int x, int y){ return (x + (y - 1)) / y; };
+		int lines = divisionRoundUp(hero->secSkills.size(), 2);
+		secSkillSlider = std::make_shared<CSlider>(Point(284, 276), 189, [this](int val){ CHeroWindow::updateArtifacts(); }, 4, lines, 0, Orientation::VERTICAL, CSlider::BROWN);
+		secSkillSlider->setPanningStep(48);
+		secSkillSlider->setScrollBounds(Rect(-266, 0, secSkillSlider->pos.x - pos.x + secSkillSlider->pos.w, secSkillSlider->pos.h));
+	}
+
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
-		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
+		bool isSmallBox = (secSkillSlider && i%2 == 1);
+		Rect r(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2), isSmallBox ? 120 : 136,  42);
 		secSkills.emplace_back(std::make_shared<CSecSkillPlace>(r.topLeft(), CSecSkillPlace::ImageSize::MEDIUM));
 
 		int x = (i % 2) ? 212 : 68;
 		int y = 280 + 48 * (i/2);
+		int width = isSmallBox ? 71 : 87;
 
-		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT));
-		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT));
+		secSkillValues.push_back(std::make_shared<CLabel>(x, y, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
+		secSkillNames.push_back(std::make_shared<CLabel>(x, y+20, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, "", width));
 	}
 
 	// various texts
@@ -171,12 +182,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	labels.push_back(std::make_shared<CLabel>(69, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[6]));
 	labels.push_back(std::make_shared<CLabel>(213, 232, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->jktexts[7]));
 
-	CHeroWindow::update();
+	CHeroWindow::updateArtifacts();
 }
 
-void CHeroWindow::update()
+void CHeroWindow::updateArtifacts()
 {
-	CWindowWithArtifacts::update();
+	OBJECT_CONSTRUCTION;
+
+	CWindowWithArtifacts::updateArtifacts();
 	auto & heroscrn = LIBRARY->generaltexth->heroscrn;
 	assert(curHero);
 
@@ -196,7 +209,6 @@ void CHeroWindow::update()
 	portraitImage->setFrame(curHero->getIconIndex());
 
 	{
-		OBJECT_CONSTRUCTION;
 		if(!garr)
 		{
 			bool removableTroops = curHero->getOwner() == GAME->interface()->playerID;
@@ -211,7 +223,7 @@ void CHeroWindow::update()
 		{
 			arts = std::make_shared<CArtifactsOfHeroMain>(Point(-65, -8));
 			arts->clickPressedCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){clickPressedOnArtPlace(curHero, artPlace.slot, true, false, false, cursorPosition);};
-			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition){showArtifactAssembling(*arts, artPlace, cursorPosition);};
+			arts->showPopupCallback = [this](CArtPlace & artPlace, const Point & cursorPosition){showArtifactPopup(*arts, artPlace, cursorPosition);};
 			arts->gestureCallback = [this](const CArtPlace & artPlace, const Point & cursorPosition){showQuickBackpackWindow(curHero, artPlace.slot, cursorPosition);};
 			arts->setHero(curHero);
 			addSet(arts);
@@ -234,11 +246,19 @@ void CHeroWindow::update()
 	}
 
 	//secondary skills support
-	for(size_t g=0; g< secSkills.size(); ++g)
+	for(size_t g=0; g < secSkills.size(); ++g)
 	{
-		SecondarySkill skill = curHero->secSkills[g].first;
+		int offset = secSkillSlider ? secSkillSlider->getValue() * 2 : 0;
+		if(curHero->secSkills.size() < g + offset + 1)
+		{
+			secSkillNames[g]->setText("");
+			secSkillValues[g]->setText("");
+			secSkills[g]->setSkill(SecondarySkill::NONE);
+			break;
+		}
+		SecondarySkill skill = curHero->secSkills[g + offset].first;
 		int	level = curHero->getSecSkillLevel(skill);
-		std::string skillName = LIBRARY->skillh->getByIndex(skill)->getNameTranslated();
+		std::string skillName = skill.toEntity(LIBRARY)->getNameTranslated();
 		std::string skillValue = LIBRARY->generaltexth->levels[level-1];
 
 		secSkillNames[g]->setText(skillName);
@@ -328,7 +348,7 @@ void CHeroWindow::commanderWindow()
 
 	if(pickedArtInst)
 	{
-		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->commander, pickedArtInst->getTypeId());
+		const auto freeSlot = ArtifactUtils::getArtAnyPosition(curHero->getCommander(), pickedArtInst->getTypeId());
 		if(vstd::contains(ArtifactUtils::commanderSlots(), freeSlot)) // We don't want to put it in commander's backpack!
 		{
 			ArtifactLocation dst(curHero->id, freeSlot);
@@ -338,7 +358,7 @@ void CHeroWindow::commanderWindow()
 	}
 	else
 	{
-		ENGINE->windows().createAndPushWindow<CStackWindow>(curHero->commander, false);
+		ENGINE->windows().createAndPushWindow<CStackWindow>(curHero->getCommander(), false);
 	}
 }
 

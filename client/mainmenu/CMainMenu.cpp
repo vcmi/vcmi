@@ -45,8 +45,6 @@
 #include "../Client.h"
 #include "../CMT.h"
 
-#include "../../CCallback.h"
-
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
@@ -223,8 +221,13 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	std::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
 
 	std::pair<std::string, std::string> help;
-	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
+	if(!button["help"].isNull())
+	{
+		if(button["help"].isNumber() && button["help"].Float() > 0)
+			help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
+		if(button["help"].isString() && !button["help"].String().empty())
+			help = {"", LIBRARY->generaltexth->translate(button["help"].String())};
+	}	
 
 	int posx = static_cast<int>(button["x"].Float());
 	if(posx < 0)
@@ -332,7 +335,13 @@ CMainMenu::CMainMenu()
 
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
+
+	if (bgConfig.isString())
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::fromJson(bgConfig), pos);
+	else
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
 CMainMenu::~CMainMenu() = default;
@@ -422,22 +431,6 @@ void CMainMenu::openCampaignScreen(std::string name)
 	if(!vstd::contains(config.Struct(), name))
 	{
 		logGlobal->error("Unknown campaign set: %s", name);
-		return;
-	}
-
-	bool campaignsFound = true;
-	for (auto const & entry : config[name]["items"].Vector())
-	{
-		ResourcePath resourceID(entry["file"].String(), EResType::CAMPAIGN);
-		if(entry["optional"].Bool())
-			continue;
-		if(!CResourceHandler::get()->existsResource(resourceID))
-			campaignsFound = false;
-	}
-
-	if (!campaignsFound)
-	{
-		CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.client.errors.missingCampaigns"), std::vector<std::shared_ptr<CComponent>>(), PlayerColor(1));
 		return;
 	}
 

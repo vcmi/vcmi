@@ -20,6 +20,7 @@
 #include "IGameSettings.h"
 #include "PossiblePlayerBattleAction.h"
 #include "../entities/building/TownFortifications.h"
+#include "../GameLibrary.h"
 #include "../spells/ObstacleCasterProxy.h"
 #include "../spells/ISpellMechanics.h"
 #include "../spells/Problem.h"
@@ -113,17 +114,16 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	{
 	case spells::Mode::HERO:
 	{
-		if(battleCastSpells(side) > 0)
-			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
-
-		const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
+		const auto * hero = caster->getHeroCaster();
 
 		if(!hero)
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		if(hero->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
-			return ESpellCastProblem::MAGIC_IS_BLOCKED;
 		if(!hero->hasSpellbook())
 			return ESpellCastProblem::NO_SPELLBOOK;
+		if(hero->hasBonusOfType(BonusType::BLOCK_ALL_MAGIC))
+			return ESpellCastProblem::MAGIC_IS_BLOCKED;
+		if(battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
+			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 	}
 		break;
 	default:
@@ -280,8 +280,11 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
 
-		allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK); //all active stacks can attack
-		allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
+		{
+			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
+			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
+		}
 
 		if(stack->canMove() && stack->getMovementRange(0)) //probably no reason to try move war machines or bound stacks
 			allowedActionList.push_back(PossiblePlayerBattleAction::MOVE_STACK);
@@ -325,7 +328,7 @@ BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * 
 	for (const BattleHex & tile : at.hostileCreaturePositions)
 	{
 		const auto * st = battleGetUnitByPos(tile, true);
-		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedHexes.insert(tile);
 		}
@@ -683,9 +686,20 @@ bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const batt
 	if(!battleMatchOwner(stack, target))
 		return false;
 
-	auto id = stack->unitType()->getId();
-	if (id == CreatureID::FIRST_AID_TENT || id == CreatureID::CATAPULT)
+	if (!stack->isMeleeAttacker())
 		return false;
+
+	if (stack->getPosition() != dest)
+	{
+		for (const auto & obstacle : battleGetAllObstacles())
+		{
+			if (obstacle->getStoppingTile().contains(dest))
+				return false;
+
+			if (stack->doubleWide() && obstacle->getStoppingTile().contains(stack->occupiedHex(dest)))
+				return false;
+		}
+	}
 
 	return target->alive();
 }
@@ -750,7 +764,8 @@ bool CBattleInfoCallback::battleCanShoot(const battle::Unit * attacker, const Ba
 			return false;
 	}
 
-	if(emptyHexAreaAttack || (battleMatchOwner(attacker, defender) && defender->alive()))
+	bool attackerIsBerserk = attacker->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
+	if(emptyHexAreaAttack || (defender->alive() && (attackerIsBerserk || battleMatchOwner(attacker, defender))))
 	{
 		if(battleCanShoot(attacker))
 		{
@@ -1153,44 +1168,101 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 	return ret;
 }
 
-std::pair<const battle::Unit *, BattleHex> CBattleInfoCallback::getNearestStack(const battle::Unit * closest) const
+ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * berserker) const
 {
-	auto reachability = getReachability(closest);
-	auto avHexes = battleGetAvailableHexes(reachability, closest, false);
-
-	// I hate std::pairs with their undescriptive member names first / second
-	struct DistStack
+	logGlobal->trace("Handle Berserk effect");
+	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
-		uint32_t distanceToPred;
-		BattleHex destination;
-		const battle::Unit * stack;
-	};
-
-	std::vector<DistStack> stackPairs;
-
-	battle::Units possible = battleGetUnitsIf([closest](const battle::Unit * unit)
-	{
-		return unit->isValidTarget(false) && unit != closest;
+		return u->isValidTarget(false) && u->unitId() != berserker->unitId();
 	});
+	auto cache = getReachability(berserker);
 
-	for(const battle::Unit * st : possible)
+	if (battleCanShoot(berserker))
 	{
-		for(const BattleHex & hex : avHexes)
-			if(CStack::isMeleeAttackPossible(closest, st, hex))
-			{
-				DistStack hlp = {reachability.distances[hex.toInt()], hex, st};
-				stackPairs.push_back(hlp);
-			}
-	}
-
-	if(!stackPairs.empty())
-	{
-		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
-		auto minimal = boost::min_element(stackPairs, comparator);
-		return std::make_pair(minimal->stack, minimal->destination);
+		const auto target = boost::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
+		{
+			return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
+		})[0];
+		ForcedAction result = {
+			EActionType::SHOOT,
+			berserker->getPosition(),
+			target
+		};
+		return result;
 	}
 	else
-		return std::make_pair<const battle::Unit * , BattleHex>(nullptr, BattleHex::INVALID);
+	{
+		struct TargetData
+		{
+			const battle::Unit * target;
+			BattleHex closestAttackableHex;
+			uint32_t distance;
+		};
+
+		std::vector<TargetData> targetData;
+		targetData.reserve(targets.size());
+		for (const battle::Unit * uTarget : targets)
+		{
+			BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
+			auto closestAttackableHex = boost::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
+			{
+				return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
+			})[0];
+			uint32_t distance = cache.distances[closestAttackableHex.toInt()];
+			TargetData temp = {uTarget, closestAttackableHex, distance};
+			targetData.push_back(temp);
+		}
+
+		auto closestUnit = boost::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
+		{
+			return lhs.distance < rhs.distance;
+		})[0];
+
+		if (closestUnit.distance <= berserker->getMovementRange())
+		{
+			ForcedAction result = {
+				EActionType::WALK_AND_ATTACK,
+				closestUnit.closestAttackableHex,
+				closestUnit.target
+			};
+			return result;
+		}
+		else if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
+		{
+			BattleHex intermediaryHex;
+			if (berserker->hasBonusOfType(BonusType::FLYING))
+			{
+				BattleHexArray reachableHexes = battleGetAvailableHexes(cache, berserker, false);
+				BattleHex targetPosition = closestUnit.target->getPosition();
+				intermediaryHex = boost::min_element(reachableHexes, [&targetPosition](const BattleHex & lhs, const BattleHex & rhs)
+				{
+					return BattleHex::getDistance(lhs, targetPosition) < BattleHex::getDistance(rhs, targetPosition);
+				})[0];
+			}
+			else
+			{
+				BattleHexArray path = getPath(berserker->getPosition(), closestUnit.closestAttackableHex, berserker).first;
+				intermediaryHex = path[path.size() - berserker->getMovementRange()];
+			}
+
+			ForcedAction result = {
+				EActionType::WALK,
+				intermediaryHex,
+				closestUnit.target
+			};
+			return result;
+		}
+		else
+		{
+			logGlobal->trace("No target found or unit cannot move");
+			ForcedAction result = {
+				EActionType::NO_ACTION,
+				berserker->getPosition(),
+				nullptr
+			};
+			return result;
+		}
+	}
 }
 
 BattleHex CBattleInfoCallback::getAvailableHex(const CreatureID & creID, BattleSide side, int initialPos) const
@@ -1330,89 +1402,82 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	
 	defenderPos = (defenderPos.toInt() != BattleHex::INVALID) ? defenderPos : defender->getPosition(); //real or hypothetical (cursor) position
 	
-	bool reverse = isToReverse(attacker, defender, attackerPos, defenderPos);
-	if(reverse && attacker->doubleWide())
-	{
-		attackOriginHex = attacker->occupiedHex(attackOriginHex); //the other hex stack stands on
-	}
 	if(attacker->hasBonusOfType(BonusType::ATTACKS_ALL_ADJACENT))
-	{
 		at.hostileCreaturePositions.insert(attacker->getSurroundingHexes(attackerPos));
-	}
+
+	// If attacker is double-wide and its head is not adjacent to enemy we need to turn around
+	if(attacker->doubleWide() && !vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
+		attackOriginHex = attacker->occupiedHex(attackOriginHex);
+
+	if (!vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
+		throw std::runtime_error("Atempt to attack from invalid position!");
+
+	auto attackDirection = BattleHex::mutualPosition(attackOriginHex, defenderPos);
+
+	// If defender is double-wide, attacker always prefers targeting its 'tail', if it is reachable
+	if(defender->doubleWide() && BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos)) != BattleHex::NONE)
+		attackDirection = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
+
+	if (attackDirection == BattleHex::NONE)
+		throw std::runtime_error("!!!");
+
+	const auto & processTargets = [&](const std::vector<int> & additionalTargets) -> BattleHexArray
+	{
+		BattleHexArray output;
+
+		for (int targetPath : additionalTargets)
+		{
+			BattleHex target = attackOriginHex;
+			std::vector<BattleHex::EDir> path;
+
+			for (int targetPathLeft = targetPath; targetPathLeft != 0; targetPathLeft /= 10)
+				path.push_back(static_cast<BattleHex::EDir>((attackDirection + targetPathLeft % 10 - 1) % 6));
+
+			try
+			{
+				if(attacker->doubleWide() && attacker->coversPos(target.cloneInDirection(path.front())))
+					target.moveInDirection(attackDirection);
+
+				for(BattleHex::EDir nextDirection : path)
+					target.moveInDirection(nextDirection);
+			}
+			catch(const std::out_of_range &)
+			{
+				// Hex out of range, for example outside of battlefield. This is valid situation, so skip this hex
+				continue;
+			}
+
+			if (target.isValid() && !attacker->coversPos(target))
+				output.insert(target);
+		}
+		return output;
+	};
+
+	const auto multihexUnit = attacker->getBonusesOfType(BonusType::MULTIHEX_UNIT_ATTACK);
+	const auto multihexEnemy = attacker->getBonusesOfType(BonusType::MULTIHEX_ENEMY_ATTACK);
+	const auto multihexAnimation = attacker->getBonusesOfType(BonusType::MULTIHEX_ANIMATION);
+
+	for (const auto & bonus : *multihexUnit)
+		at.friendlyCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
+
+	for (const auto & bonus : *multihexEnemy)
+		at.hostileCreaturePositions.insert(processTargets(bonus->additionalInfo.data()));
+
+	for (const auto & bonus : *multihexAnimation)
+		at.overrideAnimationPositions.insert(processTargets(bonus->additionalInfo.data()));
+
 	if(attacker->hasBonusOfType(BonusType::THREE_HEADED_ATTACK))
-	{
-		const BattleHexArray & hexes = attacker->getSurroundingHexes(attackerPos);
-		for(const BattleHex & tile : hexes)
-		{
-			if((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, attackOriginHex) > -1)) //adjacent both to attacker's head and attacked tile
-			{
-				const auto * st = battleGetUnitByPos(tile, true);
-				if(st && battleMatchOwner(st, attacker)) //only hostile stacks - does it work well with Berserk?
-					at.hostileCreaturePositions.insert(tile);
-			}
-		}
-	}
+		at.hostileCreaturePositions.insert(processTargets({2,6}));
+
 	if(attacker->hasBonusOfType(BonusType::WIDE_BREATH))
-	{
-		BattleHexArray hexes = destinationTile.getNeighbouringTiles();
-		if (hexes.contains(attackOriginHex))
-			hexes.erase(attackOriginHex);
+		at.friendlyCreaturePositions.insert(processTargets({ 11, 111, 2, 12, 6, 16 }));
 
-		for(const BattleHex & tile : hexes)
-		{
-			//friendly stacks can also be damaged by Dragon Breath
-			const auto * st = battleGetUnitByPos(tile, true);
-			if(st && st != attacker)
-				at.friendlyCreaturePositions.insert(tile);
-		}
-	}
-	else if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH) || attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
-	{
-		auto direction = BattleHex::mutualPosition(attackOriginHex, destinationTile);
-		
-		if(direction == BattleHex::NONE
-			&& defender->doubleWide()
-			&& attacker->doubleWide()
-			&& defenderPos == destinationTile)
-		{
-			direction = BattleHex::mutualPosition(attackOriginHex, defender->occupiedHex(defenderPos));
-		}
+	if(attacker->hasBonusOfType(BonusType::TWO_HEX_ATTACK_BREATH))
+		at.friendlyCreaturePositions.insert(processTargets({ 11 }));
 
-		for(int i = 0; i < 3; i++)
-		{
-			if(direction != BattleHex::NONE) //only adjacent hexes are subject of dragon breath calculation
-			{
-				BattleHex nextHex = destinationTile.cloneInDirection(direction, false);
+	if (attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
+		at.friendlyCreaturePositions.insert(processTargets({ 11, 12, 16 }));
 
-				if ( defender->doubleWide() )
-				{
-					auto secondHex = destinationTile == defenderPos ? defender->occupiedHex(defenderPos) : defenderPos;
-
-					// if targeted double-wide creature is attacked from above or below ( -> second hex is also adjacent to attack origin)
-					// then dragon breath should target tile on the opposite side of targeted creature
-					if(BattleHex::mutualPosition(attackOriginHex, secondHex) != BattleHex::NONE)
-						nextHex = secondHex.cloneInDirection(direction, false);
-				}
-
-				if (nextHex.isValid())
-				{
-					//friendly stacks can also be damaged by Dragon Breath
-					const auto * st = battleGetUnitByPos(nextHex, true);
-					if(st != nullptr && st != attacker) //but not unit itself (doublewide + prism attack)
-						at.friendlyCreaturePositions.insert(nextHex);
-				}
-			}
-
-			if(!attacker->hasBonusOfType(BonusType::PRISM_HEX_ATTACK_BREATH))
-				break;
-
-			// only needed for prism
-			int tmpDirection = static_cast<int>(direction) + 2;
-			if(tmpDirection > static_cast<int>(BattleHex::EDir::LEFT))
-				tmpDirection -= static_cast<int>(BattleHex::EDir::TOP);
-			direction = static_cast<BattleHex::EDir>(tmpDirection);
-		}
-	}
 	return at;
 }
 
@@ -1473,9 +1538,9 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	return units;
 }
 
-std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
+std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatures(const CStack* attacker, const BattleHex & destinationTile, bool rangedAttack, BattleHex attackerPos) const
 {
-	std::set<const CStack*> attackedCres;
+	std::pair<std::set<const CStack*>, bool> attackedCres;
 	RETURN_IF_NOT_BATTLE(attackedCres);
 
 	AttackableTiles at;
@@ -1488,9 +1553,9 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
-		if(st && st->unitOwner() != attacker->unitOwner()) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
 		{
-			attackedCres.insert(st);
+			attackedCres.first.insert(st);
 		}
 	}
 	for (const BattleHex & tile : at.friendlyCreaturePositions)
@@ -1498,9 +1563,22 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 		const CStack * st = battleGetStackByPos(tile, true);
 		if(st) //friendly stacks can also be damaged by Dragon Breath
 		{
-			attackedCres.insert(st);
+			attackedCres.first.insert(st);
 		}
 	}
+
+	if (at.friendlyCreaturePositions.empty())
+	{
+		attackedCres.second = !attackedCres.first.empty();
+	}
+	else
+	{
+		for (const BattleHex & tile : at.friendlyCreaturePositions)
+			for (const auto & st : attackedCres.first)
+				if (st->coversPos(tile))
+					attackedCres.second = true;
+	}
+
 	return attackedCres;
 }
 
@@ -1653,7 +1731,7 @@ bool CBattleInfoCallback::isWallPartAttackable(EWallPart wallPart) const
 	return false;
 }
 
-BattleHexArray CBattleInfoCallback::getAttackableBattleHexes() const
+BattleHexArray CBattleInfoCallback::getAttackableWallParts() const
 {
 	BattleHexArray attackableBattleHexes;
 	RETURN_IF_NOT_BATTLE(attackableBattleHexes);
@@ -1703,9 +1781,10 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
+	bool isBerserk = unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
 	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{
-		if(adjacent->unitOwner() != unit->unitOwner()) //blocked by enemy stack
+		if(adjacent->unitOwner() != unit->unitOwner() || isBerserk)
 			return true;
 	}
 	return false;
@@ -1719,7 +1798,7 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 
 	const auto & units = battleGetUnitsIf([&hexes](const battle::Unit * testedUnit)
 	{
-		if (testedUnit->isDead())
+		if (!testedUnit->alive())
 			return false;
 		const auto & unitHexes = testedUnit->getHexes();
 		for (const auto & hex : unitHexes)
@@ -1779,7 +1858,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		std::stringstream cachingStr;
 		cachingStr << "source_" << vstd::to_underlying(BonusSource::SPELL_EFFECT) << "id_" << spellID.num;
 
-		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), Selector::all, cachingStr.str()))
+		if(subject->hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellID)), cachingStr.str()))
 			continue;
 
 		auto spellPtr = spellID.toSpell();
@@ -1883,7 +1962,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	if (!bl->size())
 		return SpellID::NONE;
 
-	if(bl->size() == 1)
+	if(bl->size() == 1 && bl->front()->additionalInfo[0] > 0) // there is one random spell -> select it
 		return bl->front()->subtype.as<SpellID>();
 
 	int totalWeight = 0;

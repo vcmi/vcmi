@@ -14,18 +14,18 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
-#include "../../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../GameInstance.h"
 #include "../adventureMap/AdventureMapInterface.h"
 
+#include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
 static bool compareObjectBlitOrder(ObjectInstanceID left, ObjectInstanceID right)
 {
 	//FIXME: remove mh access
-	return GAME->map().compareObjectBlitOrder(GAME->map().getMap()->objects[left.getNum()], GAME->map().getMap()->objects[right.getNum()]);
+	return GAME->map().compareObjectBlitOrder(GAME->map().getMap()->getObject(left), GAME->map().getMap()->getObject(right));
 }
 
 MapRendererContextState::MapRendererContextState()
@@ -35,7 +35,7 @@ MapRendererContextState::MapRendererContextState()
 	objects.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
 	logGlobal->debug("Loading map objects");
-	for(const auto & obj : GAME->map().getMap()->objects)
+	for(const auto & obj : GAME->map().getMap()->getObjects())
 		addObject(obj);
 	logGlobal->debug("Done loading map objects");
 }

@@ -11,7 +11,6 @@
 #include "ResourceManager.h"
 #include "Goals/Goals.h"
 
-#include "../../CCallback.h"
 #include "../../lib/mapObjects/MapObjects.h"
 
 ResourceObjective::ResourceObjective(const TResources & Res, Goals::TSubgoal Goal)

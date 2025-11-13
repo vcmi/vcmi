@@ -351,7 +351,7 @@ void BuildAnalyzer::updateDailyIncome()
 	}
 }
 
-bool BuildAnalyzer::hasAnyBuilding(int32_t alignment, BuildingID bid) const
+bool BuildAnalyzer::hasAnyBuilding(FactionID alignment, BuildingID bid) const
 {
 	for(auto tdi : developmentInfos)
 	{

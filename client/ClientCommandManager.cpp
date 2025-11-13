@@ -20,6 +20,9 @@
 #include "gui/WindowHandler.h"
 #include "render/IRenderHandler.h"
 #include "ClientNetPackVisitors.h"
+#include "../lib/callback/CCallback.h"
+#include "../lib/callback/CGlobalAI.h"
+#include "../lib/callback/CDynLibHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
@@ -30,15 +33,14 @@
 #include "windows/CCastleInterface.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "render/CAnimation.h"
-#include "../CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModUtility.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/logging/VisualLogger.h"
-#include "../lib/serializer/Connection.h"
 
 #ifdef SCRIPTING_ENABLED
 #include "../lib/ScriptHandler.h"
@@ -59,7 +61,7 @@ void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuff
 
 	std::string saveFilename;
 	singleWordBuffer >> saveFilename;
-	GAME->server().client->save(saveFilename);
+	GAME->interface()->cb->save(saveFilename);
 	printCommandMessage("Game saved as: " + saveFilename);
 }
 
@@ -88,7 +90,7 @@ void ClientCommandManager::handleGoSoloCommand()
 		// unlikely it will work but just in case to be consistent
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
 				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
 			}
@@ -101,9 +103,9 @@ void ClientCommandManager::handleGoSoloCommand()
 		
 		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
 		{
-			if(color.isValidPlayer() && GAME->server().client->getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
 			{
-				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->getPlayerSettings(color), false, false);
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
 				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
 				GAME->server().client->installNewPlayerInterface(CDynLibHandler::getNewAI(AiToGive), color);
 			}
@@ -140,7 +142,7 @@ void ClientCommandManager::handleControlaiCommand(std::istringstream& singleWord
 	if(GAME->interface())
 		color = GAME->interface()->playerID;
 
-	for(auto & elem : GAME->server().client->gameState()->players)
+	for(auto & elem : GAME->server().client->gameState().players)
 	{
 		if(!elem.first.isValidPlayer()
 			|| elem.second.human
@@ -237,7 +239,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		try
 		{
 			// load and drop loaded map - we only need loader to run over all maps
-			loadedMaps.push_back(mapService.loadMap(mapName, nullptr));
+			loadedMaps.push_back(mapService.loadMap(mapName, GAME->interface()->cb.get()));
 		}
 		catch(std::exception & e)
 		{
@@ -258,7 +260,7 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		{
 			loadedCampaigns.push_back(CampaignHandler::getCampaign(campaignName.getName()));
 			for (auto const & part : loadedCampaigns.back()->allScenarios())
-				loadedCampaigns.back()->getMap(part, nullptr);
+				loadedCampaigns.back()->getMap(part, GAME->interface()->cb.get());
 		}
 		catch(std::exception & e)
 		{
@@ -335,6 +337,29 @@ void ClientCommandManager::handleGetConfigCommand()
 
 	printCommandMessage("\rExtracting done :)\n");
 	printCommandMessage("Extracted files can be found in " + outPath.string() + " directory\n");
+}
+
+void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
+{
+	std::string commandName;
+	singleWordBuffer >> commandName;
+
+	if (commandName == "on")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now enabled.\n");
+	}
+	else if (commandName == "off")
+	{
+		GAME->server().enableLagCompensation(true);
+		printCommandMessage("Network lag compensation is now disabled.\n");
+	}
+	else
+	{
+		printCommandMessage("Unexpected syntax. Supported forms:\n");
+		printCommandMessage("'antilag on'\n");
+		printCommandMessage("'antilag off'\n");
+	}
 }
 
 void ClientCommandManager::handleGetScriptsCommand()
@@ -438,14 +463,14 @@ void ClientCommandManager::handleBonusesCommand(std::istringstream & singleWordB
 		return ss.str();
 	};
 		printCommandMessage("Bonuses of " + GAME->interface()->localState->getCurrentArmy()->getObjectName() + "\n");
-		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(format(*GAME->interface()->localState->getCurrentArmy()->getAllBonuses(Selector::all)) + "\n");
 
 	printCommandMessage("\nInherited bonuses:\n");
 	TCNodes parents;
-		GAME->interface()->localState->getCurrentArmy()->getParents(parents);
+		GAME->interface()->localState->getCurrentArmy()->getDirectParents(parents);
 	for(const CBonusSystemNode *parent : parents)
 	{
-		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all, Selector::all)) + "\n");
+		printCommandMessage(std::string("\nBonuses from ") + typeid(*parent).name() + "\n" + format(*parent->getAllBonuses(Selector::all)) + "\n");
 	}
 }
 
@@ -557,7 +582,7 @@ void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 	yt.player = colorIdentifier;
 	yt.queryID = QueryID::NONE;
 
-	ApplyClientNetPackVisitor visitor(*GAME->server().client, *GAME->server().client->gameState());
+	ApplyClientNetPackVisitor visitor(*GAME->server().client, GAME->server().client->gameState());
 	yt.visit(visitor);
 }
 
@@ -593,6 +618,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName == "setBattleAI")
 		handleSetBattleAICommand(singleWordBuffer);
+
+	else if(commandName == "antilag")
+		handleAntilagCommand(singleWordBuffer);
 
 	else if(commandName == "redraw")
 		handleRedrawCommand();
