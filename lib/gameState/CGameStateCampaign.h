@@ -81,11 +81,9 @@ public:
 		{
 			bool dummyA = false;
 			uint32_t dummyB = 0;
-			uint16_t dummyC = 0;
 
 			h & dummyA;
 			h & dummyB;
-			h & dummyC;
 		}
 	}
 };

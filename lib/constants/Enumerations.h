@@ -31,7 +31,9 @@ namespace BuildingSubID
 		PORTAL_OF_SUMMONING,
 		ESCAPE_TUNNEL,
 		TREASURY,
-		BANK
+		BANK,
+		AURORA_BOREALIS,
+		DEITY_OF_FIRE
 	};
 }
 

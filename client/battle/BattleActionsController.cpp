@@ -264,6 +264,7 @@ void BattleActionsController::reorderPossibleActionsPriority(const CStack * stac
 			case PossiblePlayerBattleAction::NO_LOCATION:
 			case PossiblePlayerBattleAction::FREE_LOCATION:
 			case PossiblePlayerBattleAction::OBSTACLE:
+			case PossiblePlayerBattleAction::SACRIFICE:
 				if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && targetStack != nullptr)
 				{
 					PlayerColor stackOwner = owner.getBattle()->battleGetOwner(targetStack);
@@ -652,10 +653,11 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
 		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
 			{
-				if (owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
+				auto activeStack = owner.stacksController->getActiveStack();
+				if (targetStack && targetStack != activeStack && owner.fieldController->isTileAttackable(targetHex)) // move isTileAttackable to be part of battleCanAttack?
 				{
 					BattleHex attackFromHex = owner.fieldController->fromWhichHexAttack(targetHex);
-					if(owner.getBattle()->battleCanAttack(owner.stacksController->getActiveStack(), targetStack, attackFromHex))
+					if(owner.getBattle()->battleCanAttack(activeStack, targetStack, attackFromHex))
 						return true;
 				}
 				return false;
@@ -698,7 +700,14 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 			return selectedStack && isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
 
 		case PossiblePlayerBattleAction::SACRIFICE: //choose our living stack to sacrifice
-			return targetStack && targetStack != selectedStack && targetStackOwned && targetStack->alive();
+		{
+			if(!targetStack)
+				return false;
+
+			auto unit = targetStack->acquire();
+			return targetStack != selectedStack && targetStackOwned && targetStack->alive()
+					&& unit->isLiving() && !unit->hasBonusOfType(BonusType::MECHANICAL);
+		}
 
 		case PossiblePlayerBattleAction::OBSTACLE:
 		case PossiblePlayerBattleAction::FREE_LOCATION:

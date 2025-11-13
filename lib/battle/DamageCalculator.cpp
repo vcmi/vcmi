@@ -285,11 +285,24 @@ double DamageCalculator::getAttackFromBackFactor() const
 	return 0;
 }
 
-double DamageCalculator::getAttackHateFactor() const
+double DamageCalculator::getAttackHateCreatureFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
 	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATE);
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
+}
+
+double DamageCalculator::getAttackHateTraitFactor() const
+{
+	//assume that unit have only few HATE features and cache them all
+	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATES_TRAIT);
+
+	auto selector = [this](const Bonus* hateBonus) -> bool
+	{
+		return info.defender->hasBonusOfType(hateBonus->subtype.as<BonusTypeID>().toEnum());
+	};
+
+	return allHateEffects->valOfBonuses(selector) / 100.0;
 }
 
 double DamageCalculator::getAttackRevengeFactor() const
@@ -475,7 +488,8 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackFromBackFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
-		getAttackHateFactor(),
+		getAttackHateCreatureFactor(),
+		getAttackHateTraitFactor(),
 		getAttackRevengeFactor()
 	};
 }

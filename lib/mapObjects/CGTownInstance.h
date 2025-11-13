@@ -165,7 +165,6 @@ public:
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 	void addBuilding(const BuildingID & buildingID);
 	void removeBuilding(const BuildingID & buildingID);
 	void removeAllBuildings();

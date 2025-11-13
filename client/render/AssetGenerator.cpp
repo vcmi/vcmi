@@ -93,6 +93,14 @@ void AssetGenerator::initialize()
 	
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButtonClear")] = createGSPButtonClear();
 
+	for (PlayerColor color(-1); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		std::string name = "TownPortalBackgroundBlue" + (color == -1 ? "" : "-" + color.toString());
+		imageFiles[ImagePath::builtin(name)] = [this, color](){ return createGateListColored(std::max(PlayerColor(0), color), PlayerColor(1)); };
+	}
+
+	imageFiles[ImagePath::builtin("heroSlotsBlue.png")] = [this](){ return createHeroSlotsColored(PlayerColor(1));};
+
 	createPaletteShiftedSprites();
 }
 
@@ -127,6 +135,22 @@ void AssetGenerator::addImageFile(const ImagePath & path, ImageGenerationFunctor
 void AssetGenerator::addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim)
 {
 	animationFiles[path] = anim;
+}
+
+auto getColorFilters()
+{
+	auto filterSettings = LIBRARY->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
+	};
+	return filters;
 }
 
 AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground() const
@@ -208,17 +232,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const Pl
 	std::shared_ptr<IImage> texture = ENGINE->renderHandler().loadImage(locator);
 
 	// transform to make color of brown DIBOX.PCX texture match color of specified player
-	auto filterSettings = LIBRARY->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
-	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
-	};
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
 
 	assert(player.isValidPlayer());
 	if (!player.isValidPlayer())
@@ -883,4 +897,68 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createGSPButtonClear()
 	}
 
 	return layout;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createGateListColored(PlayerColor color, PlayerColor backColor) const
+{
+	auto locator = ImageLocator(ImagePath::builtin("TpGate"), EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+	img->playerColored(color);
+	std::shared_ptr<IImage> imgColored = ENGINE->renderHandler().loadImage(locator);
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
+	imgColored->adjustPalette(filters[backColor.getNum()], 0);
+
+	auto image = ENGINE->renderHandler().createImage(img->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	canvas.draw(imgColored, Point(0, 0));
+
+	std::vector<Rect> keepOriginalRects = {
+		Rect(0, 0, 14, 393),
+		Rect(293, 0, 13, 393),
+		Rect(0, 393, 8, 76),
+		Rect(299, 393, 6, 76),
+		Rect(0, 0, 306, 16),
+		Rect(0, 383, 306, 10),
+		Rect(0, 441, 306, 2),
+		Rect(0, 462, 306, 7),
+		// Edges
+		Rect(14, 15, 2, 5),
+		Rect(16, 15, 3, 2),
+		Rect(16, 17, 1, 1),
+		Rect(14, 379, 3, 4),
+		Rect(16, 381, 2, 2),
+		Rect(16, 380, 1, 1),
+		Rect(289, 16, 2, 2),
+		Rect(291, 16, 2, 4),
+		Rect(289, 381, 2, 2),
+		Rect(291, 379, 2, 4)
+	};
+	for(auto & rect : keepOriginalRects)
+		canvas.draw(img, Point(rect.x, rect.y), rect);
+
+	std::vector<Rect> blackRect = {
+		Rect(14, 401, 66, 32),
+		Rect(227, 401, 66, 32)
+	};
+	for(auto & rect : blackRect)
+		canvas.drawBorder(rect, Colors::BLACK);
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createHeroSlotsColored(PlayerColor backColor) const
+{
+	auto locator = ImageLocator(AnimationPath::builtin("OVSLOT"), 4, 0, EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
+	img->adjustPalette(filters[backColor.getNum()], 0);
+
+	auto image = ENGINE->renderHandler().createImage(Point(260, 150), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img, Point(0, 0), Rect(3, 4, 253, 107));
+	for(int i = 0; i<7; i++)
+		canvas.draw(img, Point(1 + i * 36, 108), Rect(76, 57, 35, 17));
+
+	return image;
 }

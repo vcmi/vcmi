@@ -1110,8 +1110,10 @@ void CModListView::installMaps(QStringList maps)
 		}
 		else
 		{
-			QString fileName = map.section('/', -1, -1);
-			if (QFile::exists(destDir + fileName))
+		    QString srcPath = Helper::getRealPath(map);
+		    QString fileName = QFileInfo(srcPath).fileName();
+		    QString destFile = destDir + fileName;
+			if (QFile::exists(destFile))
 				conflictCount++;
 		}
 	}
@@ -1198,9 +1200,11 @@ void CModListView::installMaps(QStringList maps)
 		else
 		{
 			// Single map file
-			QString fileName = map.section('/', -1, -1);
+			QString srcPath = Helper::getRealPath(map);
+			QString fileName = QFileInfo(srcPath).fileName();
 			QString destFile = destDir + fileName;
-			logGlobal->info("Importing map '%s'", map.toStdString());
+
+			logGlobal->info("Importing map '%s'", srcPath.toStdString());
 
 			if (QFile::exists(destFile))
 			{

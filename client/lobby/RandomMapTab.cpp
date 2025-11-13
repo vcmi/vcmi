@@ -172,14 +172,26 @@ RandomMapTab::RandomMapTab():
 		{
 			std::vector<std::string> texts;
 			texts.push_back(readText(variables["randomTemplate"]));
-			for(auto & t : getTemplates())
-				texts.push_back(t->getName());
+
+			auto selectedTemplate = mapGenOptions->getMapTemplate();
+			const auto& templates = getTemplates();
+			for(int i = 0; i < templates.size(); i++)
+			{
+				if(selectedTemplate)
+				{
+					if(templates[i]->getId() == selectedTemplate->getId())
+						templateIndex = i + 1;
+				}
+				else
+					templateIndex = 0;
+
+				texts.push_back(templates[i]->getName());
+			}
 
 			ENGINE->windows().popWindows(1);
 			ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
 				widget<ComboBox>("templateList")->setItem(index);
-				templateIndex = index;
-			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true);
+			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true, true);
 		});
 	}
 	

@@ -773,7 +773,7 @@ void CGameHandler::giveSpells(const CGTownInstance *t, const CGHeroInstance *h)
 	ChangeSpells cs;
 	cs.hid = h->id;
 	cs.learn = true;
-	if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
+	if (t->hasBuilt(BuildingSubID::AURORA_BOREALIS) && t->hasBuilt(BuildingID::MAGES_GUILD_1))
 	{
 		// Aurora Borealis give spells of all levels even if only level 1 mages guild built
 		for (int i = 0; i < h->maxSpellLevel(); i++)
@@ -2115,22 +2115,6 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 		}
 	};
 
-	//Performs stuff that has to be done after new building is built
-	auto processAfterBuiltStructure = [t, this](const BuildingID buildingID)
-	{
-		auto isMageGuild = (buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1);
-		auto isLibrary = isMageGuild ? false
-			: t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::EBuildingSubID::LIBRARY;
-
-		if(isMageGuild || isLibrary || (t->getFactionID() == ETownType::CONFLUX && buildingID == BuildingID::GRAIL))
-		{
-			if(t->getVisitingHero())
-				giveSpells(t,t->getVisitingHero());
-			if(t->getGarrisonHero())
-				giveSpells(t,t->getGarrisonHero());
-		}
-	};
-
 	//Checks if all requirements will be met with expected building list "buildingsThatWillBe"
 	auto areRequirementsFulfilled = [&buildingsThatWillBe](const BuildingID & buildID)
 	{
@@ -2192,8 +2176,20 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	sendAndApply(ns);
 
 	//Other post-built events. To some logic like giving spells to work gamestate changes for new building must be already in place!
-	for(auto builtID : ns.bid)
-		processAfterBuiltStructure(builtID);
+	for(auto buildingID : ns.bid)
+	{
+		bool isMageGuild = buildingID <= BuildingID::MAGES_GUILD_5 && buildingID >= BuildingID::MAGES_GUILD_1;
+		bool isLibrary = t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::LIBRARY;
+		bool isAurora = t->getTown()->buildings.at(buildingID)->subId == BuildingSubID::AURORA_BOREALIS;
+
+		if(isMageGuild || isLibrary || isAurora)
+		{
+			if(t->getVisitingHero())
+				giveSpells(t,t->getVisitingHero());
+			if(t->getGarrisonHero())
+				giveSpells(t,t->getGarrisonHero());
+		}
+	};
 
 	// now when everything is built - reveal tiles for lookout tower
 	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
@@ -2730,31 +2726,73 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	COMPLAIN_RET_FALSE_IF(artSet == nullptr, "manageBackpackArtifacts: wrong hero's ID");
 
 	BulkMoveArtifacts bma(player, heroID, heroID, false);
-	const auto makeSortBackpackRequest = [artSet, &bma](const std::function<int32_t(const ArtSlotInfo&)> & getSortId)
+
+	const auto sortPack = [artSet](std::vector<MoveArtifactInfo> & pack)
+	{
+		// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
+		std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
+		{
+			const auto art0 = artSet->getArt(slots0.srcPos);
+			const auto art1 = artSet->getArt(slots1.srcPos);
+			if(art0->isScroll() && art1->isScroll())
+				return art0->getScrollSpellID() > art1->getScrollSpellID();
+			return art0->getTypeId().num > art1->getTypeId().num;
+		});
+	};
+
+	const auto buildAscendingOrder = [artSet, &sortPack](auto && getSortId)
 	{
 		std::map<int32_t, std::vector<MoveArtifactInfo>> packsSorted;
 		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
+
 		for(const auto & backpackSlotInfo : artSet->artifactsInBackpack)
 			packsSorted.try_emplace(getSortId(backpackSlotInfo)).first->second.emplace_back(backpackSlot++, ArtifactPosition::PRE_FIRST);
 
-		for(auto & [sortId, pack] : packsSorted)
+		std::vector<MoveArtifactInfo> orderAsc;
+		for(auto & entry : packsSorted)
 		{
-			// Each pack of artifacts is also sorted by ArtifactID. Scrolls by SpellID
-			std::sort(pack.begin(), pack.end(), [artSet](const auto & slots0, const auto & slots1) -> bool
-				{
-					const auto art0 = artSet->getArt(slots0.srcPos);
-					const auto art1 = artSet->getArt(slots1.srcPos);
-					if(art0->isScroll() && art1->isScroll())
-						return art0->getScrollSpellID() > art1->getScrollSpellID();
-					return art0->getTypeId().num > art1->getTypeId().num;
-				});
-			bma.artsPack0.insert(bma.artsPack0.end(), pack.begin(), pack.end());
+		    auto & pack = entry.second;
+		    sortPack(pack);
+		    orderAsc.insert(orderAsc.end(), pack.begin(), pack.end());
 		}
-		backpackSlot = ArtifactPosition::BACKPACK_START;
+
+		return orderAsc;
+	};
+
+	const auto isAlreadyAscending = [artSet](const std::vector<MoveArtifactInfo> & orderAsc)
+	{
+		std::vector<ArtifactInstanceID> curIds;
+		curIds.reserve(artSet->artifactsInBackpack.size());
+		for(const auto & slotInfo : artSet->artifactsInBackpack)
+			curIds.push_back(slotInfo.getArt()->getId());
+
+		std::vector<ArtifactInstanceID> ascIds;
+		ascIds.reserve(orderAsc.size());
+		for(const auto & mi : orderAsc)
+			ascIds.push_back(artSet->getArt(mi.srcPos)->getId());
+
+		return curIds == ascIds;
+	};
+
+	const auto buildRequestFromOrder = [&bma](const std::vector<MoveArtifactInfo> & order, bool reverseAll)
+	{
+		if(!reverseAll)
+			bma.artsPack0.insert(bma.artsPack0.end(), order.begin(), order.end());
+		else
+			bma.artsPack0.insert(bma.artsPack0.end(), order.rbegin(), order.rend());
+
+		ArtifactPosition backpackSlot = ArtifactPosition::BACKPACK_START;
 		for(auto & slots : bma.artsPack0)
 			slots.dstPos = backpackSlot++;
 	};
-	
+
+	const auto makeSortBackpackRequest = [&](auto && getSortId)
+	{
+		auto orderAsc = buildAscendingOrder(getSortId);
+		const bool reverseAll = isAlreadyAscending(orderAsc);
+		buildRequestFromOrder(orderAsc, reverseAll);
+	};
+
 	if(sortType == ManageBackpackArtifacts::ManageCmd::SORT_BY_SLOT)
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
@@ -2790,7 +2828,7 @@ bool CGameHandler::manageBackpackArtifacts(const PlayerColor & player, const Obj
 	{
 		makeSortBackpackRequest([](const ArtSlotInfo & inf) -> int32_t
 			{
-									return static_cast<int32_t>(inf.getArt()->getType()->aClass);
+				return static_cast<int32_t>(inf.getArt()->getType()->aClass);
 			});
 	}
 	else
@@ -3494,6 +3532,19 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 	const PlayerState * p = gameInfo().getPlayerState(player);
 
 	if(!p || p->status != EPlayerStatus::INGAME) return;
+
+	if(gameState().getMap().battleOnly)
+	{
+		for(const auto & playerIt : gameState().players)
+		{
+			PlayerEndsGame peg;
+			peg.player = playerIt.first;
+			peg.silentEnd = true;
+			sendAndApply(peg);
+		}
+		gameServer().setState(EServerState::SHUTDOWN);
+		return;
+	}
 
 	auto victoryLossCheckResult = gameState().checkForVictoryAndLoss(player);
 

@@ -138,6 +138,13 @@
 	"vcmi.lobby.deleteFile" : "Möchtet Ihr folgende Datei löschen?",
 	"vcmi.lobby.deleteFolder" : "Möchtet Ihr folgenden Ordner löschen?",
 	"vcmi.lobby.deleteMode" : "In den Löschmodus wechseln und zurück",
+	"vcmi.lobby.battleOnlyMode" : "Nur Kämpfen Modus",
+	"vcmi.lobby.battleOnlyModeBattlefield" : "Schlachtfeld",
+	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Schlachtfeld auswählen",
+	"vcmi.lobby.battleOnlyModeHeroSelect" : "Helden auswählen",
+	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Kreatur auswählen",
+	"vcmi.lobby.battleOnlyModeSelect" : "Wählen",
+	"vcmi.lobby.battleOnlyModeReset" : "Zurücksetzen",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Suche und wähle Template aus",
 

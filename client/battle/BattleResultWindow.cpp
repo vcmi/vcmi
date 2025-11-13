@@ -12,6 +12,9 @@
 
 #include "BattleWindow.h"
 
+#include "../GameInstance.h"
+#include "../Client.h"
+#include "../CServerHandler.h"
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../gui/Shortcut.h"
@@ -23,6 +26,7 @@
 #include "../widgets/VideoWidget.h"
 
 #include "../../lib/CStack.h"
+#include "../../lib/CPlayerState.h"
 #include "../../lib/ConditionalWait.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/StartInfo.h"
@@ -45,7 +49,14 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit = std::make_shared<CButton>(Point(384, 505), AnimationPath::builtin("iok6432.def"), std::make_pair("", ""), [this](){ bExitf();}, EShortcut::GLOBAL_ACCEPT);
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 
-	if(allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay)
+	auto battle = owner.cb->getBattle(br.battleID);
+	const auto * attackerPlayer = GAME->server().client->gameInfo().getPlayerState(battle->sideToPlayer(BattleSide::ATTACKER));
+	const auto * defenderPlayer = GAME->server().client->gameInfo().getPlayerState(battle->sideToPlayer(BattleSide::DEFENDER));
+	bool isAttackerHuman = attackerPlayer && attackerPlayer->isHuman();
+	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
+	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;
+
+	if((allowReplay || owner.cb->getStartInfo()->extraOptionsInfo.unlimitedReplay) && onlyOnePlayerHuman)
 	{
 		repeat = std::make_shared<CButton>(Point(24, 505), AnimationPath::builtin("icn6432.def"), std::make_pair("", ""), [this](){ bRepeatf();}, EShortcut::GLOBAL_CANCEL);
 		repeat->setBorderColor(Colors::METALLIC_GOLD);

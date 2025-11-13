@@ -170,7 +170,8 @@ void AbstractViewportLayer::redrawWithSurroundingTiles(const std::vector<int3> &
 
 void AbstractViewportLayer::redraw(const std::set<CGObjectInstance *> & objects)
 {
-	std::vector<QRectF> areas(objects.size());
+	std::vector<QRectF> areas;
+	areas.reserve(objects.size());
 	for (const CGObjectInstance * object : objects)
 	{
 		areas.push_back(getObjectArea(object));
@@ -461,10 +462,8 @@ void SelectionTerrainLayer::select(const std::vector<int3> & tiles)
 {
 	for (int3 tile : tiles)
 	{
-		if(!area.count(tile))
-		{
+		if(!area.count(tile) && map->isInTheMap(tile))
 			area.insert(tile);
-		}
 	}
 	redraw(tiles);
 	onSelection();

@@ -6,8 +6,8 @@
   - manually: <https://github.com/vcmi/vcmi/releases/latest>
   - via Homebrew: `brew install --cask --no-quarantine vcmi/vcmi/vcmi`
 - Daily builds (might be unstable)
-  - [Intel (x86_64) builds](https://builds.vcmi.download/branch/develop/macos-arm/)
-  - [Apple Silicon (arm64) builds](https://builds.vcmi.download/branch/develop/macos-intel/)
+  - [Intel (x86_64) builds](https://builds.vcmi.download/branch/develop/macos-intel/)
+  - [Apple Silicon (arm64) builds](https://builds.vcmi.download/branch/develop/macos-arm/)
 
 If the app doesn't open, right-click the app bundle - select *Open* menu item - press *Open* button. On macOS 15 Sequoia and later there will be no *Open* button, instead you'll see the following dialog:
 
