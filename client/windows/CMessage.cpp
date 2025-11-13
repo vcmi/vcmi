@@ -14,9 +14,7 @@
 #include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
-#include "../render/Graphics.h"
 #include "../render/IFont.h"
-#include "../render/IImage.h"
 #include "../render/IRenderHandler.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CComponent.h"
@@ -61,127 +59,6 @@ void CMessage::dispose()
 		item.reset();
 }
 
-std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)
-{
-	assert(maxLineWidth != 0);
-	if(maxLineWidth == 0)
-		return {text};
-
-	std::vector<std::string> ret;
-
-	boost::algorithm::trim_right_if(text, boost::algorithm::is_any_of(std::string(" ")));
-
-	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
-
-	// each iteration generates one output line
-	while(text.length())
-	{
-		ui32 wordBreak = -1; //last position for line break (last space character)
-		ui32 currPos = 0; //current position in text
-		bool opened = false; //set to true when opening brace is found
-		std::string color; //color found
-
-		size_t symbolSize = 0; // width of character, in bytes
-
-		std::string printableString;
-
-		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && fontPtr->getStringWidth(printableString) <= maxLineWidth)
-		{
-			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
-
-			// candidate for line break
-			if(ui8(text[currPos]) <= ui8(' '))
-				wordBreak = currPos;
-
-			/* We don't count braces in string length. */
-			if(text[currPos] == '{')
-			{
-				opened = true;
-
-				std::smatch match;
-				std::regex expr("^\\{(.*?)\\|");
-				std::string tmp = text.substr(currPos);
-				if(std::regex_search(tmp, match, expr))
-				{
-					std::string colorText = match[1].str();
-					if(auto c = Colors::parseColor(colorText))
-					{
-						color = colorText + "|";
-						currPos += colorText.length() + 1;
-					}
-				}
-			}
-			else if(text[currPos] == '}')
-			{
-				opened = false;
-				color = "";
-			}
-			else
-				printableString.append(text.data() + currPos, symbolSize);
-			currPos += symbolSize;
-		}
-
-		// not all line has been processed - it turned out to be too long, so erase everything after last word break
-		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
-		if(fontPtr->getStringWidth(printableString) > maxLineWidth && (text[currPos] != 0x0a))
-		{
-			if(wordBreak != ui32(-1))
-			{
-				currPos = wordBreak;
-				if(boost::count(text.substr(0, currPos), '{') == boost::count(text.substr(0, currPos), '}'))
-				{
-					opened = false;
-					color = "";
-				}
-			}
-			else
-				currPos -= symbolSize;
-		}
-
-		//non-blank line
-		if(currPos != 0)
-		{
-			ret.push_back(text.substr(0, currPos));
-
-			if(opened)
-				/* Close the brace for the current line. */
-				ret.back() += '}';
-
-			text.erase(0, currPos);
-		}
-		else if(text[currPos] == 0x0a)
-		{
-			ret.push_back(""); //add empty string, no extra actions needed
-		}
-
-		if(text.length() != 0 && text[0] == 0x0a)
-		{
-			/* Remove LF */
-			text.erase(0, 1);
-		}
-		else
-		{
-			// trim only if line does not starts with LF
-			// FIXME: necessary? All lines will be trimmed before returning anyway
-			boost::algorithm::trim_left_if(text, boost::algorithm::is_any_of(std::string(" ")));
-		}
-
-		if(opened)
-		{
-			/* Add an opening brace for the next line. */
-			if(text.length() != 0)
-				text.insert(0, "{" + color);
-		}
-	}
-
-	/* Trim whitespaces of every line. */
-	for(auto & elem : ret)
-		boost::algorithm::trim(elem);
-
-	return ret;
-}
-
 std::string CMessage::guessHeader(const std::string & msg)
 {
 	size_t begin = 0;
@@ -196,7 +73,8 @@ std::string CMessage::guessHeader(const std::string & msg)
 int CMessage::guessHeight(const std::string & txt, int width, EFonts font)
 {
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
-	const auto lines = CMessage::breakText(txt, width, font);
+	const auto lines = TextOperations::breakText(txt, width,
+		[fontPtr](const std::string & str) -> size_t {return fontPtr->getStringWidth(str);});
 	size_t lineHeight = fontPtr->getLineHeight();
 	return lineHeight * lines.size();
 }

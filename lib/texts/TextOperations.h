@@ -84,10 +84,46 @@ namespace TextOperations
 	/// Compares two strings using locale-aware collation based on the selected game language.
 	DLL_LINKAGE bool compareLocalizedStrings(std::string_view str1, std::string_view str2);
 
-	/// Check if texts have similarity when typing into search boxes
-	/// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match, 
-	/// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
-	DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
+    /// 0 -> Exact match or starts with typed-in text, 1 -> Close match or substring match,
+    /// other values = Levenshtein distance, returns std::nullopt for unrelated word (bad match).
+    DLL_LINKAGE std::optional<int> textSearchSimilarityScore(const std::string & s, const std::string & t);
+
+	/// Finds all positions of a given character in a string.
+	DLL_LINKAGE std::vector<size_t> getAllPositionsInStr(const char & targetChar, const std::string_view & str);
+
+	/// Finds the first color tag.
+	DLL_LINKAGE std::optional<std::pair<size_t, size_t>> findFirstColorTag(const std::string_view & str);
+
+	/// Finds for unclosed color tag for the specified section of string. If the tag is closed on the given segment, returns an empty string.
+	DLL_LINKAGE std::string_view findColorTagForSection(const std::string & str, size_t beginPos, size_t length);
+
+	/// Calculates the total width of color tags in a string.
+	DLL_LINKAGE size_t calcColorTagsSummaryWidth(const std::string & str, const std::function<size_t(const std::string&)> & getStringWidth);
+
+	/// Checks the number of opening/closing tags and whether there are any nested tags.
+	DLL_LINKAGE bool validateColorBraces(const std::string & text);
+
+	struct TextSegment
+	{
+		// Line begin in the original string and length
+		std::pair<size_t, size_t> line;
+		std::optional<std::pair<size_t, size_t>> colorTag;
+		bool closingTagNeeded;
+
+		TextSegment(const std::optional<std::pair<size_t, size_t>> & colorTag = std::nullopt)
+			: line(std::make_pair(0, 0))
+			, colorTag(colorTag)
+			, closingTagNeeded(false)
+			{}
+	};
+
+	/// For internal use TextOperations.
+	std::vector<TextSegment> getPossibleSublines(
+		const std::string & line, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth, const char & splitSymbol);
+
+	/// Split text in lines
+	DLL_LINKAGE std::vector<std::string> breakText(
+		const std::string & text, size_t maxLineWidth, const std::function<size_t(const std::string&)> & getStringWidth);
 
 	/// This function is mainly used to avoid garbled text when reading or writing files
 	/// with non-ASCII (e.g. Chinese) characters in the path, especially on Windows.

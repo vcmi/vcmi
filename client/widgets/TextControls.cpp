@@ -327,7 +327,7 @@ void CMultiLineLabel::splitText(const std::string & Txt, bool redrawAfter)
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 	int lineHeight = fontPtr->getLineHeight();
 
-	lines = CMessage::breakText(Txt, pos.w, font);
+	lines = TextOperations::breakText(Txt, pos.w, [fontPtr](const std::string & str) -> size_t {return fontPtr->getStringWidth(str);});
 
 	textSize.y = lineHeight * (int)lines.size();
 	textSize.x = 0;
