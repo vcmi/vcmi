@@ -27,6 +27,8 @@ class CLabel;
 class CLabelGroup;
 class CSlider;
 class CPicture;
+class CTextInput;
+class TransparentFilledRectangle;
 
 class RandomMapTab : public InterfaceObjectConfigurable
 {
@@ -80,4 +82,16 @@ class TeamAlignments: public CWindowObject
 	std::shared_ptr<TeamAlignmentsWidget> widget;
 public:
 	TeamAlignments(RandomMapTab & randomMapTab);
+};
+
+class SetSizeWindow: public CWindowObject
+{
+	std::shared_ptr<FilledTexturePlayerColored> background;
+	std::vector<std::shared_ptr<CLabel>> titles;
+	std::shared_ptr<CButton> buttonOk;
+
+	std::vector<std::shared_ptr<CTextInput>> numInputs;
+	std::vector<std::shared_ptr<TransparentFilledRectangle>> rectangles;
+public:
+	SetSizeWindow(int3 initSize, std::function<void(int3)> cb);
 };

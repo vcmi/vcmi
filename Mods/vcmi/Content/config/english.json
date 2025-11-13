@@ -147,6 +147,11 @@
 	"vcmi.lobby.battleOnlyModeReset" : "Reset",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
+	"vcmi.lobby.customRmgSize.title" : "Select custom size",
+	"vcmi.lobby.customRmgSize.experimental" : "Multilevel support is highly experimental yet. Expect issues.",
+	"vcmi.lobby.customRmgSize.0" : "Width",
+	"vcmi.lobby.customRmgSize.1" : "Height",
+	"vcmi.lobby.customRmgSize.2" : "Layers",
 
 	"vcmi.broadcast.failedLoadGame" : "Failed to load game",
 	"vcmi.broadcast.command" : "Use '!help' to list available commands",

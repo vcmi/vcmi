@@ -19,6 +19,7 @@
 #include "../GameInstance.h"
 #include "../gui/MouseButton.h"
 #include "../gui/WindowHandler.h"
+#include "../gui/Shortcut.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/ComboBox.h"
 #include "../widgets/Buttons.h"
@@ -26,6 +27,8 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
+#include "../widgets/CTextInput.h"
 #include "../windows/GUIClasses.h"
 #include "../windows/InfoWindows.h"
 
@@ -49,19 +52,43 @@ RandomMapTab::RandomMapTab():
 	recActions = 0;
 	mapGenOptions = std::make_shared<CMapGenOptions>();
 	
-	addCallback("toggleMapSize", [&](int btnId)
+	addCallback("toggleMapSize", [this](int btnId)
 	{
+		if(btnId == -1)
+			return;
+
 		auto mapSizeVal = getPossibleMapSizes();
+
+		auto setTemplateForSize = [this](){
+			if(mapGenOptions->getMapTemplate())
+				if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
+					setTemplate(nullptr);
+			updateMapInfoByHost();
+		};
+
+		if(btnId == mapSizeVal.size() - 1)
+		{
+			ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getWidth(), mapGenOptions->getLevels()), [this, setTemplateForSize](int3 ret){
+				if(ret.z > 2)
+				{
+					std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
+					ENGINE->windows().pushWindow(temp);
+				}
+				mapGenOptions->setWidth(ret.x);
+				mapGenOptions->setHeight(ret.y);
+				mapGenOptions->setLevels(ret.z);
+				setTemplateForSize();
+			});
+			return;
+		}
+
 		mapGenOptions->setWidth(mapSizeVal[btnId]);
 		mapGenOptions->setHeight(mapSizeVal[btnId]);
-		if(mapGenOptions->getMapTemplate())
-			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
-				setTemplate(nullptr);
-		updateMapInfoByHost();
+		setTemplateForSize();
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
-		mapGenOptions->setLevels(on ? 2 : 1); // TODO: multilevel support
+		mapGenOptions->setLevels(on ? 2 : 1);
 		if(mapGenOptions->getMapTemplate())
 			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
 				setTemplate(nullptr);
@@ -345,18 +372,19 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
 	{
+		const auto & mapSizes = getPossibleMapSizes();
 		for(auto toggle : w->buttons)
 		{
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
 			{
-				const auto & mapSizes = getPossibleMapSizes();
 				int3 size( mapSizes[toggle.first], mapSizes[toggle.first], mapGenOptions->getLevels());
 
 				bool sizeAllowed = !mapGenOptions->getMapTemplate() || mapGenOptions->getMapTemplate()->matchesSize(size);
-				button->block(!sizeAllowed);
+				button->block(!sizeAllowed && !(toggle.first == mapSizes.size() - 1));
 			}
 		}
-		w->setSelected(vstd::find_pos(getPossibleMapSizes(), opts->getWidth()));
+		auto position = vstd::find_pos(getPossibleMapSizes(), opts->getWidth());
+		w->setSelected(position == mapSizes.size() - 1 ? -1 : position);
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
@@ -366,7 +394,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			auto sizes = mapGenOptions->getMapTemplate()->getMapSizes();
 			possibleLevelCount = sizes.second.z - sizes.first.z + 1;
 		}
-		w->setSelected(opts->getLevels() == 2); // TODO: multilevel support
+		w->setSelectedSilent(opts->getLevels() == 2);
 		w->block(possibleLevelCount < 2);
 	}
 	if(auto w = widget<CToggleGroup>("groupMaxPlayers"))
@@ -652,4 +680,38 @@ void RandomMapTab::loadOptions()
 	updateMapInfoByHost();
 
 	// TODO: Save & load difficulty?
+}
+
+SetSizeWindow::SetSizeWindow(int3 initSize, std::function<void(int3)> cb)
+	: CWindowObject(BORDERED)
+{
+	OBJECT_CONSTRUCTION;
+
+	pos.w = 200;
+	pos.h = 122;
+
+	updateShadow();
+	center();
+
+	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	background->setPlayerColor(PlayerColor(1));
+	buttonOk = std::make_shared<CButton>(Point(68, 80), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
+		close();
+		if(cb)
+			cb(int3(std::max(1, std::stoi(numInputs[0]->getText())), std::max(1, std::stoi(numInputs[1]->getText())), std::max(1, std::stoi(numInputs[2]->getText()))));
+	}, EShortcut::GLOBAL_ACCEPT);
+
+	titles.push_back(std::make_shared<CLabel>(100, 15, FONT_BIG, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.title")));
+
+	for(int i = 0; i < 3; i++)
+	{
+		Rect r(30 + i * 50, 50, 40, 20);
+		rectangles.push_back(std::make_shared<TransparentFilledRectangle>(r, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 64, 64, 64), 1));
+		titles.push_back(std::make_shared<CLabel>(50 + i * 50, 40, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize." + std::to_string(i))));
+		numInputs.push_back(std::make_shared<CTextInput>(r, EFonts::FONT_SMALL, ETextAlignment::CENTER, false));
+		numInputs.back()->setFilterNumber(0, i < 2 ? 999 : 9);
+	}
+	numInputs[0]->setText(std::to_string(initSize.x));
+	numInputs[1]->setText(std::to_string(initSize.y));
+	numInputs[2]->setText(std::to_string(initSize.z));
 }
