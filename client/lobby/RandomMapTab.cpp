@@ -68,7 +68,7 @@ RandomMapTab::RandomMapTab():
 
 		if(btnId == mapSizeVal.size() - 1)
 		{
-			ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getWidth(), mapGenOptions->getLevels()), [this, setTemplateForSize](int3 ret){
+			ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), [this, setTemplateForSize](int3 ret){
 				if(ret.z > 2)
 				{
 					std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
