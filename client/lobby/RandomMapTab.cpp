@@ -384,7 +384,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 			}
 		}
 		auto position = vstd::find_pos(getPossibleMapSizes(), opts->getWidth());
-		w->setSelected(position == mapSizes.size() - 1 ? -1 : position);
+		w->setSelected(position == mapSizes.size() - 1 || opts->getWidth() != opts->getHeight() ? -1 : position);
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
 	{
