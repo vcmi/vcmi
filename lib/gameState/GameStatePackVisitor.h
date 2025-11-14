@@ -102,6 +102,7 @@ public:
 	void visitBattleNextRound(BattleNextRound & pack) override;
 	void visitBattleCancelled(BattleCancelled & pack) override;
 	void visitBattleResultsApplied(BattleResultsApplied & pack) override;
+	void visitBattleEnded(BattleEnded & pack) override;
 	void visitBattleResultAccepted(BattleResultAccepted & pack) override;
 	void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
 };

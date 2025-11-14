@@ -868,6 +868,13 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
 }
 
+void ApplyClientNetPackVisitor::visitBattleEnded(BattleEnded & pack)
+{
+	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleEnded);
+}
+
 void ApplyClientNetPackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleUnitsChanged, pack.battleID, pack.changedStacks);
