@@ -680,7 +680,7 @@ void CTavernWindow::HeroPortrait::clickPressed(const Point & cursorPosition)
 void CTavernWindow::HeroPortrait::clickDouble(const Point & cursorPosition)
 {
 	clickPressed(cursorPosition);
-	
+
 	if(onChoose)
 		onChoose();
 }
@@ -924,7 +924,7 @@ CTransformerWindow::CTransformerWindow(const IMarket * _market, const CGHeroInst
 		army = hero;
 	else
 		army = dynamic_cast<const CArmedInstance *>(market); //for town only
-	
+
 	if(army)
 	{
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
@@ -1535,9 +1535,8 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	index(_id)
 {
 	OBJECT_CONSTRUCTION;
-	auto imgIndex = parent->itemsVisible[index].first;
-	if(parent->images.size() > index && parent->images[imgIndex])
-		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1, 1));
+	if(parent->images.size() > index && parent->images[index])
+		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 
@@ -1723,7 +1722,7 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 		std::string name = parts.back();
 		boost::erase_all(name, "{");
     	boost::erase_all(name, "}");
-		
+
 		if(auto score = TextOperations::textSearchSimilarityScore(text, name)) // Keep only relevant items
 			rankedItems.emplace_back(score.value(), item);
 	}
