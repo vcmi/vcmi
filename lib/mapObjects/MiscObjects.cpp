@@ -486,7 +486,7 @@ void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
-	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
+	std::vector<std::vector<CGSubterraneanGate *>> gatesSplit(cb->gameState().getMap().mapLevels); //surface and underground gates
 	for(auto gate : cb->gameState().getMap().getObjects<CGSubterraneanGate>())
 	{
 		gatesSplit[gate->visitablePos().z].push_back(gate);
