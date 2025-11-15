@@ -669,7 +669,7 @@
 				},
 				"loggers" : {
 					"type" : "array",
-					"default" : [ { "domain" : "global", "level" : "trace" }, { "domain" : "rng", "level" : "info" }, { "domain" : "ai", "level" : "trace" } ],
+					"default" : [ { "domain" : "global", "level" : "trace" }, { "domain" : "rng", "level" : "info" } ],
 					"items" : {
 						"type" : "object",
 						"additionalProperties" : false,
