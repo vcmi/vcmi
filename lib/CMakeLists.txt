@@ -869,6 +869,10 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_lib"
 			PROJECT_LABEL "VCMI_lib"
 	)
+	if (MINGW)
+		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
+	endif()
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files

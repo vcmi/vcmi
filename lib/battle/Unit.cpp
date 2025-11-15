@@ -38,6 +38,16 @@ bool Unit::isTurret() const
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
 }
 
+bool Unit::isMeleeAttacker() const
+{
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return false;
+
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
+	return true;
+}
+
 std::string Unit::getDescription() const
 {
 	boost::format fmt("Unit %d of side %d");

@@ -293,6 +293,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<PackageReceived>(251);
 	s.template registerType<ChangeTownName>(252);
 	s.template registerType<SetTownName>(253);
+	s.template registerType<LobbySetBattleOnlyModeStartInfo>(254);
 }
 
 VCMI_LIB_NAMESPACE_END

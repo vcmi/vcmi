@@ -870,6 +870,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 	readTeams(handler);
 	//TODO: check mods
 
+	mapHeader->battleOnly = header["battleOnly"].Bool();
+
 	if(complete)
 		readOptions(handler);
 	
@@ -1224,6 +1226,8 @@ void CMapSaverJson::writeHeader()
 	writeTriggeredEvents(handler);
 
 	writeTeams(handler);
+
+	header["battleOnly"].Bool() = mapHeader->battleOnly;
 
 	writeOptions(handler);
 

@@ -51,8 +51,9 @@ enum class ESerializationVersion : int32_t
 	MORE_MAP_LAYERS, // more map layers
 	CONFIGURABLE_RESOURCES, // configurable resources
 	CUSTOM_NAMES, // custom names
+	BATTLE_ONLY, // battle only mode
 
-	CURRENT = CUSTOM_NAMES,
+	CURRENT = BATTLE_ONLY,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

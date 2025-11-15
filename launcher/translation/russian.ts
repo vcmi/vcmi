@@ -362,65 +362,74 @@ Install successfully downloaded?</source>
         <translation>Установка мода %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Карта существует</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Карта &apos;%1&apos; уже существует. Перезаписать?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Да для всех</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Нет для всех</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Импорт завершён</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 карта(ы) успешно импортирована(ы).</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сбой импорта</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не удалось импортировать следующие карты:
+%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translation>Операция не удалась</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
         <translation>Возникли ошибки:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translation>скриншоты</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translation>Скриншот %1</translation>
     </message>
@@ -548,12 +557,14 @@ Install successfully downloaded?</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Редактор конфигурации</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Открыть редактор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
@@ -655,7 +666,8 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Игнорировать переключатель без звука</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
@@ -912,37 +924,43 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сохранить</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файл:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Редактор конфигурации</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Несохранённые изменения</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Отменить внесённые изменения?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файл JSON недействителен!</translation>
     </message>
 </context>
 <context>
@@ -1208,7 +1226,8 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="372"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не удалось открыть файл: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
@@ -1279,12 +1298,17 @@ error reason: </source>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation>
-            <numerusform>SHA1 хэш предоставленных файлов:
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+            <numerusform>Хеш SHA1 предоставленных файлов:
 Exe (%n байт):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Хеш SHA1 предоставленных файлов:
+Exe (%n байт):
+%1</numerusform>
+            <numerusform>Хеш SHA1 предоставленных файлов:
+Exe (%n байт):
+%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1293,12 +1317,20 @@ Exe (%n байт):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
             <numerusform>
+
 Bin (%n байт):
 %1</numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>
+
+Bin (%n байт):
+%1</numerusform>
+            <numerusform>
+
+Bin (%n байт):
+%1</numerusform>
         </translation>
     </message>
     <message>
@@ -1357,12 +1389,14 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Белорусский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Болгарский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
@@ -1397,7 +1431,8 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Греческий</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
@@ -1412,7 +1447,8 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Японский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
@@ -1422,7 +1458,8 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Норвежский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
@@ -1437,7 +1474,8 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Румынский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1708,7 +1746,7 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Кампании</translation>
+        <translation>Кампании</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
@@ -1723,7 +1761,8 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ресурсы</translation>
     </message>
 </context>
 <context>
@@ -2013,13 +2052,15 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сбой импорта пресета</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не удалось импортировать пресет — данные в буфере обмена не похожи на пресет мода!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>

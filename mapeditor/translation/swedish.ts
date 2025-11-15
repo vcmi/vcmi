@@ -334,12 +334,14 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">X</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
@@ -372,7 +374,8 @@
         <location filename="../templateeditor/entitiesselector.ui" line="14"/>
         <location filename="../templateeditor/entitiesselector.ui" line="20"/>
         <source>Select Entities</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj entiteter</translation>
     </message>
 </context>
 <context>
@@ -414,12 +417,14 @@
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj fraktioner</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="25"/>
         <source>Faction Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Fraktionsväljare</translation>
     </message>
 </context>
 <context>
@@ -523,12 +528,12 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
         <source>Save</source>
-        <translation type="unfinished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="165"/>
         <source>Cancel</source>
-        <translation type="unfinished">Avbryt</translation>
+        <translation>Avbryt</translation>
     </message>
 </context>
 <context>
@@ -869,7 +874,8 @@
         <location filename="../mainwindow.ui" line="1085"/>
         <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mallredigerare</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1093"/>
@@ -1295,17 +1301,19 @@
     <message>
         <location filename="../mainwindow.cpp" line="444"/>
         <source>Surface</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Yta</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="446"/>
         <source>Underground</source>
-        <translation type="unfinished">Underjord</translation>
+        <translation>Underjord</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="448"/>
         <source>Level - %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nivå – %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="472"/>
@@ -1491,27 +1499,32 @@
     <message>
         <location filename="../mainwindow.cpp" line="1044"/>
         <source>Undo clicked</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ångra tryckt</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1055"/>
         <source>Redo clicked</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gör om tryckt</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1066"/>
         <source>Passability clicked</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Framkomlighet tryckt</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1079"/>
         <source>Grid clicked</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Rutnät tryckt</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1160"/>
         <source>Fill clicked</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Fyllning tryckt</translation>
     </message>
     <message>
         <source>View surface</source>
@@ -1740,22 +1753,24 @@ Vill du göra det nu?</translation>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj gruvor</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="29"/>
         <source>Mine Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Gruvväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="35"/>
         <source>Resource</source>
-        <translation type="unfinished">Resurs</translation>
+        <translation>Resurs</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="35"/>
         <source>Mines</source>
-        <translation type="unfinished">Gruvor</translation>
+        <translation>Gruvor</translation>
     </message>
 </context>
 <context>
@@ -1820,132 +1835,150 @@ Vill du göra det nu?</translation>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="14"/>
         <source>Select Objects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="20"/>
         <source>Objects</source>
-        <translation type="unfinished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Banned Objects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Object Categories</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna objektkategorier</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="33"/>
         <source>Object Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Objektväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="95"/>
         <source>Category</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Kategori</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="95"/>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Åtgärd</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="99"/>
         <source>Other</source>
-        <translation type="unfinished">Annat</translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Övrigt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="100"/>
         <source>All</source>
-        <translation type="unfinished">Alla</translation>
+        <translation>Alla</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="101"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="102"/>
         <source>Creature bank</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Varelsebank</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Bonus</source>
-        <translation type="unfinished">Bonus</translation>
+        <translation>Bonus</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>Dwelling</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Boplats</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <source>Resource</source>
-        <translation type="unfinished">Resurs</translation>
+        <translation>Resurs</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Resource generator</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Resursgenerator</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Spell scroll</source>
-        <translation type="unfinished">Besvärjelse-rulle</translation>
+        <translation>Besvärjelse-rulle</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="108"/>
         <source>Random artifact</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Slumpartifakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Pandoras box</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Pandoras ask</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Quest artifact</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Uppdragsartefakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Seer hut</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Siarhydda</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="123"/>
         <location filename="../templateeditor/objectselector.cpp" line="184"/>
         <location filename="../templateeditor/objectselector.cpp" line="259"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ta bort</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="164"/>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Object</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Value</source>
-        <translation type="unfinished">Värde</translation>
+        <translation>Värde</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Probability</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sannolikhet</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="224"/>
         <source>Max per zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max per zon</translation>
     </message>
 </context>
 <context>
@@ -1983,7 +2016,8 @@ Vill du göra det nu?</translation>
     <message>
         <location filename="../playerparams.ui" line="164"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="221"/>
@@ -2048,22 +2082,23 @@ Vill du göra det nu?</translation>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation type="unfinished">Spelarinställningar</translation>
+        <translation>Spelarinställningar</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished">Spelare</translation>
+        <translation>Spelare</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">1</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
@@ -2078,7 +2113,8 @@ Vill du göra det nu?</translation>
         <location filename="../inspector/portraitwidget.ui" line="52"/>
         <location filename="../inspector/portraitwidget.ui" line="71"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="85"/>
@@ -2116,7 +2152,8 @@ Vill du göra det nu?</translation>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="175"/>
         <source>Random hero secondary skills</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Slumpmässiga sekundära hjältefärdigheter</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="181"/>
@@ -2801,7 +2838,8 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
     <message>
         <location filename="../inspector/questwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="183"/>
@@ -2812,7 +2850,8 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
     <message>
         <location filename="../inspector/questwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">...</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
@@ -3048,7 +3087,8 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <location filename="../inspector/rewardswidget.ui" line="382"/>
         <location filename="../inspector/rewardswidget.ui" line="1112"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="341"/>
@@ -3851,221 +3891,244 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
         <location filename="../templateeditor/templateeditor.cpp" line="588"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI Mallredigerare</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">Fil</translation>
+        <translation>Fil</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">Redigera</translation>
+        <translation>Redigera</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="53"/>
         <source>View</source>
-        <translation type="unfinished">Visa</translation>
+        <translation>Visa</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="68"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Verktygsfält</translation>
+        <translation>Verktygsfält</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="114"/>
         <source>Selected Template:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vald mall:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
         <location filename="../templateeditor/templateeditor.ui" line="1313"/>
         <location filename="../templateeditor/templateeditor.cpp" line="226"/>
         <source>Add</source>
-        <translation type="unfinished">Lägg till</translation>
+        <translation>Lägg till</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="144"/>
         <source>Remove</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="151"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Byt namn</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="215"/>
         <source>General</source>
-        <translation type="unfinished">Allmänt</translation>
+        <translation>Allmänt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="221"/>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="233"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Beskrivning</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="245"/>
         <source>Min Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Minsta storlek</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="264"/>
         <location filename="../templateeditor/templateeditor.ui" line="363"/>
         <location filename="../templateeditor/templateeditor.ui" line="585"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">X</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="294"/>
         <location filename="../templateeditor/templateeditor.ui" line="393"/>
         <location filename="../templateeditor/templateeditor.ui" line="615"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="324"/>
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
         <location filename="../templateeditor/templateeditor.ui" line="1366"/>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Z</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="344"/>
         <source>Max Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Största storlek</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
         <location filename="../templateeditor/templateeditor.ui" line="449"/>
         <source>Players</source>
-        <translation type="unfinished">Spelare</translation>
+        <translation>Spelare</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
         <source>Human</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Människa</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="472"/>
         <source>Allowed water content</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tillåten vattenmängd</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
         <location filename="../templateeditor/templateeditor.cpp" line="364"/>
         <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
         <location filename="../templateeditor/templateeditor.cpp" line="372"/>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="492"/>
         <source>Islands</source>
-        <translation type="unfinished">Öar</translation>
+        <translation>Öar</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="502"/>
         <source>Entities</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Entiteter</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="508"/>
         <source>Banned Spells</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna besvärjelser</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="515"/>
         <source>Banned Artifacts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna artefakter</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="522"/>
         <source>Banned Skills</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna färdigheter</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="529"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna hjältar</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="561"/>
         <source>Zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zon</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="567"/>
         <source>Visualisation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Visualisering</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="573"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Position</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="645"/>
         <location filename="../templateeditor/templateeditor.ui" line="701"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Storlek</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="673"/>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="689"/>
         <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="717"/>
         <source>Owner</source>
-        <translation type="unfinished">Ägare</translation>
+        <translation>Ägare</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Zone link</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zonlänk</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="735"/>
         <location filename="../templateeditor/templateeditor.ui" line="1233"/>
         <location filename="../templateeditor/templateeditor.ui" line="1239"/>
         <source>Mines</source>
-        <translation type="unfinished">Gruvor</translation>
+        <translation>Gruvor</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="742"/>
         <location filename="../templateeditor/templateeditor.ui" line="1255"/>
         <source>Custom objects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Anpassade objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="749"/>
         <location filename="../templateeditor/templateeditor.ui" line="1127"/>
         <source>Towns</source>
-        <translation type="unfinished">Städer</translation>
+        <translation>Städer</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="756"/>
         <location filename="../templateeditor/templateeditor.ui" line="1097"/>
         <source>Terrain</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Terräng</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="773"/>
@@ -4073,17 +4136,20 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <location filename="../templateeditor/templateeditor.ui" line="1223"/>
         <location filename="../templateeditor/templateeditor.cpp" line="339"/>
         <source>Treasure</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Skatt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="836"/>
         <source>Town info</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stadsinfo</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="842"/>
         <source>Town count</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Antal städer</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="854"/>
@@ -4091,7 +4157,7 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <location filename="../templateeditor/templateeditor.ui" line="980"/>
         <location filename="../templateeditor/templateeditor.ui" line="1043"/>
         <source>Player</source>
-        <translation type="unfinished">Spelare</translation>
+        <translation>Spelare</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="880"/>
@@ -4099,374 +4165,429 @@ Lägg till den i kartans obligatoriska moduler i Karta-&gt;Allmänna inställnin
         <location filename="../templateeditor/templateeditor.ui" line="1006"/>
         <location filename="../templateeditor/templateeditor.ui" line="1069"/>
         <source>Neutral</source>
-        <translation type="unfinished">Neutral</translation>
+        <translation>Neutral</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="905"/>
         <source>Castle count</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Antal slott</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="968"/>
         <source>Town density</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stadstäthet</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1031"/>
         <source>Castle density</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Slottstäthet</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1103"/>
         <source>Match terrain to town</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Matcha terräng med stad</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1110"/>
         <source>Terrain types</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Terrängtyper</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
         <source>Banned terrain types</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna terrängtyper</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1133"/>
         <source>Towns are same type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Städer är av samma typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1140"/>
         <source>Allowed towns</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tillåtna städer</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1147"/>
         <source>Banned towns</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna städer</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1154"/>
         <source>Town hints</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stadstips</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1164"/>
         <source>Monsters</source>
-        <translation type="unfinished">Monster</translation>
+        <translation>Monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1170"/>
         <source>Allowed monsters</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tillåtna monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1177"/>
         <source>Banned monsters</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbjudna monster</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1195"/>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Styrka</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1249"/>
         <source>Objects</source>
-        <translation type="unfinished">Objekt</translation>
+        <translation>Objekt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1287"/>
         <source>Connections</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förbindelser</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1331"/>
         <source>Open</source>
-        <translation type="unfinished">Öppna</translation>
+        <translation>Öppna</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1339"/>
         <source>Save</source>
-        <translation type="unfinished">Spara</translation>
+        <translation>Spara</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1347"/>
         <source>New</source>
-        <translation type="unfinished">Ny</translation>
+        <translation>Ny</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1355"/>
         <source>Save as...</source>
-        <translation type="unfinished">Spara som...</translation>
+        <translation>Spara som...</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1358"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1363"/>
         <source>Add zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Lägg till zon</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1374"/>
         <source>Remove zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ta bort zon</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1377"/>
         <location filename="../templateeditor/templateeditor.cpp" line="419"/>
         <source>Del</source>
-        <translation type="unfinished">Del</translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1382"/>
         <source>Auto position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Autoposition</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1385"/>
         <source>Ctrl+P</source>
-        <translation type="unfinished">Ctrl+P</translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1390"/>
         <source>Zoom in</source>
-        <translation type="unfinished">Zooma in</translation>
+        <translation>Zooma in</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1393"/>
         <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl++</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1398"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Zooma ut</translation>
+        <translation>Zooma ut</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1401"/>
         <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl+-</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1406"/>
         <source>Zoom auto</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Automatisk zoom</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1409"/>
         <source>Ctrl+Shift+:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1414"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">Återställ zoom</translation>
+        <translation>Återställ zoom</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1417"/>
         <source>Ctrl+Shift+=</source>
-        <translation type="unfinished">Ctrl+Shift+=</translation>
+        <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Åtgärd</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="215"/>
         <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Radera</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">ID: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="256"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Maximal skatt: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="337"/>
         <source>Player start</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Spelarstart</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="338"/>
         <source>CPU start</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">CPU-start</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="340"/>
         <source>Junction</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Korsning</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="341"/>
         <source>Water</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vatten</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="342"/>
         <source>Sealed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Förseglad</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="370"/>
         <location filename="../templateeditor/templateeditor.cpp" line="407"/>
         <source>Random</source>
-        <translation type="unfinished">Slumpmässig</translation>
+        <translation>Slumpmässig</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
         <source>Weak</source>
-        <translation type="unfinished">Svag</translation>
+        <translation>Svag</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="373"/>
         <source>Strong</source>
-        <translation type="unfinished">Stark</translation>
+        <translation>Stark</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Zone A</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zon A</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Zone B</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zon B</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Guard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Vakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Road</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Väg</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="402"/>
         <source>Guarded</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bevakad</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="403"/>
         <source>Fictive</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Fiktiv</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="404"/>
         <source>Repulsive</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Frånstötande</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="405"/>
         <source>Wide</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bred</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="406"/>
         <source>Force portal</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tvinga portal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ja</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nej</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="516"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zon A: %1
+Zon B: %2
+Vakt: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="576"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Bekräftelse</translation>
+        <translation>Bekräftelse</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="576"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Osparade ändringar går förlorade, är du säker?</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="618"/>
         <source>Open template</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Öppna mall</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="620"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI-mallar (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="633"/>
         <source>Save template</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Spara mall</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="633"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI-mallar (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="746"/>
         <location filename="../templateeditor/templateeditor.cpp" line="786"/>
         <source>Enter Name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ange namn</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="746"/>
         <location filename="../templateeditor/templateeditor.cpp" line="786"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Namn:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="753"/>
         <source>Already existing!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Finns redan!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="753"/>
         <source>A template with this name is already existing.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">En mall med detta namn finns redan.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="769"/>
         <source>To few templates!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">För få mallar!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="769"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Minst en mall ska finnas kvar efter borttagning.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -4763,52 +4884,60 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="14"/>
         <source>Select Town hints</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj stadstips</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="20"/>
         <source>Town hints</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stadstips</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="24"/>
         <source>Town hint Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Väljare för stadstips</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
         <source>Value</source>
-        <translation type="unfinished">Värde</translation>
+        <translation>Värde</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="30"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Åtgärd</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="33"/>
         <source>Like Zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Som zon</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="34"/>
         <source>Not like zone (comma separated)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Inte som zon (komma-separerat)</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="35"/>
         <source>Related to zone terrain</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Relaterat till zonens terräng</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="60"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ta bort</translation>
     </message>
 </context>
 <context>
@@ -4934,37 +5063,44 @@ Guard: %3</source>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Välj skatter</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="26"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Skattväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Density</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Täthet</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Åtgärd</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="50"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ta bort</translation>
     </message>
 </context>
 <context>
@@ -4972,27 +5108,32 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="75"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Terrängväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="79"/>
         <source>Spell Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Besvärjelseväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="83"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Artefaktväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="87"/>
         <source>Skill Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Färdighetsväljare</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="91"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Hjälttypväljare</translation>
     </message>
 </context>
 <context>
@@ -5312,7 +5453,8 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="286"/>
         <source>Levels</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nivåer</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="368"/>
@@ -5483,12 +5625,14 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.cpp" line="333"/>
         <source>Multilevel support</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stöd för flera nivåer</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="333"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Stöd för flera nivåer är fortfarande mycket experimentellt. Räkna med problem.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="454"/>

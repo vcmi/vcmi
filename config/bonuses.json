@@ -20,7 +20,11 @@
 	"ATTACKS_ALL_ADJACENT":
 	{
 	},
-	
+
+	"ALWAYS_MAXIMUM_DAMAGE":
+	{
+	},
+
 	"BASE_TILE_MOVEMENT_COST":
 	{
 		"blockDescriptionPropagation": true
@@ -334,7 +338,11 @@
 	{
 		"blockDescriptionPropagation": true
 	},
-	
+
+	"MORE_DAMAGE_FROM_SPELL":
+	{
+	},
+
 	"MOVEMENT":
 	{
 		"blockDescriptionPropagation": true

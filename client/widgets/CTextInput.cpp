@@ -200,9 +200,9 @@ void CTextInput::setFilterFilename()
 	onTextFiltering = std::bind(&CTextInput::filenameFilter, _1, _2);
 }
 
-void CTextInput::setFilterNumber(int minValue, int maxValue)
+void CTextInput::setFilterNumber(int minValue, int maxValue, int metricDigits)
 {
-	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue);
+	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue, metricDigits);
 }
 
 std::string CTextInput::getVisibleText() const
@@ -256,6 +256,10 @@ void CTextInput::keyPressed(EShortcut key)
 
 	if(redrawNeeded)
 	{
+		std::string oldText = currentText;
+		if(onTextFiltering)
+			onTextFiltering(currentText, oldText);
+
 		updateLabel();
 		if(onTextEdited)
 			onTextEdited(currentText);
@@ -295,9 +299,9 @@ void CTextInput::textInputted(const std::string & enteredText)
 	if(onTextFiltering)
 		onTextFiltering(currentText, oldText);
 
+	updateLabel();
 	if(currentText != oldText)
 	{
-		updateLabel();
 		if(onTextEdited)
 			onTextEdited(currentText);
 	}
@@ -321,40 +325,63 @@ void CTextInput::filenameFilter(std::string & text, const std::string &oldText)
 		text.erase(pos, 1);
 }
 
-void CTextInput::numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue)
+std::optional<char> getMetricSuffix(const std::string& text)
+{
+	const std::string suffixes = "kKmMgGtTpPeE";
+	std::vector<char> found;
+
+	// Collect all suffixes in the string
+	for (char c : text) {
+		if (suffixes.find(c) != std::string::npos) {
+			// Normalize: 'k' lowercase, others uppercase
+			found.push_back((c == 'k' || c == 'K') ? 'k' : static_cast<char>(std::toupper(c)));
+		}
+	}
+
+	if (found.empty()) return std::nullopt;            // No suffix
+	if (found.size() == 1) return found[0];           // Single suffix
+	// More than one suffix
+	bool allSame = std::all_of(found.begin(), found.end(), [&](char c){ return c == found[0]; });
+	if (allSame) return std::nullopt;                 // Multiple but identical → nullopt
+	return found.back();                               // Multiple different → last suffix
+}
+
+
+void CTextInput::numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue, int metricDigits)
 {
 	assert(minValue < maxValue);
 
-	if(text.empty())
+	bool isNegative = std::count_if(text.begin(), text.end(), [](char c){ return c == '-'; }) == 1 && minValue < 0;
+	auto suffix = getMetricSuffix(text);
+	if(metricDigits == 0)
+		suffix = std::nullopt;
+
+	// Remove all non-digit characters
+	text.erase(std::remove_if(text.begin(), text.end(), [](char c){ return !isdigit(c); }), text.end());
+
+	// Remove leading zeros
+	size_t firstNonZero = text.find_first_not_of('0');
+	if (firstNonZero > 0)
+		text.erase(0, firstNonZero);
+
+	if (text.empty())
 		text = "0";
 
-	size_t pos = 0;
-	if(text[0] == '-') //allow '-' sign as first symbol only
-		pos++;
+	// Add negative sign
+	text = (isNegative ? "-" : "") + text;
 
-	while(pos < text.size())
-	{
-		if(text[pos] < '0' || text[pos] > '9')
-		{
-			text = oldText;
-			return; //new text is not number.
-		}
-		pos++;
-	}
-	try
-	{
-		int value = boost::lexical_cast<int>(text);
-		if(value < minValue)
-			text = std::to_string(minValue);
-		else if(value > maxValue)
-			text = std::to_string(maxValue);
-	}
-	catch(boost::bad_lexical_cast &)
-	{
-		//Should never happen. Unless I missed some cases
-		logGlobal->warn("Warning: failed to convert %s to number!", text);
-		text = oldText;
-	}
+	// Restore suffix if it exists
+	if (suffix)
+		text += *suffix;
+
+	// Clamp value
+	int value = TextOperations::parseMetric<int>(text);
+	if (metricDigits)
+		text = (isNegative && value == 0 ? "-" : "") + TextOperations::formatMetric(value, metricDigits);
+	if (value < minValue)
+		text = metricDigits ? TextOperations::formatMetric(minValue, metricDigits) : std::to_string(minValue);
+	else if (value > maxValue)
+		text = metricDigits ? TextOperations::formatMetric(maxValue, metricDigits) : std::to_string(maxValue);
 }
 
 void CTextInput::activate()

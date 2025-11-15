@@ -26,6 +26,7 @@
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/artifact/CArtifactFittingSet.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/spells/CSpellHandler.h"

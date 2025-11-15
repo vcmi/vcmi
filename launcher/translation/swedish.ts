@@ -362,66 +362,66 @@ Installation framgångsrikt nedladdad?</translation>
         <translation>Installerar modd %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
         <translation>Kartan existerar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Kartan ’%1’ finns redan. Vill du skriva över den?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
         <translation>Ja till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
         <translation>Nej till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
         <translation>Importen är klar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
         <translation>%1 karta/kartor importerades utan problem.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
         <translation>Importen misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Det gick inte att importera följande kartor:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translation>Åtgärden misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
         <translation>Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translation>skärmbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translation>Skärmbild %1</translation>
     </message>
@@ -1726,7 +1726,8 @@ Bin (%n byte):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Resurser</translation>
     </message>
 </context>
 <context>

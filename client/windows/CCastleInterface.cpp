@@ -2184,14 +2184,38 @@ void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 		uint32_t spellCount = town->spellsAtLevel(i+1,false); //spell at level with -1 hmmm?
 		for(uint32_t j=0; j<spellCount; j++)
 		{
-			if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+			if (town->hasBuilt(BuildingSubID::AURORA_BOREALIS))
+			{
+				std::string auroraBorealisName = town->getTown()->getSpecialBuilding(BuildingSubID::AURORA_BOREALIS)->getNameTranslated();
+
+				auroraBorealisScrolls.push_back(std::make_shared<ScrollAllSpells>(positions[i][j], auroraBorealisName));
+			}
+			else if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+			{
 				spells.push_back(std::make_shared<Scroll>(positions[i][j], town->spells[i][j].toSpell(), townId));
+			}
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
 	}
 
 	redraw();
+}
+
+CMageGuildScreen::ScrollAllSpells::ScrollAllSpells(Point position, const std::string & buildingName)
+{
+	constexpr int auroraBorealisImageIndex = 70;
+
+	OBJECT_CONSTRUCTION;
+	pos += position;
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLSCR"), auroraBorealisImageIndex);
+	pos = image->pos;
+
+	MetaString description;
+	description.appendTextID("core.genrltxt.714");
+	description.replaceRawString(buildingName);
+
+	text = std::make_shared<LRClickableAreaWText>(Rect(Point(), pos.dimensions()), description.toString(), description.toString() );
 }
 
 CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId)

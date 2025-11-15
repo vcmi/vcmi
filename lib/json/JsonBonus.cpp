@@ -91,6 +91,14 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 			});
 			break;
 		}
+		case BonusType::HATES_TRAIT:
+		{
+			LIBRARY->identifiers()->requestIdentifier( "bonus", node, [&subtype](int32_t identifier)
+			{
+				subtype = BonusType(identifier);
+			});
+			break;
+		}
 		case BonusType::NO_TERRAIN_PENALTY:
 		{
 			LIBRARY->identifiers()->requestIdentifier( "terrain", node, [&subtype](int32_t identifier)

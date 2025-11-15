@@ -1240,17 +1240,20 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::HAVE_CREATURES:
 		{
 			//check if in players armies there is enough creatures
-			int total = 0; //creature counter
-			for(auto ai : map->getObjects<CArmedInstance>())
-			{
-				if(ai->getOwner() == player)
-				{
-					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
-							total += elem.second->getCount();
-				}
-			}
-			return total >= condition.value;
+			// NOTE: only heroes & towns are checked, in line with H3.
+			// Garrisons, mines, and guards of owned dwellings(!) are excluded
+			int totalCreatures = 0;
+			for (const auto & hero : p->getHeroes())
+				for(const auto & elem : hero->Slots()) //iterate through army
+					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
+						totalCreatures += elem.second->getCount();
+
+			for (const auto & town : p->getTowns())
+				for(const auto & elem : town->Slots()) //iterate through army
+					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
+						totalCreatures += elem.second->getCount();
+
+			return totalCreatures >= condition.value;
 		}
 		case EventCondition::HAVE_RESOURCES:
 		{
@@ -1624,18 +1627,19 @@ void CGameState::loadGame(CLoadFile & file)
 	logGlobal->info("Loading game state...");
 
 	CMapHeader dummyHeader;
-	StartInfo dummyStartInfo;
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
 	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
 	{
+		StartInfo dummyStartInfo;
 		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(*this);
 	}
 	else
 	{
+		auto dummyStartInfo = std::make_shared<StartInfo>();
 		bool dummyA = false;
 		uint32_t dummyB = 0;
 		uint16_t dummyC = 0;

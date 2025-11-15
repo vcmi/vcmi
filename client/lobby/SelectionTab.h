@@ -128,6 +128,8 @@ private:
 	std::shared_ptr<CButton> buttonDeleteMode;
 	bool deleteMode;
 
+	std::shared_ptr<CButton> buttonBattleOnlyMode;
+
 	bool enableUiEnhancements;
 	std::shared_ptr<CButton> buttonCampaignSet;
 

@@ -132,7 +132,7 @@ class CursorHandler final
 	Point pos;
 	float frameTime;
 	int32_t currentCursorIndex;
-	int32_t currentFrame;
+	int32_t currentFrame {};
 	Cursor::ShowType showType;
 	bool showing;
 

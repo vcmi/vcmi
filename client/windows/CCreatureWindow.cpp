@@ -428,7 +428,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 
 			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(342, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
 			parent->switchButtons[buttonIndex]->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -952,8 +952,8 @@ void CStackWindow::initSections()
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showArt = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
-	bool showExp = (GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
+	bool showArt = GAME->interface() && GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
+	bool showExp = ((GAME->interface() && GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) || info->commander != nullptr) && info->stackNode;
 
 	mainSection = std::make_shared<MainSection>(this, pos.h, showExp, showArt);
 

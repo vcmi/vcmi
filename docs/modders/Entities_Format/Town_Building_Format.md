@@ -238,15 +238,13 @@ Building requirements can be described using logical expressions:
 Following Heroes III buildings can be used as unique buildings for a town. Their functionality should be identical to a corresponding H3 building. H3 buildings that are not present in this list contain no hardcoded functionality. See vcmi json configuration to see how such buildings can be implemented in a mod.
 
 - `mysticPond`
-- `artifactMerchant`
-- `freelancersGuild`
-- `magicUniversity`
 - `castleGate`
-- `creatureTransformer`
 - `portalOfSummoning`
 - `library`
 - `escapeTunnel`
 - `treasury`
+- `auroraBorealis`
+- `deityOfFire`
 
 #### Buildings from other Heroes III mods
 

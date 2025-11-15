@@ -205,7 +205,7 @@
 				},
 				"horde2":         { "upgrades" : "dwellingLvl3" },
 				"horde2Upgr":     { "upgrades" : "dwellingUpLvl3", "requires" : [ "horde2" ] },
-				"grail":          { },
+				"grail":          { "type" : "deityOfFire" },
 
 				"dwellingLvl1":   { "requires" : [ "fort" ] },
 				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },

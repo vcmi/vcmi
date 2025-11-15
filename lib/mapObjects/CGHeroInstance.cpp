@@ -1345,28 +1345,6 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 	}
 }
 
-void CGHeroInstance::attachToBonusSystem(CGameState & gs)
-{
-	CArmedInstance::attachToBonusSystem(gs);
-	if (boardedBoat.hasValue())
-	{
-		auto boat = gs.getObjInstance(boardedBoat);
-		if (boat)
-			attachTo(dynamic_cast<CGBoat&>(*boat));
-	}
-}
-
-void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
-{
-	CArmedInstance::detachFromBonusSystem(gs);
-	if (boardedBoat.hasValue())
-	{
-		auto boat = gs.getObjInstance(boardedBoat);
-		if (boat)
-			detachFrom(dynamic_cast<CGBoat&>(*boat));
-	}
-}
-
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(visitedTown.hasValue())

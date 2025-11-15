@@ -365,65 +365,74 @@ Install successfully downloaded?</source>
         <translation>正在安装模组 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">地图已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">地图 &apos;%1&apos; 已存在。要覆盖吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">全部是</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">全部否</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">导入完成</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">已成功导入 %1 张地图。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">导入失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">无法导入以下地图：
+%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
         <translation>操作失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
         <translation>遇到问题：
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
         <translation>截图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
         <translation>截图 %1</translation>
     </message>
@@ -1371,7 +1380,7 @@ Bin (%n字节):
         <location filename="../languages.cpp" line="25"/>
         <source>Czech</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>捷克语</translation>
+        <translation type="unfinished">捷克语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
@@ -1382,25 +1391,25 @@ Bin (%n字节):
         <location filename="../languages.cpp" line="27"/>
         <source>English</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>英语</translation>
+        <translation type="unfinished">英语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Finnish</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>芬兰语</translation>
+        <translation type="unfinished">芬兰语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>French</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>法语</translation>
+        <translation type="unfinished">法语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>German</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>德语</translation>
+        <translation type="unfinished">德语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
@@ -1731,7 +1740,8 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">资源</translation>
     </message>
 </context>
 <context>

@@ -1535,8 +1535,9 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	index(_id)
 {
 	OBJECT_CONSTRUCTION;
-	if(parent->images.size() > index)
-		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
+	auto imgIndex = parent->itemsVisible[index].first;
+	if(parent->images.size() > index && parent->images[imgIndex])
+		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1, 1));
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 
@@ -1577,12 +1578,13 @@ void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 
 void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 {
+	int where = parent->itemsVisible[index].first;
 	if(parent->onPopup)
-		parent->onPopup(index);
+		parent->onPopup(where);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
-	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled, bool blue)
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
@@ -1601,12 +1603,12 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	}
 	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	init(titleWidget_, _title, _descr, searchBoxEnabled, blue);
 	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
-	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled, bool blue)
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
@@ -1625,17 +1627,17 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	}
 	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	init(titleWidget_, _title, _descr, searchBoxEnabled, blue);
 	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
+void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled, bool blue)
 {
 	titleWidget = titleWidget_;
 
 	title = std::make_shared<CLabel>(152, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, _title);
 	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _descr);
-	exit = std::make_shared<CButton>( Point(228, 402), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
+	exit = std::make_shared<CButton>( Point(228, 402), AnimationPath::builtin(blue ? "MuBcanc" : "ICANCEL.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
 
 	if(titleWidget)
 	{
@@ -1644,10 +1646,10 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		titleWidget->pos.y = 75 + pos.y - titleWidget->pos.h/2;
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
-		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1, Rect(262, -32, 256, 256) );
+		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1 + (blue ? 4 : 0), Rect(262, -32, 256, 256) );
 	list->setRedrawParent(true);
 
-	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
+	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin(blue ? "MuBchck" : "IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
 
 	if(!searchBoxEnabled)
@@ -1655,8 +1657,8 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 	Rect r(50, 90, pos.w - 100, 16);
 	const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
-	const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
-	const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
+	const ColorRGBA borderColor = blue ? ColorRGBA(75, 84, 128) : ColorRGBA(128, 100, 75);
+	const ColorRGBA grayedColor = blue ? ColorRGBA(105, 127, 159) : ColorRGBA(158, 130, 105);
 	searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
 	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, LIBRARY->generaltexth->translate("vcmi.spellBook.search"));
 
@@ -1676,9 +1678,12 @@ void CObjectListWindow::trimTextIfTooWide(std::string & text, bool preserveCount
 	{
 		auto posBrace = text.find_last_of("(");
 		auto posClosing = text.find_last_of(")");
-		std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
-		suffix += " ";
-		suffix += objCount;
+		if (posBrace != std::string::npos && posClosing != std::string::npos && posClosing > posBrace)
+		{
+			std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
+			suffix += " ";
+			suffix += objCount;
+		}
 	}
 
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);

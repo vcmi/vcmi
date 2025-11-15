@@ -59,4 +59,5 @@ public:
 	void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
