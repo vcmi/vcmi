@@ -280,7 +280,10 @@ uint64_t RewardEvaluator::getArmyReward(
 			for(const auto & stackInfo : info.reward.creatures)
 				rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
 
-			totalValue += rewardValue > 0 ? rewardValue / (info.reward.grantedArtifacts.size() + info.reward.creatures.size()) : 0;
+			const auto combined_size = std::min(static_cast<size_t>(1),
+			                                    info.reward.grantedArtifacts.size() + info.reward.creatures.size() +
+			                                    info.reward.grantedScrolls.size());
+			totalValue += rewardValue > 0 ? rewardValue / combined_size : 0;
 		}
 
 		return totalValue;
