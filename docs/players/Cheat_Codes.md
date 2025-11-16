@@ -47,10 +47,11 @@ Gives specific creature in every slot, with optional amount. Examples:
 - `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
 - `vcmiscrolls` - give spell scrolls for every possible spells
 
-### Movement points
+### Movement
 
 - `nwcnebuchadnezzar`, `nwcpodracer`, `nwccoconuts`, `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
 - Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
+- `vcmiteleport` - teleports hero to desired coordinate on map, usage: `vcmiteleport <x> <y> <z(optional)>`
 
 ### Resources
 
