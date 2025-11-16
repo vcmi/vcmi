@@ -1175,7 +1175,7 @@ bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) 
 		obj,
 		[this, obj, player](const int3 & pos) -> bool
 		{
-			// object is visible when at least one blocked tile is visible
+			// object is visible when at least one tile is visible
 			return map->isInTheMap(pos) && obj->coveringAt(pos) && isVisibleFor(pos, player);
 		}
 	);
