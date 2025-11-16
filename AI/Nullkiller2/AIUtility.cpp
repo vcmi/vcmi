@@ -68,7 +68,7 @@ ObjectInstanceID HeroPtr::idOrNone() const
 std::string HeroPtr::nameOrDefault() const
 {
 	if (hero)
-		return hero->getNameTextID() + "(" + hero->getNameTranslated() + ")";
+		return hero->getNameTextID();
 	return "<NO HERO>";
 }
 
