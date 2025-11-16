@@ -639,14 +639,14 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		std::string text = GAME->interface()->localState->getCurrentHero() ? objAtTile->getHoverText(GAME->interface()->localState->getCurrentHero()) : objAtTile->getHoverText(GAME->interface()->playerID);
 		boost::replace_all(text,"\n"," ");
 		if (ENGINE->isKeyboardCmdDown())
-			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
+			text.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ", " + std::to_string(targetPosition.z) + ")");
 		ENGINE->statusbar()->write(text);
 	}
 	else if(isTargetPositionVisible)
 	{
 		std::string tileTooltipText = GAME->map().getTerrainDescr(targetPosition, false);
 		if (ENGINE->isKeyboardCmdDown())
-			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ")");
+			tileTooltipText.append(" (" + std::to_string(targetPosition.x) + ", " + std::to_string(targetPosition.y) + ", " + std::to_string(targetPosition.z) + ")");
 		ENGINE->statusbar()->write(tileTooltipText);
 	}
 
