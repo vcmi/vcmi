@@ -349,6 +349,20 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImageLocator & locator)
 {
 	ImageLocator adjustedLocator = locator;
 
+	if(locator.image)
+	{
+		std::vector<std::string> splitted;
+		boost::split(splitted, (*locator.image).getOriginalName(), boost::is_any_of(":"));
+		if(splitted.size() == 3)
+		{
+			// allows image from def file with following filename (first group, then frame): "deffile.def:0:5"
+			adjustedLocator.defFile = AnimationPath::builtin(splitted[0]);
+			adjustedLocator.defGroup = std::stoi(splitted[1]);
+			adjustedLocator.defFrame = std::stoi(splitted[2]);
+			adjustedLocator.image = std::nullopt;
+		}
+	}
+
 	std::shared_ptr<ScalableImageInstance> result;
 
 	if (adjustedLocator.scalingFactor == 0)
@@ -389,6 +403,7 @@ std::shared_ptr<IImage> RenderHandler::loadImage(const ImagePath & path, EImageB
 	boost::split(splitted, name, boost::is_any_of(":"));
 	if(splitted.size() == 3)
 	{
+		// allows image from def file with following filename (first group, then frame): "deffile.def:0:5"
 		ImageLocator locator = getLocatorForAnimationFrame(AnimationPath::builtin(splitted[0]), std::stoi(splitted[2]), std::stoi(splitted[1]), 1, mode);
 		return loadImage(locator);
 	}
