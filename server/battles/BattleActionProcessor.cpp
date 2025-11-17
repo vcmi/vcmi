@@ -649,7 +649,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
-		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir(), false);
+		BattleHex shifted = dest.cloneInDirection(curStack->headDirection(), false);
 
 		if(accessibility.accessible(shifted, curStack))
 			dest = shifted;

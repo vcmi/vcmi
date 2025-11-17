@@ -287,16 +287,9 @@ ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &
 	}
 	else
 	{
-		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
+		if(const auto * unit = retrieveStackInstance(&context.node))
 		{
-			const auto * unit = dynamic_cast<const CStack *>(&context.node);
-			if (unit->getCurrentTerrain() == terrainType)
-				return ILimiter::EDecision::ACCEPT;
-		}
-		else
-		{
-			const auto * unit = dynamic_cast<const CStackInstance*>(&context.node);
-			if (unit->getCurrentTerrain() == terrainType)
+			if (unit->getArmy() && unit->getCurrentTerrain() == terrainType)
 				return ILimiter::EDecision::ACCEPT;
 		}
 	}

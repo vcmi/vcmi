@@ -19,6 +19,7 @@
 #include "../render/Canvas.h"
 #include "../render/ColorFilter.h"
 #include "../render/Colors.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../battle/BattleInterface.h"
 
@@ -150,7 +151,10 @@ void CPicture::addRClickCallback(const std::function<void()> & callback)
 void CPicture::clickPressed(const Point & cursorPosition)
 {
 	if(lCallback)
+	{
+		ENGINE->input().hapticFeedback();
 		lCallback();
+	}
 }
 
 void CPicture::showPopupWindow(const Point & cursorPosition)

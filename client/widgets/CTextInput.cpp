@@ -381,7 +381,16 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	if (value < minValue)
 		text = metricDigits ? TextOperations::formatMetric(minValue, metricDigits) : std::to_string(minValue);
 	else if (value > maxValue)
-		text = metricDigits ? TextOperations::formatMetric(maxValue, metricDigits) : std::to_string(maxValue);
+	{
+		if(text.length() == 2 && oldText.length() == 1)
+		{
+			// special case: if max val < 10 you cannot erase number to add another -> in this case just use last typed number
+			int newNum = std::stoi(text.substr(text.size() - 1));
+			text = std::to_string(newNum < maxValue ? newNum : maxValue);
+		}
+		else
+			text = metricDigits ? TextOperations::formatMetric(maxValue, metricDigits) : std::to_string(maxValue);
+	}
 }
 
 void CTextInput::activate()

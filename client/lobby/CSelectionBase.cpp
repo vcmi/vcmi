@@ -264,6 +264,7 @@ void InfoCard::changeSelection()
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
 	labelDifficulty->setText(LIBRARY->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
+	iconDifficulty->activate();
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
@@ -292,6 +293,24 @@ void InfoCard::changeSelection()
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
+}
+
+void InfoCard::clearSelection()
+{
+	labelSaveDate->setText("");
+	mapName->setText("");
+	mapDescription->setText("");
+
+	if(SEL->screenType == ESelectionScreen::campaignList)
+		return;
+
+	labelMapSize->setText("");
+
+	labelVictoryConditionText->setText("");
+	labelLossConditionText->setText("");
+	iconDifficulty->deactivate();
+	labelDifficulty->setText("");
+	labelDifficultyPercent->setText("");
 }
 
 void InfoCard::toggleChat()

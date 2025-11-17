@@ -19,7 +19,7 @@
 #include "lobby/ExtraOptionsTab.h"
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
-#include "lobby/BattleOnlyMode.h"
+#include "lobby/BattleOnlyModeTab.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
@@ -114,9 +114,6 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 	if(!lobby || !handler.isGuest())
 		return;
 
-	if(auto topWindow = ENGINE->windows().topWindow<BattleOnlyModeWindow>())
-		topWindow->close();
-
 	switch(pack.action)
 	{
 	case LobbyGuiAction::NO_TAB:
@@ -138,7 +135,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyGuiAction(LobbyGuiAction & pack
 		lobby->toggleTab(lobby->tabExtraOptions);
 		break;
 	case LobbyGuiAction::BATTLE_MODE:
-		BattleOnlyMode::openBattleWindow();
+		lobby->toggleTab(lobby->tabBattleOnlyMode);
 		break;
 	}
 }
@@ -242,6 +239,6 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
 {
-	if(auto topWindow = ENGINE->windows().topWindow<BattleOnlyModeWindow>())
-		topWindow->applyStartInfo(pack.startInfo);
+	if(lobby->tabBattleOnlyMode)
+		lobby->tabBattleOnlyMode->applyStartInfo(pack.startInfo);
 }

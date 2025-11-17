@@ -91,9 +91,7 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 			if (!coversPos(attacker->occupiedHex(attackOrigin)) && attackOrigin.isAvailable())
 				result.insert(attackOrigin);
 
-			bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
-			BattleHex::EDir headDirection = isAttacker ? BattleHex::RIGHT : BattleHex::LEFT;
-			BattleHex headHex = attackOrigin.cloneInDirection(headDirection);
+			BattleHex headHex = attackOrigin.cloneInDirection(attacker->headDirection());
 
 			if (!coversPos(headHex) && headHex.isAvailable())
 				result.insert(headHex);
@@ -105,6 +103,21 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 bool Unit::coversPos(const BattleHex & pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
+}
+
+BattleHex::EDir Unit::headDirection() const
+{
+	if(doubleWide())
+	{
+		if(unitSide() == BattleSide::ATTACKER)
+			return BattleHex::EDir::RIGHT;
+		else
+			return BattleHex::EDir::LEFT;
+	}
+	else
+	{
+		return BattleHex::EDir::NONE;
+	}
 }
 
 const BattleHexArray & Unit::getHexes() const

@@ -954,11 +954,24 @@ AssetGenerator::CanvasPtr AssetGenerator::createHeroSlotsColored(PlayerColor bac
 	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
 	img->adjustPalette(filters[backColor.getNum()], 0);
 
-	auto image = ENGINE->renderHandler().createImage(Point(260, 150), CanvasScalingPolicy::IGNORE);
+	auto image = ENGINE->renderHandler().createImage(Point(327, 216), CanvasScalingPolicy::IGNORE);
 	Canvas canvas = image->getCanvas();
 	canvas.draw(img, Point(0, 0), Rect(3, 4, 253, 107));
 	for(int i = 0; i<7; i++)
 		canvas.draw(img, Point(1 + i * 36, 108), Rect(76, 57, 35, 17));
+
+	// sec skill
+	for(int x = 0; x<2; x++)
+		for(int y = 0; y<4; y++)
+		{
+			canvas.draw(img, Point(255 + x * 36, y * (36 + 18)), Rect(3, 75, 36, 36));
+			canvas.draw(img, Point(256 + x * 36, 37 + y * (36 + 18)), Rect(76, 57, 35, 17));
+		}
+	
+	// artifacts
+	for(int x = 0; x<7; x++)
+		for(int y = 0; y<2; y++)
+			canvas.draw(img, Point(x * 36, 130 + y * 36), Rect(3, 75, 36, 36));
 
 	return image;
 }
