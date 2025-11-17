@@ -473,9 +473,19 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattle
 			if (battle.battleCanShoot(unit))
 				return true;
 
-			BattleHexArray attackableHexes;
-			battle.battleGetAvailableHexes(unit, true, false, &attackableHexes);
-			return !attackableHexes.empty();
+			auto units = battle.battleAliveUnits();
+			auto availableHexes = battle.battleGetAvailableHexes(unit, true);
+
+			for (auto otherUnit : units)
+			{
+				if (battle.battleCanAttackUnit(unit, otherUnit))
+					for (auto position : otherUnit->getHexes())
+					{
+						if (battle.battleCanAttackHex(availableHexes, unit, position))
+							return true;
+					}
+			}
+			return false;
 		};
 
 		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)

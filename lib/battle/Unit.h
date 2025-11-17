@@ -140,6 +140,9 @@ public:
 
 	bool coversPos(const BattleHex & position) const; //checks also if unit is double-wide
 
+	/// Returns the direction the double-wide unit is facing; returns NONE for single-hex units
+	BattleHex::EDir headDirection() const;
+
 	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
 	const BattleHexArray & getHexes(const BattleHex & assumedPos) const; //up to two occupied hexes, starting from front
 	static const BattleHexArray & getHexes(const BattleHex & assumedPos, bool twoHex, BattleSide side);
