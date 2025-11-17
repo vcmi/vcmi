@@ -155,6 +155,7 @@
 		"lobbyToggleChat":          "C",
 		"lobbyTurnOptions":         "T",
 		"lobbyCampaignSets":        "G",
+		"lobbyBattleMode":          "X",
 		"mainMenuBack":             [ "B", "Escape" ],
 		"mainMenuCampaign":         "C",
 		"mainMenuCampaignAb":       "A",
