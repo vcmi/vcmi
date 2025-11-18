@@ -20,7 +20,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 	// Are those used anywhere? To inspect.
 	for(const auto * const town : cc.getTownsInfo())
 	{
-		if(town->hasBuiltSomeTradeBuilding())
+		if(town->hasBuiltResourceMarketplace())
 		{
 			marketId = town->id;
 			break;

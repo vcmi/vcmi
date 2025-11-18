@@ -645,7 +645,7 @@ bool Nullkiller::handleTrading()
 	ObjectInstanceID marketId;
 	for (auto town : cb->getTownsInfo())
 	{
-		if (town->hasBuiltSomeTradeBuilding())
+		if (town->hasBuiltResourceMarketplace())
 		{
 			marketId = town->id;
 		}

@@ -250,9 +250,7 @@ void Nullkiller::invalidatePathfinderData()
 
 void Nullkiller::updateState()
 {
-#if NK2AI_TRACE_LEVEL >= 1
 	logAi->info("PERFORMANCE: AI updateState started");
-#endif
 
 	makingTurnInterruption.interruptionPoint();
 	std::unique_lock lockGuard(aiStateMutex);
@@ -309,8 +307,7 @@ void Nullkiller::updateState()
 
 	armyManager->update();
 
-#if NK2AI_TRACE_LEVEL >= 1
-	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 499)
+	if(const auto timeElapsedMs = timeElapsed(start); timeElapsedMs > 999)
 	{
 		logAi->warn("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
 	}
@@ -318,7 +315,6 @@ void Nullkiller::updateState()
 	{
 		logAi->info("PERFORMANCE: AI updateState took %ld ms", timeElapsedMs);
 	}
-#endif
 }
 
 bool Nullkiller::isHeroLocked(const CGHeroInstance * hero) const
@@ -382,14 +378,10 @@ void Nullkiller::makeTurn()
 			decompose(tasks, sptr(ExplorationBehavior()), MAX_DEPTH);
 
 		TTaskVec selectedTasks;
-#if NK2AI_TRACE_LEVEL >= 1
 		int prioOfTask = 0;
-#endif
 		for (int prio = PriorityEvaluator::PriorityTier::INSTAKILL; prio <= PriorityEvaluator::PriorityTier::MAX_PRIORITY_TIER; ++prio)
 		{
-#if NK2AI_TRACE_LEVEL >= 1
 			prioOfTask = prio;
-#endif
 			selectedTasks = buildPlan(tasks, prio);
 			if (!selectedTasks.empty() || settings->isUseFuzzy())
 				break;

@@ -1628,7 +1628,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
 						for (auto town : aiNk->cc->getTownsInfo())
 						{
-							if (!town->hasBuiltSomeTradeBuilding())
+							if (!town->hasBuiltResourceMarketplace())
 								return 0;
 						}
 					}
