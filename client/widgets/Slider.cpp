@@ -21,6 +21,8 @@
 #include "../render/Colors.h"
 #include "../render/IRenderHandler.h"
 
+#include "../../lib/CConfigHandler.h"
+
 void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
 	bool onControl = pos.isInside(cursorPosition) && !left->pos.isInside(cursorPosition) && !right->pos.isInside(cursorPosition);
@@ -293,13 +295,18 @@ void CSlider::setAmount( int to )
 	positions = to - capacity;
 	vstd::amax(positions, 0);
 
-	int track = length - 32;
-	if(to > 0)
-		barLength = (track * capacity) / to;
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		int track = length - 32;
+		if(to > 0)
+			barLength = (track * capacity) / to;
+		else
+			barLength = track;
+		vstd::amax(barLength, 16);
+		vstd::amin(barLength, track);
+	}
 	else
-		barLength = track;
-	vstd::amax(barLength, 16);
-	vstd::amin(barLength, track);
+		barLength = 16;
 
 	updateSlider();
 	updateSliderPos();
