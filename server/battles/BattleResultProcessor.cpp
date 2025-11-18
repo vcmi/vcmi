@@ -558,6 +558,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	resultsApplied.battleID = battleID;
 	resultsApplied.victor = finishingBattle->victor;
 	resultsApplied.loser = finishingBattle->loser;
+	//BattleResultsApplied does not end the battle, it only applies most of its consequences
 	gameHandler->sendAndApply(resultsApplied);
 
 	// Remove beaten hero
@@ -611,6 +612,13 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		gameHandler->statistics->accumulatedValues[finishingBattle->loser].numHeroEscaped++;
 		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
 	}
+
+	//notify all players that battle has ended after all consequences are applied
+	BattleEnded ended;
+	ended.battleID = battleID;
+	ended.victor = finishingBattle->victor;
+	ended.loser = finishingBattle->loser;
+	gameHandler->sendAndApply(ended);
 
 	//handle victory/loss of engaged players
 	gameHandler->checkVictoryLossConditions({finishingBattle->loser, finishingBattle->victor});
