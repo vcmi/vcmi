@@ -54,37 +54,7 @@ RandomMapTab::RandomMapTab():
 	
 	addCallback("toggleMapSize", [this](int btnId)
 	{
-		if(btnId == -1)
-			return;
-
-		auto mapSizeVal = getPossibleMapSizes();
-
-		auto setTemplateForSize = [this](){
-			if(mapGenOptions->getMapTemplate())
-				if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
-					setTemplate(nullptr);
-			updateMapInfoByHost();
-		};
-
-		if(btnId == mapSizeVal.size() - 1)
-		{
-			ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), [this, setTemplateForSize](int3 ret){
-				if(ret.z > 2)
-				{
-					std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
-					ENGINE->windows().pushWindow(temp);
-				}
-				mapGenOptions->setWidth(ret.x);
-				mapGenOptions->setHeight(ret.y);
-				mapGenOptions->setLevels(ret.z);
-				setTemplateForSize();
-			});
-			return;
-		}
-
-		mapGenOptions->setWidth(mapSizeVal[btnId]);
-		mapGenOptions->setHeight(mapSizeVal[btnId]);
-		setTemplateForSize();
+		onToggleMapSize(btnId);
 	});
 	addCallback("toggleTwoLevels", [&](bool on)
 	{
@@ -223,6 +193,41 @@ RandomMapTab::RandomMapTab():
 	}
 	
 	loadOptions();
+}
+
+void RandomMapTab::onToggleMapSize(int btnId)
+{
+	if(btnId == -1)
+		return;
+
+	auto mapSizeVal = getStandardMapSizes();
+
+	auto setTemplateForSize = [this](){
+		if(mapGenOptions->getMapTemplate())
+			if(!mapGenOptions->getMapTemplate()->matchesSize(int3{mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()}))
+				setTemplate(nullptr);
+		updateMapInfoByHost();
+	};
+
+	if(btnId == mapSizeVal.size() - 1)
+	{
+		ENGINE->windows().createAndPushWindow<SetSizeWindow>(int3(mapGenOptions->getWidth(), mapGenOptions->getHeight(), mapGenOptions->getLevels()), [this, setTemplateForSize](int3 ret){
+			if(ret.z > 2)
+			{
+				std::shared_ptr<CInfoWindow> temp = CInfoWindow::create(LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.experimental"), PlayerColor(0), {}); //TODO: multilevel support
+				ENGINE->windows().pushWindow(temp);
+			}
+			mapGenOptions->setWidth(ret.x);
+			mapGenOptions->setHeight(ret.y);
+			mapGenOptions->setLevels(ret.z);
+			setTemplateForSize();
+		});
+		return;
+	}
+
+	mapGenOptions->setWidth(mapSizeVal[btnId]);
+	mapGenOptions->setHeight(mapSizeVal[btnId]);
+	setTemplateForSize();
 }
 
 void RandomMapTab::updateMapInfoByHost()
@@ -372,7 +377,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 	
 	if(auto w = widget<CToggleGroup>("groupMapSize"))
 	{
-		const auto & mapSizes = getPossibleMapSizes();
+		const auto & mapSizes = getStandardMapSizes();
 		for(auto toggle : w->buttons)
 		{
 			if(auto button = std::dynamic_pointer_cast<CToggleButton>(toggle.second))
@@ -383,7 +388,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 				button->block(!sizeAllowed && !(toggle.first == mapSizes.size() - 1));
 			}
 		}
-		auto position = vstd::find_pos(getPossibleMapSizes(), opts->getWidth());
+		auto position = vstd::find_pos(getStandardMapSizes(), opts->getWidth());
 		w->setSelected(position == mapSizes.size() - 1 || opts->getWidth() != opts->getHeight() ? -1 : position);
 	}
 	if(auto w = widget<CToggleButton>("buttonTwoLevels"))
@@ -485,7 +490,7 @@ void RandomMapTab::deactivateButtonsFrom(CToggleGroup & group, const std::set<in
 	}
 }
 
-std::vector<int> RandomMapTab::getPossibleMapSizes()
+std::vector<int> RandomMapTab::getStandardMapSizes()
 {
 	return {CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_MIDDLE, CMapHeader::MAP_SIZE_LARGE, CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_HUGE, CMapHeader::MAP_SIZE_XHUGE, CMapHeader::MAP_SIZE_GIANT};
 }

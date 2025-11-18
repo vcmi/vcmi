@@ -47,7 +47,8 @@ public:
 
 private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
-	std::vector<int> getPossibleMapSizes();
+	std::vector<int> getStandardMapSizes();
+	void onToggleMapSize(int btnId);
 
 	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
