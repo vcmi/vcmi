@@ -636,6 +636,116 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 	return layout;
 }
 
+AssetGenerator::AnimationLayoutMap AssetGenerator::createSliderBar(bool brown, bool horizontal, int length)
+{
+	AnimationLayoutMap layout;
+
+	AnimationPath anim = brown ? AnimationPath::builtin("IGPCRDIV.DEF") : AnimationPath::builtin("SCNRBSL.DEF");
+
+	auto genSlider = [horizontal, length](std::shared_ptr<IImage> src, Canvas & canvas){
+		const int border = 6;
+		const int inner  = 4;
+		int pos = 0;
+
+		while (pos < length)
+		{
+			int remain = length - pos;
+			Rect c;
+
+			// FIRST segment → leading border + inner
+			if(pos == 0)
+			{
+				int w = std::min(remain, border + inner);
+				c = horizontal ? Rect(0, 0, w, 16)
+							: Rect(0, 0, 16, w);
+			}
+			// LAST segment → inner + trailing border
+			else if(remain <= border + inner)
+			{
+				int w = std::min(remain, border + inner);
+				c = horizontal ? Rect(16 - w, 0, w, 16)
+							: Rect(0, 16 - w, 16, w);
+			}
+			// MIDDLE → pure inner (no borders)
+			else
+			{
+				c = horizontal ? Rect(border, 0, inner, 16)
+							: Rect(0, border, 16, inner);
+			}
+
+			canvas.draw(src,
+						horizontal ? Point(pos,0) : Point(0,pos),
+						c);
+
+			// **Important**: advance by INNER for all but the last slice
+			if(remain > border + inner) pos += inner;
+			else break;
+		}
+	};
+
+	for(int i = 0; i < 4; i++)
+	{
+		std::string baseName = "Slider-" + std::string(brown ? "brown" : "blue") + "-" + std::string(horizontal ? "horizontal" : "vertical") + "-" + std::to_string(length) + "-" + std::to_string(i);
+		ImagePath spriteName = ImagePath::builtin(baseName + ".png");
+
+		imageFiles[spriteName] = [anim, horizontal, brown, length, i, genSlider](){
+			auto newImg = ENGINE->renderHandler().createImage(Point(horizontal ? length : 16, horizontal ? 16 : length), CanvasScalingPolicy::IGNORE);
+			auto canvas = newImg->getCanvas();
+			switch(i)
+			{
+			case 0:
+				{
+					auto src = ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 0);
+					genSlider(src, canvas);
+					return newImg;
+				}
+			case 1:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					auto srcImg = ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 1);
+
+					tmpCanvas.drawColor(Rect(Point(0, 0), tmpImg->dimensions()), Colors::BLACK);
+					if(brown)
+					{
+						
+						tmpCanvas.draw(srcImg, Point(1, 1));
+						tmpCanvas.drawColorBlended(Rect(0, 0, tmpImg->width(), 3), ColorRGBA(0, 0, 0, 160));
+						tmpCanvas.drawColorBlended(Rect(0, 0, 3, tmpImg->height()), ColorRGBA(0, 0, 0, 160));
+					}
+					else
+						tmpCanvas.draw(srcImg, Point(0, 0));
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			case 2:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					tmpCanvas.draw(ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 2), Point(0, 0));
+					// TODO: generate disabled brown slider (not used yet, but filling with dummy avoids warning)
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			default:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					tmpCanvas.draw(ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 3), Point(0, 0));
+					if(brown)
+						tmpCanvas.drawBorder(Rect(Point(0, 0), tmpImg->dimensions()), Colors::WHITE, 1);
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			}
+		};
+
+		layout[0].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+	}
+
+	return layout;
+}
+
 AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmount) const
 {
 	Point size(438, 187);

@@ -18,6 +18,14 @@ class CButton;
 /// A typical slider which can be orientated horizontally/vertically.
 class CSlider : public Scrollable
 {
+public:
+	enum EStyle
+	{
+		BROWN,
+		BLUE
+	};
+
+private:
 	//if vertical then left=up
 	std::shared_ptr<CButton> left;
 	std::shared_ptr<CButton> right;
@@ -33,20 +41,21 @@ class CSlider : public Scrollable
 	int amount;
 	/// topmost vislble (first active) element
 	int value;
+	/// length of slider
+	int length;
+	/// length of slider button
+	int barLength;
+	/// color of slider
+	EStyle style;
 
 	CFunctionList<void(int)> moved;
 
 	void updateSliderPos();
+	void updateSlider();
 
 	double getClickPos(const Point & cursorPosition);
 
 public:
-	enum EStyle
-	{
-		BROWN,
-		BLUE
-	};
-
 	void block(bool on);
 
 	/// If set, mouse scroll will only scroll slider when inside of this area
