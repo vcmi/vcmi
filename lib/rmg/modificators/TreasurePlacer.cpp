@@ -108,8 +108,19 @@ void TreasurePlacer::addAllPossibleObjects()
 
 void TreasurePlacer::addCommonObjects()
 {
+	//objects with these IDs are added elsewhere, see addAllPossibleObjects()
+	std::set<MapObjectID> excludedIDs = {
+		Obj::PRISON,
+		Obj::CREATURE_GENERATOR1,
+		Obj::CREATURE_GENERATOR4,
+		Obj::SPELL_SCROLL,
+		Obj::PANDORAS_BOX,
+		Obj::SEER_HUT
+	};
 	for(auto primaryID : LIBRARY->objtypeh->knownObjects())
 	{
+		if(excludedIDs.find(primaryID) != excludedIDs.end())
+			continue;
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
 			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
@@ -241,9 +252,22 @@ void TreasurePlacer::addDwellings()
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
-				oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
-				oi.probability = 40;
-				
+				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->getRMGInfo();
+				//rmg info set for dwelling
+				if(rmgInfo.value)
+				{
+					if (rmgInfo.value > zone.getMaxTreasureValue())
+						continue;
+					oi.value = rmgInfo.value;
+					oi.probability = rmgInfo.rarity;
+					if (rmgInfo.zoneLimit != std::numeric_limits<ui32>::max())
+						oi.maxPerZone = rmgInfo.zoneLimit;
+				}
+				else
+				{
+					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
+					oi.probability = 40;
+				}
 				oi.generateObject = [this, secondaryID, dwellingType]() -> std::shared_ptr<CGObjectInstance>
 				{
 					auto obj = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(map.mapInstance->cb, nullptr);
