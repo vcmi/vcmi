@@ -1427,7 +1427,14 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
 		}
 	}
+}
 
+void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)
+{
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
 	assert(battleIter != gs.currentBattles.end());
 	gs.currentBattles.erase(battleIter);
 }

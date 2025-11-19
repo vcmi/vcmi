@@ -616,90 +616,168 @@ BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const ReachabilityIn
 	return ret;
 }
 
-BattleHexArray CBattleInfoCallback::battleGetAvailableHexes(const battle::Unit * unit, bool obtainMovementRange, bool addOccupiable, BattleHexArray * attackable) const
+BattleHexArray CBattleInfoCallback::battleGetOccupiableHexes(const battle::Unit * unit, bool obtainMovementRange) const
 {
-	BattleHexArray ret = battleGetAvailableHexes(unit, obtainMovementRange);
+	return battleGetOccupiableHexes(battleGetAvailableHexes(unit, obtainMovementRange), unit);
+}
 
-	if(ret.empty())
-		return ret;
+BattleHexArray CBattleInfoCallback::battleGetOccupiableHexes(const BattleHexArray & availableHexes, const battle::Unit * unit) const
+{
+	RETURN_IF_NOT_BATTLE(BattleHexArray());
+	if (!unit)
+		throw std::runtime_error("Undefined unit in battleGetOccupiableHexes!");
 
-	if(addOccupiable && unit->doubleWide())
-	{
-		BattleHexArray occupiable;
-
-		for(const auto & hex : ret)
-			occupiable.insert(unit->occupiedHex(hex));
-
-		ret.insert(occupiable);
+	if (unit->doubleWide())
+	{ 
+		auto occupiableHexes = BattleHexArray(availableHexes);
+		for (auto hex : availableHexes)
+			occupiableHexes.insert(unit->occupiedHex(hex));
+		return occupiableHexes;
 	}
+	return availableHexes;
+}
 
+BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const
+{
+	RETURN_IF_NOT_BATTLE(BattleHex::INVALID);
+	if (!attacker)
+		throw std::runtime_error("Undefined attacker in fromWhichHexAttack!");
 
-	if(attackable)
+	if (!target.isValid() || direction == BattleHex::NONE)
+		return BattleHex::INVALID;
+
+	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
+	if (attacker->doubleWide())
 	{
-		auto meleeAttackable = [&](const BattleHex & hex) -> bool
+		// We need to find position of right hex of double-hex creature (or left for defending side)
+		// | TOP_LEFT | TOP_RIGHT |  RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT   |  TOP   | BOTTOM
+		// |  o o -   |    - o o  |  - -    |   - -      |    - -    |    - -  |  o o   |   - -
+		// |   - x -  |   - x -   | - x o o |  - x -     |   - x -   | o o x - | - x -  |  - x -
+		// |    - -   |    - -    |  - -    |   - o o    |  o o -    |    - -  |  - -   |   o o
+
+		switch (direction)
 		{
-			// Return true if given hex has at least one available neighbour.
-			// Available hexes are already present in ret vector.
-			auto availableNeighbour = boost::find_if(ret, [=] (const BattleHex & availableHex)
-			{
-				return BattleHex::mutualPosition(hex, availableHex) >= 0;
-			});
-			return availableNeighbour != ret.end();
-		};
-		for(const auto * otherSt : battleAliveUnits(otherSide(unit->unitSide())))
+			case BattleHex::TOP_LEFT:
+			case BattleHex::LEFT:
+			case BattleHex::BOTTOM_LEFT:
+				return target.cloneInDirection(direction, false)
+					.cloneInDirection(isAttacker ? BattleHex::NONE : BattleHex::LEFT, false);
+
+			case BattleHex::TOP_RIGHT:
+			case BattleHex::RIGHT:
+			case BattleHex::BOTTOM_RIGHT:
+				return target.cloneInDirection(direction, false)
+					.cloneInDirection(isAttacker ? BattleHex::RIGHT : BattleHex::NONE, false);
+
+			case BattleHex::TOP:
+				return target.cloneInDirection(isAttacker ? BattleHex::TOP_RIGHT : BattleHex::TOP_LEFT, false);
+
+			case BattleHex::BOTTOM:
+				return target.cloneInDirection(isAttacker ? BattleHex::BOTTOM_RIGHT : BattleHex::BOTTOM_LEFT, false);
+
+			default:
+				return BattleHex::INVALID;
+		}
+	}
+	if (direction == BattleHex::TOP || direction == BattleHex::BOTTOM)
+		return BattleHex::INVALID;
+	return target.cloneInDirection(direction, false);
+}
+
+BattleHex CBattleInfoCallback::toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const
+{
+	return toWhichHexMove(battleGetAvailableHexes(unit, false), unit, position);
+}
+
+BattleHex CBattleInfoCallback::toWhichHexMove(const BattleHexArray & availableHexes, const battle::Unit * unit, const BattleHex & position) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if (!unit)
+		throw std::runtime_error("Undefined unit in toWhichHexMove!");
+	if (!position.isValid())
+		return BattleHex::INVALID;
+
+	if (availableHexes.contains(position))
+		return position;
+	if (unit->doubleWide())
+	{
+		auto headPosition = position.cloneInDirection(unit->headDirection(), false);
+		if (availableHexes.contains(headPosition))
+			return headPosition;
+	}
+	return BattleHex::INVALID;
+}
+
+bool CBattleInfoCallback::battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position) const
+{
+	return battleCanAttackHex(battleGetAvailableHexes(attacker, false), attacker, position);
+}
+
+bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position) const
+{
+	for (auto direction = 0; direction < 8; direction++)
+	{
+		if (battleCanAttackHex(availableHexes, attacker, position, BattleHex::EDir(direction)))
+			return true;
+	}
+	return false;
+}
+
+bool CBattleInfoCallback::battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const
+{
+	return battleCanAttackHex(battleGetAvailableHexes(attacker, false), attacker, position, direction);
+}
+
+bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const
+{
+	RETURN_IF_NOT_BATTLE(false);
+
+	if (!attacker)
+		throw std::runtime_error("Undefined attacker in battleCanAttackHex!");
+
+	if (!position.isValid() || direction == BattleHex::NONE)
+		return false;
+
+	BattleHex fromHex = fromWhichHexAttack(attacker, position, direction);
+
+	//check if the attack is performed from an available hex
+	if (!fromHex.isValid() || !availableHexes.contains(fromHex))
+		return false;
+
+	//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
+	if (attacker->getPosition() != fromHex)
+	{
+		for (const auto & obstacle : battleGetAllObstacles())
 		{
-			if(!otherSt->isValidTarget(false))
-				continue;
-
-			const BattleHexArray & occupied = otherSt->getHexes();
-
-			if(battleCanShoot(unit, otherSt->getPosition()))
-			{
-				attackable->insert(occupied);
-				continue;
-			}
-
-			for(const BattleHex & he : occupied)
-			{
-				if(meleeAttackable(he))
-					attackable->insert(he);
-			}
+			if (obstacle->getStoppingTile().contains(fromHex))
+				return false;
+			if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
+				return false;
 		}
 	}
 
-	return ret;
+	return true;
 }
 
-bool CBattleInfoCallback::battleCanAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & dest) const
+bool CBattleInfoCallback::battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 
 	if(battleTacticDist())
 		return false;
 
-	if (!stack || !target)
+	if (!attacker)
+		throw std::runtime_error("Undefined attacker in battleCanAttackUnit!");
+
+	if(!target || target->isInvincible())
 		return false;
 
-	if(target->isInvincible())
+	if(attacker == target || !battleMatchOwner(attacker, target))
 		return false;
 
-	if(!battleMatchOwner(stack, target))
+	if (!attacker->isMeleeAttacker())
 		return false;
-
-	if (!stack->isMeleeAttacker())
-		return false;
-
-	if (stack->getPosition() != dest)
-	{
-		for (const auto & obstacle : battleGetAllObstacles())
-		{
-			if (obstacle->getStoppingTile().contains(dest))
-				return false;
-
-			if (stack->doubleWide() && obstacle->getStoppingTile().contains(stack->occupiedHex(dest)))
-				return false;
-		}
-	}
 
 	return target->alive();
 }

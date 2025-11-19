@@ -113,6 +113,7 @@ public:
 	virtual void visitSetStackEffect(SetStackEffect & pack) {}
 	virtual void visitStacksInjured(StacksInjured & pack) {}
 	virtual void visitBattleResultsApplied(BattleResultsApplied & pack) {}
+	virtual void visitBattleEnded(BattleEnded & pack) {}
 	virtual void visitBattleObstaclesChanged(BattleObstaclesChanged & pack) {}
 	virtual void visitBattleSetStackProperty(BattleSetStackProperty & pack) {}
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}

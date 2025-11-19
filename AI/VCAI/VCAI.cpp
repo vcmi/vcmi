@@ -552,6 +552,13 @@ void VCAI::battleResultsApplied()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ENDING_BATTLE);
+}
+
+void VCAI::battleEnded()
+{
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
 }
 

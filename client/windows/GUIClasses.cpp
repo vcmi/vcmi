@@ -1535,9 +1535,12 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	index(_id)
 {
 	OBJECT_CONSTRUCTION;
-	auto imgIndex = parent->itemsVisible[index].first;
-	if(parent->images.size() > index && parent->images[imgIndex])
-		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1, 1));
+
+	auto it = std::find(parent->items.begin(), parent->items.end(), parent->itemsVisible[index]);
+	int imgIndex = (it != parent->items.end()) ? std::distance(parent->items.begin(), it) : -1;
+	if(imgIndex >= 0 && imgIndex < parent->images.size() && parent->images[imgIndex])
+		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1,1));
+
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 

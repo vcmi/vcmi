@@ -12,7 +12,7 @@
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
-#include "BattleOnlyMode.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
@@ -244,9 +244,10 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		if(tabType == ESelectionScreen::newGame)
 		{
-			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [tabTitle, tabTitleDelete](){
-				BattleOnlyMode::openBattleWindow();
-			});
+			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [this](){
+				auto lobby = static_cast<CLobbyScreen *>(parent);
+				lobby->toggleTab(lobby->tabBattleOnlyMode);
+			}, EShortcut::LOBBY_BATTLE_MODE);
 		}
 
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)

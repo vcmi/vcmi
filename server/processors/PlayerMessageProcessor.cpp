@@ -736,6 +736,34 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 	gameHandler->changeSecSkill(hero, skill, mastery, ChangeValueMode::ABSOLUTE);
 }
 
+void PlayerMessageProcessor::cheatTeleport(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)
+{
+	if (!hero)
+		return;
+
+	int3 pos;
+	try
+	{
+		pos.x = std::stoi(words.at(0));
+		pos.y = std::stoi(words.at(1));
+		pos.z = words.size() > 2 ? std::stoi(words.at(2)) : hero->pos.z;
+	}
+	catch(std::logic_error&)
+	{
+		return;
+	}
+
+	if(!gameHandler->gameState().getMap().isInTheMap(pos))
+		return;
+
+	auto destTile = gameHandler->gameState().getMap().getTile(pos);
+	auto heroTile = gameHandler->gameState().getMap().getTile(hero->pos);
+	if(!destTile.isClear(&heroTile))
+		return;
+
+	gameHandler->moveHero(hero->id, pos, EMovementMode::DIMENSION_DOOR);
+}
+
 bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerColor player, ObjectInstanceID currObj)
 {
 	std::vector<std::string> words;
@@ -779,7 +807,8 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 		                           "vcmimorale",      "nwcmorpheus",                                   "nwcmuchrejoicing",
 		                           "vcmigod",         "nwctheone",
 		                           "vcmiscrolls",
-		                           "vcmiskill"
+		                           "vcmiskill",
+		                           "vcmiteleport"
 	};
 
 	if(vstd::contains(localCheats, cheatName))
@@ -874,6 +903,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 	};
 	const auto & doCheatColorSchemeChange = [&](ColorScheme filter) { cheatColorSchemeChange(player, filter); };
 	const auto & doCheatSkill = [&]() { cheatSkill(player, hero, words); };
+	const auto & doCheatTeleport = [&]() { cheatTeleport(player, hero, words); };
 
 	std::map<std::string, std::function<void()>> callbacks = {
 		{"vcmiainur",               [&] () {doCheatGiveArmyFixed({ "archangel", "5" });}        },
@@ -957,6 +987,7 @@ void PlayerMessageProcessor::executeCheatCode(const std::string & cheatName, Pla
 		{"nwcphisherprice",         [&] () {doCheatColorSchemeChange(ColorScheme::H2_SCHEME);}  },
 		{"vcmigray",                [&] () {doCheatColorSchemeChange(ColorScheme::GRAYSCALE);}  },
 		{"vcmiskill",               doCheatSkill                                                },
+		{"vcmiteleport",            doCheatTeleport                                             },
 	};
 
 	assert(callbacks.count(cheatName));

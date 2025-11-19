@@ -1,5 +1,5 @@
 /*
- * BattleOnlyMode.h, part of VCMI engine
+ * BattleOnlyModeTab.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,6 +11,7 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/constants/EntityIdentifiers.h"
+#include "../../lib/mapping/CMap.h"
 
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -25,27 +26,32 @@ class FilledTexturePlayerColored;
 class CButton;
 class CPicture;
 class CLabel;
-class BattleOnlyModeWindow;
+class CMultiLineLabel;
+class BattleOnlyModeTab;
 class CAnimImage;
 class GraphicalPrimitiveCanvas;
 class CTextInput;
 class TransparentFilledRectangle;
-
-class BattleOnlyMode
-{
-public:
-	static void openBattleWindow();
-};
+class CToggleButton;
 
 class BattleOnlyModeHeroSelector : public CIntObject
 {
 private:
-	BattleOnlyModeWindow& parent;
+	BattleOnlyModeTab& parent;
 
 	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CPicture> heroImage;
 	std::shared_ptr<CLabel> heroLabel;
 	std::vector<std::shared_ptr<CPicture>> creatureImage;
+	std::vector<std::shared_ptr<CPicture>> secSkillImage;
+	std::vector<std::shared_ptr<CPicture>> artifactImage;
+
+	std::vector<std::shared_ptr<CPicture>> addIcon;
+
+	void selectHero();
+	void selectCreature(int slot);
+	void selectSecSkill(int slot);
+	void selectArtifact(int slot, ArtifactID artifactId);
 
 	int id;
 public:
@@ -54,13 +60,20 @@ public:
 	std::vector<std::shared_ptr<CTextInput>> primSkillsInput;
 
 	std::vector<std::shared_ptr<CTextInput>> selectedArmyInput;
+	std::vector<std::shared_ptr<CTextInput>> selectedSecSkillInput;
+
+	std::shared_ptr<CToggleButton> spellBook;
+	std::shared_ptr<CToggleButton> warMachines;
 
 	void setHeroIcon();
 	void setCreatureIcons();
-	BattleOnlyModeHeroSelector(int id, BattleOnlyModeWindow& parent, Point position);
+	void setSecSkillIcons();
+	void setArtifactIcons();
+	void manageSpells();
+	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& parent, Point position);
 };
 
-class BattleOnlyModeWindow : public CWindowObject
+class BattleOnlyModeTab : public CIntObject
 {
 	friend class BattleOnlyModeHeroSelector;
 private:
@@ -68,10 +81,9 @@ private:
 	std::unique_ptr<CMap> map;
 	std::shared_ptr<EditorCallback> cb;
 
-	std::shared_ptr<FilledTexturePlayerColored> backgroundTexture;
-	std::shared_ptr<CButton> buttonOk;
-	std::shared_ptr<CButton> buttonAbort;
+	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CLabel> title;
+	std::shared_ptr<CMultiLineLabel> subTitle;
 
 	std::shared_ptr<CButton> battlefieldSelector;
 	std::shared_ptr<CButton> buttonReset;
@@ -79,14 +91,18 @@ private:
 	std::shared_ptr<BattleOnlyModeHeroSelector> heroSelector2;
 
 	ColorRGBA disabledColor;
+	ColorRGBA boxColor;
+	ColorRGBA disabledBoxColor;
 
 	void init();
 	void onChange();
 	void update();
 	void setTerrainButtonText();
-	void setOkButtonEnabled();
-	void startBattle();
+	void selectTerrain();
+	void reset();
 public:
-	BattleOnlyModeWindow();
+	BattleOnlyModeTab();
 	void applyStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> si);
+	void startBattle();
+	void setStartButtonEnabled();
 };

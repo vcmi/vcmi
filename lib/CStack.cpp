@@ -107,21 +107,6 @@ si32 CStack::magicResistance() const
 	return static_cast<si32>(100 - castChance);
 }
 
-BattleHex::EDir CStack::destShiftDir() const
-{
-	if(doubleWide())
-	{
-		if(side == BattleSide::ATTACKER)
-			return BattleHex::EDir::RIGHT;
-		else
-			return BattleHex::EDir::LEFT;
-	}
-	else
-	{
-		return BattleHex::EDir::NONE;
-	}
-}
-
 std::vector<SpellID> CStack::activeSpells() const
 {
 	std::vector<SpellID> ret;

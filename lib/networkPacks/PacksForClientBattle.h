@@ -415,6 +415,22 @@ struct DLL_LINKAGE BattleResultsApplied : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE BattleEnded : public CPackForClient
+{
+	BattleID battleID = BattleID::NONE;
+	PlayerColor victor;
+	PlayerColor loser;
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & battleID;
+		h & victor;
+		h & loser;
+		assert(battleID != BattleID::NONE);
+	}
+};
+
 struct DLL_LINKAGE BattleObstaclesChanged : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;

@@ -52,7 +52,7 @@ set(vcmiclientcommon_SRCS
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
-	lobby/BattleOnlyMode.cpp
+	lobby/BattleOnlyModeTab.cpp
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
 	lobby/CLobbyScreen.cpp
@@ -263,7 +263,7 @@ set(vcmiclientcommon_HEADERS
 	gui/TextAlignment.h
 	gui/WindowHandler.h
 
-	lobby/BattleOnlyMode.h
+	lobby/BattleOnlyModeTab.h
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
 	lobby/CLobbyScreen.h

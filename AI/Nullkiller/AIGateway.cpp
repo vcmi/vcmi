@@ -485,6 +485,13 @@ void AIGateway::battleResultsApplied()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ENDING_BATTLE);
+}
+
+void AIGateway::battleEnded()
+{
+	LOG_TRACE(logAi);
+	NET_EVENT_HANDLER;
+	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
 }
 

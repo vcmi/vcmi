@@ -483,6 +483,11 @@ void BattleResultsApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBattleResultsApplied(*this);
 }
 
+void BattleEnded::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleEnded(*this);
+}
+
 void BattleObstaclesChanged::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBattleObstaclesChanged(*this);
