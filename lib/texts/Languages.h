@@ -105,7 +105,7 @@ inline const auto & getLanguageList()
 		{ "korean",      "Korean",      "한국어",        "CP949",       "ko_KR", "ko", "kor", "%Y-%m-%d %H:%M",    EPluralForms::VI_1, true },
 		{ "polish",      "Polish",      "Polski",       "CP1250",      "pl_PL", "pl", "pol", "%d.%m.%Y %H:%M",    EPluralForms::PL_3, true },
 		{ "portuguese",  "Portuguese",  "Português",    "CP1252",      "pt_BR", "pt", "por", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true }, // Note: actually Brazilian Portuguese
-		{ "romanian",    "Romanian",    "Română",       "ISO-8859-16", "ro_RO", "ro", "rum", "%Y-%m-%d %H:%M",    EPluralForms::RO_3, true },
+		{ "romanian",    "Romanian",    "Română",       "CP1252",      "ro_RO", "ro", "rum", "%Y-%m-%d %H:%M",    EPluralForms::RO_3, true }, // Note: codepage is ISO-8859-16, but doesn't work with MSVC -> using CP1252 because there is also no known official/fan translation for OH3
 		{ "russian",     "Russian",     "Русский",      "CP1251",      "ru_RU", "ru", "rus", "%d.%m.%Y %H:%M",    EPluralForms::UK_3, true },
 		{ "spanish",     "Spanish",     "Español",      "CP1252",      "es_ES", "es", "spa", "%d/%m/%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "swedish",     "Swedish",     "Svenska",      "CP1252",      "sv_SE", "sv", "swe", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true },
