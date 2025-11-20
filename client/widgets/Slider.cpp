@@ -16,8 +16,12 @@
 #include "../gui/MouseButton.h"
 #include "../gui/Shortcut.h"
 #include "../GameEngine.h"
+#include "../render/AssetGenerator.h"
 #include "../render/Canvas.h"
 #include "../render/Colors.h"
+#include "../render/IRenderHandler.h"
+
+#include "../../lib/CConfigHandler.h"
 
 void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance)
 {
@@ -31,15 +35,15 @@ void CSlider::mouseDragged(const Point & cursorPosition, const Point & lastUpdat
 	double newPosition = 0;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
-		newPosition = cursorPosition.x - pos.x - 24;
+		newPosition = cursorPosition.x - pos.x - 16 - (barLength / 2);
 		newPosition *= positions;
-		newPosition /= (pos.w - 48);
+		newPosition /= (pos.w - 32 - barLength);
 	}
 	else
 	{
-		newPosition = cursorPosition.y - pos.y - 24;
+		newPosition = cursorPosition.y - pos.y - 16 - (barLength / 2);
 		newPosition *= positions;
-		newPosition /= (pos.h - 48);
+		newPosition /= (pos.h - 32 - barLength);
 	}
 
 	int positionInteger = std::round(newPosition);
@@ -99,7 +103,7 @@ void CSlider::updateSliderPos()
 		if(positions)
 		{
 			double part = static_cast<double>(value) / positions;
-			part*=(pos.w-48);
+			part*=(pos.w-32-barLength);
 			int newPos = static_cast<int>(part + pos.x + 16 - slider->pos.x);
 			slider->moveBy(Point(newPos, 0));
 		}
@@ -111,7 +115,7 @@ void CSlider::updateSliderPos()
 		if(positions)
 		{
 			double part = static_cast<double>(value) / positions;
-			part*=(pos.h-48);
+			part*=(pos.h-32-barLength);
 			int newPos = static_cast<int>(part + pos.y + 16 - slider->pos.y);
 			slider->moveBy(Point(0, newPos));
 		}
@@ -140,16 +144,20 @@ double CSlider::getClickPos(const Point & cursorPosition)
 {
 	double pw = 0;
 	double rw = 0;
+	bool inside = cursorPosition.x >= pos.x && cursorPosition.x <= pos.x + pos.w && cursorPosition.y >= pos.y && cursorPosition.y <= pos.y + pos.h;
 	if(getOrientation() == Orientation::HORIZONTAL)
 	{
-		pw = cursorPosition.x-pos.x-25;
-		rw = pw / static_cast<double>(pos.w - 48);
+		pw = cursorPosition.x-pos.x-16-(barLength/2);
+		rw = pw / static_cast<double>(pos.w - 32 - barLength);
 	}
 	else
 	{
-		pw = cursorPosition.y-pos.y-24;
-		rw = pw / (pos.h-48);
+		pw = cursorPosition.y-pos.y-16-(barLength/2);
+		rw = pw / (pos.h - 32 - barLength);
 	}
+
+	if (inside)
+		rw = std::clamp(rw, 0.0, 1.0);
 
 	return rw;
 }
@@ -196,12 +204,14 @@ bool CSlider::receiveEvent(const Point &position, int eventType) const
 	return testTarget.isInside(position);
 }
 
-CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle style)
+CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, int Capacity, int Amount, int Value, Orientation orientation, CSlider::EStyle Style)
 	: Scrollable(LCLICK | DRAG, position, orientation ),
 	capacity(Capacity),
 	amount(Amount),
 	value(Value),
-	moved(Moved)
+	moved(Moved),
+	length(totalw),
+	style(Style)
 {
 	OBJECT_CONSTRUCTION;
 	setAmount(amount);
@@ -215,22 +225,19 @@ CSlider::CSlider(Point position, int totalw, const SliderMovingFunctor & Moved, 
 
 		left = std::make_shared<CButton>(Point(), name, CButton::tooltip());
 		right = std::make_shared<CButton>(Point(), name, CButton::tooltip());
-		slider = std::make_shared<CButton>(Point(), name, CButton::tooltip());
 
 		left->setImageOrder(0, 1, 1, 1);
 		right->setImageOrder(2, 3, 3, 3);
-		slider->setImageOrder(4, 4, 4, 4);
 	}
 	else
 	{
 		left = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBLF.DEF" : "SCNRBUP.DEF"), CButton::tooltip());
 		right = std::make_shared<CButton>(Point(), AnimationPath::builtin(getOrientation() == Orientation::HORIZONTAL ? "SCNRBRT.DEF" : "SCNRBDN.DEF"), CButton::tooltip());
-		slider = std::make_shared<CButton>(Point(), AnimationPath::builtin("SCNRBSL.DEF"), CButton::tooltip());
 	}
-	slider->setActOnDown(true);
-	slider->setSoundDisabled(true);
 	left->setSoundDisabled(true);
 	right->setSoundDisabled(true);
+
+	updateSlider();
 
 	if (getOrientation() == Orientation::HORIZONTAL)
 		right->moveBy(Point(totalw - right->pos.w, 0));
@@ -267,11 +274,42 @@ void CSlider::block( bool on )
 	slider->block(on);
 }
 
+void CSlider::updateSlider()
+{
+	OBJECT_CONSTRUCTION;
+
+	auto assetGenerator = ENGINE->renderHandler().getAssetGenerator();
+	auto layout = assetGenerator->createSliderBar(style == BROWN, getOrientation() == Orientation::HORIZONTAL, barLength);
+	std::string sliderName = "Slider-" + std::string(style == BROWN ? "brown" : "blue") + "-" + std::string(getOrientation() == Orientation::HORIZONTAL ? "horizontal" : "vertical") + "-" + std::to_string(barLength);
+	assetGenerator->addAnimationFile(AnimationPath::builtin("SPRITES/" + sliderName), layout);
+	ENGINE->renderHandler().updateGeneratedAssets();
+
+	slider = std::make_shared<CButton>(Point(), AnimationPath::builtin(sliderName), CButton::tooltip());
+	slider->setActOnDown(true);
+	slider->setSoundDisabled(true);
+}
+
 void CSlider::setAmount( int to )
 {
 	amount = to;
 	positions = to - capacity;
 	vstd::amax(positions, 0);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+		int track = length - 32;
+		if(to > 0)
+			barLength = (track * capacity) / to;
+		else
+			barLength = track;
+		vstd::amax(barLength, 16);
+		vstd::amin(barLength, track);
+	}
+	else
+		barLength = 16;
+
+	updateSlider();
+	updateSliderPos();
 }
 
 void CSlider::showAll(Canvas & to)

@@ -36,6 +36,7 @@ public:
 	void addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim);
 
 	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay, bool small);
+	AnimationLayoutMap createSliderBar(bool brown, bool horizontal, int length);
 
 private:
 	struct PaletteAnimation
