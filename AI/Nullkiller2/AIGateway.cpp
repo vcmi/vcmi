@@ -411,15 +411,13 @@ void AIGateway::battleResultsApplied()
 {
 	LOG_TRACE(logAi);
 	assert(status.getBattle() == ENDING_BATTLE);
-	status.setBattle(NO_BATTLE);
 }
 
 void AIGateway::battleEnded()
 {
-	// TODO: Mircea: Mirroring what was just added for NK1 doesn't work, crashes the game when NK2 fights during computer turns
-	// LOG_TRACE(logAi);
-	// assert(status.getBattle() == ENDING_BATTLE);
-	// status.setBattle(NO_BATTLE);
+	LOG_TRACE(logAi);
+	assert(status.getBattle() == ENDING_BATTLE);
+	status.setBattle(NO_BATTLE);
 }
 
 void AIGateway::beforeObjectPropertyChanged(const SetObjectProperty * sop)
