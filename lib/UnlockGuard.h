@@ -21,6 +21,8 @@ namespace vstd
 		protected:
 			void unlock(Mutex &m)
 			{
+				if (m.try_lock())
+					logGlobal->error("Failed to unlock mutex - it was not locked");
 				m.unlock();
 			}
 			void lock(Mutex &m)
@@ -35,6 +37,8 @@ namespace vstd
 		protected:
 			void unlock(Mutex &m)
 			{
+				if (m.try_lock_shared())
+					logGlobal->error("Failed to unlock shared mutex - it was not locked");
 				m.unlock_shared();
 			}
 			void lock(Mutex &m)
