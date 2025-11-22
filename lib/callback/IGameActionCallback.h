@@ -76,6 +76,7 @@ public:
 	virtual void sendMessage(const std::string &mess, const CGObjectInstance * currentObject = nullptr) = 0;
 	virtual void gamePause(bool pause) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
+	virtual void requestStatistic() = 0;
 
 	// To implement high-level army management bulk actions
 	virtual int bulkMoveArmy(ObjectInstanceID srcArmy, ObjectInstanceID destArmy, SlotID srcSlot) = 0;

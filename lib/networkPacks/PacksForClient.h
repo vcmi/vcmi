@@ -1523,4 +1523,18 @@ struct DLL_LINKAGE CenterView : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE ResponseStatistic : public CPackForClient
+{
+	PlayerColor player;
+	StatisticDataSet statistic;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & player;
+		h & statistic;
+	}
+};
+
 VCMI_LIB_NAMESPACE_END

@@ -37,6 +37,7 @@
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CHighScoreScreen.h"
+#include "mainmenu/CStatisticScreen.h"
 
 #include "mapView/mapHandler.h"
 
@@ -1846,4 +1847,9 @@ void CPlayerInterface::unregisterBattleInterface(std::shared_ptr<CBattleGameInte
 	assert(battleEvents == autofightingAI);
 	GAME->server().client->unregisterBattleInterface(autofightingAI, playerID);
 	autofightingAI.reset();
+}
+
+void CPlayerInterface::responseStatistic(StatisticDataSet & statistic)
+{
+	ENGINE->windows().createAndPushWindow<CStatisticScreen>(statistic);
 }

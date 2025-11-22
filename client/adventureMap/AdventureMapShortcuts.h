@@ -43,6 +43,7 @@ class AdventureMapShortcuts
 	void worldViewScale1x();
 	void worldViewScale2x();
 	void worldViewScale4x();
+	void viewStatistic();
 	void switchMapLevel();
 	void showQuestlog();
 	void toggleTrackHero();
@@ -103,6 +104,7 @@ public:
 	bool optionMarketplace();
 	bool optionHeroBoat(EPathfindingLayer layer);
 	bool optionHeroDig();
+	bool optionViewStatistic();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;

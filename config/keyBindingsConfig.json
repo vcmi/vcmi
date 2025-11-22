@@ -44,6 +44,7 @@
 		"adventureViewPuzzle":      "P",
 		"adventureViewScenario":    "I",
 		"adventureViewSelected":    [ "Return", "Keypad Enter"],
+		"adventureViewStatistic":   "J",
 		"adventureViewWorld":       "V",
 		"adventureViewWorld1":      "1",
 		"adventureViewWorld2":      "2",

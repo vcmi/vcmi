@@ -441,6 +441,13 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 	result = s->adventureCast(gh.spellEnv.get(), p);
 }
 
+void ApplyGhNetPackVisitor::visitRequestStatistic(RequestStatistic & pack)
+{
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.responseStatistic(pack.player);
+}
+
 void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)
 {
 	if(!pack.player.isSpectator()) // TODO: clearly not a great way to verify permissions

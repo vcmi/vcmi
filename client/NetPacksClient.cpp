@@ -1098,3 +1098,8 @@ void ApplyClientNetPackVisitor::visitChangeTownName(ChangeTownName & pack)
 		ENGINE->windows().totalRedraw();
 	}
 }
+
+void ApplyClientNetPackVisitor::visitResponseStatistic(ResponseStatistic & pack)
+{
+	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::responseStatistic, pack.statistic);
+}

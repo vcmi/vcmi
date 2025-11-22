@@ -102,6 +102,7 @@ private:
 	//void visitBattleResultsApplied(BattleResultsApplied & pack) override;
 	//void visitBattleResultAccepted(BattleResultAccepted & pack) override;
 	//void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
+	//void visitResponseStatistic(ResponseStatistic & pack) override;
 
 public:
 	PackRollbackGeneratorVisitor(const CGameState & gs)

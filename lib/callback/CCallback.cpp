@@ -392,6 +392,12 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 	sendRequest(cas);
 }
 
+void CCallback::requestStatistic()
+{
+	RequestStatistic sr;
+	sendRequest(sr);
+}
+
 int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
 {
 	if(s1->getCreature(p1) == s2->getCreature(p2))

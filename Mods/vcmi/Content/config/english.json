@@ -349,6 +349,7 @@
 	"vcmi.keyBindings.keyBinding.adventureViewPuzzle": "Adventure view puzzle",
 	"vcmi.keyBindings.keyBinding.adventureViewScenario": "Adventure view scenario",
 	"vcmi.keyBindings.keyBinding.adventureViewSelected": "Adventure view selected",
+	"vcmi.keyBindings.keyBinding.adventureViewStatistic": "Adventure view statistic",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld": "Adventure view world",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld1": "Adventure view world1",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld2": "Adventure view world2",
