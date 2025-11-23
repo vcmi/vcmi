@@ -220,6 +220,6 @@ The scenarios should be named as in `"map"` field from header. Subfolders are al
 
 ## Compatibility table
 
-| Version | Min VCMI | Max VCMI | Description |
-|---------|----------|----------|-------------|
+| Version | Min VCMI | Max VCMI | Description     |
+|---------|----------|----------|-----------------|
 | 1       | 1.3      |          | Initial release |
