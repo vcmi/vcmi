@@ -111,17 +111,16 @@ TurnTimerInfo CGameInfoCallback::getPlayerTurnTime(PlayerColor color) const
 /*                                                                      */
 /************************************************************************/
 
-const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
+const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
 {
-	const CGObjectInstance * ret = MapInfoCallback::getObj(objid, verbose);
-
+	const CGObjectInstance * ret = MapInfoCallback::getObj(objId, verbose);
 	if(!ret)
 		return nullptr;
 
 	if(getPlayerID().has_value() && !isVisibleFor(ret, *getPlayerID()) && ret->tempOwner != getPlayerID())
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. Object is not visible.", objid.getNum());
+			logGlobal->error("Cannot get object with id %d. Object is not visible.", objId.getNum());
 		return nullptr;
 	}
 
@@ -394,7 +393,12 @@ bool CGameInfoCallback::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameInfoCallback::isVisible(int3 pos) const
 {
 	if (!getPlayerID().has_value())
-		return gameState().getMap().isInTheMap(pos); // weird, but we do have such calls
+	{
+		// isVisibleFor calls isInTheMap internally, so we need to at least call that one to be consistent and to avoid array out of bounds,
+		// otherwise some requests (IBoatGenerator::bestLocation()) will trash when trying to access outsite the map array
+		return gameState().getMap().isInTheMap(pos);
+	}
+
 	return gameState().isVisibleFor(pos, *getPlayerID());
 }
 
@@ -403,10 +407,20 @@ bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor p
 	return gameState().isVisibleFor(obj, player);
 }
 
-bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
+bool CGameInfoCallback::isVisible(const CGObjectInstance * obj) const
 {
-	if (!getPlayerID().has_value())
-		return true; // weird, but we do have such calls
+	if(!getPlayerID().has_value())
+	{
+		// isVisibleFor calls isInTheMap internally, so we need to at least call that one to be consistent and to avoid array out of bounds.
+		return CGameState::iteratePositionsUntilTrue(
+			obj,
+			[this](const int3 & pos) -> bool
+			{
+				return gameState().getMap().isInTheMap(pos);
+			}
+		);
+	}
+
 	return gameState().isVisibleFor(obj, *getPlayerID());
 }
 
@@ -487,7 +501,7 @@ const TerrainTile * CGameInfoCallback::getTile(int3 tile, bool verbose) const
 		return &gameState().getMap().getTile(tile);
 
 	if(verbose)
-		logGlobal->error("\r\n%s: %s\r\n", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
+		logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, tile.toString() + " is not visible!");
 	return nullptr;
 }
 

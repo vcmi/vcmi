@@ -41,13 +41,13 @@ BraceWrapping:
   AfterExternBlock: true
   BeforeCatch:     false
   BeforeElse:      false
-  BeforeLambdaBody: false
+  BeforeLambdaBody: true
   BeforeWhile:     false
   IndentBraces:    false
   SplitEmptyFunction: false
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeConceptDeclarations: true
 BreakBeforeBraces: Allman
 BreakBeforeInheritanceComma: false
@@ -72,7 +72,7 @@ EmptyLineBeforeAccessModifier: LogicalBlock
 ExperimentalAutoDetectBinPacking: false
 PackConstructorInitializers: BinPack
 BasedOnStyle:    ''
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 AllowAllConstructorInitializersOnNextLine: true
 FixNamespaceComments: false
 ForEachMacros:
@@ -106,7 +106,7 @@ LambdaBodyIndentation: Signature
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
+NamespaceIndentation: Inner
 ObjCBinPackProtocolList: Auto
 ObjCBlockIndentWidth: 4
 ObjCBreakBeforeNestedBlockParam: true

@@ -651,7 +651,7 @@ BoatId CGTownInstance::getBoatType() const
 
 int CGTownInstance::getMarketEfficiency() const
 {
-	if(!hasBuiltSomeTradeBuilding())
+	if(!hasBuiltResourceMarketplace())
 		return 0;
 
 	const PlayerState *p = cb->getPlayerState(tempOwner);
@@ -659,7 +659,7 @@ int CGTownInstance::getMarketEfficiency() const
 
 	int marketCount = 0;
 	for(const CGTownInstance *t : p->getTowns())
-		if(t->hasBuiltSomeTradeBuilding())
+		if(t->hasBuiltResourceMarketplace())
 			marketCount++;
 
 	return marketCount;
@@ -885,9 +885,10 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 	return this;
 }
 
-bool CGTownInstance::hasBuiltSomeTradeBuilding() const
+bool CGTownInstance::hasBuiltResourceMarketplace() const
 {
-	return availableModes().empty() ? false : true;
+	const auto modes = availableModes();
+	return std::find(modes.begin(), modes.end(), EMarketMode::RESOURCE_RESOURCE) != modes.end();
 }
 
 bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const

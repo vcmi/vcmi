@@ -64,9 +64,9 @@ void CMapInfo::saveInit(const ResourcePath & file)
 	else
 		lf.load(scenarioOptionsOfSave);
 
-	fileURI = file.getName();
-	originalFileURI = file.getOriginalName();
-	fullFileURI = CResourceHandler::get()->getFullFileURI(file);
+	fileURI = file.getName(); // Name without file extension
+	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
+	fullFileURI = CResourceHandler::get()->getFullFileURI(file); // Includes absolute path + extension
 	countPlayers();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);

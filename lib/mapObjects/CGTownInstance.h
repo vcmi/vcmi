@@ -160,7 +160,7 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	bool hasBuiltSomeTradeBuilding() const;
+	bool hasBuiltResourceMarketplace() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID

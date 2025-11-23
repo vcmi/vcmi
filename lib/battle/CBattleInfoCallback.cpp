@@ -1487,9 +1487,6 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(
 	if(attacker->doubleWide() && !vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
 		attackOriginHex = attacker->occupiedHex(attackOriginHex);
 
-	if (!vstd::contains(defender->getSurroundingHexes(defenderPos), attackOriginHex))
-		throw std::runtime_error("Atempt to attack from invalid position!");
-
 	auto attackDirection = BattleHex::mutualPosition(attackOriginHex, defenderPos);
 
 	// If defender is double-wide, attacker always prefers targeting its 'tail', if it is reachable

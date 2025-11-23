@@ -1631,11 +1631,13 @@ void CGameHandler::save(const std::string & filename)
 void CGameHandler::load(const StartInfo &info)
 {
 	logGlobal->info("Loading from %s", info.mapname);
-	const auto stem	= FileInfo::GetPathStem(info.mapname);
+	// No need to use the stem because info.mapname doesn't come with the file extension included
+	// const auto stem	= FileInfo::GetPathStem(info.mapname);
 
 	reinitScripting();
 
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), gs.get());
+	// CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(stem.to_string(), EResType::SAVEGAME)), gs.get());
+	CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(info.mapname, EResType::SAVEGAME)), gs.get());
 	gs = std::make_shared<CGameState>();
 	randomizer = std::make_unique<GameRandomizer>(*gs);
 	gs->loadGame(lf);
@@ -2112,8 +2114,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	{
 		if(buildingID.isDwelling())
 		{
-			int level = BuildingID::getLevelFromDwelling(buildingID);
-			int upgradeNumber = BuildingID::getUpgradedFromDwelling(buildingID);
+			int level = BuildingID::getLevelIndexFromDwelling(buildingID);
+			int upgradeNumber = BuildingID::getUpgradeNoFromDwelling(buildingID);
 
 			if(upgradeNumber >= t->getTown()->creatures.at(level).size())
 			{
@@ -3169,18 +3171,18 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 amountToSell, Play
 	int b1; //base quantities for trade
 	int b2;
 	market->getOffer(toSell, toBuy, b1, b2, EMarketMode::RESOURCE_RESOURCE);
-	int amountToBoy = amountToSell / b1; //how many base quantities we trade
+	int amountToBuy = amountToSell / b1; //how many base quantities we trade
 
 	if (amountToSell % b1 != 0) //all offered units of resource should be used, if not -> somewhere in calculations must be an error
 	{
 		COMPLAIN_RET("Invalid deal, not all offered units of resource were used.");
 	}
 
-	giveResource(player, toSell, -b1 * amountToBoy);
-	giveResource(player, toBuy, b2 * amountToBoy);
+	giveResource(player, toSell, -b1 * amountToBuy);
+	giveResource(player, toBuy, b2 * amountToBuy);
 
-	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBoy;
-	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBoy;
+	statistics->accumulatedValues[player].tradeVolume[toSell] += -b1 * amountToBuy;
+	statistics->accumulatedValues[player].tradeVolume[toBuy] += b2 * amountToBuy;
 
 	return true;
 }

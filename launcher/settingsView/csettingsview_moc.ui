@@ -408,6 +408,11 @@
            <string notr="true">Nullkiller</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string notr="true">Nullkiller2</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="58" column="2" colspan="4">
@@ -433,6 +438,11 @@
          <item>
           <property name="text">
            <string notr="true">Nullkiller</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string notr="true">Nullkiller2</string>
           </property>
          </item>
         </widget>

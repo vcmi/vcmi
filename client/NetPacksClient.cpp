@@ -455,7 +455,10 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 
 	GAME->map().onObjectFadeOut(o, pack.initiator);
 	if (h && h->inBoat())
+	{
+		GAME->map().waitForOngoingAnimations();
 		GAME->map().onObjectFadeOut(h->getBoat(), pack.initiator);
+	}
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
