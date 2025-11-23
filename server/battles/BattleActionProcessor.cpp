@@ -976,7 +976,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if (useCustomAnimation)
 		bat.flags |= BattleAttack::CUSTOM_ANIMATION;
 
-	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
