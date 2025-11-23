@@ -171,6 +171,11 @@
 	"vcmi.lobby.battleOnlySpellRemove" : "Zauber entfernen",
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Suche und wähle Template aus",
+	"vcmi.lobby.customRmgSize.title" : "Wähle Größe",
+	"vcmi.lobby.customRmgSize.experimental" : "Die Multi-Ebenen-Unterstützung befindet sich noch in einem sehr experimentellen Stadium. Es ist mit Problemen zu rechnen.",
+	"vcmi.lobby.customRmgSize.0" : "Breite",
+	"vcmi.lobby.customRmgSize.1" : "Höhe",
+	"vcmi.lobby.customRmgSize.2" : "Ebenen",
 
 	"vcmi.broadcast.failedLoadGame" : "Spiel konnte nicht geladen werden",
 	"vcmi.broadcast.command" : "Benutze '!help' um alle verfügbaren Befehle aufzulisten",
