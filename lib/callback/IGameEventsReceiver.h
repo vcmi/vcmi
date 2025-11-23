@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../gameState/GameStatistics.h"
 #include "../int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -96,6 +97,8 @@ public:
 	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) {}; //player lost or won the game
 	virtual void playerStartsTurn(PlayerColor player){};
 	virtual void playerEndsTurn(PlayerColor player){};
+
+	virtual void responseStatistic(StatisticDataSet & statistic){};
 
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};

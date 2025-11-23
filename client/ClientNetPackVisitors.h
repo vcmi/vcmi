@@ -106,6 +106,7 @@ public:
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
 	void visitPlayerCheated(PlayerCheated & pack) override;
 	void visitChangeTownName(ChangeTownName & pack) override;
+	void visitResponseStatistic(ResponseStatistic & pack) override;
 };
 
 class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)

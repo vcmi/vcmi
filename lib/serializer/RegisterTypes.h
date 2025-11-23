@@ -295,6 +295,8 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetTownName>(253);
 	s.template registerType<LobbySetBattleOnlyModeStartInfo>(254);
 	s.template registerType<BattleEnded>(255);
+	s.template registerType<RequestStatistic>(256);
+	s.template registerType<ResponseStatistic>(257);
 }
 
 VCMI_LIB_NAMESPACE_END

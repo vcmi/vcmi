@@ -353,6 +353,7 @@
 	"vcmi.keyBindings.keyBinding.adventureViewPuzzle": "Abenteuer Rätsel anzeigen",
 	"vcmi.keyBindings.keyBinding.adventureViewScenario": "Abenteuer Szenario anzeigen",
 	"vcmi.keyBindings.keyBinding.adventureViewSelected": "Abenteuer Auswahl anzeigen",
+	"vcmi.keyBindings.keyBinding.adventureViewStatistic": "Abenteuer Statistik anzeigen",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld": "Abenteuer Weltansicht",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld1": "Abenteuer Weltansicht 1",
 	"vcmi.keyBindings.keyBinding.adventureViewWorld2": "Abenteuer Weltansicht 2",

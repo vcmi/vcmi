@@ -1582,6 +1582,30 @@ void CGameHandler::throwAndComplain(GameConnectionID connectionID, const std::st
 	throwNotAllowedAction(connectionID);
 }
 
+bool CGameHandler::responseStatistic(PlayerColor player)
+{
+	ResponseStatistic rs;
+	rs.statistic = *statistics;
+	rs.player = player;
+
+	// Keep only team statistics, no enemy
+	const TeamState * team = gameState().getPlayerTeam(player);
+
+	for(auto it = rs.statistic.accumulatedValues.begin(); it != rs.statistic.accumulatedValues.end();) {
+		if (std::find(team->players.begin(), team->players.end(), it->first) == team->players.end())
+			it = rs.statistic.accumulatedValues.erase(it);
+		else
+			++it;
+	}
+	rs.statistic.data.erase(std::remove_if(rs.statistic.data.begin(), rs.statistic.data.end(), [&team](const StatisticDataSetEntry& entry) {
+        return std::find(team->players.begin(), team->players.end(), entry.player) == team->players.end();
+    }), rs.statistic.data.end());
+
+	sendAndApply(rs);
+
+	return true;
+}
+
 void CGameHandler::save(const std::string & filename)
 {
 	logGlobal->info("Saving to %s", filename);

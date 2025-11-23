@@ -153,6 +153,7 @@ public:
 	virtual void visitMakeAction(MakeAction & pack) {}
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
+	virtual void visitRequestStatistic(RequestStatistic & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}
 	virtual void visitPlayerMessage(PlayerMessage & pack) {}
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
@@ -188,6 +189,7 @@ public:
 	virtual void visitBattleCancelled(BattleCancelled & pack) {}
 	virtual void visitBattleResultAccepted(BattleResultAccepted & pack) {}
 	virtual void visitBattleStackMoved(BattleLogMessage & pack) {}
+	virtual void visitResponseStatistic(ResponseStatistic & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

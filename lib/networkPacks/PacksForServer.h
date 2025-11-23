@@ -741,6 +741,16 @@ struct DLL_LINKAGE CastAdvSpell : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE RequestStatistic : public CPackForServer
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+	}
+};
+
 /***********************************************************************************************************/
 
 struct DLL_LINKAGE SaveGame : public CPackForServer

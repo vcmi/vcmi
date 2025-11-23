@@ -12,6 +12,7 @@
 #include "ArtifactsUIController.h"
 
 #include "../lib/callback/CGameInterface.h"
+#include "../lib/gameState/GameStatistics.h"
 #include "../lib/FunctionList.h"
 #include "gui/CIntObject.h"
 
@@ -147,6 +148,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	void setColorScheme(ColorScheme scheme) override;
+	void responseStatistic(StatisticDataSet & statistic) override;
 
 	//for battles
 	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero

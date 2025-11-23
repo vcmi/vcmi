@@ -84,6 +84,7 @@ public:
 	void buildBoat(const IShipyard *obj) override;
 	void dig(const CGObjectInstance *hero) override;
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1)) override;
+	void requestStatistic() override;
 
 //friends
 	friend class CClient;

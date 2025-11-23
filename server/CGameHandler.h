@@ -237,6 +237,7 @@ public:
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
+	bool responseStatistic(PlayerColor player);
 	void save(const std::string &fname);
 	void load(const StartInfo &info);
 

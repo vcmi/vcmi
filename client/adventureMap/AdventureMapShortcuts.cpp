@@ -73,6 +73,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X1,    optionInWorldView(),    [this]() { this->worldViewScale1x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X2,    optionInWorldView(),    [this]() { this->worldViewScale2x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
+		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
@@ -151,6 +152,11 @@ void AdventureMapShortcuts::worldViewScale2x()
 void AdventureMapShortcuts::worldViewScale4x()
 {
 	owner.openWorldView(16);
+}
+
+void AdventureMapShortcuts::viewStatistic()
+{
+	GAME->interface()->cb->requestStatistic();
 }
 
 void AdventureMapShortcuts::switchMapLevel()
@@ -676,4 +682,12 @@ bool AdventureMapShortcuts::optionHeroDig()
 {
 	auto hero = GAME->interface()->localState->getCurrentHero();
 	return optionInMapView() && hero && hero->diggingStatus() == EDiggingStatus::CAN_DIG;
+}
+
+bool AdventureMapShortcuts::optionViewStatistic()
+{
+	if(!GAME->interface()->makingTurn)
+		return false;
+	auto day = GAME->interface()->cb->getDate(Date::DAY);
+	return optionInMapView() && day > 1;
 }
