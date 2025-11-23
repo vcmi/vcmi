@@ -452,16 +452,24 @@ assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	add_dependencies(vcmiclientcommon EmptyAI VCAI)
+
 	if(ENABLE_NULLKILLER_AI)
 		add_dependencies(vcmiclientcommon Nullkiller)
+	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
 		add_dependencies(vcmiclientcommon Nullkiller2)
 	endif()
+
+	if(ENABLE_STUPID_AI)
+		add_dependencies(vcmiclientcommon StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		add_dependencies(vcmiclientcommon BattleAI)
+	endif()
+
 endif()
 if(IOS)
 	if(ENABLE_ERM)

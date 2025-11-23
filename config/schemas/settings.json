@@ -589,11 +589,11 @@
 				},
 				"playerAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"default" : "Nullkiller2"
 				},
 				"alliedAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"default" : "Nullkiller2"
 				},
 				"friendlyAI" : {
 					"type" : "string",

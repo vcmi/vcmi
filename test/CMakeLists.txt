@@ -140,7 +140,7 @@ if(ENABLE_ERM)
 	)
 endif()
 
-if(ENABLE_NULLKILLER_AI)
+if(ENABLE_NULLKILLER2_AI)
 	# When not static, linking the library below is not enough, we need the .cpp files as well
 	file(GLOB_RECURSE NULLKILLER2_TEST_SRCS "../AI/Nullkiller2/*.cpp")
 	list(FILTER NULLKILLER2_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
@@ -198,7 +198,7 @@ target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
 if(ENABLE_LUA)
 	target_link_libraries(vcmitest PRIVATE vcmiLua)
 endif()
-if(ENABLE_NULLKILLER_AI)
+if(ENABLE_NULLKILLER2_AI)
 	target_link_libraries(vcmitest PUBLIC Nullkiller2)
 endif()
 
