@@ -9,11 +9,14 @@
  */
 #pragma once
 
+#include "CWindowObject.h"
+
 #include "../widgets/TextControls.h"
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/Images.h"
 #include "../adventureMap/CMinimap.h"
-#include "CWindowObject.h"
+
+#include "../../lib/gameState/QuestInfo.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 

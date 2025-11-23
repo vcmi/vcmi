@@ -13,7 +13,6 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
-      fail-fast: false      # Do not cancel whole matrix when one build fails
       matrix:
         include:
           - platform: mac-intel
@@ -126,10 +125,7 @@ jobs:
             artifact_platform: x64
 
     runs-on: ${{ matrix.os }}
-    # Allow non-MSVC builds to fail without failing whole job
-    # This keeps pipeline moving so Windows Installer job can still run
-    # MSVC builds must success to continue to Windows Installer job
-    continue-on-error: ${{ !startsWith(matrix.platform, 'msvc') }}
+
     defaults:
       run:
         shell: bash
