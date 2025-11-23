@@ -110,8 +110,6 @@ void CSettingsView::fillValidAdventureAILibraries(QComboBox * comboBox, QString 
 {
 	comboBox->clear();
 
-	comboBox->addItem(tr("VCAI (deprecated)"), "VCAI");
-
 #ifdef ENABLE_NULLKILLER_AI
 	comboBox->addItem(tr("Nullkiller (superseded by Nullkiller2)"), "Nullkiller");
 #endif
@@ -120,14 +118,14 @@ void CSettingsView::fillValidAdventureAILibraries(QComboBox * comboBox, QString 
 	comboBox->addItem(tr("Nullkiller2 (default, recommended)"), "Nullkiller2");
 #endif
 
-	if (comboBox->count() == 0)
-		comboBox->addItem(tr("EmptyAI - No valid AI libraries found!"), "EmptyAI");
-
 	fillValidAnyAILibraries(comboBox, activeAI);
 }
 
 void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString activeAI)
 {
+	if (comboBox->count() == 0)
+		comboBox->addItem(tr("EmptyAI - No valid AI libraries found!"), "EmptyAI");
+
 	int indexToSelect = comboBox->findData(activeAI);
 
 	if (indexToSelect == -1)

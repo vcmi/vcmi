@@ -15,7 +15,6 @@
 #include "../VCMIDirs.h"
 
 #ifdef STATIC_AI
-# include "../../AI/VCAI/VCAI.h"
 # include "../../AI/Nullkiller/AIGateway.h"
 # include "../../AI/Nullkiller2/AIGateway.h"
 # include "../../AI/BattleAI/BattleAI.h"
@@ -114,7 +113,7 @@ std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, co
 		return std::make_shared<NKAI::AIGateway>();
 	}
 	else{
-		return std::make_shared<VCAI>();
+		return std::make_shared<CEmptyAI>();
 	}
 }
 

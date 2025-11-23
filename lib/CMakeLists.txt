@@ -835,7 +835,7 @@ target_link_libraries(vcmi PUBLIC
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE EmptyAI VCAI)
+	target_link_libraries(vcmi PRIVATE EmptyAI)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller)
 	endif()

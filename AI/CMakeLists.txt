@@ -46,7 +46,6 @@ endif()
 
 # Adventure AI's
 add_subdirectory(EmptyAI)
-add_subdirectory(VCAI)
 
 if(ENABLE_NULLKILLER_AI)
 	add_subdirectory(Nullkiller)

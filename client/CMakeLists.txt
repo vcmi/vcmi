@@ -452,7 +452,7 @@ assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon EmptyAI VCAI)
+	add_dependencies(vcmiclientcommon EmptyAI)
 
 	if(ENABLE_NULLKILLER_AI)
 		add_dependencies(vcmiclientcommon Nullkiller)
