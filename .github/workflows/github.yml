@@ -233,22 +233,6 @@ jobs:
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
 
-    # Workaround for gradle not discovering SDK that was installed via Сonan
-    - name: Link Android NDK from Conan cache to Android SDK path
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      run: |
-        ndkPackage='android-ndk'
-        hexRegex='[[:xdigit:]]+'
-
-        ndkPackageRevision=$(conan list "$ndkPackage/*:*" --format=compact \
-          | egrep --only-matching "$ndkPackage/\\w+#$hexRegex:$hexRegex")
-        ndkPackagePath=$(conan cache path "$ndkPackageRevision")
-
-        # format: Pkg.Revision = 25.2.9519653
-        ndkPath="$ndkPackagePath/bin"
-        ndkVersion=$(fgrep 'Pkg.Revision' "$ndkPath/source.properties" | cut -d ' ' -f 3)
-        ln -s -T "$ndkPath" "$ANDROID_HOME/ndk/$ndkVersion"
-
     - name: Install Java
       uses: actions/setup-java@v5
       if: ${{ startsWith(matrix.platform, 'android') }}
