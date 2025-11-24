@@ -103,7 +103,13 @@
 	"size" : 2, 
 	
 	// index of player that owns this zone
-	"owner" : 1, 
+	"owner" : 1,
+	
+	// Force zone placement on specific level. Possible values:
+	// "automatic" (default) - Zone level is determined automatically based on faction terrain preferences
+	// "surface" - Force zone to be placed on surface level (level 0)
+	// "underground" - Force zone to be placed on underground level (level 1)
+	"forcedLevel" : "automatic", 
 	
 	// castles and towns owned by player in this zone
 	"playerTowns" : {
