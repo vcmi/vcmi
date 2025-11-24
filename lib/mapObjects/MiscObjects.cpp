@@ -535,8 +535,9 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 	}
 
 	// we should assign empty channels to underground gates if they don't have matching overground gates
-	for(auto & i : gatesSplit[1])
-		assignToChannel(i);
+	if(gatesSplit.size() > 1)
+		for(auto & i : gatesSplit[1])
+			assignToChannel(i);
 }
 
 void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
