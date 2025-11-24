@@ -1159,7 +1159,8 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 			for (const auto & templ : object.templates)
 			{
 				CompoundMapObjectID key = object.getCompoundID();
-				if (bannedObjectsSet.count(key))
+				CompoundMapObjectID keyGroup( key.primaryID, -1);
+				if (bannedObjectsSet.count(key) || bannedObjectsSet.count(keyGroup))
 				{
 					// FIXME: Stopped working, nothing is banned
 					logGlobal->info("Banning object %s from possible objects", templ->stringID);

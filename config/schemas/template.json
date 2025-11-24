@@ -86,9 +86,20 @@
 							}
 						},
 						"bannedObjects": {
-							"type": "array",
-							"items": {
-								"type": "string"
+							"type": "object",
+							"additionalProperties": {
+								"anyOf" : [
+									{
+										"type": "boolean"
+									},
+									{
+										"type": "object",
+										"additionalProperties": {
+											"type": "boolean"
+										}
+									}
+								]
+								
 							}
 						},
 						"commonObjects": {
@@ -96,7 +107,10 @@
 							"items": {
 								"type": "object",
 								"properties": {
-									"id": {
+									"type": {
+										"type": "string"
+									},
+									"subtype": {
 										"type": "string"
 									},
 									"rmg": {
@@ -115,7 +129,7 @@
 										"required": ["value", "rarity"]
 									}
 								},
-								"required": ["id", "rmg"]
+								"required": ["type", "rmg"]
 							}
 						}
 					}

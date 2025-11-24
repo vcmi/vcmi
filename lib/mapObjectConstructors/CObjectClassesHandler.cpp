@@ -433,7 +433,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 	if(id)
 	{
 		if (subtype.empty())
-			return CompoundMapObjectID(id.value(), 0);
+			return CompoundMapObjectID(id.value(), -1);
 
 		const auto & object = mapObjectTypes.at(id.value());
 		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
@@ -449,7 +449,7 @@ CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::stri
 
 CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
 {
-	std::string subtype = "object"; //Default for objects with no subIds
+	std::string subtype;
 	std::string type;
 
 	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
