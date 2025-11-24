@@ -136,11 +136,13 @@ void CSettingsView::fillValidAnyAILibraries(QComboBox * comboBox, QString active
 
 void CSettingsView::fillValidAILibraries()
 {
-	fillValidAdventureAILibraries(ui->comboBoxAlliedPlayerAI,QString::fromStdString(settings["server"]["alliedAI"].String()));
-	fillValidAdventureAILibraries(ui->comboBoxEnemyPlayerAI, QString::fromStdString(settings["server"]["playerAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(settings["server"]["enemyAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(settings["server"]["friendlyAI"].String()));
-	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(settings["server"]["neutralAI"].String()));
+	const auto & serverSettings = settings["server"];
+
+	fillValidAdventureAILibraries(ui->comboBoxAlliedPlayerAI,QString::fromStdString(serverSettings["alliedAI"].String()));
+	fillValidAdventureAILibraries(ui->comboBoxEnemyPlayerAI, QString::fromStdString(serverSettings["playerAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxEnemyAI, QString::fromStdString(serverSettings["enemyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxFriendlyAI, QString::fromStdString(serverSettings["friendlyAI"].String()));
+	fillValidCombatAILibraries(ui->comboBoxNeutralAI, QString::fromStdString(serverSettings["neutralAI"].String()));
 }
 
 void CSettingsView::loadSettings()
@@ -496,23 +498,37 @@ void CSettingsView::on_comboBoxDisplayIndex_currentIndexChanged(int index)
 
 void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 {
-	QString arg1 = ui->comboBoxFriendlyAI->itemData(index).toString();
+	QString aiName = ui->comboBoxFriendlyAI->itemData(index).toString();
 	Settings node = settings.write["server"]["friendlyAI"];
-	node->String() = arg1.toUtf8().data();
+	node->String() = aiName.toUtf8().data();
 }
 
 void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 {
-	QString arg1 = ui->comboBoxNeutralAI->itemData(index).toString();
+	QString aiName = ui->comboBoxNeutralAI->itemData(index).toString();
 	Settings node = settings.write["server"]["neutralAI"];
-	node->String() = arg1.toUtf8().data();
+	node->String() = aiName.toUtf8().data();
 }
 
 void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 {
-	QString arg1 = ui->comboBoxEnemyAI->itemData(index).toString();
+	QString aiName = ui->comboBoxEnemyAI->itemData(index).toString();
 	Settings node = settings.write["server"]["enemyAI"];
-	node->String() = arg1.toUtf8().data();
+	node->String() = aiName.toUtf8().data();
+}
+
+void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
+{
+	QString aiName = ui->comboBoxEnemyPlayerAI->itemData(index).toString();
+	Settings node = settings.write["server"]["playerAI"];
+	node->String() = aiName.toUtf8().data();
+}
+
+void CSettingsView::on_comboBoxAlliedPlayerAI_currentIndexChanged(int index)
+{
+	QString aiName = ui->comboBoxAlliedPlayerAI->itemData(index).toString();
+	Settings node = settings.write["server"]["alliedAI"];
+	node->String() = aiName.toUtf8().data();
 }
 
 void CSettingsView::on_spinBoxNetworkPort_valueChanged(int arg1)
@@ -704,20 +720,6 @@ void CSettingsView::on_buttonVSync_toggled(bool value)
 	Settings node = settings.write["video"]["vsync"];
 	node->Bool() = value;
 	ui->spinBoxFramerateLimit->setDisabled(settings["video"]["vsync"].Bool());
-}
-
-void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
-{
-	QString arg1 = ui->comboBoxEnemyPlayerAI->itemData(index).toString();
-	Settings node = settings.write["server"]["playerAI"];
-	node->String() = arg1.toUtf8().data();
-}
-
-void CSettingsView::on_comboBoxAlliedPlayerAI_currentIndexChanged(int index)
-{
-	QString arg1 = ui->comboBoxAlliedPlayerAI->itemData(index).toString();
-	Settings node = settings.write["server"]["alliedAI"];
-	node->String() = arg1.toUtf8().data();
 }
 
 void CSettingsView::on_buttonAutoSavePrefix_toggled(bool value)

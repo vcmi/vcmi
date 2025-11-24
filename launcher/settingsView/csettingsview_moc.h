@@ -45,6 +45,8 @@ private slots:
 	void on_comboBoxFriendlyAI_currentIndexChanged(int index);
 	void on_comboBoxNeutralAI_currentIndexChanged(int index);
 	void on_comboBoxEnemyAI_currentIndexChanged(int index);
+	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
+	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
 	void on_spinBoxNetworkPort_valueChanged(int arg1);
 	void on_buttonShowIntro_toggled(bool value);
 	void on_buttonAllowPortrait_toggled(bool value);
@@ -63,8 +65,6 @@ private slots:
 	void on_buttonConfigEditor_clicked();
 	void on_spinBoxFramerateLimit_valueChanged(int arg1);
 	void on_buttonVSync_toggled(bool value);
-	void on_comboBoxEnemyPlayerAI_currentIndexChanged(int index);
-	void on_comboBoxAlliedPlayerAI_currentIndexChanged(int index);
 	void on_buttonAutoSavePrefix_toggled(bool value);
 	void on_spinBoxAutoSaveLimit_valueChanged(int arg1);
 	void on_lineEditAutoSavePrefix_textEdited(const QString &arg1);
