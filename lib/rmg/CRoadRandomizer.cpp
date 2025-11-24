@@ -197,6 +197,43 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 		}
 	}
 
+	// Trim roads ending in zones without towns (iteratively until no loose ends remain)
+	bool changed = true;
+	while(changed)
+	{
+		changed = false;
+		
+		for(auto & zonePtr : zones)
+		{
+			auto zoneId = zonePtr.first;
+			
+			// Skip zones with towns
+			if(vstd::contains(zonesWithTowns, zoneId))
+				continue;
+			
+			// Count ROAD_TRUE connections for this zone
+			int roadCount = 0;
+			int looseEndConnectionId = -1;
+			
+			for(const auto & connection : zonePtr.second->getConnections())
+			{
+				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
+				{
+					roadCount++;
+					looseEndConnectionId = connection.getId();
+				}
+			}
+			
+			// If exactly one road enters this zone, remove it
+			if(roadCount == 1)
+			{
+				logGlobal->info("Trimming loose end: removing road connection %d from zone %d (no town)", looseEndConnectionId, zoneId);
+				setRoadOptionForConnection(looseEndConnectionId, rmg::ERoadOption::ROAD_FALSE);
+				changed = true;
+			}
+		}
+	}
+
 	logGlobal->info("Finished road generation - created minimal spanning tree connecting all towns");
 }
 
