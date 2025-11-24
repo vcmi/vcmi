@@ -794,7 +794,7 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 	};
 	std::vector<std::string> heroTargetedCheats = {
 		"vcmiainur",               "vcmiarchangel",   "nwctrinity",              "nwcpadme",           "nwcavertingoureyes",
-		"vcmiangband",             "vcmiblackknight", "nwcagents",               "nwcdarthmaul",       "nwcfleshwound"
+		"vcmiangband",             "vcmiblackknight", "nwcagents",               "nwcdarthmaul",       "nwcfleshwound",
 		"vcmiglaurung",            "vcmicrystal",     "vcmiazure",
 		"vcmifaerie",              "vcmiarmy",        "vcminissi",
 		"vcmiistari",              "vcmispells",      "nwcthereisnospoon",       "nwcmidichlorians",   "nwctim",

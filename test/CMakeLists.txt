@@ -36,6 +36,7 @@ set(test_SRCS
 		events/EventBusTest.cpp
 
 		game/CGameStateTest.cpp
+		game/PlayerMessageProcessorTest.cpp
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
