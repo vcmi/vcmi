@@ -356,12 +356,12 @@ void ZoneOptions::setVisibleSize(float value)
 	visibleSize = value;
 }
 
-EZoneLevel::EZoneLevel ZoneOptions::getForcedLevel() const
+EZoneLevel ZoneOptions::getForcedLevel() const
 {
 	return forcedLevel;
 }
 
-void ZoneOptions::setForcedLevel(EZoneLevel::EZoneLevel value)
+void ZoneOptions::setForcedLevel(EZoneLevel value)
 {
 	forcedLevel = value;
 }
@@ -563,9 +563,9 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 			"underground"
 		};
 
-		int levelIndex = static_cast<int>(forcedLevel);
+		auto levelIndex = static_cast<int>(forcedLevel);
 		handler.serializeEnum("forcedLevel", levelIndex, static_cast<int>(EZoneLevel::AUTOMATIC), zoneLevels);
-		forcedLevel = static_cast<EZoneLevel::EZoneLevel>(levelIndex);
+		forcedLevel = static_cast<EZoneLevel>(levelIndex);
 	}
 }
 
