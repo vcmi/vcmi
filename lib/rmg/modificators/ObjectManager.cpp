@@ -685,11 +685,13 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		{
 			case Obj::RANDOM_TREASURE_ART:
 			case Obj::RANDOM_MINOR_ART: //In OH3 quest artifacts have higher value than normal arts
-			case Obj::RANDOM_RESOURCE:
+			case Obj::RANDOM_MAJOR_ART:
+			case Obj::RANDOM_RELIC_ART:
+			case Obj::PANDORAS_BOX:
 			{
 				if (auto * qap = zone.getModificator<QuestArtifactPlacer>())
 				{
-					qap->rememberPotentialArtifactToReplace(&instance->object());
+					qap->rememberPotentialArtifactToReplace(&instance->object(), instance->object().rmgValue);
 				}
 				break;
 			}
