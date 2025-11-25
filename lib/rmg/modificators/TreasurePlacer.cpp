@@ -487,7 +487,7 @@ void TreasurePlacer::addSeerHuts()
 	//Seer huts with creatures or generic rewards
 
 	ObjectInfo oi(Obj::SEER_HUT, 0);
-	const ui32 seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
+	const auto seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
 
 	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
@@ -539,7 +539,7 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			const ui32 rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
+			const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
 
 			if (rewardValue > zone.getMaxTreasureValue())
 			{
@@ -572,7 +572,7 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			const ui32 rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
+			const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
 			if (rewardValue > zone.getMaxTreasureValue())
 			{
 				continue;

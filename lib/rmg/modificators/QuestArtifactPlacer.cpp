@@ -92,7 +92,7 @@ CGObjectInstance * QuestArtifactPlacer::drawObjectToReplace(ui32 desiredValue)
 	for (auto it = artifactsToReplace.begin(); it != artifactsToReplace.end(); ++it)
 	{
 		const ui32 value = it->value;
-		auto diff = std::abs<int>((int)value - (int)desiredValue);
+		auto diff = std::abs(static_cast<int>(value) - static_cast<int>(desiredValue));
 		if (diff < bestDiff)
 		{
 			bestDiff = diff;
@@ -160,7 +160,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 }
 
 // TODO: Unused?
-void QuestArtifactPlacer::dropReplacedArtifact(CGObjectInstance* obj)
+void QuestArtifactPlacer::dropReplacedArtifact(const CGObjectInstance* obj)
 {
 	RecursiveLock lock(externalAccessMutex);
 	vstd::erase_if(artifactsToReplace, [obj](const ReplacementCandidate& candidate)

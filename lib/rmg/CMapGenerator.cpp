@@ -83,11 +83,6 @@ void CMapGenerator::loadConfig()
 		config.questValues.push_back(i.Integer());
 	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
 		config.questRewardValues.push_back(i.Integer());
-	//auto seerHutNode = randomMapJson["seerHutValue"];
-	if (seerHutNode.isNull())
-	// {
-	// 	logGlobal->error("Seer Hut value is not set in randomMap.json, using default value of 500");
-	// }
 	config.seerHutValue = randomMapJson["quests"]["seerHutValue"].Integer();
 	logGlobal->info("Seer Hut value: %d", config.seerHutValue);
 	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();

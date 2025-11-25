@@ -32,7 +32,7 @@ public:
 	CGObjectInstance * drawObjectToReplace(ui32 desiredValue);
 	std::vector<CGObjectInstance*> getPossibleArtifactsToReplace() const;
 	void placeQuestArtifacts(vstd::RNG & rand);
-	void dropReplacedArtifact(CGObjectInstance* obj);
+	void dropReplacedArtifact(const CGObjectInstance* obj);
 
 	size_t getMaxQuestArtifactCount() const;
 	[[nodiscard]] ArtifactID drawRandomArtifact();
