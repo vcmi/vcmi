@@ -247,6 +247,10 @@ bool CVCMIServer::prepareToStartGame()
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
+		//send final progress
+		LobbyLoadProgress loadProgress;
+		loadProgress.progress = std::numeric_limits<Load::Type>::max();
+		announcePack(loadProgress);
 	});
 
 	auto newGH = std::make_shared<CGameHandler>(*this);

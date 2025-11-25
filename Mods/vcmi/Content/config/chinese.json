@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "移动到此处总计花费{%POINTS}移动力。移动完成后还会剩下{%REMAINING}点。",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(移动点数: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "抱歉，重放对手行动功能目前暂未实现！",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "您確定要載入快速存檔嗎？",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\n你想招募%s还是%s？",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\n你想招募%s、%s还是%s？",

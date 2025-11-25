@@ -116,6 +116,8 @@
 
 #include "../lib/texts/TextOperations.h"
 
+#include "../lib/filesystem/Filesystem.h"
+
 #include <boost/lexical_cast.hpp>
 
 // The macro below is used to mark functions that are called by client when game state changes.
@@ -1798,6 +1800,37 @@ void CPlayerInterface::proposeLoadingGame()
 		},
 		nullptr
 	);
+}
+
+void CPlayerInterface::quickSaveGame()
+{
+	std::string path = "Saves/Quicksave";
+	// notify player about saving
+	GAME->server().getGameChat().sendMessageGameplay("Saving game to " + path);
+	GAME->interface()->cb->save(path);
+}
+
+void CPlayerInterface::proposeQuickLoadingGame()
+{
+	std::string path = "Saves/Quicksave";
+
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+	{
+		logGlobal->error("No quicksave file found at %s", path);
+		return;
+	}
+	auto error = GAME->server().canQuickLoadGame(path);
+	if (error)
+	{
+		logGlobal->error("Cannot quick load game at %s: %s", path, *error);
+		return;
+	}
+	auto onYes = [path]() -> void
+	{
+		GAME->server().quickLoadGame(path);
+	};
+
+	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
 }
 
 bool CPlayerInterface::capturedAllEvents()

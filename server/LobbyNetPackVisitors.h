@@ -36,6 +36,7 @@ public:
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -62,6 +63,7 @@ public:
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -89,6 +91,7 @@ public:
 		return result;
 	}
 
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;

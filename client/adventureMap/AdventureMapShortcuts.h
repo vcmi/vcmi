@@ -67,6 +67,8 @@ class AdventureMapShortcuts
 	void quitGame();
 	void saveGame();
 	void loadGame();
+	void quickSaveGame();
+	void quickLoadGame();
 	void digGrail();
 	void viewPuzzleMap();
 	void restartGame();
@@ -105,6 +107,7 @@ public:
 	bool optionHeroBoat(EPathfindingLayer layer);
 	bool optionHeroDig();
 	bool optionViewStatistic();
+	bool optionIsLocal();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;

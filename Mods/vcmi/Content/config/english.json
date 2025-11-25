@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Moving here will cost {%POINTS} points. {%REMAINING} points will remain after moving.",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Are you sure you want to load the quicksave?",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nWould you like to recruit %s or %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
@@ -343,6 +344,8 @@
 	"vcmi.keyBindings.keyBinding.adventureReplayTurn": "Adventure replay turn",
 	"vcmi.keyBindings.keyBinding.adventureRestartGame": "Adventure restart game",
 	"vcmi.keyBindings.keyBinding.adventureSaveGame": "Adventure save game",
+	"vcmi.keyBindings.keyBinding.adventureQuickSave": "Adventure quick save",
+	"vcmi.keyBindings.keyBinding.adventureQuickLoad": "Adventure quick load",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAsleep": "Adventure set hero asleep",
 	"vcmi.keyBindings.keyBinding.adventureSetHeroAwake": "Adventure set hero awake",
 	"vcmi.keyBindings.keyBinding.adventureThievesGuild": "Adventure thieves guild",
@@ -705,6 +708,11 @@
 
 	"vcmi.adventureMap.revisitObject.hover" : "Revisit Object",
 	"vcmi.adventureMap.revisitObject.help" : "{Revisit Object}\n\nIf a hero currently stands on a Map Object, he can revisit the location.",
+
+	"vcmi.adventureMap.quickLoad.hover" : "Quick Load",
+	"vcmi.adventureMap.quickLoad.help" : "{Quick Load}\n\nLoads the game state from a quick save slot.",
+	"vcmi.adventureMap.quickSave.hover" : "Quick Save",
+	"vcmi.adventureMap.quickSave.help" : "{Quick Save}\n\nSaves the current game state to a quick save slot.",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Press any key to start battle immediately",
 	"vcmi.battleWindow.damageEstimation.melee" : "Attack %CREATURE (%DAMAGE).",

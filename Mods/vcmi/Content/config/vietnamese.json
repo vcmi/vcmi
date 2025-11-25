@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns": "Đi đến đây sẽ tốn {%POINTS} điểm di chuyển. Còn lại {%REMAINING} điểm sau khi di chuyển.",
 	"vcmi.adventureMap.movementPointsHeroInfo": "(Điểm di chuyển: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented": "Xin lỗi, lượt chơi lại của đối thủ vẫn chưa được triển khai!",
+	"vcmi.adventureMap.confirmQuickLoadGame"            : "Bạn có chắc chắn muốn tải quicksave không?",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nBạn có muốn chiêu mộ %s hoặc %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nBạn có muốn chiêu mộ %s, %s, hoặc %s?",

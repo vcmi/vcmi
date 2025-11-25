@@ -40,6 +40,8 @@
 	"vcmi.battle.action.return" : "Использовать атаку ближнего боя и вернуться",
 	"vcmi.battle.action.genie" : "Наложить случайное полезное заклинание",
 	
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Вы уверены, что хотите загрузить быстрый сохраненный файл?",
+
 	"vcmi.bonusSource.artifact" : "Артефакт",
 	"vcmi.bonusSource.creature" : "Умение",
 	"vcmi.bonusSource.spell" : "Заклинание",

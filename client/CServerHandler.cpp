@@ -692,6 +692,50 @@ void CServerHandler::endGameplay()
 	}
 }
 
+std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
+{
+	auto mapInfo = std::make_shared<CMapInfo>();
+	mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+
+	// initial start info from quick load slot
+	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
+	// initial start info from game state (not current start info)
+	const auto * startInfo2 = client->gameState().getInitialStartInfo();
+
+	if (!startInfo1)
+		return "Missing quick load start info.";
+	if (!startInfo2)
+		return "Missing server start info.";
+	if (startInfo1->startTime != startInfo2->startTime)
+		return "Different initial start time.";
+	if (startInfo1->mapname != startInfo2->mapname)
+		return "Different map name.";
+	if (startInfo1->difficulty != startInfo2->difficulty)
+		return "Different difficulty.";
+	const auto & playerInfos1 = startInfo1->playerInfos;
+	const auto & playerInfos2 = startInfo2->playerInfos;
+	if (playerInfos1.size() != playerInfos2.size())
+		return "Different number of players.";
+	if (!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
+		[](const auto& p1, const auto& p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
+		return "Different players.";
+	return std::nullopt;
+}
+
+void CServerHandler::quickLoadGame(const std::string & path)
+{
+	if(!settings["session"]["headless"].Bool())
+	{
+		if(si->campState && !si->campState->getLoadingBackground().empty())
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		else
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
+	}
+	LobbyQuickLoadGame pack;
+	pack.saveFilePath = path;
+	sendLobbyPack(pack);
+}
+
 void CServerHandler::restartGameplay()
 {
 	client->finishGameplay();
