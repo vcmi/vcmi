@@ -312,6 +312,8 @@ void CampaignHandler::writeScenarioTravelToJson(JsonNode & node, const CampaignT
 		node["keepCreatures"].Vector().push_back(JsonNode(CreatureID::encode(c)));
 	for(const auto & a : travel.artifactsKeptByHero)
 		node["keepArtifacts"].Vector().push_back(JsonNode(ArtifactID::encode(a)));
+	
+	node["startOptions"].String() = vstd::reverseMap(startOptionsMap)[travel.startOptions];
 
 	if (travel.playerColor.isValidPlayer())
 		node["playerColor"].String() = PlayerColor::encode(travel.playerColor.getNum());
