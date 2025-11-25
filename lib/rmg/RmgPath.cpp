@@ -257,7 +257,6 @@ float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int
 			minDistSq = distSq;
 	}
 
-	//return std::sqrt(minDistSq);
 	return minDistSq;
 }
 
