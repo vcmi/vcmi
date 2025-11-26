@@ -194,8 +194,13 @@ These are internal types that are generally not available for modding and are ha
 		// optional; default or if explicitly set to null: all "land" terrains (e.g. not rock and not water)
 		// allowed terrain types to place object to. Affects also RMG.
 		// Note that map editor will still allow to place object on other terrains
-		// allowed terrain types: "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-		"allowedTerrains":["dirt", "sand"],
+		// h3 terrain types: "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
+		"allowedTerrains":[
+			"dirt",
+			"sand",
+			"asphalt", // terrain from mod, such form can only be used if mod has dependency on mod with such terrain
+			"hota:wasteland", // terrain from mod, such form can be used even without dependency, entry will be ignored if such mod does not exists
+		],
 
 		//zindex, defines order in which objects on same tile will be blit. optional, default is 0 
 		//NOTE: legacy overlay objects has zindex = 100
