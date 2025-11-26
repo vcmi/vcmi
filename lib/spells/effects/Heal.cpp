@@ -130,6 +130,8 @@ SpellEffectValue Heal::getHealEffectValue(const Mechanics * m, const battle::Uni
 	newState->heal(result.hpDelta, healLevel, healPower);
 
 	result.unitsDelta = std::max(0, newState->getCount() - countBeforeHeal);
+	if(result.unitsDelta > 0)
+		result.unitsType = unit->creatureId();
 
 	return result;
 }

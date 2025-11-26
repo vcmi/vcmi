@@ -147,7 +147,11 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 		baseText = boost::str(boost::format(templateText) % targetName);
 
 	if(value.unitsDelta > 0)
-		return baseText +" (+ "+ std::to_string(value.unitsDelta) +")";
+	{
+		auto unitTypeName = value.unitsDelta == 1 ? LIBRARY->creatures()->getById(value.unitsType)->getNameSingularTranslated()
+												  : LIBRARY->creatures()->getById(value.unitsType)->getNamePluralTranslated();
+		return baseText +" (+ "+ std::to_string(value.unitsDelta) +" "+ unitTypeName +")";
+	}
 
 	if(value.hpDelta == 0)
 		return baseText;

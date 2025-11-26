@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Effect.h"
+#include "lib/constants/EntityIdentifiers.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -23,6 +24,7 @@ struct SpellEffectValue
 {
 	int64_t hpDelta = 0; // positive -> healed health points, negative -> damage
 	int64_t unitsDelta = 0; // positive -> resurrected / summoned (demons) / animated (undeads), negative -> kills
+	CreatureID unitsType = CreatureID::NONE; // creatures summoned / resurrected / animated / killed / etc.
 
 	SpellEffectValue & operator+=(const SpellEffectValue & rhs) noexcept
 	{

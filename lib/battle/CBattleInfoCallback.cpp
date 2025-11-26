@@ -919,7 +919,10 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(const CSpell * spell
 
 	spells::Target spellTarget;
 	if(const auto *u = battleGetUnitByPos(targetHex, false))
+	{
 		spellTarget.emplace_back(spells::Destination(u));
+		result->unitsType = u->creatureId();
+	}
 	else
 		spellTarget.emplace_back(targetHex);
 

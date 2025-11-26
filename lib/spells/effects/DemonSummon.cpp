@@ -113,7 +113,10 @@ SpellEffectValue DemonSummon::getHealthChange(const Mechanics * m, const EffectT
 
 	auto unit = targets.front();
 	if(unit)
+	{
 		result.unitsDelta = raisedCreatureAmount(m, unit);
+		result.unitsType = creature;
+	}
 
 	return result;
 }
