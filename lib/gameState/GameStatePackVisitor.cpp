@@ -612,6 +612,10 @@ void GameStatePackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	h->pos = pack.tile;
 	h->updateAppearance();
 
+	// Generate unique instance name before adding to map
+	if (h->instanceName.empty())
+		gs.getMap().generateUniqueInstanceName(h.get());
+
 	gs.getMap().addNewObject(h);
 	assert(h->id.hasValue());
 
