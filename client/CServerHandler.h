@@ -89,7 +89,7 @@ public:
 	virtual void setExtraOptionsInfo(const ExtraOptionsInfo & info) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
-	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
+	virtual void sendStartGame(bool allowOnlyAI = false, bool verify = true) const = 0;
 	virtual void sendRestartGame() const = 0;
 };
 
@@ -201,7 +201,7 @@ public:
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;
-	void sendStartGame(bool allowOnlyAI = false) const override;
+	void sendStartGame(bool allowOnlyAI = false, bool verify = true) const override;
 
 	void startMapAfterConnection(std::shared_ptr<CMapInfo> to);
 	bool validateGameStart(bool allowOnlyAI = false) const;

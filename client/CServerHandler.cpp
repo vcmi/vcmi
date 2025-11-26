@@ -591,9 +591,10 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	return true;
 }
 
-void CServerHandler::sendStartGame(bool allowOnlyAI) const
+void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	if(verify)
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	if(!settings["session"]["headless"].Bool())
 	{
