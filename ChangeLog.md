@@ -4,11 +4,16 @@
 
 ### Key Changes
 
-* Windows ARM platform is now officially supported
+* Windows ARM and Android x86_64 platforms are now officially supported
 * Added support for loading h3m maps and campaigns from HotA 1.7 (also needs support from HotA mod)
 * Implemented network lag compensation system for some actions like hero movement and troops rearrangement
 * It is now possible to view and configure keybinding in game
+* Battle-only mode has been implemented, consisting solely of combat between heroes without an adventure map phase.
 * Implemented unit action panel in combat for easy selection of unit's alternative actions
+* Added an improved Nullkiller2 adventure map AI as the default option.
+* Removed the deprecated VCAI adventure map AI
+* Added translation to Romanian language
+* Initial support for maps with more than two layers
 
 ### Stability
 
@@ -20,6 +25,10 @@
 * Fixed large number of small memory leaks when restating map or returning to main menu
 * Fixed crash on attempting to access map located in .zip archive
 * Fixed rare freeze on starting combat with opening spells present, such as from Armor of the Damned
+* Fixed a possible crash when opening the stack window in the fort window for units with an ability limited to a specific terrain
+* Fixed crash on loading of community-made maps with out-of-bounds towns
+* Fixed possible crashes on ending battle in a draw in objects like town, pandora boxes or creature banks
+* Fixed a crash when accessing a shipyard placed adjacent to the left border of the map
 
 ### Interface - General
 
@@ -27,9 +36,16 @@
 * Fixed movement of software cursor when touch input is in use, for example on mobile systems
 * "Show FPS" option has been replaced with "Show Performance Overlay" option that also displays time and remaining battery level, if any
 * Change scroll direction for horizontal slider when using mouse wheel to match HD mod
+* Spell selection in the spellbook now includes haptic feedback
+* Fixed possible mid-word wrapping in icon descriptions on items with long names, such as some artifacts
+* The length of the slider in all dialogs now depends on the number of available items, rather than always being square
+* The creature window and the quest log now use the same background as the rest of the in-game menus for a more native look
 
 ### Interface - Campaign and Map selection
 
+* Added button to access campaign sets from mods (such as Chronicles) from custom campaigns screen
+* Custom map sizes can now be selected for random map generation
+* Option to search for a random map template by name has been added.
 * Added option to view game statistics for campaign scenario
 * Game will no longer show chat button in campaign selection screen
 * It is now possible to skip campaign and main menu video with Esc or Enter keyboard keys, in addition to mouse click
@@ -37,9 +53,13 @@
 * Added missing tooltips for campaign set buttons (RoE/AB/SoD/etc)
 * Maps with non-latin names will now be sorted correctly according to selected language
 * Fixed corrupted background for Armaggeddon's Blade campaign selection screen
+* Fixed a possible text overflow issue with long skill or spell names in the hero overview window when selecting a starting hero
+* It is no longer possible to deselect underground on random map templates that only support maps with underground
 
 ### Interface - Adventure Map
 
+* Right-clicking on a hero, castle, or garrison will show a window whose color is determined by the owner of the target rather than the current player
+* It is now possible for players to access game statistics for themselves and their allies during gameplay
 * Heroes on minimaps are now shown as icon, to help with readability on large maps or on small displays
 * Right-click tooltip on Refugee Camp will now show preview of available creatures if current player have visited it this week
 * Right-click on previously visited University will now show skills available in it
@@ -54,11 +74,19 @@
 * Fixed positioning of GUI elements when improved hero exchange from vcmi extras mod is in use
 * Fixed army transfer during hero exchange sometimes not transferring all possible units
 * Swapping two armies on hero exchange window will now maintain unit ordering
+* It is now possible to sort the artifacts in the backpack in reverse order by clicking on the same sorting mode again
+* A new backpack icon created by Andruids has been added
+* Right-clicking on the resource bar will now also show the expected daily income, in addition to the current resource amount
+* It is now possible to see the name of the artifact even when the slot is locked
+* Combined or fused artifacts now show their list of components as part of their description
+* Changed background for right-click popup of on-map garrisons
 
 ### Interface - Towns
 
 * Equipping or unequipping artifacts that affect unit growth will now instantly update town interface with new growth values
 * Fixed quick recruitment dialog failing if there are no free slots in army
+* It is now possible to rename a town that the player owns during gameplay
+* Conflux with Aurora Borealis build will now correctly display all available spells in the Mages Guild.
 
 ### Interface - Combat
 
@@ -81,6 +109,8 @@
 * Winning combat with no enemy casualties will no longer result in raising of a single skeleton when victor has Necromancy
 * If hero has Necromancy and no available slot, game will now also consider upgrades of upgrades as potentially rised creature
 * Fixed incorrect recalculation of stack experience when splitting-off a single unit via shortcut
+* Implemented `vcmiteleport x y z` cheat that teleports current hero to target position
+* Gold Golems and Diamond Golems now have correct level, in line with H3
 
 ### Mechanics - Heroes and Commanders
 
@@ -102,6 +132,7 @@
 * Quests that take entire army can now be completed if quests give replacement units
 * Fixed events that are available for all players not activating on maps in .vmap format
 * Fixed bug that caused events that only contain text message to not trigger in premade .vmap's
+* Guardians of owned dwellings no longer count towards "accumulate X creatures" win condition
 
 ### Mechanics - Adventure Map Objects
 
@@ -134,6 +165,8 @@
 * Fixed large number of issue with Magic Mirror spell. The spell logic should now be in line with H3
 * Unit under Berserk effect will now correctly move towards nearest unit if they can't reach any target
 * Ranged unit under Berserk effect will now use ranged attack if able
+* Multiple issues where it was possible to select illegal units for the Sacrifice spell have been fixed
+* Fixed a possible overlap between the commander and a double-wide creature in the fifth slot of the army
 
 ### Campaigns
 
@@ -142,35 +175,53 @@
 
 ## AI
 
+* Added an improved Nullkiller2 adventure map AI as the default option.
+* Removed the deprecated VCAI adventure map AI
 * Fixed possible infinite loop when hero can't decide whether to equip mana regeneration artifact or knowledge boosting artifact
 * Fixed incorrect BattleAI estimation of multi-hex attacks when attacking from behind if at least one of the units is double-wide
+* Fixed a bug where the adventure AI might attempt to act before all the side effects from the battle end have been processed.
 
 ### Random Maps Generator
 
 * Placement of main town in center of zone will now account for water tiles
 * Added support for town type hints `likeZone`, `notLikeZone`, `relatedToZoneTerrain`
 * Map generator will now place curved roads
+* Fixed missing road on 6lm10a template
 
 ### Launcher
 
+* Fixed a crash when importing the new version of the Heroes Chronicles installer from GOG.com
+* Fixed importing of maps on Android
+* Mod download will now keep screen active on mobile system to prevent corrupted downloads
+* It is now possible to import a .zip archive containing multiple maps
+* Fixed mod selection reset on installation of a new mod
+* The mod installation phase now correctly shows the mod name instead of the mod ID
 * Added built-in editor for configuration file
 * Correctly hide gog install button after successful install
+* Fixed sorting of mods by their enabled status in launcher
+* The launcher will now use the system proxy (if available) for all downloads
 
 ### Map Editor
 
+* Massive performance and memory usage issues when editing huge maps have been fixed
 * Added random map template editor, available from map editor
 * Added initial version of campaign editor, available from map editor
 * Added support for drag-and-drop of maps into map editor
 * Added new keyboard shortcuts
 * Keyboard shortcuts are now visible in menu
+* It is now possible to undo or redo operations that change the terrain, rivers, or roads
 * Add filter to hero spell selection widget
 * Map validation results window now dynamically adjusts its size based on message lengths
 * A valid map will now properly display an appropriate message in the map validation results
 * Added word wrap for item text activates only when the map validation window reaches a defined width limit
+* Fixed potentially corrupted tiling of terrains in some edge cases when multiple types of terrain are adjacent to each other
+* When changing terrain, the orientation of pre-existing rivers on affected tiles will now be preserved correctly
 
 ### Modding - General
 
 * Added support for custom magic schools
+* Added support for custom resource types and mines. Hardcoded Mithil support has been removed
+* Added support for icons in the list of owned dwellings for objects from mods in the Kingdom Overview.
 * It is now possible to replace or append individual entries in json lists (`[ 1, 2, 3 ]`) without replacing entire list
 * It is now possible to specify both nominator and denominator (roll difficulty & dice size) for luck and morale probabilities
 * It is now possible to define hero secondary skill specialties in form `"secondary" : "archery"`
@@ -182,6 +233,8 @@
 * Added support for configuring parameters of H3 adventure map spells and for creating similar spells in mods
 * It is now possible to change number of skills offered to hero on levelup
 * Game will now generate shadow and selection overlay if enabled in animation config
+* Implemented validation of `targetCondition` in spells to automatically detect invalid mods
+* Implemented validation of `mapObject` in towns and heroes to automatically detect invalid mods
 
 ### Modding - Adventure Map Objects
 
@@ -208,6 +261,7 @@
 * It is now possible to configure skills available in Magic University in Conflux or similar building from mods
 * It is now possible to give units to visiting hero using configurable town building, but only if hero can accept these units into his army
 * Added support for configuring positions of spells in mage guild window per town
+* Added `auroraBorealis` and `deityOfFire` as building types instead of hardcoded checks for such buildings
 
 ### Modding - Artifacts
 
@@ -242,11 +296,14 @@
 * Added COMBAT_MANA_BONUS that gives hero additional mana for the duration of combat (Skyship)
 * Added SPECIFIC_SPELL_RANGE that limits possible range for casting spells by creatures in combat
 * Added MANA_PERCENTAGE_REGENERATION bonus that replaces less configurable FULL_MANA_REGENERATION bonus
+* Added HATES_TRAIT bonus that functions like HATE bonus but allows to target all units with specific bonus
 * GENERATE_RESOURCE bonus is now also checked in town, mine, and garrison scope
 * ENCHANTER bonus will no longer cast mass spells by default. Spell would still be massive it is massive on specified school master level
 * CREATURE_UPGRADE bonus is now checked from unit scope and will only allow upgrades of this unit (unless propagated to hero)
 * Reworked DARKNESS bonus. Bonus now can be used on both towns and heroes, and only applies on start of turn
 * DRAGON_NATURE bonus will no longer affect result of Skeleton Transformer use
+* SPELL_LIKE_ATTACK bonus now correctly works when used with limiters
+* OPENING_BATTLE_SPELL bonus can now use addInfo to select desired spell mastery level
 * Removed SYNERGY_TARGET bonus
 
 ### Modding - Bonus Limiters
@@ -269,6 +326,7 @@
 ### Other
 
 * It is now possible to change default directory paths used by VCMI on Windows
+* Beta and Develop builds will now generate separate desktop and start menu shortcuts
 * Added alternative versions of cheats from RoE and AB editions
 * Implemented nwcphisherprice and a new grayscale cheat
 * Cheat parameters (e.g. creature, artifact and skill identifiers) are now case-insensitive
