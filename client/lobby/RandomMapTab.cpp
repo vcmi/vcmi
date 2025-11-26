@@ -185,7 +185,7 @@ RandomMapTab::RandomMapTab():
 					templateIndex = 0;
 
 				texts.push_back(templates[i]->getName());
-				popupTexts.push_back(templates[i]->getDescription());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
 			}
 
 			ENGINE->windows().popWindows(1);
