@@ -589,22 +589,27 @@
 				},
 				"playerAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"alliedAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"friendlyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				},
 				"neutralAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				}
 			}
