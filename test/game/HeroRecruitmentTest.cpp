@@ -9,124 +9,20 @@
  */
 #include "StdInc.h"
 
-#include "mock/mock_Services.h"
-#include "mock/mock_MapService.h"
-#include "mock/mock_IGameEventCallback.h"
+#include "GameStateTest.h"
 
-#include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/TavernHeroesPool.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapping/CMap.h"
 #include "../../lib/CPlayerState.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/callback/GameRandomizer.h"
-#include "../../lib/filesystem/ResourcePath.h"
 
-class HeroRecruitmentTest : public ::testing::Test, public ServerCallback, public MapListener
+/**
+ * Test fixture for hero recruitment netpack tests.
+ * Inherits game setup and state management from GameStateTest.
+ */
+class HeroRecruitmentTest : public GameStateTest
 {
-public:
-	HeroRecruitmentTest()
-		: gameEventCallback(std::make_shared<GameEventCallbackMock>(this)),
-		mapService("test/MiniTest/", this),
-		map(nullptr)
-	{
-	}
-
-	void SetUp() override
-	{
-		gameState = std::make_shared<CGameState>();
-		gameState->preInit(&services);
-	}
-
-	void TearDown() override
-	{
-		gameState.reset();
-	}
-
-	bool describeChanges() const override
-	{
-		return true;
-	}
-
-	void apply(CPackForClient & pack) override
-	{
-		gameState->apply(pack);
-	}
-
-	void complain(const std::string & problem) override
-	{
-		FAIL() << "Server-side assertion: " << problem;
-	}
-
-	vstd::RNG * getRNG() override
-	{
-		return &randomGenerator;
-	}
-
-	// Unused battle-specific overrides - not needed for hero recruitment tests
-	void apply(BattleLogMessage &) override {}
-	void apply(BattleStackMoved &) override {}
-	void apply(BattleUnitsChanged &) override {}
-	void apply(SetStackEffect &) override {}
-	void apply(StacksInjured &) override {}
-	void apply(BattleObstaclesChanged &) override {}
-	void apply(CatapultAttack &) override {}
-
-	void mapLoaded(CMap * map) override
-	{
-		EXPECT_EQ(this->map, nullptr);
-		this->map = map;
-	}
-
-	void startTestGame()
-	{
-		StartInfo si;
-		si.mapname = "anything";
-		si.difficulty = 0;
-		si.mode = EStartMode::NEW_GAME;
-
-		std::unique_ptr<CMapHeader> header = mapService.loadMapHeader(ResourcePath(si.mapname));
-		ASSERT_NE(header.get(), nullptr);
-
-		// Setup player info
-		for(int i = 0; i < header->players.size(); i++)
-		{
-			const PlayerInfo & pinfo = header->players[i];
-
-			if (!(pinfo.canHumanPlay || pinfo.canComputerPlay))
-				continue;
-
-			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
-			pset.color = PlayerColor(i);
-			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
-			pset.name = "Player";
-			pset.castle = pinfo.defaultCastle();
-			pset.hero = pinfo.defaultHero();
-
-			if(pset.hero != HeroTypeID::RANDOM && pinfo.hasCustomMainHero())
-			{
-				pset.hero = pinfo.mainCustomHeroId;
-				pset.heroNameTextId = pinfo.mainCustomHeroNameTextId;
-				pset.heroPortrait = HeroTypeID(pinfo.mainCustomHeroPortrait);
-			}
-		}
-
-		GameRandomizer randomizer(*gameState);
-		Load::ProgressAccumulator progressTracker;
-		gameState->init(&mapService, &si, randomizer, progressTracker, false);
-
-		ASSERT_NE(map, nullptr);
-	}
-
-	std::shared_ptr<CGameState> gameState;
-	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
-	MapServiceMock mapService;
-	ServicesMock services;
-	CMap * map;
-	CRandomGenerator randomGenerator;
 };
 
 // Test that hero recruitment properly assigns an ID to the recruited hero
