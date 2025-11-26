@@ -612,8 +612,8 @@ void GameStatePackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	h->pos = pack.tile;
 	h->updateAppearance();
 
-	assert(h->id.hasValue());
 	gs.getMap().addNewObject(h);
+	assert(h->id.hasValue());
 
 	p->addOwnedObject(h.get());
 	h->attachToBonusSystem(gs);
