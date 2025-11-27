@@ -47,6 +47,10 @@
 				"visiblePositionX" : { "type" : "number" },
 				"visiblePositionY" : { "type" : "number" },
 				"visibleSize" : { "type" : "number" },
+				"forcedLevel" : {
+					"type" : "string",
+					"enum" : ["automatic", "surface", "underground"]
+				},
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},

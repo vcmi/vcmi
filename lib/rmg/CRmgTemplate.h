@@ -60,6 +60,13 @@ namespace EMonsterStrength // used as int in monster generation procedure and in
 	};
 }
 
+enum class EZoneLevel // used to force zone placement on surface or underground
+{
+	AUTOMATIC = 0,
+	SURFACE = 1,
+	UNDERGROUND = 2
+};
+
 class DLL_LINKAGE CTreasureInfo
 {
 public:
@@ -253,6 +260,9 @@ public:
 	float getVisibleSize() const;
 	void setVisibleSize(float value);
 
+	EZoneLevel getForcedLevel() const;
+	void setForcedLevel(EZoneLevel value);
+
 protected:
 	TRmgTemplateZoneId id;
 	ETemplateZoneType type;
@@ -289,6 +299,7 @@ protected:
 	TRmgTemplateZoneId terrainTypeLikeZone;
 	TRmgTemplateZoneId treasureLikeZone;
 	TRmgTemplateZoneId customObjectsLikeZone;
+	EZoneLevel forcedLevel;
 };
 
 }
