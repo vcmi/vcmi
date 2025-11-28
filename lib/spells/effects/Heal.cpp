@@ -42,7 +42,7 @@ SpellEffectValue Heal::getHealthChange(const Mechanics * m, const EffectTarget &
 
 		if(unit)
 		{
-			result += getHealEffectValue(m, unit);
+			result += getHealEffectValue(m->getEffectValue(), m, unit);
 			result.unitType = unit->creatureId();
 		}
 	}
@@ -121,19 +121,18 @@ void Heal::serializeJsonUnitEffect(JsonSerializeFormat & handler)
 	handler.serializeInt("minFullUnits", minFullUnits);
 }
 
-SpellEffectValue Heal::getHealEffectValue(const Mechanics * m, const battle::Unit * unit, std::shared_ptr<battle::Unit> newState) const
+SpellEffectValue Heal::getHealEffectValue(int64_t value, const Mechanics * m, const battle::Unit * unit, std::shared_ptr<battle::Unit> newState) const
 {
 	SpellEffectValue result {};
+
+	result.hpDelta = value;
 
 	if(!newState)
 		newState = unit->acquire();
 	const auto countBeforeHeal = newState->getCount();
-	result.hpDelta = m->applySpellBonus(m->getEffectValue(), unit);
 	newState->heal(result.hpDelta, healLevel, healPower);
 
 	result.unitsDelta = std::max(0, newState->getCount() - countBeforeHeal);
-	if(result.unitsDelta > 0)
-		result.unitType = unit->creatureId();
 
 	return result;
 }
@@ -147,7 +146,7 @@ void Heal::prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLog
 		if(unit)
 		{
 			auto state = unit->acquire();
-			SpellEffectValue healValue = getHealEffectValue(m, unit, state);
+			SpellEffectValue healValue = getHealEffectValue(value, m, unit, state);
 
 			if(healValue.hpDelta > 0)
 			{

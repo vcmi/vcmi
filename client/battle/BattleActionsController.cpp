@@ -162,8 +162,12 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 		auto val = value.hpDelta;
 		TextReplacementList replacements {{ "%d", std::to_string(val) }};
 		int64_t correctPluralIndex = val > 3 ? 0 : std::clamp(val, int64_t(1), int64_t(2));
-		outputString = LIBRARY->generaltexth->translate("vcmi.battleWindow.healValuePreview."+
-																	std::to_string(correctPluralIndex));
+		std::string textTemplateKey;
+		if(gnrlTextID == 549) //sacrifice spell
+			textTemplateKey = "vcmi.battleWindow.sacrificeAcquiredHealth.";
+		else
+			textTemplateKey = "vcmi.battleWindow.healValuePreview.";
+		outputString = LIBRARY->generaltexth->translate(textTemplateKey + std::to_string(correctPluralIndex));
 		outputString = replacePlaceholders(outputString, replacements);
 	}
 	else
@@ -641,7 +645,17 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return LIBRARY->generaltexth->allTexts[550];
 
 		case PossiblePlayerBattleAction::SACRIFICE:
-			return (boost::format(LIBRARY->generaltexth->allTexts[549]) % targetStack->getName()).str(); //sacrifice the %s
+		{
+			const CSpell * spell = action.spell().toSpell();
+			if(!spell)
+				return {};
+
+			auto spellEffectValue =
+					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+
+			//sacrifice the %s
+			return prepareSpellEffectText(549, *spellEffectValue, "", targetStack->getName());
+		}
 
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
