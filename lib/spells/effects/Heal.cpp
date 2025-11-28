@@ -41,7 +41,10 @@ SpellEffectValue Heal::getHealthChange(const Mechanics * m, const EffectTarget &
 		const battle::Unit * unit = oneTarget.unitValue;
 
 		if(unit)
+		{
 			result += getHealEffectValue(m, unit);
+			result.unitType = unit->creatureId();
+		}
 	}
 	return result;
 }
@@ -122,16 +125,15 @@ SpellEffectValue Heal::getHealEffectValue(const Mechanics * m, const battle::Uni
 {
 	SpellEffectValue result {};
 
-	result.hpDelta = m->applySpellBonus(m->getEffectValue(), unit);
-
 	if(!newState)
 		newState = unit->acquire();
 	const auto countBeforeHeal = newState->getCount();
+	result.hpDelta = m->applySpellBonus(m->getEffectValue(), unit);
 	newState->heal(result.hpDelta, healLevel, healPower);
 
 	result.unitsDelta = std::max(0, newState->getCount() - countBeforeHeal);
 	if(result.unitsDelta > 0)
-		result.unitsType = unit->creatureId();
+		result.unitType = unit->creatureId();
 
 	return result;
 }

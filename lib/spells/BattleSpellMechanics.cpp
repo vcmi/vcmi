@@ -786,6 +786,11 @@ BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) 
 	return effectRange;
 }
 
+Target BattleSpellMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return transformSpellTarget(aim);
+}
+
 const Spell * BattleSpellMechanics::getSpell() const
 {
 	return owner;

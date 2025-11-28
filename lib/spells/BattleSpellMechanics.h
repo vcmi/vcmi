@@ -66,6 +66,8 @@ public:
 	/// Returns list of hexes that are affected by spell assuming cast at centralHex
 	BattleHexArray rangeInHexes(const BattleHex & centralHex) const override;
 
+	Target canonicalizeTarget(const Target & aim) const override;
+
 	const Spell * getSpell() const override;
 
 	bool counteringSelector(const Bonus * bonus) const;

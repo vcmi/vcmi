@@ -21,6 +21,7 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../AI/BattleAI/StackWithBonuses.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -89,14 +90,28 @@ SpellEffectValue Damage::getHealthChange(const Mechanics * m, const EffectTarget
 {
 	SpellEffectValue result {};
 
-	auto targets = m->getAffectedStacks(spellTarget);
-
 	size_t targetIndex = 0;
-	for(auto const * target : targets)
+	RNGStub fakeRng;
+
+	for(auto const & t : spellTarget)
 	{
-		auto dmgForTarget = damageForTarget(targetIndex, m, target);
-		result.hpDelta += -dmgForTarget;
-		result.unitsDelta += std::max(-target->getCount(), int32_t(-dmgForTarget / target->getMaxHealth()));
+		const battle::Unit * unit = t.unitValue;
+		if(unit && unit->alive())
+		{
+			BattleStackAttacked bsa;
+			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
+			bsa.stackAttacked = unit->unitId();
+			bsa.attackerID = -1;
+			auto state = unit->acquireState();
+			int64_t before = state->getAvailableHealth();
+			CStack::prepareAttacked(bsa, fakeRng, state);
+			int64_t after  = state->getAvailableHealth();
+			int64_t applied = before - after;
+
+			result.hpDelta -= applied;
+			result.unitsDelta -= static_cast<int32_t>(bsa.killedAmount);
+		}
+
 		targetIndex++;
 	}
 

@@ -905,9 +905,13 @@ int64_t CBattleInfoCallback::getFirstAidHealValue(const CGHeroInstance * owner, 
 	return state->heal(base, EHealLevel::HEAL, EHealPower::PERMANENT).healedHealthPoints;
 }
 
-SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const BattleHex & targetHex) const
+SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
+	const CSpell * spell,
+	const spells::Caster * caster,
+	const spells::Mode spellMode,
+	const BattleHex & targetHex) const
 {
-	SpellEffectValUptr result = std::make_unique<spells::effects::SpellEffectValue>();
+	auto result = std::make_unique<spells::effects::SpellEffectValue>();
 	RETURN_IF_NOT_BATTLE(result);
 	if(!spell || !caster || !targetHex.isValid())
 		return result;
@@ -917,21 +921,31 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(const CSpell * spell
 	if(!mech)
 		return result;
 
-	spells::Target spellTarget;
-	if(const auto *u = battleGetUnitByPos(targetHex, false))
-	{
-		spellTarget.emplace_back(spells::Destination(u));
-		result->unitsType = u->creatureId();
-	}
-	else
-		spellTarget.emplace_back(targetHex);
+	spells::Target aim;
+	aim.emplace_back(targetHex);
+	const battle::Unit * hoveredUnit = battleGetUnitByPos(targetHex, false);
+	if(hoveredUnit)
+		aim.emplace_back(spells::Destination(hoveredUnit));
 
-	mech->forEachEffect([&](const spells::effects::Effect &e) {
-		if(const auto * ue = dynamic_cast<const spells::effects::UnitEffect *>(&e))
+	const spells::Target spellTarget = mech->canonicalizeTarget(aim);
+
+	mech->forEachEffect([&](const spells::effects::Effect &e){
+		if(const auto *ue = dynamic_cast<const spells::effects::UnitEffect*>(&e))
 		{
-			*result += ue->getHealthChange(mech.get(), spellTarget);
+			auto effTarget = ue->transformTarget(mech.get(), aim, spellTarget);
+			// Cure-specific safety net: if empty, but hovering a healable friendly unit, evaluate just that unit
+			if(effTarget.empty() && hoveredUnit)
+			{
+				spells::EffectTarget single;
+				single.emplace_back(spells::Destination(hoveredUnit));
+				*result += ue->getHealthChange(mech.get(), single);
+				return false;
+			}
+
+			if(!effTarget.empty())
+				*result += ue->getHealthChange(mech.get(), effTarget);
 		}
-		return false;
+		return false; // continue iterating effects
 	});
 
 	return result;

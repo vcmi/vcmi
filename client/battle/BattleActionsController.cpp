@@ -148,8 +148,8 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 
 	if(value.unitsDelta > 0)
 	{
-		auto unitTypeName = value.unitsDelta == 1 ? LIBRARY->creatures()->getById(value.unitsType)->getNameSingularTranslated()
-												  : LIBRARY->creatures()->getById(value.unitsType)->getNamePluralTranslated();
+		auto unitTypeName = value.unitsDelta == 1 ? LIBRARY->creatures()->getById(value.unitType)->getNameSingularTranslated()
+												  : LIBRARY->creatures()->getById(value.unitType)->getNamePluralTranslated();
 		return baseText +" (+ "+ std::to_string(value.unitsDelta) +" "+ unitTypeName +")";
 	}
 
@@ -621,6 +621,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 		{
 			const CSpell * spell = action.spell().toSpell();
+			if(!spell)
+				return {};
 
 			auto spellEffectValue =
 					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
