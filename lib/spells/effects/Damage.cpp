@@ -21,7 +21,7 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
-#include "../AI/BattleAI/StackWithBonuses.h"
+#include "../lib/CRandomGenerator.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -91,7 +91,7 @@ SpellEffectValue Damage::getHealthChange(const Mechanics * m, const EffectTarget
 	SpellEffectValue result {};
 
 	size_t targetIndex = 0;
-	RNGStub fakeRng;
+	CRandomGenerator fakeRng;
 
 	for(auto const & t : spellTarget)
 	{
