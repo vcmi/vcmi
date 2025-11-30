@@ -24,9 +24,25 @@
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-void replaceWithCurvedPath(rmg::Path & path, const Zone & zone, const int3 & src, bool onlyStraight /* = true */)
+void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
 {
-	auto costFunction = rmg::Path::createCurvedCostFunction(zone.area()->getBorder());
+	// Get random control points from within the zone
+	auto & rng = zone.getRand();
+	const auto & tiles = zone.area()->getTilesVector();
+
+	if(tiles.size() < 2)
+	{
+		logGlobal->warn("Zone too small for curved path");
+		return;
+	}
+
+	// Pick two random control points (Q1, Q2) from zone tiles
+	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+
+	// Create Bezier cost function: Q0=start, Q1=control1, Q2=control2, Q3=src
+	auto costFunction = rmg::Path::createBezierCostFunction(src, control1, control2, zone.getPos());
+
 	auto pathArea = zone.areaForRoads();
 	rmg::Path curvedPath(pathArea);
 	curvedPath.connect(zone.freePaths().get());
