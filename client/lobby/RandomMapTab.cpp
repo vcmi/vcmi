@@ -168,7 +168,9 @@ RandomMapTab::RandomMapTab():
 		w->addCallback([this, getTemplates]() // no real dropdown... - instead open dialog
 		{
 			std::vector<std::string> texts;
+			std::vector<std::string> popupTexts;
 			texts.push_back(readText(variables["randomTemplate"]));
+			popupTexts.push_back("");
 
 			auto selectedTemplate = mapGenOptions->getMapTemplate();
 			const auto& templates = getTemplates();
@@ -183,12 +185,18 @@ RandomMapTab::RandomMapTab():
 					templateIndex = 0;
 
 				texts.push_back(templates[i]->getName());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
 			}
 
 			ENGINE->windows().popWindows(1);
-			ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
+			auto window = std::make_shared<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.hover"), LIBRARY->generaltexth->translate("vcmi.lobby.templatesSelect.help"), [this](int index){
 				widget<ComboBox>("templateList")->setItem(index);
 			}, templateIndex, std::vector<std::shared_ptr<IImage>>(), true, true);
+			window->onPopup = [popupTexts](int index){
+				if(!popupTexts[index].empty())
+					CRClickPopup::createAndPush(popupTexts[index]);
+			};
+			ENGINE->windows().pushWindow(window);
 		});
 	}
 	
