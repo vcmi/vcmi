@@ -971,5 +971,5 @@ void BattleOnlyModeTab::startBattle()
 	ExtraOptionsInfo extraOptions;
 	extraOptions.unlimitedReplay = true;
 	GAME->server().setExtraOptionsInfo(extraOptions);
-	GAME->server().sendStartGame();
+	GAME->server().sendStartGame(false, false);
 }
