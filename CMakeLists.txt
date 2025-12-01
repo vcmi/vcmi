@@ -391,6 +391,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wmismatched-tags")
 	endif()
 
+	# Enable string concatenation warning for Clang to catch missing commas in initializer lists
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wstring-concatenation")
+	endif()
+
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")   # low chance of valid reports, a lot of emitted warnings
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")             # large number of false-positives, disabled
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")            # large number of noise, low chance of any significant issues
