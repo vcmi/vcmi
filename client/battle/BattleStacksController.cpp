@@ -887,15 +887,25 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 		return mechanics->getAffectedStacks(target);
 	}
 
-	if(hoveredHex.isValid())
+	std::vector<const CStack *> stacks;
+	auto target = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
+	if(!target)
+		return {};
+	stacks.push_back(target);
+
+	// affected units by multi-hex attacks
+	if(owner.getBattle()->battleCanAttackHex(activeStack, hoveredHex) && owner.getBattle()->battleCanAttackUnit(activeStack, target))
 	{
-		const CStack * const stack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-
-		if (stack)
-			return {stack};
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(activeStack, hoveredHex, owner.fieldController->selectAttackDirection(hoveredHex));
+		auto stackHexes = owner.getBattle()->battleGetAttackedHexes(activeStack, hoveredHex, fromHex);
+		for(auto & stackHex : stackHexes)
+		{
+			const CStack * const stack = owner.getBattle()->battleGetStackByPos(stackHex, true);
+			if(stack)
+				stacks.push_back(stack);
+		}
 	}
-
-	return {};
+	return stacks;
 }
 
 const std::vector<uint32_t> BattleStacksController::getHoveredStacksUnitIds() const
