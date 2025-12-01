@@ -35,6 +35,10 @@ class IAdventureSpellEffect;
 namespace spells
 {
 class Service;
+	namespace effects
+	{
+		class Effect;
+	}
 }
 
 namespace vstd
@@ -180,6 +184,25 @@ class DLL_LINKAGE Mechanics
 public:
 	virtual ~Mechanics();
 
+	virtual void forEachEffect(const std::function<bool(const effects::Effect &)> & fn) const
+	{ }
+
+	template<class T>
+	const T * findEffect() const
+	{
+		const T * found = nullptr;
+		forEachEffect([&found](const effects::Effect & e)
+		{
+			if(auto p = dynamic_cast<const T *>(&e))
+			{
+				found = p;
+				return true;
+			}
+			return false;
+		});
+		return found;
+	}
+
 	virtual bool adaptProblem(ESpellCastProblem source, Problem & target) const = 0;
 	virtual bool adaptGenericProblem(Problem & target) const = 0;
 
@@ -234,6 +257,7 @@ public:
 	virtual int64_t applySpellBonus(int64_t value, const battle::Unit * target) const = 0;
 	virtual int64_t applySpecificSpellBonus(int64_t value) const = 0;
 	virtual int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const = 0;
+	virtual Target canonicalizeTarget(const Target & aim) const = 0;
 
 	//Battle facade
 	virtual bool ownerMatches(const battle::Unit * unit) const = 0;
@@ -292,6 +316,7 @@ public:
 	int64_t applySpellBonus(int64_t value, const battle::Unit * target) const override;
 	int64_t applySpecificSpellBonus(int64_t value) const override;
 	int64_t calculateRawEffectValue(int32_t basePowerMultiplier, int32_t levelPowerMultiplier) const override;
+	Target canonicalizeTarget(const Target & aim) const override;
 
 	bool ownerMatches(const battle::Unit * unit) const override;
 	bool ownerMatches(const battle::Unit * unit, const boost::logic::tribool positivness) const override;

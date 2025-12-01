@@ -565,10 +565,15 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
-	DamageRange damageDealt {
-		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
-		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
-	};
+	int64_t avail = info.defender->getAvailableHealth();
+
+	auto dmin = std::max<int64_t>(1.0, std::floor(damageBase.min * resultingFactor));
+	auto dmax = std::max<int64_t>(1.0, std::floor(damageBase.max * resultingFactor));
+
+	dmin = std::min(dmin, avail);
+	dmax = std::min(dmax, avail);
+
+	DamageRange damageDealt{ dmin, dmax };
 
 	DamageRange killsDealt = getCasualties(damageDealt);
 

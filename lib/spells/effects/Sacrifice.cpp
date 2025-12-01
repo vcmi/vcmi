@@ -155,6 +155,30 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 	return res;
 }
 
+SpellEffectValue Sacrifice::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result{};
+
+	if(spellTarget.empty())
+		return result;
+
+	const battle::Unit * target = spellTarget.front().unitValue;
+
+	result.unitType = target->creatureId();
+
+	if(!target->alive())
+	{
+		result.hpDelta = target->unitBaseAmount() * target->getMaxHealth();
+		result.unitsDelta = target->unitBaseAmount();
+		return result;
+	}
+
+	result.hpDelta = calculateHealEffectValue(m, target);
+	result.unitsDelta = -target->getCount();
+
+	return result;
+}
+
 int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) 
 {
 	return (m->getEffectPower() + victim->getMaxHealth() + m->calculateRawEffectValue(0, 1)) * victim->getCount();

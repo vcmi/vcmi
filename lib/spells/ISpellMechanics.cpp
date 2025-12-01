@@ -550,6 +550,11 @@ int64_t BaseMechanics::calculateRawEffectValue(int32_t basePowerMultiplier, int3
 	return owner->calculateRawEffectValue(getEffectLevel(), basePowerMultiplier, levelPowerMultiplier);
 }
 
+Target BaseMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return aim;
+}
+
 bool BaseMechanics::ownerMatches(const battle::Unit * unit) const
 {
 	return ownerMatches(unit, owner->getPositiveness());

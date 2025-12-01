@@ -138,6 +138,21 @@ BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event,
 	targetCondition(std::move(targetCondition_))
 {}
 
+void BattleSpellMechanics::forEachEffect(const std::function<bool (const spells::effects::Effect &)> & fn) const
+{
+	if (!effects)
+		return;
+
+	effects->forEachEffect(getEffectLevel(), [&](const spells::effects::Effect * eff, bool & stop)
+	{
+		if(!eff)
+			return;
+
+		if(fn(*eff))
+			stop = true;
+	});
+}
+
 BattleSpellMechanics::~BattleSpellMechanics() = default;
 
 void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const
@@ -769,6 +784,11 @@ BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) 
 	});
 
 	return effectRange;
+}
+
+Target BattleSpellMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return transformSpellTarget(aim);
 }
 
 const Spell * BattleSpellMechanics::getSpell() const

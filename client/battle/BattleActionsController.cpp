@@ -29,12 +29,14 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
+#include "../../lib/battle/CUnitState.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/effects/UnitEffect.h"
 #include "../../lib/spells/Problem.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -130,6 +132,52 @@ static std::string formatRetaliation(const DamageEstimation & estimation, bool m
 		"vcmi.battleWindow.damageRetaliation.will";
 
 	return LIBRARY->generaltexth->translate(prefixTextID) + formatAttack(estimation, "", baseTextID, 0);
+}
+
+static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects::SpellEffectValue & value,
+										  std::string_view spellName, std::string_view targetName)
+{
+	auto const & templateText = LIBRARY->generaltexth->allTexts[gnrlTextID];
+	std::string baseText;
+	if(!targetName.empty() && !spellName.empty())
+		baseText = boost::str(boost::format(templateText) % spellName % targetName);
+	else if(targetName.empty())
+		baseText = boost::str(boost::format(templateText) % spellName);
+	else
+		baseText = boost::str(boost::format(templateText) % targetName);
+
+	if(value.unitsDelta > 0)
+	{
+		auto unitTypeName = value.unitsDelta == 1 ? LIBRARY->creatures()->getById(value.unitType)->getNameSingularTranslated()
+												  : LIBRARY->creatures()->getById(value.unitType)->getNamePluralTranslated();
+		return baseText +" (+ "+ std::to_string(value.unitsDelta) +" "+ unitTypeName +")";
+	}
+
+	if(value.hpDelta == 0)
+		return baseText;
+
+	std::string outputString;
+	if(value.hpDelta > 0)
+	{
+		auto val = value.hpDelta;
+		TextReplacementList replacements {{ "%d", std::to_string(val) }};
+		int64_t correctPluralIndex = val > 3 ? 0 : std::clamp(val, int64_t(1), int64_t(2));
+		std::string textTemplateKey;
+		if(gnrlTextID == 549) //sacrifice spell
+			textTemplateKey = "vcmi.battleWindow.sacrificeAcquiredHealth.";
+		else
+			textTemplateKey = "vcmi.battleWindow.healValuePreview.";
+		outputString = LIBRARY->generaltexth->translate(textTemplateKey + std::to_string(correctPluralIndex));
+		outputString = replacePlaceholders(outputString, replacements);
+	}
+	else
+	{
+		outputString = formatPlural(value.hpDelta * -1, "vcmi.battleWindow.damageEstimation.damage");
+		if(value.unitsDelta < 0)
+			outputString += ", "+ formatPlural(value.unitsDelta * -1, "vcmi.battleWindow.damageEstimation.kills");
+	}
+
+	return baseText +" ("+ outputString +")";
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
@@ -543,14 +591,17 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 		case PossiblePlayerBattleAction::SHOOT:
 		{
+			const auto * shooter = owner.stacksController->getActiveStack();
+
 			if(targetStack == nullptr) //should be true only for spell-like attack
 			{
-				auto spellLikeAttackBonus = owner.stacksController->getActiveStack()->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+				auto spellLikeAttackBonus = shooter->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 				assert(spellLikeAttackBonus != nullptr);
-				return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % spellLikeAttackBonus->subtype.as<SpellID>().toSpell()->getNameTranslated());
-			}
+				const CSpell * spell = spellLikeAttackBonus->subtype.as<SpellID>().toSpell();
 
-			const auto * shooter = owner.stacksController->getActiveStack();
+				DamageEstimation est = owner.getBattle()->estimateSpellLikeAttackDamage(shooter, spell, targetHex);
+				return formatRangedAttack(est, spell->getNameTranslated(), shooter->shots.available());
+			}
 
 			DamageEstimation retaliation;
 			BattleAttackInfo attackInfo(shooter, targetStack, 0, true );
@@ -561,10 +612,28 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 		}
 
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[27]) % action.spell().toSpell()->getNameTranslated() % targetStack->getName()); //Cast %s on %s
+		{
+			const CSpell * spell = action.spell().toSpell();
+
+			auto spellEffectValue =
+					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+
+			// "Cast %s on %s" plus dmg and kills info or how many units are risen/summoned
+			return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
+		}
 
 		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
+		{
+			const CSpell * spell = action.spell().toSpell();
+			if(!spell)
+				return {};
+
+			auto spellEffectValue =
+					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+
+			// "Cast %s" plus dmg and kills info
+			return prepareSpellEffectText(26, *spellEffectValue, spell->getNameTranslated(), "");
+		}
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
 			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[301]) % targetStack->getName()); //Cast a spell on %
@@ -576,13 +645,28 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return LIBRARY->generaltexth->allTexts[550];
 
 		case PossiblePlayerBattleAction::SACRIFICE:
-			return (boost::format(LIBRARY->generaltexth->allTexts[549]) % targetStack->getName()).str(); //sacrifice the %s
+		{
+			const CSpell * spell = action.spell().toSpell();
+			if(!spell)
+				return {};
+
+			auto spellEffectValue =
+					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
+
+			//sacrifice the %s
+			return prepareSpellEffectText(549, *spellEffectValue, "", targetStack->getName());
+		}
 
 		case PossiblePlayerBattleAction::FREE_LOCATION:
 			return boost::str(boost::format(LIBRARY->generaltexth->allTexts[26]) % action.spell().toSpell()->getNameTranslated()); //Cast %s
 
 		case PossiblePlayerBattleAction::HEAL:
-			return (boost::format(LIBRARY->generaltexth->allTexts[419]) % targetStack->getName()).str(); //Apply first aid to the %s
+		{
+			spells::effects::SpellEffectValue value = {};
+			value.hpDelta = owner.getBattle()->getFirstAidHealValue(owner.currentHero(), targetStack);
+			//Apply first aid to the %s plus heal value
+			return prepareSpellEffectText(419, value, "", targetStack->getName());
+		}
 
 		case PossiblePlayerBattleAction::CATAPULT:
 			return ""; // TODO
