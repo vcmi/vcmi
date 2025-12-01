@@ -304,7 +304,7 @@
 	"vcmi.keyBindings.button.hover" : "Key bindings",
 	"vcmi.keyBindings.button.help"  : "{Key bindings}\n\nShow menu for viewing and adjusting key bindings",
 	"vcmi.keyBindings.editButton.help" : "Edit key binding",
-	"vcmi.keyBindings.input" : "Change key binding for {%s}.\n\nPlease enter a key or key kombination. Click outside to abort.",
+	"vcmi.keyBindings.input" : "Change key binding for {%s}.\n\nPlease enter a key or key combination. Click outside to abort.",
 	"vcmi.keyBindings.inputSet" : "Key binding for {%s} will be changed to {%s}.\n\nAppend to existing bindings? Otherwise it will be replaced.",
 	"vcmi.keyBindings.popup" : "For {%s} the following keys are configured:\n\n",
 	"vcmi.keyBindings.reset" : "Reset",
