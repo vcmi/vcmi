@@ -593,9 +593,9 @@ void PlayerMessageProcessor::cheatResources(PlayerColor player, std::vector<std:
 	}
 
 	TResources resources;
-	resources[EGameResID::GOLD] = baseResourceAmount * 1000;
 	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 		resources[i] = baseResourceAmount;
+	resources[EGameResID::GOLD] = baseResourceAmount * 1000;
 
 	gameHandler->giveResources(player, resources);
 }
