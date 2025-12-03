@@ -89,10 +89,6 @@ Scenario description looks like follow:
 - `"heroKeeps"` defines what hero will carry to the next scenario. Can be specified one or several attributes from list `"experience", "primarySkills", "secondarySkills", "spells", "artifacts"`
 - `"keepCreatures"` array of creature types which hero will carry to the next scenario. Game identifiers are used to specify creature type.
 - `"startOptions"` defines what type of bonuses player may have. Possible values are `"none", "bonus", "crossover", "hero"`
-  - `none`: player starts scenario without bonuses. [Description](#none-start-option)
-  - `bonus`: player chooses one of the predefined bonuses. [Description](#bonus-start-option)
-  - `crossover`: player will start with hero from previous scenario. [Description](#crossover-start-option)
-  - `hero` : player will start scenario with specified hero. [Description](#hero-start-option)
 - `"playerColor"` defines color id of flag which player will play for. Possible values are `0: red, 1: blue, tan: 2, green: 3, orange: 4, purple: 5, teal: 6, pink: 7`
 - "bonuses" array of possible bonus objects, format depends on `"startOptions"` parameter
 
