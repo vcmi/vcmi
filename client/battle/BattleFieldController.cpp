@@ -283,7 +283,9 @@ void BattleFieldController::redrawBackgroundWithHexes()
 			//shade occupiable and attackable hexes
 			if (occupiableHexes.contains(hex) ||
 				(owner.getBattle()->battleCanAttackUnit(activeStack, owner.getBattle()->battleGetStackByPos(hex, true)) &&
-					owner.getBattle()->battleCanAttackHex(availableHexes, activeStack, hex)))
+					owner.getBattle()->battleCanAttackHex(availableHexes, activeStack, hex)) ||
+				(owner.getBattle()->battleGetStackByPos(hex, true) &&
+					owner.getBattle()->battleCanShoot(activeStack, hex)))
 				showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
 		}
 	}
