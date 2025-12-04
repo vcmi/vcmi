@@ -151,6 +151,18 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	}
 };
 
+struct DLL_LINKAGE LobbyQuickLoadGame : public CLobbyPackToPropagate
+{
+	std::string saveFilePath;  //"Saves/Quicksave"
+
+	void visitTyped(ICPackVisitor & visitor) override;
+	
+	template <typename Handler> void serialize(Handler &h)
+	{
+			h & saveFilePath;
+	}
+};
+
 struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
 {
 	GameConnectionID newHostConnectionId = GameConnectionID::INVALID;

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "ArtifactsUIController.h"
+#include "GameChatHandler.h"
 
 #include "../lib/callback/CGameInterface.h"
 #include "../lib/gameState/GameStatistics.h"
@@ -200,6 +201,8 @@ public: // public interface for use by client via GAME->interface() access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	void proposeQuickLoadingGame();
+	void quickSaveGame();
 	void performAutosave();
 	void gamePause(bool pause);
 	void endNetwork();

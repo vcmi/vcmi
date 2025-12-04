@@ -27,7 +27,8 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Mutarea aici va costa {%POINTS} puncte. Vor rămâne {%REMAINING} puncte după mutare.",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Puncte de mișcare: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Ne pare rău, redarea turei inamicului nu este încă implementată!",
-	
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Sigur vrei să încarci salvarea rapidă?",
+
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nDorești să recrutezi %s sau %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nDorești să recrutezi %s, %s sau %s?",
 	

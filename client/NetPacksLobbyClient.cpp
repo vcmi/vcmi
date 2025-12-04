@@ -41,6 +41,11 @@
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	assert(handler.getState() == EClientState::GAMEPLAY);
+}
+
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	result = false;
@@ -155,6 +160,13 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareS
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
+	// Handle mid-game reload
+	if (handler.getState() == EClientState::GAMEPLAY) {
+			handler.client->finishGameplay();
+			handler.client->endGame();
+			handler.client.reset();
+	}
+
 	handler.setState(EClientState::STARTING);
 	if(handler.si->mode != EStartMode::LOAD_GAME)
 	{

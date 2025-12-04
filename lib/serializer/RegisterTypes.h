@@ -297,6 +297,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<BattleEnded>(255);
 	s.template registerType<RequestStatistic>(256);
 	s.template registerType<ResponseStatistic>(257);
+	s.template registerType<LobbyQuickLoadGame>(258);
 }
 
 VCMI_LIB_NAMESPACE_END

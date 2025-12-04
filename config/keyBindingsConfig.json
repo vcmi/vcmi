@@ -32,6 +32,8 @@
 		"adventureReplayTurn":      [], // NOTE: functionality not implemented
 		"adventureRestartGame":     "R",
 		"adventureSaveGame":        "S",
+		"adventureQuickSave":       ["F8"],
+		"adventureQuickLoad":       ["F9"],
 		"adventureSetHeroAsleep":   "Z",
 		"adventureSetHeroAwake":    "W",
 		"adventureThievesGuild":    "G",

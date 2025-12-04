@@ -13,6 +13,8 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/gameState/GameStatistics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -208,6 +210,8 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(std::shared_ptr<CGameState> gameState);
+	std::optional<std::string> canQuickLoadGame(const std::string & path) const; // returns reason why not compatible, or nullopt if can
+	void quickLoadGame(const std::string & path);
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void endNetwork();
 	void endGameplay();

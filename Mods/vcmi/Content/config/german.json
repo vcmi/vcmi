@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Eine Bewegung hierher kostet {%POINTS} Punkte. Nach der Bewegung bleiben {%REMAINING} Punkte übrig.",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Bewegungspunkte: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Das Wiederholen des gegnerischen Zuges ist aktuell noch nicht implementiert!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Seid Ihr sicher, dass Ihr den Schnellspielstand laden wollt?",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\r\n\r\nWürdet Ihr gerne %s oder %s rekrutieren?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\r\n\r\nWürdet Ihr gerne %s, %s oder %s rekrutieren?",

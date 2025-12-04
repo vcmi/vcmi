@@ -158,6 +158,7 @@ public:
 	virtual void visitPlayerMessage(PlayerMessage & pack) {}
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
 	virtual void visitCenterView(CenterView & pack) {}
+	virtual	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) {}
 	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) {}
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) {}
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}

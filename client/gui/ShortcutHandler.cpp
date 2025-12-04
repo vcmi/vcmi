@@ -167,6 +167,8 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
 		{"adventureLoadGame",        EShortcut::ADVENTURE_LOAD_GAME       },
 		{"adventureSaveGame",        EShortcut::ADVENTURE_SAVE_GAME       },
+		{"adventureQuickSave",       EShortcut::ADVENTURE_QUICK_SAVE      },
+		{"adventureQuickLoad",       EShortcut::ADVENTURE_QUICK_LOAD      },
 		{"adventureRestartGame",     EShortcut::ADVENTURE_RESTART_GAME    },
 		{"adventureMainMenu",        EShortcut::ADVENTURE_TO_MAIN_MENU    },
 		{"adventureQuitGame",        EShortcut::ADVENTURE_QUIT_GAME       },

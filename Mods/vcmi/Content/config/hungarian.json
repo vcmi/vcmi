@@ -25,6 +25,7 @@
 	"vcmi.adventureMap.playerAttacked"                   : "A játékost megtámadták: %s",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Mozgáspontok: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sajnáljuk, az ellenfél körének visszajátszása még nincs megvalósítva!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Biztosan betöltöd a gyorsmentést?",
 
 	"vcmi.bonusSource.artifact" : "Műtárgy",
 	"vcmi.bonusSource.creature" : "Képesség",
