@@ -612,8 +612,12 @@ void GameStatePackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	h->pos = pack.tile;
 	h->updateAppearance();
 
-	assert(h->id.hasValue());
+	// Generate unique instance name before adding to map
+	if (h->instanceName.empty())
+		gs.getMap().generateUniqueInstanceName(h.get());
+
 	gs.getMap().addNewObject(h);
+	assert(h->id.hasValue());
 
 	p->addOwnedObject(h.get());
 	h->attachToBonusSystem(gs);
