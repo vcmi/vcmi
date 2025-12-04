@@ -30,143 +30,139 @@ void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 	logGlobal->info("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
 }
 
-void ObjectConfig::addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid)
+void ObjectConfig::addCustomObject(const ObjectInfo & object)
 {
 	customObjects.push_back(object);
 	auto & lastObject = customObjects.back();
-	lastObject.setAllTemplates(objid.primaryID, objid.secondaryID);
+	lastObject.setAllTemplates(object.primaryID, object.secondaryID);
+
+	// also ban object to prevent default configuration from being used in this zone
+	bannedObjects.push_back(CompoundMapObjectID(object.primaryID, object.secondaryID));
 
 	assert(lastObject.templates.size() > 0);
-	logGlobal->info("Added custom object of type %d.%d", objid.primaryID, objid.secondaryID);
+	logGlobal->info("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 }
 
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 {
-	// TODO: We need serializer utility for list of enum values
+	static const std::map<std::string, EObjectCategory> OBJECT_CATEGORY_STRINGS = {
+		{ "other", EObjectCategory::OTHER},
+		{ "all", EObjectCategory::ALL},
+		{ "none", EObjectCategory::NONE},
+		{ "creatureBank", EObjectCategory::CREATURE_BANK},
+		{ "bonus", EObjectCategory::BONUS},
+		{ "dwelling", EObjectCategory::DWELLING},
+		{ "resource", EObjectCategory::RESOURCE},
+		{ "resourceGenerator", EObjectCategory::RESOURCE_GENERATOR},
+		{ "spellScroll", EObjectCategory::SPELL_SCROLL},
+		{ "randomArtifact", EObjectCategory::RANDOM_ARTIFACT},
+		{ "pandorasBox", EObjectCategory::PANDORAS_BOX},
+		{ "questArtifact", EObjectCategory::QUEST_ARTIFACT},
+		{ "seerHut", EObjectCategory::SEER_HUT}
+	};
 
-	static const boost::bimap<EObjectCategory, std::string> OBJECT_CATEGORY_STRINGS = boost::assign::list_of<boost::bimap<EObjectCategory, std::string>::relation>
-		(EObjectCategory::OTHER, "other")
-		(EObjectCategory::ALL, "all")
-		(EObjectCategory::NONE, "none")
-		(EObjectCategory::CREATURE_BANK, "creatureBank")
-		(EObjectCategory::BONUS, "bonus")
-		(EObjectCategory::DWELLING, "dwelling")
-		(EObjectCategory::RESOURCE, "resource")
-		(EObjectCategory::RESOURCE_GENERATOR, "resourceGenerator")
-		(EObjectCategory::SPELL_SCROLL, "spellScroll")
-		(EObjectCategory::RANDOM_ARTIFACT, "randomArtifact")
-		(EObjectCategory::PANDORAS_BOX, "pandorasBox")
-		(EObjectCategory::QUEST_ARTIFACT, "questArtifact")
-		(EObjectCategory::SEER_HUT, "seerHut");
+	const JsonNode & config = handler.getCurrent();
+	const JsonNode & configBannedCategories = config["bannedCategories"];
+	const JsonNode & configBannedObjects = config["bannedObjects"];
+	const JsonNode & configCommonObjects = config["commonObjects"];
 
-
-	// TODO: Separate into individual methods to enforce RAII destruction?
+	for(const auto & node : configBannedCategories.Vector())
 	{
-		auto categories = handler.enterArray("bannedCategories");
-		if (handler.saving)
-		{
-			for (const auto& category : bannedObjectCategories)
-			{
-				auto str = OBJECT_CATEGORY_STRINGS.left.at(category);
-				categories.serializeString(categories.size(), str);
-			}
-		}
-		else
-		{
-			std::vector<std::string> categoryNames;
-			categories.serializeArray(categoryNames);
+		auto it = OBJECT_CATEGORY_STRINGS.find(node.String());
+		if(it != OBJECT_CATEGORY_STRINGS.end())
+			bannedObjectCategories.push_back(it->second);
+	}
 
-			for (const auto & categoryName : categoryNames)
-			{
-				auto it = OBJECT_CATEGORY_STRINGS.right.find(categoryName);
-				if (it != OBJECT_CATEGORY_STRINGS.right.end())
+	if(configBannedObjects.isVector())
+	{
+		// MOD COMPATIBILITY - 1.6 format
+
+		for(const auto & node : configBannedObjects.Vector())
+		{
+			LIBRARY->objtypeh->resolveObjectCompoundId(node.String(),
+				[this](CompoundMapObjectID objid)
 				{
-					bannedObjectCategories.push_back(it->second);
+					addBannedObject(objid);
 				}
-			}
+			);
 		}
-	}
-
-	// FIXME: Doesn't seem to use this field at all
-	
-	{
-		auto bannedObjectData = handler.enterArray("bannedObjects");	
-		if (handler.saving)
-		{
-
-			// FIXME: Do we even need to serialize / store banned objects?
-			/*
-			for (const auto & object : bannedObjects)
-			{
-				// TODO: Translate id back to string?
-
-
-				JsonNode node;
-				node.String() = LIBRARY->objtypeh->getHandlerFor(object.primaryID, object.secondaryID);
-				// TODO: Check if AI-generated code is right
-
-
-			}
-			// handler.serializeRaw("bannedObjects", node, std::nullopt);
-
-			*/
-		}
-		else
-		{
-			std::vector<std::string> objectNames;
-			bannedObjectData.serializeArray(objectNames);
-
-			for (const auto & objectName : objectNames)
-			{
-				LIBRARY->objtypeh->resolveObjectCompoundId(objectName,
-					[this](CompoundMapObjectID objid)
-					{
-						addBannedObject(objid);
-					}
-				);
-				
-			}
-		}
-	}
-
-	auto commonObjectData = handler.getCurrent()["commonObjects"].Vector();	
-	if (handler.saving)
-	{
-
-		//TODO?
 	}
 	else
 	{
-		for (const auto & objectConfig : commonObjectData)
+		for(const auto & node : configBannedObjects.Struct())
 		{
-			auto objectName = objectConfig["id"].String();
-			auto rmg = objectConfig["rmg"].Struct();
-
-			// TODO: Use common code with default rmg config
-			auto objectValue = rmg["value"].Integer();
-			auto objectProbability = rmg["rarity"].Integer();
-
-			auto objectMaxPerZone = rmg["zoneLimit"].Integer();
-			if (objectMaxPerZone == 0)
+			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
 			{
-				objectMaxPerZone = std::numeric_limits<int>::max();
-			}
+				if (node.second.Bool())
+					addBannedObject(CompoundMapObjectID(primaryID, -1));
 
-			LIBRARY->objtypeh->resolveObjectCompoundId(objectName,
-
-				[this, objectValue, objectProbability, objectMaxPerZone](CompoundMapObjectID objid)
+				for (const auto & subNode : node.second.Struct())
 				{
-					ObjectInfo object(objid.primaryID, objid.secondaryID);
-					
-					// TODO: Configure basic generateObject function
+					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-					object.value = objectValue;
-					object.probability = objectProbability;
-					object.maxPerZone = objectMaxPerZone;
-					addCustomObject(object, objid);
+					LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+					{
+						addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+					});
 				}
-			);
-			
+			});
+		}
+	}
+
+	for (const auto & objectConfig : configCommonObjects.Vector())
+	{
+		auto rmg = objectConfig["rmg"].Struct();
+
+		// TODO: Use common code with default rmg config
+
+		ObjectInfo object;
+
+		// TODO: Configure basic generateObject function
+		object.value = rmg["value"].Integer();
+		object.probability = rmg["rarity"].Integer();
+		object.maxPerZone = rmg["zoneLimit"].Integer();
+		if (object.maxPerZone == 0)
+			object.maxPerZone = std::numeric_limits<int>::max();
+
+		if (objectConfig["id"].isNull())
+		{
+			LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+			{
+				if (objectConfig["subtype"].isNull())
+				{
+					auto objectWithID = object;
+					objectWithID.primaryID = primaryID;
+					objectWithID.secondaryID = 0;
+					addCustomObject(object);
+				}
+				else
+				{
+					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+					LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+					{
+						auto objectWithID = object;
+						objectWithID.primaryID = primaryID;
+						objectWithID.secondaryID = secondaryID;
+						addCustomObject(object);
+					});
+				}
+			});
+		}
+		else
+		{
+			// MOD COMPATIBILITY - 1.6 format
+			auto objectName = objectConfig["id"].String();
+
+			LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
+			{
+				auto objectWithID = object;
+				objectWithID.primaryID = objid.primaryID;
+				objectWithID.secondaryID = objid.secondaryID;
+				if (objectWithID.secondaryID == -1)
+					objectWithID.secondaryID = 0;
+				addCustomObject(objectWithID);
+			});
 		}
 	}
 }
