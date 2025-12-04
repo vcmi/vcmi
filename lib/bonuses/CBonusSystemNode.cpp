@@ -366,7 +366,7 @@ void CBonusSystemNode::propagateBonus(const std::shared_ptr<Bonus> & b, const CB
 			? source.getUpdatedBonus(b, b->propagationUpdater)
 			: b;
 		bonuses.push_back(propagated);
-		logBonus->trace("#$# %s #propagated to# %s",  propagated->Description(nullptr), nodeName());
+		logBonus->trace("#$# %s #propagated to# %s", propagated->Description(nullptr), nodeName());
 		invalidateChildrenNodes(globalCounter);
 	}
 
@@ -380,20 +380,20 @@ void CBonusSystemNode::unpropagateBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator->shouldBeAttached(this))
 	{
-		if (bonuses -= b)
-			logBonus->trace("#$# %s #is no longer propagated to# %s",  b->Description(nullptr), nodeName());
-		else
-			logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(nullptr), nodeName());
-
-		bonuses.remove_if([b](const auto & bonus)
+		if (b->propagationUpdater)
 		{
-			if (bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater)
+			bonuses.remove_if([b](const auto & bonus)
 			{
-
-				return true;
-			}
-			return false;
-		});
+				return bonus->propagationUpdater && bonus->propagationUpdater == b->propagationUpdater;
+			});
+		}
+		else
+		{
+			if (bonuses -= b)
+				logBonus->trace("#$# %s #is no longer propagated to# %s", b->Description(nullptr), nodeName());
+			else
+				logBonus->warn("Attempt to remove #$# %s, which is not propagated to %s", b->Description(nullptr), nodeName());
+		}
 
 		invalidateChildrenNodes(globalCounter);
 	}
