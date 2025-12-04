@@ -101,7 +101,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier){
+		LIBRARY->identifiers()->requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}

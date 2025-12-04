@@ -4,7 +4,13 @@
 
 ```json
 	// List of terrains on which this obstacle can be used
-	"allowedTerrains" : []
+	
+	"allowedTerrains" : [
+		"dirt",
+		"sand",
+		"asphalt", // terrain from mod, such form can only be used if mod has dependency on mod with such terrain
+		"hota:wasteland", // terrain from mod, such form can be used even without dependency, entry will be ignored if such mod does not exists
+	]
 	
 	// List of special battlefields on which this obstacle can be used
 	"specialBattlefields" : []

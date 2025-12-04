@@ -30,13 +30,13 @@ static const std::map<std::string, CampaignBonusType> bonusTypeMap = {
 	{"hero", CampaignBonusType::HERO},
 };
 
-static const std::map<std::string, ui16> heroSpecialMap = {
+static const std::map<std::string, HeroTypeID> heroSpecialMap = {
 	{"strongest", HeroTypeID::CAMP_STRONGEST},
 	{"generated", HeroTypeID::CAMP_GENERATED},
 	{"random", HeroTypeID::CAMP_RANDOM}
 };
 
-static const std::map<std::string, ui8> resourceTypeMap = {
+static const std::map<std::string, EGameResID> resourceTypeMap = {
 	{"wood", EGameResID::WOOD},
 	{"mercury", EGameResID::MERCURY},
 	{"ore", EGameResID::ORE},
@@ -172,7 +172,7 @@ CampaignBonus::CampaignBonus(const JsonNode & bjson, CampaignStartOptions mode)
 	const auto & decodeHeroTypeID = [](JsonNode heroType) -> HeroTypeID
 	{
 		if(vstd::contains(heroSpecialMap, heroType.String()))
-			return HeroTypeID(heroSpecialMap.at(heroType.String()));
+			return heroSpecialMap.at(heroType.String());
 		else
 			return HeroTypeID(HeroTypeID::decode(heroType.String()));
 	};

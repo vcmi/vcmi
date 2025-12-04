@@ -28,9 +28,11 @@ In order to make functional hero class you also need:
 
 	// Description of map object representing this hero class.
 	"mapObject" : {
-		// Optional, hero ID-base filter, using same rules as building requirements
+		// Optional, filter to apply specific template to specific heroes
 		"filters" : {
-			"mutare" : [ "anyOf", [ "mutare" ], [ "mutareDrake" ]]
+			"maleOnly" : { "male" : true },
+			"femaleOnly" : { "female" : true },
+			"mutareOnly" : { "hero" : "mutare" }
 		},
 
 		// List of templates used for this object, normally - only one is needed. See map template format for details
