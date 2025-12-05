@@ -307,11 +307,7 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 	pet.player = which;
 	gameHandler->sendAndApply(pet);
 
-	if (!awaitingPlayers.empty())
-		tryStartTurnsForPlayers();
-
-	if (actingPlayers.empty())
-		doStartNewDay();
+	resumeTurnOrder();
 
 	assert(!actingPlayers.empty());
 }
@@ -328,10 +324,8 @@ void TurnOrderProcessor::removePlayer(PlayerColor which)
 	actedPlayers.erase(which);
 }
 
-void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+void TurnOrderProcessor::resumeTurnOrder()
 {
-	removePlayer(which);
-
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();
 
@@ -362,7 +356,7 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 	gameHandler->onPlayerTurnEnded(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town
-	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by onPlayerEndsGame
+	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder
 	if(gameHandler->gameInfo().getPlayerStatus(which) == EPlayerStatus::INGAME)
 		doEndPlayerTurn(which);
 

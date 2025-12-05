@@ -3654,9 +3654,9 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 			checkVictoryLossConditions(playerColors);
 			// give turn to next player(s)
-			// FIXME: this may cause multiple calls to onPlayerEndsGame if multiple players lose in chain reaction
+			// FIXME: this may cause multiple calls to resumeTurnOrder if multiple players lose in chain reaction
 			if(gameServer().getState() != EServerState::SHUTDOWN)
-				turnOrder->onPlayerEndsGame(player);
+				turnOrder->resumeTurnOrder();
 		}
 	}
 }

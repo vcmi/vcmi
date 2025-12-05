@@ -91,8 +91,8 @@ public:
 	/// Ends player turn and removes this player from turn order
 	void removePlayer(PlayerColor which);
 
-	/// Ends player turn and removes this player from turn order, starting turns for next players if possible
-	void onPlayerEndsGame(PlayerColor which);
+	/// Start turns for next players if possible
+	void resumeTurnOrder();
 
 	/// Start game (or resume from save) and send PlayerStartsTurn pack to player(s)
 	void onGameStarted();
