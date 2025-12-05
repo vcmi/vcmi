@@ -321,11 +321,16 @@ void TurnOrderProcessor::addPlayer(PlayerColor which)
 	awaitingPlayers.insert(which);
 }
 
-void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+void TurnOrderProcessor::removePlayer(PlayerColor which)
 {
 	awaitingPlayers.erase(which);
 	actingPlayers.erase(which);
 	actedPlayers.erase(which);
+}
+
+void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+{
+	removePlayer(which);
 
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();

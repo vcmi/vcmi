@@ -88,6 +88,9 @@ public:
 	/// NetPack call-in
 	bool onPlayerEndsTurn(PlayerColor which);
 
+	/// Ends player turn and removes this player from turn order
+	void removePlayer(PlayerColor which);
+
 	/// Ends player turn and removes this player from turn order, starting turns for next players if possible
 	void onPlayerEndsGame(PlayerColor which);
 

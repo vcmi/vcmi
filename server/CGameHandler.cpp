@@ -3587,6 +3587,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		addStatistics(peg.statistic); // add last turn befor win / loss
 		sendAndApply(peg);
 
+		turnOrder->removePlayer(player);
+
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
@@ -3652,6 +3654,7 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 			}
 			checkVictoryLossConditions(playerColors);
 			// give turn to next player(s)
+			// FIXME: this may cause multiple calls to onPlayerEndsGame if multiple players lose in chain reaction
 			if(gameServer().getState() != EServerState::SHUTDOWN)
 				turnOrder->onPlayerEndsGame(player);
 		}
