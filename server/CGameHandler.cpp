@@ -3614,9 +3614,6 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		}
 		else
 		{
-			// give turn to next player(s)
-			turnOrder->onPlayerEndsGame(player);
-
 			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
 			auto hlp = p->getHeroes();
 			for (const auto * h : hlp) //eliminate heroes
@@ -3654,6 +3651,9 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 			checkVictoryLossConditions(playerColors);
+			// give turn to next player(s)
+			if(gameServer().getState() != EServerState::SHUTDOWN)
+				turnOrder->onPlayerEndsGame(player);
 		}
 	}
 }
