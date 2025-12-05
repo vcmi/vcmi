@@ -346,6 +346,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	};
 
 	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, totalSize > 3 ? 1 : 0, Rect(pos.w - 15, 0, pos.h, pos.h));
+	lines->onScroll = [owner](){ owner->redraw(); };
 }
 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
@@ -537,7 +538,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 		};
 
 		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
-		abilities->setRedrawParent(true);
+		abilities->onScroll = [owner](){ owner->redraw(); };
 
 		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [this](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
 		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [this](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
@@ -973,17 +974,13 @@ void CStackWindow::initSections()
 			auto obj = switchTab(index);
 
 			if(obj)
-			{
-				obj->activate();
-				obj->recActions |= (UPDATE | SHOWALL);
-			}
+				obj->enable();
 			return obj;
 		};
 
 		auto deactivateObj = [=](std::shared_ptr<CIntObject> obj)
 		{
-			obj->deactivate();
-			obj->recActions &= ~(UPDATE | SHOWALL);
+			obj->disable();
 		};
 
 		commanderMainSection = std::make_shared<CommanderMainSection>(this, 0);
