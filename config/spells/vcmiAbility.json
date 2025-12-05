@@ -14,9 +14,7 @@
 		"sounds": {
 			"cast": "RESURECT"
 		},
-		"graphics" : {
-			"iconEffect" : "battle/actionGenie.png" // generic icon since H3 does not have one
-		},
+		"graphics" : {},
 		"levels" : {
 			"base": {
 				"description" : "",
