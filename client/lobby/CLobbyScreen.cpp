@@ -63,7 +63,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 					updateAfterStateChange(); // creates tabBattleOnlyMode -> cannot created by init of object because GAME->server().isGuest() isn't valid at that point
 					toggleTab(tabBattleOnlyMode);
 				}, EShortcut::LOBBY_BATTLE_MODE);
-			buttonExtraOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabExtraOptions), EShortcut::LOBBY_EXTRA_OPTIONS);
+			buttonExtraOptions = std::make_shared<CButton>(Point(619, 510), AnimationPath::builtin("GSPButton2Arrow"), LIBRARY->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabExtraOptions), EShortcut::LOBBY_EXTRA_OPTIONS);
 		}
 	};
 
