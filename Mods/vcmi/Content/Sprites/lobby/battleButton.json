@@ -1,8 +1,0 @@
-{
-	"basepath" : "lobby/",
-	"images" :
-	[
-		{ "frame" : 0, "file" : "battle-normal.png"},
-		{ "frame" : 1, "file" : "battle-pressed.png"}
-	]
-}
