@@ -1806,7 +1806,10 @@ void CPlayerInterface::proposeLoadingGame()
 void CPlayerInterface::quickSaveGame()
 {
 	// notify player about saving
-	GAME->server().getGameChat().sendMessageGameplay("Saving game to " + QUICKSAVE_PATH);
+	MetaString txt;
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");	
+	txt.replaceTextID(QUICKSAVE_PATH);
+	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 	GAME->interface()->cb->save(QUICKSAVE_PATH);
 	hasQuickSave = true;
 	adventureInt->updateActiveState();

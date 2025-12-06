@@ -28,6 +28,7 @@
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Movement points: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sorry, replay opponent turn is not implemented yet!",
 	"vcmi.adventureMap.confirmQuickLoadGame"             : "Are you sure you want to load the quicksave?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Saving game to %s",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nWould you like to recruit %s or %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nWould you like to recruit %s, %s, or %s?",
