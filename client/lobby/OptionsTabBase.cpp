@@ -436,9 +436,9 @@ void OptionsTabBase::recreate(bool campaign)
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
 	}
 
-	if(auto buttonTurnOptions = widget<CToggleButton>("buttonTurnOptions"))
+	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
 	{
-		buttonTurnOptions->block(GAME->server().isGuest());
+		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))
