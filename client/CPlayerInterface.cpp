@@ -147,6 +147,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
+	hasQuickSave = checkQuickLoadingGame();
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -1804,30 +1805,39 @@ void CPlayerInterface::proposeLoadingGame()
 
 void CPlayerInterface::quickSaveGame()
 {
-	std::string path = "Saves/Quicksave";
 	// notify player about saving
-	GAME->server().getGameChat().sendMessageGameplay("Saving game to " + path);
-	GAME->interface()->cb->save(path);
+	GAME->server().getGameChat().sendMessageGameplay("Saving game to " + QUICKSAVE_PATH);
+	GAME->interface()->cb->save(QUICKSAVE_PATH);
+	hasQuickSave = true;
+	adventureInt->updateActiveState();
+}
+
+bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
+{
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	{
+		if(verbose)
+			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+		return false;
+	}
+	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	if (error)
+	{
+		if(verbose)
+			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		return false;
+	}
+	return true;
 }
 
 void CPlayerInterface::proposeQuickLoadingGame()
 {
-	std::string path = "Saves/Quicksave";
+	if(!checkQuickLoadingGame(true))
+		return;
 
-	if(!CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+	auto onYes = [this]() -> void
 	{
-		logGlobal->error("No quicksave file found at %s", path);
-		return;
-	}
-	auto error = GAME->server().canQuickLoadGame(path);
-	if (error)
-	{
-		logGlobal->error("Cannot quick load game at %s: %s", path, *error);
-		return;
-	}
-	auto onYes = [path]() -> void
-	{
-		GAME->server().quickLoadGame(path);
+		GAME->server().quickLoadGame(QUICKSAVE_PATH);
 	};
 
 	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);

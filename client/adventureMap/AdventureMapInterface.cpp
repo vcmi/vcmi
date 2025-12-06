@@ -932,3 +932,8 @@ bool AdventureMapInterface::isValidAdventureSpellTarget(int3 targetPosition) con
 
 	return spellBeingCasted->getAdventureMechanics().canBeCastAt(problem, GAME->interface()->cb.get(), GAME->interface()->localState->getCurrentHero(), targetPosition);
 }
+
+void AdventureMapInterface::updateActiveState()
+{
+	widget->updateActiveState();
+}
