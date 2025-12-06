@@ -695,7 +695,18 @@ void CServerHandler::endGameplay()
 std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
 {
 	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+	try
+	{
+		mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+	}
+	catch(const IdentifierResolutionException & e)
+	{
+		return "Identifier not found.";
+	}
+	catch(const std::exception & e)
+	{
+		return "Generic error loading save.";
+	}
 
 	// initial start info from quick load slot
 	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
