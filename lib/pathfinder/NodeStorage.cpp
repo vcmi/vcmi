@@ -28,7 +28,14 @@ void NodeStorage::initialize(const PathfinderOptions & options, const IGameInfoC
 	int3 pos;
 	const PlayerColor player = out.hero->tempOwner;
 	const int3 sizes = gameInfo.getMapSize();
-	const auto & fow = gameInfo.getPlayerTeam(player)->fogOfWarMap;
+	const TeamState * team = gameInfo.getPlayerTeam(player);
+	if (!team)
+	{
+		logGlobal->warn("Hero's owner %s has no valid team", player.toString());
+		return;
+	}
+
+	const auto & fow = team->fogOfWarMap;
 
 	//make 200% sure that these are loop invariants (also a bit shorter code), let compiler do the rest(loop unswitching)
 	const bool useFlying = options.useFlying;
