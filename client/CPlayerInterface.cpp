@@ -1812,7 +1812,8 @@ void CPlayerInterface::quickSaveGame()
 	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
 	GAME->interface()->cb->save(QUICKSAVE_PATH);
 	hasQuickSave = true;
-	adventureInt->updateActiveState();
+	if(adventureInt)
+		adventureInt->updateActiveState();
 }
 
 bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
@@ -1821,13 +1822,23 @@ bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 	{
 		if(verbose)
 			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+		else
+			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+		hasQuickSave = false;
+		if(adventureInt)
+			adventureInt->updateActiveState();
 		return false;
 	}
 	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
-	if (error)
+	if(error)
 	{
 		if(verbose)
 			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		else
+			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		hasQuickSave = false;
+		if(adventureInt)
+			adventureInt->updateActiveState();
 		return false;
 	}
 	return true;
