@@ -329,14 +329,15 @@ BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * 
 	for (const BattleHex & tile : at.hostileCreaturePositions)
 	{
 		const auto * st = battleGetUnitByPos(tile, true);
-		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedHexes.insert(tile);
 		}
 	}
 	for (const BattleHex & tile : at.friendlyCreaturePositions)
 	{
-		if(battleGetUnitByPos(tile, true)) //friendly stacks can also be damaged by Dragon Breath
+		const auto * st = battleGetUnitByPos(tile, true);
+		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
 		{
 			attackedHexes.insert(tile);
 		}
@@ -1696,7 +1697,7 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 
 	units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		if (unit->isGhost() || !unit->alive())
+		if (unit->isGhost() || !unit->alive() || unit->isInvincible())
 			return false;
 
 		for (const BattleHex & hex : unit->getHexes())
@@ -1727,7 +1728,7 @@ std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatur
 	for (const BattleHex & tile : at.hostileCreaturePositions) //all around & three-headed attack
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
-		if(st && battleGetOwner(st) != battleGetOwner(attacker)) //only hostile stacks - does it work well with Berserk?
+		if(st && battleGetOwner(st) != battleGetOwner(attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
 		{
 			attackedCres.first.insert(st);
 		}
@@ -1735,7 +1736,7 @@ std::pair<std::set<const CStack*>, bool> CBattleInfoCallback::getAttackedCreatur
 	for (const BattleHex & tile : at.friendlyCreaturePositions)
 	{
 		const CStack * st = battleGetStackByPos(tile, true);
-		if(st) //friendly stacks can also be damaged by Dragon Breath
+		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
 		{
 			attackedCres.first.insert(st);
 		}
