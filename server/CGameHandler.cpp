@@ -3587,6 +3587,8 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		addStatistics(peg.statistic); // add last turn befor win / loss
 		sendAndApply(peg);
 
+		turnOrder->removePlayer(player);
+
 		if (victoryLossCheckResult.victory())
 		{
 			//one player won -> all enemies lost
@@ -3614,9 +3616,6 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 		}
 		else
 		{
-			// give turn to next player(s)
-			turnOrder->onPlayerEndsGame(player);
-
 			//copy heroes vector to avoid iterator invalidation as removal change PlayerState
 			auto hlp = p->getHeroes();
 			for (const auto * h : hlp) //eliminate heroes
@@ -3654,6 +3653,10 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 			checkVictoryLossConditions(playerColors);
+			// give turn to next player(s)
+			// FIXME: this may cause multiple calls to resumeTurnOrder if multiple players lose in chain reaction
+			if(gameServer().getState() != EServerState::SHUTDOWN)
+				turnOrder->resumeTurnOrder();
 		}
 	}
 }
