@@ -44,6 +44,9 @@
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
 	assert(handler.getState() == EClientState::GAMEPLAY);
+
+	handler.restartGameplay();
+	handler.sendStartGame();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -160,13 +163,6 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareS
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	// Handle mid-game reload
-	if (handler.getState() == EClientState::GAMEPLAY) {
-			handler.client->finishGameplay();
-			handler.client->endGame();
-			handler.client.reset();
-	}
-
 	handler.setState(EClientState::STARTING);
 	if(handler.si->mode != EStartMode::LOAD_GAME)
 	{
