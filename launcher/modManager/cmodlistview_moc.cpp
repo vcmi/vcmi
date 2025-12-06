@@ -1350,6 +1350,8 @@ bool CModListView::isModEnabled(const QString & modName)
 
 bool CModListView::isModInstalled(const QString & modName)
 {
+	if(!modStateModel->isModExists(modName))
+		return false;
 	auto mod = modStateModel->getMod(modName);
 	return mod.isInstalled();
 }
@@ -1371,6 +1373,21 @@ QStringList CModListView::getInstalledChronicles()
 	}
 
 	return result;
+}
+
+bool CModListView::isInstalledHd()
+{
+	for(const auto & modName : modStateModel->getAllMods())
+	{
+		auto mod = modStateModel->getMod(modName);
+		if (!mod.isInstalled())
+			continue;
+
+		if (mod.getID() == "hd-edition")
+			return true;
+	}
+
+	return false;
 }
 
 QStringList CModListView::getUpdateableMods()

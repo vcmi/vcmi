@@ -504,6 +504,8 @@ if (ENABLE_CLIENT)
 	if(TARGET SDL2_ttf::SDL2_ttf-static)
 		add_library(SDL2::TTF ALIAS SDL2_ttf::SDL2_ttf-static)
 	endif()
+
+	find_package(libsquish REQUIRED)
 endif()
 
 if(ENABLE_LOBBY)

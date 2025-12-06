@@ -102,6 +102,9 @@ public:
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
 
+	/// finds imported HD
+	bool isInstalledHd();
+
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();
 
