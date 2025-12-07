@@ -98,6 +98,7 @@ public:
 	JsonType getType() const;
 
 	bool isNull() const;
+	bool isBool() const;
 	bool isNumber() const;
 	bool isString() const;
 	bool isVector() const;

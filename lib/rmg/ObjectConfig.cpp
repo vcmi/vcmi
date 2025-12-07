@@ -93,17 +93,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		{
 			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
 			{
-				if (node.second.Bool())
-					addBannedObject(CompoundMapObjectID(primaryID, -1));
-
-				for (const auto & subNode : node.second.Struct())
+				if (node.second.isBool())
 				{
-					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
-
-					LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+					if (node.second.Bool())
+						addBannedObject(CompoundMapObjectID(primaryID, -1));
+				}
+				else
+				{
+					for (const auto & subNode : node.second.Struct())
 					{
-						addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
-					});
+						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+						LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+						{
+							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+						});
+					}
 				}
 			});
 		}
@@ -133,7 +138,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 					auto objectWithID = object;
 					objectWithID.primaryID = primaryID;
 					objectWithID.secondaryID = 0;
-					addCustomObject(object);
+					addCustomObject(objectWithID);
 				}
 				else
 				{
@@ -144,7 +149,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
 						objectWithID.secondaryID = secondaryID;
-						addCustomObject(object);
+						addCustomObject(objectWithID);
 					});
 				}
 			});
