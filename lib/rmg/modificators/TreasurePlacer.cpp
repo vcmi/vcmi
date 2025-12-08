@@ -248,24 +248,27 @@ void TreasurePlacer::addDwellings()
 			const auto * cre = creatures.front();
 			if(cre->getFactionID() == zone.getTownType())
 			{
-				auto nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
+				// value increases, if there are more native zones for the faction
+				float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
 				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->getRMGInfo();
-				//rmg info set for dwelling
+				// rmg info set for dwelling
 				if(rmgInfo.value)
 				{
 					if (rmgInfo.value > zone.getMaxTreasureValue())
 						continue;
-					oi.value = rmgInfo.value;
+					oi.value = rmgInfo.value * valueModifier;
 					oi.probability = rmgInfo.rarity;
 					if (rmgInfo.zoneLimit != std::numeric_limits<ui32>::max())
 						oi.maxPerZone = rmgInfo.zoneLimit;
+					// FIXME: rmgInfo.mapLimit is not allowed for dwellings
 				}
 				else
 				{
-					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * (1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2)));
+					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
 					oi.probability = 40;
 				}
 				oi.generateObject = [this, secondaryID, dwellingType]() -> std::shared_ptr<CGObjectInstance>
