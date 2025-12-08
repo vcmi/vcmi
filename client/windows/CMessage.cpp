@@ -164,7 +164,13 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 		{
 			// trim only if line does not starts with LF
 			// FIXME: necessary? All lines will be trimmed before returning anyway
-			boost::algorithm::trim_left_if(text, boost::algorithm::is_any_of(std::string(" ")));
+			boost::algorithm::trim_left_if(
+				text,
+				[](char c)
+				{
+					return static_cast<unsigned char>(c) <= static_cast<unsigned char>(' ');
+				}
+			);
 		}
 
 		if(opened)
