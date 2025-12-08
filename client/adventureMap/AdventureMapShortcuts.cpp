@@ -98,7 +98,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
 		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
 		{ EShortcut::ADVENTURE_QUICK_SAVE,       optionIsLocal(),        [this]() { this->quickSaveGame(); } },
-		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionIsLocal(),        [this]() { this->quickLoadGame(); } },
+		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionQuickSaveLoad(),  [this]() { this->quickLoadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
@@ -717,4 +717,9 @@ bool AdventureMapShortcuts::optionIsLocal()
 			return false;
 	}
 	return true;
+}
+
+bool AdventureMapShortcuts::optionQuickSaveLoad()
+{
+	return optionIsLocal() && GAME->interface()->hasQuickSave;
 }

@@ -192,6 +192,9 @@ public:
 
 	/// opens world view with specific info, e.g. after View Earth/Air is shown
 	void openWorldView(const std::vector<ObjectPosInfo>& objectPositions, bool showTerrain);
+
+	/// update state of buttons
+	void updateActiveState();
 };
 
 extern std::shared_ptr<AdventureMapInterface> adventureInt;

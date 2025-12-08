@@ -108,6 +108,7 @@ public:
 	bool optionHeroDig();
 	bool optionViewStatistic();
 	bool optionIsLocal();
+	bool optionQuickSaveLoad();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;
