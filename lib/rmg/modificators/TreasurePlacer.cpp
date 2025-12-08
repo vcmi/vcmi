@@ -150,7 +150,11 @@ void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID obj
 {
 	oi.generateObject = [this, objid]() -> std::shared_ptr<CGObjectInstance>
 	{
-		return LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		auto obj = LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		// adjust ownership for ownable objects (such as dwellings)
+		if (obj->asOwnable() && obj->tempOwner == PlayerColor::UNFLAGGABLE)
+			obj->setOwner(PlayerColor::NEUTRAL);		
+		return obj;
 	};
 	oi.setTemplates(objid.primaryID, objid.secondaryID, zone.getTerrainType());
 }
@@ -271,12 +275,6 @@ void TreasurePlacer::addDwellings()
 					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
 					oi.probability = 40;
 				}
-				oi.generateObject = [this, secondaryID, dwellingType]() -> std::shared_ptr<CGObjectInstance>
-				{
-					auto obj = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->create(map.mapInstance->cb, nullptr);
-					obj->tempOwner = PlayerColor::NEUTRAL;
-					return obj;
-				};
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);
 			}
