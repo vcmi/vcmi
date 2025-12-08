@@ -66,7 +66,7 @@ void ObjectDistributor::distributeLimitedObjects()
 				{
 					if(excludedIDs.find(primaryID) != excludedIDs.end())
 					{
-						logGlobal->error("ObjectDistributor: Object (primaryID = %d, secondaryID = %d) does not support per-map limit", primaryID, secondaryID);
+						logGlobal->error("ObjectDistributor: Object %s does not support per-map limit", handler->getJsonKey());
 						continue;
 					}
 
