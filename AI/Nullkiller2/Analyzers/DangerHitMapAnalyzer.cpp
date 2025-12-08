@@ -154,10 +154,11 @@ void DangerHitMapAnalyzer::updateHitMap()
 				// TODO: Mircea: Why is this danger calculated so differently than FuzzyHelper::evaluateDanger?
 				// shouldn't it use the path danger instead of hero strength?
 				newThreat.danger = path.getHeroStrength();
+#if NK2AI_TRACE_LEVEL >= 1
 				auto danger2 = aiNk->dangerEvaluator->evaluateDanger(pos, path.targetHero);
 				logAi->trace("Danger comparison for (%d %d %d) %s is %f vs %f",
 					pos.x, pos.y, pos.z, path.targetHero->getNameTranslated(), newThreat.danger, danger2);
-
+#endif
 				if(newThreat.value() > node.maximumDanger.value())
 				{
 					node.maximumDanger = newThreat;
