@@ -101,7 +101,7 @@ public:
 
 	CHeroWindow(const CGHeroInstance * hero);
 
-	void update() override;
+	void updateArtifacts() override;
 
 	void dismissCurrent(); //dismissed currently displayed hero (curHero)
 	void commanderWindow();

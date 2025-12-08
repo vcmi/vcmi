@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "IGameServer.h"
+
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
 
@@ -18,7 +20,7 @@ class CMapInfo;
 
 struct CPackForLobby;
 
-class CConnection;
+class GameConnection;
 struct StartInfo;
 struct LobbyInfo;
 struct PlayerSettings;
@@ -32,36 +34,41 @@ class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
 
-enum class EServerState : ui8
+class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IGameServer
 {
-	LOBBY,
-	GAMEPLAY,
-	SHUTDOWN
-};
-
-class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener
-{
-	/// Network server instance that receives and processes incoming connections on active socket
-	std::unique_ptr<INetworkServer> networkServer;
 	std::unique_ptr<GlobalLobbyProcessor> lobbyProcessor;
 
 	std::chrono::steady_clock::time_point gameplayStartTime;
 	std::chrono::steady_clock::time_point lastTimerUpdateTime;
 
 	std::unique_ptr<INetworkHandler> networkHandler;
+	/// Network server instance that receives and processes incoming connections on active socket
+	std::unique_ptr<INetworkServer> networkServer;
 
 	EServerState state = EServerState::LOBBY;
 
-	std::shared_ptr<CConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
+	std::shared_ptr<GameConnection> findConnection(const std::shared_ptr<INetworkConnection> &);
 
-	int currentClientId;
-	ui8 currentPlayerId;
+	GameConnectionID currentClientId;
+	PlayerConnectionID currentPlayerId;
 	uint16_t port;
 	bool runByClient;
 
+
+	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
+
+	// IGameServer impl
+	void setState(EServerState value) override;
+	EServerState getState() const override;
+	bool isPlayerHost(const PlayerColor & color) const override;
+	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionID) const override;
+	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const override;
+	void applyPack(CPackForClient & pack) override;
+	void sendPack(CPackForClient & pack, GameConnectionID connectionID) override;
+
 	/// List of all active connections
-	std::vector<std::shared_ptr<CConnection>> activeConnections;
+	std::vector<std::shared_ptr<GameConnection>> activeConnections;
 
 	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 
@@ -84,33 +91,29 @@ public:
 	void startGameImmediately();
 	uint16_t startAcceptingIncomingConnections(bool listenForConnections);
 
-	void threadHandleClient(std::shared_ptr<CConnection> c);
+	void threadHandleClient(std::shared_ptr<GameConnection> c);
 
 	void announcePack(CPackForLobby & pack);
-	bool passHost(int toConnectionId);
+	bool passHost(GameConnectionID toConnectionId);
 
 	void announceTxt(const MetaString & txt, const std::string & playerName = "system");
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 
-	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
+	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
-	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
-	void clientDisconnected(std::shared_ptr<CConnection> c);
-	void reconnectPlayer(int connId);
+	void clientConnected(std::shared_ptr<GameConnection> c, std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
+	void clientDisconnected(std::shared_ptr<GameConnection> c);
 
 	void announceMessage(const MetaString & txt);
 	void announceMessage(const std::string & txt);
 
-	void handleReceivedPack(std::shared_ptr<CConnection> connection, CPackForLobby & pack);
+	void handleReceivedPack(std::shared_ptr<GameConnection> connection, CPackForLobby & pack);
 
 	void updateAndPropagateLobbyState();
 
 	INetworkHandler & getNetworkHandler();
 	INetworkServer & getNetworkServer();
-
-	void setState(EServerState value);
-	EServerState getState() const;
 
 	// Work with LobbyInfo
 	void setPlayer(PlayerColor clickedColor);
@@ -130,7 +133,7 @@ public:
 	void setCampaignMap(CampaignScenarioID mapId);
 	void setCampaignBonus(int bonusId);
 
-	ui8 getIdOfFirstUnallocatedPlayer() const;
+	PlayerConnectionID getIdOfFirstUnallocatedPlayer() const;
 
 	void multiplayerWelcomeMessage();
 };

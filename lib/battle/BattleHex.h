@@ -212,8 +212,17 @@ public:
 	[[nodiscard]] static EDir mutualPosition(const BattleHex & hex1, const BattleHex & hex2)
 	{
 		for(auto dir : hexagonalDirections())
-			if(hex2 == hex1.cloneInDirection(dir, false))
-				return dir;
+		{
+			try
+			{
+				if(hex2 == hex1.cloneInDirection(dir, true))
+					return dir;
+			}
+			catch (const std::out_of_range &)
+			{
+				continue;
+			}
+		}
 		return NONE;
 	}
 

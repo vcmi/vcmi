@@ -6,32 +6,38 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI в Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Имате въпрос? Намерихте грешка? Искате да помогнете? Присъединете се!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI в Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
         <source>Our Community</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Нашата общност</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Информация за компилацията</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
         <source>User data directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Папка с потребителски данни</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="88"/>
@@ -39,52 +45,62 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="161"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="247"/>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Отвори</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="121"/>
         <source>Check for updates</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Провери за актуализации</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
         <source>Game version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Версия на играта</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Папка с логове</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Папки с данни</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
         <source>Game data directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Папка с данни на играта</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
         <source>Operating System</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Операционна система</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Папка с конфигурационни файлове</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="290"/>
         <source>Project homepage</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Начална страница на проекта</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="303"/>
         <source>Report a bug</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Докладвай грешка</translation>
     </message>
 </context>
 <context>
@@ -92,294 +108,407 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Филтър</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Всички модове</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="74"/>
         <source>Downloadable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">За изтегляне</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="79"/>
         <source>Installed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирани</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="84"/>
         <source>Updatable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">За актуализиране</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Активни</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
         <source>Inactive</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неактивни</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Описание</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="214"/>
         <source>Changelog</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Журнал на промените</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="236"/>
         <source>Screenshots</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Снимки на екрана</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="515"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="524"/>
         <source>Uninstall</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Деинсталирай</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="505"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="514"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Активирай</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="500"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="509"/>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Деактивирай</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="520"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="529"/>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Актуализирай</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="510"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="519"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="335"/>
         <source> %p% (%v KB out of %m KB)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> %p% (%v KB от %m KB)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="108"/>
         <source>Reload repositories</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Презареди хранилищата</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="348"/>
         <source>Abort</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Прекъсни</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="307"/>
-        <source>Mod name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="310"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
-        <source>Installed version</source>
-        <translation type="unfinished"></translation>
+        <source>Mod name</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Име на мода</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="318"/>
-        <source>Latest version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="322"/>
-        <source>Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="325"/>
-        <source>Download size</source>
-        <translation type="unfinished"></translation>
+        <source>Installed version</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирана версия</translation>
     </message>
     <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
+        <source>Latest version</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Последна версия</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
+        <source>Size</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Размер</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="334"/>
+        <source>Download size</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Размер на изтеглянето</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
         <source>Authors</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автори</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="330"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="333"/>
-        <source>Contact</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Лиценз</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="342"/>
+        <source>Contact</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Контакт</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
         <source>Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Съвместимост</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="344"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Required VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изисквана версия на VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Supported VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Поддържана версия на VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="350"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>please upgrade mod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">моля, актуализирайте мода</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="179"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="894"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="188"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>mods repository index</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">индекс на хранилище с модове</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>or newer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">или по-нова</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
         <source>Supported VCMI versions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Поддържани версии на VCMI</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="380"/>
         <source>Languages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="383"/>
-        <source>Required mods</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
-        <source>Conflicting mods</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="389"/>
-        <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="390"/>
-        <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
-        <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Езици</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <source>Required mods</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Необходими модове</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <source>Conflicting mods</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Конфликтни модове</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <source>This mod cannot be enabled because it translates into a different language.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Този мод не може да бъде активиран, защото е за различен език.</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
+        <source>This mod can not be enabled because the following dependencies are not present</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Този мод не може да бъде активиран, защото липсват следните зависимости</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <source>This mod can not be installed because the following dependencies are not present</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Този мод не може да бъде инсталиран, защото липсват следните зависимости</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Това е подмод и не може да се инсталира или деинсталира отделно от основния мод</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="420"/>
         <source>Notes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Бележки</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="482"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="491"/>
         <source>Context menu</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Контекстно меню</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="525"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="534"/>
         <source>Open directory</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Отвори папка</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="539"/>
         <source>Open repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Отвори хранилище</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="783"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="792"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изтегляне на %1. %p% (%v MB от %m MB) завърши</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="808"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="818"/>
         <source>Download failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешно изтегляне</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="809"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="819"/>
         <source>Unable to download all files.
 
 Encountered errors:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспех при изтеглянето на всички файлове.
+
+Възникнаха грешки:
+
+</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="810"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="820"/>
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">
+
+
+Инсталацията изтеглена успешно?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="943"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталиране на Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1023"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталиране на мод %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1076"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
+        <source>Map exists</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Картата съществува</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
+        <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Карта &apos;%1&apos; вече съществува. Искате ли да я презапишете?</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
+        <source>Yes to All</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Да за всички</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
+        <source>No to All</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не за всички</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
+        <source>Import complete</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Импортът завърши</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
+        <source>%1 map(s) successfully imported.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Успешно импортирани %1 карти.</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
+        <source>Import failed</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешен импорт</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
+        <source>Failed to import the following maps:
+%1</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешен импорт на следните карти:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Операцията е неуспешна</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1077"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Възникнаха грешки:
+</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1113"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">скрийншотове</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1119"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Скрийншот %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="302"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Mod is incompatible</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът е несъвместим</translation>
     </message>
 </context>
 <context>
@@ -388,149 +517,178 @@ Install successfully downloaded?</source>
         <location filename="../settingsView/csettingsview_moc.ui" line="719"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="91"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изкл</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
         <source>Artificial Intelligence</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изкуствен интелект</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1098"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мащабиране на интерфейса</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="641"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неутрален ИИ в битки</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1056"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вражески ИИ в битки</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Additional repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Допълнително хранилище</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="634"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Съюзници на картата на приключенията</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="903"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Порт на онлайн лобито</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="703"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автобой ИИ в битки</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1459"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Чувствителност на стиковете</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автоматично (линейно)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Хаптична обратна връзка</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Software Cursor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Софтуерен курсор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="97"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="1449"/>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автоматично</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Валидиране на модове</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Редактор на конфигурация</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Отвори редактора</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Няма</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="107"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="117"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="330"/>
         <source>Full</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Пълен</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Разреши портретен режим</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="825"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Използвай мащабируеми шрифтове</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="896"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Адрес на онлайн лобито</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1033"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Бутон „Назад“ като десен бутон на мишката</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1139"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мащабиране на курсора</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1168"/>
         <source>Scalable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мащабируем</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1204"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Разни</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
@@ -541,282 +699,344 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изберете режим на показване за играта
+
+В прозорец — играта ще се изпълнява в прозорец, който покрива част от екрана.
+
+Безрамков прозоречен режим — играта ще се изпълнява в прозорец на цял екран с резолюцията на екрана.
+
+Ексклузивен цял екран — играта ще покрие целия екран и ще използва избраната резолюция.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1363"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мащабиране на шрифтове (експериментално)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1427"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Оригинал</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Филтър за увеличаване</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1499"/>
         <source>Basic</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Базов</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Игнорирай превключвателя за заглушаване</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Използвай режим на относителен показалец</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="935"/>
         <source>Nearest</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Най-близък</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="940"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Линеен</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="844"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вход – Сензорен екран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Врагове на картата на приключенията</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="963"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Покажи отново ръководството</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="153"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Нулирай</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1189"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мрежа</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="778"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Аудио</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="491"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Скорост на относителния показалец</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1105"/>
         <source>Music Volume</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сила на музиката</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="953"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Игнорирай SSL грешки</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="740"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вход – Мишка</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1286"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Продължителност на дълго докосване</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="910"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Толеранс за клик с контролер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Толеранс за докосване</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="351"/>
         <source>Input - Controller</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вход – Контролер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Sound Volume</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Сила на звука</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
         <source>Windowed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">В прозорец</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1260"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Безрамков цял екран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1265"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ексклузивен цял екран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1063"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Лимит на автосейвовете (0 = изкл.)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Филтър за намаляване</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="818"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ограничение на кадрите</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1473"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Префикс за автосейв</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Толеранс за клик с мишка</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="970"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ускорение на стиковете</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1414"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">празно = префикс на името на картата</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="627"/>
         <source>Refresh now</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Обнови сега</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="465"/>
         <source>Default repository</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Хранилище по подразбиране</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="832"/>
         <source>Renderer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Рендерер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="89"/>
         <source>On</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вкл</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="214"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Резервирана област на екрана</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Превод на Heroes III</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1293"/>
         <source>Check on startup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Проверявай при стартиране</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Цял екран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Общи</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="889"/>
         <source>VCMI Language</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Език на VCMI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1480"/>
         <source>Resolution</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Резолюция</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
         <source>Autosave</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Автосейв</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
         <source>VSync</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VSync</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="686"/>
         <source>Display index</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Индекс на дисплея</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="750"/>
         <source>Network port</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мрежов порт</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Видео</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Show intro</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="546"/>
-        <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Показвай интро</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="551"/>
-        <source>Disabled</source>
-        <translation type="unfinished"></translation>
+        <source>Active</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Активен</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="552"/>
-        <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="556"/>
+        <source>Disabled</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Деактивиран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="557"/>
-        <source>Not Installed</source>
-        <translation type="unfinished"></translation>
+        <source>Enable</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Активирай</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="558"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="562"/>
+        <source>Not Installed</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не е инсталиран</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="563"/>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай</translation>
     </message>
 </context>
 <context>
@@ -824,33 +1044,39 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Избран е невалиден файл</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Трябва да изберете инсталатор на Heroes Chronicles!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка при извличане!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка в хеша!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes Chronicles</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -858,37 +1084,44 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Запази</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файл:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Затвори</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Редактор на конфигурация</translation>
     </message>
     <message>
-        <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
+        <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Незаписани промени</translation>
     </message>
     <message>
-        <location filename="../settingsView/configeditordialog_moc.cpp" line="68"/>
+        <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Искате ли да отхвърлите промените?</translation>
     </message>
     <message>
-        <location filename="../settingsView/configeditordialog_moc.cpp" line="122"/>
+        <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">JSON файлът е невалиден!</translation>
     </message>
 </context>
 <context>
@@ -897,7 +1130,8 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 MiB</translation>
     </message>
 </context>
 <context>
@@ -905,107 +1139,128 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Език</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Данни на Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Профил с модове</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="126"/>
         <source>Select your language</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изберете език</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="169"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Имате въпрос? Намерихте грешка? Искате да помогнете? Присъединете се!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
         <source>Locate Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Намерете файловете с данни на Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Използвай офлайн инсталатор от gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай файлове от gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файловете с данни на Heroes III бяха намерени успешно.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Подобрения на интерфейса</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирайте превод на Heroes III на предпочитания от вас език</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталиране... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ако вече имате файлове на Heroes III на устройството, можете да изберете тази папка и VCMI автоматично ще копира наличните данни.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
         <source>Copy existing files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Копирай съществуващи файлове</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">По желание можете да инсталирате допълнителни модове сега или по-късно чрез стартера на VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай съвместима версия на &quot;Horn of the Abyss&quot;, фенско разширение за Heroes III, портнато от екипа на VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай съвместима версия на &quot;In The Wake of Gods&quot;, фенско разширение за Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай мод, който осигурява различни подобрения на интерфейса, като по-добър интерфейс за случайни карти и избираеми действия в битки</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
         <source>Finish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Край</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI в Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI в Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
@@ -1016,170 +1271,211 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Благодарим ви, че инсталирахте VCMI!
+
+Преди да започнете да играете, има още няколко стъпки.
+
+Моля, помнете, че за да използвате VCMI, трябва да притежавате оригиналните файлове с данни за Heroes® of Might and Magic® III: Complete или The Shadow of Death.
+
+Heroes® of Might and Magic® III HD понастоящем не се поддържа!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
         <source>Next</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Напред</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Можете ръчно да копирате папките Maps, Data и Mp3 от оригиналната папка на играта в папката с данни на VCMI в горната част на тази страница</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
         <source>Manual Installation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ръчна инсталация</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="360"/>
         <source>Search again</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Търси отново</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="441"/>
         <source>Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файлове с данни на Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="279"/>
         <source>Copy existing data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Копирай съществуващи данни</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ако притежавате Heroes III в gog.com, можете да изтеглите резервен офлайн инсталатор от gog.com. След това VCMI ще импортира данните на Heroes III чрез офлайн инсталатора.
+Офлайн инсталаторът се състои от два файла: &quot;.exe&quot; и &quot;.bin&quot; — трябва да изтеглите и двата.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="860"/>
         <source>Back</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Назад</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай профил с модове на VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Horn of the Abyss</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Превод на Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">In The Wake of Gods</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="175"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
         <source>Heroes III installation found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Намерена е инсталация на Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="175"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
         <source>Copy data to VCMI folder?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="322"/>
-        <source>Select %1 file...</source>
-        <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="377"/>
-        <source>You have to select %1 file!</source>
-        <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Копиране на данните в папката на VCMI?</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="324"/>
+        <source>Select %1 file...</source>
+        <comment>param is file extension</comment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изберете файл %1...</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="379"/>
+        <source>You have to select %1 file!</source>
+        <comment>param is file extension</comment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Трябва да изберете файл %1!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GOG файл (*.*)</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="325"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="327"/>
         <source>File selection</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Избор на файл</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="334"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="385"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>GOG installer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GOG инсталатор</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="439"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Предоставили сте инсталатор на GOG Galaxy! Този файл не съдържа играта. Моля, изтеглете офлайн резервния инсталатор на играта!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файловете на Heroes III: HD Edition не се поддържат от VCMI.
+Моля, изберете папката с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Намерена е непозната или неподдържана версия на Heroes III.
+Моля, изберете папката с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="333"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="384"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="335"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="386"/>
         <source>GOG data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GOG данни</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="370"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="372"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="463"/>
-        <source>Extracting error!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешно отваряне на файл: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
+        <source>Extracting error!</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка при извличане!</translation>
+    </message>
+    <message>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Hash error!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка в хеша!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Няма данни на Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Избраните файлове не съдържат данни на Heroes III!</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="516"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспех при откриване на валидни данни на Heroes III в избраната папка.
+Моля, изберете папка с инсталирани данни на Heroes III.</translation>
     </message>
     <message>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="519"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="533"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="540"/>
-        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="545"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="523"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="537"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
+        <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Данните на Heroes III не са намерени!</translation>
     </message>
 </context>
 <context>
@@ -1187,7 +1483,8 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Преглед на изображения</translation>
     </message>
 </context>
 <context>
@@ -1196,79 +1493,111 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка на потока при извличане на файлове!
+причина за грешката:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неподдържан Inno Setup инсталатор!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI е компилиран без поддръжка на innoextract, която е необходима за извличане на exe файлове!</translation>
     </message>
     <message numerus="yes">
-        <location filename="../innoextract.cpp" line="135"/>
+        <location filename="../innoextract.cpp" line="143"/>
         <source>SHA1 hash of provided files:
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>SHA1 хеш на предоставените файлове:
+Exe (%n байта):
+%1</numerusform>
+            <numerusform>SHA1 хеш на предоставените файлове:
+Exe (%n байта):
+%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../innoextract.cpp" line="137"/>
+        <location filename="../innoextract.cpp" line="145"/>
         <source>
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>
+
+Bin (%n байта):
+%1</numerusform>
+            <numerusform>
+
+Bin (%n байта):
+%1</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="140"/>
+        <location filename="../innoextract.cpp" line="148"/>
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вътрешен неуспех при копиране. Има ли достатъчно място на устройството?
+
+%1</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="149"/>
+        <location filename="../innoextract.cpp" line="157"/>
         <source>Exe</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Exe</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="149"/>
+        <location filename="../innoextract.cpp" line="157"/>
         <source>Bin</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Bin</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="158"/>
+        <location filename="../innoextract.cpp" line="166"/>
         <source>Language mismatch!
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Несъответствие на езика!
+%1
+
+%2</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="160"/>
+        <location filename="../innoextract.cpp" line="168"/>
         <source>Only one file known! Maybe files are corrupted? Please download again.
 %1
 
 %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Известен е само един файл! Може би файловете са повредени? Моля, изтеглете отново.
+%1
+
+%2</translation>
     </message>
     <message>
-        <location filename="../innoextract.cpp" line="166"/>
+        <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Непознати файлове! Може би файловете са повредени? Моля, изтеглете отново.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -1276,122 +1605,146 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Беларускки</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Български</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>Czech</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Чешки</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Chinese</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Китайски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Английски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Finnish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Фински</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>French</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Френски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>German</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Немски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Гръцки</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Hungarian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Унгарски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Italian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Италиански</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Японски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Korean</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Корейски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Норвежки</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Polish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Полски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Portuguese</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Португалски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Румънски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Russian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Руски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Spanish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Испански</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Swedish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Шведски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="43"/>
         <source>Turkish</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Турски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Ukrainian</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Украински</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
         <source>Vietnamese</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Виетнамски</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="67"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Авто (%1)</translation>
     </message>
 </context>
 <context>
@@ -1404,50 +1757,59 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="150"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Настройки</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="196"/>
         <source>Help</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Помощ</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="58"/>
         <source>Game</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Игра</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="104"/>
         <source>Mods</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модове</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="50"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка при стартиране на изпълнимия файл</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="293"/>
         <source>Replace config file?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Заменяне на конфигурационния файл?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="293"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Искате ли да замените %1?</translation>
     </message>
 </context>
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="188"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Име</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="191"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Тип</translation>
     </message>
 </context>
 <context>
@@ -1455,79 +1817,95 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Can not install submod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не може да се инсталира подмод</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="132"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът вече е инсталиран</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не може да се деинсталира подмод</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="144"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът не е инсталиран</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="157"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът вече е активиран</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="160"/>
         <location filename="../modManager/modstatecontroller.cpp" line="186"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Първо трябва да се инсталира модът</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът не е съвместим, моля, актуализирайте VCMI и проверете последните ревизии на мода</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="167"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не може да се активира преводен мод за различен език!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="172"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Липсва изискваният мод %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="183"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът вече е деактивиран</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="196"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Липсва архивът на мода</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="201"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Архивът на мода е невалиден или повреден</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспех при извличане на данните на мода</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="256"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Данните на мода не бяха намерени</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модът се намира в защитена папка, моля, премахнете го ръчно:
+</translation>
     </message>
 </context>
 <context>
@@ -1535,122 +1913,152 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Превод</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Град</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Тест</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Шаблони</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Заклинания</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Музика</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Карти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Звуци</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Умения</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="61"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="62"/>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Друго</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Обекти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <source>Mechanics</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Механики</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Интерфейс</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Heroes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Герои</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Graphical</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Графика</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Разширение</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Същества</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Compatibility</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Съвместимост</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Кампании</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Artifacts</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Артефакти</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>AI</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">ИИ</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
+        <source>Resources</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ресурси</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="114"/>
+        <location filename="../main.cpp" line="124"/>
         <source>Error starting executable</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Грешка при стартиране на изпълнимия файл</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="115"/>
+        <location filename="../main.cpp" line="125"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспех при стартиране на %1
+Причина: %2</translation>
     </message>
 </context>
 <context>
@@ -1658,32 +2066,38 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="597"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Импортирай от клипборда</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="616"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Преименувай текущия профил</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="530"/>
         <source>Create New Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Създай нов профил</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="511"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Експортирай в клипборда</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="565"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изтрий текущия профил</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="119"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Открити са неподдържани или повредени игрови данни!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="141"/>
@@ -1696,144 +2110,173 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="451"/>
         <location filename="../startGame/StartGameTab.ui" line="470"/>
         <source>?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="239"/>
         <source>Install Translation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Инсталирай превод</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="391"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не е открит саундтрак!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Липсват кампаниите от Armaggedon&apos;s Blade!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="293"/>
         <source>No video files detected!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не са открити видео файлове!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="432"/>
         <source>Activate Translation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Активирай превод</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="315"/>
         <source>Import files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Импортирай файлове</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="701"/>
         <source>Check For Updates</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Провери за актуализации</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="720"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Към страницата за изтегляния</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="739"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Към страницата с промените</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="657"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Използвате последната версия</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
         <source>Game Data Files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Файлове с данни на играта</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Профил с модове</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="773"/>
         <source>Resume</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Продължи</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="834"/>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Играй</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="801"/>
         <source>Editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Редактор</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="180"/>
         <source>Update %n mods</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Актуализирай %n мода</numerusform>
+            <numerusform>Актуализирай %n мода</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="184"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+            <numerusform>Heroes Chronicles:
+%n/%1 инсталирани</numerusform>
+            <numerusform>Heroes Chronicles:
+%n/%1 инсталирани</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Налична е актуализация до %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="237"/>
         <source>All supported files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Всички поддържани файлове</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="238"/>
         <source>Maps</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Карти</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="239"/>
         <source>Campaigns</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Кампании</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="240"/>
         <source>Configs</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Конфигурации</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Mods</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Модове</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="242"/>
         <source>Gog files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">GOG файлове</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="245"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Всички файлове (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="247"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Изберете файлове (конфигурации, модове, карти, кампании, GOG файлове) за инсталиране...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="290"/>
@@ -1845,80 +2288,111 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Тази опция позволява да импортирате допълнителни файлове с данни във вашата инсталация на VCMI. Понастоящем се поддържат следните опции:
+
+- Карти на Heroes III (.h3m или .vmap).
+- Кампании на Heroes III (.h3c или .vcmp).
+- Heroes III Chronicles чрез офлайн резервен инсталатор от GOG.com (.exe).
+- Модове за VCMI в zip формат (.zip)
+- Конфигурационни файлове за VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="305"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Вашата версия на Heroes III използва различен език. VCMI предоставя преводи на играта на различни езици. Използвайте тази опция, за да инсталирате автоматично такъв превод на вашия език.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="315"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Преводът на Heroes III на вашия език е инсталиран, но е изключен. Използвайте тази опция, за да го активирате.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="325"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">В хранилището на модове е налична нова версия на някои от инсталираните при вас модове. Използвайте тази опция, за да актуализирате автоматично всички модове до последна версия.
+
+ВНИМАНИЕ: Понякога обновените версии на модовете може да не са съвместими със съществуващите ви записи. Може да отложите обновяването, докато приключите текущите игри.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ако притежавате Heroes Chronicles в gog.com, можете да използвате офлайн резервните инсталатори, предоставени от gog, за да импортирате данните на Heroes Chronicles във VCMI като потребителски кампании.
+За да импортирате Heroes Chronicles, изтеглете офлайн резервен инсталатор за всяка хроника, която искате да инсталирате, изберете опцията &apos;Импортирай файлове&apos; и изберете изтегления файл. Това ще създаде и инсталира мод за VCMI, който съдържа импортираните хроники</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="350"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI откри, че липсват музикални файлове на Heroes III във вашата инсталация. VCMI ще работи, но музика в играта няма да има.
+
+За да решите проблема, копирайте липсващите mp3 файлове от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="361"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI откри, че липсват видео файлове на Heroes III във вашата инсталация. VCMI ще работи, но синематиките няма да са налични.
+
+За да решите проблема, копирайте файла VIDEO.VID от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="372"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI откри, че липсват някои от файловете с данни на Heroes III във вашата инсталация. Може да опитате да стартирате VCMI, но играта може да не работи както се очаква или да крашва.
+
+За да решите проблема, преинсталирайте играта и преимпортирайте данните с поддържана версия на Heroes III. VCMI изисква Heroes III: Shadow of Death или Complete Edition, които може да получите например от gog.com</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="383"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI откри, че липсват някои от файловете с данни на Heroes III: Armageddon&apos;s Blade във вашата инсталация. VCMI ще работи, но кампаниите на Armageddon&apos;s Blade няма да са налични.
+
+За да решите проблема, копирайте липсващите файлове с данни от Heroes III в папката с данни на VCMI ръчно или преинсталирайте VCMI и преимпортирайте данните на Heroes III</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешен импорт на профил</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Неуспешен импорт на профил — данните в клипборда не приличат на профил на мод!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Въведете име на профил:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="475"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Преименувайте профила &apos;%1&apos; на:</translation>
     </message>
 </context>
 <context>
@@ -1926,27 +2400,32 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Използвате последната версия</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Затвори</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Проверка за актуализации при стартиране</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Мрежова грешка</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Не може да се прочете JSON от URL или некоректни JSON данни</translation>
     </message>
 </context>
 </TS>

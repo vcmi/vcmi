@@ -165,7 +165,7 @@ public:
 
 			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
 			pset.color = PlayerColor(i);
-			pset.connectedPlayerIDs.insert(i);
+			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
 			pset.name = "Player";
 
 			pset.castle = pinfo.defaultCastle();

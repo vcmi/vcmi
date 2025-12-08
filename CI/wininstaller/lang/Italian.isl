@@ -1,5 +1,5 @@
-﻿; bovirus@gmail.com
-; *** Inno Setup version 6.1.0+ Italian messages ***
+; bovirus@gmail.com
+; *** Inno Setup version 6.5.0+ Italian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;    https://jrsoftware.org/files/istrans/
@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; isl - Last Update: 25.07.2020  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 22.06.2025  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -20,6 +20,8 @@
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Italiano
 LanguageID=$0410
+; LanguageCodePage should always be set if possible, even if this file is Unicode
+; For English it's set to zero anyway because English only uses ASCII characters
 LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
@@ -49,6 +51,7 @@ ErrorTitle=Errore
 SetupLdrStartupMessage=Questa è l'installazione di %1.%n%nVuoi continuare?
 LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata.
 LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata.
+HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nErrore %2: %3
@@ -70,14 +73,14 @@ SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le 
 UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Seleziona modo installazione
-PrivilegesRequiredOverrideInstruction=Seleziona modo installazione
-PrivilegesRequiredOverrideText1=%1 può essere installato per tutti gli utenti (richiede privilegi di amministratore), o solo per l'utente attuale.
-PrivilegesRequiredOverrideText2=%1 può essere installato solo per l'utente attuale, o per tutti gli utenti (richiede privilegi di amministratore).
-PrivilegesRequiredOverrideAllUsers=Inst&alla per tutti gli utenti
-PrivilegesRequiredOverrideAllUsersRecommended=Inst&alla per tutti gli utenti (suggerito)
-PrivilegesRequiredOverrideCurrentUser=Installa solo per l'&utente attuale
-PrivilegesRequiredOverrideCurrentUserRecommended=Installa solo per l'&utente attuale (suggerito)
+PrivilegesRequiredOverrideTitle=Modalità di installazione – Permessi
+PrivilegesRequiredOverrideInstruction=Scegli come eseguire il programma di installazione
+PrivilegesRequiredOverrideText1=%1 richiede i privilegi di amministratore per essere installato per tutti gli utenti.%nPuoi anche installarlo solo per il tuo account senza privilegi di amministratore.
+PrivilegesRequiredOverrideText2=%1 può essere installato solo per il tuo account (senza privilegi di amministratore) oppure per tutti gli utenti (richiede privilegi di amministratore).
+PrivilegesRequiredOverrideAllUsers=Esegui come &Amministratore (installazione per tutti gli utenti)
+PrivilegesRequiredOverrideAllUsersRecommended=Esegui come &Amministratore (consigliato)
+PrivilegesRequiredOverrideCurrentUser=Esegui come &Utente Standard (installazione solo per me)
+PrivilegesRequiredOverrideCurrentUserRecommended=Esegui come &Utente Standard (consigliato)
 
 ; *** Misc. errors
 ErrorCreatingDir=Impossibile creare la cartella "%1"
@@ -90,7 +93,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 11.09.2018)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 12.06.2025)
 
 ; *** Buttons
 ButtonBack=< &Indietro
@@ -217,16 +220,26 @@ ReadyMemoGroup=Cartella del menu Avvio/Start:
 ReadyMemoTasks=Processi aggiuntivi:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Download file aggiuntivi...
+DownloadingLabel2=Download file...
 ButtonStopDownload=&Stop download
 StopDownload=Sei sicuro di voler interrompere il download?
 ErrorDownloadAborted=Download annullato
 ErrorDownloadFailed=Download fallito: %1 %2
 ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %1 %2
-ErrorFileHash1=Errore hash file: %1
-ErrorFileHash2=Hash file non valido: atteso %1, trovato %2
 ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
+
+; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+ExtractingLabel=Estrazione file...
+ButtonStopExtraction=Interrompi e&strazione
+StopExtraction=Sei sicuro di voler interrompere l'estrazione?
+ErrorExtractionAborted=Estrazione interrotta
+ErrorExtractionFailed=Estrazione fallita: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=La password non è corretta
+ArchiveIsCorrupted=L'archivio non è integro
+ArchiveUnsupportedFormat=Questo formato archivio non è supportato
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
@@ -272,11 +285,15 @@ AbortRetryIgnoreSelectAction=Seleziona azione
 AbortRetryIgnoreRetry=&Riprova
 AbortRetryIgnoreIgnore=&Ignora questo errore e continua
 AbortRetryIgnoreCancel=Annulla installazione
+RetryCancelSelectAction=Seleziona azione
+RetryCancelRetry=&Riprova
+RetryCancelCancel=Annulla
 
 ; *** Installation status messages
 StatusClosingApplications=Chiusura applicazioni...
 StatusCreateDirs=Creazione cartelle...
 StatusExtractFiles=Estrazione file...
+StatusDownloadFiles=Download file...
 StatusCreateIcons=Creazione icone...
 StatusCreateIniEntries=Creazione voci nei file INI...
 StatusCreateRegistryEntries=Creazione voci di registro...
@@ -306,6 +323,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Salta questo file (non suggerito)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignora questo errore e continua (non suggerito)
 SourceIsCorrupted=Il file sorgente è danneggiato
 SourceDoesntExist=Il file sorgente "%1" non esiste
+SourceVerificationFailed=Verifica del file sorgente non riuscita: %1
+VerificationSignatureDoesntExist=File firma "%1" non disponibile
+VerificationSignatureInvalid=Il file firma "%1" non è valido
+VerificationKeyNotFound=Il file firma "%1" usa una chiave sconosciuta
+VerificationFileNameIncorrect=Il nome del file non è corretto
+VerificationFileTagIncorrect=L'etichetta del file non è corretta
+VerificationFileSizeIncorrect=La dimensione del file non è corretta
+VerificationFileHashIncorrect=L'hash del file non è corretto
 ExistingFileReadOnly2=Il file esistente non può essere sostituito in quanto segnato come in sola lettura.
 ExistingFileReadOnlyRetry=&Rimuovi attributo di sola lettura e riprova
 ExistingFileReadOnlyKeepExisting=&Mantieni il file esistente
@@ -324,6 +349,8 @@ ErrorChangingAttr=Si è verificato un errore durante il tentativo di modifica de
 ErrorCreatingTemp=Si è verificato un errore durante la creazione di un file nella cartella di installazione:
 ErrorReadingSource=Si è verificato un errore durante la lettura del file sorgente:
 ErrorCopying=Si è verificato un errore durante la copia di un file:
+ErrorDownloading=Si è verificato un errore durante il download di un file:
+ErrorExtracting=Si è verificato un errore durante l'estrazione di un archivio:
 ErrorReplacingExistingFile=Si è verificato un errore durante la sovrascrittura del file esistente:
 ErrorRestartReplace=Errore durante riavvio o sostituzione:
 ErrorRenamingTemp=Si è verificato un errore durante il tentativo di rinominare un file nella cartella di installazione:

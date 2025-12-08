@@ -94,7 +94,8 @@ private:
 		InvalidTiles() : centerPosValid(false) { }
 	};
 
-	void updateTerrainTypes();
+	void drawTerrain(TerrainId terrain, CTerrainSelection selection);
+	void updateTerrainTypes(CTerrainSelection selection);
 	void invalidateTerrainViews(const int3 & centerPos);
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
 
@@ -106,6 +107,7 @@ private:
 
 	CTerrainSelection terrainSel;
 	TerrainId terType;
+	std::map<TerrainId, CTerrainSelection> formerState;
 	int decorationsPercentage;
 	vstd::RNG* gen;
 	std::set<int3> invalidatedTerViews;

@@ -53,12 +53,9 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	JsonNode ret;
 	JsonNode & cost = ret["cost"];
 
-	//note: this code will try to parse mithril as well but wil always return 0 for it
 	for(const std::string & resID : GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
-
-	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
-
+	
 	parser.endLine();
 
 	return ret;
@@ -251,10 +248,10 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 			bonus->description.appendTextID(building->getNameTextID());
 
 		//JsonUtils::parseBuildingBonus produces UNKNOWN type propagator instead of empty.
-		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != CBonusSystemNode::ENodeTypes::UNKNOWN);
+		assert(bonus->propagator == nullptr || bonus->propagator->getPropagatorType() != BonusNodeType::UNKNOWN);
 
 		if(bonus->propagator != nullptr
-			&& bonus->propagator->getPropagatorType() == CBonusSystemNode::ENodeTypes::UNKNOWN)
+			&& bonus->propagator->getPropagatorType() == BonusNodeType::UNKNOWN)
 				bonus->addPropagator(emptyPropagator());
 		building->addNewBonus(bonus, bonusList);
 	}
@@ -266,15 +263,8 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	assert(!source.getModScope().empty());
 
 	auto * ret = new CBuilding();
-	ret->bid = vstd::find_or(MappedKeys::BUILDING_NAMES_TO_TYPES, stringID, BuildingID::NONE);
+	ret->bid = BuildingID(source["id"].Integer());
 	ret->subId = BuildingSubID::NONE;
-
-	if(ret->bid == BuildingID::NONE && !source["id"].isNull())
-	{
-		// FIXME: A lot of false-positives with no clear way to handle them in mods
-		//logMod->warn("Building %s: id field is deprecated", stringID);
-		ret->bid = source["id"].isNull() ? BuildingID(BuildingID::NONE) : BuildingID(source["id"].Float());
-	}
 
 	if (ret->bid == BuildingID::NONE)
 		logMod->error("Building '%s' isn't recognized and won't work properly. Correct the typo or update VCMI.", stringID);
@@ -291,8 +281,32 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-	ret->resources = TResources(source["cost"]);
-	ret->produce =   TResources(source["produce"]);
+	ret->resources.resolveFromJson(source["cost"]);
+
+	//MODS COMPATIBILITY FOR pre-1.6
+	bool produceEmpty = true;
+	for(auto & res : source["produce"].Struct())
+		if(res.second.Integer() != 0)
+			produceEmpty = false;
+	if(!produceEmpty)
+		ret->produce.resolveFromJson(source["produce"]); // non legacy
+	else if(ret->bid == BuildingID::RESOURCE_SILO)
+	{
+		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
+		switch (ret->town->primaryRes.toEnum())
+		{
+			case EGameResID::GOLD:
+				ret->produce[ret->town->primaryRes] = 500;
+				break;
+			case EGameResID::WOOD_AND_ORE:
+				ret->produce[EGameResID::WOOD] = 1;
+				ret->produce[EGameResID::ORE] = 1;
+				break;
+			default:
+				ret->produce[ret->town->primaryRes] = 1;
+				break;
+		}
+	}
 
 	ret->manualHeroVisit = source["manualHeroVisit"].Bool();
 	ret->upgradeReplacesBonuses = source["upgradeReplacesBonuses"].Bool();
@@ -300,17 +314,17 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	const JsonNode & fortifications = source["fortifications"];
 	if (!fortifications.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["citadelShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["citadelShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.citadelShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.upperTowerShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->identifiers()->requestIdentifierOptional("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.lowerTowerShooter = CreatureID(identifier);
 		});
@@ -326,7 +340,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if(!source["mapObjectLikeBonuses"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifierOptional("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
+		LIBRARY->identifiers()->requestIdentifierIfNotNull("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
 		{
 			ret->mapObjectLikeBonuses = MapObjectID(identifier);
 		});
@@ -335,24 +349,6 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	if(!source["configuration"].isNull())
 		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
 
-	//MODS COMPATIBILITY FOR pre-1.6
-	if(ret->produce.empty() && ret->bid == BuildingID::RESOURCE_SILO)
-	{
-		logGlobal->warn("Resource silo in town '%s' does not produces any resources!", ret->town->faction->getJsonKey());
-		switch (ret->town->primaryRes.toEnum())
-		{
-			case EGameResID::GOLD:
-				ret->produce[ret->town->primaryRes] = 500;
-				break;
-			case EGameResID::WOOD_AND_ORE:
-				ret->produce[EGameResID::WOOD] = 1;
-				ret->produce[EGameResID::ORE] = 1;
-				break;
-			default:
-				ret->produce[ret->town->primaryRes] = 1;
-				break;
-		}
-	}
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
 
 	if (!source["warMachine"].isNull())
@@ -368,17 +364,24 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		// building id and upgrades can't be the same
 		if(stringID == source["upgrades"].String())
 		{
-			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.") %
-												stringID % ret->town->faction->getNameTranslated()));
+			auto townName = ret->town->faction->getNameTranslated();
+			logMod->error("Building with ID '%s' of town '%s' can't be an upgrade of the same building.", stringID, townName);
+			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.")
+												% stringID % townName));
 		}
-
-		LIBRARY->identifiers()->requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+		else
 		{
-			ret->upgrade = BuildingID(identifier);
-		});
+			LIBRARY->identifiers()->requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+			{
+				ret->upgrade = BuildingID(identifier);
+			});
+		}
 	}
 	else
 		ret->upgrade = BuildingID::NONE;
+
+	if (ret->town->buildings[ret->bid] != nullptr)
+		logMod->error("Mod %s, faction %s: detected multiple town buildings with ID %d", source.getModScope(), stringID, ret->bid.getNum());
 
 	ret->town->buildings[ret->bid].reset(ret);
 	for(const auto & element : source["marketModes"].Vector())
@@ -576,23 +579,34 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	readIcon(source["icons"]["fort"]["normal"], info.iconSmall[1][0], info.iconLarge[1][0]);
 	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
-	if (source["musicTheme"].isVector())
-	{
-		for (auto const & entry : source["musicTheme"].Vector())
-			info.musicTheme.push_back(AudioPath::fromJson(entry));
-	}
-	else
-	{
-		info.musicTheme.push_back(AudioPath::fromJson(source["musicTheme"]));
-	}
-
 	info.hallBackground = ImagePath::fromJson(source["hallBackground"]);
 	info.townBackground = ImagePath::fromJson(source["townBackground"]);
-	info.guildWindow = ImagePath::fromJson(source["guildWindow"]);
 	info.buildingsIcons = AnimationPath::fromJson(source["buildingsIcons"]);
-
-	info.guildBackground = ImagePath::fromJson(source["guildBackground"]);
 	info.tavernVideo = VideoPath::fromJson(source["tavernVideo"]);
+	info.guildWindowPosition  = Point(source["guildWindowPosition"]["x"].Integer(), source["guildWindowPosition"]["y"].Integer());
+
+	info.guildSpellPositions.clear();
+	for(auto & level : source["guildSpellPositions"].Vector())
+	{
+		std::vector<Point> points;
+		for(auto & item : level.Vector())
+			points.push_back(Point(item["x"].Integer(), item["y"].Integer()));
+		info.guildSpellPositions.push_back(points);
+	}
+
+	auto loadStringOrVector = [](auto & target, auto & node, auto fromJsonFunc){
+		if(node.isVector())
+		{
+			target.clear();
+			for(auto & background : node.Vector())
+				target.push_back(fromJsonFunc(background));
+		}
+		else
+			target = {fromJsonFunc(node)};
+	};
+	loadStringOrVector(info.musicTheme, source["musicTheme"], AudioPath::fromJson);
+	loadStringOrVector(info.guildBackground, source["guildBackground"], ImagePath::fromJson);
+	loadStringOrVector(info.guildWindow, source["guildWindow"], ImagePath::fromJson);
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -673,7 +687,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "heroClass",node.first, [=](si32 classID)
+		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=](si32 classID)
 		{
 			LIBRARY->heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
 		});
@@ -683,7 +697,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
+		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
 		{
 			LIBRARY->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
@@ -881,10 +895,21 @@ void CTownHandler::beforeValidate(JsonNode & object)
 
 	const auto & inheritBuilding = [this](const std::string & name, JsonNode & target)
 	{
-		if (buildingsLibrary.Struct().count(name) == 0)
+		if(buildingsLibrary.Struct().count(name) == 0)
+		{
+			if(!target.Struct().count("id"))
+				logMod->warn("Mod '%s': Town building '%s' lack ID.", target.getModScope(), name);
 			return;
+		}
 
 		JsonNode baseCopy(buildingsLibrary[name]);
+
+		if (target.Struct().count("id") && baseCopy.Struct().count("id"))
+		{
+			logMod->warn("Mod '%s': Town building '%s' has specified 'id' field for a predefined building! Ignoring this field.", target["id"].getModScope(), name);
+			target.Struct().erase("id");
+		}
+
 		baseCopy.setModScope(target.getModScope());
 		JsonUtils::inherit(target, baseCopy);
 	};

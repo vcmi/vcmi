@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         sparse-checkout: CI/android
 
     - name: Install JDK
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '11'
@@ -42,7 +42,7 @@ jobs:
         echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
     - name: Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: aab
         compression-level: 0

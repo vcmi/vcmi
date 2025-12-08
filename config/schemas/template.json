@@ -47,6 +47,10 @@
 				"visiblePositionX" : { "type" : "number" },
 				"visiblePositionY" : { "type" : "number" },
 				"visibleSize" : { "type" : "number" },
+				"forcedLevel" : {
+					"type" : "string",
+					"enum" : ["automatic", "surface", "underground"]
+				},
 				
 				"terrainTypes": {"$ref" : "#/definitions/stringArray"},
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},
@@ -86,9 +90,20 @@
 							}
 						},
 						"bannedObjects": {
-							"type": "array",
-							"items": {
-								"type": "string"
+							"type": "object",
+							"additionalProperties": {
+								"anyOf" : [
+									{
+										"type": "boolean"
+									},
+									{
+										"type": "object",
+										"additionalProperties": {
+											"type": "boolean"
+										}
+									}
+								]
+								
 							}
 						},
 						"commonObjects": {
@@ -96,7 +111,10 @@
 							"items": {
 								"type": "object",
 								"properties": {
-									"id": {
+									"type": {
+										"type": "string"
+									},
+									"subtype": {
 										"type": "string"
 									},
 									"rmg": {
@@ -115,7 +133,7 @@
 										"required": ["value", "rarity"]
 									}
 								},
-								"required": ["id", "rmg"]
+								"required": ["type", "rmg"]
 							}
 						}
 					}
@@ -139,21 +157,14 @@
 		},
 		"mines" : {
 			"type" : "object",
-			"additionalProperties" : false,
-			"properties" : {
-				"gold" :    { "type" : "number"},
-				"wood" :    { "type" : "number"},
-				"ore" :     { "type" : "number"},
-				"mercury" : { "type" : "number"},
-				"sulfur" :  { "type" : "number"},
-				"crystal" : { "type" : "number"},
-				"gems" :    { "type" : "number"}
+			"additionalProperties" : {
+				"type" : "number"
 			}
 		},
 		"connection" :
 		{
 			"required" : ["a", "b"],
-			"additionalProperties" : true,
+			"additionalProperties" : false,
 			"properties" : {
 				"a" : {
 					"type" : "string"
@@ -170,6 +181,11 @@
 				{
 					"type" : "string",
 					"enum" : ["wide", "fictive", "repulsive", "forcePortal"]
+				},
+				"road":
+				{
+					"type" : "string",
+					"enum" : ["true", "false", "random"]
 				}
 			}
 		},
@@ -181,10 +197,9 @@
 	},
 	
 	"additionalProperties" : false,
+	"required" : ["zones", "connections", "minSize", "maxSize", "players"],
 	"properties" :
 	{
-		"required" : ["zones", "connections", "minSize", "maxSize", "players"],
-		
 		"players" : {
 			"description" : "Number of players that will be present on map (human or AI)",
 			"type": "string"
@@ -206,6 +221,27 @@
 			"type" : "object",
 			"$ref" : "gameSettings.json"
 		},
+		
+		"bannedSpells": {
+			"description" : "List of spells that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedArtifacts": {
+			"description" : "List of artifacts that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedSkills": {
+			"description" : "List of skills that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
+		"bannedHeroes": {
+			"description" : "List of heroes that are banned on this template",
+			"$ref" : "#/definitions/stringArray"
+		},
+		
 		"name" : {
 			"description" : "Optional name - useful to have several template variations with same name",
 			"type": "string"

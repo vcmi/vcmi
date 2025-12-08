@@ -9,33 +9,14 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
   build:
+    name: Build (${{ matrix.platform }})
     strategy:
       matrix:
         include:
-          - platform: linux-qt6
-            os: ubuntu-24.04
-            test: 0
-            before_install: linux_qt6.sh
-            preset: linux-clang-test
-          - platform: linux
-            os: ubuntu-24.04
-            test: 1
-            before_install: linux_qt5.sh
-            preset: linux-gcc-test
-          - platform: linux
-            os: ubuntu-22.04
-            test: 0
-            before_install: linux_qt5.sh
-            preset: linux-gcc-debug
           - platform: mac-intel
-            os: macos-13
-            test: 0
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -44,11 +25,11 @@ jobs:
             preset: macos-conan-ninja-release
             conan_profile: macos-intel
             conan_prebuilts: dependencies-mac-intel
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
             artifact_platform: intel
+
           - platform: mac-arm
-            os: macos-13
-            test: 0
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -57,11 +38,11 @@ jobs:
             preset: macos-arm-conan-ninja-release
             conan_profile: macos-arm
             conan_prebuilts: dependencies-mac-arm
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
             artifact_platform: arm
+
           - platform: ios
-            os: macos-13
-            test: 0
+            os: macos-14
             pack: 1
             upload: 1
             pack_type: Release
@@ -70,161 +51,197 @@ jobs:
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
-            conan_options: --options with_apple_system_libs=True
+            conan_options: --profile=dependencies/conan_profiles/base/apple-system
+
           - platform: msvc-x64
-            os: windows-latest
-            test: 0
+            arch: x64
+            toolset: '14.29'
+            os: windows-2025
             pack: 1
-            upload: 1
+            upload: 0
             pack_type: RelWithDebInfo
-            extension: exe
-            before_install: msvc.sh
-            preset: windows-msvc-release
+            extension: zip
+            preset: windows-msvc-ninja-release
+            conan_profile: msvc-x64
+            conan_prebuilts: dependencies-windows-x64
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
+            artifact_platform: x64
+
           - platform: msvc-x86
-            os: windows-latest
-            test: 0
+            arch: amd64_x86
+            toolset: '14.29'
+            os: windows-2025
             pack: 1
+            upload: 0
             pack_type: RelWithDebInfo
-            extension: exe
-            before_install: msvc.sh
-            preset: windows-msvc-release-x86
-          - platform: mingw_x86_64
-            os: ubuntu-24.04
-            test: 0
+            extension: zip
+            preset: windows-msvc-ninja-release-x86
+            conan_profile: msvc-x86
+            conan_prebuilts: dependencies-windows-x86
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
+            artifact_platform: x86
+
+          - platform: msvc-arm64
+            arch: arm64
+            os: windows-11-arm
             pack: 1
-            pack_type: Release
-            extension: exe
-            cmake_args: -G Ninja
-            before_install: mingw.sh
-            preset: windows-mingw-conan-linux
-            conan_profile: mingw64-linux.jinja
-            conan_prebuilts: dependencies-mingw-x86-64
-          - platform: mingw_x86
-            os: ubuntu-24.04
-            test: 0
-            pack: 1
-            pack_type: Release
-            extension: exe
-            cmake_args: -G Ninja
-            before_install: mingw.sh
-            preset: windows-mingw-conan-linux
-            conan_profile: mingw32-linux.jinja
-            conan_prebuilts: dependencies-mingw-x86
+            upload: 0
+            pack_type: RelWithDebInfo
+            extension: zip
+            preset: windows-msvc-ninja-release-arm64
+            conan_profile: msvc-arm64
+            conan_prebuilts: dependencies-windows-arm64
+            conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
+            artifact_platform: arm64
+
           - platform: android-32
-            os: ubuntu-24.04
+            os: ubuntu-latest
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-32-ndk
             conan_prebuilts: dependencies-android-armeabi-v7a
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: armeabi-v7a
+
           - platform: android-64
-            os: ubuntu-24.04
+            os: ubuntu-latest
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            before_install: android.sh
             conan_profile: android-64-ndk
             conan_prebuilts: dependencies-android-arm64-v8a
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: arm64-v8a
+
+          - platform: android-64-intel
+            os: ubuntu-latest
+            upload: 1
+            extension: apk
+            preset: android-conan-ninja-release
+            conan_profile: android-x64-ndk
+            conan_prebuilts: dependencies-android-x64
+            conan_options: --profile=dependencies/conan_profiles/base/android-system
+            artifact_platform: x64
+
     runs-on: ${{ matrix.os }}
+
     defaults:
       run:
         shell: bash
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: recursive
 
+    - name: Prepare APT staging dir
+      if: contains(matrix.os, 'ubuntu')
+      run: mkdir -p "$RUNNER_TEMP/apt-cache"
+
+    - name: APT cache restore
+      if: contains(matrix.os, 'ubuntu')
+      id: aptcache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ matrix.platform }}-apt-${{ matrix.os }}
+        restore-keys: |
+          ${{ matrix.platform }}-apt-${{ matrix.os }}
+
     - name: Prepare CI
       if: "${{ matrix.before_install != '' }}"
-      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}'
-      env:
-        VCMI_BUILD_PLATFORM: x64
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+
+    # Save only on cache miss, GitHub caches are immutable per key
+    - name: APT cache save
+      if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ steps.aptcache.outputs.cache-primary-key }}
 
     - name: Install Conan Dependencies
       if: "${{ matrix.conan_prebuilts != '' }}"
-      run: source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
+      run: |
+        pipx install conan
+        source '${{github.workspace}}/CI/install_conan_dependencies.sh' '${{matrix.conan_prebuilts}}'
 
-    - name: Install vcpkg Dependencies
+    - name: Setup MSVC Developer Command Prompt
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      run: source '${{github.workspace}}/CI/install_vcpkg_dependencies.sh' '${{matrix.platform}}'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
+        toolset: ${{ matrix.toolset }}
 
-    # ensure the ccache for each PR is separate so they don't interfere with each other
-    # fall back to ccache of the vcmi/vcmi repo if no PR-specific ccache is found
-    - name: ccache for PRs
+    # ensure the cache for each PR is separate so they don't interfere with each other
+    # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
+
+    - name: Setup compiler cache for PRs
       uses: hendrikmuhs/ccache-action@v1.2
       if: ${{ github.event.number != '' }}
       with:
-        key: ${{ matrix.preset }}-PR-${{ github.event.number }}
+        variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
+        key: ${{ matrix.platform }}-PR-${{ github.event.number }}
         restore-keys: |
-          ${{ matrix.preset }}-PR-${{ github.event.number }}
-          ${{ matrix.preset }}-no-PR
-        # actual cache takes up less space, at most ~1 GB
-        max-size: "5G"
+          ${{ matrix.platform }}-PR-${{ github.event.number }}
+          ${{ matrix.platform }}-branch-${{ github.base_ref }}
+          ${{ matrix.platform }}-
+        create-symlink: ${{ !startsWith(matrix.platform, 'msvc') }}
+        max-size: '5G'
         verbose: 2
+        job-summary: ""           # <-- disable built-in summary to avoid duplicate block
 
-    - name: ccache for everything but PRs
+    - name: Setup compiler cache for branch builds
       uses: hendrikmuhs/ccache-action@v1.2
-      if: ${{ (github.repository == 'vcmi/vcmi' && github.event.number == '' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master')) ||  github.repository != 'vcmi/vcmi' }}
+      if: ${{ github.event.number == '' }}
       with:
-        key: ${{ matrix.preset }}-no-PR
+        variant: ${{ startsWith(matrix.platform, 'msvc') && 'sccache' || 'ccache' }}
+        key: ${{ matrix.platform }}-branch-${{ github.ref_name }}
         restore-keys: |
-          ${{ matrix.preset }}-no-PR
-        # actual cache takes up less space, at most ~1 GB
-        max-size: "5G"
+          ${{ matrix.platform }}-branch-${{ github.ref_name }}
+          ${{ matrix.platform }}-
+        create-symlink: ${{ !startsWith(matrix.platform, 'msvc') }}
+        max-size: '5G'
         verbose: 2
+        job-summary: ""           # <-- disable built-in summary to avoid duplicate block
 
-    - name: Prepare Heroes 3 data
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
+    - name: CCache tuning (Android)
+      if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
-        if [[ ${{github.repository_owner}} == vcmi ]]
-        then
-            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        else
-            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
-        fi
-        wget --progress=dot:giga "$data_url" -O h3_assets.zip
-        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
-        mkdir -p ~/.local/share/vcmi/
-        mv h3_assets/* ~/.local/share/vcmi/
-
-    - name: Install Conan
-      if: "${{ matrix.conan_profile != '' }}"
-      run: pipx install 'conan<2.0'
+        echo "/usr/lib/ccache" >> $GITHUB_PATH
+        ccache --set-config=compiler_check=content
+        ccache --set-config=base_dir="${GITHUB_WORKSPACE}"
+        ccache --set-config=hash_dir=true
+        ccache --set-config=sloppiness=time_macros
 
     - name: Install Conan profile
       if: "${{ matrix.conan_profile != '' }}"
       run: |
-        conan profile new default --detect
+        conan profile detect
+        outFolder=conan-generated
         conan install . \
-          --install-folder=conan-generated \
-          --no-imports \
+          --output-folder="$outFolder" \
           --build=never \
-          --profile:build=default \
-          --profile:host=CI/conan/${{ matrix.conan_profile }} \
+          --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           ${{ matrix.conan_options }}
-      env:
-        GENERATE_ONLY_BUILT_CONFIG: 1
+        ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
-    # Workaround for gradle not discovering SDK that was installed via conan
-    - name: Find Android NDK
+    # Can't be set in Gradle project
+    - name: Configure enableUncompressedNativeLibs
       if: ${{ startsWith(matrix.platform, 'android') }}
-      run: sudo ln -s -T /home/runner/.conan/data/android-ndk/r25c/_/_/package/4db1be536558d833e52e862fd84d64d75c2b3656/bin /usr/local/lib/android/sdk/ndk/25.2.9519653
+      run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
 
     - name: Install Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       if: ${{ startsWith(matrix.platform, 'android') }}
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
+    # TODO: x86_64
     - name: Bump Android x64 build ID
       if: ${{ matrix.platform == 'android-64' }}
       run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
@@ -236,43 +253,38 @@ jobs:
           VCMI_PACKAGE_FILE_NAME+="-${{ matrix.artifact_platform }}"
         fi
         echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_BUILD="$VCMI_PACKAGE_BUILD" >> $GITHUB_ENV
         echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
         echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
       env:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
-    - name: Configure
+    - name: Configure (non-MSVC)
+      if: ${{ !startsWith(matrix.platform, 'msvc') }}
       run: |
-        if [[ ${{matrix.preset}} == linux-gcc-test ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14 --preset ${{ matrix.preset }}
-        elif [[ ${{matrix.preset}} == linux-gcc-debug ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 --preset ${{ matrix.preset }}
-        elif [[ (${{matrix.preset}} == android-conan-ninja-release) && (${{github.ref}} != 'refs/heads/master') ]]
-        then
-            cmake -DENABLE_CCACHE:BOOL=ON -DANDROID_GRADLE_PROPERTIES="applicationIdSuffix=.daily;signingConfig=dailySigning;applicationLabel=VCMI daily;applicationVariant=daily" --preset ${{ matrix.preset }}
-        elif [[ ${{startsWith(matrix.platform, 'msvc') }} ]]
-        then
-            cmake --preset ${{ matrix.preset }}
-        else
-            cmake -DENABLE_CCACHE:BOOL=ON --preset ${{ matrix.preset }}
+        if [[ ("${{ matrix.preset }}" == "android-conan-ninja-release") && ("${{ github.ref }}" != 'refs/heads/master') ]]; then
+          # key1=value1;key2=value2;...
+          gradleProperties=$(python3 CI/android/gradle_daily_props.py)
+          androidOptions=("-DANDROID_GRADLE_PROPERTIES=$gradleProperties")
+          androidOptions+=("-DCMAKE_C_COMPILER_LAUNCHER=ccache" "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache")
         fi
+        cmake -DENABLE_CCACHE:BOOL=ON "${androidOptions[@]}" --preset ${{ matrix.preset }}
+    - name: Configure (MSVC)
+      if: ${{ startsWith(matrix.platform, 'msvc') }}
+      run: |
+        & $env:CONANRUN_PWSH_SCRIPT
+
+        cmake --preset ${{ matrix.preset }}
+      shell: pwsh
 
     - name: Build
       run: |
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cmake --build --preset ${{matrix.preset}}
+      shell: pwsh
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-
-    - name: Test
-      env:
-        HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
-      if: ${{ env.HEROES_3_DATA_PASSWORD != '' && matrix.test == 1 }}
-      continue-on-error: true
-      run: |
-        ctest --preset ${{matrix.preset}}
 
     - name: Kill XProtect to work around CPack issue on macOS
       if: ${{ startsWith(matrix.platform, 'mac') }}
@@ -286,67 +298,49 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        cd '${{github.workspace}}/out/build/${{matrix.preset}}'
-        
-        # Workaround for CPack bug on macOS 13
-        counter=0
-        until cpack -C ${{matrix.pack_type}} || ((counter > 20)); do
-            sleep 3
-            ((counter++))
-        done
-        rm -rf _CPack_Packages
-
-    - name: Artifacts
-      if: ${{ matrix.pack == 1 }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
-        compression-level: 0
-        path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
+        cd "${{github.workspace}}/out/build/${{matrix.preset}}"
+        cpack -C ${{matrix.pack_type}}
+      shell: pwsh
 
     - name: Find Android package
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
-        builtApkPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/apk/release/*.${{ matrix.extension }})"
-        builtAabPath="$(ls ${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs/bundle/release/*.aab)"
-        ANDROID_APK_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.${{ matrix.extension }}"
-        ANDROID_AAB_PATH="${{ github.workspace }}/$VCMI_PACKAGE_FILE_NAME.aab"
-        mv "$builtApkPath" "$ANDROID_APK_PATH"
-        mv "$builtAabPath" "$ANDROID_AAB_PATH"
-        echo "ANDROID_APK_PATH=$ANDROID_APK_PATH" >> $GITHUB_ENV
-        echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
+        OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
+        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
+        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
 
-    - name: Upload android apk artifacts
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      uses: actions/upload-artifact@v4
+    - name: Upload Artifact
+      id: upload_artifact
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
-        compression-level: 0
+        compression-level: 9
         path: |
-          ${{ env.ANDROID_APK_PATH }}
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
-    - name: Upload Android aab artifacts
+    - name: Upload AAB Artifact
+      id: upload_aab
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
-        compression-level: 0
+        compression-level: 9
         path: |
-          ${{ env.ANDROID_AAB_PATH }}
+          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
     - name: Upload debug symbols
+      id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
         compression-level: 9
         path: |
             ${{github.workspace}}/**/*.pdb
 
-    - name: Upload build
-      if: ${{ (matrix.upload == 1) && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/beta' || github.ref == 'refs/heads/master') }}
-      continue-on-error: true
+    - name: Upload build to download.vcmi.eu
+      if: ${{ matrix.upload == 1 && github.event.number == '' && env.DEPLOY_RSA != '' }}
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
           cd '${{github.workspace}}/out/build/${{matrix.preset}}'
@@ -356,14 +350,31 @@ jobs:
         DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
         PACKAGE_EXTENSION: ${{ matrix.extension }}
 
-  deploy-src:
-    if: always() && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-24.04
+    - name: Prepare partial JSON with build informations
+      id: make_partial_json
+      env:
+        PLATFORM: ${{ matrix.platform }}
+        ARTIFACT_URL: ${{ steps.upload_artifact.outputs.artifact-url }}
+        DEBUG_SYMBOLS_URL: ${{ steps.upload_symbols.outputs.artifact-url }}
+        AAB_URL: ${{ steps.upload_aab.outputs.artifact-url }}
+      run: |
+        python3 CI/emit_partial.py
+
+    - name: Upload partial JSON with build informations
+      uses: actions/upload-artifact@v5
+      with:
+        name: partial-json-${{ matrix.platform }}
+        path: .summary/${{ matrix.platform }}.json
+
+  upload-source-package:
+    name: Upload Source Code Package
+    if: always() && github.event.number == ''
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v6
           with:
             submodules: recursive
 
@@ -371,30 +382,292 @@ jobs:
           run: |
             source '${{github.workspace}}/CI/get_package_name.sh'
             echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
-            
+
         - name: Create source code archive (including submodules)
           run: |
             git archive HEAD -o "release.tar" --worktree-attributes -v
             git submodule update --init --recursive
             git submodule --quiet foreach 'cd "$toplevel"; tar -rvf "release.tar" "$sm_path"'
             gzip release.tar
-            
+
         - name: Upload source code archive
-          uses: actions/upload-artifact@v4
+          id: upload_source
+          uses: actions/upload-artifact@v5
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
+            compression-level: 9
             path: |
               ./release.tar.gz
 
-  validate-code:
-    if: always()
-    runs-on: ubuntu-24.04
+        - name: Prepare partial JSON with source informations
+          shell: bash
+          run: |
+            mkdir -p .summary
+            cat > .summary/source.json <<JSON
+            {"source_url": "${{ steps.upload_source.outputs.artifact-url }}"}
+            JSON
+
+        - name: Upload partial JSON with source informations
+          uses: actions/upload-artifact@v5
+          with:
+            name: partial-json-source
+            path: .summary/source.json
+
+  test:
+    continue-on-error: true
+    name: Test (${{ matrix.platform }})
+    env:
+      HEROES_3_DATA_PASSWORD: ${{ secrets.HEROES_3_DATA_PASSWORD }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: gcc-latest-release
+            os: ubuntu-24.04
+            before_install: linux_qt6.sh
+            compiler_cxx: g++-14
+            compiler_cc: gcc-14
+            preset: linux-gcc-test
+
+          - platform: clang-latest-debug
+            os: ubuntu-24.04
+            before_install: linux_qt6.sh
+            compiler_cxx: clang++-18
+            compiler_cc: clang-18
+            preset: linux-clang-debug
+
+          - platform: gcc-oldest-debug
+            os: ubuntu-22.04
+            before_install: linux_qt5.sh
+            compiler_cxx: g++-10
+            compiler_cc: gcc-10
+            preset: linux-gcc-debug
+
+          - platform: clang-oldest-release
+            os: ubuntu-22.04
+            before_install: linux_qt5.sh
+            compiler_cxx: clang++-13
+            compiler_cc: clang-13
+            preset: linux-clang-test
+
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash
-    steps:
-        - uses: actions/checkout@v4
 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
+
+    - name: Prepare APT staging dir
+      if: contains(matrix.os, 'ubuntu')
+      run: mkdir -p "$RUNNER_TEMP/apt-cache"
+
+    - name: APT cache restore
+      if: contains(matrix.os, 'ubuntu')
+      id: aptcache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ matrix.platform }}-apt-${{ matrix.os }}
+        restore-keys: |
+          ${{ matrix.platform }}-apt-${{ matrix.os }}
+
+    - name: Prepare CI
+      run: source '${{github.workspace}}/CI/before_install/${{matrix.before_install}}' '${{matrix.arch}}'
+
+    - name: APT cache save
+      if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ runner.temp }}/apt-cache
+        key: ${{ steps.aptcache.outputs.cache-primary-key }}
+
+    - name: Setup compiler cache for PRs
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number != '' }}
+      with:
+        key: ${{ matrix.platform }}-PR-${{ github.event.number }}
+        restore-keys: |
+          ${{ matrix.platform }}-PR-${{ github.event.number }}
+          ${{ matrix.platform }}-branch-${{ github.base_ref }}
+          ${{ matrix.platform }}-
+        max-size: '5G'
+        verbose: 2
+
+    - name: Setup compiler cache for branch builds
+      uses: hendrikmuhs/ccache-action@v1.2
+      if: ${{ github.event.number == '' }}
+      with:
+        key: ${{ matrix.platform }}-branch-${{ github.ref_name }}
+        restore-keys: |
+          ${{ matrix.platform }}-branch-${{ github.ref_name }}
+          ${{ matrix.platform }}-
+        max-size: '5G'
+        verbose: 2
+
+    - name: Prepare Heroes 3 data
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
+      run: |
+        if [[ ${{github.repository_owner}} == vcmi ]]
+        then
+            data_url="https://github.com/vcmi-mods/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        else
+            data_url="https://github.com/${{github.repository_owner}}/vcmi-test-data/releases/download/v1.0/h3_assets.zip"
+        fi
+        wget --progress=dot:giga "$data_url" -O h3_assets.zip
+        7za x h3_assets.zip -p$HEROES_3_DATA_PASSWORD
+        mkdir -p ~/.local/share/vcmi/
+        mv h3_assets/* ~/.local/share/vcmi/
+
+    - name: Configure
+      run: |
+        cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
+
+    - name: Build
+      run: |
+        cmake --build --preset ${{matrix.preset}}
+
+    - name: Test
+      if: ${{ env.HEROES_3_DATA_PASSWORD != '' }}
+      run: |
+        ctest --preset ${{matrix.preset}}
+
+  windows-installer:
+    needs: build
+    if: ${{ needs.build.result == 'success' }}
+    name: Create Windows Installer (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - platform: msvc-x64
+            arch: x64
+            os: windows-2025
+
+          - platform: msvc-x86
+            arch: x86
+            os: windows-2025
+
+          - platform: msvc-arm64
+            arch: arm64
+            os: windows-11-arm
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      with:
+        submodules: recursive
+
+    - name: Extract version info
+      id: extract-version
+      run: |
+        filePath="${GITHUB_WORKSPACE}/cmake_modules/VersionDefinition.cmake"
+
+        major=$(grep -m 1 "VCMI_VERSION_MAJOR" "$filePath" | tr -d -c 0-9)
+        minor=$(grep -m 1 "VCMI_VERSION_MINOR" "$filePath" | tr -d -c 0-9)
+        patch=$(grep -m 1 "VCMI_VERSION_PATCH" "$filePath" | tr -d -c 0-9)
+
+        short_version="${major}.${minor}.${patch}"
+        version_timestamp=$(date +"%Y%m%d%H%M%S")
+
+        echo "short_version=${short_version}" >> "$GITHUB_OUTPUT"
+        echo "version_timestamp=${version_timestamp}" >> "$GITHUB_OUTPUT"
+
+    - name: Download UCRT
+      run: source '${{github.workspace}}/CI/wininstaller/download_ucrt.sh' '${{matrix.platform}}'
+
+    - name: Build Number
+      run: |
+        source '${{github.workspace}}/CI/get_package_name.sh'
+        VCMI_PACKAGE_FILE_NAME+="-${{ matrix.arch }}"
+        echo VCMI_PACKAGE_FILE_NAME="$VCMI_PACKAGE_FILE_NAME" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_BUILD="$VCMI_PACKAGE_BUILD" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_NAME_SUFFIX="$VCMI_PACKAGE_NAME_SUFFIX" >> $GITHUB_ENV
+        echo VCMI_PACKAGE_GOLDMASTER="$VCMI_PACKAGE_GOLDMASTER" >> $GITHUB_ENV
+      env:
+        PULL_REQUEST: ${{ github.event.pull_request.number }}
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
+        path: ${{github.workspace}}/artifact
+
+    - name: Extract Artifact
+      run: |
+        mkdir artifact/extracted
+        unzip "artifact/${{ env.VCMI_PACKAGE_FILE_NAME }}.zip" -d artifact/extracted
+
+    - name: Ensure Inno Setup is installed
+      run: |
+        if [ ! -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ] && [ ! -f "/c/ProgramData/Chocolatey/bin/ISCC.exe" ]; then
+          choco install innosetup --no-progress -y
+        fi
+
+    - name: Build VCMI Installer
+      run: >
+        CI\wininstaller\build_installer.cmd
+        "${{ steps.extract-version.outputs.short_version }}"
+        "${{ env.VCMI_PACKAGE_BUILD }}"
+        "${{ matrix.arch }}"
+        "VCMI ${{ env.VCMI_PACKAGE_NAME_SUFFIX }}"
+        "${{ env.VCMI_PACKAGE_FILE_NAME }}"
+        "${{ github.workspace }}\artifact\extracted"
+        "${{ github.workspace }}\ucrt"
+      shell: cmd
+
+    - name: Upload VCMI Installer Artifacts
+      id: upload_installer
+      uses: actions/upload-artifact@v5
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
+        compression-level: 9
+        path: |
+          ${{ github.workspace }}/CI/wininstaller/Output/*.exe
+
+    - name: Upload Installer
+      if: ${{ github.event.number == '' && env.DEPLOY_RSA != '' }}
+      run: |
+        cd '${{github.workspace}}/CI/wininstaller/Output'
+        source '${{github.workspace}}/CI/upload_package.sh'
+      env:
+        DEPLOY_RSA: ${{ secrets.DEPLOY_RSA }}
+        PACKAGE_EXTENSION: exe
+
+    - name: Prepare partial JSON with installer informations
+      shell: bash
+      run: |
+        mkdir -p .summary
+        cat > .summary/installer-${{ matrix.platform }}.json <<JSON
+        {
+          "platform": "${{ matrix.platform }}",
+          "installer_url": "${{ steps.upload_installer.outputs.artifact-url }}"
+        }
+        JSON
+
+    - name: Upload partial JSON with installer informations
+      uses: actions/upload-artifact@v5
+      with:
+        name: partial-json-${{ matrix.platform }}-installer
+        path: .summary/installer-${{ matrix.platform }}.json
+
+  validate-code:
+    name: Validate Code
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+        - uses: actions/checkout@v6
         - name: Ensure LF line endings
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
@@ -408,7 +681,33 @@ jobs:
             python3 CI/validate_json.py
 
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v20
+          uses: DavidAnson/markdownlint-cli2-action@v21
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
+
+  final-summary:
+    name: Build report
+    if: always()
+    needs: [build, windows-installer, validate-code, test, upload-source-package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write                   # Partial JSON artifacts can't be deleted in PRs
+    steps:
+      - name: Checkout (for script path)
+        uses: actions/checkout@v6
+
+      - name: Download all partial JSON artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v6
+        with:
+          pattern: partial-json-*
+          merge-multiple: true
+          path: partials
+
+      - name: Run final summary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 CI/final_summary.py

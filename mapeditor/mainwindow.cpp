@@ -247,7 +247,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->menuOpenRecent->setIcon(QIcon{":/icons/document-open-recent.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
-	ui->actionLevel->setIcon(QIcon{":/icons/toggle-underground.png"});
 	ui->actionPass->setIcon(QIcon{":/icons/toggle-pass.png"});
 	ui->actionCut->setIcon(QIcon{":/icons/edit-cut.png"});
 	ui->actionCopy->setIcon(QIcon{":/icons/edit-copy.png"});
@@ -265,6 +264,55 @@ MainWindow::MainWindow(QWidget* parent) :
 	ui->actionZoom_reset->setIcon(QIcon{":/icons/zoom_zero.png"});
 	ui->actionCampaignEditor->setIcon(QIcon{":/icons/mapeditor.64x64.png"});
 	ui->actionTemplateEditor->setIcon(QIcon{":/icons/dice.png"});
+
+	// Add combobox action
+	for (QWidget* c : QList<QWidget*>{ ui->toolBar, ui->menuView })
+	{
+		QWidget* container = new QWidget;
+		QHBoxLayout* layout = new QHBoxLayout(container);
+		layout->setContentsMargins(6, 2, 4, 2);
+		layout->setSpacing(2);
+
+		if (c == ui->menuView)
+		{
+			// Add icon label only for QMenu
+			QLabel* iconLabel = new QLabel;
+			iconLabel->setPixmap(QIcon(":/icons/toggle-underground.png").pixmap(16, 16));
+			iconLabel->setContentsMargins(0, 2, 0, 0);
+			layout->addWidget(iconLabel);
+		}
+
+		// Add the combo box
+		QComboBox* combo = new QComboBox;
+		combo->setFixedHeight(ui->menuView->fontMetrics().height() + 6);
+		connect(combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, combo](int index) {
+			for(auto & box : levelComboBoxes)
+				if (box->currentIndex() != index && combo != box)
+        			box->setCurrentIndex(index);
+			
+			if(!controller.map())
+				return;
+			
+			mapLevel = combo->currentIndex();
+			ui->mapView->setScene(controller.scene(mapLevel));
+			ui->mapView->setViewports();
+			ui->minimapView->setScene(controller.miniScene(mapLevel));
+		});
+		layout->addWidget(combo, c == ui->menuView ? 1 : 0);
+
+		// Create the widget action
+		QWidgetAction* comboAction = new QWidgetAction(this);
+		comboAction->setDefaultWidget(container);
+
+		int index = c->actions().indexOf(ui->actionLevel);
+		if (index != -1)
+		{
+			c->removeAction(ui->actionLevel);
+			c->insertAction(c->actions().value(index), comboAction);
+		}
+
+		levelComboBoxes.push_back(combo);
+	}
 
 #ifndef ENABLE_TEMPLATE_EDITOR
 	ui->actionTemplateEditor->setVisible(false);
@@ -387,7 +435,19 @@ void MainWindow::initializeMap(bool isNew)
 	ui->actionMapSettings->setEnabled(true);
 	ui->actionPlayers_settings->setEnabled(true);
 	ui->actionTranslations->setEnabled(true);
-	ui->actionLevel->setEnabled(controller.map()->twoLevel);
+	for(auto & box : levelComboBoxes)
+	{
+		box->clear();
+		for(int i = 0; i < controller.map()->mapLevels; i++)
+		{
+			if(i == 0)
+				box->addItems({ tr("Surface") });
+			else if(i == 1)
+				box->addItems({ tr("Underground") });
+			else
+				box->addItems({ tr("Level - %1").arg(i + 1) });
+		}
+	}
 	
 	//set minimal players count
 	if(isNew)
@@ -408,9 +468,19 @@ bool MainWindow::openMap(const QString & filenameSelect)
 	catch(const ModIncompatibility & e)
 	{
 		assert(e.whatExcessive().empty());
-		QMessageBox::warning(this, tr("Mods are required"), QString::fromStdString(e.whatMissing()));
+		auto qstrError = QString::fromStdString(e.getFullErrorMsg()).remove('{').remove('}');
+		QMessageBox::warning(this, tr("Mods are required"), qstrError);
 		return false;
 	}
+	catch(const IdentifierResolutionException & e)
+	{
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		QMessageBox::critical(this, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		return false;
+	}
+
 	catch(const std::exception & e)
 	{
 		QMessageBox::critical(this, tr("Failed to open map"), tr(e.what()));
@@ -559,6 +629,9 @@ void MainWindow::saveMap()
 
 	for(auto obj : controller.map()->objects)
 	{
+		if(!obj)
+			continue;
+
 		if(obj->ID == Obj::HERO_PLACEHOLDER)
 		{
 			auto hero = dynamic_cast<CGHeroPlaceholder *>(obj.get());
@@ -966,29 +1039,9 @@ void MainWindow::loadObjectsTree()
 	}
 }
 
-void MainWindow::on_actionLevel_triggered()
-{
-	if(controller.map() && controller.map()->twoLevel)
-	{
-		mapLevel = mapLevel ? 0 : 1;
-		ui->mapView->setScene(controller.scene(mapLevel));
-		ui->minimapView->setScene(controller.miniScene(mapLevel));
-		if (mapLevel == 0)
-		{
-			ui->actionLevel->setText(tr("View underground"));
-			ui->actionLevel->setToolTip(tr("View underground"));
-		}
-		else
-		{
-			ui->actionLevel->setText(tr("View surface"));
-			ui->actionLevel->setToolTip(tr("View surface"));
-		}
-	}
-}
-
 void MainWindow::on_actionUndo_triggered()
 {
-	QString str("Undo clicked");
+	QString str(tr("Undo clicked"));
 	statusBar()->showMessage(str, 1000);
 
 	if (controller.map())
@@ -999,7 +1052,7 @@ void MainWindow::on_actionUndo_triggered()
 
 void MainWindow::on_actionRedo_triggered()
 {
-	QString str("Redo clicked");
+	QString str(tr("Redo clicked"));
 	displayStatus(str);
 
 	if (controller.map())
@@ -1010,7 +1063,7 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::on_actionPass_triggered(bool checked)
 {
-	QString str("Passability clicked");
+	QString str(tr("Passability clicked"));
 	displayStatus(str);
 
 	if(controller.map())
@@ -1023,7 +1076,7 @@ void MainWindow::on_actionPass_triggered(bool checked)
 
 void MainWindow::on_actionGrid_triggered(bool checked)
 {
-	QString str("Grid clicked");
+	QString str(tr("Grid clicked"));
 	displayStatus(str);
 
 	if(controller.map())
@@ -1104,7 +1157,7 @@ void MainWindow::on_filter_textChanged(const QString &arg1)
 
 void MainWindow::on_actionFill_triggered()
 {
-	QString str("Fill clicked");
+	QString str(tr("Fill clicked"));
 	displayStatus(str);
 
 	if(!controller.map())
@@ -1284,9 +1337,10 @@ void MainWindow::on_actionUpdate_appearance_triggered()
 				controller.scene(mapLevel)->selectionObjectsView.deselectObject(obj);
 				continue;
 			}
-			
+			std::vector<int3> selectedTiles;
 			for(auto & offset : obj->appearance->getBlockedOffsets())
-				controller.scene(mapLevel)->selectionTerrainView.select(obj->pos + offset);
+				selectedTiles.push_back(obj->pos + offset);
+			controller.scene(mapLevel)->selectionTerrainView.select(selectedTiles);
 		}
 		else
 		{
@@ -1445,8 +1499,6 @@ void MainWindow::on_actionLock_triggered()
 			}
 			controller.scene(mapLevel)->selectionObjectsView.clear();
 		}
-		controller.scene(mapLevel)->objectsView.update();
-		controller.scene(mapLevel)->selectionObjectsView.update();
 	}
 }
 
@@ -1458,7 +1510,6 @@ void MainWindow::on_actionUnlock_triggered()
 		controller.scene(mapLevel)->selectionObjectsView.unlockAll();
 		controller.scene(mapLevel)->objectsView.unlockAll();
 	}
-	controller.scene(mapLevel)->objectsView.update();
 }
 
 

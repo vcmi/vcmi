@@ -14,12 +14,12 @@
 class ApplyGhNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
 {
 private:
-	std::shared_ptr<CConnection> connection;
+	GameConnectionID connection;
 	CGameHandler & gh;
 	bool result;
 
 public:
-	ApplyGhNetPackVisitor(CGameHandler & gh, const std::shared_ptr<CConnection> & connection)
+	ApplyGhNetPackVisitor(CGameHandler & gh, GameConnectionID connection)
 		: connection(connection)
 		, gh(gh)
 		, result(false)
@@ -58,12 +58,14 @@ public:
 	void visitBuyArtifact(BuyArtifact & pack) override;
 	void visitTradeOnMarketplace(TradeOnMarketplace & pack) override;
 	void visitSetFormation(SetFormation & pack) override;
+	void visitSetTownName(SetTownName & pack) override;
 	void visitHireHero(HireHero & pack) override;
 	void visitBuildBoat(BuildBoat & pack) override;
 	void visitQueryReply(QueryReply & pack) override;
 	void visitMakeAction(MakeAction & pack) override;
 	void visitDigWithHero(DigWithHero & pack) override;
 	void visitCastAdvSpell(CastAdvSpell & pack) override;
+	void visitRequestStatistic(RequestStatistic & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
 	void visitSaveLocalState(SaveLocalState & pack) override;
 };

@@ -206,7 +206,8 @@ void BattleFlowProcessor::castOpeningSpells(const CBattleInfoCallback & battle)
 			const CSpell * spell = b->subtype.as<SpellID>().toSpell();
 
 			spells::BattleCast parameters(&battle, &caster, spells::Mode::PASSIVE, spell);
-			parameters.setSpellLevel(3);
+			int32_t spellLevel = b->additionalInfo != CAddInfo::NONE ? b->additionalInfo[0] : 3;
+			parameters.setSpellLevel(spellLevel);
 			parameters.setEffectDuration(b->val);
 			parameters.massive = true;
 			parameters.castIfPossible(gameHandler->spellcastEnvironment(), spells::Target());
@@ -342,6 +343,28 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * next)
 {
+	if(tryActivateMoralePenalty(battle, next))
+		return true;
+
+	if(tryActivateBerserkPenalty(battle, next))
+		return true;
+
+	if(tryAutomaticActionOfWarMachines(battle, next))
+		return true;
+
+	stackTurnTrigger(battle, next); //various effects
+
+	if(next->fear)
+	{
+		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
+		return true;
+	}
+
+	return false;
+}
+
+bool BattleFlowProcessor::tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * next)
+{
 	// check for bad morale => freeze
 	int nextStackMorale = next->moraleVal();
 	if(!next->hadMorale && !next->waited() && nextStackMorale < 0)
@@ -359,83 +382,171 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * next)
+{
 	if (next->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)) //while in berserk
 	{
-		logGlobal->trace("Handle Berserk effect");
-		std::pair<const battle::Unit *, BattleHex> attackInfo = battle.getNearestStack(next);
-		if (attackInfo.first != nullptr)
+		ForcedAction forcedAction = battle.getBerserkForcedAction(next);
+		if (forcedAction.type == EActionType::SHOOT)
 		{
-			BattleAction attack;
-			attack.actionType = EActionType::WALK_AND_ATTACK;
-			attack.side = next->unitSide();
-			attack.stackNumber = next->unitId();
-			attack.aimToHex(attackInfo.second);
-			attack.aimToUnit(attackInfo.first);
-
-			makeAutomaticAction(battle, next, attack);
-			logGlobal->trace("Attacked nearest target %s", attackInfo.first->getDescription());
+			BattleAction rangeAttack;
+			rangeAttack.actionType = EActionType::SHOOT;
+			rangeAttack.side = next->unitSide();
+			rangeAttack.stackNumber = next->unitId();
+			rangeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, rangeAttack);
+		}
+		else if (forcedAction.type == EActionType::WALK_AND_ATTACK)
+		{
+			BattleAction meleeAttack;
+			meleeAttack.actionType = EActionType::WALK_AND_ATTACK;
+			meleeAttack.side = next->unitSide();
+			meleeAttack.stackNumber = next->unitId();
+			meleeAttack.aimToHex(forcedAction.position);
+			meleeAttack.aimToUnit(forcedAction.target);
+			makeAutomaticAction(battle, next, meleeAttack);
+		} else if (forcedAction.type == EActionType::WALK)
+		{
+			BattleAction movement;
+			movement.actionType = EActionType::WALK;
+			movement.stackNumber = next->unitId();
+			movement.aimToHex(forcedAction.position);
+			makeAutomaticAction(battle, next, movement);
 		}
 		else
 		{
 			makeStackDoNothing(battle, next);
-			logGlobal->trace("No target found");
 		}
 		return true;
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryAutomaticActionOfWarMachines(const CBattleInfoCallback & battle, const CStack * next)
+{
+	if (tryMakeAutomaticActionOfBallistaOrTowers(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfCatapult(battle, next))
+		return true;
+
+	if (tryMakeAutomaticActionOfFirstAidTent(battle, next))
+		return true;
+
+	return false;
+}
+
+bool BattleFlowProcessor::tryMakeAutomaticActionOfBallistaOrTowers(const CBattleInfoCallback & battle, const CStack * next)
+{
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	const CreatureID stackCreatureId = next->unitType()->getId();
 
 	if ((stackCreatureId == CreatureID::ARROW_TOWERS || stackCreatureId == CreatureID::BALLISTA)
-	   && (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
+		&& (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(stackCreatureId)))))
 	{
+
 		BattleAction attack;
 		attack.actionType = EActionType::SHOOT;
 		attack.side = next->unitSide();
 		attack.stackNumber = next->unitId();
 
-		// TODO: unify logic with AI?
-		// Find best target using logic similar to H3 AI
-
-		const auto & isBetterTarget = [&battle](const battle::Unit * candidate, const battle::Unit * current)
+		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			bool candidateInsideWalls = battle.battleIsInsideWalls(candidate->getPosition());
-			bool currentInsideWalls = battle.battleIsInsideWalls(current->getPosition());
+			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+		});
 
-			if (candidateInsideWalls != currentInsideWalls)
-				return candidateInsideWalls > currentInsideWalls;
-
-			// also check for war machines - shooters are more dangerous than war machines, ballista or catapult
-			bool candidateCanShoot = candidate->canShoot() && candidate->unitType()->warMachine == ArtifactID::NONE;
-			bool currentCanShoot = current->canShoot() && current->unitType()->warMachine == ArtifactID::NONE;
-
-			if (candidateCanShoot != currentCanShoot)
-				return candidateCanShoot > currentCanShoot;
-
-			int64_t candidateTargetValue = static_cast<int64_t>(candidate->unitType()->getAIValue() * candidate->getCount());
-			int64_t currentTargetValue = static_cast<int64_t>(current->unitType()->getAIValue() * current->getCount());
-
-			return candidateTargetValue > currentTargetValue;
+		struct TargetInfo
+		{
+			bool insideTheWalls;
+			bool canAttackNextTurn;
+			bool isParalyzed;
+			bool isMachine;
+			float towerAttackValue;
+			const CStack * stack;
 		};
 
-		const battle::Unit * target = nullptr;
-
-		for(auto & elem : battle.battleGetAllStacks(true))
+		const auto & getCanAttackNextTurn = [&battle] (const battle::Unit * unit)
 		{
-			if (elem->unitOwner() == next->unitOwner())
-				continue;
+			if (battle.battleCanShoot(unit))
+				return true;
 
-			if (!elem->isValidTarget())
-				continue;
+			auto units = battle.battleAliveUnits();
+			auto availableHexes = battle.battleGetAvailableHexes(unit, true);
 
-			if (!battle.battleCanShoot(next, elem->getPosition()))
-				continue;
+			for (auto otherUnit : units)
+			{
+				if (battle.battleCanAttackUnit(unit, otherUnit))
+					for (auto position : otherUnit->getHexes())
+					{
+						if (battle.battleCanAttackHex(availableHexes, unit, position))
+							return true;
+					}
+			}
+			return false;
+		};
 
-			if (target && !isBetterTarget(elem, target))
-				continue;
+		const auto & getTowerAttackValue = [&battle, &next] (const battle::Unit * unit)
+		{
+			float unitValue = static_cast<float>(unit->unitType()->getAIValue());
+			float singleHpValue = unitValue / static_cast<float>(unit->getMaxHealth());
+			float fullHp = static_cast<float>(unit->getTotalHealth());
 
-			target = elem;
+			int distance = BattleHex::getDistance(next->getPosition(), unit->getPosition());
+			BattleAttackInfo attackInfo(next, unit, distance, true);
+			DamageEstimation estimation = battle.calculateDmgRange(attackInfo);
+			float avgDmg = (static_cast<float>(estimation.damage.max) + static_cast<float>(estimation.damage.min)) / 2;
+			float realAvgDmg = avgDmg > fullHp ? fullHp : avgDmg;
+			float avgUnitKilled = (static_cast<float>(estimation.kills.max) + static_cast<float>(estimation.kills.min)) / 2;
+			float dmgValue = realAvgDmg * singleHpValue;
+			float killValue = avgUnitKilled * unitValue;
+
+			return dmgValue + killValue;
+		};
+
+		std::vector<TargetInfo>targetsInfo;
+
+		for (const CStack * possibleTarget : possibleTargets)
+		{
+			bool isMachine = possibleTarget->unitType()->warMachine != ArtifactID::NONE;
+			bool isParalyzed = possibleTarget->hasBonusOfType(BonusType::NOT_ACTIVE) && !isMachine;
+			const TargetInfo targetInfo =
+			{
+				battle.battleIsInsideWalls(possibleTarget->getPosition()),
+				getCanAttackNextTurn(possibleTarget),
+				isParalyzed,
+				isMachine,
+				getTowerAttackValue(possibleTarget),
+				possibleTarget
+			};
+			targetsInfo.push_back(targetInfo);
+		}
+
+		const auto & isBetterTarget = [](const TargetInfo & candidate, const TargetInfo & current)
+		{
+			if (candidate.isParalyzed != current.isParalyzed)
+				return candidate.isParalyzed < current.isParalyzed;
+
+			if (candidate.isMachine != current.isMachine)
+				return candidate.isMachine < current.isMachine;
+
+			if (candidate.canAttackNextTurn != current.canAttackNextTurn)
+				return candidate.canAttackNextTurn > current.canAttackNextTurn;
+
+			if (candidate.insideTheWalls != current.insideTheWalls)
+				return candidate.insideTheWalls > current.insideTheWalls;
+
+			return candidate.towerAttackValue > current.towerAttackValue;
+		};
+
+		const TargetInfo * target = nullptr;
+
+		for(const auto & elem : targetsInfo)
+		{
+			if (target == nullptr || isBetterTarget(elem, *target))
+				target = &elem;
 		}
 
 		if(target == nullptr)
@@ -444,15 +555,20 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 		}
 		else
 		{
-			attack.aimToUnit(target);
+			attack.aimToUnit(target->stack);
 			makeAutomaticAction(battle, next, attack);
 		}
 		return true;
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * next)
+{
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::CATAPULT)
 	{
-		const auto & attackableBattleHexes = battle.getAttackableBattleHexes();
+		const auto & attackableBattleHexes = battle.getAttackableWallParts();
 
 		if (attackableBattleHexes.empty())
 		{
@@ -471,7 +587,12 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			return true;
 		}
 	}
+	return false;
+}
 
+bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next)
+{
+	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->unitType()->getId() == CreatureID::FIRST_AID_TENT)
 	{
 		TStacks possibleStacks = battle.battleGetStacksIf([&next](const CStack * s)
@@ -499,14 +620,6 @@ bool BattleFlowProcessor::tryMakeAutomaticAction(const CBattleInfoCallback & bat
 			makeAutomaticAction(battle, next, heal);
 			return true;
 		}
-	}
-
-	stackTurnTrigger(battle, next); //various effects
-
-	if(next->fear)
-	{
-		makeStackDoNothing(battle, next); //end immediately if stack was affected by fear
-		return true;
 	}
 	return false;
 }
@@ -590,10 +703,16 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	{
 		if (activeStack && activeStack->alive())
 		{
-			// this is action made by hero AND unit is alive (e.g. not killed by casted spell)
+			bool activeStackAffectedBySpell = !activeStack->canMove() ||
+				tryActivateBerserkPenalty(battle, battle.battleGetStackByID(battle.getBattle()->getActiveStackID()));
+
+			// this is action made by hero AND unit is neither killed nor affected by reflected spell like blind or berserk
 			// keep current active stack for next action
-			setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
-			return;
+			if (!activeStackAffectedBySpell)
+			{
+				setActiveStack(battle, activeStack, BattleUnitTurnReason::HERO_SPELLCAST);
+				return;
+			}
 		}
 	}
 

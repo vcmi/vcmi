@@ -50,7 +50,11 @@ void CGDwellingRandomizationInfo::serializeJson(JsonSerializeFormat & handler)
 }
 
 CGDwelling::CGDwelling(IGameInfoCallback *cb):
-	CArmedInstance(cb)
+	CGDwelling(cb, BonusNodeType::ARMY)
+{}
+
+CGDwelling::CGDwelling(IGameInfoCallback *cb, BonusNodeType nodeType):
+	CArmedInstance(cb, nodeType, false)
 {}
 
 CGDwelling::~CGDwelling() = default;
@@ -580,6 +584,13 @@ const IOwnableObject * CGDwelling::asOwnable() const
 ResourceSet CGDwelling::dailyIncome() const
 {
 	return {};
+}
+
+AnimationPath CGDwelling::getKingdomOverviewImage() const
+{
+	const auto & baseHandler = getObjectHandler();
+	const auto & ourHandler = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(baseHandler);
+	return ourHandler ? ourHandler->getKingdomOverviewImage() : AnimationPath{};
 }
 
 std::vector<CreatureID> CGDwelling::providedCreatures() const

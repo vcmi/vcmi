@@ -313,8 +313,8 @@ si32 CCreature::maxAmount(const TResources &res) const //how many creatures can 
 }
 
 CCreature::CCreature()
+	:CBonusSystemNode(BonusNodeType::CREATURE)
 {
-	setNodeType(CBonusSystemNode::CREATURE);
 	fightValue = AIValue = growth = hordeGrowth = ammMin = ammMax = 0;
 }
 
@@ -329,7 +329,7 @@ void CCreature::addBonus(int val, BonusType type, BonusSubtypeID subtype)
 	BonusList & exported = getExportedBonusList();
 
 	BonusList existing;
-	exported.getBonuses(existing, selector, Selector::all);
+	exported.getBonuses(existing, selector);
 
 	if(existing.empty())
 	{
@@ -470,6 +470,16 @@ CCreatureHandler::CCreatureHandler()
 
 void CCreatureHandler::loadCommanders()
 {
+	const auto & parseBonusWithCompatibility = [](const JsonNode & node)
+	{
+		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
+		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
+		if (node.isVector())
+			return JsonUtils::parseBonus(node.Vector());
+		else
+			return JsonUtils::parseBonus(node);
+	};
+
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
@@ -480,7 +490,7 @@ void CCreatureHandler::loadCommanders()
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(JsonUtils::parseBonus(bonus.Vector()));
+		commanderLevelPremy.push_back(parseBonusWithCompatibility(bonus));
 	}
 
 	int level = 0;
@@ -494,18 +504,23 @@ void CCreatureHandler::loadCommanders()
 		++level;
 	}
 
-	for (auto ability : config["abilityRequirements"].Vector())
+	for (const auto & abilityRequirements : config["abilityRequirements"].Vector())
 	{
 		std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > a;
-		JsonVector & abilities = ability["ability"].Vector();
-		a.first = std::vector<std::shared_ptr<Bonus> >();
-		if (abilities[0].isVector()) 
-			for (int i = 0; i < abilities.size(); i++) 
-				a.first.push_back(JsonUtils::parseBonus(abilities[i].Vector()));
-		else 
-			a.first.push_back(JsonUtils::parseBonus(ability["ability"].Vector()));
-		a.second.first =  static_cast<ui8>(ability["skills"].Vector()[0].Float());
-		a.second.second = static_cast<ui8>(ability["skills"].Vector()[1].Float());
+		const JsonNode & abilities = abilityRequirements["ability"];
+
+		if (abilities[0].isString()) // old format with single bonus
+		{
+			a.first.push_back(parseBonusWithCompatibility(abilities));
+		}
+		else
+		{
+			for (const auto & ability : abilities.Vector())
+				a.first.push_back(parseBonusWithCompatibility(ability));
+		}
+
+		a.second.first =  static_cast<ui8>(abilityRequirements["skills"][0].Float());
+		a.second.second = static_cast<ui8>(abilityRequirements["skills"][1].Float());
 		skillRequirements.push_back (a);
 	}
 }
@@ -553,7 +568,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 
 		data["name"]["plural"].String() =  parser.readString();
 
-		for(int v=0; v<7; ++v)
+		for(int v=0; v<GameConstants::RESOURCE_QUANTITY; ++v)
 			data["cost"][GameConstants::RESOURCE_NAMES[v]].Float() = parser.readNumber();
 
 		data["fightValue"].Float() = parser.readNumber();
@@ -608,7 +623,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost = ResourceSet(node["cost"]);
+	cre->cost.resolveFromJson(node["cost"]);
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
 	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
@@ -902,6 +917,8 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
+	creature->mapAttackFromLeft = ImagePath::fromJson(config["graphics"]["mapAttackFromLeft"]);
+	creature->mapAttackFromRight = ImagePath::fromJson(config["graphics"]["mapAttackFromRight"]);
 
 	for(const auto & ability : config["abilities"].Struct())
 	{

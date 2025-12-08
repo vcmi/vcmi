@@ -257,22 +257,9 @@ CMinorResDataBar::CMinorResDataBar()
 
 CMinorResDataBar::~CMinorResDataBar() = default;
 
-void CArmyTooltip::init(const InfoAboutArmy &army)
+void BuildArmyStacksUI(const InfoAboutArmy& army, const std::vector<Point>& slotsPos, std::vector<std::shared_ptr<CAnimImage>>& icons, std::vector<std::shared_ptr<CLabel>>& subtitles)
 {
-	OBJECT_CONSTRUCTION;
-
-	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
-
-	std::vector<Point> slotsPos;
-	slotsPos.push_back(Point(36, 73));
-	slotsPos.push_back(Point(72, 73));
-	slotsPos.push_back(Point(108, 73));
-	slotsPos.push_back(Point(18, 122));
-	slotsPos.push_back(Point(54, 122));
-	slotsPos.push_back(Point(90, 122));
-	slotsPos.push_back(Point(126, 122));
-
-	for(auto & slot : army.army)
+	for(const auto& slot : army.army)
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
@@ -280,8 +267,10 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			continue;
 		}
 
+		// Creature icon
 		icons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), slot.second.getType()->getIconIndex(), 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y));
 
+		// Subtitle
 		std::string subtitle;
 		if(army.army.isDetailed)
 		{
@@ -298,18 +287,59 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				}
 				else
 				{
-					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3*(slot.second.getCount())];
+					subtitle = LIBRARY->generaltexth->arraytxt[171 + 3 * (slot.second.getCount())];
 				}
 			}
 		}
 
 		subtitles.push_back(std::make_shared<CLabel>(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 39, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE, subtitle));
 	}
+}
 
+void CArmyTooltip::init(const InfoAboutArmy &army)
+{
+	OBJECT_CONSTRUCTION;
+
+	title = std::make_shared<CLabel>(66, 3, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE, army.name);
+
+	std::vector<Point> slotsPos;
+	slotsPos.push_back(Point(36, 73));
+	slotsPos.push_back(Point(72, 73));
+	slotsPos.push_back(Point(108, 73));
+	slotsPos.push_back(Point(18, 122));
+	slotsPos.push_back(Point(54, 122));
+	slotsPos.push_back(Point(90, 122));
+	slotsPos.push_back(Point(126, 122));
+
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
+}
+
+void CGarrisonTooltip::init(const InfoAboutArmy& army)
+{
+	OBJECT_CONSTRUCTION;
+
+	title = std::make_shared<CLabel>(142, 26, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, army.name);
+
+	std::vector<Point> slotsPos;
+	slotsPos.push_back(Point(14, 48));
+	slotsPos.push_back(Point(50, 48));
+	slotsPos.push_back(Point(86, 48));
+	slotsPos.push_back(Point(122, 48));
+	slotsPos.push_back(Point(158, 48));
+	slotsPos.push_back(Point(194, 48));
+	slotsPos.push_back(Point(230, 48));
+
+	BuildArmyStacksUI(army, slotsPos, icons, subtitles);
 }
 
 CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy & army):
 	CIntObject(0, pos)
+{
+	init(army);
+}
+
+CGarrisonTooltip::CGarrisonTooltip(Point pos, const InfoAboutArmy & army)
+	: CIntObject(0, pos)
 {
 	init(army);
 }
@@ -593,13 +623,15 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
-		text += "\n" + noMorale->Description(GAME->interface()->cb.get());
+		if(GAME->interface())
+			text += "\n" + noMorale->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))
 	{
 		auto noLuck = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_LUCK));
-		text += "\n" + noLuck->Description(GAME->interface()->cb.get());
+		if(GAME->interface())
+			text += "\n" + noLuck->Description(GAME->interface()->cb.get());
 		component.value = 0;
 	}
 	else
@@ -607,7 +639,7 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		std::string addInfo = "";
 		for(auto & bonus : * modifierList)
 		{
-			if(bonus->val) {
+			if(GAME->interface() && bonus->val) {
 				const std::string& description = bonus->Description(GAME->interface()->cb.get());
 				//arraytxt already contains \n
 				if (description.size() && description[0] != '\n')

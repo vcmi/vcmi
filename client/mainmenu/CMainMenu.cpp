@@ -144,7 +144,7 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 {
 	static const std::vector<std::string> commandType = {"to", "campaigns", "start", "load", "exit", "highscores"};
 
-	static const std::vector<std::string> gameType = {"single", "multi", "campaign", "tutorial"};
+	static const std::vector<std::string> gameType = {"single", "multi", "campaign", "tutorial", "battle"};
 
 	std::list<std::string> commands;
 	boost::split(commands, string, boost::is_any_of("\t "));
@@ -174,13 +174,15 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE); };
+					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE, false); };
 				case 1:
 					return []() { ENGINE->windows().createAndPushWindow<CMultiMode>(ESelectionScreen::newGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE); };
+					return []() { CMainMenu::openLobby(ESelectionScreen::campaignList, true, {}, ELoadMode::NONE, false); };
 				case 3:
 					return []() { CMainMenu::startTutorial(); };
+				case 4:
+					return []() { CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE, true); };
 				}
 				break;
 			}
@@ -189,13 +191,13 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 				switch(std::find(gameType.begin(), gameType.end(), commands.front()) - gameType.begin())
 				{
 				case 0:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE); };
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::SINGLE, false); };
 				case 1:
 					return []() { ENGINE->windows().createAndPushWindow<CMultiMode>(ESelectionScreen::loadGame); };
 				case 2:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN); };
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::CAMPAIGN, false); };
 				case 3:
-					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL); };
+					return []() { CMainMenu::openLobby(ESelectionScreen::loadGame, true, {}, ELoadMode::TUTORIAL, false); };
 
 				}
 			}
@@ -221,8 +223,13 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 	std::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
 
 	std::pair<std::string, std::string> help;
-	if(!button["help"].isNull() && button["help"].Float() > 0)
-		help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
+	if(!button["help"].isNull())
+	{
+		if(button["help"].isNumber() && button["help"].Float() > 0)
+			help = LIBRARY->generaltexth->zelp[(size_t)button["help"].Float()];
+		if(button["help"].isString() && !button["help"].String().empty())
+			help = {"", LIBRARY->generaltexth->translate(button["help"].String())};
+	}	
 
 	int posx = static_cast<int>(button["x"].Float());
 	if(posx < 0)
@@ -330,7 +337,13 @@ CMainMenu::CMainMenu()
 
 	menu = std::make_shared<CMenuScreen>(CMainMenuConfig::get().getConfig()["window"]);
 	OBJECT_CONSTRUCTION;
-	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
+
+	const auto& bgConfig = CMainMenuConfig::get().getConfig()["backgroundAround"];
+
+	if (bgConfig.isString())
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::fromJson(bgConfig), pos);
+	else
+		backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), pos);
 }
 
 CMainMenu::~CMainMenu() = default;
@@ -391,10 +404,11 @@ void CMainMenu::makeActiveInterface()
 	menu->switchToTab(menu->getActiveTab());
 }
 
-void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode)
+void CMainMenu::openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode, bool battleMode)
 {
 	GAME->server().resetStateForLobby(screenType == ESelectionScreen::newGame ? EStartMode::NEW_GAME : EStartMode::LOAD_GAME, screenType, EServerMode::LOCAL, names);
 	GAME->server().loadMode = loadMode;
+	GAME->server().battleMode = battleMode;
 
 	ENGINE->windows().createAndPushWindow<CSimpleJoinScreen>(host);
 }
@@ -437,7 +451,7 @@ void CMainMenu::startTutorial()
 		
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
-	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE);
+	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE, false);
 	GAME->server().startMapAfterConnection(mapInfo);
 }
 
@@ -604,7 +618,7 @@ void CMultiPlayers::enterSelectionScreen()
 		playerName->clear();
 	}
 
-	CMainMenu::openLobby(screenType, host, playerNames, loadMode);
+	CMainMenu::openLobby(screenType, host, playerNames, loadMode, false);
 }
 
 CSimpleJoinScreen::CSimpleJoinScreen(bool host)

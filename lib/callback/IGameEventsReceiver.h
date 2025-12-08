@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../gameState/GameStatistics.h"
 #include "../int3.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -32,6 +33,7 @@ class EVictoryLossCheckResult;
 class IShipyard;
 class IMarket;
 
+using FowTilesType = std::set<int3>;
 enum class EInfoWindowMode : uint8_t;
 
 class DLL_LINKAGE IGameEventsReceiver
@@ -40,6 +42,7 @@ public:
 	virtual void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what){}; //what: 1 - built, 2 - demolished
 
 	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
+	virtual void battleEnded(){}; //called when a battle has ended
 
 	virtual void garrisonsChanged(ObjectInstanceID id1, ObjectInstanceID id2){};
 
@@ -76,8 +79,8 @@ public:
 	virtual void showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID) {};
 	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID){}; //called when a hero casts a spell
-	virtual void tileHidden(const std::unordered_set<int3> &pos){};
-	virtual void tileRevealed(const std::unordered_set<int3> &pos){};
+	virtual void tileHidden(const FowTilesType &pos){};
+	virtual void tileRevealed(const FowTilesType &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = nullptr){}; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	virtual void centerView (int3 pos, int focusTime){};
@@ -94,6 +97,8 @@ public:
 	virtual void gameOver(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult) {}; //player lost or won the game
 	virtual void playerStartsTurn(PlayerColor player){};
 	virtual void playerEndsTurn(PlayerColor player){};
+
+	virtual void responseStatistic(StatisticDataSet & statistic){};
 
 	//TODO shouldn't be moved down the tree?
 	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};

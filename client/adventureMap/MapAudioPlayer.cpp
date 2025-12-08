@@ -20,7 +20,6 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/mapObjects/CArmedInstance.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapping/CMap.h"
 
@@ -164,7 +163,7 @@ void MapAudioPlayer::updateAmbientSounds()
 	};
 
 	int3 pos = currentSelection->getSightCenter();
-	std::unordered_set<int3> tiles;
+	FowTilesType tiles;
 	GAME->interface()->cb->getVisibleTilesInRange(tiles, pos, ENGINE->sound().ambientGetRange(), int3::DIST_CHEBYSHEV);
 	for(int3 tile : tiles)
 	{

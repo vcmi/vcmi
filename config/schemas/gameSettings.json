@@ -38,20 +38,22 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"perPlayerOnMapCap"  :        { "type" : "number" },
-				"perPlayerTotalCap"  :        { "type" : "number" },
-				"retreatOnWinWithoutTroops" : { "type" : "boolean" },
-				"startingStackChances" :      { "type" : "array" },
-				"backpackSize" :              { "type" : "number" },
-				"tavernInvite" :              { "type" : "boolean" },
-				"minimalPrimarySkills" :      { "type" : "array" },
-				"movementCostBase"  :         { "type" : "number" },
-				"movementPointsLand" :        { "type" : "array" },
-				"movementPointsSea" :         { "type" : "array" },
-				"skillPerHero" :              { "type" : "number" },
-				"specialtyCreatureGrowth" :    { "type" : "number" },
+				"perPlayerOnMapCap"  :            { "type" : "number" },
+				"perPlayerTotalCap"  :            { "type" : "number" },
+				"retreatOnWinWithoutTroops" :     { "type" : "boolean" },
+				"startingStackChances" :          { "type" : "array" },
+				"backpackSize" :                  { "type" : "number" },
+				"tavernInvite" :                  { "type" : "boolean" },
+				"minimalPrimarySkills" :          { "type" : "array" },
+				"movementCostBase"  :             { "type" : "number" },
+				"movementPointsLand" :            { "type" : "array" },
+				"movementPointsSea" :             { "type" : "array" },
+				"skillPerHero" :                  { "type" : "number" },
+				"specialtyCreatureGrowth" :       { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
-				"baseScoutingRange" :         { "type" : "number" }
+				"baseScoutingRange" :             { "type" : "number" },
+				"levelupTotalSkillsAmount" :      { "type" : "number" },
+				"levelupUpgradedSkillsAmount" :   { "type" : "number" }
 			}
 		},
 		"towns" : {
@@ -65,6 +67,13 @@
 				"spellResearchPerDay" :                  { "type" : "array" },
 				"spellResearchCostExponentPerResearch" : { "type" : "array" },
 				"baseScoutingRange" :                    { "type" : "number" }
+			}
+		},
+		"campaign": {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"unlockAll" : { "type" : "boolean" }
 			}
 		},
 		"combat": {
@@ -165,11 +174,8 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"dimensionDoorOnlyToUncoveredTiles" : { "type" : "boolean" },
-				"dimensionDoorExposesTerrainType" :   { "type" : "boolean" },
-				"dimensionDoorFailureSpendsPoints" :  { "type" : "boolean" },
 				"dimensionDoorTriggersGuards" :       { "type" : "boolean" },
-				"dimensionDoorTournamentRulesLimit" : { "type" : "boolean" }
+				"tomesGrantBannedSpells" : { "type" : "boolean" }
 			}
 		},
 		"bonuses": {

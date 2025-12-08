@@ -23,8 +23,8 @@ protected:
 public:
 	virtual ~MapInfoCallback();
 
-	const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const override;
-	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const override;
+	const CGObjectInstance * getObj(ObjectInstanceID objId, bool verbose = true) const override; // Raw get with some checks
+	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const override; // Raw get. For "safer" get with some checks, see CGameInfoCallback::getObj
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const override;
 	const CGHeroInstance * getHero(ObjectInstanceID objid) const override;
 	const CGTownInstance * getTown(ObjectInstanceID objid) const override;

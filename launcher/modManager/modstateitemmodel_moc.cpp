@@ -54,6 +54,7 @@ QString ModStateItemModel::modTypeName(QString modTypeID) const
 		QT_TR_NOOP("Campaigns"),
 		QT_TR_NOOP("Artifacts"),
 		QT_TR_NOOP("AI"),
+		QT_TR_NOOP("Resources"),
 	};
 
 	if (modTypes.contains(modTypeID))
@@ -275,7 +276,7 @@ bool CModFilterModel::filterMatchesCategory(const QModelIndex & source) const
 			return !mod.isInstalled();
 		case ModFilterMask::INSTALLED:
 			return mod.isInstalled();
-		case ModFilterMask::UPDATEABLE:
+		case ModFilterMask::UPDATABLE:
 			return mod.isUpdateAvailable();
 		case ModFilterMask::ENABLED:
 			return mod.isInstalled() && base->model->isModEnabled(modID);
@@ -317,6 +318,31 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 		parent = parent.parent();
 	}
 	return false;
+}
+
+bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
+{
+	if(source_left.column() != ModFields::STATUS_ENABLED)
+		return QSortFilterProxyModel::lessThan(source_left, source_right);
+
+	const auto leftMod = base->model->getMod(base->modIndexToName(source_left));
+	const auto rightMod = base->model->getMod(base->modIndexToName(source_right));
+
+	const auto isLeftEnabled = base->model->isModEnabled(leftMod.getID());
+	const auto isRightEnabled = base->model->isModEnabled(rightMod.getID());
+	if(!isLeftEnabled && isRightEnabled)
+		return true;
+	if(isLeftEnabled && !isRightEnabled)
+		return false;
+
+	const auto isLeftInstalled = leftMod.isInstalled();
+	const auto isRightInstalled = rightMod.isInstalled();
+	if(!isLeftInstalled && isRightInstalled)
+		return true;
+	if(isLeftInstalled && !isRightInstalled)
+		return false;
+
+	return QSortFilterProxyModel::lessThan(source_left.siblingAtColumn(ModFields::NAME), source_right.siblingAtColumn(ModFields::NAME));
 }
 
 CModFilterModel::CModFilterModel(ModStateItemModel * model, QObject * parent)

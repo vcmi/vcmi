@@ -1,7 +1,7 @@
 # Building VCMI for Linux
 
-- Current baseline requirement for building is Ubuntu 20.04
-- Supported C++ compilers for UNIX-like systems are GCC 9+ and Clang 13+
+- Current baseline requirement for building is Ubuntu 22.04 or later
+- Supported C++ compilers for UNIX-like systems are GCC 10+ and Clang 13+
 
 Older distributions and compilers might work, but they aren't tested by Github CI (Actions)
 
@@ -13,9 +13,10 @@ To compile, the following packages (and their development counterparts) are need
 
 - CMake
 - SDL2 with devel packages: mixer, image, ttf
+- minizip or minizip-ng
 - zlib and zlib-devel
-- Boost C++ libraries v1.48+: program-options, filesystem, system, thread, locale
-- Recommended, if you want to build launcher or map editor: Qt 5, widget and network modules
+- Boost C++ libraries: program-options, filesystem, system, thread, locale
+- Recommended, if you want to build launcher or map editor: Qt (widget and network modules)
 - Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
 - Optional:
   - if you want to build scripting modules: LuaJIT
@@ -25,7 +26,7 @@ To compile, the following packages (and their development counterparts) are need
 
 For Ubuntu and Debian you need to install this list of packages:
 
-`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libqt5svg5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev qttools5-dev ninja-build ccache`
+`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libqt5svg5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev qttools5-dev ninja-build ccache`
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
@@ -33,7 +34,7 @@ Alternatively if you have VCMI installed from repository or PPA you can use:
 
 ### On RPM-based distributions (e.g. Fedora)
 
-`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel ccache`
+`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel ccache`
 
 NOTE: VCMI bundles the fuzzylite lib in its source code.
 

@@ -22,19 +22,19 @@ VCMI_LIB_NAMESPACE_BEGIN
 
 MapInfoCallback::~MapInfoCallback() = default;
 
-const CGObjectInstance * MapInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
+const CGObjectInstance * MapInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
 {
-	if(!objid.hasValue())
+	if(!objId.hasValue())
 	{
 		if(verbose)
-			logGlobal->error("Cannot get object with id %d. No such object", objid.getNum());
+			logGlobal->error("Cannot get object with id %d. No such object", objId.getNum());
 		return nullptr;
 	}
 
-	const CGObjectInstance * ret = getMapConstPtr()->getObject(objid);
+	const CGObjectInstance * ret = getMapConstPtr()->getObject(objId);
 	if(!ret && verbose)
 	{
-		logGlobal->error("Cannot get object with id %d. Object was removed", objid.getNum());
+		logGlobal->error("Cannot get object with id %d. Object was removed", objId.getNum());
 		return nullptr;
 	}
 
@@ -72,7 +72,7 @@ const CArtifactInstance * MapInfoCallback::getArtInstance(ArtifactInstanceID aid
 
 const CGObjectInstance * MapInfoCallback::getObjInstance(ObjectInstanceID oid) const
 {
-	return getMapConstPtr()->getObject((oid));
+	return getMapConstPtr()->getObject(oid);
 }
 
 bool MapInfoCallback::isInTheMap(const int3 & pos) const
@@ -97,7 +97,7 @@ bool MapInfoCallback::isAllowed(SecondarySkill id) const
 
 int3 MapInfoCallback::getMapSize() const
 {
-	return int3(getMapConstPtr()->width, getMapConstPtr()->height, getMapConstPtr()->twoLevel ? 2 : 1);
+	return int3(getMapConstPtr()->width, getMapConstPtr()->height, getMapConstPtr()->levels());
 }
 
 void MapInfoCallback::getAllowedSpells(std::vector<SpellID> & out, std::optional<ui16> level)

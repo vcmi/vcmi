@@ -18,6 +18,7 @@
 #include "../mapping/CMapEditManager.h"
 #include "../GameLibrary.h"
 #include "CMapGenOptions.h"
+#include "CRmgTemplate.h"
 #include "RmgMap.h"
 #include "Zone.h"
 #include "Functions.h"
@@ -329,7 +330,7 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	{
 		return pr.second->getType() == ETemplateZoneType::WATER;
 	});
-	bool underground = map.getMapGenOptions().getHasTwoLevels();
+	int mapLevels = map.getMapGenOptions().getLevels();
 
 	findPathsBetweenZones();
 	placeOnGrid(rand);
@@ -347,7 +348,7 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
 
 	//0. set zone sizes and surface / underground level
-	prepareZones(zones, zonesVector, underground, rand);
+	prepareZones(zones, zonesVector, mapLevels, rand);
 
 	std::map<std::shared_ptr<Zone>, float3> bestSolution;
 
@@ -441,85 +442,119 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 	}
 }
 
-void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const bool underground, vstd::RNG * rand)
+void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const int mapLevels, vstd::RNG * rand)
 {
-	std::vector<float> totalSize = { 0, 0 }; //make sure that sum of zone sizes on surface and uderground match size of the map
+	std::map<int, float> totalSize; //make sure that sum of zone sizes on surface and uderground match size of the map
 
-	int zonesOnLevel[2] = { 0, 0 };
+	std::map<int, int> zonesOnLevel;
+	for (int i = 0; i < mapLevels; i++)
+		zonesOnLevel[i] = 0;
 
 	//even distribution for surface / underground zones. Surface zones always have priority.
 
 	TZoneVector zonesToPlace;
 	std::map<TRmgTemplateZoneId, int> levels;
 
+	auto addZoneEqually = [&](auto & zone, bool ignoreUnderground = false) {
+		int chosenLevel = -1;
+		int minCount = std::numeric_limits<int>::max();
+
+		for (const auto& [level, count] : zonesOnLevel) {
+			if (ignoreUnderground && level == 1)
+				continue;
+
+			if (count < minCount ||
+				(count == minCount && level == 0) ||
+				(count == minCount && chosenLevel != 0 && level < chosenLevel))
+			{
+				chosenLevel = level;
+				minCount = count;
+			}
+		}
+
+		levels[zone.first] = chosenLevel;
+		zonesOnLevel[chosenLevel]++;
+	};
+
 	//first pass - determine fixed surface for zones
 	for(const auto & zone : zonesVector)
 	{
-		if (!underground) //this step is ignored
-			zonesToPlace.push_back(zone);
-		else //place players depending on their factions
+		if (mapLevels == 1) //this step is ignored
 		{
-			if(std::optional<int> owner = zone.second->getOwner())
-			{
-				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
-				FactionID faction = FactionID::RANDOM;
-				if (playerSettings.size() > player.getNum())
-				{
-					faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
-				}
-				else
-				{
-					logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
-				}
+			zonesToPlace.push_back(zone);
+			continue;
+		}
 
-				if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+		// Check if zone has forced level assignment
+		auto forcedLevel = zone.second->getForcedLevel();
+		if (forcedLevel == EZoneLevel::SURFACE)
+		{
+			// Force to surface (level 0)
+			levels[zone.first] = 0;
+			zonesOnLevel[0]++;
+			continue;
+		}
+		else if (forcedLevel == EZoneLevel::UNDERGROUND)
+		{
+			// Force to underground (level 1)
+			// mapLevels > 1 is guaranteed here since mapLevels == 1 was handled above
+			levels[zone.first] = 1;
+			zonesOnLevel[1]++;
+			continue;
+		}
+		// forcedLevel == AUTOMATIC - continue with normal logic
+
+		//place players depending on their factions
+		if(std::optional<int> owner = zone.second->getOwner())
+		{
+			auto player = PlayerColor(*owner - 1);
+			auto playerSettings = map.getMapGenOptions().getPlayersSettings();
+			FactionID faction = FactionID::RANDOM;
+			if (playerSettings.size() > player.getNum())
+			{
+				faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
+			}
+			else
+			{
+				logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
+			}
+
+			if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+				zonesToPlace.push_back(zone);
+			else
+			{
+				auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
+				if(tt == ETerrainId::NONE)
+				{
+					//any / random
 					zonesToPlace.push_back(zone);
+				}
 				else
 				{
-					auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
-					if(tt == ETerrainId::NONE)
+					const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
+					if(terrainType->isUnderground() && !terrainType->isSurface())
 					{
-						//any / random
-						zonesToPlace.push_back(zone);
+						//underground only
+						zonesOnLevel[1]++;
+						levels[zone.first] = 1;
 					}
 					else
 					{
-						const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
-						if(terrainType->isUnderground() && !terrainType->isSurface())
-						{
-							//underground only
-							zonesOnLevel[1]++;
-							levels[zone.first] = 1;
-						}
-						else
-						{
-							//surface
-							zonesOnLevel[0]++;
-							levels[zone.first] = 0;
-						}
+						//surface
+						addZoneEqually(zone, true);
 					}
 				}
 			}
-			else //no starting zone or no underground altogether
-			{
-				zonesToPlace.push_back(zone);
-			}
+		}
+		else //no starting zone or no underground altogether
+		{
+			zonesToPlace.push_back(zone);
 		}
 	}
 	for(const auto & zone : zonesToPlace)
 	{
-		if (underground) //only then consider underground zones
-		{
-			int level = 0;
-			if (zonesOnLevel[1] < zonesOnLevel[0]) //only if there are less underground zones
-				level = 1;
-			else
-				level = 0;
-
-			levels[zone.first] = level;
-			zonesOnLevel[level]++;
-		}
+		if (mapLevels > 1) //only then consider underground zones
+			addZoneEqually(zone);
 		else
 			levels[zone.first] = 0;
 	}
@@ -541,8 +576,8 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	prescaler = sqrt((WH)/(sum(n^2)*pi))
 	*/
 
-	std::vector<float> prescaler = { 0, 0 };
-	for (int i = 0; i < 2; i++)
+	std::map<int, float> prescaler;
+	for (int i = 0; i < mapLevels; i++)
 		prescaler[i] = std::sqrt((width * height) / (totalSize[i] * PI_CONSTANT));
 	mapSize = static_cast<float>(sqrt(width * height));
 	for(const auto & zone : zones)
@@ -1003,6 +1038,24 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	}
 	logGlobal->info("Finished zone colouring");
 }
+
+void CZonePlacer::RemoveRoadsForWideConnections()
+{
+	auto zones = map.getZones();
+	
+	for(auto & zonePtr : zones)
+	{
+		for(auto & connection : zonePtr.second->getConnections())
+		{
+			if(connection.getConnectionType() == rmg::EConnectionType::WIDE)
+			{
+				zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+			}
+		}
+	}
+}
+
+
 
 const TDistanceMap& CZonePlacer::getDistanceMap()
 {

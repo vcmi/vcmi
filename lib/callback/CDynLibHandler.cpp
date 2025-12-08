@@ -15,11 +15,19 @@
 #include "../VCMIDirs.h"
 
 #ifdef STATIC_AI
-# include "../../AI/VCAI/VCAI.h"
-# include "../../AI/Nullkiller/AIGateway.h"
-# include "../../AI/BattleAI/BattleAI.h"
-# include "../../AI/StupidAI/StupidAI.h"
-# include "../../AI/EmptyAI/CEmptyAI.h"
+#  ifdef ENABLE_NULLKILLER_AI
+#    include "../../AI/Nullkiller/AIGateway.h"
+#  endif
+#  ifdef ENABLE_NULLKILLER2_AI
+#    include "../../AI/Nullkiller2/AIGateway.h"
+#  endif
+#  ifdef ENABLE_BATTLE_AI
+#    include "../../AI/BattleAI/BattleAI.h"
+#  endif
+#  ifdef ENABLE_STUPID_AI
+#    include "../../AI/StupidAI/StupidAI.h"
+#  endif
+#    include "../../AI/EmptyAI/CEmptyAI.h"
 #else
 # ifdef VCMI_WINDOWS
 #  include <windows.h> //for .dll libs
@@ -67,6 +75,10 @@ VCMI_LIB_NAMESPACE_BEGIN
 		getName = reinterpret_cast<TGetNameFun>(dlsym(dll, "GetAiName"));
 		getAI = reinterpret_cast<TGetAIFun>(dlsym(dll, methodName.c_str()));
 	}
+	else
+	{
+		logGlobal->error("Cannot open dynamic library '%s'. Reason: %s", libpath.string(), dlerror());
+	}
 #endif // VCMI_WINDOWS
 
 	if (!dll)
@@ -102,21 +114,32 @@ VCMI_LIB_NAMESPACE_BEGIN
 template<>
 std::shared_ptr<CGlobalAI> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
-	if(libpath.stem() == "libNullkiller") {
+#ifdef ENABLE_NULLKILLER2_AI
+	if(libpath.stem() == "libNullkiller2")
+		return std::make_shared<NK2AI::AIGateway>();
+#endif
+
+#ifdef ENABLE_NULLKILLER_AI
+	if(libpath.stem() == "libNullkiller")
 		return std::make_shared<NKAI::AIGateway>();
-	}
-	else{
-		return std::make_shared<VCAI>();
-	}
+#endif
+
+	return std::make_shared<CEmptyAI>();
 }
 
 template<>
 std::shared_ptr<CBattleGameInterface> createAny(const boost::filesystem::path & libpath, const std::string & methodName)
 {
+#ifdef ENABLE_BATTLE_AI
 	if(libpath.stem() == "libBattleAI")
 		return std::make_shared<CBattleAI>();
-	else if(libpath.stem() == "libStupidAI")
+#endif
+
+#ifdef ENABLE_STUPID_AI
+	if(libpath.stem() == "libStupidAI")
 		return std::make_shared<CStupidAI>();
+#endif
+
 	return std::make_shared<CEmptyAI>();
 }
 

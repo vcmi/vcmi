@@ -15,12 +15,14 @@
 #include "Limiter.h"
 #include "Reward.h"
 
-#include "../callback/IGameRandomizer.h"
-#include "../texts/CGeneralTextHandler.h"
-#include "../json/JsonRandom.h"
+#include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
+#include "../callback/IGameRandomizer.h"
+#include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 
 #include <vstd/RNG.h>
 
@@ -295,7 +297,7 @@ void Rewardable::Info::replaceTextPlaceholders(MetaString & target, const Variab
 
 		MetaString loot;
 
-		for (GameResID it : GameResID::ALL_RESOURCES())
+		for (GameResID it : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
 			if (info.reward.resources[it] != 0)
 			{

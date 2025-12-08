@@ -14,6 +14,7 @@
 #include "CGameHandler.h"
 
 #include "../lib/StartInfo.h"
+#include "../lib/GameLibrary.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignState.h"
@@ -21,7 +22,7 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/serializer/Connection.h"
+#include "../lib/serializer/GameConnection.h"
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -38,6 +39,12 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitForLobby(CPackForLobby & pac
 	{
 		srv.updateAndPropagateLobbyState();
 	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	// only host can load quicksave
+	result = srv.isClientHost(connection->connectionID);
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -107,6 +114,21 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientDisconnected(Lobb
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMessage & pack)
 {
 	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	srv.prepareToRestart();
+	// modify StartInfo to load the quicksave
+	srv.si->mode = EStartMode::LOAD_GAME;
+	srv.si->mapname = pack.saveFilePath;
+	result = true;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
+{
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
@@ -219,19 +241,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
-	if(pack.clientId == -1) //do not restart game for single client only
-		srv.startGameImmediately();
-	else
-	{
-		for(const auto & connection : srv.activeConnections)
-		{
-			if(connection->connectionID == pack.clientId)
-			{
-				connection->setCallback(srv.gh->gameInfo());
-				srv.reconnectPlayer(pack.clientId);
-			}
-		}
-	}
+	srv.startGameImmediately();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
@@ -396,10 +406,14 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 	result = true;
 }
 
-
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
 	result = srv.isClientHost(connection->connectionID);
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)

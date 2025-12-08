@@ -26,6 +26,7 @@
 #include "../lib/callback/CCallback.h"
 #include "../lib/pathfinder/CGPathNode.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapping/TerrainTile.h"
 #include "../lib/networkPacks/PacksForClient.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/TerrainHandler.h"
@@ -166,7 +167,7 @@ void HeroMovementController::onTryMoveHero(const CGHeroInstance * hero, const Tr
 		GAME->interface()->localState->hasPath(hero) &&
 		GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
 
-	std::unordered_set<int3> changedTiles {
+	FowTilesType changedTiles {
 		hero->convertToVisitablePos(details.start),
 		hero->convertToVisitablePos(details.end)
 	};

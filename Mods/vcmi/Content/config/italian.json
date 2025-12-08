@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Punti movimento - Costo: %POINTS punti, Punti rimanenti: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Punti movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Spiacente, la riproduzione del turno avversario non è ancora implementata!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Sei sicuro di voler caricare il salvataggio rapido?",
 
 	"vcmi.bonusSource.artifact" : "Artefatto",
 	"vcmi.bonusSource.creature" : "Abilità",
@@ -227,7 +228,7 @@
 	"vcmi.server.errors.existingProcess" : "Un altro processo del server VCMI è in esecuzione. Terminarlo prima di avviare una nuova partita.",
 	"vcmi.server.errors.modsToEnable"    : "{Le seguenti mod sono richieste}",
 	"vcmi.server.errors.modsToDisable"   : "{Le seguenti mod devono essere disattivate}",
-	"vcmi.server.errors.unknownEntity" : "Impossibile caricare il salvataggio! Entità sconosciuta '%s' trovata nel salvataggio! Il salvataggio potrebbe non essere compatibile con la versione attualmente installata delle mod!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Impossibile caricare il salvataggio! Entità sconosciuta '%s' trovata nel salvataggio! Il salvataggio potrebbe non essere compatibile con la versione attualmente installata delle mod!",
 	"vcmi.server.errors.wrongIdentified"   : "Sei stato identificato come giocatore %s mentre ci si aspettava %s",
 	"vcmi.server.errors.notAllowed"   : "Non ti è permesso eseguire questa azione!",
 	
@@ -294,8 +295,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Seleziona intervallo di tocco lungo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Modifica la durata dell'intervallo di tocco lungo.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d millisecondi",
-	"vcmi.systemOptions.framerateButton.hover"  : "Mostra FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Mostra FPS}\n\nAttiva o disattiva la visibilità del contatore dei fotogrammi al secondo nell'angolo della finestra di gioco.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Feedback aptico",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Feedback aptico}\n\nAttiva o disattiva il feedback aptico sugli input tattili.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Miglioramenti interfaccia",

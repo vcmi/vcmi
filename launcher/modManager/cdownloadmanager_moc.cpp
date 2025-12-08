@@ -73,17 +73,19 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 	if(possibleRedirectUrl.isValid())
 	{
 		QString filename;
+		qint64 totalSize = 0;
 
 		for(int i = 0; i< currentDownloads.size(); ++i)
 		{
 			if(currentDownloads[i].file == file.file)
 			{
 				filename = currentDownloads[i].filename;
+				totalSize = currentDownloads[i].totalSize;
 				currentDownloads.removeAt(i);
 				break;
 			}
 		}
-		downloadFile(qurl, filename, file.totalSize);
+		downloadFile(qurl, filename, totalSize);
 		return;
 	}
 
@@ -122,7 +124,7 @@ void CDownloadManager::downloadFinished(QNetworkReply * reply)
 	}
 
 	if(downloadComplete)
-		finished(successful, failed, encounteredErrors);
+		Q_EMIT finished(successful, failed, encounteredErrors);
 
 	file.reply->deleteLater();
 	file.reply = nullptr;
@@ -145,11 +147,11 @@ void CDownloadManager::downloadProgressChanged(qint64 bytesReceived, qint64 byte
 	quint64 received = 0;
 	for(auto & entry : currentDownloads)
 		received += entry.bytesReceived > 0 ? entry.bytesReceived : 0;
-	
+
 	if(received > total)
 		total = received;
 
-	downloadProgress(received, total);
+	Q_EMIT downloadProgress(received, total);
 }
 
 bool CDownloadManager::downloadInProgress(const QUrl & url) const

@@ -39,9 +39,12 @@
 	
 		// Chance for this spell to appear in Mage Guild of a specific faction
 		// Symmetric property of "guildSpells" property in towns
+		/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+		/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 		"gainChance":
 		{
-			"factionName" : 3
+			"factionName" : 3,
+			"modID:anotherFactionName" : 5
 		},
 
 		"animation":{<Animation format>},
@@ -241,8 +244,6 @@ TODO
 		"firstEffect": {[bonus format]},
 		"secondEffect": {[bonus format]}
 		//...
-
-	
 	},
 
 	// DEPRECATED, please use "battleEffects" with timed effect and "cumulative" set to true instead
@@ -259,6 +260,11 @@ TODO
 		"mod:firstEffect": {[effect format]},
 		"mod:secondEffect": {[effect format]}
 		//...
+	}
+	
+	/// See Configurable adventure map effects section below for detailed description
+	"adventureEffect" : {
+		[effect format]
 	}
 }
 ```
@@ -672,3 +678,179 @@ Value of all bonuses can be affected by following bonuses:
 
 - range 0: any single obstacle
 - range X: all obstacles
+
+## Configurable adventure map effects
+
+Currently, VCMI does not allow completely new spell effects for adventure maps. However, it is possible to:
+
+- modify the parameters of all H3 spells.
+- create spells with similar effects to H3 spells
+- create a spell that gives bonuses to the hero who cast the spell.
+
+Unlike combat effects, adventure map spells can only have one special effect, such as the Dimension Door or Town Portal effect. The number of bonuses granted by an adventure map spell is unlimited.
+
+The AI has a limited understanding of adventure map spells and may use the following spells:
+
+- Spells that give `WATER_WALKING` or `FLYING_MOVEMENT` bonuses
+- Spells with the Summon Boat effect, provided the spell can create new boats with a 100% success chance.
+- Any spells with the Town Portal effect.
+
+### Common format
+
+All properties in this section can be used for all non-generic adventure map spell effects.
+
+Parameters:
+
+- `type` - the type of spell effect used for this spell, or `generic` if a custom mechanic is not used.
+- `castsPerDay` - Optional. Defines how many times a hero can cast this spell per day; set to zero or omit for unlimited use.
+- `castsPerDayXL` - Optional. An alternative cast-per-day limit that is only active on maps that are at least XL+U in size. If this value is not set or is set to zero, the game will use the value of the `castsPerDay` variable.
+- `bonuses` - A list of bonuses that will be given to the hero when this spell is cast successfully. When used with effects that can fail (e.g. Summon Boat), the bonuses will only apply to a successful cast.
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "generic",
+	"castsPerDay" : 0,
+	"castsPerDayXL" : 0,
+	"bonuses" : {
+		"fly" : {
+			"type" : "FLYING_MOVEMENT",
+			"duration" : "ONE_DAY",
+			"val" : 40,
+			"valueType" : "INDEPENDENT_MIN"
+		}
+	}
+}
+```
+
+### Dimension Door
+
+The effect instantly teleports the hero to the selected location.
+
+Parameters:
+
+- `movementPointsRequired` - The amount of movement points the hero must have to cast this spell.
+- `movementPointsTaken` - The amount of movement points that will be taken if the spell is cast successfully. If the hero does not have enough movement points, they will be reduced to zero after casting.
+- `waterLandFailureTakesPoints` - If set to true, mana and movement points will be spent on an attempt to teleport to an inaccessible location (e.g. teleporting to land while in a boat).
+- `cursor` - Identifier of the cursor that will be shown when hovering over a valid destination tile. See `config/cursors.json` for more details.
+- `cursorGuarded` - alternative cursor that appears if using the teleport spell on a target would result in combat. This is only used if the game rule 'dimensionDoorTriggersGuards' is active.
+- `exposeFow` - If this is set to true, using this spell will reveal information behind fog of war, such as whether teleportation is possible or if the location is guarded.
+- `ignoreFow` - If this is set to true, it is possible to use the spell to teleport into terra incognita.
+- `rangeX` - maximum distance to teleport in the X dimension (left-right axis).
+- `rangeY` - maximum distance to teleport in the Y dimension (top-bottom axis).
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "dimensionDoor",
+	"movementPointsRequired" : 0,
+	"movementPointsTaken" : 300,
+	"waterLandFailureTakesPoints" : true,
+	"cursor" : "mapDimensionDoor",
+	"cursorGuarded" : "mapTurn1Attack",
+	"castsPerDay" : 2,
+	"rangeX" : 9,
+	"rangeY" : 8,
+	"ignoreFow" : true,
+	"exposeFow" : true
+}
+```
+
+### Remove Object
+
+The effect completely removes the targeted object from the map. The Scuttle Boat spell is an example of this effect. The success chance is defined as [spell effect power](#spell-power).
+
+Parameters:
+
+- `objects` - a list of map objects that can be removed by this spell.
+- `cursor` - identifier of the cursor that will be displayed when hovering over a valid target object.  See `config/cursors.json` for more details.
+- `ignoreFow` - If set to true, it is possible to use this spell to remove objects behind terra incognita.
+- `rangeX` - maximum distance to remove objects in the X dimension (left-right axis).
+- `rangeY` - maximum distance to remove objects in the Y dimension (top-bottom axis).
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "removeObject",
+	"castsPerDay" : 0,
+	"cursor" : "mapScuttleBoat",
+	"rangeX" : 9,
+	"rangeY" : 8,
+	"ignoreFow" : false,
+	"objects" : {
+		"boat" : true
+	}
+}
+```
+
+### Summon Boat
+
+The effect moves or creates a boat next to the hero who cast the spell. The success chance is defined as [spell effect power](#spell-power).
+
+Parameters:
+
+- `useExistingBoat` - If this is set to true, the spell can move existing boats to the hero's location.
+- `createdBoat` - Optional identifier of the boat type that can be created by this spell. If this is not set, the spell cannot create new boats.
+
+Note that if the spell can both create new boats and use existing ones, it would prefer to move existing boats and only create new ones if there are no suitable ones to move.
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "summonBoat",
+	"castsPerDay" : 0,
+	"useExistingBoat" : true,
+	"createdBoat" : "boatNecropolis"
+}
+```
+
+### Town Portal
+
+Effect moves hero to a location of owned or allied town.
+
+Parameters:
+
+- `movementPointsRequired` - amount of movement points that hero must have to cast this spell
+- `movementPointsTaken` - amount of movement points that will be taken on sucessful cast of the spell. If hero does not have enough movement points, they will be reduced to zero after cast
+- `allowTownSelection` - if set to true, player will be able to select town to teleport to among all friendly non-occupied towns.
+- `skipOccupiedTowns` - if set to true, hero will teleport to nearest non-occupied town, ignoring any closer towns that are occupied by a visiting hero. No effect if `allowTownSelection` is set.
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "townPortal",
+	"castsPerDay" : 2,
+	"allowTownSelection" : false,
+	"skipOccupiedTowns" : false,
+	"movementPointsRequired" : 300,
+	"movementPointsTaken" : 300
+}
+```
+
+### View World
+
+Effect shows World View menu with specified objects behind FoW revealed to the player
+
+Parameters:
+
+- `objects` - list of object types that will be revealed on World View. Note that only following objects have assotiated icon, any objects not from this list will not be visible: `resource`, `mine`, `abandonedMine`, `artifact`, `hero`, `town`.
+- `showTerrain` - if set to true, terrain of the entire map (but not objects on it) will be revealed to the player.
+
+Example:
+
+```json
+"adventureEffect" : {
+	"type" : "viewWorld",
+	"objects" : {
+		"resource" : true,
+		"mine" : true,
+		"abandonedMine" : true
+	},
+	"showTerrain" : true
+}
+```

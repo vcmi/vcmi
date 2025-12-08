@@ -22,7 +22,7 @@
 #include "../spells/ISpellMechanics.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
-#include "../mapping/CMapDefines.h"
+#include "../mapping/TerrainTile.h"
 #include "../networkPacks/StackLocation.h"
 #include "../networkPacks/PacksForClient.h"
 
@@ -76,7 +76,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 			return score > 0;
 		};
 
-		std::unordered_set<int3> tiles;
+		FowTilesType tiles;
 		if (props.radius > 0)
 		{
 			cb->getTilesInRange(tiles, hero->getSightCenter(), props.radius, ETileVisibility::HIDDEN, hero->getOwner());

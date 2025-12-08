@@ -23,22 +23,23 @@
 #include "mapView/mapHandler.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/battle/CPlayerBattleCallback.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/callback/CDynLibHandler.h"
 #include "../lib/callback/CGlobalAI.h"
 #include "../lib/callback/IGameInfoCallback.h"
+#include "../lib/filesystem/Filesystem.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/CPlayerState.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/UnlockGuard.h"
-#include "../lib/serializer/Connection.h"
+#include "../lib/mapObjects/army/CArmedInstance.h"
 #include "../lib/mapping/CMapService.h"
-#include "../lib/mapObjects/CArmedInstance.h"
 #include "../lib/pathfinder/CGPathNode.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/serializer/GameConnection.h"
 
 #include <memory>
 #include <vcmi/events/EventBus.h>
@@ -124,7 +125,6 @@ events::EventBus * CClient::eventBus() const
 void CClient::newGame(std::shared_ptr<CGameState> initializedGameState)
 {
 	GAME->server().th->update();
-	CMapService mapService;
 	assert(initializedGameState);
 	gamestate = initializedGameState;
 	gamestate->preInit(LIBRARY);
@@ -143,13 +143,11 @@ void CClient::loadGame(std::shared_ptr<CGameState> initializedGameState)
 	logNetwork->info("Game state was transferred over network, loading.");
 	gamestate = initializedGameState;
 	gamestate->preInit(LIBRARY);
-	gamestate->updateOnLoad(GAME->server().si.get());
+	gamestate->updateOnLoad(*GAME->server().si);
 	logNetwork->info("Game loaded, initialize interfaces.");
 
 	initMapHandler();
-
 	reinitScripting();
-
 	initPlayerEnvironments();
 	initPlayerInterfaces();
 }
@@ -362,15 +360,13 @@ std::optional<BattleAction> CClient::makeSurrenderRetreatDecision(PlayerColor pl
 
 int CClient::sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize)
 {
-	static ui32 requestCounter = 1;
-
 	ui32 requestID = requestCounter++;
 	logNetwork->trace("Sending a request \"%s\". It'll have an ID=%d.", typeid(request).name(), requestID);
 
 	waitingRequest.pushBack(requestID);
 	request.requestID = requestID;
 	request.player = player;
-	GAME->server().logicConnection->sendPack(request);
+	GAME->server().sendGamePack(request);
 	if(vstd::contains(playerint, player))
 		playerint[player]->requestSent(&request, requestID);
 

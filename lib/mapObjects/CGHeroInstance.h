@@ -11,8 +11,10 @@
 
 #include <vcmi/spells/Caster.h>
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+
+#include "army/CArmedInstance.h"
+#include "army/CCommanderInstance.h"
 
 #include "../bonuses/BonusCache.h"
 #include "../entities/hero/EHeroGender.h"
@@ -153,7 +155,9 @@ public:
 	void addSpellToSpellbook(const SpellID & spell);
 	void removeSpellFromSpellbook(const SpellID & spell);
 	bool spellbookContainsSpell(const SpellID & spell) const;
+	std::vector<BonusSourceID> getSourcesForSpell(const SpellID & spell) const;
 	void removeSpellbook();
+	void removeAllSpells();
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
@@ -286,6 +290,7 @@ public:
 	int32_t getEffectPower(const spells::Spell * spell) const override;
 	int32_t getEnchantPower(const spells::Spell * spell) const override;
 	int64_t getEffectValue(const spells::Spell * spell) const override;
+	int64_t getEffectRange(const spells::Spell * spell) const override;
 
 	PlayerColor getCasterOwner() const override;
 	const CGHeroInstance * getHeroCaster() const override;
@@ -306,8 +311,6 @@ public:
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
-	void attachToBonusSystem(CGameState & gs) override;
-	void detachFromBonusSystem(CGameState & gs) override;
 	void restoreBonusSystem(CGameState & gs) override;
 
 	void updateFrom(const JsonNode & data) override;

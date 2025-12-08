@@ -122,9 +122,9 @@
 			"musicTheme" : [ "music/Dungeon" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
 			"townBackground": "TBDNBACK.bmp",
-			"guildWindow": "TPMAGEDN.bmp",
+			"guildWindow": [ "TPMAGEDN.bmp" ],
 			"buildingsIcons": "HALLDUNG.DEF",
 			"hallBackground": "TPTHBKDG.BMP",
 			"hallSlots":
@@ -147,6 +147,14 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
+			"guildSpellPositions" : [
+				[ { "x": 222, "y": 445 }, { "x": 312, "y": 445 }, { "x": 402, "y": 445 }, { "x": 520, "y": 445 }, { "x": 610, "y": 445 }, { "x": 700, "y": 445 } ],
+				[ { "x":  48, "y":  53 }, { "x":  48, "y": 147 }, { "x":  48, "y": 241 }, { "x":  48, "y": 335 }, { "x":  48, "y": 429 } ],
+				[ { "x": 570, "y":  82 }, { "x": 672, "y":  82 }, { "x": 570, "y": 157 }, { "x": 672, "y": 157 } ],
+				[ { "x": 183, "y":  42 }, { "x": 183, "y": 148 }, { "x": 183, "y": 253 } ],
+				[ { "x": 491, "y": 325 }, { "x": 591, "y": 325 } ]
+			],
+			"guildWindowPosition": { "x": 332, "y": 76 },
 			"primaryResource" : "sulfur",
 			"moatAbility" : "dungeonMoat",
 
@@ -170,8 +178,8 @@
 				"blacksmith":     { "warMachine" : "ballista" },
 
 				"special1":       { "requires" : [ "marketplace" ], "marketModes" : ["resource-artifact", "artifact-resource"] },
-				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl1" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ], "mode" : "auto" },
+				"horde1":         { "upgrades" : "dwellingLvl1" },
+				"horde1Upgr":     { "upgrades" : "dwellingUpLvl1", "requires" : [ "horde1" ] },
 				"special2":       {
 					"requires" : [ "mageGuild1" ],
 					"configuration" : {
@@ -203,24 +211,23 @@
 						]
 					}
 				},
-				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 },
-					"bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.spellpower", "val": 12 } ] },
+				"grail":          { "bonuses": [ { "type": "PRIMARY_SKILL", "subtype": "primarySkill.spellpower", "val": 12 } ] },
 
-				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
-				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl3":   { "id" : 32, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl4":   { "id" : 33, "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
-				"dwellingLvl5":   { "id" : 34, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl6":   { "id" : 35, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl7":   { "id" : 36, "requires" : [ "allOf", [ "mageGuild2" ], [ "dwellingLvl5" ], [ "dwellingLvl6" ] ] },
+				"dwellingLvl1":   { "requires" : [ "fort" ] },
+				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl3":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl4":   { "requires" : [ "allOf", [ "dwellingLvl2" ], [ "dwellingLvl3" ] ] },
+				"dwellingLvl5":   { "requires" : [ "dwellingLvl4" ] },
+				"dwellingLvl6":   { "requires" : [ "dwellingLvl4" ] },
+				"dwellingLvl7":   { "requires" : [ "allOf", [ "mageGuild2" ], [ "dwellingLvl5" ], [ "dwellingLvl6" ] ] },
 
-				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1" },
-				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
-				"dwellingUpLvl3": { "id" : 39, "upgrades" : "dwellingLvl3" },
-				"dwellingUpLvl4": { "id" : 40, "upgrades" : "dwellingLvl4" },
-				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
-				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
-				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
+				"dwellingUpLvl1": { "upgrades" : "dwellingLvl1" },
+				"dwellingUpLvl2": { "upgrades" : "dwellingLvl2" },
+				"dwellingUpLvl3": { "upgrades" : "dwellingLvl3" },
+				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4" },
+				"dwellingUpLvl5": { "upgrades" : "dwellingLvl5" },
+				"dwellingUpLvl6": { "upgrades" : "dwellingLvl6" },
+				"dwellingUpLvl7": { "upgrades" : "dwellingLvl7", "requires" : [ "mageGuild3" ] },
 
 				"horde2" : null,
 				"horde2Upgr" : null,

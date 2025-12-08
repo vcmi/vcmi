@@ -17,6 +17,8 @@
 #include "../../../lib/pathfinder/CPathfinder.h"
 #include "../../../lib/pathfinder/PathfinderUtil.h"
 #include "../../../lib/pathfinder/PathfinderOptions.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/adventure/TownPortalEffect.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/CPlayerState.h"
 
@@ -1059,32 +1061,27 @@ std::vector<CGPathNode *> AINodeStorage::calculateTeleportations(
 struct TownPortalFinder
 {
 	const std::vector<CGPathNode *> & initialNodes;
-	MasteryLevel::Type townPortalSkillLevel;
-	uint64_t movementNeeded;
 	const ChainActor * actor;
 	const CGHeroInstance * hero;
 	std::vector<const CGTownInstance *> targetTowns;
 	AINodeStorage * nodeStorage;
-
-	SpellID spellID;
 	const CSpell * townPortal;
+	uint64_t movementNeeded;
+	SpellID spellID;
+	bool townSelectionAllowed;
 
-	TownPortalFinder(
-		const ChainActor * actor,
-		const std::vector<CGPathNode *> & initialNodes,
-		std::vector<const CGTownInstance *> targetTowns,
-		AINodeStorage * nodeStorage)
-		:actor(actor), initialNodes(initialNodes), hero(actor->hero),
-		targetTowns(targetTowns), nodeStorage(nodeStorage)
+	TownPortalFinder(const ChainActor * actor, const std::vector<CGPathNode *> & initialNodes, const std::vector<const CGTownInstance *> & targetTowns, AINodeStorage * nodeStorage, SpellID spellID)
+		: initialNodes(initialNodes)
+		, actor(actor)
+		, hero(actor->hero)
+		, targetTowns(targetTowns)
+		, nodeStorage(nodeStorage)
+		, townPortal(spellID.toSpell())
+		, spellID(spellID)
 	{
-		spellID = SpellID::TOWN_PORTAL;
-		townPortal = spellID.toSpell();
-
-		// TODO: Copy/Paste from TownPortalMechanics
-		townPortalSkillLevel = MasteryLevel::Type(hero->getSpellSchoolLevel(townPortal));
-
-		int baseCost = hero->cb->getSettings().getInteger(EGameSettings::HEROES_MOVEMENT_COST_BASE);
-		movementNeeded = baseCost * (townPortalSkillLevel >= MasteryLevel::EXPERT ? 2 : 3);
+		auto townPortalEffect = townPortal->getAdventureMechanics().getEffectAs<TownPortalEffect>(hero);
+		movementNeeded = townPortalEffect->getMovementPointsRequired();
+		townSelectionAllowed = townPortalEffect->townSelectionAllowed();
 	}
 
 	bool actorCanCastTownPortal()
@@ -1105,7 +1102,7 @@ struct TownPortalFinder
 				continue;
 			}
 
-			if(townPortalSkillLevel < MasteryLevel::ADVANCED)
+			if(!townSelectionAllowed)
 			{
 				const CGTownInstance * nearestTown = *vstd::minElementByFun(targetTowns, [&](const CGTownInstance * t) -> int
 				{
@@ -1151,7 +1148,7 @@ struct TownPortalFinder
 				DO_NOT_SAVE_TO_COMMITTED_TILES);
 
 			node->theNodeBefore = bestNode;
-			node->addSpecialAction(std::make_shared<AIPathfinding::TownPortalAction>(targetTown));
+			node->addSpecialAction(std::make_shared<AIPathfinding::TownPortalAction>(targetTown, spellID));
 		}
 
 		return nodeOptional;
@@ -1177,10 +1174,21 @@ void AINodeStorage::calculateTownPortal(
 		return; // no towns no need to run loop further
 	}
 
-	TownPortalFinder townPortalFinder(actor, initialNodes, towns, this);
-
-	if(townPortalFinder.actorCanCastTownPortal())
+	for (const auto & spell : LIBRARY->spellh->objects)
 	{
+		if (!spell || !spell->isAdventure())
+			continue;
+
+		auto townPortalEffect = spell->getAdventureMechanics().getEffectAs<TownPortalEffect>(actor->hero);
+
+		if (!townPortalEffect)
+			continue;
+
+		TownPortalFinder townPortalFinder(actor, initialNodes, towns, this, spell->id);
+
+		if(!townPortalFinder.actorCanCastTownPortal())
+			continue;
+
 		for(const CGTownInstance * targetTown : towns)
 		{
 			if(targetTown->getVisitingHero()

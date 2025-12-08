@@ -58,6 +58,7 @@ private slots:
 	void on_doubleSpinBoxZoneVisSize_valueChanged();
 	void on_comboBoxZoneType_currentTextChanged(const QString &text);
 	void on_comboBoxZoneOwner_currentTextChanged(const QString &text);
+	void on_comboBoxForcedLevel_currentTextChanged(const QString &text);
 	void on_spinBoxZoneSize_valueChanged();
 	void on_spinBoxTownCountPlayer_valueChanged();
 	void on_spinBoxCastleCountPlayer_valueChanged();
@@ -95,6 +96,10 @@ private slots:
 	void on_pushButtonTreasure_clicked();
 	void on_pushButtonMines_clicked();
 	void on_pushButtonCustomObjects_clicked();
+	void on_pushButtonEntitiesBannedSpells_clicked();
+	void on_pushButtonEntitiesBannedArtifacts_clicked();
+	void on_pushButtonEntitiesBannedSkills_clicked();
+	void on_pushButtonEntitiesBannedHeroes_clicked();
 	
 private:
 	bool getAnswerAboutUnsavedChanges();

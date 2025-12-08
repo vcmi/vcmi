@@ -46,7 +46,9 @@
 				"enableOverlay",
 				"lastKindomInterface",
 				"enableSubtitle",
-				"ignoreMuteSwitch"
+				"ignoreMuteSwitch",
+				"highscoreEntriesCap",
+				"highscoreStatisticEntriesCap"
 			],
 			"properties" : {
 				"playerName" : {
@@ -166,6 +168,14 @@
 				"ignoreMuteSwitch" : {
 					"type": "boolean",
 					"default": true
+				},
+				"highscoreEntriesCap" : {
+					"type" : "number",
+					"default" : 100
+				},
+				"highscoreStatisticEntriesCap" : {
+					"type" : "number",
+					"default" : 15
 				}
 			}
 		},
@@ -200,7 +210,7 @@
 				"spellbookAnimation",
 				"driver",
 				"displayIndex",
-				"showfps",
+				"performanceOverlay",
 				"targetfps",
 				"vsync",
 				"fontsType",
@@ -210,7 +220,8 @@
 				"fontUpscalingFilter",
 				"downscalingFilter",
 				"allowPortrait",
-				"asyncUpscaling"
+				"asyncUpscaling",
+				"useHdTextures"
 			],
 			"properties" : {
 				"resolution" : {
@@ -259,9 +270,16 @@
 					"type" : "number",
 					"default" : 0
 				},
-				"showfps" : {
-					"type" : "boolean",
-					"default" : false
+				"performanceOverlay" : {
+					"type" : "object",
+					"additionalProperties" : false,
+					"required" : [ "show", "edge", "marginTopBottom", "marginLeftRight" ],
+					"properties" : {
+						"show" : { "type" : "boolean", "default" : false },
+						"edge" : { "type" : "string",  "enum" : [ "topleft", "topright", "bottomleft", "bottomright" ], "default" : "bottomleft" },
+						"marginTopBottom" : { "type" : "number",  "default" : 5 },
+						"marginLeftRight" : { "type" : "number",  "default" : 7 }
+					}
 				},
 				"targetfps" : {
 					"type" : "number",
@@ -304,6 +322,10 @@
 					"default" : false
 				},
 				"asyncUpscaling" : {
+					"type" : "boolean",
+					"default" : true
+				},
+				"useHdTextures" : {
 					"type" : "boolean",
 					"default" : true
 				}
@@ -387,7 +409,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"default" : {},
-			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes" ],
+			"required" : [ "heroMoveTime", "enemyMoveTime", "scrollSpeedPixels", "heroReminder", "quickCombat", "objectAnimation", "terrainAnimation", "forceQuickCombat", "borderScroll", "leftButtonDrag", "rightButtonDrag", "smoothDragging", "backgroundDimLevel", "hideBackground", "backgroundDimSmallWindows", "tileZoom", "minimapShowHeroes", "showMovePath" ],
 			"properties" : {
 				"heroMoveTime" : {
 					"type" : "number",
@@ -456,10 +478,13 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				
 				"tileZoom" : {
 					"type" : "number",
 					"default" : 32
+				},
+				"showMovePath" : {
+					"type" : "boolean",
+					"default" : true
 				}
 			}
 		},
@@ -564,22 +589,27 @@
 				},
 				"playerAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"alliedAI" : {
 					"type" : "string",
-					"default" : "Nullkiller"
+					"enum" : [ "EmptyAI", "Nullkiller", "Nullkiller2" ],
+					"default" : "Nullkiller2"
 				},
 				"friendlyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				},
 				"neutralAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
 					"default" : "BattleAI"
 				}
 			}
@@ -677,19 +707,19 @@
 			"properties" : {
 				"defaultRepositoryEnabled" : {
 					"type" : "boolean",
-					"default" : true,
+					"default" : true
 				},
 				"defaultRepositoryURL" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.7.json",
+					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-mods-repository/develop/vcmi-1.7.json"
 				},
 				"extraRepositoryEnabled" : {
 					"type" : "boolean",
-					"default" : false,
+					"default" : false
 				},
 				"extraRepositoryURL" : {
 					"type" : "string",
-					"default" : "",
+					"default" : ""
 				},
 				"setupCompleted" : {
 					"type" : "boolean",
@@ -718,7 +748,7 @@
 					"defaultAndroid": false,
 					"defaultDesktop" : true
 
-				},
+				}
 			}
 		},
 		"lobby" : {

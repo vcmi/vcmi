@@ -55,47 +55,47 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">File</translation>
+        <translation>File</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">Modifica</translation>
+        <translation>Modifica</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="52"/>
         <source>View</source>
-        <translation type="unfinished">Visualizza</translation>
+        <translation>Visualizza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="64"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Barra degli strumenti</translation>
+        <translation>Barra degli strumenti</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="104"/>
         <source>Open</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="112"/>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="120"/>
         <source>New</source>
-        <translation type="unfinished">Nuovo</translation>
+        <translation>Nuovo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="128"/>
         <source>Save as...</source>
-        <translation type="unfinished">Salva con nome...</translation>
+        <translation>Salva con nome...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="136"/>
@@ -127,17 +127,17 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Conferma</translation>
+        <translation>Conferma</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="123"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Le modifiche non salvate andranno perse, sei sicuro?</translation>
+        <translation>Le modifiche non salvate andranno perse, sei sicuro?</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="166"/>
         <source>Open map</source>
-        <translation type="unfinished">Apri mappa</translation>
+        <translation>Apri mappa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="168"/>
@@ -154,7 +154,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="183"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished">Campagne VCMI (*.vcmp)</translation>
+        <translation>Campagne VCMI (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -169,7 +169,7 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
@@ -186,7 +186,7 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
         <source>Author</source>
-        <translation type="unfinished">Autore</translation>
+        <translation>Autore</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
@@ -258,12 +258,12 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
         <source>Add</source>
-        <translation type="unfinished">Aggiungi</translation>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="233"/>
         <source>Remove</source>
-        <translation type="unfinished">Rimuovi</translation>
+        <translation>Rimuovi</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
@@ -296,50 +296,62 @@
         <translation type="unfinished">Video finale</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="46"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="51"/>
         <source>Custom</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Personalizzato</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Infix</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Intersuffisso</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Label Pos X</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Posizione etichetta X</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="128"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="133"/>
         <source>Label Pos Y</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Posizione etichetta Y</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
         <source>Fewer Scenarios</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Meno scenari</translation>
     </message>
     <message>
-        <location filename="../campaigneditor/campaignproperties.cpp" line="180"/>
+        <location filename="../campaigneditor/campaignproperties.cpp" line="185"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">La nuova configurazione della regione supporta meno scenari di prima. Alcuni verranno rimossi. Continuare?</translation>
+    </message>
+</context>
+<context>
+    <name>EntitiesSelector</name>
+    <message>
+        <location filename="../templateeditor/entitiesselector.ui" line="14"/>
+        <location filename="../templateeditor/entitiesselector.ui" line="20"/>
+        <source>Select Entities</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona entità</translation>
     </message>
 </context>
 <context>
@@ -365,7 +377,7 @@
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="147"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="150"/>
         <source>New event</source>
         <translation>Nuovo evento</translation>
     </message>
@@ -376,12 +388,14 @@
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona fazioni</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="25"/>
         <source>Faction Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore fazioni</translation>
     </message>
 </context>
 <context>
@@ -470,12 +484,12 @@
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="165"/>
         <source>Cancel</source>
-        <translation type="unfinished">Annulla</translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
@@ -532,27 +546,27 @@
         <translation>Personalizza incantesimi</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.ui" line="76"/>
+        <location filename="../inspector/herospellwidget.ui" line="79"/>
         <source>Level 1</source>
         <translation>Livello 1</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.ui" line="114"/>
+        <location filename="../inspector/herospellwidget.ui" line="120"/>
         <source>Level 2</source>
         <translation>Livello 2</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.ui" line="152"/>
+        <location filename="../inspector/herospellwidget.ui" line="161"/>
         <source>Level 3</source>
         <translation>Livello 3</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.ui" line="190"/>
+        <location filename="../inspector/herospellwidget.ui" line="202"/>
         <source>Level 4</source>
         <translation>Livello 4</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.ui" line="228"/>
+        <location filename="../inspector/herospellwidget.ui" line="243"/>
         <source>Level 5</source>
         <translation>Livello 5</translation>
     </message>
@@ -609,7 +623,7 @@
     <name>MainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="357"/>
+        <location filename="../mainwindow.cpp" line="405"/>
         <source>VCMI Map Editor</source>
         <translation>Editor di mappe VCMI</translation>
     </message>
@@ -768,13 +782,12 @@
         <location filename="../mainwindow.ui" line="1085"/>
         <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Editor dei template</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1093"/>
         <location filename="../mainwindow.ui" line="1096"/>
-        <location filename="../mainwindow.cpp" line="978"/>
-        <location filename="../mainwindow.cpp" line="979"/>
         <source>View underground</source>
         <translation>Visualizza sottosuolo</translation>
     </message>
@@ -934,9 +947,9 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1250"/>
-        <location filename="../mainwindow.cpp" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1261"/>
-        <location filename="../mainwindow.cpp" line="1318"/>
+        <location filename="../mainwindow.cpp" line="1310"/>
+        <location filename="../mainwindow.cpp" line="1314"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Update appearance</source>
         <translation>Aggiorna aspetto</translation>
     </message>
@@ -1140,238 +1153,284 @@
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="333"/>
+        <location filename="../mainwindow.cpp" line="381"/>
         <source>Confirmation</source>
         <translation>Conferma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="333"/>
+        <location filename="../mainwindow.cpp" line="381"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Le modifiche non salvate andranno perse, sei sicuro?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="444"/>
+        <source>Surface</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Superficie</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="446"/>
+        <source>Underground</source>
+        <translation>Sotterraneo</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="448"/>
+        <source>Level - %1</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Livello - %1</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="472"/>
         <source>Mods are required</source>
         <translation>Mod richiesti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="416"/>
+        <location filename="../mainwindow.cpp" line="480"/>
+        <location filename="../mainwindow.cpp" line="486"/>
         <source>Failed to open map</source>
         <translation>Impossibile aprire la mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="442"/>
+        <location filename="../mainwindow.cpp" line="512"/>
         <source>Open map</source>
         <translation>Apri mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="444"/>
+        <location filename="../mainwindow.cpp" line="514"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Tutte le mappe supportate (*.vmap *.h3m);;Mappe VCMI(*.vmap);;Mappe HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="498"/>
+        <location filename="../mainwindow.cpp" line="568"/>
         <source>Recently Opened Files</source>
         <translation>File recenti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="551"/>
+        <location filename="../mainwindow.cpp" line="621"/>
         <source>Map validation</source>
         <translation>Validazione mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="553"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>La mappa ha problemi critici e probabilmente non sarà giocabile. Apri il Validatore dal menu Mappa per vedere i problemi rilevati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="555"/>
+        <location filename="../mainwindow.cpp" line="625"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>La mappa ha alcuni errori. Apri il Validatore dal menu Mappa per vedere i problemi rilevati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="579"/>
+        <location filename="../mainwindow.cpp" line="652"/>
         <source>Failed to save map</source>
         <translation>Salvataggio della mappa fallito</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="592"/>
+        <location filename="../mainwindow.cpp" line="665"/>
         <source>Save map</source>
         <translation>Salva mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="592"/>
+        <location filename="../mainwindow.cpp" line="665"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mappe VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="800"/>
+        <location filename="../mainwindow.cpp" line="873"/>
         <source>Type</source>
         <translation>Tipo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="813"/>
+        <location filename="../mainwindow.cpp" line="886"/>
         <source>Towns</source>
         <translation>Città</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="814"/>
+        <location filename="../mainwindow.cpp" line="887"/>
         <source>Objects</source>
         <translation>Oggetti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="815"/>
+        <location filename="../mainwindow.cpp" line="888"/>
         <source>Heroes</source>
         <translation>Eroi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="816"/>
+        <location filename="../mainwindow.cpp" line="889"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="817"/>
+        <location filename="../mainwindow.cpp" line="890"/>
         <source>Resources</source>
         <translation>Risorse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="818"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Banks</source>
         <translation>Banche</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="819"/>
+        <location filename="../mainwindow.cpp" line="892"/>
         <source>Dwellings</source>
         <translation>Dimore</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="820"/>
+        <location filename="../mainwindow.cpp" line="893"/>
         <source>Grounds</source>
         <translation>Terreni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="821"/>
+        <location filename="../mainwindow.cpp" line="894"/>
         <source>Teleports</source>
         <translation>Teletrasporti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Mines</source>
         <translation>Miniere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="823"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Triggers</source>
         <translation>Trigger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="824"/>
+        <location filename="../mainwindow.cpp" line="897"/>
         <source>Monsters</source>
         <translation>Mostri</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="825"/>
+        <location filename="../mainwindow.cpp" line="898"/>
         <source>Quests</source>
         <translation>Missioni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="826"/>
+        <location filename="../mainwindow.cpp" line="899"/>
         <source>Wog Objects</source>
         <translation>Oggetti Wog</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="827"/>
+        <location filename="../mainwindow.cpp" line="900"/>
         <source>Obstacles</source>
         <translation>Ostacoli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="828"/>
+        <location filename="../mainwindow.cpp" line="901"/>
         <source>Other</source>
         <translation>Altro</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="965"/>
+        <location filename="../mainwindow.cpp" line="1038"/>
         <source>Mods loading problem</source>
         <translation>Problema nel caricamento dei mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="965"/>
+        <location filename="../mainwindow.cpp" line="1038"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>Errore critico durante il caricamento dei mod. Disabilita i mod non validi e riavvia.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="983"/>
-        <location filename="../mainwindow.cpp" line="984"/>
-        <source>View surface</source>
-        <translation>Visualizza superficie</translation>
+        <location filename="../mainwindow.cpp" line="1044"/>
+        <source>Undo clicked</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Annulla premuto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1257"/>
+        <location filename="../mainwindow.cpp" line="1055"/>
+        <source>Redo clicked</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ripristina premuto</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1066"/>
+        <source>Passability clicked</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Passabilità cliccata</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1079"/>
+        <source>Grid clicked</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Griglia cliccata</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1160"/>
+        <source>Fill clicked</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Riempimento cliccato</translation>
+    </message>
+    <message>
+        <source>View surface</source>
+        <translation type="vanished">Visualizza superficie</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1310"/>
         <source>No objects selected</source>
         <translation>Nessun oggetto selezionato</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1261"/>
+        <location filename="../mainwindow.cpp" line="1314"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Questa operazione è irreversibile. Vuoi continuare?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1318"/>
+        <location filename="../mainwindow.cpp" line="1372"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Si sono verificati errori. %1 oggetti non sono stati aggiornati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1358"/>
+        <location filename="../mainwindow.cpp" line="1412"/>
         <source>Save to image</source>
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1377"/>
+        <location filename="../mainwindow.cpp" line="1431"/>
         <source>Select maps to convert</source>
         <translation>Seleziona mappe da convertire</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1379"/>
+        <location filename="../mainwindow.cpp" line="1433"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Mappe HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1383"/>
+        <location filename="../mainwindow.cpp" line="1437"/>
         <source>Choose directory to save converted maps</source>
         <translation>Scegli la directory per salvare le mappe convertite</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1397"/>
+        <location filename="../mainwindow.cpp" line="1451"/>
         <source>Operation completed</source>
         <translation>Operazione completata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1397"/>
+        <location filename="../mainwindow.cpp" line="1451"/>
         <source>Successfully converted %1 maps</source>
         <translation>Convertite con successo %1 mappe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1401"/>
+        <location filename="../mainwindow.cpp" line="1455"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Impossibile convertire la mappa. Operazione annullata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1407"/>
+        <location filename="../mainwindow.cpp" line="1461"/>
         <source>Select campaign to convert</source>
         <translation>Seleziona la campagna da convertire</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1409"/>
+        <location filename="../mainwindow.cpp" line="1463"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>Campagne HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1413"/>
+        <location filename="../mainwindow.cpp" line="1467"/>
         <source>Select destination file</source>
         <translation>Seleziona il file di destinazione</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1415"/>
+        <location filename="../mainwindow.cpp" line="1469"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>Campagne VCMI (*.vcmp)</translation>
     </message>
@@ -1379,18 +1438,18 @@
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="610"/>
+        <location filename="../mapcontroller.cpp" line="602"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">L&apos;eroe %1 non può essere creato come NEUTRALE.</translation>
+        <translation>L&apos;eroe %1 non può essere creato come NEUTRALE.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="624"/>
+        <location filename="../mapcontroller.cpp" line="616"/>
         <source>Missing Required Mod</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">Mod mancante richiesto</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="624"/>
+        <location filename="../mapcontroller.cpp" line="616"/>
         <source>
 
 Do you want to do that now ?</source>
@@ -1401,7 +1460,7 @@ Do you want to do that now ?</source>
 Vuoi farlo ora?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="634"/>
+        <location filename="../mapcontroller.cpp" line="626"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">La mod di questo oggetto è obbligatoria affinché la mappa rimanga valida.</translation>
@@ -1478,7 +1537,7 @@ Vuoi farlo ora?</translation>
 <context>
     <name>MapView</name>
     <message>
-        <location filename="../mapview.cpp" line="626"/>
+        <location filename="../mapview.cpp" line="637"/>
         <source>Can&apos;t place object</source>
         <translation>Impossibile posizionare l&apos;oggetto</translation>
     </message>
@@ -1497,22 +1556,24 @@ Vuoi farlo ora?</translation>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona miniere</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="27"/>
+        <location filename="../templateeditor/mineselector.cpp" line="29"/>
         <source>Mine Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore miniere</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="33"/>
+        <location filename="../templateeditor/mineselector.cpp" line="35"/>
         <source>Resource</source>
-        <translation type="unfinished">Risorsa</translation>
+        <translation>Risorsa</translation>
     </message>
     <message>
-        <location filename="../templateeditor/mineselector.cpp" line="33"/>
+        <location filename="../templateeditor/mineselector.cpp" line="35"/>
         <source>Mines</source>
-        <translation type="unfinished">Miniere</translation>
+        <translation>Miniere</translation>
     </message>
 </context>
 <context>
@@ -1561,6 +1622,156 @@ Vuoi farlo ora?</translation>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
         <source>Full content mods</source>
         <translation>Mod di contenuto completo</translation>
+    </message>
+</context>
+<context>
+    <name>ObjectSelector</name>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="14"/>
+        <source>Select Objects</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona oggetti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="20"/>
+        <source>Objects</source>
+        <translation>Oggetti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="30"/>
+        <source>Banned Objects</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Oggetti vietati</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.ui" line="40"/>
+        <source>Banned Object Categories</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Categorie di oggetti vietate</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="33"/>
+        <source>Object Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore oggetti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <source>Category</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Categoria</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="95"/>
+        <location filename="../templateeditor/objectselector.cpp" line="164"/>
+        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <source>Action</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Azione</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="99"/>
+        <source>Other</source>
+        <translation>Altro</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="100"/>
+        <source>All</source>
+        <translation>Tutti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="101"/>
+        <source>None</source>
+        <translation>Nessuno</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="102"/>
+        <source>Creature bank</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Banca delle creature</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="103"/>
+        <source>Bonus</source>
+        <translation>Bonus</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="104"/>
+        <source>Dwelling</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Dimora</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="105"/>
+        <source>Resource</source>
+        <translation>Risorsa</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="106"/>
+        <source>Resource generator</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Generatore di risorse</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="107"/>
+        <source>Spell scroll</source>
+        <translation>Pergamena magica</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="108"/>
+        <source>Random artifact</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Artefatto casuale</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="109"/>
+        <source>Pandoras box</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Scrigno di Pandora</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="110"/>
+        <source>Quest artifact</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Artefatto della missione</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="111"/>
+        <source>Seer hut</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Capanna del veggente</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="123"/>
+        <location filename="../templateeditor/objectselector.cpp" line="184"/>
+        <location filename="../templateeditor/objectselector.cpp" line="259"/>
+        <source>Delete</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elimina</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="164"/>
+        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <source>Object</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Oggetto</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <source>Value</source>
+        <translation>Valore</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <source>Probability</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Probabilità</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/objectselector.cpp" line="224"/>
+        <source>Max per zone</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max per zona</translation>
     </message>
 </context>
 <context>
@@ -1653,22 +1864,22 @@ Vuoi farlo ora?</translation>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation type="unfinished">Impostazioni giocatore</translation>
+        <translation>Impostazioni giocatore</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished">Giocatori</translation>
+        <translation>Giocatori</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
@@ -1708,79 +1919,85 @@ Vuoi farlo ora?</translation>
         <translation>Esperto</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="168"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="170"/>
         <source>Default secondary skills:</source>
         <translation>Abilità secondarie predefinite:</translation>
     </message>
     <message>
-        <location filename="../inspector/heroskillswidget.cpp" line="173"/>
+        <location filename="../inspector/heroskillswidget.cpp" line="175"/>
+        <source>Random hero secondary skills</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità secondarie eroe casuale</translation>
+    </message>
+    <message>
+        <location filename="../inspector/heroskillswidget.cpp" line="181"/>
         <source>Secondary skills:</source>
         <translation>Abilità secondarie:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="932"/>
+        <location filename="../inspector/inspector.cpp" line="937"/>
         <source>Compliant</source>
         <translation>Docile</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="938"/>
         <source>Friendly</source>
         <translation>Amichevole</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="934"/>
+        <location filename="../inspector/inspector.cpp" line="939"/>
         <source>Aggressive</source>
         <translation>Aggressivo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
+        <location filename="../inspector/inspector.cpp" line="940"/>
         <source>Hostile</source>
         <translation>Ostile</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="936"/>
+        <location filename="../inspector/inspector.cpp" line="941"/>
         <source>Savage</source>
         <translation>Feroce</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="351"/>
-        <location filename="../inspector/inspector.cpp" line="354"/>
+        <location filename="../inspector/inspector.cpp" line="355"/>
+        <location filename="../inspector/inspector.cpp" line="358"/>
         <source>No patrol</source>
         <translation>Nessuna pattuglia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="294"/>
+        <location filename="../inspector/inspector.cpp" line="298"/>
         <source>POWER RANK</source>
         <translation>RANGO POTERE</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="294"/>
+        <location filename="../inspector/inspector.cpp" line="298"/>
         <source>HERO TYPE</source>
         <translation>TIPO EROE</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="317"/>
+        <location filename="../inspector/inspector.cpp" line="321"/>
         <source>Hero class</source>
         <translation>Classe eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="326"/>
+        <location filename="../inspector/inspector.cpp" line="330"/>
         <source>Portrait</source>
         <translation>Ritratto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="329"/>
+        <location filename="../inspector/inspector.cpp" line="333"/>
         <source>Skills</source>
         <translation>Abilità</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="331"/>
+        <location filename="../inspector/inspector.cpp" line="335"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="353"/>
-        <location filename="../inspector/inspector.cpp" line="354"/>
+        <location filename="../inspector/inspector.cpp" line="357"/>
+        <location filename="../inspector/inspector.cpp" line="358"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n casella</numerusform>
@@ -1788,305 +2005,305 @@ Vuoi farlo ora?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="366"/>
+        <location filename="../inspector/inspector.cpp" line="370"/>
         <source>Buildings</source>
         <translation>Edifici</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="368"/>
+        <location filename="../inspector/inspector.cpp" line="372"/>
         <source>Events</source>
         <translation>Eventi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="401"/>
+        <location filename="../inspector/inspector.cpp" line="406"/>
         <source>Resource</source>
         <translation>Risorsa</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="432"/>
+        <location filename="../inspector/inspector.cpp" line="437"/>
         <source>Artifact reward</source>
         <translation>Ricompensa artefatto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="475"/>
+        <location filename="../inspector/inspector.cpp" line="480"/>
         <source>Quest</source>
         <translation>Missione</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="493"/>
+        <location filename="../inspector/inspector.cpp" line="498"/>
         <source>Identifier</source>
         <translation>Identificatore</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="494"/>
+        <location filename="../inspector/inspector.cpp" line="499"/>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="495"/>
+        <location filename="../inspector/inspector.cpp" line="500"/>
         <source>SubID</source>
         <translation>SubID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
+        <location filename="../inspector/inspector.cpp" line="501"/>
         <source>InstanceName</source>
         <translation>NomeIstanza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="506"/>
         <source>IsStatic</source>
         <translation>ÈStatico</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="875"/>
-        <location filename="../inspector/inspector.cpp" line="986"/>
+        <location filename="../inspector/inspector.cpp" line="880"/>
+        <location filename="../inspector/inspector.cpp" line="991"/>
         <source>neutral</source>
         <translation>neutrale</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="242"/>
-        <location filename="../inspector/inspector.cpp" line="433"/>
+        <location filename="../inspector/inspector.cpp" line="246"/>
+        <location filename="../inspector/inspector.cpp" line="438"/>
         <source>Army</source>
         <translation>Esercito</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="249"/>
-        <location filename="../inspector/inspector.cpp" line="262"/>
-        <location filename="../inspector/inspector.cpp" line="269"/>
-        <location filename="../inspector/inspector.cpp" line="277"/>
-        <location filename="../inspector/inspector.cpp" line="284"/>
-        <location filename="../inspector/inspector.cpp" line="315"/>
-        <location filename="../inspector/inspector.cpp" line="400"/>
-        <location filename="../inspector/inspector.cpp" line="504"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
+        <location filename="../inspector/inspector.cpp" line="253"/>
+        <location filename="../inspector/inspector.cpp" line="266"/>
+        <location filename="../inspector/inspector.cpp" line="273"/>
+        <location filename="../inspector/inspector.cpp" line="281"/>
+        <location filename="../inspector/inspector.cpp" line="288"/>
+        <location filename="../inspector/inspector.cpp" line="319"/>
+        <location filename="../inspector/inspector.cpp" line="404"/>
+        <location filename="../inspector/inspector.cpp" line="509"/>
+        <location filename="../inspector/inspector.cpp" line="556"/>
         <source>Owner</source>
         <translation>Proprietario</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="254"/>
-        <location filename="../inspector/inspector.cpp" line="659"/>
+        <location filename="../inspector/inspector.cpp" line="258"/>
+        <location filename="../inspector/inspector.cpp" line="664"/>
         <source>Same as town</source>
         <translation>Uguale alla città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="270"/>
-        <location filename="../inspector/inspector.cpp" line="674"/>
+        <location filename="../inspector/inspector.cpp" line="274"/>
+        <location filename="../inspector/inspector.cpp" line="679"/>
         <source>Removable units</source>
         <translation>Unità rimovibili</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="295"/>
-        <location filename="../inspector/inspector.cpp" line="682"/>
+        <location filename="../inspector/inspector.cpp" line="299"/>
+        <location filename="../inspector/inspector.cpp" line="687"/>
         <source>Placeholder type</source>
         <translation>Tipo segnaposto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="298"/>
-        <location filename="../inspector/inspector.cpp" line="700"/>
+        <location filename="../inspector/inspector.cpp" line="302"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
         <source>Power rank</source>
         <translation>Grado di potenza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="346"/>
-        <location filename="../inspector/inspector.cpp" line="703"/>
-        <location filename="../inspector/inspector.cpp" line="727"/>
+        <location filename="../inspector/inspector.cpp" line="310"/>
+        <location filename="../inspector/inspector.cpp" line="350"/>
+        <location filename="../inspector/inspector.cpp" line="708"/>
+        <location filename="../inspector/inspector.cpp" line="732"/>
         <source>Hero type</source>
         <translation>Tipo eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="316"/>
-        <location filename="../inspector/inspector.cpp" line="724"/>
+        <location filename="../inspector/inspector.cpp" line="320"/>
+        <location filename="../inspector/inspector.cpp" line="729"/>
         <source>Experience</source>
         <translation>Esperienza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="321"/>
-        <location filename="../inspector/inspector.cpp" line="322"/>
+        <location filename="../inspector/inspector.cpp" line="325"/>
+        <location filename="../inspector/inspector.cpp" line="326"/>
         <source>MALE</source>
         <translation>MASCHIO</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="321"/>
-        <location filename="../inspector/inspector.cpp" line="322"/>
+        <location filename="../inspector/inspector.cpp" line="325"/>
+        <location filename="../inspector/inspector.cpp" line="326"/>
         <source>FEMALE</source>
         <translation>FEMMINA</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="322"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="326"/>
+        <location filename="../inspector/inspector.cpp" line="718"/>
         <source>Gender</source>
         <translation>Genere</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="324"/>
-        <location filename="../inspector/inspector.cpp" line="716"/>
+        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="721"/>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="325"/>
-        <location filename="../inspector/inspector.cpp" line="720"/>
+        <location filename="../inspector/inspector.cpp" line="329"/>
+        <location filename="../inspector/inspector.cpp" line="725"/>
         <source>Biography</source>
         <translation>Biografia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="330"/>
-        <location filename="../inspector/inspector.cpp" line="367"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
+        <location filename="../inspector/inspector.cpp" line="371"/>
         <source>Spells</source>
         <translation>Incantesimi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="355"/>
-        <location filename="../inspector/inspector.cpp" line="739"/>
+        <location filename="../inspector/inspector.cpp" line="359"/>
+        <location filename="../inspector/inspector.cpp" line="744"/>
         <source>Patrol radius</source>
         <translation>Raggio di pattuglia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="363"/>
-        <location filename="../inspector/inspector.cpp" line="616"/>
+        <location filename="../inspector/inspector.cpp" line="367"/>
+        <location filename="../inspector/inspector.cpp" line="621"/>
         <source>Town name</source>
         <translation>Nome della città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="370"/>
-        <location filename="../inspector/inspector.cpp" line="620"/>
+        <location filename="../inspector/inspector.cpp" line="374"/>
+        <location filename="../inspector/inspector.cpp" line="625"/>
         <source>Same as player</source>
         <translation>Uguale al giocatore</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="377"/>
-        <location filename="../inspector/inspector.cpp" line="410"/>
-        <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="424"/>
-        <location filename="../inspector/inspector.cpp" line="450"/>
-        <location filename="../inspector/inspector.cpp" line="593"/>
-        <location filename="../inspector/inspector.cpp" line="628"/>
-        <location filename="../inspector/inspector.cpp" line="645"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="381"/>
+        <location filename="../inspector/inspector.cpp" line="415"/>
+        <location filename="../inspector/inspector.cpp" line="422"/>
+        <location filename="../inspector/inspector.cpp" line="429"/>
+        <location filename="../inspector/inspector.cpp" line="455"/>
+        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="633"/>
+        <location filename="../inspector/inspector.cpp" line="650"/>
+        <location filename="../inspector/inspector.cpp" line="769"/>
         <source>Message</source>
         <translation>Messaggio</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="391"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="395"/>
+        <location filename="../inspector/inspector.cpp" line="654"/>
         <source>Spell</source>
         <translation>Incantesimo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="402"/>
-        <location filename="../inspector/inspector.cpp" line="637"/>
+        <location filename="../inspector/inspector.cpp" line="407"/>
+        <location filename="../inspector/inspector.cpp" line="642"/>
         <source>Productivity</source>
         <translation>Produttività</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="409"/>
-        <location filename="../inspector/inspector.cpp" line="434"/>
-        <location filename="../inspector/inspector.cpp" line="756"/>
-        <location filename="../inspector/inspector.cpp" line="773"/>
+        <location filename="../inspector/inspector.cpp" line="414"/>
+        <location filename="../inspector/inspector.cpp" line="439"/>
+        <location filename="../inspector/inspector.cpp" line="761"/>
+        <location filename="../inspector/inspector.cpp" line="778"/>
         <source>Amount</source>
         <translation>Quantità</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="767"/>
+        <location filename="../inspector/inspector.cpp" line="772"/>
         <source>Character</source>
         <translation>Carattere</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="918"/>
+        <location filename="../inspector/inspector.cpp" line="923"/>
         <source>Select town</source>
         <translation>Seleziona città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="430"/>
-        <location filename="../inspector/inspector.cpp" line="769"/>
+        <location filename="../inspector/inspector.cpp" line="435"/>
+        <location filename="../inspector/inspector.cpp" line="774"/>
         <source>Never flees</source>
         <translation>Non fugge mai</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="431"/>
-        <location filename="../inspector/inspector.cpp" line="771"/>
+        <location filename="../inspector/inspector.cpp" line="436"/>
+        <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Not growing</source>
         <translation>Non cresce</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="443"/>
-        <location filename="../inspector/inspector.cpp" line="483"/>
+        <location filename="../inspector/inspector.cpp" line="448"/>
+        <location filename="../inspector/inspector.cpp" line="488"/>
         <source>Reward</source>
         <translation>Ricompensa</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="457"/>
-        <location filename="../inspector/inspector.cpp" line="602"/>
+        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="607"/>
         <source>Remove after</source>
         <translation>Rimuovi dopo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="605"/>
+        <location filename="../inspector/inspector.cpp" line="463"/>
+        <location filename="../inspector/inspector.cpp" line="610"/>
         <source>Human trigger</source>
         <translation>Attivazione umana</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="459"/>
-        <location filename="../inspector/inspector.cpp" line="608"/>
+        <location filename="../inspector/inspector.cpp" line="464"/>
+        <location filename="../inspector/inspector.cpp" line="613"/>
         <source>Cpu trigger</source>
         <translation>Attivazione AI</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="467"/>
-        <location filename="../inspector/inspector.cpp" line="781"/>
+        <location filename="../inspector/inspector.cpp" line="472"/>
+        <location filename="../inspector/inspector.cpp" line="786"/>
         <source>First visit text</source>
         <translation>Testo prima visita</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="468"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="473"/>
+        <location filename="../inspector/inspector.cpp" line="789"/>
         <source>Next visit text</source>
         <translation>Testo visita successiva</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="469"/>
-        <location filename="../inspector/inspector.cpp" line="787"/>
+        <location filename="../inspector/inspector.cpp" line="474"/>
+        <location filename="../inspector/inspector.cpp" line="792"/>
         <source>Completed text</source>
         <translation>Testo completamento</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="470"/>
-        <location filename="../inspector/inspector.cpp" line="484"/>
-        <location filename="../inspector/inspector.cpp" line="790"/>
+        <location filename="../inspector/inspector.cpp" line="475"/>
+        <location filename="../inspector/inspector.cpp" line="489"/>
+        <location filename="../inspector/inspector.cpp" line="795"/>
         <source>Repeat quest</source>
         <translation>Ripeti missione</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="471"/>
-        <location filename="../inspector/inspector.cpp" line="792"/>
+        <location filename="../inspector/inspector.cpp" line="476"/>
+        <location filename="../inspector/inspector.cpp" line="797"/>
         <source>Time limit</source>
         <translation>Limite di tempo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="873"/>
+        <location filename="../inspector/inspector.cpp" line="878"/>
         <source>UNFLAGGABLE</source>
         <translation>NON FLAGGABILE</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="410"/>
+        <location filename="../mapcontroller.cpp" line="407"/>
         <source>Can&apos;t place object</source>
         <translation>Impossibile posizionare l&apos;oggetto</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="592"/>
+        <location filename="../mapcontroller.cpp" line="584"/>
         <source>There can only be one grail object on the map.</source>
         <translation>Può esserci solo un oggetto Graal sulla mappa.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="647"/>
+        <location filename="../mapcontroller.cpp" line="639"/>
         <source> (submod of %1)</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished"> (sottomodulo di %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="649"/>
+        <location filename="../mapcontroller.cpp" line="641"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2095,143 +2312,143 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
 Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="147"/>
+        <location filename="../inspector/herospellwidget.cpp" line="217"/>
         <location filename="../inspector/townspellswidget.cpp" line="177"/>
         <source>Custom Spells:</source>
         <translation>Incantesimi personalizzati:</translation>
     </message>
     <message>
-        <location filename="../inspector/herospellwidget.cpp" line="156"/>
+        <location filename="../inspector/herospellwidget.cpp" line="226"/>
         <location filename="../inspector/townspellswidget.cpp" line="197"/>
         <source>Default Spells</source>
         <translation>Incantesimi predefiniti</translation>
     </message>
     <message>
-        <location filename="../inspector/portraitwidget.cpp" line="147"/>
+        <location filename="../inspector/portraitwidget.cpp" line="151"/>
         <source>Default</source>
         <translation>Predefinito</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="446"/>
+        <location filename="../inspector/questwidget.cpp" line="447"/>
         <source>Quest:</source>
         <translation>Missione:</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="447"/>
+        <location filename="../inspector/questwidget.cpp" line="448"/>
         <source>Day of Week: %1</source>
         <translation>Giorno della settimana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="448"/>
+        <location filename="../inspector/questwidget.cpp" line="449"/>
         <source>Days Passed: %1</source>
         <translation>Giorni trascorsi: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="449"/>
-        <location filename="../inspector/rewardswidget.cpp" line="772"/>
+        <location filename="../inspector/questwidget.cpp" line="450"/>
+        <location filename="../inspector/rewardswidget.cpp" line="773"/>
         <source>Hero Level: %1</source>
         <translation>Livello eroe: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="450"/>
-        <location filename="../inspector/rewardswidget.cpp" line="773"/>
+        <location filename="../inspector/questwidget.cpp" line="451"/>
+        <location filename="../inspector/rewardswidget.cpp" line="774"/>
         <source>Hero Experience: %1</source>
         <translation>Esperienza eroe: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="451"/>
+        <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Mana Points: %1</source>
         <translation>Punti mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="452"/>
-        <location filename="../inspector/rewardswidget.cpp" line="775"/>
+        <location filename="../inspector/questwidget.cpp" line="453"/>
+        <location filename="../inspector/rewardswidget.cpp" line="776"/>
         <source>Mana Percentage: %1</source>
         <translation>Percentuale mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="453"/>
-        <location filename="../inspector/rewardswidget.cpp" line="778"/>
+        <location filename="../inspector/questwidget.cpp" line="454"/>
+        <location filename="../inspector/rewardswidget.cpp" line="779"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Abilità primarie: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="466"/>
-        <location filename="../inspector/rewardswidget.cpp" line="790"/>
+        <location filename="../inspector/questwidget.cpp" line="465"/>
+        <location filename="../inspector/rewardswidget.cpp" line="789"/>
         <source>Resources: %1</source>
         <translation>Risorse: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="473"/>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
+        <location filename="../inspector/questwidget.cpp" line="472"/>
+        <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Artifacts: %1</source>
         <translation>Artefatti: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="480"/>
-        <location filename="../inspector/rewardswidget.cpp" line="802"/>
+        <location filename="../inspector/questwidget.cpp" line="479"/>
+        <location filename="../inspector/rewardswidget.cpp" line="801"/>
         <source>Spells: %1</source>
         <translation>Incantesimi: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="487"/>
-        <location filename="../inspector/rewardswidget.cpp" line="808"/>
+        <location filename="../inspector/questwidget.cpp" line="486"/>
+        <location filename="../inspector/rewardswidget.cpp" line="807"/>
         <source>Secondary Skills: %1</source>
         <translation>Abilità secondarie: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="494"/>
-        <location filename="../inspector/rewardswidget.cpp" line="814"/>
+        <location filename="../inspector/questwidget.cpp" line="493"/>
+        <location filename="../inspector/rewardswidget.cpp" line="813"/>
         <source>Creatures: %1</source>
         <translation>Creature: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="501"/>
+        <location filename="../inspector/questwidget.cpp" line="500"/>
         <source>Heroes: %1</source>
         <translation>Eroi: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="508"/>
+        <location filename="../inspector/questwidget.cpp" line="507"/>
         <source>Hero Classes: %1</source>
         <translation>Classi eroe: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="517"/>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Players: %1</source>
         <translation>Giocatori: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="768"/>
+        <location filename="../inspector/rewardswidget.cpp" line="769"/>
         <source>Rewards:</source>
         <translation>Ricompense:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="771"/>
+        <location filename="../inspector/rewardswidget.cpp" line="772"/>
         <source>Reward Message: %1</source>
         <translation>Messaggio ricompensa: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="774"/>
+        <location filename="../inspector/rewardswidget.cpp" line="775"/>
         <source>Mana Diff: %1</source>
         <translation>Differenza mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="776"/>
+        <location filename="../inspector/rewardswidget.cpp" line="777"/>
         <source>Move Points: %1</source>
         <translation>Punti movimento: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="777"/>
+        <location filename="../inspector/rewardswidget.cpp" line="778"/>
         <source>Move Percentage: %1</source>
         <translation>Percentuale movimento: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="817"/>
+        <location filename="../inspector/rewardswidget.cpp" line="816"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Incantesimo lanciato: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="825"/>
+        <location filename="../inspector/rewardswidget.cpp" line="824"/>
         <source>Bonuses: %1</source>
         <translation>Bonus: %1</translation>
     </message>
@@ -2246,7 +2463,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation>Edifici proibiti:</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="182"/>
+        <location filename="../inspector/towneventswidget.cpp" line="183"/>
         <source>Town Events:</source>
         <translation>Eventi città:</translation>
     </message>
@@ -2384,12 +2601,12 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation>Giocatori</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="38"/>
+        <location filename="../inspector/questwidget.cpp" line="39"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="40"/>
+        <location filename="../inspector/questwidget.cpp" line="41"/>
         <source>Day %1</source>
         <translation>Giorno %1</translation>
     </message>
@@ -2657,18 +2874,18 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation>Giocatori</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="53"/>
+        <location filename="../inspector/rewardswidget.cpp" line="54"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="55"/>
+        <location filename="../inspector/rewardswidget.cpp" line="56"/>
         <source>Day %1</source>
         <translation>Giorno %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="246"/>
-        <location filename="../inspector/rewardswidget.cpp" line="617"/>
+        <location filename="../inspector/rewardswidget.cpp" line="247"/>
+        <location filename="../inspector/rewardswidget.cpp" line="618"/>
         <source>Reward %1</source>
         <translation>Ricompensa %1</translation>
     </message>
@@ -2713,7 +2930,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="30"/>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
@@ -2755,7 +2972,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="104"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
         <source>Remove</source>
-        <translation type="unfinished">Rimuovi</translation>
+        <translation>Rimuovi</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="113"/>
@@ -2791,7 +3008,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="156"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="233"/>
         <source>Enabled</source>
-        <translation type="unfinished">Abilitato</translation>
+        <translation>Abilitato</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
@@ -2818,7 +3035,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/scenarioproperties.ui" line="214"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="291"/>
         <source>Text</source>
-        <translation type="unfinished">Testo</translation>
+        <translation>Testo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="227"/>
@@ -2841,12 +3058,12 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="317"/>
         <source>Experience</source>
-        <translation type="unfinished">Esperienza</translation>
+        <translation>Esperienza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="324"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Abilità primarie</translation>
+        <translation>Abilità primarie</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="331"/>
@@ -2857,12 +3074,12 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="338"/>
         <source>Spells</source>
-        <translation type="unfinished">Incantesimi</translation>
+        <translation>Incantesimi</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="345"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefatti</translation>
+        <translation>Artefatti</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="378"/>
@@ -2873,7 +3090,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="385"/>
         <source>None</source>
-        <translation type="unfinished">Nessuno</translation>
+        <translation>Nessuno</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="412"/>
@@ -2964,7 +3181,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="117"/>
         <source>Random</source>
-        <translation type="unfinished">Casuale</translation>
+        <translation>Casuale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="134"/>
@@ -2975,17 +3192,17 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="177"/>
         <source>Player</source>
-        <translation type="unfinished">Giocatore</translation>
+        <translation>Giocatore</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="383"/>
         <source>Open map</source>
-        <translation type="unfinished">Apri mappa</translation>
+        <translation>Apri mappa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="383"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished">Tutte le mappe supportate (*.vmap *.h3m);;Mappe VCMI(*.vmap);;Mappe HoMM3(*.h3m)</translation>
+        <translation>Tutte le mappe supportate (*.vmap *.h3m);;Mappe VCMI(*.vmap);;Mappe HoMM3(*.h3m)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="390"/>
@@ -3004,7 +3221,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="409"/>
         <source>Save map</source>
-        <translation type="unfinished">Salva mappa</translation>
+        <translation>Salva mappa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="409"/>
@@ -3051,7 +3268,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/startingbonus.ui" line="110"/>
         <location filename="../campaigneditor/startingbonus.ui" line="270"/>
         <source>Spell</source>
-        <translation type="unfinished">Incantesimo</translation>
+        <translation>Incantesimo</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
@@ -3074,7 +3291,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation type="unfinished">Artefatto</translation>
+        <translation>Artefatto</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
@@ -3104,7 +3321,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="378"/>
         <source>Resource</source>
-        <translation type="unfinished">Risorsa</translation>
+        <translation>Risorsa</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="100"/>
@@ -3145,12 +3362,12 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
         <source>Spell power</source>
-        <translation type="unfinished">Potere magico</translation>
+        <translation>Potere magico</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="340"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Conoscenza</translation>
+        <translation>Conoscenza</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
@@ -3185,7 +3402,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Casuale</translation>
+        <translation>Casuale</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="121"/>
@@ -3252,625 +3469,708 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     <name>TemplateEditor</name>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="586"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="588"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">VCMI Editor dei template</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">File</translation>
+        <translation>File</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="45"/>
         <source>Edit</source>
-        <translation type="unfinished">Modifica</translation>
+        <translation>Modifica</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="53"/>
         <source>View</source>
-        <translation type="unfinished">Visualizza</translation>
+        <translation>Visualizza</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="68"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Barra degli strumenti</translation>
+        <translation>Barra degli strumenti</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="114"/>
         <source>Selected Template:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Template selezionato:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="137"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1276"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="224"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1313"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="226"/>
         <source>Add</source>
-        <translation type="unfinished">Aggiungi</translation>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="144"/>
         <source>Remove</source>
-        <translation type="unfinished">Rimuovi</translation>
+        <translation>Rimuovi</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="151"/>
         <source>Rename</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Rinomina</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="215"/>
         <source>General</source>
-        <translation type="unfinished">Generale</translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="221"/>
         <source>Name</source>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="233"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Descrizione</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="245"/>
         <source>Min Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Dimensione min</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="264"/>
         <location filename="../templateeditor/templateeditor.ui" line="363"/>
-        <location filename="../templateeditor/templateeditor.ui" line="548"/>
+        <location filename="../templateeditor/templateeditor.ui" line="585"/>
         <source>X</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">X</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="294"/>
         <location filename="../templateeditor/templateeditor.ui" line="393"/>
-        <location filename="../templateeditor/templateeditor.ui" line="578"/>
+        <location filename="../templateeditor/templateeditor.ui" line="615"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="324"/>
         <location filename="../templateeditor/templateeditor.ui" line="423"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1329"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1366"/>
         <source>Z</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Z</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="344"/>
         <source>Max Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Dimensione max</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="443"/>
         <location filename="../templateeditor/templateeditor.ui" line="449"/>
         <source>Players</source>
-        <translation type="unfinished">Giocatori</translation>
+        <translation>Giocatori</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="459"/>
         <source>Human</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Umano</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="472"/>
         <source>Allowed water content</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Contenuto d’acqua consentito</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="478"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="362"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="367"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="364"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
         <source>None</source>
-        <translation type="unfinished">Nessuno</translation>
+        <translation>Nessuno</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="485"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="372"/>
         <source>Normal</source>
-        <translation type="unfinished">Normale</translation>
+        <translation>Normale</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="492"/>
         <source>Islands</source>
-        <translation type="unfinished">Isole</translation>
+        <translation>Isole</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="524"/>
+        <location filename="../templateeditor/templateeditor.ui" line="502"/>
+        <source>Entities</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Entità</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="508"/>
+        <source>Banned Spells</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Incantesimi vietati</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="515"/>
+        <source>Banned Artifacts</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Artefatti vietati</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="522"/>
+        <source>Banned Skills</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abilità vietate</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="529"/>
+        <source>Banned Heroes</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Eroi vietati</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="561"/>
         <source>Zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zona</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="530"/>
+        <location filename="../templateeditor/templateeditor.ui" line="567"/>
         <source>Visualisation</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Visualizzazione</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="536"/>
+        <location filename="../templateeditor/templateeditor.ui" line="573"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Posizione</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="608"/>
-        <location filename="../templateeditor/templateeditor.ui" line="664"/>
+        <location filename="../templateeditor/templateeditor.ui" line="645"/>
+        <location filename="../templateeditor/templateeditor.ui" line="701"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Dimensione</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="636"/>
+        <location filename="../templateeditor/templateeditor.ui" line="673"/>
         <source>ID</source>
-        <translation type="unfinished">ID</translation>
+        <translation>ID</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="652"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="386"/>
+        <location filename="../templateeditor/templateeditor.ui" line="689"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="680"/>
+        <location filename="../templateeditor/templateeditor.ui" line="717"/>
         <source>Owner</source>
-        <translation type="unfinished">Proprietario</translation>
+        <translation>Proprietario</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="692"/>
+        <location filename="../templateeditor/templateeditor.ui" line="729"/>
         <source>Zone link</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Collegamento di zona</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="698"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1196"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1202"/>
+        <location filename="../templateeditor/templateeditor.ui" line="735"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1233"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1239"/>
         <source>Mines</source>
-        <translation type="unfinished">Miniere</translation>
+        <translation>Miniere</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="705"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1218"/>
+        <location filename="../templateeditor/templateeditor.ui" line="742"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1255"/>
         <source>Custom objects</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Oggetti personalizzati</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="712"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1090"/>
+        <location filename="../templateeditor/templateeditor.ui" line="749"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1127"/>
         <source>Towns</source>
-        <translation type="unfinished">Città</translation>
+        <translation>Città</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="719"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1060"/>
+        <location filename="../templateeditor/templateeditor.ui" line="756"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1097"/>
         <source>Terrain</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Terreno</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="736"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1180"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1186"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
+        <location filename="../templateeditor/templateeditor.ui" line="773"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1217"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1223"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
         <source>Treasure</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tesoro</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="799"/>
+        <location filename="../templateeditor/templateeditor.ui" line="836"/>
         <source>Town info</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Informazioni città</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="805"/>
+        <location filename="../templateeditor/templateeditor.ui" line="842"/>
         <source>Town count</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Numero città</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="817"/>
+        <location filename="../templateeditor/templateeditor.ui" line="854"/>
+        <location filename="../templateeditor/templateeditor.ui" line="917"/>
+        <location filename="../templateeditor/templateeditor.ui" line="980"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1043"/>
+        <source>Player</source>
+        <translation>Giocatore</translation>
+    </message>
+    <message>
         <location filename="../templateeditor/templateeditor.ui" line="880"/>
         <location filename="../templateeditor/templateeditor.ui" line="943"/>
         <location filename="../templateeditor/templateeditor.ui" line="1006"/>
-        <source>Player</source>
-        <translation type="unfinished">Giocatore</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="843"/>
-        <location filename="../templateeditor/templateeditor.ui" line="906"/>
-        <location filename="../templateeditor/templateeditor.ui" line="969"/>
-        <location filename="../templateeditor/templateeditor.ui" line="1032"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1069"/>
         <source>Neutral</source>
-        <translation type="unfinished">Neutrale</translation>
+        <translation>Neutrale</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="868"/>
+        <location filename="../templateeditor/templateeditor.ui" line="905"/>
         <source>Castle count</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Numero castelli</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="931"/>
+        <location filename="../templateeditor/templateeditor.ui" line="968"/>
         <source>Town density</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Densità città</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="994"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1031"/>
         <source>Castle density</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1066"/>
-        <source>Match terrain to town</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1073"/>
-        <source>Terrain types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1080"/>
-        <source>Banned terrain types</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1096"/>
-        <source>Towns are same type</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Densità castelli</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1103"/>
-        <source>Allowed towns</source>
-        <translation type="unfinished"></translation>
+        <source>Match terrain to town</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Abbina il terreno alla città</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1110"/>
-        <source>Banned towns</source>
-        <translation type="unfinished"></translation>
+        <source>Terrain types</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tipi di terreno</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
-        <source>Town hints</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1127"/>
-        <source>Monsters</source>
-        <translation type="unfinished">Mostri</translation>
+        <source>Banned terrain types</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tipi di terreno vietati</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1133"/>
-        <source>Allowed monsters</source>
-        <translation type="unfinished"></translation>
+        <source>Towns are same type</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Le città sono dello stesso tipo</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1140"/>
+        <source>Allowed towns</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Città consentite</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1147"/>
+        <source>Banned towns</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Città vietate</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1154"/>
+        <source>Town hints</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Suggerimenti città</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1164"/>
+        <source>Monsters</source>
+        <translation>Mostri</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1170"/>
+        <source>Allowed monsters</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mostri consentiti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1177"/>
         <source>Banned monsters</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Mostri vietati</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1158"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1195"/>
         <source>Strength</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forza</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1212"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1249"/>
         <source>Objects</source>
-        <translation type="unfinished">Oggetti</translation>
+        <translation>Oggetti</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1250"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1287"/>
         <source>Connections</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Connessioni</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1294"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1331"/>
         <source>Open</source>
-        <translation type="unfinished">Apri</translation>
+        <translation>Apri</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1302"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1339"/>
         <source>Save</source>
-        <translation type="unfinished">Salva</translation>
+        <translation>Salva</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1310"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1347"/>
         <source>New</source>
-        <translation type="unfinished">Nuovo</translation>
+        <translation>Nuovo</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1318"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1355"/>
         <source>Save as...</source>
-        <translation type="unfinished">Salva con nome...</translation>
+        <translation>Salva con nome...</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1321"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1358"/>
         <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1326"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1363"/>
         <source>Add zone</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Aggiungi zona</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1337"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1374"/>
         <source>Remove zone</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1340"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="417"/>
-        <source>Del</source>
-        <translation type="unfinished">Canc</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1345"/>
-        <source>Auto position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1348"/>
-        <source>Ctrl+P</source>
-        <translation type="unfinished">Ctrl+P</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1353"/>
-        <source>Zoom in</source>
-        <translation type="unfinished">Zoom avanti</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1356"/>
-        <source>Ctrl++</source>
-        <translation type="unfinished">Ctrl++</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1361"/>
-        <source>Zoom out</source>
-        <translation type="unfinished">Zoom indietro</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1364"/>
-        <source>Ctrl+-</source>
-        <translation type="unfinished">Ctrl+-</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1369"/>
-        <source>Zoom auto</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1372"/>
-        <source>Ctrl+Shift+:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Rimuovi zona</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1377"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="419"/>
+        <source>Del</source>
+        <translation>Canc</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1382"/>
+        <source>Auto position</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Posizione automatica</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1385"/>
+        <source>Ctrl+P</source>
+        <translation>Ctrl+P</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1390"/>
+        <source>Zoom in</source>
+        <translation>Zoom avanti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1393"/>
+        <source>Ctrl++</source>
+        <translation>Ctrl++</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1398"/>
+        <source>Zoom out</source>
+        <translation>Zoom indietro</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1401"/>
+        <source>Ctrl+-</source>
+        <translation>Ctrl+-</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1406"/>
+        <source>Zoom auto</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zoom automatico</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1409"/>
+        <source>Ctrl+Shift+:</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ctrl+Shift+:</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.ui" line="1414"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">Reimposta zoom</translation>
+        <translation>Reimposta zoom</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.ui" line="1380"/>
+        <location filename="../templateeditor/templateeditor.ui" line="1417"/>
         <source>Ctrl+Shift+=</source>
-        <translation type="unfinished">Ctrl+Shift+=</translation>
+        <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="195"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="195"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="195"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="197"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Azione</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="213"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="418"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="215"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="420"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="252"/>
-        <source>ID: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elimina</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
+        <source>ID: %1</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">ID: %1</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="256"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Tesoro massimo: %1</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="335"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="337"/>
         <source>Player start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="336"/>
-        <source>CPU start</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Inizio giocatore</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="338"/>
-        <source>Junction</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="339"/>
-        <source>Water</source>
-        <translation type="unfinished"></translation>
+        <source>CPU start</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Inizio CPU</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="340"/>
+        <source>Junction</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Giunzione</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="341"/>
+        <source>Water</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Acqua</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="342"/>
         <source>Sealed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sigillato</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="368"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="405"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="370"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="407"/>
         <source>Random</source>
-        <translation type="unfinished">Casuale</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="369"/>
-        <source>Weak</source>
-        <translation type="unfinished">Debole</translation>
+        <translation>Casuale</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="371"/>
+        <source>Weak</source>
+        <translation>Debole</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="373"/>
         <source>Strong</source>
-        <translation type="unfinished">Forte</translation>
+        <translation>Forte</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="386"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Zone A</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zona A</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="386"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Zone B</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zona B</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="386"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Guard</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Guardia</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="386"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="388"/>
         <source>Road</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="400"/>
-        <source>Guarded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="401"/>
-        <source>Fictive</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Strada</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="402"/>
-        <source>Repulsive</source>
-        <translation type="unfinished"></translation>
+        <source>Guarded</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Protetto</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="403"/>
-        <source>Wide</source>
-        <translation type="unfinished"></translation>
+        <source>Fictive</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Fittizio</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="404"/>
-        <source>Force portal</source>
-        <translation type="unfinished"></translation>
+        <source>Repulsive</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Repulsivo</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="405"/>
+        <source>Wide</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Ampio</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="406"/>
+        <source>Force portal</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Forza portale</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="408"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Sì</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="407"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="409"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">No</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="514"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="516"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Zona A: %1
+Zona B: %2
+Guardia: %3</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="574"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="576"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Conferma</translation>
+        <translation>Conferma</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="574"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="576"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Le modifiche non salvate andranno perse, sei sicuro?</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="616"/>
-        <source>Open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Le modifiche non salvate andranno perse, sei sicuro?</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="618"/>
+        <source>Open template</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Apri template</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="620"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Template VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="631"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="633"/>
         <source>Save template</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Salva template</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="631"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="633"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Template VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="744"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="784"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="746"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="786"/>
         <source>Enter Name</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Inserisci nome</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="744"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="784"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="746"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="786"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Nome:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="751"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="753"/>
         <source>Already existing!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Già esistente!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="751"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="753"/>
         <source>A template with this name is already existing.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Esiste già un template con questo nome.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="767"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="769"/>
         <source>To few templates!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Troppo pochi template!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="767"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="769"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Dopo la rimozione deve rimanere almeno un template.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
         <source>Error</source>
-        <translation type="unfinished">Errore</translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1036"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="1063"/>
-        <source>Not implemented yet!</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TerrainSelector</name>
-    <message>
-        <location filename="../templateeditor/terrainselector.ui" line="14"/>
-        <location filename="../templateeditor/terrainselector.ui" line="20"/>
-        <source>Select Terrains</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../templateeditor/terrainselector.cpp" line="25"/>
-        <source>Terrain Selector</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Errore</translation>
     </message>
 </context>
 <context>
@@ -4062,12 +4362,12 @@ Guard: %3</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="170"/>
+        <location filename="../inspector/towneventdialog.cpp" line="172"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>Livello creatura %1 / Aggiornamento livello creatura %1</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="212"/>
+        <location filename="../inspector/towneventdialog.cpp" line="214"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
@@ -4075,7 +4375,7 @@ Guard: %3</source>
 <context>
     <name>TownEventsDelegate</name>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="186"/>
+        <location filename="../inspector/towneventswidget.cpp" line="187"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
@@ -4103,14 +4403,75 @@ Guard: %3</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="106"/>
+        <location filename="../inspector/towneventswidget.cpp" line="107"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="127"/>
+        <location filename="../inspector/towneventswidget.cpp" line="128"/>
         <source>New event</source>
         <translation>Nuovo evento</translation>
+    </message>
+</context>
+<context>
+    <name>TownHintSelector</name>
+    <message>
+        <location filename="../templateeditor/townhintselector.ui" line="14"/>
+        <source>Select Town hints</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona suggerimenti città</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.ui" line="20"/>
+        <source>Town hints</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Suggerimenti città</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="24"/>
+        <source>Town hint Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore suggerimenti città</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="30"/>
+        <source>Type</source>
+        <translation>Tipo</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="30"/>
+        <source>Value</source>
+        <translation>Valore</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="30"/>
+        <source>Action</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Azione</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="33"/>
+        <source>Like Zone</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Come la zona</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="34"/>
+        <source>Not like zone (comma separated)</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Non come la zona (separati da virgole)</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="35"/>
+        <source>Related to zone terrain</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Relativo al terreno della zona</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/townhintselector.cpp" line="60"/>
+        <source>Delete</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elimina</translation>
     </message>
 </context>
 <context>
@@ -4197,18 +4558,18 @@ Guard: %3</source>
         <translation>Testo</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="159"/>
-        <location filename="../mapsettings/translations.cpp" line="163"/>
+        <location filename="../mapsettings/translations.cpp" line="162"/>
+        <location filename="../mapsettings/translations.cpp" line="166"/>
         <source>Remove translation</source>
         <translation>Rimuovi traduzione</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="159"/>
+        <location filename="../mapsettings/translations.cpp" line="162"/>
         <source>Default language cannot be removed</source>
         <translation>La lingua predefinita non può essere rimossa</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="163"/>
+        <location filename="../mapsettings/translations.cpp" line="166"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translation>Tutti i record di testo esistenti per questa lingua verranno rimossi. Continuare?</translation>
     </message>
@@ -4219,32 +4580,77 @@ Guard: %3</source>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Seleziona tesori</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="26"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore tesori</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Min</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Max</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Density</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Densità</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="32"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Azione</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/treasureselector.cpp" line="50"/>
+        <source>Delete</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Elimina</translation>
+    </message>
+</context>
+<context>
+    <name>Ts</name>
+    <message>
+        <location filename="../templateeditor/entitiesselector.cpp" line="75"/>
+        <source>Terrain Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore terreni</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/entitiesselector.cpp" line="79"/>
+        <source>Spell Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore incantesimi</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/entitiesselector.cpp" line="83"/>
+        <source>Artifact Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore artefatti</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/entitiesselector.cpp" line="87"/>
+        <source>Skill Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore abilità</translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/entitiesselector.cpp" line="91"/>
+        <source>Hero Type Selector</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Selettore tipo eroe</translation>
     </message>
 </context>
 <context>
@@ -4280,89 +4686,89 @@ Guard: %3</source>
         <translation>Nessun giocatore umano può giocare questa mappa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="93"/>
+        <location filename="../validator.cpp" line="95"/>
         <source>Object %1 is assigned to non-playable player %2</source>
         <translation>L&apos;oggetto %1 è assegnato a un giocatore non giocabile %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="138"/>
+        <location filename="../validator.cpp" line="140"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation>La pergamena incantesimo %1 non ha un&apos;istanza assegnata e deve essere rimossa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="144"/>
+        <location filename="../validator.cpp" line="146"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation>L&apos;artefatto %1 è vietato dalle impostazioni della mappa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="158"/>
+        <location filename="../validator.cpp" line="160"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation>Il giocatore %1 non ha città e eroi assegnati</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="106"/>
+        <location filename="../validator.cpp" line="108"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation>La prigione %1 deve essere NEUTRALE</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="87"/>
+        <location filename="../validator.cpp" line="89"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">L&apos;oggetto possedibile %1 NON PUÒ ESSERE SEGNATO ma deve avere un proprietario NEUTRALE o giocatore</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="111"/>
+        <location filename="../validator.cpp" line="113"/>
         <source>Hero %1 must have an owner</source>
         <translation>L&apos;eroe %1 deve avere un proprietario</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="118"/>
+        <location filename="../validator.cpp" line="120"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation>L&apos;eroe %1 è vietato dalle impostazioni della mappa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="121"/>
+        <location filename="../validator.cpp" line="123"/>
         <source>Hero %1 has duplicate on map</source>
         <translation>L&apos;eroe %1 ha un duplicato sulla mappa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="124"/>
+        <location filename="../validator.cpp" line="126"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation>L&apos;eroe %1 ha un tipo vuoto e deve essere rimosso</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="135"/>
+        <location filename="../validator.cpp" line="137"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation>La pergamena incantesimo %1 è vietata dalle impostazioni della mappa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="160"/>
+        <location filename="../validator.cpp" line="162"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation>Il giocatore %1 non ha nessuna città iniziale</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="166"/>
+        <location filename="../validator.cpp" line="168"/>
         <source>Map name is not specified</source>
         <translation>Il nome della mappa non è specificato</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="168"/>
+        <location filename="../validator.cpp" line="170"/>
         <source>Map description is not specified</source>
         <translation>La descrizione della mappa non è specificata</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="206"/>
+        <location filename="../validator.cpp" line="208"/>
         <source>The map is valid and has no issues.</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
         <translation type="unfinished">La mappa è valida e non presenta problemi.</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="179"/>
+        <location filename="../validator.cpp" line="181"/>
         <source>Exception occurs during validation: %1</source>
         <translation>Si è verificata un&apos;eccezione durante la validazione: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="183"/>
+        <location filename="../validator.cpp" line="185"/>
         <source>Unknown exception occurs during validation</source>
         <translation>Si è verificata un&apos;eccezione sconosciuta durante la validazione</translation>
     </message>
@@ -4395,52 +4801,52 @@ Guard: %3</source>
         <translation>Parametri</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="39"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
         <source>No special victory</source>
         <translation>Nessuna vittoria speciale</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="40"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>Capture artifact</source>
         <translation>Cattura artefatto</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="41"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Hire creatures</source>
         <translation>Assumi creature</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Accumulate resources</source>
         <translation>Accumula risorse</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Construct building</source>
         <translation>Costruisci edificio</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Capture town</source>
         <translation>Cattura città</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
         <source>Defeat hero</source>
         <translation>Sconfiggi eroe</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
         <source>Transport artifact</source>
         <translation>Trasporta artefatto</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
         <source>Kill monster</source>
         <translation>Uccidi mostro</translation>
     </message>
     <message>
-        <location filename="../mapsettings/victoryconditions.cpp" line="433"/>
+        <location filename="../mapsettings/victoryconditions.cpp" line="435"/>
         <source>Any town</source>
         <translation>Qualsiasi città</translation>
     </message>
@@ -4473,12 +4879,12 @@ Guard: %3</source>
         <translation>XL (144x144)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="312"/>
+        <location filename="../windownewmap.ui" line="328"/>
         <source>Random map</source>
         <translation>Mappa casuale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="324"/>
+        <location filename="../windownewmap.ui" line="340"/>
         <source>Players</source>
         <translation>Giocatori</translation>
     </message>
@@ -4513,20 +4919,26 @@ Guard: %3</source>
         <translation>G  (252x252)</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="352"/>
-        <location filename="../windownewmap.ui" line="483"/>
-        <location filename="../windownewmap.ui" line="574"/>
-        <location filename="../windownewmap.ui" line="714"/>
+        <location filename="../windownewmap.ui" line="286"/>
+        <source>Levels</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Livelli</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.ui" line="368"/>
+        <location filename="../windownewmap.ui" line="499"/>
+        <location filename="../windownewmap.ui" line="590"/>
+        <location filename="../windownewmap.ui" line="730"/>
         <source>Random</source>
         <translation>Casuale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="444"/>
+        <location filename="../windownewmap.ui" line="460"/>
         <source>Human teams</source>
         <translation>Squadre umane</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="431"/>
+        <location filename="../windownewmap.ui" line="447"/>
         <source>Computer teams</source>
         <translation>Squadre IA</translation>
     </message>
@@ -4541,119 +4953,130 @@ Guard: %3</source>
         <translation>Dimensione personalizzata</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="289"/>
         <source>Underground</source>
-        <translation>Sotterraneo</translation>
+        <translation type="vanished">Sotterraneo</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="412"/>
+        <location filename="../windownewmap.ui" line="428"/>
         <source>Humans</source>
         <translation>Umani</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="475"/>
+        <location filename="../windownewmap.ui" line="491"/>
         <source>Computers</source>
         <translation>Computer</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="541"/>
+        <location filename="../windownewmap.ui" line="557"/>
         <source>Monster strength</source>
         <translation>Forza mostri</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="602"/>
+        <location filename="../windownewmap.ui" line="618"/>
         <source>Weak</source>
         <translation>Debole</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="627"/>
-        <location filename="../windownewmap.ui" line="767"/>
+        <location filename="../windownewmap.ui" line="643"/>
+        <location filename="../windownewmap.ui" line="783"/>
         <source>Normal</source>
         <translation>Normale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="652"/>
+        <location filename="../windownewmap.ui" line="668"/>
         <source>Strong</source>
         <translation>Forte</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="681"/>
+        <location filename="../windownewmap.ui" line="697"/>
         <source>Water content</source>
         <translation>Contenuto d&apos;acqua</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="742"/>
+        <location filename="../windownewmap.ui" line="758"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="792"/>
+        <location filename="../windownewmap.ui" line="808"/>
         <source>Islands</source>
         <translation>Isole</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="821"/>
+        <location filename="../windownewmap.ui" line="837"/>
         <source>Roads</source>
         <translation>Strade</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="842"/>
+        <location filename="../windownewmap.ui" line="858"/>
         <source>Dirt</source>
         <translation>Terra</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="855"/>
+        <location filename="../windownewmap.ui" line="871"/>
         <source>Gravel</source>
         <translation>Ghiaia</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="868"/>
+        <location filename="../windownewmap.ui" line="884"/>
         <source>Cobblestone</source>
         <translation>Ciottoli</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="901"/>
-        <location filename="../windownewmap.ui" line="928"/>
+        <location filename="../windownewmap.ui" line="917"/>
+        <location filename="../windownewmap.ui" line="944"/>
         <source>Template</source>
         <translation>Modello</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="966"/>
+        <location filename="../windownewmap.ui" line="982"/>
         <source>Custom seed</source>
         <translation>Seed personalizzato</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="997"/>
+        <location filename="../windownewmap.ui" line="1013"/>
         <source>Generate random map</source>
         <translation>Genera mappa casuale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1025"/>
+        <location filename="../windownewmap.ui" line="1041"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../windownewmap.ui" line="1044"/>
+        <location filename="../windownewmap.ui" line="1060"/>
         <source>Cancel</source>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="284"/>
         <source>No template</source>
         <translation>Nessun modello</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="285"/>
+        <location filename="../windownewmap.cpp" line="284"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Nessun modello per i parametri specificati. Impossibile generare una mappa casuale.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="307"/>
+        <location filename="../windownewmap.cpp" line="306"/>
         <source>RMG failure</source>
         <translation>Errore nella generazione della mappa casuale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="453"/>
+        <location filename="../windownewmap.cpp" line="333"/>
+        <source>Multilevel support</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Supporto multilivello</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="333"/>
+        <source>Multilevel support is highly experimental yet. Expect issues.</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">Il supporto multilivello è ancora altamente sperimentale. Possibili problemi.</translation>
+    </message>
+    <message>
+        <location filename="../windownewmap.cpp" line="454"/>
         <source>[default]</source>
         <translation>[predefinito]</translation>
     </message>

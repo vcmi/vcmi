@@ -453,6 +453,11 @@ int64_t CUnitState::getEffectValue(const spells::Spell * spell) const
 	return static_cast<int64_t>(getCount()) * valOfBonuses(BonusType::SPECIFIC_SPELL_POWER, BonusSubtypeID(spell->getId()));
 }
 
+int64_t CUnitState::getEffectRange(const spells::Spell * spell) const
+{
+	return valOfBonuses(BonusType::SPECIFIC_SPELL_RANGE, BonusSubtypeID(spell->getId()));
+}
+
 PlayerColor CUnitState::getCasterOwner() const
 {
 	return env->unitEffectiveOwner(this);
@@ -495,7 +500,7 @@ bool CUnitState::isGhost() const
 
 bool CUnitState::isFrozen() const
 {
-	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))), Selector::all);
+	return hasBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::STONE_GAZE))));
 }
 
 bool CUnitState::isValidTarget(bool allowDead) const
@@ -948,9 +953,9 @@ CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBear
 {
 }
 
-TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const CSelector & limit, const std::string & cachingStr) const
+TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
-	return bonus->getAllBonuses(selector, limit, cachingStr);
+	return bonus->getAllBonuses(selector, cachingStr);
 }
 
 int32_t CUnitStateDetached::getTreeVersion() const

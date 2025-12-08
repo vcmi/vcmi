@@ -15,6 +15,7 @@
 #include "windows/GUIClasses.h"
 #include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
+#include "mainmenu/CMainMenu.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
@@ -31,7 +32,6 @@
 #include "../lib/callback/CCallback.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/FileInfo.h"
-#include "../lib/serializer/Connection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/mapping/CMap.h"
@@ -401,7 +401,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
-	if(lastHumanEndsGame || localHumanWinsGame)
+	if(lastHumanEndsGame || localHumanWinsGame || pack.silentEnd)
 	{
 		assert(adventureInt);
 		if(adventureInt)
@@ -410,7 +410,13 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 			adventureInt.reset();
 		}
 
-		GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		if(!pack.silentEnd)
+			GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		else
+		{
+			GAME->server().endGameplay();
+			GAME->mainmenu()->menu->switchToTab("main");
+		}
 	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
@@ -419,40 +425,6 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 		logAi->info("Red player %s. Ending game.", pack.victoryLossCheckResult.victory() ? "won" : "lost");
 
 		GAME->onShutdownRequested(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
-	}
-}
-
-void ApplyClientNetPackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)
-{
-	auto initInterfaces = [this]()
-	{
-		cl.initPlayerInterfaces();
-
-		for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
-		{
-			if(cl.gameState().isPlayerMakingTurn(player))
-			{
-				callAllInterfaces(cl, &IGameEventsReceiver::playerStartsTurn, player);
-				callOnlyThatInterface(cl, player, &CGameInterface::yourTurn, QueryID::NONE);
-			}
-		}
-	};
-	
-	for(auto player : pack.players)
-	{
-		auto & plSettings = GAME->server().si->getIthPlayersSettings(player);
-		if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
-		{
-			plSettings.connectedPlayerIDs.clear();
-			cl.initPlayerEnvironments();
-			initInterfaces();
-		}
-		else if(pack.playerConnectionId == GAME->server().logicConnection->connectionID)
-		{
-			plSettings.connectedPlayerIDs.insert(pack.playerConnectionId);
-			cl.playerint.clear();
-			initInterfaces();
-		}
 	}
 }
 
@@ -483,7 +455,10 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 
 	GAME->map().onObjectFadeOut(o, pack.initiator);
 	if (h && h->inBoat())
+	{
+		GAME->map().waitForOngoingAnimations();
 		GAME->map().onObjectFadeOut(h->getBoat(), pack.initiator);
+	}
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -863,7 +838,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 {
 	if(!pack.learnedSpells.spells.empty())
 	{
-		const auto hero = GAME->interface()->cb->getHero(pack.learnedSpells.hid);
+		const auto * hero = cl.gameInfo().getHero(pack.learnedSpells.hid);
 		assert(hero);
 		callInterfaceIfPresent(cl, pack.victor, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL,
 			UIHelper::getEagleEyeInfoWindowText(*hero, pack.learnedSpells.spells), UIHelper::getSpellsComponents(pack.learnedSpells.spells), soundBase::soundID(0));
@@ -871,7 +846,7 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 
 	if(!pack.movingArtifacts.empty())
 	{
-		const auto artSet = GAME->interface()->cb->getArtSet(ArtifactLocation(pack.movingArtifacts.front().dstArtHolder));
+		const auto * artSet = cl.gameState().getArtSet(ArtifactLocation(pack.movingArtifacts.front().dstArtHolder));
 		assert(artSet);
 		std::vector<Component> artComponents;
 		for(const auto & artPack : pack.movingArtifacts)
@@ -894,6 +869,13 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleResultsApplied);
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
+}
+
+void ApplyClientNetPackVisitor::visitBattleEnded(BattleEnded & pack)
+{
+	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleEnded);
 }
 
 void ApplyClientNetPackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
@@ -1105,4 +1087,22 @@ void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
 {
 	if(pack.colorScheme != ColorScheme::KEEP && vstd::contains(cl.playerint, pack.player))
 		cl.playerint[pack.player]->setColorScheme(pack.colorScheme);
+}
+
+void ApplyClientNetPackVisitor::visitChangeTownName(ChangeTownName & pack)
+{
+	if(!adventureInt)
+		return;
+
+	const CGTownInstance *town = gs.getTown(pack.tid);
+	if(town)
+	{
+		adventureInt->onTownChanged(town);
+		ENGINE->windows().totalRedraw();
+	}
+}
+
+void ApplyClientNetPackVisitor::visitResponseStatistic(ResponseStatistic & pack)
+{
+	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::responseStatistic, pack.statistic);
 }

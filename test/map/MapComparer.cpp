@@ -151,7 +151,7 @@ void MapComparer::compareHeader()
 	//map size parameters are vital for further checks
 	VCMI_REQUIRE_FIELD_EQUAL_P(height);
 	VCMI_REQUIRE_FIELD_EQUAL_P(width);
-	VCMI_REQUIRE_FIELD_EQUAL_P(twoLevel);
+	VCMI_REQUIRE_FIELD_EQUAL_P(mapLevels);
 
 	VCMI_CHECK_FIELD_EQUAL_P(name);
 	VCMI_CHECK_FIELD_EQUAL_P(description);

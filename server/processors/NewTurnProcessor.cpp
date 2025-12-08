@@ -21,12 +21,14 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/gameState/SThievesGuildInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/IOwnableObject.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/CCastleEvent.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
@@ -57,7 +59,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		if (!event.resources.empty())
 		{
 			gameHandler->giveResources(color, event.resources);
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -93,7 +95,7 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 		{
 			gameHandler->giveResources(player, event.resources);
 
-			for (GameResID i : GameResID::ALL_RESOURCES())
+			for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 				if (event.resources[i])
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
@@ -217,7 +219,7 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		}
 	}
 
-	for (GameResID k = GameResID::WOOD; k < GameResID::COUNT; k++)
+	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		income += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
 		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
@@ -255,9 +257,9 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 		const JsonNode & difficultyConfig = weeklyBonusesConfig[difficultyName];
 
 		// Distribute weekly bonuses over 7 days, depending on the current day of the week
-		for (GameResID i : GameResID::ALL_RESOURCES())
+		for (GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 		{
-			const std::string & name = GameConstants::RESOURCE_NAMES[i.getNum()];
+			const std::string & name = i.toResource()->getJsonKey();
 			int64_t weeklyBonus = difficultyConfig[name].Integer();
 			int64_t dayOfWeek = gameHandler->gameState().getDate(Date::DAY_OF_WEEK);
 			int64_t dailyIncome = incomeHandicapped[i];
@@ -510,7 +512,7 @@ std::tuple<EWeekType, CreatureID> NewTurnProcessor::pickWeekType(bool newMonth)
 	for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
 	{
 		const auto * t = gameHandler->gameState().getTown(townID);
-		if (t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
+		if (t->hasBuilt(BuildingSubID::DEITY_OF_FIRE))
 			return { EWeekType::DEITYOFFIRE, CreatureID::IMP };
 	}
 
@@ -590,7 +592,7 @@ std::vector<SetMovePoints> NewTurnProcessor::updateHeroesMovementPoints()
 			int32_t newMovementPoints = h->movementPointsLimitCached(gameHandler->gameState().getMap().getTile(h->visitablePos()).isLand(), ti.get());
 
 			if (newMovementPoints != h->movementPointsRemaining())
-				result.emplace_back(h->id, newMovementPoints, ChangeValueMode::ABSOLUTE);
+				result.emplace_back(h->id, newMovementPoints);
 		}
 	}
 	return result;

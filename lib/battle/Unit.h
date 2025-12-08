@@ -97,6 +97,7 @@ public:
 	virtual bool canShootBlocked() const = 0;
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
+	bool isMeleeAttacker() const;
 
 	/// returns initial size of this unit
 	virtual int32_t getCount() const = 0;
@@ -138,6 +139,9 @@ public:
 	static const BattleHexArray & getSurroundingHexes(const BattleHex & position, bool twoHex, BattleSide side);
 
 	bool coversPos(const BattleHex & position) const; //checks also if unit is double-wide
+
+	/// Returns the direction the double-wide unit is facing; returns NONE for single-hex units
+	BattleHex::EDir headDirection() const;
 
 	const BattleHexArray & getHexes() const; //up to two occupied hexes, starting from front
 	const BattleHexArray & getHexes(const BattleHex & assumedPos) const; //up to two occupied hexes, starting from front

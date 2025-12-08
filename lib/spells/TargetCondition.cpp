@@ -513,6 +513,9 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 		const JsonNode & value = keyValue.second;
 
+		if (!value.isString())
+			continue;
+
 		if(value.String() == "absolute")
 			isAbsolute = true;
 		else if(value.String() == "normal")

@@ -47,6 +47,7 @@ set(vcmiservercommon_HEADERS
 
 		CGameHandler.h
 		GlobalLobbyProcessor.h
+		IGameServer.h
 		ServerSpellCastEnvironment.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h

@@ -103,22 +103,38 @@ void CDrawTerrainOperation::execute()
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
-		tile.terrainType = terType;
+		if (formerState.find(tile.terrainType) == formerState.end())
+			formerState.insert({tile.terrainType, CTerrainSelection(terrainSel.getMap())});
+		formerState.at(tile.terrainType).select(pos);
+	}
+	drawTerrain(terType, terrainSel);
+}
+
+void CDrawTerrainOperation::drawTerrain(TerrainId terrainType, CTerrainSelection selection)
+{
+	for(const auto & pos : selection.getSelectedItems())
+	{
+		auto & tile = map->getTile(pos);
+		tile.terrainType = terrainType;
 		invalidateTerrainViews(pos);
 	}
 
-	updateTerrainTypes();
+	updateTerrainTypes(selection);
 	updateTerrainViews();
+	invalidatedTerViews.clear();
 }
 
 void CDrawTerrainOperation::undo()
 {
-	//TODO
+	for (auto const& typeToSelection : formerState)
+	{
+		drawTerrain(typeToSelection.first, typeToSelection.second);
+	}
 }
 
 void CDrawTerrainOperation::redo()
 {
-	//TODO
+	drawTerrain(terType, terrainSel);
 }
 
 std::string CDrawTerrainOperation::getLabel() const
@@ -126,9 +142,9 @@ std::string CDrawTerrainOperation::getLabel() const
 	return "Draw Terrain";
 }
 
-void CDrawTerrainOperation::updateTerrainTypes()
+void CDrawTerrainOperation::updateTerrainTypes(CTerrainSelection selection)
 {
-	auto positions = terrainSel.getSelectedItems();
+	auto positions = selection.getSelectedItems();
 	while(!positions.empty())
 	{
 		const auto & centerPos = *(positions.begin());
@@ -311,7 +327,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		if(!pattern.diffImages)
 		{
 			tile.terView = gen->nextInt(mapping.first, mapping.second);
-			tile.extTileFlags = valRslt.flip;
+			tile.extTileFlags = (tile.extTileFlags & 0b11111100) | valRslt.flip;
 		}
 		else
 		{
@@ -405,9 +421,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
 				{
-					if(terType->getId() == centerTerType->getId())
+					if(centerTerType->getId() == terType->getId() || (centerTerType->getId() == ETerrainId::DIRT && !terType->isTransitionRequired()))
 					{
-						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
+						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(terType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(p->get()), 1);
@@ -563,14 +579,11 @@ CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, std::stri
 
 CClearTerrainOperation::CClearTerrainOperation(CMap* map, vstd::RNG* gen) : CComposedOperation(map)
 {
-	CTerrainSelection terrainSel(map);
-	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
-	addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::WATER, 0, gen));
-	if(map->twoLevel)
+	for (int i = 0; i < map->mapLevels; i++)
 	{
-		terrainSel.clearSelection();
-		terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
-		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainId::ROCK, 0, gen));
+		CTerrainSelection terrainSel(map);
+		terrainSel.selectRange(MapRect(int3(0, 0, i), map->width, map->height));
+		addOperation(std::make_unique<CDrawTerrainOperation>(map, terrainSel, i == 1 ? ETerrainId::ROCK : ETerrainId::WATER, 0, gen));
 	}
 }
 

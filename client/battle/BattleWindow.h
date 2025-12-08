@@ -83,6 +83,10 @@ class BattleWindow : public InterfaceObjectConfigurable
 
 	bool onlyOnePlayerHuman;
 
+	bool hasSpaceForQuickActions() const;
+	bool quickActionsPanelActive() const;
+	bool placeInfoWindowsOutside() const;
+
 public:
 	BattleWindow(BattleInterface & owner );
 
@@ -129,6 +133,7 @@ public:
 	void clickPressed(const Point & cursorPosition) override;
 	void show(Canvas & to) override;
 	void showAll(Canvas & to) override;
+	void onScreenResize() override;
 
 	/// Toggle UI to displaying tactics phase
 	void tacticPhaseStarted();

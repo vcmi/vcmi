@@ -66,7 +66,7 @@ void ObjectTemplate::afterLoadFixup()
 	if(id == Obj::EVENT)
 	{
 		setSize(1,1);
-		usedTiles[0][0] = VISITABLE;
+		usedTiles[0][0] = VISITABLE | VISIBLE;
 		visitDir = 0xFF;
 	}
 }
@@ -220,19 +220,20 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 	else
 		visitDir = 0x00;
 
-	if(withTerrain && !node["allowedTerrains"].isNull())
+	anyLandTerrain = true;
+	if(withTerrain)
 	{
-		for(const auto & entry : node["allowedTerrains"].Vector())
+		if (!node["allowedTerrains"].isNull())
 		{
-			LIBRARY->identifiers()->requestIdentifier("terrain", entry, [this](int32_t identifier){
-				allowedTerrains.insert(TerrainId(identifier));
-			});
+			anyLandTerrain = false;
+
+			for(const auto & entry : node["allowedTerrains"].Vector())
+			{
+				LIBRARY->identifiers()->requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
+					allowedTerrains.insert(TerrainId(identifier));
+				});
+			}
 		}
-		anyLandTerrain = false;
-	}
-	else
-	{
-		anyLandTerrain = true;
 	}
 
 	auto charToTile = [&](const char & ch) -> ui8

@@ -10,8 +10,10 @@
 #pragma once
 
 #include "ArtifactsUIController.h"
+#include "GameChatHandler.h"
 
 #include "../lib/callback/CGameInterface.h"
+#include "../lib/gameState/GameStatistics.h"
 #include "../lib/FunctionList.h"
 #include "gui/CIntObject.h"
 
@@ -126,8 +128,8 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor, QueryID queryID) override;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) override;
 	void advmapSpellCast(const CGHeroInstance * caster, SpellID spellID) override; //called when a hero casts a spell
-	void tileHidden(const std::unordered_set<int3> &pos) override; //called when given tiles become hidden under fog of war
-	void tileRevealed(const std::unordered_set<int3> &pos) override; //called when fog of war disappears from given tiles
+	void tileHidden(const FowTilesType &pos) override; //called when given tiles become hidden under fog of war
+	void tileRevealed(const FowTilesType &pos) override; //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj) override;
 	void availableArtifactsChanged(const CGBlackMarket *bm = nullptr) override; //bm may be nullptr, then artifacts are changed in the global pool (used by merchants in towns)
 	void yourTurn(QueryID queryID) override;
@@ -147,6 +149,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	void setColorScheme(ColorScheme scheme) override;
+	void responseStatistic(StatisticDataSet & statistic) override;
 
 	//for battles
 	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -198,6 +201,8 @@ public: // public interface for use by client via GAME->interface() access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	void proposeQuickLoadingGame();
+	void quickSaveGame();
 	void performAutosave();
 	void gamePause(bool pause);
 	void endNetwork();

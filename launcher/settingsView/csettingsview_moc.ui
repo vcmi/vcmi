@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-860</y>
         <width>729</width>
-        <height>1503</height>
+        <height>1758</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="20,5,5,5,5,10">
@@ -83,7 +83,7 @@
          </property>
         </widget>
        </item>
-      <item row="64" column="1" colspan="5">
+       <item row="64" column="1" colspan="5">
         <widget class="QPushButton" name="buttonConfigEditor">
          <property name="text">
           <string>Open editor</string>
@@ -396,18 +396,8 @@
        <item row="50" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxEnemyPlayerAI">
          <property name="currentText">
-          <string notr="true">VCAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="58" column="2" colspan="4">
@@ -423,18 +413,8 @@
        <item row="51" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxAlliedPlayerAI">
          <property name="currentText">
-          <string notr="true">VCAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">VCAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">Nullkiller</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="4" column="0">
@@ -914,18 +894,8 @@
        <item row="52" column="1" colspan="5">
         <widget class="QComboBox" name="comboBoxNeutralAI">
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="26" column="1" colspan="5">
@@ -992,18 +962,8 @@
           <bool>false</bool>
          </property>
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="4" column="5">
@@ -1112,18 +1072,8 @@
           <bool>false</bool>
          </property>
          <property name="currentText">
-          <string notr="true">BattleAI</string>
+          <string notr="true"/>
          </property>
-         <item>
-          <property name="text">
-           <string notr="true">BattleAI</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string notr="true">StupidAI</string>
-          </property>
-         </item>
         </widget>
        </item>
        <item row="59" column="2" colspan="4">
@@ -1538,7 +1488,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroupFonts"/>
   <buttongroup name="buttonGroupValidation"/>
+  <buttongroup name="buttonGroupFonts"/>
  </buttongroups>
 </ui>

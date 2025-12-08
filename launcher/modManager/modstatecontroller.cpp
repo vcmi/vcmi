@@ -236,7 +236,7 @@ bool ModStateController::doInstallMod(QString modname, QString archivePath)
 	// Remove .github folder from installed mod
 	QDir githubDir(extractedDir.filePath(".github"));
 	if (githubDir.exists())
-	    githubDir.removeRecursively();
+		githubDir.removeRecursively();
 	
 	//there are possible excessive files - remove them
 	QString upperLevel = modDirName.section('/', 0, 0);

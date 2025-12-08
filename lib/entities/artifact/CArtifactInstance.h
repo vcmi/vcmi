@@ -80,7 +80,6 @@ class DLL_LINKAGE CChargedArtifactInstance
 protected:
 	CChargedArtifactInstance() = default;
 public:
-	void onChargesChanged();
 	void discharge(const uint16_t charges);
 	void addCharges(const uint16_t charges);
 	uint16_t getCharges() const;
@@ -122,7 +121,6 @@ public:
 		if(!h.saving && h.loadingGamestate)
 		{
 			init();
-			onChargesChanged();
 		}
 	}
 };

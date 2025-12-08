@@ -52,7 +52,7 @@ const CGHeroInstance * CWindowWithArtifacts::getHeroPickedArtifact() const
 	const CGHeroInstance * hero = nullptr;
 
 	for(const auto & artSet : artSets)
-		if(const auto pickedArt = artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS))
+		if(artSet->getHero()->getArt(ArtifactPosition::TRANSITION_POS) != nullptr)
 		{
 			hero = artSet->getHero();
 			break;
@@ -113,17 +113,22 @@ void CWindowWithArtifacts::swapArtifactAndClose(const CArtifactsOfHeroBase & art
 	close();
 }
 
-void CWindowWithArtifacts::showArtifactAssembling(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
+void CWindowWithArtifacts::showArtifactPopup(const CArtifactsOfHeroBase & artsInst, CArtPlace & artPlace,
 	const Point & cursorPosition) const
 {
 	if(artsInst.getArt(artPlace.slot))
 	{
 		if(GAME->interface()->artifactController->askToDisassemble(artsInst.getHero(), artPlace.slot))
 			return;
-		if(GAME->interface()->artifactController->askToAssemble(artsInst.getHero(), artPlace.slot))
-			return;
-		if(artPlace.text.size())
+		if(!artPlace.text.empty())
+		{
 			artPlace.LRClickableAreaWTextComp::showPopupWindow(cursorPosition);
+			artPlace.setClosePopupWindowCallback([hero = artsInst.getHero(), artPlacePtr = &artPlace]()
+			{
+				GAME->interface()->artifactController->askToAssemble(hero, artPlacePtr->slot);
+				artPlacePtr->setClosePopupWindowCallback([](){});
+			});
+		}
 	}
 }
 
@@ -164,7 +169,7 @@ void CWindowWithArtifacts::enableKeyboardShortcuts() const
 		artSet->enableKeyboardShortcuts();
 }
 
-void CWindowWithArtifacts::update()
+void CWindowWithArtifacts::updateArtifacts()
 {
 	for(const auto & artSet : artSets)
 	{

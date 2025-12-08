@@ -30,7 +30,7 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos) const
@@ -244,7 +244,10 @@ void CMinimap::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 		update();
 	}
 	else
+	{
+		setRedrawParent(true); // needed for non square map to redraw black background when viewarea rectangle is moved
 		redraw();
+	}
 }
 
 void CMinimap::setAIRadar(bool on)
@@ -276,7 +279,7 @@ void CMinimap::updateVisibleHeroes()
 	}
 }
 
-void CMinimap::updateTiles(const std::unordered_set<int3> & positions)
+void CMinimap::updateTiles(const FowTilesType & positions)
 {
 	if(minimap)
 	{

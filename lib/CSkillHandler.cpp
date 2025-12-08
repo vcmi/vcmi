@@ -16,6 +16,7 @@
 #include "GameLibrary.h"
 #include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
+#include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
 #include "modding/IdentifierStorage.h"
 #include "texts/CGeneralTextHandler.h"
@@ -221,6 +222,29 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	skill->special = json["special"].Bool();
 
 	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+
+	for(auto skillPair : json["gainChance"].Struct())
+	{
+		int probability = static_cast<int>(skillPair.second.Integer());
+
+		if (skillPair.first == "might")
+		{
+			skill->gainChance[0] = probability;
+			continue;
+		}
+
+		if (skillPair.first == "magic")
+		{
+			skill->gainChance[1] = probability;
+			continue;
+		}
+
+		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		{
+			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+		});
+	}
+
 	switch(json["gainChance"].getType())
 	{
 	case JsonNode::JsonType::DATA_INTEGER:
@@ -292,6 +316,8 @@ void CSkillHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
+	object.Struct().erase("base");
 }
 
 std::set<SecondarySkill> CSkillHandler::getDefaultAllowed() const

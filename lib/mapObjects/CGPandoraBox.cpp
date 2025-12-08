@@ -275,6 +275,12 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 	}
 }
 
+CGEvent::CGEvent(IGameInfoCallback * cb)
+	: CGPandoraBox(cb)
+	, availableFor(PlayerColor::ALL_PLAYERS().begin(), PlayerColor::ALL_PLAYERS().end())
+{
+}
+
 void CGEvent::init()
 {
 	blockVisit = false;
@@ -285,6 +291,18 @@ void CGEvent::init()
 		i.reward.removeObject = removeAfterVisit;
 		if(!message.empty() && i.message.empty() && stacksCount() == 0)
 			i.message = message;
+	}
+}
+
+void CGEvent::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
+{
+	if(result.winner == BattleSide::ATTACKER)
+	{
+		CRewardableObject::onHeroVisit(gameEvents, hero);
+	}
+	if(result.winner == BattleSide::NONE && removeAfterVisit)	//rewards are lost if therer is a draw and an event is not repeatable
+	{
+		gameEvents.removeObject(this, result.attacker);
 	}
 }
 
@@ -333,7 +351,8 @@ void CGEvent::serializeJsonOptions(JsonSerializeFormat & handler)
 	handler.serializeBool("aIActivable", computerActivate, false);
 	handler.serializeBool("humanActivable", humanActivate, true);
 	handler.serializeBool("removeAfterVisit", removeAfterVisit, false);
-	handler.serializeIdArray("availableFor", availableFor);
+	if (handler.saving || !handler.getCurrent()["availableFor"].isNull())
+		handler.serializeIdArray("availableFor", availableFor); // else - keep default value
 }
 
 VCMI_LIB_NAMESPACE_END

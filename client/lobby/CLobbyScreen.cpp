@@ -16,6 +16,7 @@
 #include "OptionsTab.h"
 #include "RandomMapTab.h"
 #include "SelectionTab.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CServerHandler.h"
 #include "../GameEngine.h"
@@ -62,8 +63,11 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		}
 	};
 
-	buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
-	buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+	if(screenType != ESelectionScreen::campaignList)
+	{
+		buttonChat = std::make_shared<CButton>(Point(619, 80), AnimationPath::builtin("GSPBUT2.DEF"), LIBRARY->generaltexth->zelp[48], std::bind(&CLobbyScreen::toggleChat, this), EShortcut::LOBBY_TOGGLE_CHAT);
+		buttonChat->setTextOverlay(LIBRARY->generaltexth->allTexts[532], FONT_SMALL, Colors::WHITE);
+	}
 
 	switch(screenType)
 	{
@@ -84,7 +88,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 
 		card->iconDifficulty->addCallback(std::bind(&IServerAPI::setDifficulty, &GAME->server(), _1));
 
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_BEGIN_STANDARD_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRBEG.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CLobbyScreen::start, this, false), EShortcut::LOBBY_BEGIN_STANDARD_GAME);
 		initLobby();
 		break;
 	}
@@ -93,13 +97,13 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		tabOpt = std::make_shared<OptionsTab>();
 		tabTurnOptions = std::make_shared<TurnOptionsTab>();
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CLobbyScreen::startScenario, this, false), EShortcut::LOBBY_LOAD_GAME);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CLobbyScreen::start, this, false), EShortcut::LOBBY_LOAD_GAME);
 		initLobby();
 		break;
 	}
 	case ESelectionScreen::campaignList:
 		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, nullptr);
-		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), EShortcut::LOBBY_BEGIN_CAMPAIGN);
+		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::start, this, true), EShortcut::LOBBY_BEGIN_CAMPAIGN);
 		break;
 	}
 
@@ -143,7 +147,31 @@ void CLobbyScreen::toggleTab(std::shared_ptr<CIntObject> tab)
 		GAME->server().sendGuiAction(LobbyGuiAction::OPEN_TURN_OPTIONS);
 	else if(tab == tabExtraOptions)
 		GAME->server().sendGuiAction(LobbyGuiAction::OPEN_EXTRA_OPTIONS);
+	else if(tab == tabBattleOnlyMode)
+		GAME->server().sendGuiAction(LobbyGuiAction::BATTLE_MODE);
+
+	if(tab == tabBattleOnlyMode)
+	{
+		tabBattleOnlyMode->setStartButtonEnabled();
+		card->clearSelection();
+	}
+	else
+	{
+		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		card->changeSelection();
+	}
+
 	CSelectionBase::toggleTab(tab);
+}
+
+void CLobbyScreen::start(bool campaign)
+{
+	if(curTab == tabBattleOnlyMode)
+		tabBattleOnlyMode->startBattle();
+	else if(campaign)
+		startCampaign();
+	else
+		startScenario(false);
 }
 
 void CLobbyScreen::startCampaign()
@@ -236,6 +264,16 @@ void CLobbyScreen::toggleChat()
 
 void CLobbyScreen::updateAfterStateChange()
 {
+	OBJECT_CONSTRUCTION;
+	if(!tabBattleOnlyMode)
+	{
+		tabBattleOnlyMode = std::make_shared<BattleOnlyModeTab>();
+		tabBattleOnlyMode->setEnabled(false);
+
+		if(GAME->server().battleMode)
+			toggleTab(tabBattleOnlyMode);
+	}
+
 	if(GAME->server().isHost() && screenType == ESelectionScreen::newGame)
 	{
 		bool isMultiplayer = GAME->server().loadMode == ELoadMode::MULTI;
@@ -256,9 +294,12 @@ void CLobbyScreen::updateAfterStateChange()
 			tabExtraOptions->recreate();
 	}
 
-	buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+	if(curTab && curTab != tabBattleOnlyMode)
+	{
+		buttonStart->block(GAME->server().mi == nullptr || GAME->server().isGuest());
+		card->changeSelection();
+	}
 
-	card->changeSelection();
 	if (card->iconDifficulty)
 	{
 		if (screenType == ESelectionScreen::loadGame)

@@ -25,6 +25,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapping/CMap.h"
 #include "../spells/CSpellHandler.h"
+#include "spells/ISpellMechanics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -502,7 +503,9 @@ CPathfinderHelper::CPathfinderHelper(const IGameInfoCallback & gameInfo, const C
 	turn(-1),
 	owner(Hero->tempOwner),
 	hero(Hero),
-	options(Options)
+	options(Options),
+	canCastFly(false),
+	canCastWaterWalk(false)
 {
 	turnsInfo.reserve(16);
 	updateTurnInfo();
@@ -510,11 +513,20 @@ CPathfinderHelper::CPathfinderHelper(const IGameInfoCallback & gameInfo, const C
 
 	whirlpoolProtection = Hero->hasBonusOfType(BonusType::WHIRLPOOL_PROTECTION);
 
-	SpellID flySpell = SpellID::FLY;
-	canCastFly = Hero->canCastThisSpell(flySpell.toSpell());
+	if (options.canUseCast)
+	{
+		for (const auto & spell : LIBRARY->spellh->objects)
+		{
+			if (!spell || !spell->isAdventure())
+				continue;
 
-	SpellID waterWalk = SpellID::WATER_WALK;
-	canCastWaterWalk = Hero->canCastThisSpell(waterWalk.toSpell());
+			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				canCastWaterWalk = true;
+
+			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				canCastFly = true;
+		}
+	}
 }
 
 CPathfinderHelper::~CPathfinderHelper() = default;

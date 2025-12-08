@@ -51,7 +51,7 @@ bool Catapult::applicable(Problem & problem, const Mechanics * m) const
 		return m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 	}
 
-	const auto attackableBattleHexes = m->battle()->getAttackableBattleHexes();
+	const auto attackableBattleHexes = m->battle()->getAttackableWallParts();
 
 	return !attackableBattleHexes.empty() || m->adaptProblem(ESpellCastProblem::NO_APPROPRIATE_TARGET, problem);
 }

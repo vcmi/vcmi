@@ -33,6 +33,7 @@
 #include <SDL_events.h>
 #include <SDL_timer.h>
 #include <SDL_clipboard.h>
+#include <SDL_power.h>
 
 InputHandler::InputHandler()
 	: enableMouse(settings["input"]["enableMouse"].Bool())
@@ -148,6 +149,21 @@ void InputHandler::copyToClipBoard(const std::string & text)
 	SDL_SetClipboardText(text.c_str());
 }
 
+PowerState InputHandler::getPowerState()
+{
+	int seconds;
+	int percent;
+	auto sdlPowerState = SDL_GetPowerInfo(&seconds, &percent);
+
+	PowerStateMode powerState = PowerStateMode::UNKNOWN;
+	if(sdlPowerState == SDL_POWERSTATE_ON_BATTERY)
+		powerState = PowerStateMode::ON_BATTERY;
+	else if(sdlPowerState == SDL_POWERSTATE_CHARGING || sdlPowerState == SDL_POWERSTATE_CHARGED)
+		powerState = PowerStateMode::CHARGING;
+
+	return PowerState{powerState, seconds, percent};
+}
+
 std::vector<SDL_Event> InputHandler::acquireEvents()
 {
 	std::unique_lock<std::mutex> lock(eventsMutex);
@@ -232,17 +248,19 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #ifndef VCMI_IOS
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(false);
+				ENGINE->onScreenResize(false, false);
 			}
 #endif
 				break;
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
-#ifdef VCMI_MOBILE
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-				ENGINE->onScreenResize(true);
-			}
+#ifdef VCMI_MOBILE
+				ENGINE->onScreenResize(true, false);
+#else
+				ENGINE->onScreenResize(true, true);
 #endif
+			}
 				break;
 			case SDL_WINDOWEVENT_FOCUS_GAINED:
 			{

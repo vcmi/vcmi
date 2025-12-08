@@ -19,6 +19,7 @@
 	"vcmi.adventureMap.spellUnknownProblem"    : "Problema desconocido con este hechizo, no hay más información disponible.",
 	"vcmi.adventureMap.playerAttacked"         : "El jugador ha sido atacado: %s",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Disculpe, la repetición del turno del oponente aún no está implementada.",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "¿Estás segura de que quieres cargar el quicksave?",
 
 	"vcmi.capitalColors.0" : "Rojo",
 	"vcmi.capitalColors.1" : "Azul",
@@ -76,7 +77,7 @@
 	"vcmi.server.errors.modsToEnable"    : "{Se requieren los siguientes mods}",
 	"vcmi.server.errors.modsToDisable"   : "{Deben desactivarse los siguientes mods}",
 	"vcmi.server.confirmReconnect"       : "¿Quieres reconectar a la última sesión?",
-	"vcmi.server.errors.unknownEntity" : "Error al cargar la partida guardada. ¡Se encontró una entidad desconocida '%s' en la partida guardada! Es posible que la partida no sea compatible con la versión actualmente instalada de los mods.",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Error al cargar la partida guardada. ¡Se encontró una entidad desconocida '%s' en la partida guardada! Es posible que la partida no sea compatible con la versión actualmente instalada de los mods.",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "General",
 	"vcmi.settingsMainWindow.generalTab.help"     : "Cambiar a la pestaña de opciones generales, que contiene ajustes relacionados con el comportamiento general del juego",
@@ -107,8 +108,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Seleccionar Intervalo de Toque Largo",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Cambia la duración del intervalo de toque largo.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milisegundos",
-	"vcmi.systemOptions.framerateButton.hover"  : "Mostrar FPS",
-	"vcmi.systemOptions.framerateButton.help"   : "{Mostrar FPS}\n\nAlternar la visibilidad del contador de Frames Per Second en la esquina de la ventana del juego.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Retroalimentación háptica",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Retroalimentación háptica}\n\nAlternar la retroalimentación háptica en las entradas táctiles.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Mejoras de la interfaz",

@@ -913,14 +913,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -939,14 +935,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -965,14 +957,10 @@
 				"limiters" : [
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [
-							"PERCENTAGE_DAMAGE_BOOST",
-							"damageTypeRanged",
-							{
-								"type" : "SECONDARY_SKILL",
-								"id" : "secondarySkill.archery"
-							}
-						]
+						"bonusType" : "PERCENTAGE_DAMAGE_BOOST",
+						"bonusSubtype" : "damageTypeRanged",
+						"bonusSourceType" : "SECONDARY_SKILL",
+						"bonusSourceID" : "secondarySkill.archery"
 					}
 				]
 			}
@@ -1733,7 +1721,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel2",
 				"val" : 5,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1746,7 +1734,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel3",
 				"val" : 4,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1759,7 +1747,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel4",
 				"val" : 3,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1772,7 +1760,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel5",
 				"val" : 2,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1785,7 +1773,7 @@
 				"type" : "CREATURE_GROWTH",
 				"subtype" : "creatureLevel6",
 				"val" : 1,
-				"propagator": "VISITED_TOWN_AND_VISITOR"
+				"propagator": "TOWN_AND_VISITOR"
 			}
 		}
 	},
@@ -1993,19 +1981,19 @@
 					"IS_UNDEAD",
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "NON_LIVING" ]
+						"bonusType" : "NON_LIVING"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "MECHANICAL" ]
+						"bonusType" : "MECHANICAL"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "GARGOYLE" ]
+						"bonusType" : "GARGOYLE"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "SIEGE_WEAPON" ]
+						"bonusType" : "SIEGE_WEAPON"
 					}
 				]
 			},
@@ -2018,15 +2006,15 @@
 					"IS_UNDEAD",
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "NON_LIVING" ]
+						"bonusType" : "NON_LIVING"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "MECHANICAL" ]
+						"bonusType" : "MECHANICAL"
 					},
 					{
 						"type" : "HAS_ANOTHER_BONUS_LIMITER",
-						"parameters" : [ "GARGOYLE" ]
+						"bonusType" : "GARGOYLE"
 					}
 				]
 			}
@@ -2094,7 +2082,7 @@
 			"growth" : {
 				"type" : "CREATURE_GROWTH_PERCENT",
 				"val" : 50,
-				"propagator": "PLAYER_PROPAGATOR"
+				"propagator": "PLAYER"
 			}
 		}
 	},

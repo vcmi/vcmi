@@ -38,6 +38,7 @@
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonBonus.h"
@@ -244,7 +245,7 @@ int CGHeroInstance::movementPointsLimitCached(bool onLand, const TurnInfo * ti) 
 }
 
 CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
-	: CArmedInstance(cb),
+	: CArmedInstance(cb, BonusNodeType::HERO, false),
 	CArtifactSet(cb),
 	tacticFormationEnabled(false),
 	inTownGarrison(false),
@@ -259,7 +260,6 @@ CGHeroInstance::CGHeroInstance(IGameInfoCallback * cb)
 	turnInfoCache(std::make_unique<TurnInfoCache>(this)),
 	manaPerKnowledgeCached(this, Selector::type()(BonusType::MANA_PER_KNOWLEDGE_PERCENTAGE))
 {
-	setNodeType(HERO);
 	ID = Obj::HERO;
 	secSkills.emplace_back(SecondarySkill::NONE, -1);
 }
@@ -860,6 +860,11 @@ int64_t CGHeroInstance::getEffectValue(const spells::Spell * spell) const
 	return 0;
 }
 
+int64_t CGHeroInstance::getEffectRange(const spells::Spell * spell) const
+{
+	return 0;
+}
+
 PlayerColor CGHeroInstance::getCasterOwner() const
 {
 	return tempOwner;
@@ -903,22 +908,7 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
-	const bool isAllowed = cb->isAllowed(spell->getId());
-
-	const bool inSpellBook = vstd::contains(spells, spell->getId()) && hasSpellbook();
-	const bool specificBonus = hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
-
-	bool schoolBonus = false;
-
-	spell->forEachSchool([this, &schoolBonus](const SpellSchool & cnf, bool & stop)
-	{
-		if(hasBonusOfType(BonusType::SPELLS_OF_SCHOOL, BonusSubtypeID(cnf)))
-		{
-			schoolBonus = stop = true;
-		}
-	});
-
-	const bool levelBonus = hasBonusOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel()));
+	const bool inSpellBook = spellbookContainsSpell(spell->getId()) && hasSpellbook();
 
 	if(spell->isSpecial())
 	{
@@ -926,9 +916,9 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return specificBonus;
+		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
-	else if(!isAllowed)
+	else if(!cb->isAllowed(spell->getId()))
 	{
 		if(inSpellBook)
 		{
@@ -936,12 +926,8 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 			//it is normal if set in map editor, but trace it to possible debug of magic guild
 			logGlobal->trace("Banned spell %s in spellbook.", spell->getNameTranslated());
 		}
-		return inSpellBook || specificBonus || schoolBonus || levelBonus;
 	}
-	else
-	{
-		return inSpellBook || schoolBonus || specificBonus || levelBonus;
-	}
+	return !getSourcesForSpell(spell->getId()).empty();
 }
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const
@@ -991,8 +977,9 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	if (improvedNecromancy->empty())
 		return CStackBasicDescriptor();
 
+	bool hasRaisedUnitsBonus = hasBonusOfType(BonusType::UNDEAD_RAISE_PERCENTAGE);
 	int raisedUnitsPercentage = std::clamp(valOfBonuses(BonusType::UNDEAD_RAISE_PERCENTAGE), 0, 100);
-	if (raisedUnitsPercentage == 0)
+	if(raisedUnitsPercentage == 0 && !hasRaisedUnitsBonus)
 		return CStackBasicDescriptor();
 
 	const std::map<CreatureID,si32> &casualties = battleResult.casualties[CBattleInfoEssentials::otherSide(battleResult.winner)];
@@ -1255,6 +1242,34 @@ bool CGHeroInstance::spellbookContainsSpell(const SpellID & spell) const
 	return vstd::contains(spells, spell);
 }
 
+std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & spellId) const
+{
+	std::vector<BonusSourceID> sources;
+
+	if(hasSpellbook() && spellbookContainsSpell(spellId))
+		sources.emplace_back(getArt(ArtifactPosition::SPELLBOOK)->getId());
+
+	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
+		sources.emplace_back(bonus->sid);
+
+	bool tomesGrantBannedSpells = cb->getSettings().getBoolean(EGameSettings::SPELLS_TOMES_GRANT_BANNED_SPELLS);
+
+	if (tomesGrantBannedSpells || cb->isAllowed(spellId))
+	{
+		const auto spell = spellId.toSpell();
+		spell->forEachSchool([this, &sources](const SpellSchool & cnf, bool & stop)
+		{
+			for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_SCHOOL, cnf))
+				sources.emplace_back(bonus->sid);
+		});
+
+		for(const auto & bonus : *getBonusesOfType(BonusType::SPELLS_OF_LEVEL, BonusCustomSubtype::spellLevel(spell->getLevel())))
+			sources.emplace_back(bonus->sid);
+	}
+
+	return sources;
+}
+
 void CGHeroInstance::removeSpellbook()
 {
 	spells.clear();
@@ -1263,6 +1278,11 @@ void CGHeroInstance::removeSpellbook()
 	{
 		cb->gameState().getMap().removeArtifactInstance(*this, ArtifactPosition::SPELLBOOK);
 	}
+}
+
+void CGHeroInstance::removeAllSpells()
+{
+	spells.clear();
 }
 
 const std::set<SpellID> & CGHeroInstance::getSpellsInSpellbook() const
@@ -1325,37 +1345,12 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 	}
 }
 
-void CGHeroInstance::attachToBonusSystem(CGameState & gs)
-{
-	CArmedInstance::attachToBonusSystem(gs);
-	if (boardedBoat.hasValue())
-	{
-		auto boat = gs.getObjInstance(boardedBoat);
-		if (boat)
-			attachTo(dynamic_cast<CGBoat&>(*boat));
-	}
-}
-
-void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
-{
-	CArmedInstance::detachFromBonusSystem(gs);
-	if (boardedBoat.hasValue())
-	{
-		auto boat = gs.getObjInstance(boardedBoat);
-		if (boat)
-			detachFrom(dynamic_cast<CGBoat&>(*boat));
-	}
-}
-
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(visitedTown.hasValue())
 	{
 		auto town = gs.getTown(visitedTown);
-		if(isGarrisoned())
-			return *town;
-		else
-			return town->townAndVis;
+		return town->townAndVis;
 	}
 	else
 		return CArmedInstance::whereShouldBeAttached(gs);
@@ -1407,26 +1402,16 @@ std::vector<SecondarySkill> CGHeroInstance::getLevelupSkillCandidates(IGameRando
 			basicAndAdv.insert(elem.first);
 		none.erase(elem.first);
 	}
-
-	if (!basicAndAdv.empty())
+	
+	int maxUpgradedSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_UPGRADED_SKILLS_AMOUNT);
+	while (skills.size() < maxUpgradedSkills && !basicAndAdv.empty())
 	{
 		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
 		basicAndAdv.erase(skills.back());
 	}
 
-	if (!none.empty())
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
-		none.erase(skills.back());
-	}
-
-	if (!basicAndAdv.empty() && skills.size() < 2)
-	{
-		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, basicAndAdv));
-		basicAndAdv.erase(skills.back());
-	}
-
-	if (!none.empty() && skills.size() < 2)
+	int maxTotalSkills = cb->getSettings().getInteger(EGameSettings::LEVEL_UP_TOTAL_SKILLS_AMOUNT);
+	while (skills.size() < maxTotalSkills && !none.empty())
 	{
 		skills.push_back(gameRandomizer.rollSecondarySkillForLevelup(this, none));
 		none.erase(skills.back());
@@ -1810,7 +1795,7 @@ ResourceSet CGHeroInstance::dailyIncome() const
 {
 	ResourceSet income;
 
-	for (GameResID k : GameResID::ALL_RESOURCES())
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
 		income[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
 
 	const auto & playerSettings = cb->getPlayerSettings(getOwner());

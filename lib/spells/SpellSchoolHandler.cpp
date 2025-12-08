@@ -11,9 +11,22 @@
 #include "StdInc.h"
 #include "SpellSchoolHandler.h"
 
+#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextIdentifier.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
+
+std::string spells::SpellSchoolType::getNameTextID() const
+{
+	return TextIdentifier( "spellSchool", modScope, identifier, "name" ).get();
+}
+
+std::string spells::SpellSchoolType::getNameTranslated() const
+{
+	return LIBRARY->generaltexth->translate(getNameTextID());
+}
 
 std::vector<JsonNode> SpellSchoolHandler::loadLegacyData()
 {
@@ -27,8 +40,13 @@ std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadObjectImpl(std:
 	auto ret = std::make_shared<spells::SpellSchoolType>();
 
 	ret->id = SpellSchool(index);
-	ret->jsonName = name;
+	ret->modScope = scope;
+	ret->identifier = name;
 	ret->spellBordersPath = AnimationPath::fromJson(data["schoolBorders"]);
+	ret->schoolBookmarkPath = AnimationPath::fromJson(data["schoolBookmark"]);
+	ret->schoolHeaderPath = ImagePath::fromJson(data["schoolHeader"]);
+
+	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), data["name"]);
 
 	return ret;
 }

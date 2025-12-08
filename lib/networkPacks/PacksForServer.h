@@ -609,6 +609,28 @@ struct DLL_LINKAGE SetFormation : public CPackForServer
 	}
 };
 
+struct DLL_LINKAGE SetTownName : public CPackForServer
+{
+	SetTownName() = default;
+	;
+	SetTownName(const ObjectInstanceID & TID, std::string Name)
+		: tid(TID)
+		, name(Name)
+	{
+	}
+	ObjectInstanceID tid;
+	std::string name;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & tid;
+		h & name;
+	}
+};
+
 struct DLL_LINKAGE HireHero : public CPackForServer
 {
 	HireHero() = default;
@@ -716,6 +738,16 @@ struct DLL_LINKAGE CastAdvSpell : public CPackForServer
 		h & hid;
 		h & sid;
 		h & pos;
+	}
+};
+
+struct DLL_LINKAGE RequestStatistic : public CPackForServer
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
 	}
 };
 

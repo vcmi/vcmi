@@ -16,6 +16,8 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class IObjectInterface;
+class IGameEventCallback;
+class CArmedInstance;
 
 namespace Rewardable
 {

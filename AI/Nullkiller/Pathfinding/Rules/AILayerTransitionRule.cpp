@@ -12,6 +12,8 @@
 #include "../../Engine/Nullkiller.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
 #include "../../../../lib/pathfinder/TurnInfo.h"
+#include "../../../../lib/spells/ISpellMechanics.h"
+#include "../../../../lib/spells/adventure/SummonBoatEffect.h"
 
 namespace NKAI
 {
@@ -109,19 +111,22 @@ namespace AIPathfinding
 
 	void AILayerTransitionRule::setup()
 	{
-		SpellID waterWalk = SpellID::WATER_WALK;
-		SpellID airWalk = SpellID::FLY;
-
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			if(hero->canCastThisSpell(waterWalk.toSpell()) && hero->mana >= hero->getSpellCost(waterWalk.toSpell()))
+			for (const auto & spell : LIBRARY->spellh->objects)
 			{
-				waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero);
-			}
+				if (!spell || !spell->isAdventure())
+					continue;
 
-			if(hero->canCastThisSpell(airWalk.toSpell()) && hero->mana >= hero->getSpellCost(airWalk.toSpell()))
-			{
-				airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero);
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				{
+					waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero, spell->id);
+				}
+
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+				{
+					airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero, spell->id);
+				}
 			}
 		}
 
@@ -159,13 +164,21 @@ namespace AIPathfinding
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			auto summonBoatSpell = SpellID(SpellID::SUMMON_BOAT).toSpell();
-
-			if(hero->canCastThisSpell(summonBoatSpell)
-				&& hero->getSpellSchoolLevel(summonBoatSpell) >= MasteryLevel::ADVANCED)
+			for (const auto & spell : LIBRARY->spellh->objects)
 			{
-				// TODO: For lower school level we might need to check the existence of some boat
-				summonableVirtualBoats[hero] = std::make_shared<SummonBoatAction>();
+				if (!spell || !spell->isAdventure())
+					continue;
+
+				auto effect = spell->getAdventureMechanics().getEffectAs<SummonBoatEffect>(hero);
+
+				if (!effect || !hero->canCastThisSpell(spell.get()))
+					continue;
+
+				if (effect->canCreateNewBoat() && effect->getSuccessChance(hero) == 100)
+				{
+					// TODO: For lower school level we might need to check the existence of some boat
+					summonableVirtualBoats[hero] = std::make_shared<SummonBoatAction>(spell->id);
+				}
 			}
 		}
 	}

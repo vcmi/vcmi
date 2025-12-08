@@ -14,6 +14,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:0",
+			"mapAttackFromLeft": "AvWattak.def:0:1",
 			"animation": "CPKMAN.DEF"
 		},
 		"sound" :
@@ -39,6 +41,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:2",
+			"mapAttackFromLeft": "AvWattak.def:0:3",
 			"animation": "CHALBD.DEF"
 		},
 		"sound" :
@@ -66,6 +70,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:4",
+			"mapAttackFromLeft": "AvWattak.def:0:5",
 			"animation": "CLCBOW.DEF",
 			"missile" :
 			{
@@ -103,6 +109,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:6",
+			"mapAttackFromLeft": "AvWattak.def:0:7",
 			"animation": "CHCBOW.DEF",
 			"missile" :
 			{
@@ -140,6 +148,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:8",
+			"mapAttackFromLeft": "AvWattak.def:0:9",
 			"animation": "CGRIFF.DEF"
 		},
 		"sound" :
@@ -169,6 +179,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:10",
+			"mapAttackFromLeft": "AvWattak.def:0:11",
 			"animation": "CRGRIF.DEF"
 		},
 		"sound" :
@@ -188,6 +200,8 @@
 		"upgrades": ["crusader"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:12",
+			"mapAttackFromLeft": "AvWattak.def:0:13",
 			"animation": "CSWORD.DEF"
 		},
 		"sound" :
@@ -214,6 +228,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:14",
+			"mapAttackFromLeft": "AvWattak.def:0:15",
 			"animation": "CCRUSD.DEF"
 		},
 		"sound" :
@@ -240,6 +256,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:16",
+			"mapAttackFromLeft": "AvWattak.def:0:17",
 			"animation": "CMONKK.DEF",
 			"missile" :
 			{
@@ -273,6 +291,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:18",
+			"mapAttackFromLeft": "AvWattak.def:0:19",
 			"animation": "CZEALT.DEF",
 			"missile" :
 			{
@@ -306,6 +326,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:20",
+			"mapAttackFromLeft": "AvWattak.def:0:21",
 			"animation": "CCAVLR.DEF"
 		},
 		"sound" :
@@ -333,6 +355,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:22",
+			"mapAttackFromLeft": "AvWattak.def:0:23",
 			"animation": "CCHAMP.DEF"
 		},
 		"sound" :
@@ -359,7 +383,7 @@
 			{
 				"type" : "MORALE",
 				"val" : 1,
-				"propagator" : "HERO",
+				"propagator" : "ARMY",
 				"description" : "PLACEHOLDER",
 				"stacking" : "Angels"
 			},
@@ -384,6 +408,8 @@
 		"upgrades": ["archangel"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:24",
+			"mapAttackFromLeft": "AvWattak.def:0:25",
 			"animation": "CANGEL.DEF"
 		},
 		"sound" :
@@ -427,7 +453,7 @@
 			"raisesMorale" : {
 				"type" : "MORALE",
 				"val" : 1,
-				"propagator" : "HERO",
+				"propagator" : "ARMY",
 				"description" : "@creatures.core.angel.bonus.raisesMorale",
 				"stacking" : "Angels"
 			},
@@ -451,6 +477,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:26",
+			"mapAttackFromLeft": "AvWattak.def:0:27",
 			"animation": "CRANGL.DEF"
 		},
 		"sound" :

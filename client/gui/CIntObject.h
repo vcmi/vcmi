@@ -162,6 +162,12 @@ public:
 	virtual void updateGarrisons() = 0;
 };
 
+class IArtifactsHolder
+{
+public:
+	virtual void updateArtifacts() = 0;
+};
+
 class IMarketHolder
 {
 public:

@@ -233,7 +233,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance * obj, const Point & p, 
 
 		std::vector<std::shared_ptr<CComponent>> guiComponents;
 		for(auto & component : components)
-			guiComponents.push_back(std::make_shared<CComponent>(component));
+			guiComponents.push_back(std::make_shared<CComponent>(component, CComponent::medium));
 
 		if(GAME->interface()->localState->getCurrentHero())
 			CRClickPopup::createAndPush(obj->getPopupText(GAME->interface()->localState->getCurrentHero()), guiComponents);
@@ -296,6 +296,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
 
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(town->getOwner());
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
@@ -309,6 +312,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(hero->getOwner());
 	
 	addUsedEvents(DRAG_POPUP);
 
@@ -316,14 +322,25 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
-	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin("TOWNQVBK"), position)
+	: AdventureMapPopup(RCLICK_POPUP | PLAYER_COLORED, ImagePath::builtin(settings["general"]["enableUiEnhancements"].Bool() ? "GARRIPOP" : "TOWNQVBK"), position)
 {
 	InfoAboutTown iah;
 	GAME->interface()->cb->getTownInfo(garr, iah);
 
 	OBJECT_CONSTRUCTION;
-	tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
-	
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+	{
+        tooltip = std::make_shared<CGarrisonTooltip>(Point(9, 10), iah);
+	}
+	else
+	{
+        tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
+	}
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(garr->getOwner());
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
@@ -351,7 +368,7 @@ MinimapWithIcons::MinimapWithIcons(const Point & position)
 	Rect borderSurface(10, 40, 147, 147);
 	Rect borderUnderground(166, 40, 147, 147);
 
-	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1;
+	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1; // TODO: multilevel support
 
 	if (singleLevelMap)
 	{
@@ -375,7 +392,7 @@ void MinimapWithIcons::addIcon(const int3 & coordinates, const ImagePath & image
 
 	Rect areaSurface(11, 41, 144, 144);
 	Rect areaUnderground(167, 41, 144, 144);
-	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1;
+	bool singleLevelMap = GAME->interface()->cb->getMapSize().z == 1; // TODO: multilevel support
 	if (singleLevelMap)
 		areaSurface.x += 78;
 

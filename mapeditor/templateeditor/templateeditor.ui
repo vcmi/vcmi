@@ -200,15 +200,15 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pageGeneral">
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-148</y>
-          <width>449</width>
-          <height>662</height>
+          <y>0</y>
+          <width>441</width>
+          <height>936</height>
          </rect>
         </property>
         <attribute name="label">
@@ -497,6 +497,43 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="groupBoxEntities">
+           <property name="title">
+            <string>Entities</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_21">
+            <item>
+             <widget class="QPushButton" name="pushButtonEntitiesBannedSpells">
+              <property name="text">
+               <string>Banned Spells</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEntitiesBannedArtifacts">
+              <property name="text">
+               <string>Banned Artifacts</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEntitiesBannedSkills">
+              <property name="text">
+               <string>Banned Skills</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEntitiesBannedHeroes">
+              <property name="text">
+               <string>Banned Heroes</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -515,9 +552,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-980</y>
-          <width>449</width>
-          <height>1494</height>
+          <y>-106</y>
+          <width>441</width>
+          <height>1796</height>
          </rect>
         </property>
         <attribute name="label">
@@ -682,6 +719,18 @@
            <layout class="QVBoxLayout" name="verticalLayout_11">
             <item>
              <widget class="QComboBox" name="comboBoxZoneOwner"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxForcedLevel">
+           <property name="title">
+            <string>Forced level</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_22">
+            <item>
+             <widget class="QComboBox" name="comboBoxForcedLevel"/>
             </item>
            </layout>
           </widget>
@@ -1243,7 +1292,7 @@
           <x>0</x>
           <y>0</y>
           <width>462</width>
-          <height>514</height>
+          <height>491</height>
          </rect>
         </property>
         <attribute name="label">

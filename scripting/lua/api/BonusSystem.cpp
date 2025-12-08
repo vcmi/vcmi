@@ -235,32 +235,31 @@ int BonusBearerProxy::getBonuses(lua_State * L)
 	TConstBonusListPtr ret;
 
 	const bool hasSelector = S.isFunction(2);
-	const bool hasRangeSelector = S.isFunction(3);
+	//const bool hasRangeSelector = S.isFunction(3);
 
 	if(hasSelector)
 	{
-		auto selector = [](const Bonus * b)
-		{
-			return false; //TODO: BonusBearerProxy::getBonuses selector
-		};
-
-		if(hasRangeSelector)
-		{
-			auto rangeSelector = [](const Bonus * b)
+		//if(hasRangeSelector)
+		//{
+		//	//TODO: BonusBearerProxy::getBonuses rangeSelector
+		//	auto rangeSelector = [](const Bonus * b)
+		//	{
+		//		return false;
+		//	};
+		//	ret = object->getBonuses(rangeSelector);
+		//}
+		//else
+		//{
+			auto selector = [](const Bonus * b)
 			{
-				return false;//TODO: BonusBearerProxy::getBonuses rangeSelector
+				return false; //TODO: BonusBearerProxy::getBonuses selector
 			};
-
-			ret = object->getBonuses(selector, rangeSelector);
-		}
-		else
-		{
-			ret = object->getBonuses(selector, Selector::all);
-		}
+			ret = object->getBonuses(selector);
+		//}
 	}
 	else
 	{
-		ret = object->getBonuses(Selector::all, Selector::all);
+		ret = object->getBonuses(Selector::all);
 	}
 
 	S.clear();

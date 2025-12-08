@@ -49,6 +49,7 @@ These are object types that are available for modding and have configurable prop
 - `bank` - see [Creature Bank](Map_Objects/Creature_Bank.md). Object that grants award on defeating guardians. Deprectated in favor of [Rewardable](Map_Objects/Rewardable.md)
 - `dwelling` - see [Dwelling](Map_Objects/Dwelling.md). Object that allows recruitments of units outside of towns
 - `market` - see [Market](Map_Objects/Market.md). Trading resources, artifacts, creatures and such
+- `mine` - see [Mine](Map_Objects/Mine.md). for Mines
 - `boat` - see [Boat](Map_Objects/Boat.md). Object to move across different terrains, such as water
 - `flaggable` - see [Flaggable](Map_Objects/Flaggable.md). Object that can be flagged by a player to provide [Bonus](Bonus_Format.md) or resources
 - `hillFort` - TODO: documentation. See config files in vcmi installation for reference
@@ -64,7 +65,6 @@ These are types that don't have configurable properties, however it is possible 
 - `borderGate`
 - `borderGuard`
 - `magi`
-- `mine`
 - `obelisk`
 - `subterraneanGate`
 - `whirlpool`
@@ -194,8 +194,13 @@ These are internal types that are generally not available for modding and are ha
 		// optional; default or if explicitly set to null: all "land" terrains (e.g. not rock and not water)
 		// allowed terrain types to place object to. Affects also RMG.
 		// Note that map editor will still allow to place object on other terrains
-		// allowed terrain types: "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-		"allowedTerrains":["dirt", "sand"],
+		// h3 terrain types: "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
+		"allowedTerrains":[
+			"dirt",
+			"sand",
+			"asphalt", // terrain from mod, such form can only be used if mod has dependency on mod with such terrain
+			"hota:wasteland", // terrain from mod, such form can be used even without dependency, entry will be ignored if such mod does not exists
+		],
 
 		//zindex, defines order in which objects on same tile will be blit. optional, default is 0 
 		//NOTE: legacy overlay objects has zindex = 100

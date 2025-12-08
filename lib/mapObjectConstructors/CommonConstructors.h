@@ -15,10 +15,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/CGCreature.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../mapObjects/CGMarket.h"
 #include "../mapObjects/CGResource.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/ObstacleSetHandler.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -62,6 +60,22 @@ public:
 	int getBaseAmount(vstd::RNG & rng) const;
 
 	void randomizeObject(CGResource * object, IGameRandomizer & gameRandomizer) const override;
+};
+
+class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGMine>
+{
+	JsonNode config;
+	GameResID resourceType;
+	ui32 defaultQuantity;
+	AnimationPath kingdomOverviewImage;
+public:
+	void initTypeData(const JsonNode & input) override;
+
+	GameResID getResourceType() const;
+	ui32 getDefaultQuantity() const;
+	std::string getDescriptionTextID() const;
+	std::string getDescriptionTranslated() const;
+	AnimationPath getKingdomOverviewImage() const;
 };
 
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
@@ -124,27 +138,6 @@ public:
 
 	/// Returns boat preview animation, for use in Shipyards
 	AnimationPath getBoatAnimationName() const;
-};
-
-class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
-{
-	std::string descriptionTextID;
-	std::string speechTextID;
-	
-	std::set<EMarketMode> marketModes;
-	JsonNode predefinedOffer;
-	int marketEfficiency;
-
-	void initTypeData(const JsonNode & config) override;
-public:
-	std::shared_ptr<CGMarket> createObject(IGameInfoCallback * cb) const override;
-	void randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const override;
-
-	const std::set<EMarketMode> & availableModes() const;
-	bool hasDescription() const;
-
-	std::string getSpeechTranslated() const;
-	int getMarketEfficiency() const;
 };
 
 VCMI_LIB_NAMESPACE_END

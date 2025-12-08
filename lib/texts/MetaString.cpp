@@ -11,14 +11,15 @@
 #include "MetaString.h"
 
 #include "CCreatureHandler.h"
-#include "CCreatureSet.h"
 #include "entities/artifact/CArtifact.h"
 #include "entities/faction/CFaction.h"
 #include "entities/hero/CHero.h"
+#include "entities/ResourceTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "CSkillHandler.h"
 #include "GameConstants.h"
 #include "GameLibrary.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "spells/CSpellHandler.h"
 #include "serializer/JsonSerializeFormat.h"
@@ -378,7 +379,7 @@ void MetaString::appendName(const CreatureID & id, TQuantity count)
 
 void MetaString::appendName(const GameResID& id)
 {
-	appendTextID(TextIdentifier("core.restypes", id.getNum()).get());
+	appendTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::appendNameSingular(const CreatureID & id)
@@ -423,7 +424,7 @@ void MetaString::replaceName(const SpellID & id)
 
 void MetaString::replaceName(const GameResID& id)
 {
-	replaceTextID(TextIdentifier("core.restypes", id.getNum()).get());
+	replaceTextID(id.toResource()->getNameTextID());
 }
 
 void MetaString::replaceNameSingular(const CreatureID & id)

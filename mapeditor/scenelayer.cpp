@@ -29,15 +29,32 @@ void AbstractLayer::initialize(MapController & controller)
 
 void AbstractLayer::show(bool show)
 {
-	if(isShown == show)
-		return;
-	
 	isShown = show;
-	
+
 	redraw();
 }
 
-void AbstractLayer::redraw()
+
+int AbstractLayer::mapWidthPx() const
+{
+	return map ? map->width * tileSize : 0;
+}
+
+int AbstractLayer::mapHeightPx() const
+{
+	return map ? map->height * tileSize : 0;
+}
+
+int AbstractLayer::toInt(double value) const
+{
+	return static_cast<int>(std::round(value));	// is rounded explicitly in order to avoid rounding down unprecise double values
+}
+
+AbstractFixedLayer::AbstractFixedLayer(MapSceneBase * s): AbstractLayer(s)
+{
+}
+
+void AbstractFixedLayer::redraw()
 {
 	if(item)
 	{
@@ -55,90 +72,304 @@ void AbstractLayer::redraw()
 	}
 }
 
-GridLayer::GridLayer(MapSceneBase * s): AbstractLayer(s)
+AbstractViewportLayer::AbstractViewportLayer(MapSceneBase * s): AbstractLayer(s)
 {
 }
 
-void GridLayer::update()
+void AbstractViewportLayer::createLayer()
+{
+	QList<QGraphicsItem *>emptyList;
+	items.reset(scene->createItemGroup(emptyList));
+}
+
+void AbstractViewportLayer::setViewport(const QRectF & viewPort)
 {
 	if(!map)
 		return;
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(Qt::transparent);
-	QPainter painter(pixmap.get());
-	painter.setPen(QColor(0, 0, 0, 190));
-	
-	for(int j = 0; j < map->height; ++j)
+	if (items->boundingRect().contains(viewPort))
+		return;
+
+	std::vector<QGraphicsItem *> outOfScreenSectors;
+	for (QGraphicsItem * sector : getAllSectors())
 	{
-		painter.drawLine(0, j * 32, map->width * 32 - 1, j * 32);
+		if (!viewPort.intersects(sector->sceneBoundingRect()))
+			outOfScreenSectors.push_back(sector);
 	}
-	for(int i = 0; i < map->width; ++i)
+	for (QGraphicsItem * sector : outOfScreenSectors)
 	{
-		painter.drawLine(i * 32, 0, i * 32, map->height * 32 - 1);
+		removeSector(sector);
 	}
-	
+
+	std::vector<QRectF> newAreas;
+
+	int left = toInt(viewPort.left());
+	int right = toInt(viewPort.right());
+	int top = toInt(viewPort.top());
+	int bottom = toInt(viewPort.bottom());
+	int startX = left - (left % sectorSize);
+	int limitX = std::min(right + (sectorSize - right % sectorSize), mapWidthPx());
+	int startY = top - (top % sectorSize);
+	int limitY = std::min(bottom + (sectorSize - bottom % sectorSize), mapHeightPx());
+
+	for (int x = startX; x < limitX; x += sectorSize)
+	{
+		for (int y = startY; y < limitY; y += sectorSize)
+		{
+			int width = x + sectorSize < limitX ? sectorSize : limitX - x;
+			int height = y + sectorSize < limitY ? sectorSize : limitY - y;
+			QRectF area(x, y, width, height);
+			if (!items->boundingRect().intersects(area))
+				newAreas.emplace_back(area);
+		}
+	}
+
+	for(QRectF newSection : newAreas)
+	{
+		QGraphicsItem * sector = draw(newSection);
+		if (sector)
+			addSector(sector);
+	}
+}
+
+void AbstractViewportLayer::update()
+{
 	redraw();
 }
 
-PassabilityLayer::PassabilityLayer(MapSceneBase * s): AbstractLayer(s)
+void AbstractViewportLayer::redraw()
 {
+	std::set<QGraphicsItem *> allSectors;
+	for (auto * sector : getAllSectors())
+		allSectors.insert(sector);
+	redrawSectors(allSectors);
 }
 
-void PassabilityLayer::update()
+void AbstractViewportLayer::redraw(const std::vector<int3> & tiles)
+{
+	std::set<QGraphicsItem *> sectorsToRedraw = getContainingSectors(tiles);
+	redrawSectors(sectorsToRedraw);
+}
+
+void AbstractViewportLayer::redrawWithSurroundingTiles(const std::vector<int3> & tiles)
+{
+	int maxX = 0;
+	int maxY = 0;
+	int minX = INT_MAX;
+	int minY = INT_MAX;
+	for (const int3 tile : tiles)
+	{
+		maxX = std::max(tile.x, maxX);
+		maxY = std::max(tile.y, maxY);
+		minX = std::min(tile.x, minX);
+		minY = std::min(tile.y, minY);
+	}
+
+	QRectF bounds((minX - 2) * tileSize, (minY - 2) * tileSize, (maxX - minX + 4) * tileSize, (maxY - minY + 4) * tileSize);	//tiles start with 1, QRectF from 0
+	redraw({bounds});
+}
+
+void AbstractViewportLayer::redraw(const std::set<CGObjectInstance *> & objects)
+{
+	std::vector<QRectF> areas;
+	areas.reserve(objects.size());
+	for (const CGObjectInstance * object : objects)
+	{
+		areas.push_back(getObjectArea(object));
+	}
+	redraw(areas);
+}
+
+void AbstractViewportLayer::redraw(const std::vector<QRectF> & areas)
+{
+	std::set<QGraphicsItem *> intersectingSectors;
+	for (QGraphicsItem * existingSector : getAllSectors())
+	{
+		for (auto area : areas)
+		{
+			if (existingSector->sceneBoundingRect().intersects(area))
+			{
+				intersectingSectors.insert(existingSector);
+			}
+		}
+	}
+	redrawSectors(intersectingSectors);
+}
+
+QRectF AbstractViewportLayer::getObjectArea(const CGObjectInstance * object) const
+{
+	auto pos = object->pos;
+	int x = ((pos.x + 1) * tileSize) - (object->getWidth() * tileSize);	//Qt set 0,0 point on the top right corner, CGObjectInstance on the bottom left
+	int y = ((pos.y + 1) * tileSize) - (object->getHeight() * tileSize);
+	QRectF objectArea(x, y, object->getWidth() * tileSize, object->getHeight() * tileSize);
+	return objectArea;
+}
+
+void AbstractViewportLayer::addSector(QGraphicsItem * sector)
+{
+	items->addToGroup(sector);
+}
+
+void AbstractViewportLayer::removeSector(QGraphicsItem * sector)
+{
+	items->removeFromGroup(sector);
+	delete sector;
+}
+
+void AbstractViewportLayer::redrawSectors(std::set<QGraphicsItem *> & sectors)
+{
+	std::set<QGraphicsItem *> sectorsToRemove;
+
+	for (QGraphicsItem * existingSectors : getAllSectors())
+	{
+		for (QGraphicsItem * sector : sectors)
+		{
+			if (existingSectors->sceneBoundingRect().contains(sector->sceneBoundingRect()))
+				sectorsToRemove.insert(existingSectors);
+		}
+	}
+	for (QGraphicsItem * sectorToRemove : sectorsToRemove)
+	{
+		addSector(draw(sectorToRemove->sceneBoundingRect()));
+		removeSector(sectorToRemove);
+	}
+}
+
+const QList<QGraphicsItem *> AbstractViewportLayer::getAllSectors() const	//returning const is necessary to avoid "range-loop might detach Qt container" problem
+{
+	QList<QGraphicsItem *> emptyList;
+	return items ? items->childItems() : emptyList;
+}
+
+std::set<QGraphicsItem *> AbstractViewportLayer::getContainingSectors(const std::vector<int3> & tiles) const
+{
+	std::set<QGraphicsItem *> result;
+	for (QGraphicsItem * existingSector : getAllSectors()) {
+		for (const int3 tile : tiles)
+		{
+			if (existingSector->sceneBoundingRect().contains(QPointF(tile.x * tileSize, tile.y * tileSize)))
+			{
+				result.insert(existingSector);
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+std::set<QGraphicsItem *> AbstractViewportLayer::getIntersectingSectors(const std::vector<QRectF> & areas) const
+{
+	std::set<QGraphicsItem *> result;
+	for (QGraphicsItem * existingSector : getAllSectors()) {
+		for (QRectF area : areas)
+		{
+			if (existingSector->sceneBoundingRect().intersects(area))
+			{
+				result.insert(existingSector);
+			}
+		}
+	}
+	return result;
+}
+
+EmptyLayer::EmptyLayer(MapSceneBase * s): AbstractFixedLayer(s)
+{
+	isShown = true;
+}
+
+void EmptyLayer::update()
 {
 	if(!map)
 		return;
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(Qt::transparent);
-	
-	if(scene->level == 0 || map->twoLevel)
+
+	pixmap = std::make_unique<QPixmap>(map->width * 32, map->height * 32);
+	redraw();
+}
+
+GridLayer::GridLayer(MapSceneBase * s): AbstractViewportLayer(s)
+{
+}
+
+QGraphicsItem * GridLayer::draw(const QRectF & section)
+{
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
+	if (isShown)
 	{
-		QPainter painter(pixmap.get());
-		for(int j = 0; j < map->height; ++j)
+		QPainter painter(&pixmap);
+		painter.setPen(QColor(0, 0, 0, 190));
+
+		for(int j = 0; j <= pixmap.height(); j += tileSize)
 		{
-			for(int i = 0; i < map->width; ++i)
+			painter.drawLine(0, j, pixmap.width(), j);
+		}
+		for(int i = 0; i <= pixmap.width(); i += tileSize)
+		{
+			painter.drawLine(i, 0, i, pixmap.height());
+		}
+	}
+
+	QGraphicsItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
+}
+
+PassabilityLayer::PassabilityLayer(MapSceneBase * s): AbstractViewportLayer(s)
+{
+}
+
+QGraphicsItem * PassabilityLayer::draw(const QRectF & section)
+{
+
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
+
+	if(isShown)
+	{
+		QPainter painter(&pixmap);
+		for(int j = 0; j <= pixmap.height(); j += tileSize)
+		{
+			for(int i = 0; i < pixmap.width(); i += tileSize)
 			{
-				auto tl = map->getTile(int3(i, j, scene->level));
+				auto tl = map->getTile(int3(toInt(section.x())/tileSize + i/tileSize, toInt(section.y())/tileSize + j/tileSize, scene->level));
 				if(tl.blocked() || tl.visitable())
 				{
-					painter.fillRect(i * 32, j * 32, 31, 31, tl.visitable() ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
+					painter.fillRect(i, j, 31, 31, tl.visitable() ? QColor(200, 200, 0, 64) : QColor(255, 0, 0, 64));
 				}
 			}
 		}
 	}
-	
-	redraw();
+
+	QGraphicsItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
 }
 
-ObjectPickerLayer::ObjectPickerLayer(MapSceneBase * s): AbstractLayer(s)
+ObjectPickerLayer::ObjectPickerLayer(MapSceneBase * s): AbstractViewportLayer(s)
 {
 }
 
-void ObjectPickerLayer::highlight(std::function<bool(const CGObjectInstance *)> predicate)
+void ObjectPickerLayer::highlight(const std::function<bool(const CGObjectInstance *)> & predicate)
 {
 	if(!map)
 		return;
 	
-	if(scene->level == 0 || map->twoLevel)
+	for(int j = 0; j < map->height; ++j)
 	{
-		for(int j = 0; j < map->height; ++j)
+		for(int i = 0; i < map->width; ++i)
 		{
-			for(int i = 0; i < map->width; ++i)
-			{
-				auto tl = map->getTile(int3(i, j, scene->level));
-				ObjectInstanceID objID = tl.topVisitableObj();
-				if(!objID.hasValue() && !tl.blockingObjects.empty())
-					objID = tl.blockingObjects.front();
+			auto tl = map->getTile(int3(i, j, scene->level));
+			ObjectInstanceID objID = tl.topVisitableObj();
+			if(!objID.hasValue() && !tl.blockingObjects.empty())
+				objID = tl.blockingObjects.front();
 
-				if (objID.hasValue())
-				{
-					const CGObjectInstance * obj = map->getObject(objID);
-				
-					if(obj && predicate(obj))
-						possibleObjects.insert(obj);
-				}
+			if (objID.hasValue())
+			{
+				const CGObjectInstance * obj = map->getObject(objID);
+			
+				if(obj && predicate(obj))
+					possibleObjects.insert(obj);
 			}
 		}
 	}
@@ -157,29 +388,33 @@ void ObjectPickerLayer::clear()
 	isActive = false;
 }
 
-void ObjectPickerLayer::update()
+QGraphicsItem * ObjectPickerLayer::draw(const QRectF & section)
 {
-	if(!map)
-		return;
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(Qt::transparent);
-	if(isActive)
-		pixmap->fill(QColor(255, 255, 255, 128));
-	
-	
-	QPainter painter(pixmap.get());
+
+	int offsetX = toInt(section.x());
+	int offsetY = toInt(section.y());
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
+
+	if(isVisible())
+		pixmap.fill(QColor(255, 255, 255, 128));
+
+
+	QPainter painter(&pixmap);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	for(auto * obj : possibleObjects)
+	for(const auto * obj : possibleObjects)
 	{
 		if(obj->pos.z != scene->level)
 			continue;
-		
-		for(auto & pos : obj->getBlockedPos())
-			painter.fillRect(pos.x * 32, pos.y * 32, 32, 32, QColor(255, 211, 0, 64));
+
+		for(const auto & pos : obj->getBlockedPos())
+			painter.fillRect(pos.x * tileSize - offsetX, pos.y * tileSize - offsetY, tileSize, tileSize, QColor(255, 211, 0, 64));
 	}
-	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-	redraw();
+
+	QGraphicsItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
 }
 
 void ObjectPickerLayer::select(const CGObjectInstance * obj)
@@ -187,92 +422,71 @@ void ObjectPickerLayer::select(const CGObjectInstance * obj)
 	if(obj && possibleObjects.count(obj))
 	{
 		clear();
-		selectionMade(obj);
+		Q_EMIT selectionMade(obj);
 	}
 }
 
 void ObjectPickerLayer::discard()
 {
 	clear();
-	selectionMade(nullptr);
+	Q_EMIT selectionMade(nullptr);
 }
 
-SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractLayer(s)
+SelectionTerrainLayer::SelectionTerrainLayer(MapSceneBase * s): AbstractViewportLayer(s)
 {
 }
 
-void SelectionTerrainLayer::update()
+QGraphicsItem * SelectionTerrainLayer::draw(const QRectF & section)
 {
-	if(!map)
-		return;
-	
-	area.clear();
-	areaAdd.clear();
-	areaErase.clear();
-	onSelection();
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(Qt::transparent);
-	
-	redraw();
-}
+	int offsetX = toInt(section.x());
+	int offsetY = toInt(section.y());
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
 
-void SelectionTerrainLayer::draw()
-{
-	if(!pixmap)
-		return;
-	
-	QPainter painter(pixmap.get());
+	QPainter painter(&pixmap);
+
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	for(auto & t : areaAdd)
+	for(const auto & t : area)
 	{
-		painter.fillRect(t.x * 32, t.y * 32, 31, 31, QColor(128, 128, 128, 96));
+		if(section.contains(t.x * tileSize, t.y * tileSize))
+			painter.fillRect(t.x * tileSize - offsetX, t.y * tileSize - offsetY, 31, 31, QColor(128, 128, 128, 96));
 	}
-	for(auto & t : areaErase)
-	{
-		painter.fillRect(t.x * 32, t.y * 32, 31, 31, QColor(0, 0, 0, 0));
-	}
-	
-	areaAdd.clear();
-	areaErase.clear();
-	
-	redraw();
+
+	QGraphicsPixmapItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
 }
 
-void SelectionTerrainLayer::select(const int3 & tile)
+void SelectionTerrainLayer::select(const std::vector<int3> & tiles)
 {
-	if(!map || !map->isInTheMap(tile))
-		return;
-	
-	if(!area.count(tile))
+	for (int3 tile : tiles)
 	{
-		area.insert(tile);
-		areaAdd.insert(tile);
-		areaErase.erase(tile);
+		if(!area.count(tile) && map->isInTheMap(tile))
+			area.insert(tile);
 	}
+	redraw(tiles);
 	onSelection();
 }
 
-void SelectionTerrainLayer::erase(const int3 & tile)
+void SelectionTerrainLayer::erase(const std::vector<int3> & tiles)
 {
-	if(!map || !map->isInTheMap(tile))
-		return;
-	
-	if(area.count(tile))
+	for (int3 tile : tiles)
 	{
-		area.erase(tile);
-		areaErase.insert(tile);
-		areaAdd.erase(tile);
+		if(area.count(tile))
+		{
+			area.erase(tile);
+		}
 	}
+	redraw(tiles);
 	onSelection();
 }
 
 void SelectionTerrainLayer::clear()
 {
-	areaErase = area;
-	areaAdd.clear();
 	area.clear();
 	onSelection();
+	redraw();
 }
 
 const std::set<int3> & SelectionTerrainLayer::selection() const
@@ -282,157 +496,72 @@ const std::set<int3> & SelectionTerrainLayer::selection() const
 
 void SelectionTerrainLayer::onSelection()
 {
-	selectionMade(!area.empty());
+	 Q_EMIT selectionMade(!area.empty());
 }
 
 
-TerrainLayer::TerrainLayer(MapSceneBase * s): AbstractLayer(s)
+TerrainLayer::TerrainLayer(MapSceneBase * s): AbstractViewportLayer(s)
 {
 }
 
-void TerrainLayer::update()
+void TerrainLayer::redrawTerrain(const std::vector<int3> & tiles)
 {
-	if(!map)
-		return;
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	draw(false);
+	redrawWithSurroundingTiles(tiles);
 }
 
-void TerrainLayer::setDirty(const int3 & tile)
+QGraphicsItem * TerrainLayer::draw(const QRectF & section)
 {
-	dirty.insert(tile);
-}
+	int left = toInt(section.left());
+	int right = toInt(section.right());
+	int top = toInt(section.top());
+	int bottom = toInt(section.bottom());
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
 
-void TerrainLayer::draw(bool onlyDirty)
-{
-	if(!pixmap)
-		return;
-	
-	if(!map)
-		return;
-	
-	QPainter painter(pixmap.get());
-	//painter.setCompositionMode(QPainter::CompositionMode_Source);
-	
-	if(onlyDirty)
+	QPainter painter(&pixmap);
+
+	QPointF offset = section.topLeft();
+
+	for(int x = left/tileSize; x < right/tileSize; ++x)
 	{
-		std::set<int3> forRedrawing(dirty);
-		std::set<int3> neighbours;
-		for(auto & t : dirty)
+		for(int y = top/tileSize; y < bottom/tileSize; ++y)
 		{
-			for(auto & tt : int3::getDirs())
-			{
-				if(map->isInTheMap(t + tt))
-					neighbours.insert(t + tt);
-			}
-		}
-		for(auto & t : neighbours)
-		{
-			for(auto & tt : int3::getDirs())
-			{
-				forRedrawing.insert(t);
-				if(map->isInTheMap(t + tt))
-					forRedrawing.insert(t + tt);
-			}
-		}
-		for(auto & t : forRedrawing)
-		{
-			handler->drawTerrainTile(painter, t.x, t.y, scene->level);
-			handler->drawRiver(painter, t.x, t.y, scene->level);
-			handler->drawRoad(painter, t.x, t.y, scene->level);
+			handler->drawTerrainTile(painter, x, y, scene->level, offset);
+			handler->drawRiver(painter, x, y, scene->level, offset);
+			handler->drawRoad(painter, x, y, scene->level, offset);
 		}
 	}
-	else
+
+	QGraphicsPixmapItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
+}
+
+ObjectsLayer::ObjectsLayer(MapSceneBase * s): AbstractViewportLayer(s)
+{
+}
+
+QGraphicsItem * ObjectsLayer::draw(const QRectF & section)
+{
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
+
+	if (isShown)
 	{
-		for(int j = 0; j < map->height; ++j)
-		{
-			for(int i = 0; i < map->width; ++i)
-			{
-				handler->drawTerrainTile(painter, i, j, scene->level);
-				handler->drawRiver(painter, i, j, scene->level);
-				handler->drawRoad(painter, i, j, scene->level);
-			}
-		}
+		QPainter painter(&pixmap);
+		handler->drawObjects(painter, section, scene->level, lockedObjects);
 	}
-	
-	dirty.clear();
-	redraw();
+
+	QGraphicsPixmapItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
 }
 
-ObjectsLayer::ObjectsLayer(MapSceneBase * s): AbstractLayer(s)
+void ObjectsLayer::redrawObjects(const std::set<CGObjectInstance *> & objects)
 {
-}
-
-void ObjectsLayer::update()
-{
-	if(!map)
-		return;
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	pixmap->fill(Qt::transparent);
-	draw(false);
-}
-
-void ObjectsLayer::draw(bool onlyDirty)
-{
-	if(!pixmap)
-		return;
-	
-	if(!map)
-		return;
-	
-	QPainter painter(pixmap.get());
-
-	if(onlyDirty)
-	{
-		//objects could be modified
-		for(auto * obj : objDirty)
-			setDirty(obj);
-		
-		//clear tiles which will be redrawn. It's needed because some object could be replaced
-		painter.setCompositionMode(QPainter::CompositionMode_Source);
-		for(auto & p : dirty)
-			painter.fillRect(p.x * 32, p.y * 32, 32, 32, Qt::transparent);
-		painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-		
-		for(auto & p : dirty)
-			handler->drawObjects(painter, p.x, p.y, p.z, lockedObjects);
-	}
-	else
-	{
-		pixmap->fill(Qt::transparent);
-		for(int j = 0; j < map->height; ++j)
-		{
-			for(int i = 0; i < map->width; ++i)
-			{
-				handler->drawObjects(painter, i, j, scene->level, lockedObjects);
-			}
-		}
-	}
-	
-	dirty.clear();
-	redraw();
-}
-
-void ObjectsLayer::setDirty(int x, int y)
-{
-	int3 pos(x, y, scene->level);
-	if(map->isInTheMap(pos))
-		dirty.insert(pos);
-}
-
-void ObjectsLayer::setDirty(const CGObjectInstance * object)
-{
-	objDirty.insert(object);
-	//mark tiles under object as dirty
-	for(int j = 0; j < object->getHeight(); ++j)
-	{
-		for(int i = 0; i < object->getWidth(); ++i)
-		{
-			setDirty(object->anchorPos().x - i, object->anchorPos().y - j);
-		}
-	}
+	redraw(objects);
 }
 
 void ObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
@@ -441,71 +570,73 @@ void ObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
 		lockedObjects.insert(object);
 	else
 		lockedObjects.erase(object);
+	QRectF area = getObjectArea(object);
+	redraw({area});
 }
 
 void ObjectsLayer::unlockAll()
 {
 	lockedObjects.clear();
+	redraw();
 }
 
-SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractLayer(s), newObject(nullptr)
+SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractViewportLayer(s), newObject(nullptr)
 {
 }
 
-void SelectionObjectsLayer::update()
-{
-	if(!map)
-		return;
-	
-	selectedObjects.clear();
-	onSelection();
-	shift = QPoint();
-	newObject.reset();
-	
-	pixmap.reset(new QPixmap(map->width * 32, map->height * 32));
-	//pixmap->fill(QColor(0, 0, 0, 0));
-	
-	draw();
-}
 
-void SelectionObjectsLayer::draw()
+QGraphicsItem * SelectionObjectsLayer::draw(const QRectF & section)
 {
-	if(!pixmap)
-		return;
-	
-	pixmap->fill(Qt::transparent);
-	
-	QPainter painter(pixmap.get());
-	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	painter.setPen(Qt::white);
-	
-	for(auto * obj : selectedObjects)
+	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
+	pixmap.fill(Qt::transparent);
+
+	if (isShown)
 	{
-		if(obj != newObject.get())
+		QPainter painter(&pixmap);
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
+		painter.setPen(Qt::white);
+
+		QPointF offset = section.topLeft();
+
+		for(auto * obj : selectedObjects)
 		{
-			QRect bbox(obj->anchorPos().x, obj->anchorPos().y, 1, 1);
-			for(auto & t : obj->getBlockedPos())
+			auto objectArea = getObjectArea(obj);
+			if(obj != newObject.get() && section.intersects(objectArea))
 			{
-				QPoint topLeft(std::min(t.x, bbox.topLeft().x()), std::min(t.y, bbox.topLeft().y()));
-				bbox.setTopLeft(topLeft);
-				QPoint bottomRight(std::max(t.x, bbox.bottomRight().x()), std::max(t.y, bbox.bottomRight().y()));
-				bbox.setBottomRight(bottomRight);
+				auto pos = obj->anchorPos();
+				QRectF bbox(pos.x, pos.y, 1, 1);
+				for(const auto & t : obj->getBlockedPos())
+				{
+					QPointF topLeft(std::min(t.x * 1.0, bbox.topLeft().x()), std::min(t.y * 1.0, bbox.topLeft().y()));
+					bbox.setTopLeft(topLeft);
+					QPointF bottomRight(std::max(t.x * 1.0, bbox.bottomRight().x()), std::max(t.y * 1.0, bbox.bottomRight().y()));
+					bbox.setBottomRight(bottomRight);
+				}
+				//selection box's size was decreased by 1 px to get rid of a persistent bug
+				//with displaying a box on a border of two sectors. Bite me.
+
+				painter.setOpacity(1.0);
+				QRectF rect((bbox.x() * tileSize + 1) - offset.x(), (bbox.y() * tileSize + 1) - offset.y(), (bbox.width() * tileSize) - 2, (bbox.height() * tileSize) - 2);
+				painter.drawRect(rect);
 			}
-			
-			painter.setOpacity(1.0);
-			painter.drawRect(bbox.x() * 32, bbox.y() * 32, bbox.width() * 32, bbox.height() * 32);
-		}
-		
-		//show translation
-		if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
-		{
-			painter.setOpacity(0.7);
-			auto newPos = QPoint(obj->anchorPos().x, obj->anchorPos().y) + shift;
-			handler->drawObjectAt(painter, obj, newPos.x(), newPos.y());
+
+			if(selectionMode == SelectionMode::MOVEMENT && (shift.x() || shift.y()))
+			{
+				objectArea.moveTo(objectArea.topLeft() + (shift * tileSize));
+				if (section.intersects(objectArea))
+				{
+					painter.setOpacity(0.7);
+					auto newPos = QPoint(obj->anchorPos().x, obj->anchorPos().y) + shift;
+					handler->drawObjectAt(painter, obj, newPos.x(), newPos.y(), offset);
+				}
+			}
 		}
 	}
-	
-	redraw();
+
+	QGraphicsPixmapItem * result = scene->addPixmap(pixmap);
+	result->setPos(section.x(), section.y());
+
+	return result;
 }
 
 CGObjectInstance * SelectionObjectsLayer::selectObjectAt(int x, int y, const CGObjectInstance * ignore) const
@@ -564,7 +695,8 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 	
 	if(y1 > y2)
 		std::swap(y1, y2);
-	
+
+	std::set<CGObjectInstance *> selectedObjects;
 	for(int j = y1; j < y2; ++j)
 	{
 		for(int i = x1; i < x2; ++i)
@@ -573,25 +705,36 @@ void SelectionObjectsLayer::selectObjects(int x1, int y1, int x2, int y2)
 			{
 				for(auto & o : handler->getObjects(i, j, scene->level))
 					if(!lockedObjects.count(o.obj))
-						selectObject(const_cast<CGObjectInstance*>(o.obj), false); //do not inform about each object added
+					{
+						selectedObjects.insert(const_cast<CGObjectInstance*>(o.obj));
+					}
 			}
 		}
 	}
-	onSelection();
+	selectObjects(selectedObjects);
 }
 
-void SelectionObjectsLayer::selectObject(CGObjectInstance * obj, bool inform /* = true */)
+void SelectionObjectsLayer::selectObject(CGObjectInstance * obj)
 {
 	selectedObjects.insert(obj);
-	if (inform)
+	onSelection();
+	redraw({obj});
+}
+
+void SelectionObjectsLayer::selectObjects(const std::set<CGObjectInstance *> & objs)
+{
+	for (CGObjectInstance * obj : objs)
 	{
-		onSelection();
+		selectedObjects.insert(obj);
 	}
+	onSelection();
+	redraw(objs);
 }
 
 void SelectionObjectsLayer::deselectObject(CGObjectInstance * obj)
 {
 	selectedObjects.erase(obj);
+	redraw({obj});
 }
 
 bool SelectionObjectsLayer::isSelected(const CGObjectInstance * obj) const
@@ -607,22 +750,47 @@ std::set<CGObjectInstance*> SelectionObjectsLayer::getSelection() const
 void SelectionObjectsLayer::clear()
 {
 	selectedObjects.clear();
-	onSelection();
 	shift.setX(0);
 	shift.setY(0);
+	redraw();
 }
 
 void SelectionObjectsLayer::onSelection()
 {
-	selectionMade(!selectedObjects.empty());
+	 Q_EMIT selectionMade(!selectedObjects.empty());
 }
 
-void SelectionObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
+void SelectionObjectsLayer::setShift(int x, int y)
+{
+	std::vector<QRectF>areas;
+
+	if(shift.x() || shift.y())
+	{
+		for (auto * selectedObject : selectedObjects)
+		{
+			QRectF formerArea = getObjectArea(selectedObject);
+			formerArea.moveTo(formerArea.topLeft() + (shift * tileSize));
+			areas.emplace_back(formerArea);
+		}
+	}
+
+	shift = QPoint(x, y);
+	for (auto * selectedObject : selectedObjects)
+	{
+		QRectF area = getObjectArea(selectedObject);
+		area.moveTo(area.topLeft() + (shift * tileSize));
+		areas.emplace_back(area);
+	}
+	redraw(areas);
+}
+
+void SelectionObjectsLayer::setLockObject(CGObjectInstance * object, bool lock)
 {
 	if(lock)
 		lockedObjects.insert(object);
 	else
 		lockedObjects.erase(object);
+	redraw({object});
 }
 
 void SelectionObjectsLayer::unlockAll()
@@ -630,18 +798,18 @@ void SelectionObjectsLayer::unlockAll()
 	lockedObjects.clear();
 }
 
-MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractLayer(s)
+MinimapLayer::MinimapLayer(MapSceneBase * s): AbstractFixedLayer(s)
 {
-	
+
 }
 
 void MinimapLayer::update()
 {
 	if(!map)
 		return;
-	
-	pixmap.reset(new QPixmap(map->width, map->height));
-	
+
+	pixmap = std::make_unique<QPixmap>(map->width, map->height);
+
 	QPainter painter(pixmap.get());
 	//coordinate transformation
 	for(int j = 0; j < map->height; ++j)
@@ -655,7 +823,7 @@ void MinimapLayer::update()
 	redraw();
 }
 
-MinimapViewLayer::MinimapViewLayer(MapSceneBase * s): AbstractLayer(s)
+MinimapViewLayer::MinimapViewLayer(MapSceneBase * s): AbstractFixedLayer(s)
 {
 }
 
@@ -663,9 +831,9 @@ void MinimapViewLayer::update()
 {
 	if(!map)
 		return;
-	
-	pixmap.reset(new QPixmap(map->width, map->height));
-	
+
+	pixmap = std::make_unique<QPixmap>(map->width, map->height);
+
 	draw();
 }
 

@@ -88,7 +88,7 @@ target_link_libraries(vcmiLua Boost::boost luajit::luajit vcmi)
 vcmi_set_output_dir(vcmiLua "scripting")
 enable_pch(vcmiLua)
 
-if(APPLE_IOS)
+if(IOS)
 	install(TARGETS vcmiLua LIBRARY DESTINATION ${SCRIPTING_LIB_DIR})
 else()
 	install(TARGETS vcmiLua DESTINATION ${SCRIPTING_LIB_DIR})

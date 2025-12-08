@@ -48,6 +48,8 @@ std::tuple<int, int> ScreenHandler::getSupportedScalingRange() const
 	Point renderResolution = getRenderResolution();
 	double reservedAreaWidth = settings["video"]["reservedWidth"].Float();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 
 	double maximalScalingWidth = 100.0 * availableResolution.x / minResolution.x;
 	double maximalScalingHeight = 100.0 * availableResolution.y / minResolution.y;
@@ -114,6 +116,8 @@ Point ScreenHandler::getPreferredLogicalResolution() const
 
 	int scaling = getInterfaceScalingPercentage();
 	Point availableResolution = Point(renderResolution.x * (1 - reservedAreaWidth), renderResolution.y);
+	if(renderResolution.x < renderResolution.y) // reserved in portrait mode
+		availableResolution = Point(renderResolution.x, renderResolution.y * (1 - reservedAreaWidth));
 	Point logicalResolution = availableResolution * 100.0 / scaling;
 	return logicalResolution;
 }
@@ -298,7 +302,6 @@ void ScreenHandler::updateWindowState()
 			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
-			SDL_SetWindowPosition(mainWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex), SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
 			return;
 		}
 	}
@@ -480,9 +483,24 @@ SDL_Window * ScreenHandler::createWindow()
 #endif
 }
 
-void ScreenHandler::onScreenResize()
+bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 {
+	if(getPreferredWindowMode() == EWindowMode::WINDOWED && keepWindowResolution)
+	{
+		auto res = getRenderResolution();
+
+		if(res.x < heroes3Resolution.x || res.y < heroes3Resolution.y)
+			return false;
+
+		Settings video = settings.write["video"];
+		video["resolution"]["width"].Integer() = res.x;
+		video["resolution"]["height"].Integer() = res.y;
+	}
+	else if(keepWindowResolution)
+		return false;
+
 	recreateWindowAndScreenBuffers();
+	return true;
 }
 
 void ScreenHandler::validateSettings()

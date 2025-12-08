@@ -51,6 +51,7 @@
 #include "../../lib/entities/artifact/CArtHandler.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/gameState/InfoAboutArmy.h"
+#include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
@@ -105,6 +106,10 @@ BattleWindow::BattleWindow(BattleInterface & Owner)
 	addShortcut(EShortcut::BATTLE_TOGGLE_HEROES_STATS, [this](){ this->toggleStickyHeroWindowsVisibility();});
 	addShortcut(EShortcut::BATTLE_USE_CREATURE_SPELL, [this](){ this->owner.actionsController->enterCreatureCastingMode(); });
 	addShortcut(EShortcut::GLOBAL_CANCEL, [this](){ this->owner.actionsController->endCastingSpell(); });
+	addShortcut(EShortcut::ADVENTURE_QUICK_LOAD, [this](){
+		//allow quick load only on player turn while no animations are ongoing
+		if (!this->owner.hasAnimations() && this->owner.stacksController->getActiveStack())
+			GAME->interface()->proposeQuickLoadingGame(); });
 
 	build(config);
 	
@@ -148,8 +153,9 @@ void BattleWindow::createQueue()
 		//re-center, taking into account stack queue position
 		pos.y -= queue->pos.h;
 		pos.h += queue->pos.h;
-		pos = center();
 	}
+	if(showQueue)
+		pos = center();
 
 	if (!showQueue)
 		queue->disable();
@@ -191,10 +197,10 @@ void BattleWindow::createQuickSpellWindow()
 	OBJECT_CONSTRUCTION;
 
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
-	quickSpellWindow->moveTo(Point(pos.x - 67, pos.y));
+	quickSpellWindow->moveTo(Point(pos.x - 52, pos.y));
 
 	unitActionWindow = std::make_shared<UnitActionPanel>(owner);
-	unitActionWindow->moveTo(Point(pos.x + pos.w + 15, pos.y));
+	unitActionWindow->moveTo(Point(pos.x + pos.w, pos.y));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
 		showStickyQuickSpellWindow();
@@ -218,8 +224,8 @@ void BattleWindow::hideStickyQuickSpellWindow()
 	quickSpellWindow->disable();
 	unitActionWindow->disable();
 
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -230,14 +236,17 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	auto hero = owner.getBattle()->battleGetMyHero();
 
-	bool quickSpellWindowVisible = ENGINE->screenDimensions().x >= 1050 && hero != nullptr && hero->hasSpellbook();
-	bool unitActionWindowVisible = ENGINE->screenDimensions().x >= 1050;
+	bool quickSpellWindowVisible = hasSpaceForQuickActions() && hero != nullptr && hero->hasSpellbook();
+	bool unitActionWindowVisible = hasSpaceForQuickActions();
 
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
 	unitActionWindow->setEnabled(unitActionWindowVisible);
 
-	setPositionInfoWindow();
+	if(owner.actionsController && unitActionWindowVisible) // needed after resize of window
+		owner.actionsController->activateStack();
+
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
 
@@ -245,8 +254,8 @@ void BattleWindow::createTimerInfoWindows()
 {
 	OBJECT_CONSTRUCTION;
 
-	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
-	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 53;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;
+	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 51;
 
 	if(GAME->interface()->cb->getStartInfo()->turnTimerInfo.battleTimer != 0 || GAME->interface()->cb->getStartInfo()->turnTimerInfo.unitTimer != 0)
 	{
@@ -255,16 +264,16 @@ void BattleWindow::createTimerInfoWindows()
 
 		if (attacker.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-92 + xOffsetAttacker, 1), attacker);
+			if (placeInfoWindowsOutside())
+				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(-76 + xOffsetAttacker, 0), attacker);
 			else
 				attackerTimerWidget = std::make_shared<TurnTimerWidget>(Point(1, 135), attacker);
 		}
 
 		if (defender.isValidPlayer())
 		{
-			if (ENGINE->screenDimensions().x >= 1000)
-				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + 16 + xOffsetDefender, 1), defender);
+			if (placeInfoWindowsOutside())
+				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w + xOffsetDefender, 0), defender);
 			else
 				defenderTimerWidget = std::make_shared<TurnTimerWidget>(Point(pos.w - 78, 135), defender);
 		}
@@ -317,8 +326,8 @@ void BattleWindow::hideQueue()
 		//re-center, taking into account stack queue position
 		pos.y += queue->pos.h;
 		pos.h -= queue->pos.h;
-		pos = center();
 	}
+	pos = center();
 	setPositionInfoWindow();
 	ENGINE->windows().totalRedraw();
 }
@@ -383,34 +392,37 @@ void BattleWindow::updateQueue()
 
 void BattleWindow::setPositionInfoWindow()
 {
-	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -53;
-	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 53;
+	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;
+	int xOffsetDefender = unitActionWindow->isDisabled() ? 0 : 51;
+
+	int yOffsetAttacker = attackerTimerWidget ? attackerTimerWidget->pos.h + 9 : 0;
+	int yOffsetDefender = defenderTimerWidget ? defenderTimerWidget->pos.h + 9 : 0;
 
 	if(defenderHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15 + xOffsetDefender, pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x + pos.w - 1 + xOffsetDefender, pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, pos.y + 195);
 		defenderHeroWindow->moveTo(position);
 	}
 	if(attackerHeroWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x - 77 + xOffsetAttacker, pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, pos.y + 195);
 		attackerHeroWindow->moveTo(position);
 	}
 	if(defenderStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x + pos.w + 15 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x + pos.w - 1 + xOffsetDefender, defenderHeroWindow ? defenderHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetDefender)
 				: Point(pos.x + pos.w -79, defenderHeroWindow ? defenderHeroWindow->pos.y : pos.y + 195);
 		defenderStackWindow->moveTo(position);
 	}
 	if(attackerStackWindow)
 	{
-		Point position = (ENGINE->screenDimensions().x >= 1000)
-				? Point(pos.x - 93 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y + 60)
+		Point position = placeInfoWindowsOutside()
+				? Point(pos.x - 77 + xOffsetAttacker, attackerHeroWindow ? attackerHeroWindow->pos.y + 210 : pos.y - 1 + yOffsetAttacker)
 				: Point(pos.x + 1, attackerHeroWindow ? attackerHeroWindow->pos.y : pos.y + 195);
 		attackerStackWindow->moveTo(position);
 	}
@@ -444,8 +456,8 @@ void BattleWindow::updateStackInfoWindow(const CStack * stack)
 	else
 		attackerStackWindow = nullptr;
 	
-	setPositionInfoWindow();
 	createTimerInfoWindows();
+	setPositionInfoWindow();
 }
 
 void BattleWindow::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -844,10 +856,12 @@ void BattleWindow::endWithAutocombat()
 
 void BattleWindow::showAll(Canvas & to)
 {
+	if(owner.curInt->cb->getMapHeader()->battleOnly)
+		to.fillTexture(ENGINE->renderHandler().loadImage(ImagePath::builtin("DiBoxBck"), EImageBlitMode::OPAQUE));
 	CIntObject::showAll(to);
 
 	if (ENGINE->screenDimensions().x != 800 || ENGINE->screenDimensions().y !=600)
-		CMessage::drawBorder(owner.curInt->playerID, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		to.drawBorder(Rect(pos.x-1, pos.y - (queue && queue->embedded ? 1 : 0), pos.w+2, pos.h+1 + (queue && queue->embedded ? 1 : 0)), Colors::BRIGHT_YELLOW);
 }
 
 void BattleWindow::show(Canvas & to)
@@ -856,9 +870,51 @@ void BattleWindow::show(Canvas & to)
 	GAME->interface()->cingconsole->show(to);
 }
 
+void BattleWindow::onScreenResize()
+{
+	if(settings["battle"]["showQueue"].Bool())
+	{
+		hideQueue();
+		showQueue();
+	}
+	if(settings["battle"]["enableQuickSpellPanel"].Bool())
+	{
+		hideStickyQuickSpellWindow();
+		showStickyQuickSpellWindow();
+	}
+	if(settings["battle"]["stickyHeroInfoWindows"].Bool())
+	{
+		hideStickyHeroWindows();
+		showStickyHeroWindows();
+	}
+}
+
 void BattleWindow::close()
 {
 	if(!ENGINE->windows().isTopWindow(this))
 		logGlobal->error("Only top interface must be closed");
 	ENGINE->windows().popWindows(1);
+}
+
+bool BattleWindow::hasSpaceForQuickActions() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2;
+
+	return ENGINE->screenDimensions().x >= widthWithQuickActions;
+}
+
+bool BattleWindow::placeInfoWindowsOutside() const
+{
+	constexpr int widthWithQuickActions = 800 + 50*2 + 75*2;
+	constexpr int widthBaseWindow = 800 + 75*2;
+
+	if (quickActionsPanelActive())
+		return ENGINE->screenDimensions().x >= widthWithQuickActions;
+	else
+		return ENGINE->screenDimensions().x >= widthBaseWindow;
+}
+
+bool BattleWindow::quickActionsPanelActive() const
+{
+	return unitActionWindow->isActive();
 }

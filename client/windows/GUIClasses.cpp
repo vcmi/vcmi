@@ -46,11 +46,13 @@
 #include "../lib/entities/building/CBuilding.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/entities/hero/CHeroHandler.h"
+#include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjectConstructors/CommonConstructors.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
 #include "../lib/mapObjects/CGMarket.h"
 #include "../lib/mapObjects/CGTownInstance.h"
+#include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/gameState/CGameState.h"
 #include "../lib/gameState/SThievesGuildInfo.h"
 #include "../lib/gameState/TavernHeroesPool.h"
@@ -403,23 +405,39 @@ void CSplitWindow::sliderMoved(int to)
 
 CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, std::function<void(ui32)> callback)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("LVLUPBKG")),
-	cb(callback)
+	cb(callback),
+	skills(skills),
+	hero(hero),
+	skillViewOffset(0)
 {
 	OBJECT_CONSTRUCTION;
 
 	GAME->interface()->showingDialog->setBusy();
 
-	if(!skills.empty())
-	{
-		std::vector<std::shared_ptr<CSelectableComponent>> comps;
-		for(auto & skill : skills)
-		{
-			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
-			comp->onChoose = std::bind(&CLevelWindow::close, this);
-			comps.push_back(comp);
-		}
+	sortedSkills = skills;
+	std::sort(sortedSkills.begin(), sortedSkills.end(), [hero](auto a, auto b) {
+		if(hero->getSecSkillLevel(a) == hero->getSecSkillLevel(b))
+			return LIBRARY->skillh->getById(a)->getNameTranslated() < LIBRARY->skillh->getById(b)->getNameTranslated();
+		return hero->getSecSkillLevel(a) > hero->getSecSkillLevel(b);
+	});
 
-		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
+	createSkillBox();
+	if(skills.size() > 3)
+	{
+		buttonLeft = std::make_shared<CButton>(Point(23, 309), AnimationPath::builtin("HSBTNS3"), CButton::tooltip(), [this, skills](){
+			if(skillViewOffset > 0)
+				skillViewOffset--;
+			else
+				skillViewOffset = skills.size() - 1;
+			createSkillBox();
+		}, EShortcut::MOVE_LEFT);
+		buttonRight = std::make_shared<CButton>(Point(pos.w - 45, 309), AnimationPath::builtin("HSBTNS5"), CButton::tooltip(), [this, skills](){
+			if(skillViewOffset < skills.size() - 1)
+				skillViewOffset++;
+			else
+				skillViewOffset = 0;
+			createSkillBox();
+		}, EShortcut::MOVE_RIGHT);
 	}
 
 	portrait = std::make_shared<CHeroArea>(170, 66, hero);
@@ -443,11 +461,53 @@ CLevelWindow::CLevelWindow(const CGHeroInstance * hero, PrimarySkill pskill, std
 	skillValue = std::make_shared<CLabel>(192, 253, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->primarySkillNames[pskill.getNum()] + " +1");
 }
 
+std::vector<SecondarySkill> getSkillsToShow(const std::vector<SecondarySkill>& skills, int offset, int count)
+{
+	std::vector<SecondarySkill> result;
+
+	int size = skills.size();
+	if (size == 0 || count <= 0) return result;
+
+	offset = offset % size; // ensure offset is within bounds
+	for (int i = 0; i < std::min(count, size); ++i)
+	{
+		int index = (offset + i) % size; // ring buffer like
+		result.push_back(skills[index]);
+	}
+
+	return result;
+}
+
+void CLevelWindow::createSkillBox()
+{
+	OBJECT_CONSTRUCTION;
+
+	std::vector<SecondarySkill> skillsToShow = skills.size() > 3 ? getSkillsToShow(sortedSkills, skillViewOffset, 3) : sortedSkills;
+	if(!skillsToShow.empty())
+	{
+		std::vector<std::shared_ptr<CSelectableComponent>> comps;
+		for(auto & skill : skillsToShow)
+		{
+			auto comp = std::make_shared<CSelectableComponent>(ComponentType::SEC_SKILL, skill, hero->getSecSkillLevel(SecondarySkill(skill))+1, CComponent::medium);
+			comp->onChoose = std::bind(&CLevelWindow::close, this);
+			comps.push_back(comp);
+		}
+
+		box = std::make_shared<CComponentBox>(comps, Rect(75, 300, pos.w - 150, 100));
+	}
+
+	setRedrawParent(true);
+	redraw();
+}
+
 void CLevelWindow::close()
 {
 	//FIXME: call callback if there was nothing to select?
 	if (box && box->selectedIndex() != -1)
-		cb(box->selectedIndex());
+	{
+		auto it = std::find(skills.begin(), skills.end(), sortedSkills[(box->selectedIndex() + skillViewOffset) % skills.size()]);
+		cb(std::distance(skills.begin(), it));
+	}
 
 	GAME->interface()->showingDialog->setFree();
 
@@ -771,7 +831,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 	build = std::make_shared<CButton>(Point(42, 312), AnimationPath::builtin("IBUY30"), CButton::tooltip(LIBRARY->generaltexth->allTexts[598]), std::bind(&CShipyardWindow::close, this), EShortcut::GLOBAL_ACCEPT);
 	build->addCallback(onBuy);
 
-	for(GameResID i = EGameResID::WOOD; i <= EGameResID::GOLD; ++i)
+	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(cost[i] > GAME->interface()->cb->getResourceAmount(i))
 		{
@@ -1156,7 +1216,6 @@ void CHillFortWindow::updateGarrisons()
 
 	for(int i=0; i<slotsCount; i++)
 	{
-		std::fill(costs[i].begin(), costs[i].end(), 0);
 		State newState = getState(SlotID(i));
 		if(newState != State::EMPTY)
 		{
@@ -1476,8 +1535,12 @@ CObjectListWindow::CItem::CItem(CObjectListWindow * _parent, size_t _id, std::st
 	index(_id)
 {
 	OBJECT_CONSTRUCTION;
-	if(parent->images.size() > index)
-		icon = std::make_shared<CPicture>(parent->images[index], Point(1, 1));
+
+	auto it = std::find(parent->items.begin(), parent->items.end(), parent->itemsVisible[index]);
+	int imgIndex = (it != parent->items.end()) ? std::distance(parent->items.begin(), it) : -1;
+	if(imgIndex >= 0 && imgIndex < parent->images.size() && parent->images[imgIndex])
+		icon = std::make_shared<CPicture>(parent->images[imgIndex], Point(1,1));
+
 	border = std::make_shared<CPicture>(ImagePath::builtin("TPGATES"));
 	pos = border->pos;
 
@@ -1518,12 +1581,13 @@ void CObjectListWindow::CItem::clickDouble(const Point & cursorPosition)
 
 void CObjectListWindow::CItem::showPopupWindow(const Point & cursorPosition)
 {
+	int where = parent->itemsVisible[index].first;
 	if(parent->onPopup)
-		parent->onPopup(index);
+		parent->onPopup(where);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
-	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
+CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled, bool blue)
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
@@ -1537,17 +1601,17 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> & _items, std::share
 	for(int id : _items)
 	{
 		std::string objectName = GAME->interface()->cb->getObjInstance(ObjectInstanceID(id))->getObjectName();
-		trimTextIfTooWide(objectName, id);
+		trimTextIfTooWide(objectName, false);
 		items.emplace_back(id, objectName);
 	}
 	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	init(titleWidget_, _title, _descr, searchBoxEnabled, blue);
 	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled)
-	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("TPGATE")),
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, std::function<void(int)> Callback, size_t initialSelection, std::vector<std::shared_ptr<IImage>> images, bool searchBoxEnabled, bool blue)
+	: CWindowObject(PLAYER_COLORED, ImagePath::builtin(blue ? "TownPortalBackgroundBlue" : "TPGATE")),
 	onSelect(Callback),
 	selected(initialSelection),
 	images(images)
@@ -1561,22 +1625,22 @@ CObjectListWindow::CObjectListWindow(const std::vector<std::string> & _items, st
 	for(size_t i = 0; i < _items.size(); i++)
 	{
 		std::string objectName = _items[i];
-		trimTextIfTooWide(objectName, static_cast<int>(i));
+		trimTextIfTooWide(objectName, true);
 		items.emplace_back(static_cast<int>(i), objectName);
 	}
 	itemsVisible = items;
 
-	init(titleWidget_, _title, _descr, searchBoxEnabled);
+	init(titleWidget_, _title, _descr, searchBoxEnabled, blue);
 	list->scrollTo(std::min(static_cast<int>(initialSelection + 4), static_cast<int>(items.size() - 1))); // 4 is for centering (list have 9 elements)
 }
 
-void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled)
+void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::string _title, std::string _descr, bool searchBoxEnabled, bool blue)
 {
 	titleWidget = titleWidget_;
 
-	title = std::make_shared<CLabel>(152, 27, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, _title);
+	title = std::make_shared<CLabel>(152, titleWidget_ ? 27 : 51, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, _title);
 	descr = std::make_shared<CLabel>(145, 133, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, _descr);
-	exit = std::make_shared<CButton>( Point(228, 402), AnimationPath::builtin("ICANCEL.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
+	exit = std::make_shared<CButton>( Point(228, 402), AnimationPath::builtin(blue ? "MuBcanc" : "ICANCEL.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::exitPressed, this), EShortcut::GLOBAL_CANCEL);
 
 	if(titleWidget)
 	{
@@ -1585,10 +1649,10 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 		titleWidget->pos.y = 75 + pos.y - titleWidget->pos.h/2;
 	}
 	list = std::make_shared<CListBox>(std::bind(&CObjectListWindow::genItem, this, _1),
-		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1, Rect(262, -32, 256, 256) );
+		Point(14, 151), Point(0, 25), 9, itemsVisible.size(), 0, 1 + (blue ? 4 : 0), Rect(262, -32, 256, 256) );
 	list->setRedrawParent(true);
 
-	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin("IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
+	ok = std::make_shared<CButton>(Point(15, 402), AnimationPath::builtin(blue ? "MuBchck" : "IOKAY.DEF"), CButton::tooltip(), std::bind(&CObjectListWindow::elementSelected, this), EShortcut::GLOBAL_ACCEPT);
 	ok->block(!list->size());
 
 	if(!searchBoxEnabled)
@@ -1596,8 +1660,8 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 
 	Rect r(50, 90, pos.w - 100, 16);
 	const ColorRGBA rectangleColor = ColorRGBA(0, 0, 0, 75);
-	const ColorRGBA borderColor = ColorRGBA(128, 100, 75);
-	const ColorRGBA grayedColor = ColorRGBA(158, 130, 105);
+	const ColorRGBA borderColor = blue ? ColorRGBA(75, 84, 128) : ColorRGBA(128, 100, 75);
+	const ColorRGBA grayedColor = blue ? ColorRGBA(105, 127, 159) : ColorRGBA(158, 130, 105);
 	searchBoxRectangle = std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor);
 	searchBoxDescription = std::make_shared<CLabel>(r.center().x, r.center().y, FONT_SMALL, ETextAlignment::CENTER, grayedColor, LIBRARY->generaltexth->translate("vcmi.spellBook.search"));
 
@@ -1605,17 +1669,32 @@ void CObjectListWindow::init(std::shared_ptr<CIntObject> titleWidget_, std::stri
 	searchBox->setCallback(std::bind(&CObjectListWindow::itemsSearchCallback, this, std::placeholders::_1));
 }
 
-void CObjectListWindow::trimTextIfTooWide(std::string & text, int id) const
+void CObjectListWindow::trimTextIfTooWide(std::string & text, bool preserveCountSuffix) const
 {
+	std::string suffix = "...";
 	int maxWidth = pos.w - 60;	// 60 px for scrollbar and borders
-	std::string idStr = '(' + std::to_string(id) + ')';
+
+	if(text[0] == '{')
+		suffix += "}";
+
+	if (preserveCountSuffix)
+	{
+		auto posBrace = text.find_last_of("(");
+		auto posClosing = text.find_last_of(")");
+		if (posBrace != std::string::npos && posClosing != std::string::npos && posClosing > posBrace)
+		{
+			std::string objCount = text.substr(posBrace, posClosing - posBrace) + ')';
+			suffix += " ";
+			suffix += objCount;
+		}
+	}
+
 	const auto & font = ENGINE->renderHandler().loadFont(FONT_SMALL);
-	std::string suffix = " ... " + idStr;
 
 	if(font->getStringWidth(text) >= maxWidth)
 	{
-		logGlobal->warn("Mapobject name '%s' is too long and probably needs to be fixed! Trimming...", 
-			text.substr(0, text.size() - idStr.size() + 1));
+		logGlobal->trace("Mapobject name '%s' is too long and probably needs to be fixed! "
+						 "Trimming it to fit into CObjectListWindow...", text);
 
 		// Trim text until it fits
 		while(!text.empty())
@@ -1641,13 +1720,22 @@ void CObjectListWindow::itemsSearchCallback(const std::string & text)
 
 	for(const auto & item : items)
 	{
-		if(auto score = TextOperations::textSearchSimilarityScore(text, item.second)) // Keep only relevant items
+		// remove color information
+		std::vector<std::string> parts;
+		boost::split(parts, item.second, boost::is_any_of("|"));
+		std::string name = parts.back();
+		boost::erase_all(name, "{");
+    	boost::erase_all(name, "}");
+		
+		if(auto score = TextOperations::textSearchSimilarityScore(text, name)) // Keep only relevant items
 			rankedItems.emplace_back(score.value(), item);
 	}
 
 	// Sort: Lower score is better match
-	std::sort(rankedItems.begin(), rankedItems.end(), [](const auto & a, const auto & b)
+	std::sort(rankedItems.begin(), rankedItems.end(), [text](const auto & a, const auto & b)
 	{
+		if(a.first == b.first || text.empty())
+			return a.second < b.second;
 		return a.first < b.first;
 	});
 

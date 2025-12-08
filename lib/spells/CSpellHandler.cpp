@@ -536,12 +536,6 @@ CSpell::TargetInfo::TargetInfo(const CSpell * spell, const int level, spells::Mo
 	clearAffected = levelInfo.clearAffected;
 }
 
-bool DLL_LINKAGE isInScreenRange(const int3 & center, const int3 & pos)
-{
-	int3 diff = pos - center;
-	return diff.x >= -9 && diff.x <= 9 && diff.y >= -8 && diff.y <= 8;
-}
-
 ///CSpellHandler
 std::vector<JsonNode> CSpellHandler::loadLegacyData()
 {
@@ -767,7 +761,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		LIBRARY->identifiers()->requestIdentifier(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -959,7 +953,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 		const si32 levelPower     = levelObject.power = static_cast<si32>(levelNode["power"].Integer());
 
-		if (!spell->isCreatureAbility())
+		if (!levelNode["description"].String().empty())
 			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
@@ -997,6 +991,8 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			levelObject.cumulativeEffects.push_back(b);
 		}
 
+		levelObject.adventureEffect = levelNode["adventureEffect"];
+
 		if(!levelNode["battleEffects"].Struct().empty())
 		{
 			levelObject.battleEffects = levelNode["battleEffects"];
@@ -1032,6 +1028,8 @@ void CSpellHandler::beforeValidate(JsonNode & object)
 	inheritNode("basic");
 	inheritNode("advanced");
 	inheritNode("expert");
+
+	levels.Struct().erase("base");
 }
 
 std::set<SpellID> CSpellHandler::getDefaultAllowed() const

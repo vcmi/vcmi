@@ -19,10 +19,6 @@ else()
 	set(fuzzylite_FOUND FALSE)
 endif()
 
-if(TARGET fuzzylite::fuzzylite AND MSVC)
-	install_vcpkg_imported_tgt(fuzzylite::fuzzylite)
-endif()
-
 if(NOT fuzzylite_FOUND)
 	set(FL_BUILD_BINARY OFF CACHE BOOL "")
 	set(FL_BUILD_SHARED OFF CACHE BOOL "")
@@ -39,10 +35,22 @@ endif()
 #        Add subdirectories           #
 #######################################
 
-add_subdirectory(BattleAI)
-add_subdirectory(VCAI)
-add_subdirectory(StupidAI)
+# Combat AI's
+if(ENABLE_STUPID_AI)
+	add_subdirectory(StupidAI)
+endif()
+
+if(ENABLE_BATTLE_AI)
+	add_subdirectory(BattleAI)
+endif()
+
+# Adventure AI's
 add_subdirectory(EmptyAI)
+
 if(ENABLE_NULLKILLER_AI)
 	add_subdirectory(Nullkiller)
+endif()
+
+if(ENABLE_NULLKILLER2_AI)
+	add_subdirectory(Nullkiller2)
 endif()

@@ -14,20 +14,20 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 NetworkServer::NetworkServer(INetworkServerListener & listener, NetworkContext & context)
-	: io(context)
+	: context(context)
 	, listener(listener)
 {
 }
 
 uint16_t NetworkServer::start(uint16_t port)
 {
-	acceptor = std::make_shared<NetworkAcceptor>(io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+	acceptor = std::make_shared<NetworkAcceptor>(context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
 	return startAsyncAccept();
 }
 
 uint16_t NetworkServer::startAsyncAccept()
 {
-	auto upcomingConnection = std::make_shared<NetworkSocket>(io);
+	auto upcomingConnection = std::make_shared<NetworkSocket>(context);
 	acceptor->async_accept(*upcomingConnection, [this, upcomingConnection](const auto & ec) { connectionAccepted(upcomingConnection, ec); });
 	return acceptor->local_endpoint().port();
 }
@@ -40,7 +40,7 @@ void NetworkServer::connectionAccepted(std::shared_ptr<NetworkSocket> upcomingCo
 	}
 
 	logNetwork->info("We got a new connection! :)");
-	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection, io);
+	auto connection = std::make_shared<NetworkConnection>(*this, upcomingConnection, context);
 	connections.insert(connection);
 	connection->start();
 	listener.onNewConnection(connection);
@@ -59,7 +59,7 @@ void NetworkServer::onDisconnected(const std::shared_ptr<INetworkConnection> & c
 
 void NetworkServer::receiveInternalConnection(std::shared_ptr<IInternalConnection> remoteConnection)
 {
-	auto localConnection = std::make_shared<InternalConnection>(*this, io);
+	auto localConnection = std::make_shared<InternalConnection>(*this, context);
 
 	connections.insert(localConnection);
 

@@ -58,7 +58,6 @@ public:
 	void visitChangeObjPos(ChangeObjPos & pack) override;
 	void visitPlayerEndsTurn(PlayerEndsTurn & pack) override;
 	void visitPlayerEndsGame(PlayerEndsGame & pack) override;
-	void visitPlayerReinitInterface(PlayerReinitInterface & pack) override;
 	void visitRemoveBonus(RemoveBonus & pack) override;
 	void visitRemoveObject(RemoveObject & pack) override;
 	void visitTryMoveHero(TryMoveHero & pack) override;
@@ -87,6 +86,7 @@ public:
 	void visitSetStackEffect(SetStackEffect & pack) override;
 	void visitStacksInjured(StacksInjured & pack) override;
 	void visitBattleResultsApplied(BattleResultsApplied & pack) override;
+	void visitBattleEnded(BattleEnded & pack) override;
 	void visitBattleUnitsChanged(BattleUnitsChanged & pack) override;
 	void visitBattleObstaclesChanged(BattleObstaclesChanged & pack) override;
 	void visitCatapultAttack(CatapultAttack & pack) override;
@@ -105,6 +105,8 @@ public:
 	void visitSetAvailableArtifacts(SetAvailableArtifacts & pack) override;
 	void visitEntitiesChanged(EntitiesChanged & pack) override;
 	void visitPlayerCheated(PlayerCheated & pack) override;
+	void visitChangeTownName(ChangeTownName & pack) override;
+	void visitResponseStatistic(ResponseStatistic & pack) override;
 };
 
 class ApplyFirstClientNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)

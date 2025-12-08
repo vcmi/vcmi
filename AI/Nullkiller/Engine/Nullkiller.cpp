@@ -415,7 +415,7 @@ void Nullkiller::makeTurn()
 			if(bestTask->priority > 0)
 			{
 #if NKAI_TRACE_LEVEL >= 1
-				logAi->info("Pass %d: Performing prio 0 task %s with prio: %d", i, bestTask->toString(), bestTask->priority);
+				logAi->info("Pass %d priorityPass %d: Performing prio 0 task %s with prio: %d", i, j, bestTask->toString(), bestTask->priority);
 #endif
 				if(!executeTask(bestTask))
 					return;
@@ -461,7 +461,7 @@ void Nullkiller::makeTurn()
 			return a->priority > b->priority;
 		});
 
-		logAi->debug("Decision madel in %ld", timeElapsed(start));
+		logAi->debug("Decision made in %ld", timeElapsed(start));
 
 		if(selectedTasks.empty())
 		{
@@ -645,7 +645,7 @@ bool Nullkiller::handleTrading()
 	ObjectInstanceID marketId;
 	for (auto town : cb->getTownsInfo())
 	{
-		if (town->hasBuiltSomeTradeBuilding())
+		if (town->hasBuiltResourceMarketplace())
 		{
 			marketId = town->id;
 		}

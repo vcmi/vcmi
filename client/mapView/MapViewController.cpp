@@ -233,7 +233,7 @@ void MapViewController::updateState()
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();
 		adventureContext->settingShowVisitable = settings["session"]["showVisitable"].Bool();
 		adventureContext->settingShowBlocked = settings["session"]["showBlocked"].Bool();
-		adventureContext->settingSpellRange = settings["session"]["showSpellRange"].Bool();
+		adventureContext->settingShowInvisible = settings["session"]["showInvisible"].Bool();
 		adventureContext->settingTextOverlay = (ENGINE->isKeyboardAltDown() || ENGINE->input().getNumTouchFingers() == 2) && settings["general"]["enableOverlay"].Bool();
 	}
 }
@@ -581,19 +581,9 @@ void MapViewController::onHeroMoved(const CGHeroInstance * obj, const int3 & fro
 
 bool MapViewController::hasOngoingAnimations()
 {
-	if(movementContext)
-		return true;
-
-	if(fadingOutContext)
-		return true;
-
-	if(fadingInContext)
-		return true;
-
-	if(teleportContext)
-		return true;
-
-	return false;
+	// We need to be consistent with waitForOngoingAnimations, to check against the same thing here as there,
+	// otherwise we can have tricky race conditions, as we used to before this change
+	return animationWait.isBusy();
 }
 
 void MapViewController::waitForOngoingAnimations()

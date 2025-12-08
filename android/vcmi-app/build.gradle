@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.zellius.shortcut-helper'
 
 android {
 	/*******************************************************
@@ -14,7 +15,15 @@ android {
 	 * Changing them manually might break the compilation!
 	 *******************************************************/
 
-	ndkVersion '25.2.9519653'
+	namespace = "eu.vcmi.vcmi"
+
+	buildToolsVersion = androidBuildToolsVersion
+	ndkVersion = androidNdkVersion // Qt generates this property
+
+	buildFeatures {
+		aidl = true
+		buildConfig = true
+	}
 
 	// Extract native libraries from the APK
 	packagingOptions.jniLibs.useLegacyPackaging true
@@ -28,8 +37,6 @@ android {
 
 		versionCode 1700
 		versionName "1.7.0"
-
-		setProperty("archivesBaseName", "vcmi")
 	}
 
 	sourceSets {
@@ -38,7 +45,7 @@ android {
 			manifest.srcFile '../AndroidManifest.xml'
 			jniLibs.srcDirs = ['../libs']
 
-			java.srcDirs = [qt5AndroidDir + '/src', 'src', 'java']
+			java.srcDirs = [qt5AndroidDir + '/src', 'src', SDL_JAVA_SRC_DIR]
 			aidl.srcDirs = [qt5AndroidDir + '/src', 'src', 'aidl']
 			res.srcDirs = [qt5AndroidDir + '/res', 'src/main/res', '../res']
 		}
@@ -84,8 +91,8 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 
 	// Do not compress Qt binary resources file
@@ -94,23 +101,8 @@ android {
 	}
 }
 
-def CommandOutput(final cmd, final arguments, final cwd) {
-	try {
-		new ByteArrayOutputStream().withStream { final os ->
-			exec {
-				executable cmd
-				args arguments
-				workingDir cwd
-				standardOutput os
-			}
-			return os.toString().trim()
-		}
-	}
-	catch (final Exception ex) {
-		print("Broken: " + cmd + " " + arguments + " in " + cwd + " :: " + ex.toString())
-		return ""
-	}
-}
+base.archivesName = "vcmi"
+shortcutHelper.filePath = "../shortcuts.xml"
 
 def SigningPropertiesPath(final basePath, final signingConfigKey) {
 	return file("${basePath}/${signingConfigKey}.properties")
@@ -123,9 +115,9 @@ def SigningKeystorePath(final basePath, final keystoreFileName) {
 def LoadSigningConfig(final signingConfigKey) {
 	final def props = new Properties()
 	final def propFile = SigningPropertiesPath(signingRoot, signingConfigKey)
-	
+
 	def signingConfig = android.signingConfigs.getAt(signingConfigKey)
-	
+
 	if (propFile.canRead()) {
 		props.load(new FileInputStream(propFile))
 
@@ -134,14 +126,13 @@ def LoadSigningConfig(final signingConfigKey) {
 			&& props.containsKey('KEY_ALIAS')) {
 
 			signingConfig.storeFile = SigningKeystorePath(signingRoot, props['STORE_FILE'])
-			signingConfig.storePassword = props['STORE_PASSWORD']
 			signingConfig.keyAlias = props['KEY_ALIAS']
-			
+
 			if(props.containsKey('STORE_PASSWORD'))
 				signingConfig.storePassword = props['STORE_PASSWORD']
 			else
 				signingConfig.storePassword = System.getenv("ANDROID_STORE_PASSWORD")
-			
+
 			if(props.containsKey('KEY_PASSWORD'))
 				signingConfig.keyPassword = props['KEY_PASSWORD']
 			else
@@ -158,6 +149,9 @@ def LoadSigningConfig(final signingConfigKey) {
 
 dependencies {
 	implementation fileTree(dir: '../libs', include: ['*.jar', '*.aar'])
-	implementation 'androidx.annotation:annotation:1.7.1'
-	implementation 'androidx.documentfile:documentfile:1.0.1'
+	implementation('androidx.annotation:annotation:1.9.1')
+
+	// later versions require API level 21
+	implementation('androidx.appcompat:appcompat:1.6.1')
+	implementation('androidx.documentfile:documentfile:1.0.1')
 }

@@ -66,8 +66,6 @@ public:
 	static BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 	static bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
-	BattleHex::EDir destShiftDir() const;
-
 	void prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand) const; //requires bsa.damageAmount filled
 	static void prepareAttacked(BattleStackAttacked & bsa,
 								vstd::RNG & rand,

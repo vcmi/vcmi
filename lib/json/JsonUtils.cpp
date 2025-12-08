@@ -34,7 +34,7 @@ static std::optional<int> getIndexSafe(const JsonNode & node, const std::string 
 	}
 	catch(const std::out_of_range & )
 	{
-		logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exists in targeted array of %d items", keyName, node.Vector().size());
+		logMod->warn("Failed to replace index when replacing individual items in array. Value '%s' does not exist in targeted array of %d items", keyName, node.Vector().size());
 		return std::nullopt;
 	}
 };
@@ -253,14 +253,14 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, b
 						else if (boost::algorithm::starts_with(node.first, "insert@"))
 						{
 							constexpr int numberPosition = std::char_traits<char>::length("insert@");
-							auto index = getIndexSafe(node.second, node.first.substr(numberPosition));
+							auto index = getIndexSafe(dest, node.first.substr(numberPosition));
 							if (index)
 								dest.Vector().insert(dest.Vector().begin() + index.value(), std::move(node.second));
 						}
 						else if (boost::algorithm::starts_with(node.first, "modify@"))
 						{
 							constexpr int numberPosition = std::char_traits<char>::length("modify@");
-							auto index = getIndexSafe(node.second,	node.first.substr(numberPosition));
+							auto index = getIndexSafe(dest,	node.first.substr(numberPosition));
 							if (index)
 								merge(dest.Vector().at(index.value()), node.second, ignoreOverride);
 						}

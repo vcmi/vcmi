@@ -36,6 +36,7 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	Point fullSize;
 
 	std::atomic_bool upscalingInProgress = false;
+	bool asyncUpscale = true;
 
 	// Keep the original palette, in order to do color switching operation
 	void savePalette();
@@ -46,7 +47,7 @@ public:
 	//Load image from def file
 	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
 	//Load from bitmap file
-	SDLImageShared(const ImagePath & filename);
+	SDLImageShared(const ImagePath & filename, bool optimizeImage=true);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
 	SDLImageShared(SDL_Surface * from);
 	~SDLImageShared();
@@ -63,6 +64,8 @@ public:
 	Rect contentRect() const override;
 
 	bool isLoading() const override;
+	void setAsyncUpscale(bool on) override;
+	bool getAsyncUpscale() const override;
 
 	const SDL_Palette * getPalette() const override;
 
@@ -70,6 +73,9 @@ public:
 	[[nodiscard]] std::shared_ptr<const ISharedImage> verticalFlip() const override;
 	[[nodiscard]] std::shared_ptr<const ISharedImage> scaleInteger(int factor, SDL_Palette * palette, EImageBlitMode blitMode) const override;
 	[[nodiscard]] std::shared_ptr<const ISharedImage> scaleTo(const Point & size, SDL_Palette * palette) const override;
+
+	std::shared_ptr<SDLImageShared> drawShadow(bool doSheer) const;
+	std::shared_ptr<SDLImageShared> drawOutline(const ColorRGBA & color, int thickness) const;
 
 	friend class SDLImageLoader;
 };

@@ -84,6 +84,8 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 	auto data = CResourceHandler::get()->load(resId)->readAll();
 	JsonNode nodes(reinterpret_cast<std::byte *>(data.first.get()), data.second, resId.getName());
 
+	nodes.setModScope(ModScope::scopeGame());
+
 	std::map<std::string, std::shared_ptr<CRmgTemplate>> templates;
 	for(auto & node : nodes.Struct())
 	{
@@ -145,9 +147,9 @@ void Helper::saveTemplate(std::map<std::string, std::shared_ptr<CRmgTemplate>> t
 	}
 	
 	auto byteData = JsonNode(data).toBytes();
-	QByteArray byteDataArray = QByteArray(reinterpret_cast<const char*>(byteData.data()), static_cast<int>(byteData.size()));
+	QByteArray byteDataArray(reinterpret_cast<const char*>(byteData.data()), static_cast<int>(byteData.size()));
 	QFile file(filename);
 
 	if(file.open(QIODevice::WriteOnly))
-    	file.write(byteDataArray);
+		file.write(byteDataArray);
 }

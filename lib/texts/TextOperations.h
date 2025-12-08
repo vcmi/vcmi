@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <boost/lexical_cast.hpp>
+
 VCMI_LIB_NAMESPACE_BEGIN
 
 /// Namespace that provides utilities for unicode support (UTF-8)
@@ -53,6 +55,9 @@ namespace TextOperations
 	/// Note that resulting string may have more symbols than digits: minus sign and prefix symbol
 	template<typename Arithmetic>
 	inline std::string formatMetric(Arithmetic number, int maxDigits);
+
+	template<typename Arithmetic>
+	inline Arithmetic parseMetric(const std::string &text);
 
 	/// replaces all symbols that normally need escaping with appropriate escape sequences
 	std::string escapeString(std::string input);
@@ -114,6 +119,68 @@ inline std::string TextOperations::formatMetric(Arithmetic number, int maxDigits
 		assert(iter != symbols.end());//should be enough even for int64
 	}
 	return std::to_string(number) + *iter;
+}
+
+template<typename Arithmetic>
+inline Arithmetic TextOperations::parseMetric(const std::string &text)
+{
+	if (text.empty())
+		return 0;
+
+	// Trim whitespace
+	std::string trimmed = text;
+	trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch){ return !std::isspace(ch); }));
+	trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch){ return !std::isspace(ch); }).base(), trimmed.end());
+
+	// Check if last character is a metric suffix
+	char last = trimmed.back();
+	int power = 0; // number of *1000 multiplications
+
+	switch (std::toupper(last))
+	{
+		case 'K': power = 1; break;
+		case 'M': power = 2; break;
+		case 'G': power = 3; break;
+		case 'T': power = 4; break;
+		case 'P': power = 5; break;
+		case 'E': power = 6; break;
+		default: power = 0; break; // no suffix
+	}
+
+	std::string numberPart = trimmed;
+	if (power > 0)
+		numberPart.pop_back();
+
+	// Remove any non-digit or minus sign (same spirit as your numberFilter)
+	numberPart.erase(std::remove_if(numberPart.begin(), numberPart.end(), [](char c)
+	{
+		return !(std::isdigit(static_cast<unsigned char>(c)) || c == '-');
+	}), numberPart.end());
+
+	if (numberPart.empty() || (numberPart == "-"))
+		return 0;
+
+	try
+	{
+		Arithmetic value = std::stoll(numberPart);
+
+		for (int i = 0; i < power; ++i)
+		{
+			// Multiply by 1000, check for overflow if desired
+			if (value > std::numeric_limits<Arithmetic>::max() / 1000)
+				return std::numeric_limits<Arithmetic>::max();
+			if (value < std::numeric_limits<Arithmetic>::min() / 1000)
+				return std::numeric_limits<Arithmetic>::min();
+
+			value *= static_cast<Arithmetic>(1000);
+		}
+
+		return value;
+	}
+	catch (std::invalid_argument &)
+	{
+		return 0;
+	}
 }
 
 VCMI_LIB_NAMESPACE_END

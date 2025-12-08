@@ -23,6 +23,8 @@ set(test_SRCS
 		battle/CUnitStateMagicTest.cpp
 		battle/battle_UnitTest.cpp
 
+		bonus/BonusSystemTest.cpp
+
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/CFactionTest.cpp
@@ -34,6 +36,7 @@ set(test_SRCS
 		events/EventBusTest.cpp
 
 		game/CGameStateTest.cpp
+		game/HeroRecruitmentTest.cpp
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
@@ -70,7 +73,7 @@ set(test_SRCS
 		spells/targetConditions/ResistanceConditionTest.cpp
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
-		
+
 		mock/BattleFake.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
@@ -114,8 +117,8 @@ if(ENABLE_LUA)
 	)
 endif()
 
-if(ENABLE_ERM) 
-	list(APPEND test_SRCS 
+if(ENABLE_ERM)
+	list(APPEND test_SRCS
 		erm/ERM_BM.cpp
 		erm/ERM_BU.cpp
 		erm/ERM_FU.cpp
@@ -135,6 +138,22 @@ if(ENABLE_ERM)
 
 	list(APPEND test_HEADERS
 		erm/interpretter/ErmRunner.h
+	)
+endif()
+
+if(ENABLE_NULLKILLER2_AI)
+	# When not static, linking the library below is not enough, we need the .cpp files as well
+	file(GLOB_RECURSE NULLKILLER2_TEST_SRCS "../AI/Nullkiller2/*.cpp")
+	list(FILTER NULLKILLER2_TEST_SRCS EXCLUDE REGEX ".*main\\.cpp$")
+
+	list(APPEND test_SRCS
+		${NULLKILLER2_TEST_SRCS}
+		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Engine/ResourceTraderTest.cpp
+	)
+
+	list(APPEND test_HEADERS
+		nullkiller2/Nulkiller2TestUtils.h
 	)
 endif()
 
@@ -179,6 +198,9 @@ add_executable(vcmitest ${test_SRCS} ${test_HEADERS} ${mock_HEADERS})
 target_link_libraries(vcmitest PRIVATE gtest gmock vcmi ${SYSTEM_LIBS})
 if(ENABLE_LUA)
 	target_link_libraries(vcmitest PRIVATE vcmiLua)
+endif()
+if(ENABLE_NULLKILLER2_AI)
+	target_link_libraries(vcmitest PUBLIC Nullkiller2)
 endif()
 
 target_include_directories(vcmitest

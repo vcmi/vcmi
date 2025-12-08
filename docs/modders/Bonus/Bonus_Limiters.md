@@ -2,22 +2,37 @@
 
 ## Predefined Limiters
 
-The limiters take no parameters:
-
-- SHOOTER_ONLY
-- DRAGON_NATURE
-- IS_UNDEAD
-- CREATURE_NATIVE_TERRAIN
-- CREATURE_FACTION
-- SAME_FACTION
-- CREATURES_ONLY
-- OPPOSITE_SIDE
+Simple limiters that take no parameters.
 
 Example:
 
 ```json
 "limiters" : [ "SHOOTER_ONLY" ]
 ```
+
+### SHOOTER_ONLY
+
+Bonus is active if affected unit is a shooter (has SHOOTER bonus)
+
+### DRAGON_NATURE
+
+Bonus is active if affected unit is a dragon (has DRAGON_NATURE bonus)
+
+### IS_UNDEAD
+
+Bonus is active if affected unit is an undead (has UNDEAD bonus)
+
+### CREATURE_NATIVE_TERRAIN
+
+Bonus is active if affected unit is on native terrain
+
+### CREATURES_ONLY
+
+Bonus is active only on units
+
+### OPPOSITE_SIDE
+
+Bonus is active only for opposite side for a battle-wide bonus. Requires `BONUS_OWNER_UPDATER` to be present on bonus
 
 ## Customizable Limiters
 
@@ -27,11 +42,12 @@ Bonus is only active if affected entity has another bonus that meets conditions
 
 Parameters:
 
-- Bonus type
-- Bonus subtype (only used if bonus type is set)
-- Bonus source type and bonus source ID
+- `bonusType` - type of bonus to check against
+- `bonusSubtype` - subtype of bonus to check against (only used if bonus type is set)
+- `bonusSourceType` - source type of bonus to check against
+- `bonusSourceID` -source ID of bonus to check against (only used if bonus type is set)
 
-All parameters are optional. Values that don't need checking can be replaces with `null`
+All parameters are optional.
 
 Examples:
 
@@ -41,14 +57,8 @@ Examples:
 	"limiters" : [
 		{
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
-			"parameters" : [
-				null, // bonus type is ignored
-				null, // bonus subtype is also ignored
-				{
-					"type" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
-					"id" : "spell.bless"     // ... from spell "Bless"
-				}
-				]
+			"bonusSourceType" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
+			"bonusSourceID" : "spell.bless"     // ... from spell "Bless"
 		}
 	],
 ```
@@ -58,8 +68,8 @@ Examples:
 ```json
 	"limiters" : [
 		{
-			"parameters" : [ "DRAGON_NATURE" ],
-			"type" : "HAS_ANOTHER_BONUS_LIMITER"
+			"type" : "HAS_ANOTHER_BONUS_LIMITER",
+			"bonusType" : "DRAGON_NATURE"
 		}
 	],
 ```
@@ -70,16 +80,19 @@ Bonus is only active on creatures of specified type
 
 Parameters:
 
-- Creature id (string)
-- (optional) include upgrades - default is false. If creature has multiple upgrades, or upgrades have their own upgrades, all such creatures will be affected. Special upgrades such as upgrades via specialties (Dragon, Gelu) are not affected
+- `creature` - ID of creature to check against
+- `includeUpgrades` - whether creature that is upgrade of `creature` should also pass this limiter. If creature has multiple upgrades, or upgrades have their own upgrades, all such creatures will be affected. Special upgrades such as upgrades via specialties (Dragon, Gelu) are not affected
 
 Example:
 
 ```json
-"limiters": [ {
-	"type":"CREATURE_TYPE_LIMITER",
-	"parameters": [ "angel", true ]
-} ],
+"limiters": [
+	{
+		"type" : "CREATURE_TYPE_LIMITER",
+		"creature" : "angel",
+		"includeUpgrades" : true
+	}
+],
 ```
 
 ### CREATURE_ALIGNMENT_LIMITER
@@ -88,43 +101,101 @@ Bonus is only active on creatures of factions of specified alignment
 
 Parameters:
 
-- Alignment identifier, `good`, `evil`, or `neutral`
+- `alignment` - ID of alignment that creature must have, `good`, `evil`, or `neutral`
+
+```json
+"limiters": [
+	{
+		"type" : "CREATURE_ALIGNMENT_LIMITER",
+		"alignment" : "evil"
+	}
+],
+```
 
 ### CREATURE_LEVEL_LIMITER
 
-If parameters is empty, level limiter works as CREATURES_ONLY limiter
+If parameters is empty, any creature will pass this limiter
 
 Parameters:
 
-- Minimal level
-- Maximal level
+- `minLevel` - minimal level that creature must have to pass limiter
+- `maxlevel` - maximal level that creature must have to pass limiter
+
+```json
+"limiters": [
+	{
+		"type" : "CREATURE_LEVEL_LIMITER",
+		"minLevel" : 1,
+		"maxlevel" : 5
+	}
+],
+```
 
 ### FACTION_LIMITER
 
+Also available as `CREATURE_FACTION_LIMITER`
+
 Parameters:
 
-- Faction identifier
+- `faction` - faction that creature or hero must belong to
+
+```json
+"limiters": [
+	{
+		"type" : "FACTION_LIMITER",
+		"faction" : "castle"
+	}
+],
+```
 
 ### CREATURE_TERRAIN_LIMITER
 
 Parameters:
 
-- Terrain identifier
+- `terrain` - identifier of terrain on which this creature must be to pass this limiter. If not set, creature will pass this limiter if it is on native terrain
 
 Example:
 
 ```json
-"limiters" : [ {
-	"type" : "CREATURE_TERRAIN_LIMITER",
-	"parameters" : ["sand"]
-} ]
+"limiters" : [
+	{
+		"type" : "CREATURE_TERRAIN_LIMITER",
+		"terrain" : "sand"
+	}
+]
+```
+
+### HAS_CHARGES_LIMITER
+
+Currently works only with spells. Sets the cost of use in charges
+
+Parameters:
+
+- `cost` - use cost (charges)
+
+```json
+"limiters" : [
+	{
+		"type" : "HAS_CHARGES_LIMITER",
+		"cost" : 2
+	}
+]
 ```
 
 ### UNIT_ON_HEXES
 
 Parameters:
 
-- List of affected battlefield hexes
+- `hexes` - List of affected battlefield hexes
+
+```json
+"limiters" : [
+	{
+		"type" : "UNIT_ON_HEXES",
+		"hexes" : [ 25, 50, 75 ]
+	}
+]
+```
 
 For reference on tiles indexes see image below:
 
@@ -132,12 +203,11 @@ For reference on tiles indexes see image below:
 
 ## Aggregate Limiters
 
-The following limiters must be specified as the first element of a list,
-and operate on the remaining limiters in that list:
+The following limiters must be specified as the first element of a list, and operate on the remaining limiters in that list:
 
-- allOf (default when no aggregate limiter is specified)
-- anyOf
-- noneOf
+- `allOf` (default when no aggregate limiter is specified)
+- `anyOf`
+- `noneOf`
 
 Example:
 

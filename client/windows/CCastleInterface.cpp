@@ -30,6 +30,7 @@
 #include "../widgets/MiscWidgets.h"
 #include "../widgets/CComponent.h"
 #include "../widgets/CGarrisonInt.h"
+#include "../widgets/CTextInput.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/RadialMenu.h"
@@ -58,6 +59,7 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
@@ -170,7 +172,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	}
 	else
 	{
-		int level = BuildingID::getLevelFromDwelling(bid);
+		int level = BuildingID::getLevelIndexFromDwelling(bid);
 		ENGINE->windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
@@ -246,7 +248,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		return town->getTown()->buildings.at(getBuilding()->bid)->getNameTranslated();
 	else//dwellings - recruit %creature%
 	{
-		int level = BuildingID::getLevelFromDwelling(getBuilding()->bid);
+		int level = BuildingID::getLevelIndexFromDwelling(getBuilding()->bid);
 		auto & availableCreatures = town->creatures[level].second;
 		if(availableCreatures.size())
 		{
@@ -292,7 +294,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	available = std::make_shared<CLabel>(80,190, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[217] + text);
 	costPerTroop = std::make_shared<CLabel>(80, 227, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, LIBRARY->generaltexth->allTexts[346]);
 
-	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
+	for (auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		auto res = static_cast<EGameResID>(i);
 		if(creature->getRecruitCost(res))
@@ -889,7 +891,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 
 	if (buildingToTest.isDwelling())
 	{
-		enterDwelling((BuildingID::getLevelFromDwelling(buildingToTest)));
+		enterDwelling((BuildingID::getLevelIndexFromDwelling(buildingToTest)));
 		return true;
 	}
 	else
@@ -1126,7 +1128,7 @@ void CCastleBuildings::enterFountain(const BuildingID & building, BuildingSubID:
 		else //Mystic Pond produced something;
 		{
 			descr += "\n\n" + hasProduced;
-			boost::algorithm::replace_first(descr,"%s",LIBRARY->generaltexth->restypes[town->bonusValue.first]);
+			boost::algorithm::replace_first(descr,"%s",GameResID(town->bonusValue.first).toResource()->getNameTranslated());
 			boost::algorithm::replace_first(descr,"%d",std::to_string(town->bonusValue.second));
 		}
 	}
@@ -1194,7 +1196,10 @@ void CCastleBuildings::enterTownHall()
 void CCastleBuildings::openMagesGuild()
 {
 	auto mageGuildBackground = GAME->interface()->castleInt->town->getTown()->clientInfo.guildBackground;
-	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(GAME->interface()->castleInt, mageGuildBackground);
+	assert(mageGuildBackground.size() == 1 || mageGuildBackground.size() == GAME->interface()->castleInt->town->getTown()->mageLevel);
+	auto selectedMageGuildBackground = mageGuildBackground.size() == 1 ? mageGuildBackground[0] : mageGuildBackground[town->mageGuildLevel() - 1];
+
+	ENGINE->windows().createAndPushWindow<CMageGuildScreen>(GAME->interface()->castleInt, selectedMageGuildBackground);
 }
 
 void CCastleBuildings::openTownHall()
@@ -1431,7 +1436,15 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->setRedrawParent(true);
 
 	heroes = std::make_shared<HeroSlots>(town, Point(241, 387), Point(241, 483), garr, true);
-	title = std::make_shared<CLabel>(85, 387, FONT_MEDIUM, ETextAlignment::TOPLEFT, Colors::WHITE, town->getNameTranslated());
+	title = std::make_shared<CTextInputWithConfirm>(Rect(83, 386, 140, 20), FONT_MEDIUM, ETextAlignment::TOPLEFT, town->getNameTranslated(), true, [this](){ 
+		std::string name = title->getText();
+		std::string originalName = LIBRARY->generaltexth->translate(town->getNameTextID());
+		if(name == originalName)
+			name = ""; // use textID again
+		GAME->interface()->cb->setTownName(town, name);
+	});
+	if(town->tempOwner != GAME->interface()->playerID) // disable changing for allied towns
+		title->deactivate();
 	income = std::make_shared<CLabel>(195, 443, FONT_SMALL, ETextAlignment::CENTER);
 	icon = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPT"), 0, 0, 15, 387);
 
@@ -1471,6 +1484,13 @@ CCastleInterface::~CCastleInterface()
 		adventureInt->onAudioResumed();
 	if(GAME->interface()->castleInt == this)
 		GAME->interface()->castleInt = nullptr;
+}
+
+void CCastleInterface::updateArtifacts()
+{
+	// handle equipping / unequipping Legion pieces
+	for(auto creatureInfoBox : creainfo)
+		creatureInfoBox->update();
 }
 
 void CCastleInterface::updateGarrisons()
@@ -1785,7 +1805,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	//Create components for all required resources
 	std::vector<std::shared_ptr<CComponent>> components;
 
-	for(GameResID i : GameResID::ALL_RESOURCES())
+	for(GameResID i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		if(building->resources[i])
 		{
@@ -1844,7 +1864,7 @@ std::string CBuildWindow::getTextForState(EBuildingState state)
 	case EBuildingState::ALREADY_PRESENT:
 	case EBuildingState::CANT_BUILD_TODAY:
 	case EBuildingState::NO_RESOURCES:
-		ret.replace(ret.find_first_of("%s"), 2, building->getNameTranslated());
+		boost::algorithm::replace_first(ret, "%s", building->getNameTranslated());
 		break;
 	case EBuildingState::ALLOWED:
 		return LIBRARY->generaltexth->allTexts[219]; //all prereq. are met
@@ -2114,7 +2134,14 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner, const ImagePath & i
 {
 	OBJECT_CONSTRUCTION;
 
-	window = std::make_shared<CPicture>(owner->town->getTown()->clientInfo.guildWindow, 332, 76);
+	auto guildWindow = owner->town->getTown()->clientInfo.guildWindow;
+	assert(guildWindow.size() == 1 || guildWindow.size() == GAME->interface()->castleInt->town->getTown()->mageLevel);
+	auto selectedGuildWindow = guildWindow.size() == 1 ? guildWindow[0] : guildWindow[owner->town->mageGuildLevel() - 1];
+
+	auto windowPosition = owner->town->getTown()->clientInfo.guildWindowPosition;
+	if(windowPosition == Point(0, 0)) // TODO: remove legacy for compatibility
+		windowPosition = Point(332, 76);
+	window = std::make_shared<CPicture>(selectedGuildWindow, windowPosition.x, windowPosition.y);
 
 	resdatabar = std::make_shared<CMinorResDataBar>();
 	resdatabar->moveBy(pos.topLeft(), true);
@@ -2135,33 +2162,60 @@ void CMageGuildScreen::updateSpells(ObjectInstanceID tID)
 		return;
 
 	OBJECT_CONSTRUCTION;
-	static const std::vector<std::vector<Point> > positions =
-	{
-		{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
-		{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
-		{Point(570,82),  Point(672,82),  Point(570,157), Point(672,157)},
-		{Point(183,42),  Point(183,148), Point(183,253)},
-		{Point(491,325), Point(591,325)}
-	};
 
 	spells.clear();
 	emptyScrolls.clear();
 
 	const CGTownInstance * town = GAME->interface()->cb->getTown(townId);
 
+	auto positions = town->getTown()->clientInfo.guildSpellPositions;
+	if(!positions.size()) // TODO: remove legacy for compatibility
+		positions =
+		{
+			{Point(222,445), Point(312,445), Point(402,445), Point(520,445), Point(610,445), Point(700,445)},
+			{Point(48,53),   Point(48,147),  Point(48,241),  Point(48,335),  Point(48,429)},
+			{Point(570,82),  Point(672,82),  Point(570,157), Point(672,157)},
+			{Point(183,42),  Point(183,148), Point(183,253)},
+			{Point(491,325), Point(591,325)}
+		};
+
 	for(uint32_t i=0; i<town->getTown()->mageLevel; i++)
 	{
 		uint32_t spellCount = town->spellsAtLevel(i+1,false); //spell at level with -1 hmmm?
 		for(uint32_t j=0; j<spellCount; j++)
 		{
-			if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+			if (town->hasBuilt(BuildingSubID::AURORA_BOREALIS))
+			{
+				std::string auroraBorealisName = town->getTown()->getSpecialBuilding(BuildingSubID::AURORA_BOREALIS)->getNameTranslated();
+
+				auroraBorealisScrolls.push_back(std::make_shared<ScrollAllSpells>(positions[i][j], auroraBorealisName));
+			}
+			else if(i<town->mageGuildLevel() && town->spells[i].size()>j)
+			{
 				spells.push_back(std::make_shared<Scroll>(positions[i][j], town->spells[i][j].toSpell(), townId));
+			}
 			else
 				emptyScrolls.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("TPMAGES.DEF"), 1, 0, positions[i][j].x, positions[i][j].y));
 		}
 	}
 
 	redraw();
+}
+
+CMageGuildScreen::ScrollAllSpells::ScrollAllSpells(Point position, const std::string & buildingName)
+{
+	constexpr int auroraBorealisImageIndex = 70;
+
+	OBJECT_CONSTRUCTION;
+	pos += position;
+	image = std::make_shared<CAnimImage>(AnimationPath::builtin("SPELLSCR"), auroraBorealisImageIndex);
+	pos = image->pos;
+
+	MetaString description;
+	description.appendTextID("core.genrltxt.714");
+	description.replaceRawString(buildingName);
+
+	text = std::make_shared<LRClickableAreaWText>(Rect(Point(), pos.dimensions()), description.toString(), description.toString() );
 }
 
 CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell, ObjectInstanceID townId)
@@ -2191,7 +2245,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 			return;
 		}
 
-		auto costBase = TResources(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		ResourceSet costBase;
+		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 		auto costExponent = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH).Vector()[level].Float();
 		auto cost = costBase * std::pow(town->spellResearchAcceptedCounter + 1, costExponent);
 

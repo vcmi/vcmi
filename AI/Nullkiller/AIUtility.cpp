@@ -15,9 +15,10 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/entities/artifact/CArtifact.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/CQuest.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/gameState/QuestInfo.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/bonuses/Limiters.h"
@@ -271,7 +272,7 @@ bool compareArmyStrength(const CArmedInstance * a1, const CArmedInstance * a2)
 
 double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_ptr<Bonus> & bonus)
 {
-	if (bonus->propagator && bonus->limiter && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	if (bonus->propagator && bonus->limiter && bonus->propagator->getPropagatorType() == BonusNodeType::BATTLE_WIDE)
 	{
 		// assume that this is battle wide / other side propagator+limiter
 		// consider it as fully relevant since we don't know about future combat when equipping artifacts
@@ -290,7 +291,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 
 		for (const auto & slot : hero->Slots())
 		{
-			const auto allBonuses = slot.second->getAllBonuses(Selector::all, Selector::all);
+			const auto allBonuses = slot.second->getAllBonuses(Selector::all);
 			BonusLimitationContext context = {*bonus, *slot.second, *allBonuses, stillUndecided};
 
 			uint64_t unitStrength = slot.second->getPower();
@@ -470,7 +471,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 		case BonusType::UNDEAD_RAISE_PERCENTAGE:
 			return bonus->val * 400;
 		case BonusType::GENERATE_RESOURCE:
-			return bonus->val * LIBRARY->objh->resVals.at(bonus->subtype.as<GameResID>().getNum()) * 10;
+			return bonus->val * bonus->subtype.as<GameResID>().toResource()->getPrice() * 10;
 		case BonusType::SPELL_DURATION:
 			return bonus->val * 200;
 		case BonusType::MAGIC_RESISTANCE:
@@ -526,7 +527,7 @@ int32_t getArtifactBonusScoreImpl(const std::shared_ptr<Bonus> & bonus)
 
 int32_t getArtifactBonusScore(const std::shared_ptr<Bonus> & bonus)
 {
-	if (bonus->propagator && bonus->propagator->getPropagatorType() == CBonusSystemNode::BATTLE)
+	if (bonus->propagator && bonus->propagator->getPropagatorType() == BonusNodeType::BATTLE_WIDE)
 	{
 		if (bonus->limiter)
 		{

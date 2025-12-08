@@ -74,6 +74,11 @@ void PackageApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPackageApplied(*this);
 }
 
+void PackageReceived::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitPackageReceived(*this);
+}
+
 void SystemMessage::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSystemMessage(*this);
@@ -188,11 +193,6 @@ void PlayerEndsGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitPlayerEndsGame(*this);
 }
 
-void PlayerReinitInterface::visitTyped(ICPackVisitor & visitor)
-{
-	visitor.visitPlayerReinitInterface(*this);
-}
-
 void RemoveBonus::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitRemoveBonus(*this);
@@ -211,6 +211,11 @@ void AddQuest::visitTyped(ICPackVisitor & visitor)
 void ChangeFormation::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitChangeFormation(*this);
+}
+
+void ChangeTownName::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitChangeTownName(*this);
 }
 
 void RemoveObject::visitTyped(ICPackVisitor & visitor)
@@ -478,6 +483,11 @@ void BattleResultsApplied::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBattleResultsApplied(*this);
 }
 
+void BattleEnded::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleEnded(*this);
+}
+
 void BattleObstaclesChanged::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBattleObstaclesChanged(*this);
@@ -643,6 +653,11 @@ void SetFormation::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetFormation(*this);
 }
 
+void SetTownName::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetTownName(*this);
+}
+
 void HireHero::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitHireHero(*this);
@@ -671,6 +686,11 @@ void DigWithHero::visitTyped(ICPackVisitor & visitor)
 void CastAdvSpell::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitCastAdvSpell(*this);
+}
+
+void RequestStatistic::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitRequestStatistic(*this);
 }
 
 void SaveGame::visitTyped(ICPackVisitor & visitor)
@@ -733,6 +753,11 @@ void LobbyPrepareStartGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyPrepareStartGame(*this);
 }
 
+void LobbyQuickLoadGame::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyQuickLoadGame(*this);
+}
+
 void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyChangeHost(*this);
@@ -761,6 +786,11 @@ void LobbySetCampaignMap::visitTyped(ICPackVisitor & visitor)
 void LobbySetCampaignBonus::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetCampaignBonus(*this);
+}
+
+void LobbySetBattleOnlyModeStartInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbySetBattleOnlyModeStartInfo(*this);
 }
 
 void LobbyChangePlayerOption::visitTyped(ICPackVisitor & visitor)
@@ -841,6 +871,11 @@ void BattleCancelled::visitTyped(ICPackVisitor & visitor)
 void TurnTimeUpdate::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitTurnTimeUpdate(*this);
+}
+
+void ResponseStatistic::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitResponseStatistic(*this);
 }
 
 VCMI_LIB_NAMESPACE_END

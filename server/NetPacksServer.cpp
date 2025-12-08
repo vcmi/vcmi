@@ -362,6 +362,13 @@ void ApplyGhNetPackVisitor::visitSetFormation(SetFormation & pack)
 	result = gh.setFormation(pack.hid, pack.formation);
 }
 
+void ApplyGhNetPackVisitor::visitSetTownName(SetTownName & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.tid);
+
+	result = gh.setTownName(pack.tid, pack.name);
+}
+
 void ApplyGhNetPackVisitor::visitHireHero(HireHero & pack)
 {
 	gh.throwIfWrongPlayer(connection, &pack);
@@ -432,6 +439,13 @@ void ApplyGhNetPackVisitor::visitCastAdvSpell(CastAdvSpell & pack)
 
 	const CSpell * s = pack.sid.toSpell();
 	result = s->adventureCast(gh.spellEnv.get(), p);
+}
+
+void ApplyGhNetPackVisitor::visitRequestStatistic(RequestStatistic & pack)
+{
+	gh.throwIfPlayerNotActive(connection, &pack);
+
+	result = gh.responseStatistic(pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitPlayerMessage(PlayerMessage & pack)

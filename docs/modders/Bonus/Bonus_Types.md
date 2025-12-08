@@ -264,6 +264,12 @@ Defines maximum level of spells than hero can learn from any source (Wisdom)
 
 - val: maximal level to learn
 
+### COMBAT_MANA_BONUS
+
+Grants affected hero additional mana for the duration of combat. Bonus may give total mana above mana limit. Any additional mana not spent during combat will be lost.
+
+- val: amount of additional mana
+
 ## Hero specialties
 
 ### SPECIAL_SPELL_LEV
@@ -397,6 +403,7 @@ In battle, army affected by this bonus will cast spell at the very start of the 
 
 - subtype: spell identifier
 - val: duration of the spell, in rounds
+- addInfo - spell mastery level (1 - Basic, 3 - Expert)
 
 ### FREE_SHIP_BOARDING
 
@@ -536,8 +543,25 @@ When affected unit is attacked from behind, it will receive more damage when att
 
 Affected unit will deal more damage when attacking specific creature
 
-- subtype - identifier of hated creature, ie. "creature.genie"
+- subtype - identifier of hated creature, ie. `genie`
 - val - additional damage, percentage
+
+### HATES_TRAIT
+
+Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
+
+- subtype - identifier of hated bonus, ie. `UNDEAD`
+- val - additional damage, percentage
+
+Example: Unit deals 50% more damage to any target that has UNDEAD bonus
+
+```json
+	"hatesUndead" : {
+		"type" : "HATES_TRAIT",
+		"subtype" : "UNDEAD",
+		"val" : 50
+	}
+```
 
 ### SPELL_LIKE_ATTACK
 
@@ -882,7 +906,7 @@ Affected unit will not use spellcast as default attack option
 
 ### SPELLCASTER
 
-Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power.
+Affected units can cast a spell as targeted action (Archangel, Faerie Dragon). Use CASTS bonus to specify how many times per combat creature can use spellcasting. Use SPECIFIC_SPELL_POWER, CREATURE_SPELL_POWER or CREATURE_ENCHANT_POWER bonuses to set spell power. SPECIFIC_SPELL_RANGE bonus can be used to limit range of spell.
 
 - subtype: spell identifier
 - val: spell mastery level
@@ -931,6 +955,11 @@ Determines how many times per combat affected creature can cast its targeted spe
 ### SPECIFIC_SPELL_POWER
 
 - value: Used for Thunderbolt and Resurrection cast by units (multiplied by stack size). Also used for Healing secondary skill (for core:spell.firstAid used by First Aid tent)
+- subtype - spell id
+
+### SPECIFIC_SPELL_RANGE
+
+- value: Can be used to limit range of spells casted by creatures.
 - subtype - spell id
 
 ### CREATURE_SPELL_POWER

@@ -54,7 +54,7 @@ public:
 	// BonusList functions
 	void stackBonuses();
 	int totalValue(int baseValue = 0) const;
-	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit = nullptr) const;
+	void getBonuses(BonusList &out, const CSelector &selector) const;
 	void getAllBonuses(BonusList &out) const;
 
 	//special find functions

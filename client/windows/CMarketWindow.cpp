@@ -30,6 +30,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGMarket.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
@@ -85,7 +86,7 @@ void CMarketWindow::updateExperience()
 
 void CMarketWindow::update()
 {
-	CWindowWithArtifacts::update();
+	CWindowWithArtifacts::updateArtifacts();
 	assert(marketWidget);
 	marketWidget->update();
 }
@@ -200,11 +201,23 @@ std::string CMarketWindow::getMarketTitle(const ObjectInstanceID marketId, const
 	return GAME->interface()->cb->getObj(marketId)->getObjectName();
 }
 
+ImagePath CMarketWindow::getImagePathBasedOnResources(std::string name)
+{
+	int res = LIBRARY->resourceTypeHandler->getAllObjects().size();
+	if(res == 8)
+		name += "-R8";
+	else if(res > 8)
+		name += "-R9";
+	return ImagePath::builtin(name);
+}
+
 void CMarketWindow::createArtifactsBuying(const IMarket * market, const CGHeroInstance * hero)
 {
 	OBJECT_CONSTRUCTION;
 
-	background = createBg(ImagePath::builtin("TPMRKABS.bmp"), PLAYER_COLORED);
+	auto image = getImagePathBasedOnResources("TPMRKABS");
+
+	background = createBg(image, PLAYER_COLORED);
 	marketWidget = std::make_shared<CArtifactsBuying>(market, hero, getMarketTitle(market->getObjInstanceID(), EMarketMode::RESOURCE_ARTIFACT));
 	initWidgetInternals(EMarketMode::RESOURCE_ARTIFACT, LIBRARY->generaltexth->zelp[600]);
 }
@@ -213,7 +226,9 @@ void CMarketWindow::createArtifactsSelling(const IMarket * market, const CGHeroI
 {
 	OBJECT_CONSTRUCTION;
 
-	background = createBg(ImagePath::builtin("TPMRKASS.bmp"), PLAYER_COLORED);
+	auto image = getImagePathBasedOnResources("TPMRKASS");
+
+	background = createBg(image, PLAYER_COLORED);
 	// Create image that copies part of background containing slot MISC_1 into position of slot MISC_5
 	artSlotBack = std::make_shared<CPicture>(background->getSurface(), Rect(20, 187, 47, 47), 0, 0);
 	artSlotBack->moveTo(pos.topLeft() + Point(18, 339));
@@ -229,7 +244,9 @@ void CMarketWindow::createMarketResources(const IMarket * market, const CGHeroIn
 {
 	OBJECT_CONSTRUCTION;
 
-	background = createBg(ImagePath::builtin("TPMRKRES.bmp"), PLAYER_COLORED);
+	auto image = getImagePathBasedOnResources("TPMRKRES");
+
+	background = createBg(image, PLAYER_COLORED);
 	marketWidget = std::make_shared<CMarketResources>(market, hero);
 	initWidgetInternals(EMarketMode::RESOURCE_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
@@ -238,7 +255,9 @@ void CMarketWindow::createFreelancersGuild(const IMarket * market, const CGHeroI
 {
 	OBJECT_CONSTRUCTION;
 
-	background = createBg(ImagePath::builtin("TPMRKCRS.bmp"), PLAYER_COLORED);
+	auto image = getImagePathBasedOnResources("TPMRKCRS");
+
+	background = createBg(image, PLAYER_COLORED);
 	marketWidget = std::make_shared<CFreelancerGuild>(market, hero);
 	initWidgetInternals(EMarketMode::CREATURE_RESOURCE, LIBRARY->generaltexth->zelp[600]);
 }
@@ -247,7 +266,9 @@ void CMarketWindow::createTransferResources(const IMarket * market, const CGHero
 {
 	OBJECT_CONSTRUCTION;
 
-	background = createBg(ImagePath::builtin("TPMRKPTS.bmp"), PLAYER_COLORED);
+	auto image = getImagePathBasedOnResources("TPMRKPTS");
+
+	background = createBg(image, PLAYER_COLORED);
 	marketWidget = std::make_shared<CTransferResources>(market, hero);
 	initWidgetInternals(EMarketMode::RESOURCE_PLAYER, LIBRARY->generaltexth->zelp[600]);
 }
@@ -267,7 +288,7 @@ void CMarketWindow::createAltarArtifacts(const IMarket * market, const CGHeroIns
 	};
 	heroArts->showPopupCallback = [this, heroArts](CArtPlace & artPlace, const Point & cursorPosition)
 	{
-		showArtifactAssembling(*heroArts, artPlace, cursorPosition);
+		showArtifactPopup(*heroArts, artPlace, cursorPosition);
 	};
 	heroArts->gestureCallback = [this, heroArts](const CArtPlace & artPlace, const Point & cursorPosition)
 	{

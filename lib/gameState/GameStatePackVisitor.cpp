@@ -123,6 +123,11 @@ void GameStatePackVisitor::visitChangeFormation(ChangeFormation & pack)
 	gs.getHero(pack.hid)->setFormation(pack.formation);
 }
 
+void GameStatePackVisitor::visitChangeTownName(ChangeTownName & pack)
+{
+	gs.getTown(pack.tid)->setCustomName(pack.name);
+}
+
 void GameStatePackVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
 {
 	CGHeroInstance *h = gs.getHero(pack.hid);
@@ -176,13 +181,8 @@ void GameStatePackVisitor::visitSetMana(SetMana & pack)
 void GameStatePackVisitor::visitSetMovePoints(SetMovePoints & pack)
 {
 	CGHeroInstance *hero = gs.getHero(pack.hid);
-
 	assert(hero);
-
-	if(pack.mode == ChangeValueMode::ABSOLUTE)
-		hero->setMovementPoints(pack.val);
-	else
-		hero->setMovementPoints(hero->movementPointsRemaining() + pack.val);
+	hero->setMovementPoints(pack.val);
 }
 
 void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
@@ -194,7 +194,7 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 
 	if (pack.mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
-		std::unordered_set<int3> tilesRevealed;
+		FowTilesType tilesRevealed;
 		for (auto & o : gs.getMap().getObjects())
 		{
 			if (o->asOwnable())
@@ -326,19 +326,6 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	gs.actingPlayers.erase(pack.player);
 }
 
-void GameStatePackVisitor::visitPlayerReinitInterface(PlayerReinitInterface & pack)
-{
-	if(!gs.getStartInfo())
-		return;
-
-	//TODO: what does mean if more that one player connected?
-	if(pack.playerConnectionId == PlayerSettings::PLAYER_AI)
-	{
-		for(const auto & player : pack.players)
-			gs.getStartInfo()->getIthPlayersSettings(player).connectedPlayerIDs.clear();
-	}
-}
-
 void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 {
 	CBonusSystemNode *node = nullptr;
@@ -425,8 +412,8 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 
 		if (town->getGarrisonHero())
 		{
-			town->setGarrisonedHero(nullptr);
 			gs.getMap().showObject(gs.getHero(town->getGarrisonHero()->id));
+			town->setGarrisonedHero(nullptr);
 		}
 	}
 
@@ -625,8 +612,12 @@ void GameStatePackVisitor::visitHeroRecruited(HeroRecruited & pack)
 	h->pos = pack.tile;
 	h->updateAppearance();
 
-	assert(h->id.hasValue());
+	// Generate unique instance name before adding to map
+	if (h->instanceName.empty())
+		gs.getMap().generateUniqueInstanceName(h.get());
+
 	gs.getMap().addNewObject(h);
+	assert(h->id.hasValue());
 
 	p->addOwnedObject(h.get());
 	h->attachToBonusSystem(gs);
@@ -951,6 +942,9 @@ void GameStatePackVisitor::visitDischargeArtifact(DischargeArtifact & pack)
 		ePack.posPack.push_back(pack.artLoc.value().slot);
 		ePack.visit(*this);
 	}
+	// Workaround to inform hero bonus node about changes. Obviously this has to be done somehow differently.
+	if(pack.artLoc.has_value())
+		gs.getHero(pack.artLoc.value().artHolder)->nodeHasChanged();
 }
 
 void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
@@ -1178,15 +1172,24 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 	pack.info->battleID = gs.nextBattleID;
 	pack.info->localInit();
 
-	if (pack.info->getDefendedTown() && pack.info->getSideHero(BattleSide::DEFENDER))
+	if (pack.info->getDefendedTown() && pack.info->getSide(BattleSide::DEFENDER).heroID.hasValue())
 	{
 		CGTownInstance * town = gs.getTown(pack.info->townID);
 		CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(town->townAndVis);
 			hero->attachTo(*town);
+		}
+	}
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (pack.info->getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(i)->id);
+			hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
 		}
 	}
 
@@ -1368,7 +1371,7 @@ void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 		CGTownInstance * town = gs.getTown(currentBattle.townID);
 		CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(BattleSide::DEFENDER)->id);
 
-		if (town->getVisitingHero() == hero)
+		if (hero)
 		{
 			hero->detachFrom(*town);
 			hero->attachTo(town->townAndVis);
@@ -1384,6 +1387,17 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 	{
 		return battle->battleID == pack.battleID;
 	});
+
+	const auto & currentBattle = **battleIter;
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = currentBattle.getSide(i).initialMana;
+		}
+	}
 
 	assert(battleIter != gs.currentBattles.end());
 	gs.currentBattles.erase(battleIter);
@@ -1403,14 +1417,30 @@ void GameStatePackVisitor::visitBattleResultsApplied(BattleResultsApplied & pack
 	for(auto & movingPack : pack.movingArtifacts)
 		movingPack.visit(*this);
 
-	const auto currentBattle = std::find_if(gs.currentBattles.begin(), gs.currentBattles.end(),
-											[&](const auto & battle)
-											{
-												return battle->battleID == pack.battleID;
-											});
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
+	const auto & currentBattle = **battleIter;
 
-	assert(currentBattle != gs.currentBattles.end());
-	gs.currentBattles.erase(currentBattle);
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	{
+		if (currentBattle.getSide(i).heroID.hasValue())
+		{
+			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
+			hero->mana = std::min(hero->mana, currentBattle.getSide(i).initialMana);
+		}
+	}
+}
+
+void GameStatePackVisitor::visitBattleEnded(BattleEnded & pack)
+{
+	auto battleIter = boost::range::find_if(gs.currentBattles, [&](const auto & battle)
+	{
+		return battle->battleID == pack.battleID;
+	});
+	assert(battleIter != gs.currentBattles.end());
+	gs.currentBattles.erase(battleIter);
 }
 
 void GameStatePackVisitor::visitBattleObstaclesChanged(BattleObstaclesChanged & pack)

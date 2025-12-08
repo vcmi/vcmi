@@ -11,48 +11,96 @@
 
 #include "BonusEnum.h"
 #include "BonusCustomTypes.h"
-#include "../constants/VariantIdentifier.h"
-#include "../constants/EntityIdentifiers.h"
+#include "Limiters.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
 #include "../filesystem/ResourcePath.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
-struct Bonus;
 class IBonusBearer;
-class CBonusSystemNode;
-class ILimiter;
 class IPropagator;
 class IUpdater;
-class BonusList;
 class CSelector;
 class IGameInfoCallback;
 
-using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool>;
-using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField>;
 using TBonusListPtr = std::shared_ptr<BonusList>;
 using TConstBonusListPtr = std::shared_ptr<const BonusList>;
-using TLimiterPtr = std::shared_ptr<const ILimiter>;
 using TPropagatorPtr = std::shared_ptr<const IPropagator>;
 using TUpdaterPtr = std::shared_ptr<const IUpdater>;
 
-class DLL_LINKAGE CAddInfo : public std::vector<si32>
+class DLL_LINKAGE CAddInfo final
 {
 public:
+	using container = std::vector<si32>;
+	using size_type = container::size_type;
 	enum { NONE = -1 };
 
 	CAddInfo();
 	CAddInfo(si32 value);
 
-	bool operator==(si32 value) const;
-	bool operator!=(si32 value) const;
+	// Inline definitions in the header to avoid missing symbols across TUs
+	bool operator==(const CAddInfo& other) const noexcept {
+		return data_ == other.data_;
+	}
 
-	si32 & operator[](size_type pos);
-	si32 operator[](size_type pos) const;
+	bool operator!=(const CAddInfo& other) const noexcept {
+		return !(*this == other);
+	}
+
+	bool operator==(si32 value) const
+	{
+		switch(data_.size())
+		{
+		case 0:
+			return value == CAddInfo::NONE;
+		case 1:
+			return data_[0] == value;
+		default:
+			return false;
+		}
+	}
+
+	bool operator!=(si32 value) const
+	{
+		return !(*this == value);
+	}
+
+
+	si32 & operator[](size_type pos)
+	{
+		if(pos >= data_.size())
+			data_.resize(pos + 1, CAddInfo::NONE);
+		return data_[pos];
+	}
+
+	si32 operator[](size_type pos) const
+	{
+		return pos < data_.size() ? data_[pos] : CAddInfo::NONE;
+	}
 
 	std::string toString() const;
 	JsonNode toJsonNode() const;
+
+	// Minimal vector-like facade
+	size_type size() const noexcept { return data_.size(); }
+	bool empty() const noexcept { return data_.empty(); }
+	void push_back(si32 v) { data_.push_back(v); }
+	void resize(size_type n, si32 fill = CAddInfo::NONE) { data_.resize(n, fill); }
+
+	container::iterator begin() noexcept { return data_.begin(); }
+	container::iterator end() noexcept { return data_.end(); }
+	container::const_iterator begin() const noexcept { return data_.begin(); }
+	container::const_iterator end() const noexcept { return data_.end(); }
+
+	// expose const view for free operators
+	const container& data() const noexcept { return data_; }
+
+	template <class H>
+	void serialize(H& h) { h & data_; }
+
+private:
+	container data_;
 };
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
@@ -83,9 +131,12 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 	MetaString description;
 	PlayerColor bonusOwner = PlayerColor::CANNOT_DETERMINE;
 
+	bool hidden = false;
+
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype);
 	Bonus(BonusDuration::Type Duration, BonusType Type, BonusSource Src, si32 Val, BonusSourceID sourceID, BonusSubtypeID subtype, BonusValueType ValType);
+	Bonus(const Bonus & inst, const BonusSourceID & sourceId);
 	Bonus() = default;
 
 	template <typename Handler> void serialize(Handler &h)
@@ -99,6 +150,8 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		h & description;
 		if (h.hasFeature(Handler::Version::CUSTOM_BONUS_ICONS))
 			h & customIconPath;
+		if (h.hasFeature(Handler::Version::BONUS_HIDDEN))
+			h & hidden;
 		h & additionalInfo;
 		h & turnsRemain;
 		h & valType;

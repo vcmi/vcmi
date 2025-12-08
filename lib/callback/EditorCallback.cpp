@@ -27,9 +27,9 @@ EditorCallback::EditorCallback(const CMap * map)
 	: map(map)
 {}
 
-void EditorCallback::setMap(const CMap * map)
+void EditorCallback::setMap(const CMap * newMap)
 {
-	this->map = map;
+	map = newMap;
 }
 
 CGameState & EditorCallback::gameState()
@@ -52,12 +52,17 @@ int EditorCallback::getDate(Date mode) const
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-const TerrainTile * EditorCallback::getTile(int3, bool) const
+const TerrainTile * EditorCallback::getTile(int3 tile, bool) const
+{
+	return &map->getTile(tile);
+}
+
+const TerrainTile * EditorCallback::getTileUnchecked(int3) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-const TerrainTile * EditorCallback::getTileUnchecked(int3) const
+bool EditorCallback::isTileGuardedUnchecked(int3 tile) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
@@ -92,12 +97,12 @@ std::vector<const CGObjectInstance*> EditorCallback::getGuardingCreatures(int3) 
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::getTilesInRange(std::unordered_set<int3> &, const int3 &, int, ETileVisibility, std::optional<PlayerColor>, int3::EDistanceFormula) const
+void EditorCallback::getTilesInRange(FowTilesType &, const int3 &, int, ETileVisibility, std::optional<PlayerColor>, int3::EDistanceFormula) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }
 
-void EditorCallback::getAllTiles(std::unordered_set<int3> &, std::optional<PlayerColor>, int, std::function<bool(const TerrainTile *)>) const
+void EditorCallback::getAllTiles(FowTilesType &, std::optional<PlayerColor>, int, const std::function<bool(const TerrainTile *)> &) const
 {
 	THROW_EDITOR_UNSUPPORTED;
 }

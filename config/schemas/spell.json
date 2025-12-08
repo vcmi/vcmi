@@ -50,6 +50,335 @@
 				}
 			}
 		},
+		"adventureEffect" : {
+			"type" : "object",
+			"required" : [ "type" ],
+			"properties" : {
+				"type" : {
+					"type" : "string",
+					"enum" : [ "generic", "dimensionDoor", "removeObject", "summonBoat", "townPortal", "viewWorld" ]
+				},
+				"castsPerDay" : { "type" : "number" },
+				"castsPerDayXL" : { "type" : "number" },
+				"bonuses" : { "additionalProperties" : { "$ref" : "bonusInstance.json" }}
+			},
+			"allOf" : [
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "dimensionDoor" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"cursorGuarded" : { "type" : "string" },
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"waterLandFailureTakesPoints" : { "type" : "boolean" },
+							"exposeFow" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "removeObject" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"rangeX" : { "type" : "number" },
+							"rangeY" : { "type" : "number" },
+							"ignoreFow" : { "type" : "boolean" },
+							"cursor" : { "type" : "string" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "summonBoat" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"useExistingBoat" : { "type" : "boolean" },
+							"createdBoat" : { "type" : "string" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "townPortal" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"movementPointsRequired" : { "type" : "number" },
+							"movementPointsTaken" : { "type" : "number" },
+							"allowTownSelection" : { "type" : "boolean" },
+							"skipOccupiedTowns" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "viewWorld" } } },
+					"then" : {
+						"properties" : {
+							"castsPerDay" : {},
+							"castsPerDayXL" : {},
+							"bonuses" : {},
+							"type" : {},
+							"showTerrain" : { "type" : "boolean" },
+							"objects" : { "additionalProperties" : { "type" : "boolean" } }
+						},
+						"additionalProperties" : false
+					}
+				}
+			]
+		},
+		"battleEffect" : {
+			"type" : "object",
+			"required" : [ "type" ],
+			"properties" : {
+				"type" : {
+					"type" : "string",
+					"enum" : [ 
+						"core:catapult",
+						"core:clone",
+						"core:damage",
+						"core:demonSummon",
+						"core:dispel",
+						"core:heal",
+						"core:moat",
+						"core:obstacle",
+						"core:removeObstacle",
+						"core:sacrifice",
+						"core:summon",
+						"core:teleport",
+						"core:timed"
+					]
+				},
+				"indirect" : { "type" : "boolean" },
+				"optional" : { "type" : "boolean" }
+			},
+			"allOf" : [
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:catapult" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"targetsToAttack" : { "type" : "number" },
+							"chanceToHitKeep" : { "type" : "number" },
+							"chanceToHitGate" : { "type" : "number" },
+							"chanceToHitTower" : { "type" : "number" },
+							"chanceToHitWall" : { "type" : "number" },
+							"chanceToNormalHit" : { "type" : "number" },
+							"chanceToCrit" : { "type" : "number" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:clone" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"maxTier" : { "type" : "number" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:damage" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"killByPercentage" : { "type" : "boolean" },
+							"killByCount" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:demonSummon" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"id" : { "type" : "string" },
+							"permanent" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:dispel" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"dispelPositive" : { "type" : "boolean" },
+							"dispelNegative" : { "type" : "boolean" },
+							"dispelNeutral" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "enum" : [ "core:heal", "core:sacrifice" ] } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"healLevel" : { "type" : "string" },
+							"healPower" : { "type" : "string" },
+							"minFullUnits" : { "type" : "number" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:moat" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"hidden" : { "type" : "boolean" },
+							"trap" : { "type" : "boolean" },
+							"removeOnTrigger" : { "type" : "boolean" },
+							"dispellable" : { "type" : "boolean" },
+							"moatDamage" : { "type" : "number" },
+							"moatHexes" : { "type" : "array", "items" : { "type" : "number" } },
+							"triggerAbility" : { "type" : "string" },
+							"defender" : {  },
+							"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:obstacle" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"hidden" : { "type" : "boolean" },
+							"passable" : { "type" : "boolean" },
+							"trap" : { "type" : "boolean" },
+							"removeOnTrigger" : { "type" : "boolean" },
+							"hideNative" : { "type" : "boolean" },
+							"patchCount" : { "type" : "number" },
+							"turnsRemaining" : { "type" : "number" },
+							"triggerAbility" : { "type" : "string" },
+							"attacker" : {  },
+							"defender" : {  }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:removeObstacle" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"removeAbsolute" : { "type" : "boolean" },
+							"removeUsual" : { "type" : "boolean" },
+							"removeAllSpells" : { "type" : "boolean" },
+							"removeSpells" : {  }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:summon" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"id" : { "type" : "string" },
+							"permanent" : { "type" : "boolean" },
+							"exclusive" : { "type" : "boolean" },
+							"summonByHealth" : { "type" : "boolean" },
+							"summonSameUnit" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:teleport" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"triggerObstacles" : { "type" : "boolean" },
+							"isWallPassable" : { "type" : "boolean" },
+							"isMoatPassable" : { "type" : "boolean" }
+						},
+						"additionalProperties" : false
+					}
+				},
+				{ 
+					"if" : { "properties" : { "type" : { "const" : "core:timed" } } },
+					"then" : {
+						"properties" : {
+							"type" : {},
+							"indirect" : {},
+							"optional" : {},
+							"ignoreImmunity" : { "type" : "boolean" },
+							"chainLength" : { "type" : "number" },
+							"chainFactor" : { "type" : "number" },
+							"cumulative" : { "type" : "boolean" },
+							"bonus" : { "additionalProperties" : { "$ref" : "bonusInstance.json" } }
+						},
+						"additionalProperties" : false
+					}
+				}
+			]
+		},
 		"flags" : {
 			"type" : "object",
 			"additionalProperties" : {
@@ -94,8 +423,11 @@
 				"battleEffects" : {
 					"type" : "object",
 					"additionalProperties" : {
-						"type" : "object"
+						"$ref" : "#/definitions/battleEffect"
 					}
+				},
+				"adventureEffect" : {
+					"$ref" : "#/definitions/adventureEffect"
 				},
 				"targetModifier" : {
 					"type" : "object",
@@ -134,8 +466,8 @@
 				},
 				"properties": {
 					"type": {
-						"enum" : ["adventure", "combat"],
-					},
+						"enum" : ["adventure", "combat"]
+					}
 					
 				}
 			},
@@ -147,7 +479,7 @@
 					},
 					"graphics" : {
 						"required" : ["iconBook", "iconScroll", "iconEffect", "iconImmune", "iconScenarioBonus"]
-					},
+					}
 				}
 			}
 		},
@@ -174,7 +506,7 @@
 					},
 					"graphics" : {
 						"required" : ["iconEffect", "iconImmune"]
-					},
+					}
 				}
 			}
 		}
@@ -301,7 +633,12 @@
 		},
 		"targetCondition" : {
 			"type" : "object",
-			"additionalProperties" : true
+			"additionalProperties" : false,
+			"properties" : {
+				"noneOf" : { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"anyOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
+				"allOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } }
+			}
 		},
 		"animation" : {"$ref" : "#/definitions/animation"},
 		"graphics" : {
@@ -349,11 +686,6 @@
 			 "type" : "object",
 			 "additionalProperties" : false,
 			 "properties" : {
-				"base" : {
-					"type" : "object",
-					"description" : "will be merged with all levels",
-					"additionalProperties" : true
-				},
 				"none" : {
 					"$ref" : "#/definitions/levelInfo"
 				},

@@ -26,7 +26,7 @@ HeroInfoBasicPanel::HeroInfoBasicPanel(const InfoAboutHero & hero, const Point *
 
 	if(initializeBackground)
 	{
-		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"));
+		background = std::make_shared<CPicture>(ImagePath::builtin("CHRPOP"), Rect(1, 1, 76, 200), 1, 1);
 		background->setPlayerColor(hero.owner);
 	}
 

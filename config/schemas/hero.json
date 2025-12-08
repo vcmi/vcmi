@@ -34,7 +34,7 @@
 		"compatibilityIdentifiers" : {
 			"type" : "array",
 			"items" : {
-				"type" : "string",
+				"type" : "string"
 			},
 			"description" : "Additional identifiers that may refer to this object, to provide compatibility after object has been renamed"
 		},
@@ -119,11 +119,6 @@
 			"description" : "Description of hero specialty using bonus system",
 			"additionalProperties" : false,
 			"properties" : { 
-				"base" : {
-					"type" : "object",
-					"additionalProperties" : true,
-					"description" : "Section that will be added into every bonus instance, for use in specialties with multiple similar bonuses."
-				},
 				"bonuses" : {
 					"type" : "object",
 					"description" : "List of bonuses added by this specialty. See bonus format for more details",

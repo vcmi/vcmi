@@ -27,6 +27,85 @@
 std::list<CFocusable *> CFocusable::focusables;
 CFocusable * CFocusable::inputWithFocus;
 
+CTextInputWithConfirm::CTextInputWithConfirm(const Rect & Pos, EFonts font, ETextAlignment alignment, std::string text, bool limitToRect, std::function<void()> confirmCallback)
+	: CTextInput(Pos, font, alignment, false), confirmCb(confirmCallback), limitToRect(limitToRect), initialText(text)
+{
+	setText(text);
+}
+
+bool CTextInputWithConfirm::captureThisKey(EShortcut key)
+{
+	return hasFocus() && (key == EShortcut::GLOBAL_ACCEPT || key == EShortcut::GLOBAL_CANCEL || key == EShortcut::GLOBAL_BACKSPACE);
+}
+
+void CTextInputWithConfirm::keyPressed(EShortcut key)
+{
+	if(!hasFocus())
+		return;
+
+	if(key == EShortcut::GLOBAL_ACCEPT)
+		confirm();
+	else if(key == EShortcut::GLOBAL_CANCEL)
+	{
+		setText(initialText);
+		removeFocus();
+	}
+	
+	CTextInput::keyPressed(key);
+}
+
+bool CTextInputWithConfirm::receiveEvent(const Point & position, int eventType) const
+{
+	return eventType == AEventsReceiver::LCLICK; // capture all left clicks (not only within control)
+}
+
+void CTextInputWithConfirm::clickReleased(const Point & cursorPosition)
+{
+	if(!pos.isInside(cursorPosition)) // clicked outside
+		confirm();
+}
+
+void CTextInputWithConfirm::clickPressed(const Point & cursorPosition)
+{
+	if(pos.isInside(cursorPosition)) // clickPressed should respect control area (receiveEvent also affects this)
+		CTextInput::clickPressed(cursorPosition);
+}
+
+void CTextInputWithConfirm::onFocusGot()
+{
+	initialText = getText();
+
+	CTextInput::onFocusGot();
+}
+
+void CTextInputWithConfirm::textInputted(const std::string & enteredText)
+{
+	if(!hasFocus())
+		return;
+
+	std::string visibleText = getVisibleText() + enteredText;
+	const auto & font = ENGINE->renderHandler().loadFont(label->font);
+	if(!limitToRect || (font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) < pos.w)
+		CTextInput::textInputted(enteredText);
+}
+
+void CTextInputWithConfirm::deactivate()
+{
+	removeUsedEvents(LCLICK);
+
+	CTextInput::deactivate();
+}
+
+void CTextInputWithConfirm::confirm()
+{
+	if(getText().empty())
+		setText(initialText);
+
+	if(confirmCb && initialText != getText())
+		confirmCb();
+	removeFocus();
+}
+
 CTextInput::CTextInput(const Rect & Pos)
 	:originalAlignment(ETextAlignment::CENTERLEFT)
 {
@@ -121,9 +200,9 @@ void CTextInput::setFilterFilename()
 	onTextFiltering = std::bind(&CTextInput::filenameFilter, _1, _2);
 }
 
-void CTextInput::setFilterNumber(int minValue, int maxValue)
+void CTextInput::setFilterNumber(int minValue, int maxValue, int metricDigits)
 {
-	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue);
+	onTextFiltering = std::bind(&CTextInput::numberFilter, _1, _2, minValue, maxValue, metricDigits);
 }
 
 std::string CTextInput::getVisibleText() const
@@ -177,6 +256,10 @@ void CTextInput::keyPressed(EShortcut key)
 
 	if(redrawNeeded)
 	{
+		std::string oldText = currentText;
+		if(onTextFiltering)
+			onTextFiltering(currentText, oldText);
+
 		updateLabel();
 		if(onTextEdited)
 			onTextEdited(currentText);
@@ -196,7 +279,7 @@ void CTextInput::updateLabel()
 	label->alignment = originalAlignment;
 	const auto & font = ENGINE->renderHandler().loadFont(label->font);
 
-	while (font->getStringWidth(visibleText) > pos.w)
+	while ((font->getStringWidth(visibleText) - CLabel::getDelimitersWidth(label->font, visibleText)) > pos.w)
 	{
 		label->alignment = ETextAlignment::CENTERRIGHT;
 		visibleText = visibleText.substr(TextOperations::getUnicodeCharacterSize(visibleText[0]));
@@ -216,9 +299,9 @@ void CTextInput::textInputted(const std::string & enteredText)
 	if(onTextFiltering)
 		onTextFiltering(currentText, oldText);
 
+	updateLabel();
 	if(currentText != oldText)
 	{
-		updateLabel();
 		if(onTextEdited)
 			onTextEdited(currentText);
 	}
@@ -242,39 +325,71 @@ void CTextInput::filenameFilter(std::string & text, const std::string &oldText)
 		text.erase(pos, 1);
 }
 
-void CTextInput::numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue)
+std::optional<char> getMetricSuffix(const std::string& text)
+{
+	const std::string suffixes = "kKmMgGtTpPeE";
+	std::vector<char> found;
+
+	// Collect all suffixes in the string
+	for (char c : text) {
+		if (suffixes.find(c) != std::string::npos) {
+			// Normalize: 'k' lowercase, others uppercase
+			found.push_back((c == 'k' || c == 'K') ? 'k' : static_cast<char>(std::toupper(c)));
+		}
+	}
+
+	if (found.empty()) return std::nullopt;            // No suffix
+	if (found.size() == 1) return found[0];           // Single suffix
+	// More than one suffix
+	bool allSame = std::all_of(found.begin(), found.end(), [&](char c){ return c == found[0]; });
+	if (allSame) return std::nullopt;                 // Multiple but identical → nullopt
+	return found.back();                               // Multiple different → last suffix
+}
+
+
+void CTextInput::numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue, int metricDigits)
 {
 	assert(minValue < maxValue);
 
-	if(text.empty())
+	bool isNegative = std::count_if(text.begin(), text.end(), [](char c){ return c == '-'; }) == 1 && minValue < 0;
+	auto suffix = getMetricSuffix(text);
+	if(metricDigits == 0)
+		suffix = std::nullopt;
+
+	// Remove all non-digit characters
+	text.erase(std::remove_if(text.begin(), text.end(), [](char c){ return !isdigit(c); }), text.end());
+
+	// Remove leading zeros
+	size_t firstNonZero = text.find_first_not_of('0');
+	if (firstNonZero > 0)
+		text.erase(0, firstNonZero);
+
+	if (text.empty())
 		text = "0";
 
-	size_t pos = 0;
-	if(text[0] == '-') //allow '-' sign as first symbol only
-		pos++;
+	// Add negative sign
+	text = (isNegative ? "-" : "") + text;
 
-	while(pos < text.size())
+	// Restore suffix if it exists
+	if (suffix)
+		text += *suffix;
+
+	// Clamp value
+	int value = TextOperations::parseMetric<int>(text);
+	if (metricDigits)
+		text = (isNegative && value == 0 ? "-" : "") + TextOperations::formatMetric(value, metricDigits);
+	if (value < minValue)
+		text = metricDigits ? TextOperations::formatMetric(minValue, metricDigits) : std::to_string(minValue);
+	else if (value > maxValue)
 	{
-		if(text[pos] < '0' || text[pos] > '9')
+		if(text.length() == 2 && oldText.length() == 1)
 		{
-			text = oldText;
-			return; //new text is not number.
+			// special case: if max val < 10 you cannot erase number to add another -> in this case just use last typed number
+			int newNum = std::stoi(text.substr(text.size() - 1));
+			text = std::to_string(newNum < maxValue ? newNum : maxValue);
 		}
-		pos++;
-	}
-	try
-	{
-		int value = boost::lexical_cast<int>(text);
-		if(value < minValue)
-			text = std::to_string(minValue);
-		else if(value > maxValue)
-			text = std::to_string(maxValue);
-	}
-	catch(boost::bad_lexical_cast &)
-	{
-		//Should never happen. Unless I missed some cases
-		logGlobal->warn("Warning: failed to convert %s to number!", text);
-		text = oldText;
+		else
+			text = metricDigits ? TextOperations::formatMetric(maxValue, metricDigits) : std::to_string(maxValue);
 	}
 }
 

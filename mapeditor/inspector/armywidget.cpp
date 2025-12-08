@@ -14,6 +14,7 @@
 #include "CCreatureHandler.h"
 
 #include "../../lib/GameLibrary.h"
+#include "../../lib/mapObjects/army/CStackInstance.h"
 
 ArmyWidget::ArmyWidget(CArmedInstance & a, QWidget *parent) :
 	QDialog(parent),

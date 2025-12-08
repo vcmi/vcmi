@@ -13,21 +13,20 @@
 #include "ShortcutHandler.h"
 #include "Shortcut.h"
 
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/json/JsonUtils.h"
 
 ShortcutHandler::ShortcutHandler()
 {
-	const JsonNode config = JsonUtils::assembleFromFiles("config/shortcutsConfig");
-
-	mappedKeyboardShortcuts = loadShortcuts(config["keyboard"]);
-	mappedJoystickShortcuts = loadShortcuts(config["joystickButtons"]);
-	mappedJoystickAxes = loadShortcuts(config["joystickAxes"]);
+	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
+	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
+	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);
 
 #ifndef ENABLE_GOLDMASTER
 	std::vector<EShortcut> assignedShortcuts;
 	std::vector<EShortcut> missingShortcuts;
 
-	for (auto const & entry : config["keyboard"].Struct())
+	for (auto const & entry : keyBindingsConfig["keyboard"].Struct())
 	{
 		EShortcut shortcutID = findShortcut(entry.first);
 		assert(!vstd::contains(assignedShortcuts, shortcutID));
@@ -163,10 +162,13 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyToggleChat",          EShortcut::LOBBY_TOGGLE_CHAT         },
 		{"lobbyAdditionalOptions",   EShortcut::LOBBY_ADDITIONAL_OPTIONS  },
 		{"lobbySelectScenario",      EShortcut::LOBBY_SELECT_SCENARIO     },
+		{"lobbyBattleMode",          EShortcut::LOBBY_BATTLE_MODE         },
 		{"gameEndTurn",              EShortcut::ADVENTURE_END_TURN        }, // compatibility ID - extra's use this string
 		{"adventureEndTurn",         EShortcut::ADVENTURE_END_TURN        },
 		{"adventureLoadGame",        EShortcut::ADVENTURE_LOAD_GAME       },
 		{"adventureSaveGame",        EShortcut::ADVENTURE_SAVE_GAME       },
+		{"adventureQuickSave",       EShortcut::ADVENTURE_QUICK_SAVE      },
+		{"adventureQuickLoad",       EShortcut::ADVENTURE_QUICK_LOAD      },
 		{"adventureRestartGame",     EShortcut::ADVENTURE_RESTART_GAME    },
 		{"adventureMainMenu",        EShortcut::ADVENTURE_TO_MAIN_MENU    },
 		{"adventureQuitGame",        EShortcut::ADVENTURE_QUIT_GAME       },
@@ -203,6 +205,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"adventureViewWorld1",      EShortcut::ADVENTURE_VIEW_WORLD_X1   },
 		{"adventureViewWorld2",      EShortcut::ADVENTURE_VIEW_WORLD_X2   },
 		{"adventureViewWorld4",      EShortcut::ADVENTURE_VIEW_WORLD_X4   },
+		{"adventureViewStatistic",   EShortcut::ADVENTURE_VIEW_STATISTIC  },
 		{"adventureTrackHero",       EShortcut::ADVENTURE_TRACK_HERO,     },
 		{"adventureToggleMapLevel",  EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL},
 		{"adventureKingdomOverview", EShortcut::ADVENTURE_KINGDOM_OVERVIEW},
@@ -305,6 +308,7 @@ EShortcut ShortcutHandler::findShortcut(const std::string & identifier ) const
 		{"lobbyRandomTown",          EShortcut::LOBBY_RANDOM_TOWN         },
 		{"lobbyRandomTownVs",        EShortcut::LOBBY_RANDOM_TOWN_VS      },
 		{"lobbyHandicap",            EShortcut::LOBBY_HANDICAP            },
+		{"lobbyCampaignSets",        EShortcut::LOBBY_CAMPAIGN_SETS       },
 		{"mapsSizeS",                EShortcut::MAPS_SIZE_S               },
 		{"mapsSizeM",                EShortcut::MAPS_SIZE_M               },
 		{"mapsSizeL",                EShortcut::MAPS_SIZE_L               },

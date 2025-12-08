@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "CMapDefines.h"
+#include "CMapEvent.h"
 #include "CMapHeader.h"
+#include "TerrainTile.h"
 
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
@@ -221,7 +222,6 @@ public:
 	bool isWaterMap() const;
 	bool calculateWaterContent();
 	void banWaterArtifacts();
-	void banWaterHeroes();
 	void banHero(const HeroTypeID& id);
 	void unbanHero(const HeroTypeID & id);
 	void banWaterSpells();
@@ -370,7 +370,7 @@ inline bool CMap::isInTheMap(const int3 & pos) const
 	return
 		static_cast<uint32_t>(pos.x) < static_cast<uint32_t>(width) &&
 		static_cast<uint32_t>(pos.y) < static_cast<uint32_t>(height) &&
-		static_cast<uint32_t>(pos.z) <= (twoLevel ? 1 : 0);
+		static_cast<uint32_t>(pos.z) <= mapLevels - 1;
 }
 
 inline TerrainTile & CMap::getTile(const int3 & tile)

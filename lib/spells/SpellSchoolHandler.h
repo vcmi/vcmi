@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <vcmi/EntityService.h>
+#include <vcmi/Entity.h>
 #include "../constants/EntityIdentifiers.h"
 #include "../IHandlerBase.h"
 #include "../filesystem/ResourcePath.h"
@@ -21,29 +23,42 @@ class SpellSchoolHandler;
 namespace spells
 {
 
-class DLL_LINKAGE SpellSchoolType
+class DLL_LINKAGE SpellSchoolType : public EntityT<SpellSchool>
 {
 	friend class VCMI_LIB_WRAP_NAMESPACE(SpellSchoolHandler);
 
 	SpellSchool id; //backlink
-	std::string jsonName;
 	AnimationPath spellBordersPath;
+	AnimationPath schoolBookmarkPath;
+	ImagePath schoolHeaderPath;
+
+	std::string identifier;
+	std::string modScope;
 
 public:
-	std::string getJsonKey() const
-	{
-		return jsonName;
-	}
-
 	AnimationPath getSpellBordersPath() const
 	{
 		return spellBordersPath;
 	}
 
-	int getIndex() const
+	AnimationPath getSchoolBookmarkPath() const
 	{
-		return id.getNum();
+		return schoolBookmarkPath;
 	}
+
+	ImagePath getSchoolHeaderPath() const
+	{
+		return schoolHeaderPath;
+	}
+
+	std::string getJsonKey() const override { return identifier; }
+	int32_t getIndex() const override { return id.getNum(); }
+	SpellSchool getId() const override { return id;}
+	int32_t getIconIndex() const override { return 0; }
+	std::string getModScope() const override { return modScope; };
+	void registerIcons(const IconRegistar & cb) const override {};
+	std::string getNameTextID() const override;
+	std::string getNameTranslated() const override;
 };
 
 }

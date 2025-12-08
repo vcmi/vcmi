@@ -8,6 +8,8 @@
 		"upgrades": ["hobgoblin"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:168",
+			"mapAttackFromLeft": "AvWattak.def:0:169",
 			"animation": "CGOBLI.DEF"
 		},
 		"sound" :
@@ -27,6 +29,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:170",
+			"mapAttackFromLeft": "AvWattak.def:0:171",
 			"animation": "CHGOBL.DEF"
 		},
 		"sound" :
@@ -48,6 +52,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:172",
+			"mapAttackFromLeft": "AvWattak.def:0:173",
 			"animation": "CBWLFR.DEF"
 		},
 		"sound" :
@@ -75,6 +81,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:174",
+			"mapAttackFromLeft": "AvWattak.def:0:175",
 			"animation": "CUWLFR.DEF"
 		},
 		"sound" :
@@ -102,6 +110,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:176",
+			"mapAttackFromLeft": "AvWattak.def:0:177",
 			"animation": "CORC.DEF",
 			"missile" :
 			{
@@ -133,6 +143,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:178",
+			"mapAttackFromLeft": "AvWattak.def:0:179",
 			"animation": "CORCCH.DEF",
 			"missile" :
 			{
@@ -157,6 +169,8 @@
 		"upgrades": ["ogreMage"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:180",
+			"mapAttackFromLeft": "AvWattak.def:0:181",
 			"animation": "COGRE.DEF"
 		},
 		"sound" :
@@ -194,6 +208,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:182",
+			"mapAttackFromLeft": "AvWattak.def:0:183",
 			"animation": "COGMAG.DEF"
 		},
 		"sound" :
@@ -222,6 +238,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:184",
+			"mapAttackFromLeft": "AvWattak.def:0:185",
 			"animation": "CROC.DEF"
 		},
 		"sound" :
@@ -260,6 +278,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:186",
+			"mapAttackFromLeft": "AvWattak.def:0:187",
 			"animation": "CTBIRD.DEF"
 		},
 		"sound" :
@@ -292,6 +312,8 @@
 		"upgrades": ["cyclopKing"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:188",
+			"mapAttackFromLeft": "AvWattak.def:0:189",
 			"animation": "CCYCLR.DEF",
 			"missile" :
 			{
@@ -335,6 +357,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:190",
+			"mapAttackFromLeft": "AvWattak.def:0:191",
 			"animation": "CCYCLLOR.DEF",
 			"missile" :
 			{
@@ -373,6 +397,8 @@
 		"upgrades": ["ancientBehemoth"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:192",
+			"mapAttackFromLeft": "AvWattak.def:0:193",
 			"animation": "CYBEHE.DEF"
 		},
 		"sound" :
@@ -405,6 +431,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:194",
+			"mapAttackFromLeft": "AvWattak.def:0:195",
 			"animation": "CABEHE.DEF"
 		},
 		"sound" :

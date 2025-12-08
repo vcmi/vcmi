@@ -111,6 +111,10 @@
 	[
 		"config/terrains.json"
 	],
+	"resources" :
+	[
+		"config/resources.json"
+	],
 	"roads":
 	[
 		"config/roads.json"
@@ -154,6 +158,11 @@
 			"restorationOfErathia" : { 
 				"supported" : true,
 				"iconIndex" : 0,
+				"settings": {
+					"spells": {
+						"tomesGrantBannedSpells" : true
+					}
+				},
 				"buildingsCommon": {
 					"townHall"       : 0,
 					"cityHall"       : 1,
@@ -476,7 +485,12 @@
 				"iconIndex" : 3
 			},
 			"hornOfTheAbyss" : { 
-				"supported" : false
+				"supported" : false,
+				"settings": {
+					"spells": {
+						"tomesGrantBannedSpells" : false
+					}
+				}
 			},
 			"inTheWakeOfGods" : { 
 				"supported" : false
@@ -517,7 +531,12 @@
 			/// Strength of generic secondary skill specialties ( "secondary" : "skillName" ) per level
 			"specialtySecondarySkillGrowth" : 5,
 			/// Strength of generic creature specialties ( "creature" : "creatureName" ) per level
-			"specialtyCreatureGrowth" : 5
+			"specialtyCreatureGrowth" : 5,
+
+			/// Maximum amount of skills that can be offered to hero on levelup
+			"levelupTotalSkillsAmount" : 2,
+			/// Maximum amount of advanced or expert skills that can be offered to hero on levelup
+			"levelupUpgradedSkillsAmount" : 1
 		},
 
 		"towns":
@@ -637,7 +656,7 @@
 				"creatureBankNarrow" : {
 					"tacticsAllowed" : false,
 					"obstaclesAllowed" : false,
-					"attackerCommander" : 95,
+					"attackerCommander" : 94,
 					"defenderCommander" : 8,
 					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
 					"defenderUnits": [ 15, 185, 172, 2, 100, 87, 8 ]
@@ -646,7 +665,7 @@
 				"creatureBankWide" : {
 					"tacticsAllowed" : false,
 					"obstaclesAllowed" : false,
-					"attackerCommander" : 95,
+					"attackerCommander" : 94,
 					"defenderCommander" : 8,
 					"attackerUnits": [ 57, 61, 90, 93, 96, 125, 129 ],
 					"defenderUnits": [ 15, 185, 171, 1, 100, 86, 8 ]
@@ -747,16 +766,12 @@
 
 		"spells":
 		{
-			// if enabled, dimension work doesn't work into tiles under Fog of War
-			"dimensionDoorOnlyToUncoveredTiles" : false,
-			// if enabled, dimension door will hint regarding tile being incompatible terrain type, unlike H3 (water/land)
-			"dimensionDoorExposesTerrainType" : false,
-			// if enabled, attempt to use dimension door on incompatible terrain (water/land) will result in spending of mana, movement and casts per day (H3 behavior)
-			"dimensionDoorFailureSpendsPoints" : true,
 			// if enabled, dimension door will initiate a fight upon landing on tile adjacent to neutral creature
 			"dimensionDoorTriggersGuards" : false,
-			// if enabled, dimension door can be used 1x per day, exception being 2x per day for XL+U or bigger maps (41472 tiles) + hero having expert air magic
-			"dimensionDoorTournamentRulesLimit" : false
+			// if enabled, SPELLS_OF_SCHOOL bonus (Tomes of Water/Air/Earth/Fire Magic) 
+			// and SPELLS_OF_LEVEL bonus (Spellbinder Hat) will grant spells that are banned on map (SoD behavior)
+			// NOTE: this value only affects random maps and .vmap's. For h3m's value is loaded from map format configuration
+			"tomesGrantBannedSpells" : false
 		},
 		
 		"bonuses" : 
@@ -820,6 +835,12 @@
 				"teal" :   [ -0.13,  0.23,  0.23,  0.90, 1.20, 2.20 ],
 				"pink" :   [  0.44,  0.15,  0.25,  1.00, 1.00, 1.75 ]
 			}
+		},
+
+		"campaign" :
+		{
+			// Unlock all campaigns
+			"unlockAll" : false
 		}
 	}
 }

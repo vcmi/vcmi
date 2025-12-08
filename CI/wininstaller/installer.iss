@@ -1,27 +1,81 @@
-; VCMI Installer Script Instructions
-
-; Steps to Add a New Translation to the Installer:
-
-; 1. Download the ISL file for your language from the Inno Setup repository:
-;    https://github.com/jrsoftware/issrc/tree/main/Files/Languages
-; 
-; 2. Add the required VCMI custom messages to the downloaded ISL file.
-;    - Refer to the English.isl file for examples of the necessary custom messages.
-;    - Ensure all custom messages, including WindowsVersionNotSupported, are properly translated and aligned with the English version.
-; 3. Update the ConfirmUninstall message:
-;    - Custom Uninstall Wizard is used, ensure the ConfirmUninstall message is consistent with the English version and accurately reflects the intended functionality.
-; 4. Update the WindowsVersionNotSupported message:
-;    - Ensure the WindowsVersionNotSupported message is consistent with the English version and accurately reflects the intended functionality.
-; 5. Add the new language entry to the [Languages] section of the script:
-;    - Use the correct syntax to include the language and its corresponding ISL file in the installer configuration.
+; ============================================================================
+; VCMI Installer – Adding a New Translation
+; ============================================================================
+;
+; 1. Download the base ISL file for your language:
+;    - Get the appropriate .isl file from the official Inno Setup repository:
+;      https://github.com/jrsoftware/issrc/tree/main/Files/Languages
+;
+; 2. Add VCMI custom messages:
+;    - Open the downloaded .isl file and insert all VCMI-specific messages.
+;    - Use English.isl (VCMI version) as a reference.
+;    - Ensure translations keep placeholders (%1, %2, etc.) intact and match
+;      the format of the English version exactly.
+;
+; 3. Update/translate the following modified messages:
+;    These differ from the default Inno Setup language files and are required
+;    for VCMI's custom installer functionality.
+;
+;    ------------------------------------------------------------------------
+;    WindowsVersionNotSupported
+;    ------------------------------------------------------------------------
+;    Why: VCMI adds a more descriptive message for unsupported Windows versions.
+;    Original:
+;      WindowsVersionNotSupported=This program does not support the version of Windows your computer is running.
+;    VCMI version:
+;      WindowsVersionNotSupported=This program cannot run on your version of Windows. Please ensure you are using the correct Windows version.
+;
+;    ------------------------------------------------------------------------
+;    PrivilegesRequiredOverride* messages
+;    ------------------------------------------------------------------------
+;    Why: VCMI customizes privilege escalation messages to clarify installation
+;         for all users vs. current user and highlight administrative rights.
+;    Messages to add/update:
+;      PrivilegesRequiredOverrideTitle
+;      PrivilegesRequiredOverrideInstruction
+;      PrivilegesRequiredOverrideText1
+;      PrivilegesRequiredOverrideText2
+;      PrivilegesRequiredOverrideAllUsers
+;      PrivilegesRequiredOverrideAllUsersRecommended
+;      PrivilegesRequiredOverrideCurrentUser
+;      PrivilegesRequiredOverrideCurrentUserRecommended
+;
+;    Example (VCMI English):
+;      PrivilegesRequiredOverrideTitle=Administrator Privileges Required
+;      PrivilegesRequiredOverrideInstruction=Choose how to run the installer
+;      PrivilegesRequiredOverrideText1=%1 requires administrative rights to install for all users. You can also install just for your account (no administrative rights required) or for all users (administrator rights required).
+;      PrivilegesRequiredOverrideText2=%1 can be installed only for your account (no administrative rights required) or for all users (administrator rights required).
+;      PrivilegesRequiredOverrideAllUsers=Run as &Administrator (install for all users)
+;      PrivilegesRequiredOverrideAllUsersRecommended=Run as &Administrator (recommended)
+;      PrivilegesRequiredOverrideCurrentUser=Run as &Standard User (install for me only)
+;      PrivilegesRequiredOverrideCurrentUserRecommended=Run as &Standard User (recommended)
+;
+;    ------------------------------------------------------------------------
+;    ConfirmUninstall
+;    ------------------------------------------------------------------------
+;    Why: VCMI uses a custom uninstall wizard. The message must reflect this.
+;    Original:
+;      ConfirmUninstall=Are you sure you want to completely remove %1 and all of its components?
+;    VCMI version:
+;      ConfirmUninstall=Are you sure you want to run the %1 uninstall wizard?
+;
+; 4. Add the new language to the installer:
+;    - In the [Languages] section of the script, register your translation:
+;      Name: "YourLanguage"; MessagesFile: "{#LangPath}\YourLanguage.isl"
+;
+; 5. Verify consistency:
+;    - Check all custom messages against the English VCMI ISL file.
+;    - Test the installer to confirm all messages appear correctly.
 
 
 ; Manual preprocessor definitions are provided using ISCC.exe parameters.
 
-; #define AppVersion "1.6.2"
+; #define AppVersion "1.7.0"
 ; #define AppBuild "1122334455A"
 ; #define InstallerArch "x64"
-; 
+; #define AllowedArch "x64compatible"
+; #define VCMIFolder "VCMI"
+; #define InstallerName "VCMI-Windows"
 ; #define SourceFilesPath "C:\_VCMI_source\bin\Release"
 ; #define UCRTFilesPath "C:\Program Files (x86)\Windows Kits\10\Redist\10.0.22621.0\ucrt\DLLs"
 ; #define LangPath "C:\_VCMI_Source\CI\wininstaller\lang"
@@ -30,10 +84,7 @@
 ; #define SmallLogo "C:\_VCMI_Source\CI\wininstaller\vcmismalllogo.bmp"
 ; #define WizardLogo "C:\_VCMI_Source\CI\wininstaller\vcmilogo.bmp"
 
-#define VCMIFolder "VCMI"
-
 #define VCMIFilesFolder "My Games\vcmi"
-#define InstallerName "VCMI_Installer"
 
 #define AppComment "VCMI is an open-source engine for Heroes III, offering new and extended possibilities."
 #define VCMITeam "VCMI Team"
@@ -55,7 +106,7 @@ AppComments={#AppComment}
 DefaultDirName={code:GetDefaultDir}
 DefaultGroupName={#VCMIFolder}
 UninstallDisplayIcon={app}\VCMI_launcher.exe
-OutputBaseFilename={#InstallerName}_{#InstallerArch}_{#AppVersion}.{#AppBuild}
+OutputBaseFilename={#InstallerName}
 PrivilegesRequiredOverridesAllowed=commandline dialog
 ShowLanguageDialog=yes
 DisableWelcomePage=no
@@ -70,9 +121,10 @@ DisableStartupPrompt=yes
 UsedUserAreasWarning=no
 WindowResizable=no
 CloseApplicationsFilter=*.exe
+CloseApplications=force
 Compression=lzma2/ultra64
 SolidCompression=yes
-ArchitecturesAllowed={#InstallerArch}compatible
+ArchitecturesAllowed={#AllowedArch}
 LicenseFile={#LicenseFile}
 SetupIconFile={#IconFile}
 WizardSmallImageFile={#SmallLogo}
@@ -84,7 +136,7 @@ VersionInfoCompany={#VCMITeam}
 VersionInfoDescription={#VCMIFolder} {#AppVersion} Setup (Build {#AppBuild})
 VersionInfoProductName={#VCMIFolder}
 VersionInfoCopyright={#VCMICopyright}
-VersionInfoVersion={#AppVersion} 
+VersionInfoVersion={#AppVersion}
 VersionInfoOriginalFileName={#InstallerName}.exe
 
 
@@ -109,28 +161,27 @@ Name: "vietnamese"; MessagesFile: "{#LangPath}\Vietnamese.isl"
 
 
 [Files]
-Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; BeforeInstall: PerformHeroes3FileCopy
+Source: "{#SourceFilesPath}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.lib,*.exp,*.ilk,*.obj,*.tlog,*.log,*.pch,*.idb,*.res,*.tmp,*.bak,*.sdf,*.ipch,*.vc.db,*.iobj,*.ipdb"; BeforeInstall: RunPreInstallTasks
 Source: "{#UCRTFilesPath}\{#InstallerArch}\*"; DestDir: "{app}"; Flags: ignoreversion; Check: IsUCRTNeeded
 
 
 [Icons]
-Name: "{group}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}"
-Name: "{group}\{cm:ShortcutMapEditor}"; Filename: "{app}\VCMI_mapeditor.exe"; Comment: "{cm:ShortcutMapEditorComment}"
-Name: "{group}\{cm:ShortcutWebPage}"; Filename: "{#VCMIHome}"; Comment: "{cm:ShortcutWebPageComment}"
-Name: "{group}\{cm:ShortcutDiscord}"; Filename: "{#VCMIContact}"; Comment: "{cm:ShortcutDiscordComment}"
+Name: "{group}\{cm:ShortcutLauncher}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}{code:GetBranchSuffix}";  Tasks: startmenu
+Name: "{group}\{cm:ShortcutMapEditor}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_mapeditor.exe"; Comment: "{cm:ShortcutMapEditorComment}{code:GetBranchSuffix}";  Tasks: startmenu
+Name: "{group}\{cm:ShortcutWebPage}"; Filename: "{#VCMIHome}"; Comment: "{cm:ShortcutWebPageComment}";  Tasks: startmenu
+Name: "{group}\{cm:ShortcutDiscord}"; Filename: "{#VCMIContact}"; Comment: "{cm:ShortcutDiscordComment}";  Tasks: startmenu
 
-Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Tasks: desktop; Comment: "{cm:ShortcutLauncherComment}"
+Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}{code:GetBranchSuffix}"; Tasks: desktop
 
 
 [Tasks]
-Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
-Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:SystemIntegration}"
-Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:SystemIntegration}"; Flags: unchecked
-Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"
+Name: "desktop"; Description: "{cm:CreateDesktopShortcuts}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
+Name: "startmenu"; Description: "{cm:CreateStartMenuShortcuts}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
+Name: "fileassociation_h3m"; Description: "{cm:AssociateH3MFiles}"; GroupDescription: "{cm:SystemIntegration}"; Flags: unchecked; Check: not IsPRInstaller
+Name: "fileassociation_vcmimap"; Description: "{cm:AssociateVCMIMapFiles}"; GroupDescription: "{cm:SystemIntegration}"; Check: not IsPRInstaller
 
-Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: IsAdminInstallMode
-Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: IsHeroes3Installed and IsCopyFilesNeeded
-
+Name: "firewallrules"; Description: "{cm:AddFirewallRules}"; GroupDescription: "{cm:VCMISettings}"; Check: not IsPRInstaller and IsAdminInstallMode
+Name: "h3copyfiles"; Description: "{cm:CopyH3Files}"; GroupDescription: "{cm:VCMISettings}"; Check: not IsPRInstaller and IsHeroes3Installed and IsCopyFilesNeeded
 
 [Registry]
 Root: HKCU; Subkey: "Software\{#VCMIFolder}"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
@@ -152,7 +203,7 @@ Root: HKCU; Subkey: "Software\Classes\VCMI.h3m\shell\open\command"; ValueType: s
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_server dir=in action=allow program=""{app}\vcmi_server.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 Filename: "netsh.exe"; Parameters: "advfirewall firewall add rule name=vcmi_client dir=in action=allow program=""{app}\vcmi_client.exe"" enable=yes profile=public,private"; Flags: runhidden; Tasks: firewallrules; Check: IsAdmin
 
-Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\VCMI_launcher.exe"; Description: "{cm:RunVCMILauncherAfterInstall}"; Flags: nowait postinstall; Check: ShouldRunLauncher
 
 
 [UninstallRun]
@@ -186,6 +237,18 @@ begin
     Exit
   else
     Result := '';
+end;
+
+
+function ShouldRunLauncher(): Boolean;
+begin
+  Result := True;
+
+  if Pos('SILENT', UpperCase(GetCmdTail())) > 0 then
+    Result := False;
+
+  if Pos('LAUNCH', UpperCase(GetCmdTail())) > 0 then
+    Result := True;
 end;
 
 
@@ -308,10 +371,34 @@ begin
 end;
 
 
+function GetBranchSuffix(Param: string): string;
+var
+  Branch: string;
+begin
+  Branch := UpperCase(ExpandConstant('{#VCMIFolder}'));
+
+  if Pos('(BRANCH BETA)', Branch) > 0 then
+    Result := ' (Beta)'
+  else
+  if Pos('(BRANCH DEVELOP)', Branch) > 0 then
+    Result := ' (Develop)'
+  else
+    Result := '';
+end;
+
+
 function GetCommonProgramFilesDir: String;
 begin
-  // Check if the installer is running on a 64-bit system
-  if IsWin64 then
+  if IsARM64 then
+  begin
+    if ExpandConstant('{#InstallerArch}') = 'x86' then
+      // For 32-bit installer on ARM64, return the 32-bit Program Files directory
+      Result := ExpandConstant('{commonpf32}')
+    else
+      // For AMR64 installer, return the Program Files directory
+      Result := ExpandConstant('{commonpf}')
+  end
+  else if IsWin64 then
   begin
     if ExpandConstant('{#InstallerArch}') = 'x64' then
       // For 64-bit installer, return the 64-bit Program Files directory
@@ -362,21 +449,18 @@ end;
 
 procedure OnTaskCheck(Sender: TObject);
 var
-  i: Integer;
+  idx: Integer;
 begin
-  // Loop through all tasks in the tasks list
-  for i := 0 to WizardForm.TasksList.Items.Count - 1 do
+  // Get the index of the currently clicked task
+  idx := WizardForm.TasksList.ItemIndex;
+
+  // Check if the clicked task is the "AddFirewallRules" one
+  if WizardForm.TasksList.Items[idx] = ExpandConstant('{cm:AddFirewallRules}') then
   begin
-    // Check if the current task is "firewallrules"
-    if WizardForm.TasksList.Items[i] = ExpandConstant('{cm:AddFirewallRules}') then
+    // If it was just unchecked, show the warning
+    if not WizardForm.TasksList.Checked[idx] then
     begin
-      // Check if the "firewallrules" task is unchecked
-      if not WizardForm.TasksList.Checked[i] then
-      begin
-        // Show a custom warning message box
-        MsgBox(ExpandConstant('{cm:Warning}') + '!' + #13#10 + #13#10 + ExpandConstant('{cm:InstallForMeOnly1}') + #13#10 + ExpandConstant('{cm:InstallForMeOnly2}'), mbError, MB_OK);
-      end;
-      Exit; // Task found, exit the loop
+      MsgBox(ExpandConstant('{cm:Warning}') + '!' + #13#10 + #13#10 + ExpandConstant('{cm:InstallForMeOnly1}') + #13#10 + ExpandConstant('{cm:InstallForMeOnly2}'), mbError, MB_OK);
     end;
   end;
 end;
@@ -405,24 +489,27 @@ function IsUCRTNeeded: Boolean;
 var
   FileName: String;
 begin
-  Result := False; // Default to not copying files
+  Result := True; // Default to copy the file
 
-  // Normalize and extract the file name from CurrentFileName
   FileName := ExtractFileName(ExpandConstant(CurrentFileName));
 
-  // Check for file existence based on architecture
-  if IsWin64 then
+  // Only check system if the file name contains "api"
+  if Pos('API', UpperCase(FileName)) = 1 then
   begin
-    if ExpandConstant('{#InstallerArch}') = 'x64' then
-      // For 64-bit installer on 64-bit OS, check System32
-      Result := not FileExists(ExpandConstant('{win}\System32\' + FileName))
+    // Check existence based on architecture
+    if IsWin64 then
+    begin
+      if ExpandConstant('{#InstallerArch}') = 'x64' then
+        // For 64-bit installer on 64-bit OS, check System32
+        Result := not FileExists(ExpandConstant('{win}\System32\' + FileName))
+      else
+        // For 32-bit installer on 64-bit OS, check SysWOW64
+        Result := not FileExists(ExpandConstant('{win}\SysWOW64\' + FileName));
+    end
     else
-      // For 32-bit installer on 64-bit OS, check SysWOW64
-      Result := not FileExists(ExpandConstant('{win}\SysWOW64\' + FileName));
-  end
-  else
-    // For 32-bit OS, always check System32
-    Result := not FileExists(ExpandConstant('{win}\System32\' + FileName));
+      // For 32-bit OS, always check System32
+      Result := not FileExists(ExpandConstant('{win}\System32\' + FileName));
+  end;
 end;
 
 
@@ -441,6 +528,14 @@ begin
   // Check if any of the required folders are not valid
   Result := not (IsFolderValid(VCMIDataFolder) and IsFolderValid(VCMIMapsFolder) and IsFolderValid(VCMIMp3Folder));
   
+end;
+
+
+function IsPRInstaller(): Boolean;
+begin
+  // Skip Tasks page if this is a PR build
+  Result := Pos('-PR-', ExpandConstant('{#InstallerName}')) > 0;
+
 end;
 
 
@@ -558,7 +653,21 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False; // Default is not to skip the page
-  
+
+  // Don't skip Target page if this is a PR build and upgrade
+  if IsPRInstaller and IsUpgrade and (PageID = wpSelectDir) then
+  begin
+    Result := False;
+    Exit;
+  end;
+
+  // Skip Tasks page if this is a PR build
+  if IsPRInstaller and (PageID = wpSelectTasks) then
+  begin
+    Result := True;
+    Exit;
+  end;
+
   if IsUpgrade then
   begin
     if (PageID = wpLicense) or (PageID = wpSelectTasks) or (PageID = wpReady) then
@@ -574,7 +683,6 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   // Ensure the footer message is visible on every page
   FooterLabel.Visible := True;
-  
 end;
 
 
@@ -603,6 +711,25 @@ begin
   end;
 
   Result := True;
+end;
+
+
+procedure RemoveLegacyInstaller();
+var
+  AppFolder: String;
+  ResultCode: Integer;
+begin
+  AppFolder := ExpandConstant('{app}');
+
+  // Silently remove old NSIS installation
+  if FileExists(AppFolder + '\Uninstall.exe') then
+  begin
+    Exec(AppFolder + '\Uninstall.exe', '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
+    // Attempt to remove leftovers from target folder to ensure clean install
+    if DirExists(AppFolder) then
+      DelTree(AppFolder, True, True, False);
+  end;
 end;
 
 
@@ -636,6 +763,45 @@ begin
       Exit; // Task found, exit the loop
     end;
   end;
+end;
+
+
+procedure CreateDefaultSettingsFile();
+var
+  ConfigDir, SettingsFile, Language, JSONContent: String;
+begin
+  ConfigDir := GlobalUserDocsFolder + '\' + '{#VCMIFilesFolder}' + '\config';
+  SettingsFile := ConfigDir + '\settings.json';
+
+  if not FileExists(SettingsFile) then
+  begin
+    Language := ActiveLanguage;
+    if Language = '' then
+      Language := 'english';
+
+      JSONContent :=
+        '{' + #13#10 +
+        Chr(9) + '"general" : {' + #13#10 +
+        Chr(9) + Chr(9) + '"language" : "' + Language + '"' + #13#10 +
+        Chr(9) + '}' + #13#10 +
+        '}';
+
+    if not DirExists(ConfigDir) then
+      ForceDirectories(ConfigDir);
+
+    SaveStringToFile(SettingsFile, JSONContent, False);
+  end;
+end;
+
+
+procedure RunPreInstallTasks();
+begin
+  // Remove Legacy installer when needed
+  RemoveLegacyInstaller();
+  // Copy H3 files when needed
+  PerformHeroes3FileCopy();
+  // Create default language JSON - for future use
+  // CreateDefaultSettingsFile();
 end;
 
 

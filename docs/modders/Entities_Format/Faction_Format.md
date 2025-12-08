@@ -177,11 +177,11 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	// Background scenery for town screen, size must be 800x374
 	"townBackground": "",
 
-	// Small scenery for window in mage guild screen
-	"guildWindow": "",
+	// Small scenery for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	"guildWindow": [""],
 
-	// Background image for window in mage guild screen
-	"guildBackground" : "",
+	// Background image for window in mage guild screen; each element of array is for seperate mage guild level image (if only one element, then this will always used)
+	"guildBackground" : [""],
 
 	// Video for tavern window
 	"tavernVideo" : "",
@@ -228,19 +228,26 @@ Each town requires a set of buildings (Around 30-45 buildings)
 
 	// Chance of specific hero class to appear in this town
 	// Mirrored version of field "tavern" from hero class format
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
 	"tavern" :
 	{
 		"knight" : 5,
-		"druid"  : 6
+		"druid"  : 6,
+		"modID:classFromMod" : 4
 	},
 
 	// Chance of specific spell to appear in mages guild of this town
 	// If spell is missing or set to 0 it will not appear unless set as "always present" in editor
 	// Spells from unavailable levels are not required to be in this list
+	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
+	/// Identifier with explicit modID specifier will be silently skipped if corresponding mod is not loaded
+
 	"guildSpells" :
 	{
 		"magicArrow" : 30,
-		"bless"  : 10
+		"bless"  : 10,
+		"modID:spellFromMod" : 20
 	},
 
 	// Which tiers in this town have creature hordes. Set to -1 to disable horde(s)
@@ -250,7 +257,19 @@ Each town requires a set of buildings (Around 30-45 buildings)
 	"primaryResource" : "gems", 
 
 	// maximum level of mage guild
-	"mageGuild" : 4,
+	"mageGuild" : 5,
+
+	// Coordinates of spell images in mage guild screen. Should contain the maximum level of mage guild amount of elements. Example are HoMM3 defaults:
+	"guildSpellPositions" : [
+		[ { "x": 222, "y": 445 }, { "x": 312, "y": 445 }, { "x": 402, "y": 445 }, { "x": 520, "y": 445 }, { "x": 610, "y": 445 }, { "x": 700, "y": 445 } ],
+		[ { "x":  48, "y":  53 }, { "x":  48, "y": 147 }, { "x":  48, "y": 241 }, { "x":  48, "y": 335 }, { "x":  48, "y": 429 } ],
+		[ { "x": 570, "y":  82 }, { "x": 672, "y":  82 }, { "x": 570, "y": 157 }, { "x": 672, "y": 157 } ],
+		[ { "x": 183, "y":  42 }, { "x": 183, "y": 148 }, { "x": 183, "y": 253 } ],
+		[ { "x": 491, "y": 325 }, { "x": 591, "y": 325 } ]
+	],
+
+	// Coordinates of window image in mage guild screen. Example is HoMM3 default:
+	"guildWindowPosition": { "x": 332, "y": 76 },
 
 	// Identifier of spell that will create effects for town moat during siege
 	"moatAbility" : "castleMoat"

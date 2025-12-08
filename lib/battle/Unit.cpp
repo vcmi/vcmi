@@ -38,6 +38,16 @@ bool Unit::isTurret() const
 	return creatureIndex() == CreatureID::ARROW_TOWERS;
 }
 
+bool Unit::isMeleeAttacker() const
+{
+	//exclude war machines
+	if (hasBonusOfType(BonusType::SIEGE_WEAPON))
+		return false;
+
+	//TODO consider that a mod may introduce a melee war machine. Possibly a new bonus type NO_MELEE_ATTACK is needed.
+	return true;
+}
+
 std::string Unit::getDescription() const
 {
 	boost::format fmt("Unit %d of side %d");
@@ -81,9 +91,7 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 			if (!coversPos(attacker->occupiedHex(attackOrigin)) && attackOrigin.isAvailable())
 				result.insert(attackOrigin);
 
-			bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
-			BattleHex::EDir headDirection = isAttacker ? BattleHex::RIGHT : BattleHex::LEFT;
-			BattleHex headHex = attackOrigin.cloneInDirection(headDirection);
+			BattleHex headHex = attackOrigin.cloneInDirection(attacker->headDirection());
 
 			if (!coversPos(headHex) && headHex.isAvailable())
 				result.insert(headHex);
@@ -95,6 +103,21 @@ BattleHexArray Unit::getAttackableHexes(const Unit * attacker) const
 bool Unit::coversPos(const BattleHex & pos) const
 {
 	return getPosition() == pos || (doubleWide() && (occupiedHex() == pos));
+}
+
+BattleHex::EDir Unit::headDirection() const
+{
+	if(doubleWide())
+	{
+		if(unitSide() == BattleSide::ATTACKER)
+			return BattleHex::EDir::RIGHT;
+		else
+			return BattleHex::EDir::LEFT;
+	}
+	else
+	{
+		return BattleHex::EDir::NONE;
+	}
 }
 
 const BattleHexArray & Unit::getHexes() const
@@ -243,8 +266,8 @@ void UnitInfo::save(JsonNode & data)
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-    JsonDeserializer deser(nullptr, data);
-    deser.serializeStruct("newUnitInfo", *this);
+	JsonDeserializer deser(nullptr, data);
+	deser.serializeStruct("newUnitInfo", *this);
 }
 
 }

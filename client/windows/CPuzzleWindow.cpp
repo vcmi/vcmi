@@ -21,6 +21,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/Images.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/GraphicalPrimitiveCanvas.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/faction/CFaction.h"
@@ -42,7 +43,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	quitb = std::make_shared<CButton>(Point(670, 538), AnimationPath::builtin("IOK6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->allTexts[599]), std::bind(&CPuzzleWindow::close, this), EShortcut::GLOBAL_RETURN);
 	quitb->setBorderColor(Colors::METALLIC_GOLD);
 
-	mapView = std::make_shared<PuzzleMapView>(Point(8,9), Point(591, 544), grailPos);
+	mapView = std::make_shared<PuzzleMapView>(Point(8,8), Point(592, 544), grailPos);
 	mapView->needFullUpdate = true;
 
 	logo = std::make_shared<CPicture>(ImagePath::builtin("PUZZLOGO"), 607, 3);
@@ -57,7 +58,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 	{
 		const SPuzzleInfo & info = elem;
 
-		auto piece = std::make_shared<CPicture>(info.filename, info.position.x, info.position.y);
+		auto piece = std::make_shared<CPicture>(info.filename, info.position.x + 1, info.position.y);
 		piece->needRefresh = true;
 
 		//piece that will slowly disappear
@@ -71,6 +72,10 @@ CPuzzleWindow::CPuzzleWindow(const int3 & GrailPos, double discoveredRatio)
 			visiblePieces.push_back(piece);
 		}
 	}
+
+	border = std::make_shared<GraphicalPrimitiveCanvas>(Rect(Point(6,6), Point(596, 548)));
+	for(int i = 0; i < 3; i++)
+		border->addRectangle(Point(i, i), Point(border->pos.w - i * 2, border->pos.h - i * 2), Colors::BLACK);
 }
 
 void CPuzzleWindow::showAll(Canvas & to)

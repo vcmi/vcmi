@@ -124,7 +124,7 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 	}
 
 	parameters.cast(gameHandler->spellcastEnvironment(), ba.getTarget(&battle));
-	gameHandler->useChargedArtifactUsed(h->id, ba.spell);
+	gameHandler->useChargeBasedSpell(h->id, ba.spell);
 
 	return true;
 }
@@ -274,7 +274,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
-	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+	const bool firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
 
 	const bool retaliation = destinationStack->ableToRetaliate();
 	bool ferocityApplied = false;
@@ -367,7 +367,7 @@ bool BattleActionProcessor::doShootAction(const CBattleInfoCallback & battle, co
 	if(!emptyTileAreaAttack)
 	{
 		static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeRanged));
-		firstStrike = destinationStack->hasBonus(firstStrikeSelector);
+		firstStrike = destinationStack->hasBonus(firstStrikeSelector) && !destinationStack->hasBonusOfType(BonusType::NOT_ACTIVE);
 	}
 
 	if (!firstStrike)
@@ -649,7 +649,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
-		BattleHex shifted = dest.cloneInDirection(curStack->destShiftDir(), false);
+		BattleHex shifted = dest.cloneInDirection(curStack->headDirection(), false);
 
 		if(accessibility.accessible(shifted, curStack))
 			dest = shifted;
@@ -976,7 +976,7 @@ void BattleActionProcessor::makeAttack(const CBattleInfoCallback & battle, const
 	if (useCustomAnimation)
 		bat.flags |= BattleAttack::CUSTOM_ANIMATION;
 
-	std::shared_ptr<const Bonus> bonus = attacker->getFirstBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+	std::shared_ptr<const Bonus> bonus = attacker->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
 	if(bonus && ranged && bonus->subtype.hasValue()) //TODO: make it work in melee?
 	{
 		//this is need for displaying hit animation
@@ -1448,7 +1448,7 @@ void BattleActionProcessor::applyBattleEffects(const CBattleInfoCallback & battl
 	}
 
 	//life drain handling
-	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving())
+	if(attackerState->hasBonusOfType(BonusType::LIFE_DRAIN) && def->isLiving() && attackerState->getTotalHealth() != attackerState->getAvailableHealth())
 	{
 		int64_t toHeal = bsa.damageAmount * attackerState->valOfBonuses(BonusType::LIFE_DRAIN) / 100;
 		healInfo += attackerState->heal(toHeal, EHealLevel::RESURRECT, EHealPower::PERMANENT);

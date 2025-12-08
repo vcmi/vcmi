@@ -14,6 +14,10 @@
 #include "IMapRendererContext.h"
 #include "mapHandler.h"
 
+#include "../CPlayerInterface.h"
+#include "../CServerHandler.h"
+#include "../GameInstance.h"
+#include "../Client.h"
 #include "../GameEngine.h"
 #include "../render/CAnimation.h"
 #include "../render/Canvas.h"
@@ -22,13 +26,17 @@
 #include "../render/Colors.h"
 #include "../render/Graphics.h"
 
+#include "../../lib/CConfigHandler.h"
+#include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/RiverHandler.h"
 #include "../../lib/RoadHandler.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
-#include "../../lib/mapping/CMapDefines.h"
+#include "../../lib/mapping/CMap.h"
+#include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 
 struct NeighborTilesInfo
@@ -420,6 +428,19 @@ std::shared_ptr<CAnimation> MapRendererObjects::getAnimation(const AnimationPath
 	return ret;
 }
 
+std::shared_ptr<IImage> MapRendererObjects::getImage(const ImagePath & filename) const
+{
+	auto it = images.find(filename);
+
+	if(it != images.end())
+		return it->second;
+
+	auto ret = ENGINE->renderHandler().loadImage(filename, EImageBlitMode::SIMPLE);
+	images[filename] = ret;
+
+	return ret;
+}
+
 std::shared_ptr<CAnimation> MapRendererObjects::getFlagAnimation(const CGObjectInstance* obj)
 {
 	//TODO: relocate to config file?
@@ -456,7 +477,7 @@ std::shared_ptr<CAnimation> MapRendererObjects::getOverlayAnimation(const CGObje
 	return nullptr;
 }
 
-std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
+std::shared_ptr<IImage> MapRendererObjects::getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation>& animation) const
 {
 	if(!animation)
 		return nullptr;
@@ -465,6 +486,17 @@ std::shared_ptr<IImage> MapRendererObjects::getImage(IMapRendererContext & conte
 
 	if(animation->size(groupIndex) == 0)
 		return nullptr;
+	
+	auto attackerPos = context.attackedMonsterDirection(obj);
+	if(attackerPos != -1)
+	{
+		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
+		auto const & creatureType = LIBRARY->creh->objects[creature->appearance->subid];
+		auto dir = std::vector<int>({1, 2, 7, 8});
+		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? creatureType->mapAttackFromRight : creatureType->mapAttackFromLeft;
+		if(!imgPath.empty())
+			return getImage(imgPath);
+	}
 
 	size_t frameIndex = context.objectImageIndex(obj->id, animation->size(groupIndex));
 
@@ -502,9 +534,9 @@ void MapRendererObjects::renderImage(IMapRendererContext & context, Canvas & tar
 
 void MapRendererObjects::renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * instance)
 {
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getBaseAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getFlagAnimation(instance)));
-	renderImage(context, target, coordinates, instance, getImage(context, instance, getOverlayAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getBaseAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getFlagAnimation(instance)));
+	renderImage(context, target, coordinates, instance, getImageToRender(context, instance, getOverlayAnimation(instance)));
 }
 
 void MapRendererObjects::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -567,8 +599,10 @@ MapRendererOverlay::MapRendererOverlay()
 	, imageBlocked(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/blocked"), EImageBlitMode::COLORKEY))
 	, imageVisitable(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/visitable"), EImageBlitMode::COLORKEY))
 	, imageSpellRange(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
+	, imageEvent(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZevnt0"), EImageBlitMode::COLORKEY)->getImage(0))
+	, imageGrail(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZgrail"), EImageBlitMode::COLORKEY)->getImage(0))
+	, grailPos(GAME->server().client->gameState().getMap().grailPos)
 {
-
 }
 
 void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates)
@@ -576,7 +610,7 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(context.showVisitable() || context.showBlocked())
+	if(GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
 	{
 		bool blocking = false;
 		bool visitable = false;
@@ -584,6 +618,12 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 		for(const auto & objectID : context.getObjects(coordinates))
 		{
 			const auto * object = context.getObject(objectID);
+
+			if(object->ID == Obj::EVENT && context.showInvisible())
+				target.draw(imageEvent, Point(0,0));
+			
+			if(grailPos == coordinates && context.showInvisible())
+				target.draw(imageGrail, Point(0,0));
 
 			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))
 			{
@@ -617,6 +657,9 @@ uint8_t MapRendererOverlay::checksum(IMapRendererContext & context, const int3 &
 
 	if (context.showSpellRange(coordinates))
 		result += 8;
+
+	if (context.showInvisible())
+		result += 16;
 
 	return result;
 }
@@ -677,7 +720,7 @@ void MapRendererPath::renderTile(IMapRendererContext & context, Canvas & target,
 {
 	size_t imageID = selectImage(context, coordinates);
 
-	if (imageID < pathNodes->size())
+	if (imageID < pathNodes->size() && settings["adventure"]["showMovePath"].Bool())
 		target.draw(pathNodes->getImage(imageID), Point(0,0));
 }
 

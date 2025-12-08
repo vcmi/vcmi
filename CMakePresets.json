@@ -10,8 +10,7 @@
             "name": "build-with-conan",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake",
-                "FORCE_BUNDLED_MINIZIP": "OFF"
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/conan-generated/conan_toolchain.cmake"
             }
         },
         {
@@ -99,12 +98,24 @@
             "name": "linux-gcc-debug",
             "displayName": "GCC x86_64-pc-linux-gnu (debug)",
             "description": "VCMI Linux GCC (Debug)",
-            "inherits": "linux-release",
+            "inherits": "linux-test",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "ENABLE_LUA" : "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-clang-debug",
+            "displayName": "Clang x86_64-pc-linux-gnu (debug)",
+            "description": "VCMI Linux Clang (Debug)",
+            "inherits": "linux-test",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "ENABLE_LUA" : "ON",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
         },
         {
@@ -143,30 +154,48 @@
             "name": "windows-msvc-release",
             "displayName": "Windows x64 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "architecture": {
                 "value": "x64",
                 "strategy": "set"
             },
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON"
-
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
             "name": "windows-msvc-release-x86",
             "displayName": "Windows x86 RelWithDebInfo",
             "description": "VCMI RelWithDebInfo build",
-            "inherits": "default-release",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
             "generator": "Visual Studio 17 2022",
             "cacheVariables": {
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
                 "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "CMAKE_GENERATOR_PLATFORM": "WIN32"
+            }
+        },
+        {
+            "name": "windows-msvc-release-arm64",
+            "displayName": "Windows ARM64 RelWithDebInfo",
+            "description": "VCMI Windows ARM64 build",
+            "inherits": [
+                "build-with-conan",
+                "default-release"
+            ],
+            "generator": "Visual Studio 17 2022",
+            "architecture": {
+                "value": "ARM64",
+                "strategy": "set"
+            },
+            "cacheVariables": {
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW"
             }
         },
         {
@@ -176,22 +205,40 @@
             "inherits": "windows-msvc-release",
             "cacheVariables": {
                 "ENABLE_CCACHE": "ON"
-
             }
         },
         {
-            "name": "windows-mingw-conan-linux",
-            "displayName": "Ninja+Conan release",
-            "description": "VCMI Windows Ninja using Conan on Linux",
+            "name": "windows-msvc-ninja-release",
+            "displayName": "Windows x64 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache",
             "inherits": [
                 "build-with-conan",
                 "default-release"
             ],
+            "generator": "Ninja",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "FORCE_BUNDLED_FL": "ON",
-                "ENABLE_TEMPLATE_EDITOR": "OFF"
+                "CMAKE_POLICY_DEFAULT_CMP0091": "NEW",
+                "ENABLE_CCACHE": "ON",
+                "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
+                "CMAKE_MSVC_DEBUG_INFORMATION_FORMAT": "Embedded",
+                "ENABLE_MULTI_PROCESS_BUILDS": "OFF",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "/O2 /Ob1 /DNDEBUG /Z7"
             }
+        },
+        {
+            "name": "windows-msvc-ninja-release-x86",
+            "displayName": "Windows x86 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache (x86)",
+            "inherits": "windows-msvc-ninja-release"
+        },
+        {
+            "name": "windows-msvc-ninja-release-arm64",
+            "displayName": "Windows ARM64 RelWithDebInfo (Ninja)",
+            "description": "VCMI RelWithDebInfo build using Ninja + sccache (ARM64)",
+            "inherits": "windows-msvc-ninja-release"
         },
         {
             "name": "macos-ninja-release",
@@ -208,8 +255,7 @@
                 "default-release"
             ],
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "ENABLE_TEMPLATE_EDITOR": "OFF"
+                "CMAKE_BUILD_TYPE": "Release"
             }
         },
         {
@@ -226,35 +272,19 @@
             "generator": "Xcode"
         },
         {
-            "name": "ios-device",
-            "displayName": "Base iOS device",
-            "description": "Base VCMI preset for iOS device",
+            "name": "ios-device-conan",
+            "displayName": "Base iOS device using Conan",
+            "description": "Base VCMI preset for iOS device using Conan",
+            "inherits": [
+                "build-with-conan"
+            ],
             "generator": "Xcode",
             "binaryDir": "../build-${presetName}",
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "iOS",
                 "FORCE_BUNDLED_FL": "ON",
-                "FORCE_BUNDLED_MINIZIP": "ON",
                 "ENABLE_EDITOR" : "OFF"
             }
-        },
-        {
-            "name": "ios-simulator",
-            "displayName": "Base iOS simulator",
-            "description": "Base VCMI preset for iOS simulator",
-            "inherits": "ios-device",
-            "cacheVariables": {
-                "CMAKE_OSX_SYSROOT": "iphonesimulator"
-            }
-        },
-        {
-            "name": "ios-device-conan",
-            "displayName": "Base iOS device using Conan",
-            "description": "Base VCMI preset for iOS device using Conan",
-            "inherits": [
-                "build-with-conan",
-                "ios-device"
-            ]
         },
         {
             "name": "base-ios-release",
@@ -286,18 +316,6 @@
             "cacheVariables": {
                 "ENABLE_PCH" : "OFF",
                 "ENABLE_CCACHE": "ON"
-            }
-        },
-        {
-            "name": "ios-release-legacy",
-            "displayName": "iOS release using legacy dependencies",
-            "description": "VCMI iOS release using legacy dependencies",
-            "inherits": [
-                "base-ios-release",
-                "ios-device"
-            ],
-            "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "${sourceDir}/build/iphoneos"
             }
         },
         {
@@ -389,6 +407,11 @@
             "inherits": "default-debug"
         },
         {
+            "name": "linux-clang-debug",
+            "configurePreset": "linux-clang-debug",
+            "inherits": "default-debug"
+        },
+        {
             "name": "macos-xcode-release",
             "configurePreset": "macos-xcode-release",
             "inherits": "default-release"
@@ -424,6 +447,11 @@
             "inherits": "default-release"
         },
         {
+            "name": "windows-msvc-release-arm64",
+            "configurePreset": "windows-msvc-release-arm64",
+            "inherits": "default-release"
+        },
+        {
             "name": "windows-msvc-release-ccache",
             "configurePreset": "windows-msvc-release-ccache",
             "inherits": "windows-msvc-release"
@@ -434,10 +462,19 @@
             "inherits": "default-release"
         },
         {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
-            "inherits": "default-release",
-            "configuration": "Release"
+            "name": "windows-msvc-ninja-release",
+            "configurePreset": "windows-msvc-ninja-release",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-ninja-release-x86",
+            "configurePreset": "windows-msvc-ninja-release-x86",
+            "inherits": "default-release"
+        },
+        {
+            "name": "windows-msvc-ninja-release-arm64",
+            "configurePreset": "windows-msvc-ninja-release-arm64",
+            "inherits": "default-release"
         },
         {
             "name": "ios-release-conan",
@@ -452,11 +489,6 @@
         {
             "name": "ios-release-conan-ccache",
             "configurePreset": "ios-release-conan-ccache",
-            "inherits": "ios-release-conan"
-        },
-        {
-            "name": "ios-release-legacy",
-            "configurePreset": "ios-release-legacy",
             "inherits": "ios-release-conan"
         },
         {
@@ -486,18 +518,28 @@
             }
         },
         {
-          "name": "linux-clang-release",
-          "configurePreset": "linux-clang-release",
-          "inherits": "default-release"
+            "name": "linux-clang-debug",
+            "configurePreset": "linux-clang-debug",
+            "inherits": "default-release"
         },
         {
-            "name": "linux-gcc-release",
-            "configurePreset": "linux-gcc-release",
+            "name": "linux-clang-release",
+            "configurePreset": "linux-clang-release",
             "inherits": "default-release"
         },
         {
             "name": "linux-clang-test",
             "configurePreset": "linux-clang-test",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-debug",
+            "configurePreset": "linux-gcc-debug",
+            "inherits": "default-release"
+        },
+        {
+            "name": "linux-gcc-release",
+            "configurePreset": "linux-gcc-release",
             "inherits": "default-release"
         },
         {
@@ -523,11 +565,6 @@
         {
             "name": "windows-msvc-release",
             "configurePreset": "windows-msvc-release",
-            "inherits": "default-release"
-        },
-        {
-            "name": "windows-mingw-conan-linux",
-            "configurePreset": "windows-mingw-conan-linux",
             "inherits": "default-release"
         }
     ]

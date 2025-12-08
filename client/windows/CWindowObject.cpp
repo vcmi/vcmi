@@ -86,7 +86,9 @@ std::shared_ptr<CPicture> CWindowObject::createBg(const ImagePath & imageName, b
 		return nullptr;
 
 	auto image = std::make_shared<CPicture>(imageName, Point(0,0), EImageBlitMode::OPAQUE);
-	if(playerColored)
+	if(!GAME->interface())
+		image->setPlayerColor(PlayerColor(1)); // in main menu we use blue
+	else if(playerColored)
 		image->setPlayerColor(GAME->interface()->playerID);
 	return image;
 }

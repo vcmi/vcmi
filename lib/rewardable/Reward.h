@@ -12,7 +12,6 @@
 
 #include "../ResourceSet.h"
 #include "../bonuses/Bonus.h"
-#include "../CCreatureSet.h"
 #include "../networkPacks/Component.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -144,12 +143,20 @@ struct DLL_LINKAGE Reward final
 		h & movePoints;
 		h & primary;
 		h & secondary;
-		h & heroBonuses;
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
 		{
+			h & heroBonuses;
 			h & playerBonuses;
 			h & commanderBonuses;
 		}
+		else
+		{
+			std::vector<Bonus> bonuses;
+			h & bonuses;
+			for (const auto & bonus : bonuses)
+				heroBonuses.push_back(std::make_shared<Bonus>(bonus));
+		}
+
 		h & grantedArtifacts;
 		if (h.version >= Handler::Version::REWARDABLE_EXTENSIONS)
 		{

@@ -52,6 +52,7 @@ set(vcmiclientcommon_SRCS
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
+	lobby/BattleOnlyModeTab.cpp
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
 	lobby/CLobbyScreen.cpp
@@ -87,6 +88,9 @@ set(vcmiclientcommon_SRCS
 	media/CMusicHandler.cpp
 	media/CSoundHandler.cpp
 	media/CVideoHandler.cpp
+
+	netlag/NetworkLagCompensator.cpp
+	netlag/PackRollbackGeneratorVisitor.cpp
 
 	render/AssetGenerator.cpp
 	render/CAnimation.cpp
@@ -181,6 +185,7 @@ set(vcmiclientcommon_SRCS
 	windows/settings/SettingsMainWindow.cpp
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
+	windows/settings/KeyBindingsWindow.cpp
 
 	xBRZ/xbrz.cpp
 
@@ -258,6 +263,7 @@ set(vcmiclientcommon_HEADERS
 	gui/TextAlignment.h
 	gui/WindowHandler.h
 
+	lobby/BattleOnlyModeTab.h
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
 	lobby/CLobbyScreen.h
@@ -299,6 +305,12 @@ set(vcmiclientcommon_HEADERS
 	media/IMusicPlayer.h
 	media/ISoundPlayer.h
 	media/IVideoPlayer.h
+
+	netlag/NetworkLagCompensator.h
+	netlag/NetworkLagPredictedPack.h
+	netlag/NetworkLagPredictionTestVisitor.h
+	netlag/NetworkLagReplyPrediction.h
+	netlag/PackRollbackGeneratorVisitor.h
 
 	render/AssetGenerator.h
 	render/CAnimation.h
@@ -403,6 +415,7 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/SettingsMainWindow.h
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
+	windows/settings/KeyBindingsWindow.h
 
 	xBRZ/xbrz.h
 	xBRZ/xbrz_tools.h
@@ -426,7 +439,7 @@ set(vcmiclientcommon_HEADERS
 	UIHelper.h
 )
 
-if(APPLE_IOS)
+if(IOS)
 	set(vcmiclientcommon_SRCS ${vcmiclientcommon_SRCS}
 		ios/utils.mm
 	)
@@ -439,17 +452,26 @@ assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	add_dependencies(vcmiclientcommon EmptyAI)
+
 	if(ENABLE_NULLKILLER_AI)
 		add_dependencies(vcmiclientcommon Nullkiller)
 	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
+		add_dependencies(vcmiclientcommon Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		add_dependencies(vcmiclientcommon StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		add_dependencies(vcmiclientcommon BattleAI)
+	endif()
+
 endif()
-if(APPLE_IOS)
+if(IOS)
 	if(ENABLE_ERM)
 		add_dependencies(vcmiclientcommon vcmiERM)
 	endif()
@@ -469,7 +491,7 @@ if(WIN32)
 		target_link_libraries(vcmiclientcommon SDL2::SDL2main)
 	endif()
 	target_compile_definitions(vcmiclientcommon PRIVATE WINDOWS_IGNORE_PACKING_MISMATCH)
-elseif(APPLE_IOS)
+elseif(IOS)
 	target_link_libraries(vcmiclientcommon PRIVATE
 		iOS_utils
 

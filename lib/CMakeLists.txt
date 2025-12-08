@@ -117,6 +117,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClass.cpp
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
+	entities/ResourceTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -146,9 +147,9 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/DwellingInstanceConstructor.cpp
 	mapObjectConstructors/FlaggableInstanceConstructor.cpp
 	mapObjectConstructors/HillFortInstanceConstructor.cpp
+	mapObjectConstructors/MarketInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
-	mapObjects/CArmedInstance.cpp
 	mapObjects/CGCreature.cpp
 	mapObjects/CGDwelling.cpp
 	mapObjects/CGHeroInstance.cpp
@@ -158,7 +159,6 @@ set(lib_MAIN_SRCS
 	mapObjects/CGResource.cpp
 	mapObjects/TownBuildingInstance.cpp
 	mapObjects/CGTownInstance.cpp
-	mapObjects/CObjectHandler.cpp
 	mapObjects/CQuest.cpp
 	mapObjects/CRewardableObject.cpp
 	mapObjects/FlaggableMapObject.cpp
@@ -167,6 +167,12 @@ set(lib_MAIN_SRCS
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
+
+	mapObjects/army/CArmedInstance.cpp
+	mapObjects/army/CCommanderInstance.cpp
+	mapObjects/army/CCreatureSet.cpp
+	mapObjects/army/CStackBasicDescriptor.cpp
+	mapObjects/army/CStackInstance.cpp
 
 	mapping/CDrawRoadsOperation.cpp
 	mapping/CMap.cpp
@@ -218,6 +224,7 @@ set(lib_MAIN_SRCS
 	rmg/CRmgTemplate.cpp
 	rmg/CRmgTemplateStorage.cpp
 	rmg/CZonePlacer.cpp
+	rmg/CRoadRandomizer.cpp
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
@@ -247,7 +254,7 @@ set(lib_MAIN_SRCS
 
 	serializer/CLoadFile.cpp
 	serializer/CMemorySerializer.cpp
-	serializer/Connection.cpp
+	serializer/GameConnection.cpp
 	serializer/CSaveFile.cpp
 	serializer/CTypeList.cpp
 	serializer/JsonDeserializer.cpp
@@ -257,7 +264,6 @@ set(lib_MAIN_SRCS
 	serializer/SerializerReflection.cpp
 
 	spells/AbilityCaster.cpp
-	spells/AdventureSpellMechanics.cpp
 	spells/BattleSpellMechanics.cpp
 	spells/BonusCaster.cpp
 	spells/CSpellHandler.cpp
@@ -269,6 +275,14 @@ set(lib_MAIN_SRCS
 	spells/SpellSchoolHandler.cpp
 	spells/TargetCondition.cpp
 	spells/ViewSpellInt.cpp
+
+	spells/adventure/AdventureSpellEffect.cpp
+	spells/adventure/AdventureSpellMechanics.cpp
+	spells/adventure/DimensionDoorEffect.cpp
+	spells/adventure/RemoveObjectEffect.cpp
+	spells/adventure/SummonBoatEffect.cpp
+	spells/adventure/TownPortalEffect.cpp
+	spells/adventure/ViewWorldEffect.cpp
 
 	spells/effects/Catapult.cpp
 	spells/effects/Clone.cpp
@@ -299,7 +313,6 @@ set(lib_MAIN_SRCS
 	CAndroidVMHelper.cpp
 	CBonusTypeHandler.cpp
 	CCreatureHandler.cpp
-	CCreatureSet.cpp
 	CPlayerState.cpp
 	CRandomGenerator.cpp
 	CScriptingModule.cpp
@@ -427,6 +440,8 @@ set(lib_MAIN_HEADERS
 	../include/vcmi/HeroClassService.h
 	../include/vcmi/HeroType.h
 	../include/vcmi/HeroTypeService.h
+	../include/vcmi/ResourceType.h
+	../include/vcmi/ResourceTypeService.h
 	../include/vcmi/Metatype.h
 	../include/vcmi/Player.h
 	../include/vcmi/ServerCallback.h
@@ -533,6 +548,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroClassHandler.h
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
+	entities/ResourceTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -566,11 +582,11 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/HillFortInstanceConstructor.h
 	mapObjectConstructors/FlaggableInstanceConstructor.h
 	mapObjectConstructors/IObjectInfo.h
+	mapObjectConstructors/MarketInstanceConstructor.h
 	mapObjectConstructors/RandomMapInfo.h
 	mapObjectConstructors/ShipyardInstanceConstructor.h
 	mapObjectConstructors/SObjectSounds.h
 
-	mapObjects/CArmedInstance.h
 	mapObjects/CGCreature.h
 	mapObjects/CGDwelling.h
 	mapObjects/CGHeroInstance.h
@@ -580,7 +596,6 @@ set(lib_MAIN_HEADERS
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
 	mapObjects/CGTownInstance.h
-	mapObjects/CObjectHandler.h
 	mapObjects/CQuest.h
 	mapObjects/CRewardableObject.h
 	mapObjects/FlaggableMapObject.h
@@ -593,9 +608,17 @@ set(lib_MAIN_HEADERS
 	mapObjects/ObjectTemplate.h
 	mapObjects/ObstacleSetHandler.h
 
+	mapObjects/army/CArmedInstance.h
+	mapObjects/army/CCommanderInstance.h
+	mapObjects/army/CCreatureSet.h
+	mapObjects/army/CSimpleArmy.h
+	mapObjects/army/CStackBasicDescriptor.h
+	mapObjects/army/CStackInstance.h
+
 	mapping/CDrawRoadsOperation.h
-	mapping/CMapDefines.h
+	mapping/CCastleEvent.h
 	mapping/CMapEditManager.h
+	mapping/CMapEvent.h
 	mapping/CMapHeader.h
 	mapping/CMap.h
 	mapping/CMapInfo.h
@@ -610,6 +633,7 @@ set(lib_MAIN_HEADERS
 	mapping/MapReaderH3M.h
 	mapping/MapFormatJson.h
 	mapping/ObstacleProxy.h
+	mapping/TerrainTile.h
 
 	modding/ActiveModsInSaveList.h
 	modding/CModHandler.h
@@ -666,6 +690,7 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplate.h
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
+	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
 	rmg/Zone.h
 	rmg/RmgMap.h
@@ -698,21 +723,22 @@ set(lib_MAIN_HEADERS
 	serializer/BinarySerializer.h
 	serializer/CLoadFile.h
 	serializer/CMemorySerializer.h
-	serializer/Connection.h
+	serializer/GameConnection.h
 	serializer/CSaveFile.h
 	serializer/CSerializer.h
 	serializer/CTypeList.h
+	serializer/GameConnectionID.h
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
 	serializer/JsonUpdater.h
 	serializer/ESerializationVersion.h
+	serializer/PlayerConnectionID.h
 	serializer/RegisterTypes.h
 	serializer/Serializeable.h
 	serializer/SerializerReflection.h
 
 	spells/AbilityCaster.h
-	spells/AdventureSpellMechanics.h
 	spells/BattleSpellMechanics.h
 	spells/BonusCaster.h
 	spells/CSpellHandler.h
@@ -724,6 +750,14 @@ set(lib_MAIN_HEADERS
 	spells/SpellSchoolHandler.h
 	spells/TargetCondition.h
 	spells/ViewSpellInt.h
+
+	spells/adventure/AdventureSpellMechanics.h
+	spells/adventure/AdventureSpellEffect.h
+	spells/adventure/DimensionDoorEffect.h
+	spells/adventure/RemoveObjectEffect.h
+	spells/adventure/SummonBoatEffect.h
+	spells/adventure/TownPortalEffect.h
+	spells/adventure/ViewWorldEffect.h
 
 	spells/effects/Catapult.h
 	spells/effects/Clone.h
@@ -756,7 +790,6 @@ set(lib_MAIN_HEADERS
 	CAndroidVMHelper.h
 	CBonusTypeHandler.h
 	CCreatureHandler.h
-	CCreatureSet.h
 	ConditionalWait.h
 	Color.h
 	CPlayerState.h
@@ -825,24 +858,32 @@ endif()
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	target_link_libraries(vcmi PRIVATE EmptyAI)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller)
 	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
+		target_link_libraries(vcmi PRIVATE Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		target_link_libraries(vcmi PRIVATE StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		target_link_libraries(vcmi PRIVATE BattleAI)
+	endif()
+
 endif()
 
 # no longer necessary, but might be useful to keep in future
 # unfortunately at the moment tests do not support namespaced build, so enable only on some systems
-if(APPLE_IOS OR ANDROID)
+if(IOS OR ANDROID)
 	target_compile_definitions(vcmi PUBLIC VCMI_LIB_NAMESPACE=VCMI)
 endif()
 
-if(APPLE_IOS)
+if(IOS)
 	target_link_libraries(vcmi PUBLIC iOS_utils)
 endif()
 
@@ -858,6 +899,10 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_lib"
 			PROJECT_LABEL "VCMI_lib"
 	)
+	if (MINGW)
+		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
+	endif()
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files
@@ -893,7 +938,7 @@ if(NOT ENABLE_STATIC_LIBS)
 	install(TARGETS vcmi RUNTIME DESTINATION ${LIB_DIR} LIBRARY DESTINATION ${LIB_DIR})
 endif()
 
-if(APPLE_IOS AND NOT USING_CONAN)
+if(IOS AND NOT USING_CONAN)
 	install(IMPORTED_RUNTIME_ARTIFACTS TBB::tbb LIBRARY DESTINATION ${LIB_DIR}) # CMake 3.21+
 
 	get_target_property(LINKED_LIBS vcmi LINK_LIBRARIES)

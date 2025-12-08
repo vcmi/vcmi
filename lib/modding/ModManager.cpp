@@ -285,6 +285,13 @@ void ModsPresetState::removeOldMods(const TModList & modsToKeep)
 	vstd::erase_if(currentPreset["settings"].Struct(), [&](const auto & entry){
 		return !vstd::contains(modsToKeep, entry.first);
 	});
+
+	for (auto & modSettings : currentPreset["settings"].Struct())
+	{
+		vstd::erase_if(modSettings.second.Struct(), [&](const auto & entry){
+			return !vstd::contains(modsToKeep, modSettings.first + "." + entry.first);
+		});
+	}
 }
 
 void ModsPresetState::eraseRootMod(const TModID & modName)
@@ -760,35 +767,45 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	std::set<TModID> resolvedModIDs(activeMods.begin(), activeMods.end()); // Use a set for validation for performance reason, but set does not keep order of elements
 	std::set<TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
+	enum class ModResolveStatus {
+		RESOLVED, // ok - mod can be added to load order
+		WAITING, // maybe - wait for more iterations before deciding
+		BROKEN // fail - this mod definitely can't be loaded
+	};
+
 	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
-	auto isResolved = [&](const ModDescription & mod) -> bool
+	auto isResolved = [&](const ModDescription & mod) -> ModResolveStatus
 	{
 		if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage())
-			return false;
+			return ModResolveStatus::BROKEN;
 
 		if(!mod.isCompatible())
-			return false;
-
-		if(mod.getDependencies().size() > resolvedModIDs.size())
-			return false;
+			return ModResolveStatus::BROKEN;
 
 		for(const TModID & dependency : mod.getDependencies())
+		{
 			if(!vstd::contains(resolvedModIDs, dependency))
-				return false;
+			{
+				if (vstd::contains(notResolvedModIDs, dependency))
+					return ModResolveStatus::WAITING;
+				else
+					return ModResolveStatus::BROKEN;
+			}
+		}
 
 		for(const TModID & softDependency : mod.getSoftDependencies())
 			if(vstd::contains(notResolvedModIDs, softDependency))
-				return false;
+				return ModResolveStatus::WAITING;
 
 		for(const TModID & conflict : mod.getConflicts())
 			if(vstd::contains(resolvedModIDs, conflict))
-				return false;
+				return ModResolveStatus::BROKEN;
 
 		for(const TModID & reverseConflict : resolvedModIDs)
 			if(vstd::contains(storage.getMod(reverseConflict).getConflicts(), mod.getID()))
-				return false;
+				return ModResolveStatus::BROKEN;
 
-		return true;
+		return ModResolveStatus::RESOLVED;
 	};
 
 	while(true)
@@ -796,7 +813,9 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 		std::set<TModID> resolvedOnCurrentTreeLevel;
 		for(auto it = modsToResolve.begin(); it != modsToResolve.end();) // One iteration - one level of mods tree
 		{
-			if(isResolved(storage.getMod(*it)))
+			ModResolveStatus status = isResolved(storage.getMod(*it));
+
+			if (status == ModResolveStatus::RESOLVED)
 			{
 				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
 				assert(!vstd::contains(sortedValidMods, *it));
@@ -804,6 +823,14 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 				it = modsToResolve.erase(it);
 				continue;
 			}
+			if (status == ModResolveStatus::BROKEN)
+			{
+				resolvedOnCurrentTreeLevel.insert(*it);
+				brokenMods.push_back(*it);
+				it = modsToResolve.erase(it);
+				continue;
+			}
+
 			it++;
 		}
 		if(!resolvedOnCurrentTreeLevel.empty())

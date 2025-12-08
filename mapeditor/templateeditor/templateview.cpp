@@ -19,6 +19,7 @@ TemplateScene::TemplateScene():
 TemplateView::TemplateView(QWidget * parent):
 	QGraphicsView(parent)
 {
+	setBackgroundBrush(QBrush(QColor(255, 255, 255))); // enforce white background on dark mode
 }
 
 void TemplateView::setZoomLevel(int level)

@@ -122,9 +122,9 @@
 			"musicTheme" : [ "music/CstleTown" ],
 			"defaultTavern" : 5,
 			"tavernVideo" : "TAVERN.BIK",
-			"guildBackground" : "TPMAGE.bmp",
+			"guildBackground" : [ "TPMAGE.bmp" ],
 			"townBackground": "TBCSBACK.bmp",
-			"guildWindow": "TPMAGECS.bmp",
+			"guildWindow": [ "TPMAGECS.bmp" ],
 			"buildingsIcons": "HALLCSTL.DEF",
 			"hallBackground": "TPTHBKCS.BMP",
 			"hallSlots":
@@ -147,6 +147,13 @@
 			],
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
+			"guildSpellPositions" : [
+				[ { "x": 222, "y": 445 }, { "x": 312, "y": 445 }, { "x": 402, "y": 445 }, { "x": 520, "y": 445 }, { "x": 610, "y": 445 }, { "x": 700, "y": 445 } ],
+				[ { "x":  48, "y":  53 }, { "x":  48, "y": 147 }, { "x":  48, "y": 241 }, { "x":  48, "y": 335 }, { "x":  48, "y": 429 } ],
+				[ { "x": 570, "y":  82 }, { "x": 672, "y":  82 }, { "x": 570, "y": 157 }, { "x": 672, "y": 157 } ],
+				[ { "x": 183, "y":  42 }, { "x": 183, "y": 148 }, { "x": 183, "y": 253 } ]
+			],
+			"guildWindowPosition": { "x": 332, "y": 76 },
 			"moatAbility" : "castleMoat",
 			// primaryResource not specified so town get both Wood and Ore for resource bonus
 
@@ -172,7 +179,7 @@
 				"special1":       { 
 					"bonuses": [
 						{
-							"propagator": "PLAYER_PROPAGATOR",
+							"propagator": "PLAYER",
 							"type": "MOVEMENT",
 							"subtype": "heroMovementSea",
 							"val": 500
@@ -180,9 +187,9 @@
 					],
 					"requires" : [ "shipyard" ]
 				},
-				"horde1":         { "id" : 18, "upgrades" : "dwellingLvl3" },
-				"horde1Upgr":     { "id" : 19, "upgrades" : "dwellingUpLvl3", "requires" : [ "horde1" ], "mode" : "auto" },
-				"ship":           { "id" : 20, "upgrades" : "shipyard" },
+				"horde1":         { "upgrades" : "dwellingLvl3" },
+				"horde1Upgr":     { "upgrades" : "dwellingUpLvl3", "requires" : [ "horde1" ] },
+				"ship":           { },
 				"special2":       {
 					"requires" : [ "dwellingLvl4" ],
 					"mapObjectLikeBonuses" : "stables",
@@ -205,30 +212,30 @@
 							"val": 2
 						},
 						{
-							"propagator": "PLAYER_PROPAGATOR",
+							"propagator": "PLAYER",
 							"type": "THIEVES_GUILD_ACCESS",
 							"val": 1
 						}
 					],
 					"upgrades" : "tavern"
 				},
-				"grail":          { "id" : 26, "mode" : "grail", "produce": { "gold": 5000 }, "bonuses": [ { "type": "MORALE", "val": 2, "propagator": "PLAYER_PROPAGATOR" } ] },
+				"grail":          { },
 
-				"dwellingLvl1":   { "id" : 30, "requires" : [ "fort" ] },
-				"dwellingLvl2":   { "id" : 31, "requires" : [ "dwellingLvl1" ] },
-				"dwellingLvl3":   { "id" : 32, "requires" : [ "dwellingLvl4" ] },
-				"dwellingLvl4":   { "id" : 33, "requires" : [ "allOf", [ "blacksmith" ], [ "dwellingLvl1" ] ] },
-				"dwellingLvl5":   { "id" : 34, "requires" : [ "allOf", [ "mageGuild1" ], [ "dwellingLvl4" ] ] },
-				"dwellingLvl6":   { "id" : 35, "requires" : [ "special2" ] },
-				"dwellingLvl7":   { "id" : 36, "requires" : [ "dwellingLvl5" ] },
+				"dwellingLvl1":   { "requires" : [ "fort" ] },
+				"dwellingLvl2":   { "requires" : [ "dwellingLvl1" ] },
+				"dwellingLvl3":   { "requires" : [ "dwellingLvl4" ] },
+				"dwellingLvl4":   { "requires" : [ "allOf", [ "blacksmith" ], [ "dwellingLvl1" ] ] },
+				"dwellingLvl5":   { "requires" : [ "allOf", [ "mageGuild1" ], [ "dwellingLvl4" ] ] },
+				"dwellingLvl6":   { "requires" : [ "special2" ] },
+				"dwellingLvl7":   { "requires" : [ "dwellingLvl5" ] },
 
-				"dwellingUpLvl1": { "id" : 37, "upgrades" : "dwellingLvl1" },
-				"dwellingUpLvl2": { "id" : 38, "upgrades" : "dwellingLvl2" },
-				"dwellingUpLvl3": { "id" : 39, "upgrades" : "dwellingLvl3" },
-				"dwellingUpLvl4": { "id" : 40, "upgrades" : "dwellingLvl4" },
-				"dwellingUpLvl5": { "id" : 41, "upgrades" : "dwellingLvl5" },
-				"dwellingUpLvl6": { "id" : 42, "upgrades" : "dwellingLvl6" },
-				"dwellingUpLvl7": { "id" : 43, "upgrades" : "dwellingLvl7" },
+				"dwellingUpLvl1": { "upgrades" : "dwellingLvl1" },
+				"dwellingUpLvl2": { "upgrades" : "dwellingLvl2" },
+				"dwellingUpLvl3": { "upgrades" : "dwellingLvl3" },
+				"dwellingUpLvl4": { "upgrades" : "dwellingLvl4" },
+				"dwellingUpLvl5": { "upgrades" : "dwellingLvl5" },
+				"dwellingUpLvl6": { "upgrades" : "dwellingLvl6" },
+				"dwellingUpLvl7": { "upgrades" : "dwellingLvl7" },
 
 				"horde2" : null,
 				"horde2Upgr" : null,

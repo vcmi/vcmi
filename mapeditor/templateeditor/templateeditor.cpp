@@ -12,10 +12,12 @@
 #include "ui_templateeditor.h"
 #include "graphicelements/CardItem.h"
 #include "graphicelements/LineItem.h"
-#include "terrainselector.h"
+#include "entitiesselector.h"
 #include "factionselector.h"
 #include "mineselector.h"
 #include "treasureselector.h"
+#include "objectselector.h"
+#include "townhintselector.h"
 #include "GeometryAlgorithm.h"
 
 #include "../helper.h"
@@ -339,8 +341,8 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->comboBoxZoneType->addItem(tr("Water"), QVariant(static_cast<int>(ETemplateZoneType::WATER)));
 	ui->comboBoxZoneType->addItem(tr("Sealed"), QVariant(static_cast<int>(ETemplateZoneType::SEALED)));
 	for (int i = 0; i < ui->comboBoxZoneType->count(); ++i)
-    	if (ui->comboBoxZoneType->itemData(i).toInt() == static_cast<int>(zone->getType()))
-        	ui->comboBoxZoneType->setCurrentIndex(i);
+		if (ui->comboBoxZoneType->itemData(i).toInt() == static_cast<int>(zone->getType()))
+			ui->comboBoxZoneType->setCurrentIndex(i);
 
 	ui->comboBoxZoneOwner->clear();
 	auto type = static_cast<ETemplateZoneType>(ui->comboBoxZoneType->currentData().toInt());
@@ -363,6 +365,14 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 		ui->comboBoxZoneOwner->setEnabled(false);
 	}
 
+	ui->comboBoxForcedLevel->clear();
+	ui->comboBoxForcedLevel->addItem(tr("Automatic"), QVariant(static_cast<int>(EZoneLevel::AUTOMATIC)));
+	ui->comboBoxForcedLevel->addItem(tr("Surface"), QVariant(static_cast<int>(EZoneLevel::SURFACE)));
+	ui->comboBoxForcedLevel->addItem(tr("Underground"), QVariant(static_cast<int>(EZoneLevel::UNDERGROUND)));
+	for (int i = 0; i < ui->comboBoxForcedLevel->count(); ++i)
+		if (ui->comboBoxForcedLevel->itemData(i).toInt() == static_cast<int>(zone->getForcedLevel()))
+			ui->comboBoxForcedLevel->setCurrentIndex(i);
+
 	ui->comboBoxMonsterStrength->clear();
 	ui->comboBoxMonsterStrength->addItem(tr("None"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_NONE)));
 	ui->comboBoxMonsterStrength->addItem(tr("Random"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::RANDOM)));
@@ -370,8 +380,8 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 	ui->comboBoxMonsterStrength->addItem(tr("Normal"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_NORMAL)));
 	ui->comboBoxMonsterStrength->addItem(tr("Strong"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_STRONG)));
 	for (int i = 0; i < ui->comboBoxMonsterStrength->count(); ++i)
-    	if (ui->comboBoxMonsterStrength->itemData(i).toInt() == static_cast<int>(zone->monsterStrength))
-        	ui->comboBoxMonsterStrength->setCurrentIndex(i);
+		if (ui->comboBoxMonsterStrength->itemData(i).toInt() == static_cast<int>(zone->monsterStrength))
+			ui->comboBoxMonsterStrength->setCurrentIndex(i);
 }
 
 void TemplateEditor::loadZoneConnectionMenuContent()
@@ -464,10 +474,12 @@ void TemplateEditor::saveZoneMenuContent()
 
 	auto zone = templates[selectedTemplate]->getZones().at(selectedZone);
 	auto type = static_cast<ETemplateZoneType>(ui->comboBoxZoneType->currentData().toInt());
+	auto forcedLevel = static_cast<EZoneLevel>(ui->comboBoxForcedLevel->currentData().toInt());
 
 	zone->setVisiblePosition(Point(ui->spinBoxZoneVisPosX->value(), ui->spinBoxZoneVisPosY->value()));
 	zone->setVisibleSize(ui->doubleSpinBoxZoneVisSize->value());
 	zone->setType(type);
+	zone->setForcedLevel(forcedLevel);
 	zone->setSize(ui->spinBoxZoneSize->value());
 	zone->playerTowns.townCount = ui->spinBoxTownCountPlayer->value();
 	zone->playerTowns.castleCount = ui->spinBoxCastleCountPlayer->value();
@@ -827,6 +839,12 @@ void TemplateEditor::on_comboBoxZoneOwner_currentTextChanged(const QString &text
 		saveZoneMenuContent();
 }
 
+void TemplateEditor::on_comboBoxForcedLevel_currentTextChanged(const QString &text)
+{
+	if(ui->comboBoxForcedLevel->hasFocus())
+		saveZoneMenuContent();
+}
+
 void TemplateEditor::on_spinBoxZoneSize_valueChanged()
 {
 	if(ui->spinBoxZoneSize->hasFocus())
@@ -1012,12 +1030,14 @@ void TemplateEditor::on_pushButtonConnectionAdd_clicked()
 
 void TemplateEditor::on_pushButtonOpenTerrainTypes_clicked()
 {
-	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->terrainTypes);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->getZones().at(selectedZone)->terrainTypes);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonOpenBannedTerrainTypes_clicked()
 {
-	TerrainSelector::showTerrainSelector(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTerrains);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->getZones().at(selectedZone)->bannedTerrains);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonAllowedTowns_clicked()
@@ -1032,8 +1052,7 @@ void TemplateEditor::on_pushButtonBannedTowns_clicked()
 
 void TemplateEditor::on_pushButtonTownHints_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	TownHintSelector::showTownHintSelector(templates[selectedTemplate]->getZones().at(selectedZone)->townHints);
 }
 
 void TemplateEditor::on_pushButtonAllowedMonsters_clicked()
@@ -1059,6 +1078,29 @@ void TemplateEditor::on_pushButtonMines_clicked()
 
 void TemplateEditor::on_pushButtonCustomObjects_clicked()
 {
-	//TODO: Implement dialog
-	QMessageBox::critical(this, tr("Error"), tr("Not implemented yet!"));
+	ObjectSelector::showObjectSelector(templates[selectedTemplate]->getZones().at(selectedZone)->objectConfig);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedSpells_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSpells);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedArtifacts_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedArtifacts);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedSkills_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSkills);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesBannedHeroes_clicked()
+{
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedHeroes);
+	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }

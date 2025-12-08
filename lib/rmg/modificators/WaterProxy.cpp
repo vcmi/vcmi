@@ -28,6 +28,7 @@
 #include "ConnectionsPlacer.h"
 #include "../TileInfo.h"
 #include "WaterAdopter.h"
+#include "WaterRoutes.h"
 #include "../RmgArea.h"
 
 #include <vstd/RNG.h>

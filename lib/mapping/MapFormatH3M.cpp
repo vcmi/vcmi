@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "MapFormatH3M.h"
 
+#include "CCastleEvent.h"
 #include "CMap.h"
 #include "MapReaderH3M.h"
 #include "MapFormatSettings.h"
@@ -184,7 +185,7 @@ void CMapLoaderH3M::readHeader()
 	// Read map name, description, dimensions,...
 	mapHeader->areAnyPlayers = reader->readBool();
 	mapHeader->height = mapHeader->width = reader->readInt32();
-	mapHeader->twoLevel = reader->readBool();
+	mapHeader->mapLevels = reader->readBool() ? 2 : 1;
 	mapHeader->name.appendTextID(readLocalizedString("header.name"));
 	mapHeader->description.appendTextID(readLocalizedString("header.description"));
 	mapHeader->author.appendRawString("");
@@ -742,6 +743,9 @@ void CMapLoaderH3M::readMapOptions()
 				logGlobal->warn("Map '%s': option to ban hero recruitment for %s is not implemented!!", mapName, PlayerColor(i).toString());
 		}
 	}
+
+	const MapIdentifiersH3M & identifierMapper = LIBRARY->mapFormat->getMapping(mapHeader->version);
+	map->overrideGameSettings(identifierMapper.getFormatSettings());
 }
 
 void CMapLoaderH3M::readAllowedArtifacts()
@@ -921,8 +925,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
-		while(!hero->artifactsWorn.empty())
-			hero->removeArtifact(hero->artifactsWorn.begin()->first);
+		hero->artifactsWorn.clear();
 	}
 
 	for(int i = 0; i < features.artifactSlotsCount; i++)
@@ -1097,6 +1100,8 @@ void CMapLoaderH3M::readBoxContent(CGPandoraBox * object, const int3 & mapPositi
 			SpellID scrollSpell = reader->readSpell16();
 			if (grantedArtifact == ArtifactID::SPELL_SCROLL)
 				reward.grantedScrolls.push_back(scrollSpell);
+			else
+				reward.grantedArtifacts.push_back(grantedArtifact);
 		}
 		else
 			reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2127,7 +2132,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		bool hasCustomPrimSkills = reader->readBool();
 		if(hasCustomPrimSkills)
 		{
-			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), nullptr);
+			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), "");
 			if(ps->size())
 			{
 				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );
@@ -2303,6 +2308,8 @@ void CMapLoaderH3M::readSeerHutQuest(CGSeerHut * hut, const int3 & position, con
 					SpellID scrollSpell = reader->readSpell16();
 					if (grantedArtifact == ArtifactID::SPELL_SCROLL)
 						reward.grantedScrolls.push_back(scrollSpell);
+					else
+						reward.grantedArtifacts.push_back(grantedArtifact);
 				}
 				else
 					reward.grantedArtifacts.push_back(grantedArtifact);
@@ -2378,6 +2385,8 @@ EQuestMission CMapLoaderH3M::readQuest(IQuestObject * guard, const int3 & positi
 					SpellID scrollSpell = reader->readSpell16();
 					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
 						guard->getQuest().mission.scrolls.push_back(scrollSpell);
+					else
+						guard->getQuest().mission.artifacts.push_back(requiredArtifact);
 				}
 				else
 					guard->getQuest().mission.artifacts.push_back(requiredArtifact);
@@ -2470,7 +2479,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	std::optional<FactionID> faction;
 	if (objectTemplate->id == Obj::TOWN)
+	{
 		faction = FactionID(objectTemplate->subid);
+		object->subID = objectTemplate->subid;
+	}
 
 	bool hasName = reader->readBool();
 	if(hasName)

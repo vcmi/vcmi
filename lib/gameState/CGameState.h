@@ -15,8 +15,9 @@
 #include "../entities/artifact/EArtifactClass.h"
 #include "../LoadProgress.h"
 
-#include "RumorState.h"
 #include "GameStatistics.h"
+#include "RumorState.h"
+#include "mapObjects/CGObjectInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -75,7 +76,7 @@ public:
 	void preInit(Services * services);
 
 	void init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
-	void updateOnLoad(StartInfo * si);
+	void updateOnLoad(const StartInfo & si);
 
 	ui32 day; //total number of days in game
 	std::map<PlayerColor, PlayerState> players;
@@ -149,6 +150,20 @@ public:
 
 	bool isVisibleFor(int3 pos, const PlayerColor player) const override;
 	bool isVisibleFor(const CGObjectInstance * obj, const PlayerColor player) const override;
+	template<class BoolPredicate>
+	static bool iteratePositionsUntilTrue(const CGObjectInstance * obj, BoolPredicate && boolPredicate)
+	{
+		for(int fy = 0; fy < obj->getHeight(); ++fy)
+		{
+			for(int fx = 0; fx < obj->getWidth(); ++fx)
+			{
+				int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
+				if(boolPredicate(pos))
+					return true;
+			}
+		}
+		return false;
+	}
 
 	static int getDate(int day, Date mode);
 	int getDate(Date mode=Date::DAY) const override; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month

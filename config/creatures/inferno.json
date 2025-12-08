@@ -7,6 +7,8 @@
 		"upgrades": ["familiar"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:84",
+			"mapAttackFromLeft": "AvWattak.def:0:85",
 			"animation": "CIMP.DEF"
 		},
 		"sound" :
@@ -33,6 +35,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:86",
+			"mapAttackFromLeft": "AvWattak.def:0:87",
 			"animation": "CFAMIL.DEF"
 		},
 		"sound" :
@@ -61,6 +65,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:88",
+			"mapAttackFromLeft": "AvWattak.def:0:89",
 			"animation": "CGOG.DEF",
 			"missile" :
 			{
@@ -97,6 +103,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:90",
+			"mapAttackFromLeft": "AvWattak.def:0:91",
 			"animation": "CMAGOG.DEF",
 			"missile" :
 			{
@@ -122,6 +130,8 @@
 		"doubleWide" : true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:92",
+			"mapAttackFromLeft": "AvWattak.def:0:93",
 			"animation": "CHHOUN.DEF"
 		},
 		"sound" :
@@ -152,6 +162,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:94",
+			"mapAttackFromLeft": "AvWattak.def:0:95",
 			"animation": "CCERBU.DEF"
 		},
 		"sound" :
@@ -171,6 +183,8 @@
 		"upgrades": ["hornedDemon"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:96",
+			"mapAttackFromLeft": "AvWattak.def:0:97",
 			"animation": "COHDEM.DEF"
 		},
 		"sound" :
@@ -189,6 +203,8 @@
 		"faction": "inferno",
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:98",
+			"mapAttackFromLeft": "AvWattak.def:0:99",
 			"animation": "CTHDEM.DEF"
 		},
 		"sound" :
@@ -208,6 +224,8 @@
 		"upgrades": ["pitLord"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:100",
+			"mapAttackFromLeft": "AvWattak.def:0:101",
 			"animation": "CPFIEN.DEF"
 		},
 		"sound" :
@@ -246,6 +264,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:102",
+			"mapAttackFromLeft": "AvWattak.def:0:103",
 			"animation": "CPFOE.DEF"
 		},
 		"sound" :
@@ -289,6 +309,8 @@
 		"upgrades": ["efreetSultan"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:104",
+			"mapAttackFromLeft": "AvWattak.def:0:105",
 			"animation": "CEFREE.DEF"
 		},
 		"sound" :
@@ -336,6 +358,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:106",
+			"mapAttackFromLeft": "AvWattak.def:0:107",
 			"animation": "CEFRES.DEF"
 		},
 		"sound" :
@@ -396,6 +420,8 @@
 		"upgrades": ["archDevil"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:108",
+			"mapAttackFromLeft": "AvWattak.def:0:109",
 			"animation": "CDEVIL.DEF"
 		},
 		"sound" :
@@ -455,7 +481,8 @@
 		},
 		"graphics" :
 		{
-			"missile" : null,
+			"mapAttackFromRight": "AvWattak.def:0:110",
+			"mapAttackFromLeft": "AvWattak.def:0:111",
 			"animation": "CADEVL.DEF"
 		},
 		"sound" :

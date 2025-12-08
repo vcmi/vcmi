@@ -98,8 +98,10 @@ void CMarketResources::highlightingChanged()
 void CMarketResources::updateSubtitles()
 {
 	CMarketBase::updateSubtitlesForBid(EMarketMode::RESOURCE_RESOURCE, bidTradePanel->getHighlightedItemId());
-	if(bidTradePanel->highlightedSlot)
-		offerTradePanel->slots[bidTradePanel->highlightedSlot->serial]->subtitle->setText(LIBRARY->generaltexth->allTexts[164]); // n/a
+	if(bidTradePanel && bidTradePanel->highlightedSlot)
+		for(auto & slot : offerTradePanel->slots)
+			if(slot->id == bidTradePanel->highlightedSlot->id)
+				slot->subtitle->setText(LIBRARY->generaltexth->allTexts[164]); // n/a
 }
 
 std::string CMarketResources::getTraderText()
@@ -110,10 +112,10 @@ std::string CMarketResources::getTraderText()
 		MetaString message = MetaString::createFromTextID("core.genrltxt.157");
 		message.replaceNumber(offerQty);
 		message.replaceRawString(offerQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
-		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
+		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
 		message.replaceNumber(bidQty);
 		message.replaceRawString(bidQty == 1 ? LIBRARY->generaltexth->allTexts[161] : LIBRARY->generaltexth->allTexts[160]);
-		message.replaceName(GameResID(offerTradePanel->getHighlightedItemId()));
+		message.replaceName(GameResID(bidTradePanel->getHighlightedItemId()));
 		return message.toString();
 	}
 	else

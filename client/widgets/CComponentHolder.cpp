@@ -12,14 +12,10 @@
 
 #include "../GameEngine.h"
 #include "../GameInstance.h"
-#include "../gui/Shortcut.h"
 
 #include "CComponent.h"
 #include "Images.h"
 
-#include "../render/Canvas.h"
-#include "../render/Colors.h"
-#include "../render/IRenderHandler.h"
 #include "../CPlayerInterface.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -57,6 +53,11 @@ void CComponentHolder::setShowPopupCallback(const ClickFunctor & callback)
 	showPopupCallback = callback;
 }
 
+void CComponentHolder::setClosePopupWindowCallback(const std::function<void()> & callback)
+{
+    closePopupWindowCallback = callback;
+}
+
 void CComponentHolder::setGestureCallback(const ClickFunctor & callback)
 {
 	gestureCallback = callback;
@@ -72,6 +73,12 @@ void CComponentHolder::showPopupWindow(const Point & cursorPosition)
 {
 	if(showPopupCallback)
 		showPopupCallback(*this, cursorPosition);
+}
+
+void CComponentHolder::closePopupWindow(bool alreadyClosed)
+{
+    if(closePopupWindowCallback)
+        closePopupWindowCallback();
 }
 
 void CComponentHolder::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
@@ -202,21 +209,23 @@ void CCommanderArtPlace::showPopupWindow(const Point & cursorPosition)
 void CArtPlace::lockSlot(bool on)
 {
 	locked = on;
-	if(on)
+	if(artId == ArtifactID::NONE)
 	{
-		image->setFrame(ArtifactID::ART_LOCK);
 		hoverText = LIBRARY->generaltexth->allTexts[507];
 	}
-	else if(artId != ArtifactID::NONE)
+	else if(on)
 	{
-		image->setFrame(imageIndex);
-		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		image->setFrame(ArtifactID::ART_LOCK);
+		auto hoverText = MetaString::createFromTextID("vcmi.heroWindow.lockedartifact.hover");
 		hoverText.replaceName(artId);
 		this->hoverText = hoverText.toString();
 	}
 	else
 	{
-		hoverText = LIBRARY->generaltexth->allTexts[507];
+		image->setFrame(imageIndex);
+		auto hoverText = MetaString::createFromRawString(LIBRARY->generaltexth->heroscrn[1]);
+		hoverText.replaceName(artId);
+		this->hoverText = hoverText.toString();
 	}
 }
 

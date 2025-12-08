@@ -16,13 +16,13 @@
 #include "../lib/ScriptHandler.h"
 #include "../lib/gameState/GameStatistics.h"
 #include "../lib/networkPacks/PacksForServer.h"
+#include "../lib/serializer/GameConnectionID.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 struct SideInBattle;
 class IMarket;
 class SpellCastEnvironment;
-class CConnection;
 class CCommanderInstance;
 class EVictoryLossCheckResult;
 class CRandomGenerator;
@@ -57,10 +57,11 @@ class TurnTimerHandler;
 class QueriesProcessor;
 class CObjectVisitQuery;
 class NewTurnProcessor;
+class IGameServer;
 
 class CGameHandler : public Environment, public IGameEventCallback
 {
-	CVCMIServer * lobby;
+	IGameServer & server;
 
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
@@ -81,8 +82,6 @@ public:
 
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
-	std::map<PlayerColor, std::set<std::shared_ptr<CConnection>>> connections; //player color -> connection to client with interface of that player
-
 	//queries stuff
 	QueryID QID;
 
@@ -92,7 +91,7 @@ public:
 	const GameCb * game() const override;
 	vstd::CLoggerBase * logger() const override;
 	events::EventBus * eventBus() const override;
-	CVCMIServer & gameLobby() const;
+	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
 	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
@@ -110,7 +109,8 @@ public:
 	void createHole(const int3 & visitablePosition, PlayerColor initiator);
 	void newObject(std::shared_ptr<CGObjectInstance> object, PlayerColor initiator);
 
-	explicit CGameHandler(CVCMIServer * lobby);
+	explicit CGameHandler(IGameServer & server);
+	CGameHandler(IGameServer & server, const std::shared_ptr<CGameState> & gamestate);
 	~CGameHandler();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -166,17 +166,17 @@ public:
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL) override;
 	void giveHeroBonus(GiveBonus * bonus) override;
 	void setMovePoints(SetMovePoints * smp) override;
-	void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode) override;
+	void setMovePoints(ObjectInstanceID hid, int val) override;
 	void setManaPoints(ObjectInstanceID hid, int val) override;
 	void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) override;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator) override;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) override;
 
 	void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) override;
-	void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player,ETileVisibility mode) override;
+	void changeFogOfWar(const FowTilesType &tiles, PlayerColor player,ETileVisibility mode) override;
 	
 	void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) override;
-	void useChargedArtifactUsed(const ObjectInstanceID & heroObjectID, const SpellID & spellID);
+	void useChargeBasedSpell(const ObjectInstanceID & heroObjectID, const SpellID & spellID);
 
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
@@ -204,14 +204,15 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, Load::ProgressAccumulator & progressTracking);
-	void handleClientDisconnection(const std::shared_ptr<CConnection> & c);
-	void handleReceivedPack(std::shared_ptr<CConnection> c, CPackForServer & pack);
-	bool hasPlayerAt(PlayerColor player, const std::shared_ptr<CConnection> & c) const;
+	void handleClientDisconnection(GameConnectionID connectionI);
+	void handleReceivedPack(GameConnectionID connectionId, CPackForServer & pack);
+	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionId) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
 	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, EArmyFormation formation );
+	bool setTownName( ObjectInstanceID tid, std::string & name );
 	bool tradeResources(const IMarket *market, ui32 amountToSell, PlayerColor player, GameResID toSell, GameResID toBuy);
 	bool sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count);
 	bool sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2);
@@ -236,8 +237,9 @@ public:
 	bool bulkSplitStack(SlotID src, ObjectInstanceID srcOwner, si32 howMany);
 	bool bulkMergeStacks(SlotID slotSrc, ObjectInstanceID srcOwner);
 	bool bulkSplitAndRebalanceStack(SlotID slotSrc, ObjectInstanceID srcOwner);
+	bool responseStatistic(PlayerColor player);
 	void save(const std::string &fname);
-	bool load(const std::string &fname);
+	void load(const StartInfo &info);
 
 	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
@@ -276,25 +278,24 @@ public:
 #endif
 	}
 
-	void sendToAllClients(const CPackForClient & pack);
 	void sendAndApply(CPackForClient & pack) override;
 	void sendAndApply(CGarrisonOperationPack & pack);
 	void sendAndApply(SetResources & pack);
 	void sendAndApply(NewStructures & pack);
 
-	void wrongPlayerMessage(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor expectedplayer);
+	void wrongPlayerMessage(GameConnectionID connectionID, const CPackForServer * pack, PlayerColor expectedplayer);
 	/// Unconditionally throws with "Action not allowed" message
-	[[noreturn]] void throwNotAllowedAction(const std::shared_ptr<CConnection> & connection);
+	[[noreturn]] void throwNotAllowedAction(GameConnectionID connectionID);
 	/// Throws if player stated in pack is not making turn right now
-	void throwIfPlayerNotActive(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
+	void throwIfPlayerNotActive(GameConnectionID connectionID, const CPackForServer * pack);
 	/// Throws if object is not owned by pack sender
-	void throwIfWrongOwner(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
+	void throwIfWrongOwner(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack
-	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, PlayerColor player);
-	void throwIfWrongPlayer(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack);
-	[[noreturn]] void throwAndComplain(const std::shared_ptr<CConnection> & connection, const std::string & txt);
+	void throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack, PlayerColor player);
+	void throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack);
+	[[noreturn]] void throwAndComplain(GameConnectionID connectionID, const std::string & txt);
 
-	bool isPlayerOwns(const std::shared_ptr<CConnection> & connection, const CPackForServer * pack, ObjectInstanceID id);
+	bool isPlayerOwns(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
 
 	void start(bool resume);
 	void tick(int millisecondsPassed);

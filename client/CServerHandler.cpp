@@ -8,22 +8,26 @@
  *
  */
 #include "StdInc.h"
-
 #include "CServerHandler.h"
-#include "Client.h"
-#include "ServerRunner.h"
-#include "GameChatHandler.h"
+
 #include "CPlayerInterface.h"
+#include "Client.h"
+#include "GameChatHandler.h"
 #include "GameEngine.h"
 #include "GameInstance.h"
-#include "gui/WindowHandler.h"
+#include "LobbyClientNetPackVisitors.h"
+#include "ServerRunner.h"
 
 #include "globalLobby/GlobalLobbyClient.h"
+
+#include "gui/WindowHandler.h"
+
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
-#include "windows/InfoWindows.h"
-#include "windows/GUIClasses.h"
+
+#include "netlag/NetworkLagCompensator.h"
+
 #include "media/CMusicHandler.h"
 #include "media/IVideoPlayer.h"
 
@@ -31,7 +35,11 @@
 #include "mainmenu/CPrologEpilogVideo.h"
 #include "mainmenu/CHighScoreScreen.h"
 
+#include "windows/InfoWindows.h"
+#include "windows/GUIClasses.h"
+
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/ConditionalWait.h"
 #include "../lib/CThreadHelper.h"
@@ -47,14 +55,12 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
 #include "../lib/rmg/CMapGenOptions.h"
-#include "../lib/serializer/Connection.h"
-#include "../lib/filesystem/Filesystem.h"
+#include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include "LobbyClientNetPackVisitors.h"
 
 #include <vcmi/events/EventBus.h>
 #include <SDL_thread.h>
@@ -101,6 +107,7 @@ CServerHandler::CServerHandler()
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
+	, battleMode(false)
 	, client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -127,7 +134,7 @@ void CServerHandler::threadRunNetwork()
 
 void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode newServerMode, const std::vector<std::string> & playerNames)
 {
-	hostClientId = -1;
+	hostClientId = GameConnectionID::INVALID;
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	mapToStart = nullptr;
@@ -268,7 +275,7 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 		getGlobalLobby().sendProxyConnectionLogin(netConnection);
 	}
 
-	logicConnection = std::make_shared<CConnection>(netConnection);
+	logicConnection = std::make_shared<GameConnection>(netConnection);
 	logicConnection->uuid = uuid;
 	logicConnection->enterLobbyConnectionMode();
 	sendClientConnecting();
@@ -296,7 +303,7 @@ bool CServerHandler::isMyColor(PlayerColor color) const
 	return isClientColor(logicConnection->connectionID, color);
 }
 
-ui8 CServerHandler::myFirstId() const
+PlayerConnectionID CServerHandler::myFirstId() const
 {
 	return clientFirstId(logicConnection->connectionID);
 }
@@ -426,6 +433,13 @@ void CServerHandler::setCampaignBonus(int bonusId) const
 	sendLobbyPack(lscb);
 }
 
+void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const
+{
+	LobbySetBattleOnlyModeStartInfo lsbomsui;
+	lsbomsui.startInfo = startInfo;
+	sendLobbyPack(lsbomsui);
+}
+
 void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts) const
 {
 	LobbySetMap lsm;
@@ -507,7 +521,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		if(id.length())
 		{
 			LobbyChangeHost lch;
-			lch.newHostConnectionId = boost::lexical_cast<int>(id);
+			lch.newHostConnectionId = static_cast<GameConnectionID>(boost::lexical_cast<int>(id));
 			sendLobbyPack(lch);
 		}
 	}
@@ -519,7 +533,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 		readed >> playerColorId;
 		if(connectedId.length() && playerColorId.length())
 		{
-			ui8 connected = boost::lexical_cast<int>(connectedId);
+			auto connected = static_cast<PlayerConnectionID>(boost::lexical_cast<int>(connectedId));
 			auto color = PlayerColor(boost::lexical_cast<int>(playerColorId));
 			if(color.isValidPlayer() && playerNames.find(connected) != playerNames.end())
 			{
@@ -563,33 +577,24 @@ bool CServerHandler::validateGameStart(bool allowOnlyAI) const
 	catch(ModIncompatibility & e)
 	{
 		logGlobal->warn("Incompatibility exception during start scenario: %s", e.what());
-		std::string errorMsg;
-		if(!e.whatMissing().empty())
-		{
-			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToEnable") + '\n';
-			errorMsg += e.whatMissing();
-		}
-		if(!e.whatExcessive().empty())
-		{
-			errorMsg += LIBRARY->generaltexth->translate("vcmi.server.errors.modsToDisable") + '\n';
-			errorMsg += e.whatExcessive();
-		}
-		showServerError(errorMsg);
+
+		showServerError(e.getFullErrorMsg());
 		return false;
 	}
 	catch(std::exception & e)
 	{
 		logGlobal->error("Exception during startScenario: %s", e.what());
-		showServerError( std::string("Unable to start map! Reason: ") + e.what());
+		showServerError(std::string("Unable to start map!\nReason: ") + e.what());
 		return false;
 	}
 
 	return true;
 }
 
-void CServerHandler::sendStartGame(bool allowOnlyAI) const
+void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 {
-	verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
+	if(verify)
+		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
 	if(!settings["session"]["headless"].Bool())
 	{
@@ -611,10 +616,21 @@ void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
 	mapToStart = to;
 }
 
+void CServerHandler::enableLagCompensation(bool on)
+{
+	if (on)
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(),  client->gameStatePtr());
+	else
+		networkLagCompensator.reset();
+}
+
 void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())
 		GAME->mainmenu()->disable();
+
+	if (isGuest())
+		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(), gameState);
 
 	switch(si->mode)
 	{
@@ -674,6 +690,43 @@ void CServerHandler::endGameplay()
 		GAME->mainmenu()->playMusic();
 		GAME->mainmenu()->makeActiveInterface();
 	}
+}
+
+std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
+{
+	auto mapInfo = std::make_shared<CMapInfo>();
+	mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
+
+	// initial start info from quick load slot
+	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
+	// initial start info from game state (not current start info)
+	const auto * startInfo2 = client->gameState().getInitialStartInfo();
+
+	if (!startInfo1)
+		return "Missing quick load start info.";
+	if (!startInfo2)
+		return "Missing server start info.";
+	if (startInfo1->startTime != startInfo2->startTime)
+		return "Different initial start time.";
+	if (startInfo1->mapname != startInfo2->mapname)
+		return "Different map name.";
+	if (startInfo1->difficulty != startInfo2->difficulty)
+		return "Different difficulty.";
+	const auto & playerInfos1 = startInfo1->playerInfos;
+	const auto & playerInfos2 = startInfo2->playerInfos;
+	if (playerInfos1.size() != playerInfos2.size())
+		return "Different number of players.";
+	if (!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
+		[](const auto& p1, const auto& p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
+		return "Different players.";
+	return std::nullopt;
+}
+
+void CServerHandler::quickLoadGame(const std::string & path)
+{
+	LobbyQuickLoadGame pack;
+	pack.saveFilePath = path;
+	sendLobbyPack(pack);
 }
 
 void CServerHandler::restartGameplay()
@@ -940,9 +993,11 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	if (networkLagCompensator && networkLagCompensator->verifyReply(clientPack))
+		return;
+
 	client->handlePack(clientPack);
 }
-
 
 void CServerHandler::sendLobbyPack(const CPackForLobby & pack) const
 {
@@ -958,4 +1013,12 @@ bool CServerHandler::inLobbyRoom() const
 bool CServerHandler::inGame() const
 {
 	return logicConnection != nullptr;
+}
+
+void CServerHandler::sendGamePack(const CPackForServer & pack) const
+{
+	if (networkLagCompensator)
+		networkLagCompensator->tryPredictReply(pack);
+
+	logicConnection->sendPack(pack);
 }

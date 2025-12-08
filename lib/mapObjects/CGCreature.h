@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "army/CArmedInstance.h"
 #include "../ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN

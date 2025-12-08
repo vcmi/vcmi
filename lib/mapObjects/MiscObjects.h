@@ -9,14 +9,16 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+#include "army/CArmedInstance.h"
+#include "../entities/artifact/CArtifactInstance.h"
 #include "../texts/MetaString.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CMap;
 class UpgradeInfo;
+class MineInstanceConstructor;
 
 // This one teleport-specific, but has to be available everywhere in callbacks and netpacks
 // For now it's will be there till teleports code refactored and moved into own file
@@ -143,6 +145,8 @@ public:
 	ui32 producedQuantity;
 	std::set<GameResID> abandonedMineResources;
 	bool isAbandoned() const;
+	
+	std::shared_ptr<MineInstanceConstructor> getResourceHandler() const;
 private:
 	using CArmedInstance::CArmedInstance;
 

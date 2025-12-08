@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Переміщення сюди коштуватиме {%TOTAL} очок. Після переміщення залишиться {%REMAINING} очок.",
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Ви впевнені, що хочете завантажити швидке збереження?",
 
 	"vcmi.artifact.charges" : "Заряди",
 	
@@ -241,7 +242,7 @@
 	"vcmi.server.errors.existingProcess" : "Працює інший процес vcmiserver, будь ласка, спочатку завершіть його",
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
-	"vcmi.server.errors.unknownEntity" : "Не вдалося завантажити гру! У збереженій грі знайдено невідомий об'єкт '%s'! Це збереження може бути несумісним зі встановленою версією модифікацій!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Не вдалося завантажити гру! У збереженій грі знайдено невідомий об'єкт '%s'! Це збереження може бути несумісним зі встановленою версією модифікацій!",
 	"vcmi.server.errors.wrongIdentified"   : "Ви були ідентифіковані як гравець %s, хоча очікували %s",
 	"vcmi.server.errors.notAllowed"   : "Ви не можете виконати цю дію!",
 	
@@ -308,8 +309,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Виберіть інтервал довгого дотику",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Змінити тривалість інтервалу довгого дотику.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d мілісекунд",
-	"vcmi.systemOptions.framerateButton.hover"  : "Лічильник кадрів",
-	"vcmi.systemOptions.framerateButton.help"   : "{Лічильник кадрів}\n\n Перемикає видимість лічильника кадрів на секунду у кутку ігрового вікна",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\nВикористовувати вібрацію при використанні сенсорного екрану",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Розширення інтерфейсу",

@@ -34,6 +34,7 @@ class CCreatureSet;
 class CGObjectInstance;
 class IObjectInterface;
 
+using FowTilesType = std::set<int3>;
 enum class EOpenWindowMode : uint8_t;
 
 namespace Rewardable
@@ -104,14 +105,14 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveMove, bool transit = false, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
-	virtual void setMovePoints(ObjectInstanceID hid, int val, ChangeValueMode mode)=0;
+	virtual void setMovePoints(ObjectInstanceID hid, int val)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
 	virtual void giveHero(ObjectInstanceID id, PlayerColor player, ObjectInstanceID boatId = ObjectInstanceID()) = 0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, const PlayerColor & initiator)=0;
 	virtual void sendAndApply(CPackForClient & pack) = 0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode) = 0;
-	virtual void changeFogOfWar(const std::unordered_set<int3> &tiles, PlayerColor player, ETileVisibility mode) = 0;
+	virtual void changeFogOfWar(const FowTilesType &tiles, PlayerColor player, ETileVisibility mode) = 0;
 
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
 

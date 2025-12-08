@@ -43,7 +43,7 @@
 				{
 					"type" : "array",
 					"minItems" : 1,
-					"additionalItems" : { "type" : "string" }
+					"items" : { "type" : "string" }
 				}
 			]
 		},
@@ -146,10 +146,10 @@
 			"properties" : {
 				"usageType": {
 					"type" : "string",
-					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"],
+					"enum" : ["SPELLCAST", "BATTLE", "BUILDING"]
 				},
 				"removeOnDepletion" : {
-					"type" : "boolean",
+					"type" : "boolean"
 				},
 				"startingCharges" : {
 					"type" : "number",

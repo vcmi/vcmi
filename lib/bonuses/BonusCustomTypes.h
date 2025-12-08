@@ -10,6 +10,8 @@
 #pragma once
 
 #include "../constants/EntityIdentifiers.h"
+#include "../constants/VariantIdentifier.h"
+#include "BonusEnum.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -75,5 +77,28 @@ public:
 	static BonusCustomSubtype spellLevel(int level);
 	static BonusCustomSubtype creatureLevel(int level);
 };
+
+class DLL_LINKAGE BonusTypeID : public EntityIdentifier<BonusTypeID>
+{
+public:
+	using EntityIdentifier<BonusTypeID>::EntityIdentifier;
+	using EnumType = BonusType;
+
+	static std::string encode(int32_t index);
+	static si32 decode(const std::string & identifier);
+
+	constexpr EnumType toEnum() const
+	{
+		return static_cast<EnumType>(EntityIdentifier::num);
+	}
+
+	constexpr BonusTypeID(const EnumType & enumValue)
+	{
+		EntityIdentifier::num = static_cast<int32_t>(enumValue);
+	}
+};
+
+using BonusSubtypeID = VariantIdentifier<BonusCustomSubtype, SpellID, CreatureID, PrimarySkill, TerrainId, GameResID, SpellSchool, BonusTypeID>;
+using BonusSourceID = VariantIdentifier<BonusCustomSource, SpellID, CreatureID, ArtifactID, CampaignScenarioID, SecondarySkill, HeroTypeID, Obj, ObjectInstanceID, BuildingTypeUniqueID, BattleField, ArtifactInstanceID>;
 
 VCMI_LIB_NAMESPACE_END

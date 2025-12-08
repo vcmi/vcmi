@@ -22,6 +22,7 @@ struct CGPathNode;
 struct ObjectPosInfo;
 struct Component;
 class int3;
+using FowTilesType = std::set<int3>;
 
 VCMI_LIB_NAMESPACE_END
 
@@ -131,7 +132,7 @@ public:
 	void onCurrentPlayerChanged(PlayerColor playerID);
 
 	/// Called by PlayerInterface when specific map tile changed and must be updated on minimap
-	void onMapTilesChanged(boost::optional<std::unordered_set<int3>> positions);
+	void onMapTilesChanged(boost::optional<FowTilesType> positions);
 
 	/// Called by PlayerInterface when hero starts movement
 	void onHeroMovementStarted(const CGHeroInstance * hero);

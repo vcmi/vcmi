@@ -25,6 +25,7 @@
 	"vcmi.adventureMap.playerAttacked"                   : "A játékost megtámadták: %s",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Mozgáspontok: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Sajnáljuk, az ellenfél körének visszajátszása még nincs megvalósítva!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Biztosan betöltöd a gyorsmentést?",
 
 	"vcmi.bonusSource.artifact" : "Műtárgy",
 	"vcmi.bonusSource.creature" : "Képesség",
@@ -225,7 +226,7 @@
 	"vcmi.server.errors.existingProcess" : "Egy másik VCMI szerver folyamat fut. Kérjük, zárja be, mielőtt új játékot indítana.",
 	"vcmi.server.errors.modsToEnable"    : "{Az alábbi modok szükségesek}",
 	"vcmi.server.errors.modsToDisable"   : "{Az alábbi modokat le kell tiltani}",
-	"vcmi.server.errors.unknownEntity" : "Nem sikerült betölteni a mentést! Ismeretlen entitás '%s' található a mentett játékban! A mentés nem kompatibilis a jelenleg telepített modverziókkal!",
+	"vcmi.server.errors.saveFile.unknownEntity" : "Nem sikerült betölteni a mentést! Ismeretlen entitás '%s' található a mentett játékban! A mentés nem kompatibilis a jelenleg telepített modverziókkal!",
 	"vcmi.server.errors.wrongIdentified"   : "Önt %s játékosként azonosították, miközben %s játékosra számítottak",
 	"vcmi.server.errors.notAllowed"   : "Nem engedélyezett művelet!",
 	
@@ -292,8 +293,6 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Hosszú érintés időtartamának kiválasztása",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Hosszú érintés időtartamának módosítása.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d milliszekundum",
-	"vcmi.systemOptions.framerateButton.hover"  : "FPS megjelenítése",
-	"vcmi.systemOptions.framerateButton.help"   : "{FPS megjelenítése}\n\nA másodpercenkénti képkocka számláló láthatóságának váltása a játékablak sarkában.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Rezgő visszacsatolás",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Rezgő visszacsatolás}\n\nA rezgő visszacsatolás engedélyezése vagy tiltása érintőbemeneteknél.",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Felület fejlesztések",

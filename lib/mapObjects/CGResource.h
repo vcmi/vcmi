@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include "CArmedInstance.h"
+#include "army/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -26,13 +26,14 @@ class DLL_LINKAGE CGResource : public CArmedInstance
 	static constexpr uint32_t RANDOM_AMOUNT = 0;
 	uint32_t amount = RANDOM_AMOUNT; //0 if random
 
-	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
 	int getAmountMultiplier() const;
 	void collectRes(IGameEventCallback & gameEvents, const PlayerColor & player) const;
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 public:
 	using CArmedInstance::CArmedInstance;
+	
+	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;

@@ -22,6 +22,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
+#include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../StartInfo.h"
@@ -31,6 +32,7 @@
 #include "../callback/IGameRandomizer.h"
 #include "../entities/building/CBuilding.h"
 #include "../entities/faction/CTownHandler.h"
+#include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -206,7 +208,11 @@ int CGTownInstance::getDwellingBonus(const std::vector<CreatureID>& creatureIds,
 
 TResources CGTownInstance::dailyIncome() const
 {
-	TResources ret;
+	ResourceSet ret;
+
+	for (GameResID k : LIBRARY->resourceTypeHandler->getAllObjects())
+		ret[k] += valOfBonuses(BonusType::GENERATE_RESOURCE, BonusSubtypeID(k));
+
 	for(const auto & p : getTown()->buildings)
 	{
 		BuildingID buildingUpgrade;
@@ -261,8 +267,9 @@ TownFortifications CGTownInstance::fortificationsLevel() const
 }
 
 CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
-	CGDwelling(cb),
+	CGDwelling(cb, BonusNodeType::TOWN),
 	IMarket(cb),
+	townAndVis(BonusNodeType::TOWN_AND_VISITOR),
 	built(0),
 	destroyed(0),
 	identifier(0),
@@ -271,7 +278,6 @@ CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	spellResearchAcceptedCounter(0),
 	spellResearchAllowed(true)
 {
-	setNodeType(CBonusSystemNode::TOWN);
 	attachTo(townAndVis);
 }
 
@@ -645,7 +651,7 @@ BoatId CGTownInstance::getBoatType() const
 
 int CGTownInstance::getMarketEfficiency() const
 {
-	if(!hasBuiltSomeTradeBuilding())
+	if(!hasBuiltResourceMarketplace())
 		return 0;
 
 	const PlayerState *p = cb->getPlayerState(tempOwner);
@@ -653,7 +659,7 @@ int CGTownInstance::getMarketEfficiency() const
 
 	int marketCount = 0;
 	for(const CGTownInstance *t : p->getTowns())
-		if(t->hasBuiltSomeTradeBuilding())
+		if(t->hasBuiltResourceMarketplace())
 			marketCount++;
 
 	return marketCount;
@@ -692,7 +698,15 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	auto terrain = cb->getTile(visitablePos())->getTerrainID();
+	const auto tile = cb->getTile(visitablePos());
+	if(!tile)
+	{
+		logGlobal->warn("Town is misplaced at (%d, %d, %d)", visitablePos().x,
+				visitablePos().y, visitablePos().z);
+		return;
+	}
+
+	auto terrain = tile->getTerrainID();
 	//FIXME: not the best way to do this
 	auto app = getObjectHandler()->getOverride(terrain, this);
 	if (app)
@@ -701,7 +715,7 @@ void CGTownInstance::updateAppearance()
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + getTown()->faction->getNameTranslated() + ") of " + getNameTranslated();
+	return "Town at " + pos.toString();
 }
 
 void CGTownInstance::updateMoraleBonusFromArmy()
@@ -846,7 +860,7 @@ CBonusSystemNode & CGTownInstance::whatShouldBeAttached()
 
 std::string CGTownInstance::getNameTranslated() const
 {
-	return LIBRARY->generaltexth->translate(nameTextId);
+	return customName.empty() ? LIBRARY->generaltexth->translate(nameTextId) : customName;
 }
 
 std::string CGTownInstance::getNameTextID() const
@@ -859,6 +873,11 @@ void CGTownInstance::setNameTextId( const std::string & newName )
 	nameTextId = newName;
 }
 
+void CGTownInstance::setCustomName( const std::string & newName )
+{
+	customName = newName;
+}
+
 const CArmedInstance * CGTownInstance::getUpperArmy() const
 {
 	if(getGarrisonHero())
@@ -866,9 +885,10 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 	return this;
 }
 
-bool CGTownInstance::hasBuiltSomeTradeBuilding() const
+bool CGTownInstance::hasBuiltResourceMarketplace() const
 {
-	return availableModes().empty() ? false : true;
+	const auto modes = availableModes();
+	return std::find(modes.begin(), modes.end(), EMarketMode::RESOURCE_RESOURCE) != modes.end();
 }
 
 bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const
@@ -884,13 +904,6 @@ bool CGTownInstance::hasBuilt(BuildingSubID::EBuildingSubID buildingID) const
 bool CGTownInstance::hasBuilt(const BuildingID & buildingID) const
 {
 	return vstd::contains(builtBuildings, buildingID);
-}
-
-bool CGTownInstance::hasBuilt(const BuildingID & buildingID, FactionID townID) const
-{
-	if (townID == getTown()->faction->getId() || townID == FactionID::ANY)
-		return hasBuilt(buildingID);
-	return false;
 }
 
 void CGTownInstance::addBuilding(const BuildingID & buildingID)
@@ -1207,11 +1220,6 @@ GrowthInfo::Entry::Entry(int _count, std::string fullDescription):
 	count(_count),
 	description(std::move(fullDescription))
 {
-}
-
-CTownAndVisitingHero::CTownAndVisitingHero()
-{
-	setNodeType(TOWN_AND_VISITOR);
 }
 
 int GrowthInfo::totalGrowth() const

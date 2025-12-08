@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "CArmedInstance.h"
 #include "IOwnableObject.h"
+
+#include "army/CArmedInstance.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 
@@ -39,12 +40,14 @@ public:
 	std::optional<CGDwellingRandomizationInfo> randomizationInfo; //random dwelling options; not serialized
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
+	CGDwelling(IGameInfoCallback *cb, BonusNodeType nodeType);
 	CGDwelling(IGameInfoCallback *cb);
 	~CGDwelling() override;
 
 	const IOwnableObject * asOwnable() const final;
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;
+	AnimationPath getKingdomOverviewImage() const;
 
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;

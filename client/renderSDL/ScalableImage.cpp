@@ -354,7 +354,7 @@ Rect ScalableImageInstance::contentRect() const
 Point ScalableImageInstance::dimensions() const
 {
 	if (scaledImage)
-		return scaledImage->dimensions() / ENGINE->screenHandler().getScalingFactor();
+		return scaledImage->dimensions();
 	return image->dimensions();
 }
 
@@ -440,6 +440,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 
 	loadingLocator.image = locator.image;
 	loadingLocator.defFile = locator.defFile;
+	loadingLocator.generateShadow = locator.generateShadow;
+	loadingLocator.generateOverlay = locator.generateOverlay;
 	loadingLocator.defFrame = locator.defFrame;
 	loadingLocator.defGroup = locator.defGroup;
 	loadingLocator.layer = mode;

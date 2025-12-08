@@ -14,6 +14,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:112",
+			"mapAttackFromLeft": "AvWattak.def:0:113",
 			"animation": "CSKELE.DEF"
 		},
 		"sound" :
@@ -39,6 +41,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:114",
+			"mapAttackFromLeft": "AvWattak.def:0:115",
 			"animation": "CWSKEL.DEF"
 		},
 		"sound" :
@@ -66,6 +70,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:116",
+			"mapAttackFromLeft": "AvWattak.def:0:117",
 			"animation": "CZOMBI.DEF"
 		},
 		"sound" :
@@ -84,6 +90,8 @@
 		"faction": "necropolis",
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:118",
+			"mapAttackFromLeft": "AvWattak.def:0:119",
 			"animation": "CZOMLO.DEF"
 		},
 		"sound" :
@@ -133,6 +141,8 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:120",
+			"mapAttackFromLeft": "AvWattak.def:0:121",
 			"animation": "CWIGHT.DEF"
 		},
 		"sound" :
@@ -172,6 +182,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:122",
+			"mapAttackFromLeft": "AvWattak.def:0:123",
 			"animation": "CWRAIT.DEF"
 		},
 		"sound" :
@@ -206,6 +218,8 @@
 		"upgrades": ["vampireLord"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:124",
+			"mapAttackFromLeft": "AvWattak.def:0:125",
 			"animation": "CVAMP.DEF"
 		},
 		"sound" :
@@ -246,6 +260,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:126",
+			"mapAttackFromLeft": "AvWattak.def:0:127",
 			"animation": "CNOSFE.DEF"
 		},
 		"sound" :
@@ -285,6 +301,8 @@
 		"upgrades": ["powerLich"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:128",
+			"mapAttackFromLeft": "AvWattak.def:0:129",
 			"animation": "CLICH.DEF",
 			"missile" :
 			{
@@ -325,6 +343,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:130",
+			"mapAttackFromLeft": "AvWattak.def:0:131",
 			"animation": "CPLICH.DEF",
 			"missile" :
 			{
@@ -363,6 +383,8 @@
 		"upgrades": ["dreadKnight"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:132",
+			"mapAttackFromLeft": "AvWattak.def:0:133",
 			"animation": "CBKNIG.DEF"
 		},
 		"sound" :
@@ -400,6 +422,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:134",
+			"mapAttackFromLeft": "AvWattak.def:0:135",
 			"animation": "CBLORD.DEF"
 		},
 		"sound" :
@@ -450,6 +474,8 @@
 		"upgrades": ["ghostDragon"],
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:136",
+			"mapAttackFromLeft": "AvWattak.def:0:137",
 			"animation": "CNDRGN.DEF"
 		},
 		"sound" :
@@ -505,6 +531,8 @@
 		},
 		"graphics" :
 		{
+			"mapAttackFromRight": "AvWattak.def:0:138",
+			"mapAttackFromLeft": "AvWattak.def:0:139",
 			"animation": "CHDRGN.DEF"
 		},
 		"sound" :

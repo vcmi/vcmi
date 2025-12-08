@@ -18,25 +18,18 @@ class CAnimation;
 
 namespace Cursor
 {
-	enum class Type {
+	enum class Type : int8_t {
 		ADVENTURE, // set of various cursors for adventure map
 		COMBAT,    // set of various cursors for combat
-		DEFAULT,   // default arrow and hourglass cursors
 		SPELLBOOK  // animated cursor for spellcasting
 	};
 
-	enum class ShowType {
+	enum class ShowType : int8_t {
 		SOFTWARE,
 		HARDWARE
 	};
 
-	enum class Default {
-		POINTER      = 0,
-		//ARROW_COPY = 1, // probably unused
-		HOURGLASS  = 2,
-	};
-
-	enum class Combat {
+	enum class Combat : int8_t {
 		BLOCKED        = 0,
 		MOVE           = 1,
 		FLY            = 2,
@@ -61,7 +54,7 @@ namespace Cursor
 		COUNT
 	};
 
-	enum class Map {
+	enum class Map : int8_t {
 		POINTER          =  0,
 		HOURGLASS        =  1,
 		HERO             =  2,
@@ -109,7 +102,7 @@ namespace Cursor
 		COUNT
 	};
 
-	enum class Spellcast {
+	enum class Spellcast : int8_t {
 		SPELL = 0,
 	};
 }
@@ -117,26 +110,33 @@ namespace Cursor
 /// handles mouse cursor
 class CursorHandler final
 {
+	struct CursorParameters
+	{
+		std::string cursorID;
+		ImagePath image;
+		AnimationPath animation;
+		Point pivot;
+		int animationFrameIndex;
+		bool isAnimated;
+	};
+
+	std::vector<CursorParameters> cursors;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> loadedAnimations;
+	std::map<ImagePath, std::shared_ptr<IImage>> loadedImages;
+
 	std::shared_ptr<IImage> dndObject; //if set, overrides currentCursor
-
-	std::array<std::shared_ptr<CAnimation>, 4> cursors;
-
-	bool showing;
+	std::shared_ptr<IImage> cursorImage; //if set, overrides currentCursor
 
 	/// Current cursor
-	Cursor::Type type;
-	Cursor::ShowType showType;
-	size_t frame;
-	float frameTime;
+	std::string currentCursorID;
 	Point pos;
+	float frameTime;
+	int32_t currentCursorIndex;
+	int32_t currentFrame {};
+	Cursor::ShowType showType;
+	bool showing;
 
-	void changeGraphic(Cursor::Type type, size_t index);
-
-	Point getPivotOffset();
-
-	void updateSpellcastCursor();
-
-	std::shared_ptr<IImage> getCurrentImage();
+	void updateAnimatedCursor();
 
 	std::unique_ptr<ICursor> cursor;
 
@@ -154,31 +154,13 @@ public:
 	void dragAndDropCursor(const AnimationPath & path, size_t index);
 
 	/// Changes cursor to specified index
-	void set(Cursor::Default index);
 	void set(Cursor::Map index);
 	void set(Cursor::Combat index);
 	void set(Cursor::Spellcast index);
+	void set(const std::string & index);
 
-	/// Returns current index of cursor
-	template<typename Index>
-	std::optional<Index> get()
-	{
-		bool typeValid = true;
-
-		typeValid &= (std::is_same<Index, Cursor::Default>::value   )|| type != Cursor::Type::DEFAULT;
-		typeValid &= (std::is_same<Index, Cursor::Map>::value       )|| type != Cursor::Type::ADVENTURE;
-		typeValid &= (std::is_same<Index, Cursor::Combat>::value    )|| type != Cursor::Type::COMBAT;
-		typeValid &= (std::is_same<Index, Cursor::Spellcast>::value )|| type != Cursor::Type::SPELLBOOK;
-
-		if (typeValid)
-			return static_cast<Index>(frame);
-		return std::nullopt;
-	}
-
-	Point getPivotOffsetSpellcast();
-	Point getPivotOffsetDefault(size_t index);
-	Point getPivotOffsetMap(size_t index);
-	Point getPivotOffsetCombat(size_t index);
+	std::shared_ptr<IImage> getCurrentImage();
+	Point getPivotOffset();
 
 	void render();
 	void update();

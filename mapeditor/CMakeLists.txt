@@ -57,10 +57,12 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/graphicelements/CardItem.cpp
 		templateeditor/graphicelements/LineItem.cpp
 		templateeditor/GeometryAlgorithm.cpp
-		templateeditor/terrainselector.cpp
+		templateeditor/entitiesselector.cpp
 		templateeditor/factionselector.cpp
 		templateeditor/mineselector.cpp
 		templateeditor/treasureselector.cpp
+		templateeditor/objectselector.cpp
+		templateeditor/townhintselector.cpp
 	)
 endif()
 
@@ -124,10 +126,12 @@ if(ENABLE_TEMPLATE_EDITOR)
 		templateeditor/graphicelements/CardItem.h
 		templateeditor/graphicelements/LineItem.h
 		templateeditor/GeometryAlgorithm.h
-		templateeditor/terrainselector.h
+		templateeditor/entitiesselector.h
 		templateeditor/factionselector.h
 		templateeditor/mineselector.h
 		templateeditor/treasureselector.h
+		templateeditor/objectselector.h
+		templateeditor/townhintselector.h
 	)
 endif()
 
@@ -169,10 +173,12 @@ if(ENABLE_TEMPLATE_EDITOR)
 	set(editor_FORMS
 		${editor_FORMS}
 		templateeditor/templateeditor.ui
-		templateeditor/terrainselector.ui
+		templateeditor/entitiesselector.ui
 		templateeditor/factionselector.ui
 		templateeditor/mineselector.ui
 		templateeditor/treasureselector.ui
+		templateeditor/objectselector.ui
+		templateeditor/townhintselector.ui
 	)
 endif()
 
@@ -252,6 +258,7 @@ if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmieditor OBJECT ${editor_QM})
 else()
 	add_executable(vcmieditor WIN32 ${editor_QM} ${editor_SRCS} ${editor_HEADERS} ${editor_UI_HEADERS} ${editor_ICON})
+	vcmi_create_exe_shim(vcmieditor)
 endif()
 
 if(ENABLE_TRANSLATIONS)

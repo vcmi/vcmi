@@ -19,6 +19,8 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/gameState/CGameState.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -260,7 +262,7 @@ void TurnOrderProcessor::doStartNewDay()
 
 	if(!activePlayer)
 	{
-		gameHandler->gameLobby().setState(EServerState::SHUTDOWN);
+		gameHandler->gameServer().setState(EServerState::SHUTDOWN);
 		return;
 	}
 
@@ -305,11 +307,7 @@ void TurnOrderProcessor::doEndPlayerTurn(PlayerColor which)
 	pet.player = which;
 	gameHandler->sendAndApply(pet);
 
-	if (!awaitingPlayers.empty())
-		tryStartTurnsForPlayers();
-
-	if (actingPlayers.empty())
-		doStartNewDay();
+	resumeTurnOrder();
 
 	assert(!actingPlayers.empty());
 }
@@ -319,12 +317,15 @@ void TurnOrderProcessor::addPlayer(PlayerColor which)
 	awaitingPlayers.insert(which);
 }
 
-void TurnOrderProcessor::onPlayerEndsGame(PlayerColor which)
+void TurnOrderProcessor::removePlayer(PlayerColor which)
 {
 	awaitingPlayers.erase(which);
 	actingPlayers.erase(which);
 	actedPlayers.erase(which);
+}
 
+void TurnOrderProcessor::resumeTurnOrder()
+{
 	if (!awaitingPlayers.empty())
 		tryStartTurnsForPlayers();
 
@@ -355,7 +356,7 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 	gameHandler->onPlayerTurnEnded(which);
 
 	// it is possible that player have lost - e.g. spent 7 days without town
-	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by onPlayerEndsGame
+	// in this case - don't call doEndPlayerTurn - turn transfer was already handled by resumeTurnOrder
 	if(gameHandler->gameInfo().getPlayerStatus(which) == EPlayerStatus::INGAME)
 		doEndPlayerTurn(which);
 
@@ -364,6 +365,18 @@ bool TurnOrderProcessor::onPlayerEndsTurn(PlayerColor which)
 
 void TurnOrderProcessor::onGameStarted()
 {
+	if(gameHandler->gameInfo().getMapHeader()->battleOnly)
+	{
+		auto towns = gameHandler->gameState().getMap().getObjects<CGTownInstance>();
+		auto heroes = gameHandler->gameState().getMap().getObjects<CGHeroInstance>();
+		if(!towns.size() && heroes.size() == 2)
+			gameHandler->startBattle(heroes.at(0), heroes.at(1));
+		else
+			towns.at(0)->onHeroVisit(*gameHandler, heroes.at(0));
+
+		return;
+	}
+
 	if (actingPlayers.empty())
 		blockedContacts = computeContactStatus();
 

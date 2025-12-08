@@ -28,6 +28,8 @@ class Heal : public UnitEffect
 public:
 	void apply(ServerCallback * server, const Mechanics * m, const EffectTarget & target) const override;
 
+	SpellEffectValue getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const override;
+
 protected:
 	void apply(int64_t value, ServerCallback * server, const Mechanics * m, const EffectTarget & target) const;
 
@@ -40,6 +42,7 @@ private:
 
 	int32_t minFullUnits = 0;
 
+	SpellEffectValue getHealEffectValue(int64_t value, const Mechanics * m, const battle::Unit * unit, std::shared_ptr<battle::Unit> newState = nullptr) const;
 	void prepareHealEffect(int64_t value, BattleUnitsChanged & pack, BattleLogMessage & logMessage, RNG & rng, const Mechanics * m, const EffectTarget & target) const;
 };
 

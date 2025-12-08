@@ -192,6 +192,9 @@ class JsonNode;
 	BONUS_NAME(FULL_MAP_SCOUTING) /*Skyship*/\
 	BONUS_NAME(FULL_MAP_DARKNESS) /*opposite to Skyship*/\
 	BONUS_NAME(TRANSMUTATION_IMMUNITY) /*blocks TRANSMUTATION bonus*/\
+	BONUS_NAME(COMBAT_MANA_BONUS) /* Additional mana per combat */ \
+	BONUS_NAME(SPECIFIC_SPELL_RANGE) /* value used for allowed spell range, subtype - spell id */\
+	BONUS_NAME(HATES_TRAIT) /* affected unit deals additional damage to units with specific bonus. subtype - bonus, val - damage bonus percent */ \
 	/* end of list */
 
 
@@ -275,6 +278,29 @@ enum class BonusValueType : uint8_t
     BONUS_VALUE_LIST
 #undef BONUS_VALUE
 };
+
+enum class BonusNodeType
+{
+	NONE = -1,
+	UNKNOWN,
+	STACK_INSTANCE,
+	STACK_BATTLE,
+	ARMY,
+	ARTIFACT,
+	CREATURE,
+	ARTIFACT_INSTANCE,
+	HERO,
+	PLAYER,
+	TEAM,
+	TOWN_AND_VISITOR,
+	BATTLE_WIDE,
+	COMMANDER,
+	GLOBAL_EFFECTS,
+	BOAT,
+	TOWN
+};
+
+
 
 extern DLL_LINKAGE const std::map<std::string, BonusValueType> bonusValueMap;
 extern DLL_LINKAGE const std::map<std::string, BonusSource> bonusSourceMap;

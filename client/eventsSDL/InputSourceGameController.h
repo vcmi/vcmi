@@ -48,7 +48,7 @@ class InputSourceGameController
 	void openGameController(int index);
 	int getJoystickIndex(SDL_GameController * controller);
 	double getRealAxisValue(int value) const;
-	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue);
+	void dispatchAxisShortcuts(const std::vector<EShortcut> & shortcutsVector, SDL_GameControllerAxis axisID, int axisValue, std::string axisName);
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);
 	int getMoveDis(float planDis);

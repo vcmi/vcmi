@@ -30,7 +30,7 @@ public:
 	{
 		ownerMatches = ::testing::get<0>(GetParam());
 		isMagicalEffect = ::testing::get<1>(GetParam());
-		EXPECT_CALL(unitMock, getAllBonuses(_, _, _)).Times(AtLeast(0));
+		EXPECT_CALL(unitMock, getAllBonuses(_, _)).Times(AtLeast(0));
 		EXPECT_CALL(unitMock, getTreeVersion()).Times(AtLeast(0));
 		EXPECT_CALL(mechanicsMock, isMagicalEffect()).Times(AtLeast(0)).WillRepeatedly(Return(isMagicalEffect));
 		EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unitMock), Field(&boost::logic::tribool::value, boost::logic::tribool::false_value))).WillRepeatedly(Return(ownerMatches));

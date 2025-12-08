@@ -45,7 +45,6 @@ class BattleActionsController
 	const CStack * selectedStack;
 
 	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
-	bool canStackMoveHere (const CStack *sactive, const BattleHex & MyNumber) const; //TODO: move to BattleState / callback
 	std::vector<PossiblePlayerBattleAction> getPossibleActionsForStack (const CStack *stack) const; //called when stack gets its turn
 	void reorderPossibleActionsPriority(const CStack * stack, const CStack * targetStack);
 

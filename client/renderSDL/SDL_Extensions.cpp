@@ -23,6 +23,7 @@
 #include "../../lib/GameConstants.h"
 
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
 
 #include <SDL_render.h>
 #include <SDL_surface.h>
@@ -684,4 +685,300 @@ void CSDL_Ext::getClipRect(SDL_Surface * src, Rect & other)
 	SDL_GetClipRect(src, &rect);
 
 	other = CSDL_Ext::fromSDL(rect);
+}
+
+SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& color, int thickness)
+{
+	if(thickness < 1)
+		return nullptr;
+
+	SDL_Surface* destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
+
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_LockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_LockSurface(destSurface);
+
+	int width = sourceSurface->w;
+	int height = sourceSurface->h;
+
+	// Helper lambda to get alpha
+	auto getAlpha = [&](int x, int y) -> Uint8 {
+		if (x < 0 || x >= width || y < 0 || y >= height)
+			return 0;
+		Uint32 pixel = *((Uint32*)sourceSurface->pixels + y * width + x);
+		Uint8 r;
+		Uint8 g;
+		Uint8 b;
+		Uint8 a;
+		SDL_GetRGBA(pixel, sourceSurface->format, &r, &g, &b, &a);
+		return a;
+	};
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
+	{
+		for (int y = r.begin(); y != r.end(); ++y)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				Uint8 alpha = getAlpha(x, y);
+				if (alpha != 0)
+					continue; // Skip opaque or semi-transparent pixels
+
+				Uint8 maxNearbyAlpha = 0;
+
+				for (int dy = -thickness; dy <= thickness; ++dy)
+				{
+					for (int dx = -thickness; dx <= thickness; ++dx)
+					{
+						if (dx * dx + dy * dy > thickness * thickness)
+							continue; // circular area
+
+						int nx = x + dx;
+						int ny = y + dy;
+						if (nx < 0 || ny < 0 || nx >= width || ny >= height)
+							continue;
+
+						Uint8 neighborAlpha = getAlpha(nx, ny);
+						if (neighborAlpha > maxNearbyAlpha)
+							maxNearbyAlpha = neighborAlpha;
+					}
+				}
+
+				if (maxNearbyAlpha > 0)
+				{
+					Uint8 finalAlpha = maxNearbyAlpha - alpha; // alpha is 0 here, so effectively maxNearbyAlpha
+					Uint32 newPixel = SDL_MapRGBA(destSurface->format, color.r, color.g, color.b, finalAlpha);
+					*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
+				}
+			}
+		}
+	});
+
+	if(SDL_MUSTLOCK(sourceSurface)) SDL_UnlockSurface(sourceSurface);
+	if(SDL_MUSTLOCK(destSurface)) SDL_UnlockSurface(destSurface);
+
+	return destSurface;
+}
+
+void applyAffineTransform(SDL_Surface* src, SDL_Surface* dst, double a, double b, double c, double d, double tx, double ty)
+{
+	// Check if the transform is purely scaling (and optionally translation)
+	bool isPureScaling = vstd::isAlmostZero(b) && vstd::isAlmostZero(c);
+
+	if (isPureScaling)
+	{
+		// Calculate target dimensions
+		int scaledW = static_cast<int>(src->w * a);
+		int scaledH = static_cast<int>(src->h * d);
+
+		SDL_Rect srcRect = { 0, 0, src->w, src->h };
+		SDL_Rect dstRect = { static_cast<int>(tx), static_cast<int>(ty), scaledW, scaledH };
+
+		// Convert surfaces to same format if needed
+		if (src->format->format != dst->format->format)
+		{
+			SDL_Surface* converted = SDL_ConvertSurface(src, dst->format, 0);
+			if (!converted)
+				throw std::runtime_error("SDL_ConvertSurface failed!");
+
+			SDL_BlitScaled(converted, &srcRect, dst, &dstRect);
+			SDL_FreeSurface(converted);
+		}
+		else
+			SDL_BlitScaled(src, &srcRect, dst, &dstRect);
+
+		return;
+	}
+
+	// Lock surfaces for direct pixel access
+	if (SDL_MUSTLOCK(src)) SDL_LockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_LockSurface(dst);
+
+	// Calculate inverse matrix M_inv for mapping dst -> src
+	double det = a * d - b * c;
+	if (vstd::isAlmostZero(det))
+		throw std::runtime_error("Singular transform matrix!");
+	double invDet = 1.0 / det;
+	double ia =  d * invDet;
+	double ib = -b * invDet;
+	double ic = -c * invDet;
+	double id =  a * invDet;
+
+	auto srcPixels = (Uint32*)src->pixels;
+	auto dstPixels = (Uint32*)dst->pixels;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, dst->h), [&](const tbb::blocked_range<size_t>& r)
+	{
+		// For each pixel in the destination image
+		for(int y = r.begin(); y != r.end(); ++y)
+		{
+			for(int x = 0; x < dst->w; x++)
+			{
+				// Map destination pixel (x,y) back to source coordinates (srcX, srcY)
+				double srcX = ia * (x - tx) + ib * (y - ty);
+				double srcY = ic * (x - tx) + id * (y - ty);
+
+				// Nearest neighbor sampling (can be improved to bilinear)
+				auto srcXi = static_cast<int>(round(srcX));
+				auto srcYi = static_cast<int>(round(srcY));
+
+				// Check bounds
+				if (srcXi >= 0 && srcXi < src->w && srcYi >= 0 && srcYi < src->h)
+				{
+					Uint32 pixel = srcPixels[srcYi * src->w + srcXi];
+					dstPixels[y * dst->w + x] = pixel;
+				}
+				else
+					dstPixels[y * dst->w + x] = 0x00000000;  // transparent black
+			}
+		}
+	});
+
+	if (SDL_MUSTLOCK(src)) SDL_UnlockSurface(src);
+	if (SDL_MUSTLOCK(dst)) SDL_UnlockSurface(dst);
+}
+
+int getLowestNonTransparentY(SDL_Surface* surface)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	const int w = surface->w;
+	const int h = surface->h;
+	const int bpp = surface->format->BytesPerPixel;
+	auto pixels = static_cast<Uint8*>(surface->pixels);
+
+	// Use parallel_reduce to find the max y with non-transparent pixel
+	int lowestY = tbb::parallel_reduce(
+		tbb::blocked_range<int>(0, h),
+		-1,  // initial lowestY = -1 (fully transparent)
+		[&](const tbb::blocked_range<int>& r, int localMaxY) -> int
+		{
+			for (int y = r.begin(); y != r.end(); ++y)
+			{
+				Uint8* row = pixels + y * surface->pitch;
+				for (int x = 0; x < w; ++x)
+				{
+					Uint32 pixel = *(Uint32*)(row + x * bpp);
+					Uint8 a = (pixel >> 24) & 0xFF; // Fast path for ARGB8888
+					if (a > 0)
+					{
+						localMaxY = std::max(localMaxY, y);
+						break; // no need to scan rest of row
+					}
+				}
+			}
+			return localMaxY;
+		},
+		[](int a, int b) -> int
+		{
+			return std::max(a, b);
+		}
+	);
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+	return lowestY;
+}
+
+void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	auto pixels = (Uint32*)surface->pixels;
+	int pixelCount = surface->w * surface->h;
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, pixelCount), [&](const tbb::blocked_range<size_t>& range)
+	{
+		for(int i = range.begin(); i != range.end(); ++i)
+		{
+			Uint32 pixel = pixels[i];
+			Uint8 pr;
+			Uint8 pg;
+			Uint8 pb;
+			Uint8 pa;
+			// Extract existing RGBA components using SDL_GetRGBA
+			SDL_GetRGBA(pixel, surface->format, &pr, &pg, &pb, &pa);
+
+			Uint32 newPixel = SDL_MapRGBA(surface->format, r, g, b, a);
+			if(pa < 128)
+				newPixel = SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+
+			pixels[i] = newPixel;
+		}
+	});
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+void boxBlur(SDL_Surface* surface)
+{
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	int width = surface->w;
+	int height = surface->h;
+	int pixelCount = width * height;
+
+	Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+	std::vector<Uint32> temp(pixelCount);
+
+	tbb::parallel_for(0, height, [&](int y)
+	{
+		for (int x = 0; x < width; ++x)
+		{
+			int sumR = 0;
+			int sumG = 0;
+			int sumB = 0;
+			int sumA = 0;
+			int count = 0;
+
+			for (int ky = -1; ky <= 1; ++ky)
+			{
+				int ny = std::clamp(y + ky, 0, height - 1);
+				for (int kx = -1; kx <= 1; ++kx)
+				{
+					int nx = std::clamp(x + kx, 0, width - 1);
+					Uint32 pixel = pixels[ny * width + nx];
+
+					sumA += (pixel >> 24) & 0xFF;
+					sumR += (pixel >> 16) & 0xFF;
+					sumG += (pixel >> 8)  & 0xFF;
+					sumB += (pixel >> 0)  & 0xFF;
+					++count;
+				}
+			}
+
+			Uint8 a = sumA / count;
+			Uint8 r = sumR / count;
+			Uint8 g = sumG / count;
+			Uint8 b = sumB / count;
+			temp[y * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
+		}
+	});
+
+	std::copy(temp.begin(), temp.end(), pixels);
+
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+}
+
+SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * sourceSurface, bool doSheer)
+{
+	SDL_Surface *destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
+
+	double shearX = doSheer ? 0.5 : 0.0;
+	double scaleY = doSheer ? 0.5 : 0.25;
+
+	int lowestSource = getLowestNonTransparentY(sourceSurface);
+	int lowestTransformed = lowestSource * scaleY;
+
+	// Parameters for applyAffineTransform
+	double a = 1.0;
+	double b = shearX;
+	double c = 0.0;
+	double d = scaleY;
+	double tx = -shearX * lowestSource;
+	double ty = lowestSource - lowestTransformed;
+
+	applyAffineTransform(sourceSurface, destSurface, a, b, c, d, tx, ty);
+	fillAlphaPixelWithRGBA(destSurface, 0, 0, 0, 128);
+	boxBlur(destSurface);
+
+	return destSurface;
 }

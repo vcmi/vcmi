@@ -21,7 +21,7 @@ class FirstLaunchView : public QWidget
 {
 	Q_OBJECT
 
-	void changeEvent(QEvent *event);
+	void changeEvent(QEvent *event) override;
 	CModListView * getModView();
 
 	void setSetupProgress(int progress);
@@ -58,6 +58,7 @@ class FirstLaunchView : public QWidget
 
 public:
 	explicit FirstLaunchView(QWidget * parent = nullptr);
+	~FirstLaunchView() override;
 
 	// Tab Heroes III Data
 	bool heroesDataUpdate();
@@ -89,5 +90,5 @@ private slots:
 	void on_pushButtonGithub_clicked();
 
 private:
-	Ui::FirstLaunchView * ui;
+	std::unique_ptr<Ui::FirstLaunchView> ui;
 };
