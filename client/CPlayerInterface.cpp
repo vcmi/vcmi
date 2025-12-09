@@ -1825,7 +1825,7 @@ bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 		else
 			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
 		hasQuickSave = false;
-		if(adventureInt)
+		if(cb && adventureInt)
 			adventureInt->updateActiveState();
 		return false;
 	}
@@ -1837,7 +1837,7 @@ bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
 		else
 			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
 		hasQuickSave = false;
-		if(adventureInt)
+		if(cb && adventureInt)
 			adventureInt->updateActiveState();
 		return false;
 	}
