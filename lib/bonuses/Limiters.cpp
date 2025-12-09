@@ -29,7 +29,7 @@ const std::map<std::string, TLimiterPtr> bonusLimiterMap =
 	{"SHOOTER_ONLY", std::make_shared<HasAnotherBonusLimiter>(BonusType::SHOOTER)},
 	{"DRAGON_NATURE", std::make_shared<HasAnotherBonusLimiter>(BonusType::DRAGON_NATURE)},
 	{"IS_UNDEAD", std::make_shared<HasAnotherBonusLimiter>(BonusType::UNDEAD)},
-	{"CREATURE_NATIVE_TERRAIN", std::make_shared<CreatureTerrainLimiter>()},
+	{"CREATURE_NATIVE_TERRAIN", std::make_shared<TerrainLimiter>()},
 	{"CREATURES_ONLY", std::make_shared<CreatureLevelLimiter>()},
 	{"OPPOSITE_SIDE", std::make_shared<OppositeSideLimiter>()},
 };
@@ -243,20 +243,33 @@ JsonNode UnitOnHexLimiter::toJsonNode() const
 	return root;
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter()
+TerrainLimiter::TerrainLimiter()
 	: terrainType(ETerrainId::NATIVE_TERRAIN)
 {
 }
 
-CreatureTerrainLimiter::CreatureTerrainLimiter(TerrainId terrain):
+TerrainLimiter::TerrainLimiter(TerrainId terrain):
 	terrainType(terrain)
 {
 }
 
-ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &context) const
+ILimiter::EDecision TerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	if (context.node.getNodeType() != BonusNodeType::STACK_BATTLE && context.node.getNodeType() != BonusNodeType::STACK_INSTANCE)
+	BonusNodeType nodeType = context.node.getNodeType();
+	std::set<BonusNodeType> allowedNodes = {BonusNodeType::STACK_BATTLE, BonusNodeType::STACK_INSTANCE, BonusNodeType::HERO, BonusNodeType::TOWN, BonusNodeType::TOWN_AND_VISITOR};
+	std::set<BonusNodeType> stackNodes = {BonusNodeType::STACK_BATTLE, BonusNodeType::STACK_INSTANCE};
+	if (!allowedNodes.contains(nodeType))
 		return ILimiter::EDecision::NOT_APPLICABLE;
+
+	ETerrainId currentTerrain;
+
+	if (stackNodes.contains(nodeType))
+	{
+		if (const auto * stack = retrieveStackInstance(&context.node))
+			currentTerrain = stack->getCurrentTerrain();
+	}
+	else if (const auto * army = dynamic_cast<const CArmedInstance *>(&context.node))
+		currentTerrain = army->getCurrentTerrain();
 
 	if (terrainType == ETerrainId::NATIVE_TERRAIN)
 	{
@@ -268,35 +281,15 @@ ILimiter::EDecision CreatureTerrainLimiter::limit(const BonusLimitationContext &
 		if(context.stillUndecided.getFirst(selector))
 			return ILimiter::EDecision::NOT_SURE;
 
-		// TODO: CStack and CStackInstance need some common base type that represents any stack
-		// Closest existing class is ACreature, however it is also used as base for CCreature, which is not a stack
-		if (context.node.getNodeType() == BonusNodeType::STACK_BATTLE)
-		{
-			const auto * unit = dynamic_cast<const CStack *>(&context.node);
-			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
-			if (unit->getCurrentTerrain() == unitNativeTerrain)
-				return ILimiter::EDecision::ACCEPT;
-		}
-		else
-		{
-			const auto * unit = dynamic_cast<const CStackInstance *>(&context.node);
-			auto unitNativeTerrain = unit->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
-			if (unit->getCurrentTerrain() == unitNativeTerrain)
-				return ILimiter::EDecision::ACCEPT;
-		}
+		const auto * node = dynamic_cast<const INativeTerrainProvider *>(&context.node);
+		auto nativeTerrain = node->getFactionID().toEntity(LIBRARY)->getNativeTerrain();
+		return currentTerrain == nativeTerrain ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 	}
-	else
-	{
-		if(const auto * unit = retrieveStackInstance(&context.node))
-		{
-			if (unit->getArmy() && unit->getCurrentTerrain() == terrainType)
-				return ILimiter::EDecision::ACCEPT;
-		}
-	}
-	return ILimiter::EDecision::DISCARD;
+
+	return currentTerrain == terrainType ? ILimiter::EDecision::ACCEPT : ILimiter::EDecision::DISCARD;
 }
 
-std::string CreatureTerrainLimiter::toString() const
+std::string TerrainLimiter::toString() const
 {
 	boost::format fmt("CreatureTerrainLimiter(terrainType=%s)");
 	auto terrainName = LIBRARY->terrainTypeHandler->getById(terrainType)->getJsonKey();
@@ -304,7 +297,7 @@ std::string CreatureTerrainLimiter::toString() const
 	return fmt.str();
 }
 
-JsonNode CreatureTerrainLimiter::toJsonNode() const
+JsonNode TerrainLimiter::toJsonNode() const
 {
 	JsonNode root;
 
