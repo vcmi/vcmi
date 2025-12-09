@@ -94,10 +94,11 @@ private:
 		InvalidTiles() : centerPosValid(false) { }
 	};
 
-	void drawTerrain(TerrainId terrain, CTerrainSelection selection);
-	void updateTerrainTypes(CTerrainSelection selection);
-	void invalidateTerrainViews(const int3 & centerPos);
+	void changeTerrainType(CTerrainSelection selection, TerrainId terrainType);
+	void expandSelection(CTerrainSelection selection);
+	void expandInvalidatedTileList(const int3 & centerPos);
 	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
+	void saveTileState(int3 tile);
 
 	void updateTerrainViews();
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
@@ -106,6 +107,7 @@ private:
 	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 
 	CTerrainSelection terrainSel;
+	CTerrainSelection extendedSel;	//includes tiles added to the explicit selection automatically to fit in on the map
 	TerrainId terType;
 	std::map<TerrainId, CTerrainSelection> formerState;
 	int decorationsPercentage;
