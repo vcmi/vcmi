@@ -392,6 +392,8 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 
 		for(auto & hex : hexes)
 		{
+			if (!dists.isReachable(hex))
+				continue;
 			// FIXME: provide distance info for Jousting bonus
 			auto bai = BattleAttackInfo(activeStack, enemy, 0, cb->battleCanShoot(activeStack));
 			auto attack = AttackPossibility::evaluate(bai, hex, damageCache, hb);
