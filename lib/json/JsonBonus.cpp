@@ -279,6 +279,9 @@ static void loadBonusAddInfo(CAddInfo & var, BonusType type, const JsonNode & va
 				var.push_back(converted);
 			}
 			break;
+		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
+			for(const auto & sequence : value.Vector())
+				var.push_back(sequence.Integer());
 		default:
 			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
 	}

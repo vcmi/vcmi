@@ -84,6 +84,9 @@ private:
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 	void giveReward(IGameEventCallback & gameEvents, const CGHeroInstance * h) const;
 	std::string getMonsterLevelText() const;
+	int getDefaultNumberOfStacks(const CGHeroInstance * hero) const;
+	int getNumberOfStacksFromBonus(const CGHeroInstance * hero) const;
+	ui32 hashByPosition() const;
 };
 
 VCMI_LIB_NAMESPACE_END

@@ -586,5 +586,11 @@
 	"INVINCIBLE":
 	{
 	}
+	
+	"FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT":
+	{
+		"hidden": true,
+		"blockDescriptionPropagation": true
+	}
 }
 
