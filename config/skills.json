@@ -856,34 +856,22 @@
 					"type" : "MANUAL_CONTROL",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
-				},
-				"damageCap" : {
-					"type" : "DAMAGE_RECEIVED_CAP",
-					"propagator" : "ARMY",
-					"limiters" : [{
-						"type" : "CREATURE_TYPE_LIMITER",
-						"creature" : "firstAidTent"
-					}],
-					"valueType" : "ADDITIVE_VALUE"
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
-				"main" : { "val" : 50 },
-				"damageCap" : { "val" : 40 }
+				"main" : { "val" : 50 }
 			}
 		},
 		"advanced" : {
 			"effects" : {
-				"main" : { "val" : 75 },
-				"damageCap" : { "val" : 40 }
+				"main" : { "val" : 75 }
 			}
 		},
 		"expert" : {
 			"effects" : {
-				"main" : { "val" : 100 },
-				"damageCap" : { "val" : 40 }
+				"main" : { "val" : 100 }
 			}
 		}
 	}
