@@ -185,24 +185,65 @@ CreatureID MapReaderH3M::readCreature()
 
 TerrainId MapReaderH3M::readTerrain()
 {
-	TerrainId result(readUInt8());
-	assert(result.getNum() < features.terrainsCount);
+	uint8_t raw = readUInt8();
+
+	if(raw >= features.terrainsCount)
+	{
+		// Map uses terrain index we don't support (e.g. extended terrain from other editor/mod)
+		// Fallback: clamp to last known terrain
+		logGlobal->warn(
+			"MapReaderH3M::readTerrain: map uses terrain %u but only %u types are supported. "
+			"Clamping to %u.",
+			raw, features.terrainsCount, features.terrainsCount ? features.terrainsCount - 1 : 0);
+
+		raw = features.terrainsCount ? features.terrainsCount - 1 : 0;
+	}
+
+	TerrainId result(raw);
 	return remapIdentifier(result);
 }
 
 RoadId MapReaderH3M::readRoad()
 {
-	RoadId result(readInt8());
-	assert(result.getNum() <= features.roadsCount);
-	return result;
+	const uint8_t raw = readInt8();
+	// Keep low 3 bits as road type; discard high-bit flags set by some editors (HotA?)
+	uint8_t type = raw & 0x07;
+
+	if(type > features.roadsCount)
+	{
+		// Map uses extended road type not supported by current config.
+		// Fallback: use the last supported road type (usually cobblestone).
+		logGlobal->warn(
+			"MapReaderH3M::readRoad: map uses road type %u but only %u types are supported. "
+			"Clamping to %u.",
+			type, features.roadsCount, features.roadsCount);
+
+		type = features.roadsCount;
+	}
+
+	return RoadId(type);
 }
 
 RiverId MapReaderH3M::readRiver()
 {
 	const uint8_t raw = readInt8();
-	// Keep low 3 bits as river type (0..4); discard high-bit flags set by some editors (HotA ?)
-	const uint8_t type = raw & 0x07;
-	assert(type <= features.riversCount);
+	// Keep low 3 bits as river type (0..7); discard high-bit flags set by some editors (HotA?)
+	uint8_t type = raw & 0x07;
+
+	if(type > features.riversCount)
+	{
+		// Map uses extended river type not supported by our config
+		// Fallback: clamp to last supported river type
+		const uint8_t fallback = features.riversCount ? features.riversCount : 0;
+
+		logGlobal->warn(
+			"MapReaderH3M::readRiver: map uses river type %u but only %u types are supported. "
+			"Clamping to %u.",
+			type, features.riversCount, fallback);
+
+		type = fallback;
+	}
+
 	return RiverId(type);
 }
 

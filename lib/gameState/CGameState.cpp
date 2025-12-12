@@ -614,7 +614,16 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 	for (auto heroID : map->getHeroesOnMap())
 	{
 		auto hero = getHero(heroID);
-		assert(map->isInTheMap(hero->visitablePos()));
+		const auto pos = hero->visitablePos();
+
+		if(!map->isInTheMap(pos))
+		{
+			logGlobal->warn(
+				"initHeroes: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
+				hero->getNameTranslated(), pos.toString());
+			continue;
+		}
+
 		const auto & tile = map->getTile(hero->visitablePos());
 
 		if (hero->ID == Obj::PRISON)
