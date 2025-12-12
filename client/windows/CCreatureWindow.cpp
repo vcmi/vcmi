@@ -861,7 +861,7 @@ void CStackWindow::initBonusesList()
     ? static_cast<const IBonusBearer*>(info->stack)  // Use CStack for war machines
     : static_cast<const IBonusBearer*>(info->stackNode);  // Use CStackInstance for regular units
 
-	auto bonusToString = [this, bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
+	auto bonusToString = [bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
 	{
 		if(!bonus->description.empty())
 			return bonus->description.toString();
@@ -876,7 +876,7 @@ void CStackWindow::initBonusesList()
 	// such bonuses should be present in received bonuses, and if not - this means that they are behind inactive limiter, such as inactive stack experience bonuses
 	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr;});
 
-	const auto & bonusSortingPredicate = [this, bonusToString](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
+	const auto & bonusSortingPredicate = [bonusToString](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
