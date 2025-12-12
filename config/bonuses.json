@@ -205,7 +205,11 @@
 			"bonusSubtype.damageTypeMelee" : null,
 		}
 	},
-	
+
+	"DAMAGE_RECEIVED_CAP":
+	{
+	},
+
 	"GENERATE_RESOURCE":
 	{
 		"blockDescriptionPropagation": true
