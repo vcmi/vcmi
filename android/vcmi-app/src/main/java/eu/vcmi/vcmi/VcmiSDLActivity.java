@@ -117,6 +117,9 @@ public class VcmiSDLActivity extends SDLActivity
         unbindServer();
 
         super.onDestroy();
+
+        finishAffinity();
+        System.exit(0);
     }
 
     private void initService()
