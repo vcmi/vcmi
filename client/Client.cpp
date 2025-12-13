@@ -513,29 +513,6 @@ void CClient::removeGUI() const
 	GAME->setInterfaceInstance(nullptr);
 }
 
-#ifdef VCMI_ANDROID
-extern "C" JNIEXPORT jboolean JNICALL Java_eu_vcmi_vcmi_NativeMethods_tryToSaveTheGame(JNIEnv * env, jclass cls)
-{
-	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
-
-	logGlobal->info("Received emergency save game request");
-	if(!GAME->interface() || !GAME->interface()->cb)
-	{
-		logGlobal->info("... but no active player interface found!");
-		return false;
-	}
-
-	if (!GAME->server().logicConnection)
-	{
-		logGlobal->info("... but no active connection found!");
-		return false;
-	}
-
-	GAME->interface()->cb->save("Saves/_Android_Autosave");
-	return true;
-}
-#endif
-
 void CClient::registerBattleInterface(std::shared_ptr<IBattleEventsReceiver> battleEvents, PlayerColor color)
 {
 	additionalBattleInts[color].push_back(battleEvents);

@@ -55,6 +55,7 @@ public:
 	void onUpdate() final;
 	bool capturedAllEvents() final;
 	void onShutdownRequested(bool askForConfirmation) final;
+	void onAppPaused(bool resume) final;
 };
 
 extern std::unique_ptr<GameInstance> GAME;
