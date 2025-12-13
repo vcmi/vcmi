@@ -126,7 +126,6 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::TOWNS_SPELL_RESEARCH,                             "towns",     "spellResearch"                        },
 		{EGameSettings::TOWNS_SPELL_RESEARCH_COST,                        "towns",     "spellResearchCost"                    },
 		{EGameSettings::TOWNS_SPELL_RESEARCH_PER_DAY,                     "towns",     "spellResearchPerDay"                  },
-		{EGameSettings::TOWNS_SPELL_RESEARCH_COST_EXPONENT_PER_RESEARCH,  "towns",     "spellResearchCostExponentPerResearch" },
 		{EGameSettings::INTERFACE_PLAYER_COLORED_BACKGROUND,              "interface", "playerColoredBackground"              },
 	};
 
