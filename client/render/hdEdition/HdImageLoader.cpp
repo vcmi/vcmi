@@ -36,7 +36,7 @@ const std::unordered_set<std::string> animToSkip = {
 };
 const std::unordered_set<std::string> imagesToSkip = {
 	// skip RoE specific files
-	"MAINMENU", "GAMSELBK", "GSELPOP1", "SCSELBCK", "LOADGAME", "NEWGAME", "LOADBAR"
+	"MAINMENU", "GAMSELBK", "GSELPOP1", "SCSELBCK", "GSSTRIP", "LOADGAME", "NEWGAME", "LOADBAR"
 };
 const std::unordered_set<std::string> hdColors = {
 	// skip colored variants - coloring not supported yet
