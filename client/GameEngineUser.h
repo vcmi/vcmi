@@ -23,6 +23,9 @@ public:
 	/// Called when app shutdown has been requested in any way - exit button, Alt-F4, etc
 	virtual void onShutdownRequested(bool askForConfirmation) = 0;
 
+	/// Called when mobile app pauses
+	virtual void onAppPaused() = 0;
+
 	/// Returns true if all input events should be captured and ignored
 	virtual bool capturedAllEvents() = 0;
 };
