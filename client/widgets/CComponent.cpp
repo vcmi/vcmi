@@ -109,7 +109,7 @@ void CComponent::init(ComponentType Type, ComponentSubType Subtype, std::optiona
 		for(std::istringstream iss(s); iss >> s; )
 			longestWordLen = std::max(longestWordLen, fontPtr->getStringWidth(s));
 
-		max = std::max<int>(max, longestWordLen + 8);
+		max = std::min<int>(max, longestWordLen + 8);
 	}
 
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(max, pos.w), font);
