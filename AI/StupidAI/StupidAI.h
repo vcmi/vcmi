@@ -51,5 +51,6 @@ public:
 
 private:
 	BattleAction goTowards(const BattleID & battleID, const CStack * stack, BattleHexArray hexes) const;
+	bool moveStackToClosestEnemy(const BattleID & battleID, const CStack * stack, const ReachabilityInfo & dists, const std::vector<EnemyInfo> & enemyInfos);
 };
 
