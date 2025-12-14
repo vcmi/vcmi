@@ -583,8 +583,8 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	auto dmin = std::max<int64_t>(1.0, std::floor(damageBase.min * resultingFactor));
 	auto dmax = std::max<int64_t>(1.0, std::floor(damageBase.max * resultingFactor));
 
-	dmin = std::min(std::min(dmin, avail), cap);
-	dmax = std::min(std::min(dmax, avail), cap);
+	dmin = std::min({dmin, avail, cap});
+	dmax = std::min({dmax, avail, cap});
 
 	DamageRange damageDealt{ dmin, dmax };
 
