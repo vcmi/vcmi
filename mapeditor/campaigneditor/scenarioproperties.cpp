@@ -65,12 +65,14 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	}
 
 	ui->checkBoxPrologueEnabled->setChecked(campaignState->scenarios.at(scenario).prolog.hasPrologEpilog);
-	ui->lineEditPrologueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVideo.getName()));
+	ui->lineEditPrologueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVideo.first.getName()));
+	ui->lineEditPrologueVideoLoop->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVideo.second.getName()));
 	ui->lineEditPrologueMusic->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologMusic.getName()));
 	ui->lineEditPrologueVoice->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVoice.getName()));
 	ui->plainTextEditPrologueText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologText.toString()));
 	ui->checkBoxEpilogueEnabled->setChecked(campaignState->scenarios.at(scenario).epilog.hasPrologEpilog);
-	ui->lineEditEpilogueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVideo.getName()));
+	ui->lineEditEpilogueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVideo.first.getName()));
+	ui->lineEditEpilogueVideoLoop->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVideo.second.getName()));
 	ui->lineEditEpilogueMusic->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologMusic.getName()));
 	ui->lineEditEpilogueVoice->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVoice.getName()));
 	ui->plainTextEditEpilogueText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologText.toString()));
@@ -276,12 +278,14 @@ void ScenarioProperties::on_buttonBox_clicked(QAbstractButton * button)
 		campaignState->scenarios.at(scenario).difficulty = ui->comboBoxDefaultDifficulty->currentData().toInt();
 
 		campaignState->scenarios.at(scenario).prolog.hasPrologEpilog = ui->checkBoxPrologueEnabled->isChecked();
-		campaignState->scenarios.at(scenario).prolog.prologVideo = VideoPath::builtin(ui->lineEditPrologueVideo->text().toStdString());
+		campaignState->scenarios.at(scenario).prolog.prologVideo.first = VideoPath::builtin(ui->lineEditPrologueVideo->text().toStdString());
+		campaignState->scenarios.at(scenario).prolog.prologVideo.second = VideoPath::builtin(ui->lineEditPrologueVideoLoop->text().toStdString());
 		campaignState->scenarios.at(scenario).prolog.prologMusic = AudioPath::builtin(ui->lineEditPrologueMusic->text().toStdString());
 		campaignState->scenarios.at(scenario).prolog.prologVoice = AudioPath::builtin(ui->lineEditPrologueVoice->text().toStdString());
 		campaignState->scenarios.at(scenario).prolog.prologText = MetaString::createFromRawString(ui->plainTextEditPrologueText->toPlainText().toStdString());
 		campaignState->scenarios.at(scenario).epilog.hasPrologEpilog = ui->checkBoxEpilogueEnabled->isChecked();
-		campaignState->scenarios.at(scenario).epilog.prologVideo = VideoPath::builtin(ui->lineEditEpilogueVideo->text().toStdString());
+		campaignState->scenarios.at(scenario).epilog.prologVideo.first = VideoPath::builtin(ui->lineEditEpilogueVideo->text().toStdString());
+		campaignState->scenarios.at(scenario).epilog.prologVideo.second = VideoPath::builtin(ui->lineEditEpilogueVideoLoop->text().toStdString());
 		campaignState->scenarios.at(scenario).epilog.prologMusic = AudioPath::builtin(ui->lineEditEpilogueMusic->text().toStdString());
 		campaignState->scenarios.at(scenario).epilog.prologVoice = AudioPath::builtin(ui->lineEditEpilogueVoice->text().toStdString());
 		campaignState->scenarios.at(scenario).epilog.prologText = MetaString::createFromRawString(ui->plainTextEditEpilogueText->toPlainText().toStdString());

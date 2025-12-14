@@ -95,7 +95,12 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	}
 
 	for (auto entry : mapping["campaignVideo"].Struct())
-		mappingCampaignVideo[entry.second.Integer()] = VideoPath::builtinTODO(entry.first);
+	{
+		if(mappingCampaignVideo[entry.second.Integer()].first.empty())
+			mappingCampaignVideo[entry.second.Integer()].first = VideoPath::builtinTODO(entry.first);
+		else
+			mappingCampaignVideo[entry.second.Integer()].second = VideoPath::builtinTODO(entry.first);
+	}
 
 	for (auto entry : mapping["campaignMusic"].Struct())
 		mappingCampaignMusic[entry.second.Integer()] = AudioPath::builtinTODO(entry.first);
@@ -233,7 +238,7 @@ CampaignRegionID MapIdentifiersH3M::remap(CampaignRegionID input) const
 	return mappingCampaignRegions.at(input);
 }
 
-VideoPath MapIdentifiersH3M::remapCampaignVideo(int input) const
+std::pair<VideoPath, VideoPath> MapIdentifiersH3M::remapCampaignVideo(int input) const
 {
 	if (!mappingCampaignVideo.count(input))
 		throw std::out_of_range("Campaign video with ID " + std::to_string(input) + " is not defined");
