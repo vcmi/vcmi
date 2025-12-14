@@ -37,6 +37,8 @@ class GameInstance final : boost::noncopyable, public IGameEngineUser
 	std::shared_ptr<CMainMenu> mainMenuInstance;
 	CPlayerInterface * interfaceInstance;
 
+	void pauseAutoSave();
+
 public:
 	GameInstance();
 	~GameInstance();
@@ -55,7 +57,7 @@ public:
 	void onUpdate() final;
 	bool capturedAllEvents() final;
 	void onShutdownRequested(bool askForConfirmation) final;
-	void onAppPaused(bool resume) final;
+	void onAppPaused() final;
 };
 
 extern std::unique_ptr<GameInstance> GAME;

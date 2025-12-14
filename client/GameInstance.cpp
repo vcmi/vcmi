@@ -114,11 +114,13 @@ void GameInstance::onShutdownRequested(bool ask)
 	}
 }
 
-void GameInstance::onAppPaused(bool resume)
+void GameInstance::onAppPaused()
 {
-	if(resume)
-		return;
+	pauseAutoSave();
+}
 
+void GameInstance::pauseAutoSave()
+{
 	const std::string autoSaveName = "Saves/PauseAutosave";
 
 	logGlobal->info("Received pause save game request");
