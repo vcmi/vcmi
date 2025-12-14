@@ -39,7 +39,7 @@
 			"name": "ExtraOptionsButtons",
 			"type" : "verticalLayout",
 			"customType" : "toggleButton",
-			"position": {"x": 70, "y": 130},
+			"position": {"x": 70, "y": 100},
 			"items":
 			[
 				{
@@ -62,7 +62,7 @@
 			"name": "ExtraOptionsLabels",
 			"type" : "verticalLayout",
 			"customType" : "label",
-			"position": {"x": 110, "y": 133},
+			"position": {"x": 110, "y": 103},
 			"items":
 			[
 				{
@@ -80,29 +80,6 @@
 					"text": "vcmi.optionsTab.unlimitedReplay.hover"
 				}
 			]
-		},
-		{
-			"name": "buttonTurnOptions",
-			"type" : "button",
-			"position" : {
-				"x" : 70,
-				"y" : 100
-			},
-			"image" : "GSPButtonClear",
-			"items" : [
-				{
-					"type" : "label",
-					"position" : {
-						"x" : 0,
-						"y" : 0
-					},
-					"text" : "vcmi.optionsTab.turnOptions.hover",
-					"font" : "small",
-					"color" : "yellow"
-				}
-			],
-			"help": "vcmi.optionsTab.turnOptions",
-			"callback" : "tabTurnOptions"
 		}
 	]
 }

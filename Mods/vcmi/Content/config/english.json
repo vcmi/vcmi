@@ -884,7 +884,7 @@
 	"vcmi.optionsTab.turnTime.chess.2"    : "Chess: 02:00 + 01:00 + 00:15 + 00:00",
 	"vcmi.optionsTab.turnTime.chess.1"    : "Chess: 01:00 + 01:00 + 00:00 + 00:00",
 
-	"vcmi.optionsTab.simturns.select"         : "Select simultaneous turns preset",
+	"vcmi.optionsTab.simturns.select"         : "Select sim. turns preset",
 	"vcmi.optionsTab.simturns.none"           : "No simultaneous turns",
 	"vcmi.optionsTab.simturns.tillContactMax" : "Simturns: Until contact",
 	"vcmi.optionsTab.simturns.tillContact1"   : "Simturns: 1 week, break on contact",

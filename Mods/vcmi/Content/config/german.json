@@ -853,7 +853,7 @@
 	"vcmi.optionsTab.simturnsMax.help" : "Spielt gleichzeitig für eine bestimmte Anzahl von Tagen oder bis zum Kontakt mit einem anderen Spieler",
 	"vcmi.optionsTab.simturnsAI.help" : "{Simultane KI Züge}\nExperimentelle Option. Ermöglicht es den KI-Spielern, gleichzeitig mit dem menschlichen Spieler zu agieren, wenn simultane Spielzüge aktiviert sind.",
 
-	"vcmi.optionsTab.turnTime.select"     : "Spielzug-Timer-Voreinst. wählen",
+	"vcmi.optionsTab.turnTime.select"     : "Timer-Voreinstellung wählen",
 	"vcmi.optionsTab.turnTime.unlimited"  : "Unbegrenzter Spielzug-Timer",
 	"vcmi.optionsTab.turnTime.classic.1"  : "Klassischer Timer: 1 Minute",
 	"vcmi.optionsTab.turnTime.classic.2"  : "Klassischer Timer: 2 Minuten",
@@ -868,15 +868,15 @@
 	"vcmi.optionsTab.turnTime.chess.2"    : "Schach: 02:00 01:00 00:15 00:00",
 	"vcmi.optionsTab.turnTime.chess.1"    : "Schach: 01:00 01:00 00:00 00:00",
 
-	"vcmi.optionsTab.simturns.select"         : "Voreinst. für simultane Züge wählen",
+	"vcmi.optionsTab.simturns.select"         : "Voreinst. für Züge wählen",
 	"vcmi.optionsTab.simturns.none"           : "Keine simultanen Züge",
 	"vcmi.optionsTab.simturns.tillContactMax" : "Simzüge: Bis zum Kontakt",
 	"vcmi.optionsTab.simturns.tillContact1"   : "Simzüge: 1 Woche, Stop bei Kontakt",
 	"vcmi.optionsTab.simturns.tillContact2"   : "Simzüge: 2 Wochen, Stop bei Kontakt",
 	"vcmi.optionsTab.simturns.tillContact4"   : "Simzüge: 1 Monat, Stop bei Kontakt",
-	"vcmi.optionsTab.simturns.blocked1"       : "Simzüge: 1 Woche, Kontakte block.",
-	"vcmi.optionsTab.simturns.blocked2"       : "Simzüge: 2 Wochen, Kontakte block.",
-	"vcmi.optionsTab.simturns.blocked4"       : "Simzüge: 1 Monat, Kontakte block.",
+	"vcmi.optionsTab.simturns.blocked1"       : "Simzüge: 1 Woche, Kontakte blockieren",
+	"vcmi.optionsTab.simturns.blocked2"       : "Simzüge: 2 Wochen, Kontakte blockieren",
+	"vcmi.optionsTab.simturns.blocked4"       : "Simzüge: 1 Monat, Kontakte blockieren",
 
 	"vcmi.campaignSet.chronicles" : "Heroes Chronicles",
 	"vcmi.campaignSet.hota" : "Horn of the Abyss",
