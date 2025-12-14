@@ -151,9 +151,11 @@ void CampaignEditor::saveCampaign()
 	unsaved = false;
 }
 
-void CampaignEditor::showCampaignEditor()
+void CampaignEditor::showCampaignEditor(QWidget *parent)
 {
 	auto * dialog = new CampaignEditor();
+
+	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -171,6 +173,9 @@ void CampaignEditor::on_actionOpen_triggered()
 	
 	campaignState = Helper::openCampaignInternal(filenameSelect);
 	selectedScenario = *campaignState->allScenarios().begin();
+
+	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
+		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show als regions without scenario defined yet
 
 	redraw();
 }

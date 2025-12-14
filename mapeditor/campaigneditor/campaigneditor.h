@@ -31,7 +31,7 @@ public:
 
 	void redraw();
 
-	static void showCampaignEditor();
+	static void showCampaignEditor(QWidget *parent);
 
 private slots:
 	void on_actionOpen_triggered();

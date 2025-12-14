@@ -684,7 +684,7 @@ void MainWindow::on_actionCampaignEditor_triggered()
 		return;
 
 	hide();
-	CampaignEditor::showCampaignEditor();
+	CampaignEditor::showCampaignEditor(this);
 }
 
 void MainWindow::on_actionTemplateEditor_triggered()
@@ -694,7 +694,7 @@ void MainWindow::on_actionTemplateEditor_triggered()
 		return;
 
 	hide();
-	TemplateEditor::showTemplateEditor();
+	TemplateEditor::showTemplateEditor(this);
 #endif
 }
 
