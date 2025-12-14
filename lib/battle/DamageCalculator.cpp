@@ -546,11 +546,11 @@ int64_t DamageCalculator::getDamageCap() const
 	const std::string cachingStrDamageCap = "type_DAMAGE_RECEIVED_CAP";
 	static const auto selectorDamageCap = Selector::type()(BonusType::DAMAGE_RECEIVED_CAP);
 
-	double damageCapPercent = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap) / 100.0;
-	if (damageCapPercent <= 0.0)
+	int damageCapPercentage = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap);
+	if (damageCapPercentage <= 0)
 		return std::numeric_limits<int64_t>::max();
 
-	return std::floor(info.defender->getMaxHealth() * damageCapPercent);
+	return info.defender->getMaxHealth() * damageCapPercentage / 100;
 }
 
 DamageEstimation DamageCalculator::calculateDmgRange() const
