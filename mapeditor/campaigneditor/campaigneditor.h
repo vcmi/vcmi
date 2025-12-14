@@ -45,6 +45,7 @@ private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();
 	void changed();
+	bool validate();
 	void saveCampaign();
 
 	void closeEvent(QCloseEvent *event) override;
