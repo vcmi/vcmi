@@ -116,6 +116,9 @@ void GameInstance::onShutdownRequested(bool ask)
 
 void GameInstance::onAppPaused(bool resume)
 {
+	if(resume)
+		return;
+
 	const std::string autoSaveName = "Saves/PauseAutosave";
 
 	logGlobal->info("Received pause save game request");
@@ -131,7 +134,7 @@ void GameInstance::onAppPaused(bool resume)
 		return;
 	}
 
-	if(GAME->interface()->cb->getActiveBattles().size() > 0)
+	if(!GAME->interface()->cb->getActiveBattles().empty())
 	{
 		logGlobal->info("... but player is in battle, skipping autosave!");
 		return;
