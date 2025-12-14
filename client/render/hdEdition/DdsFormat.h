@@ -17,7 +17,13 @@ VCMI_LIB_NAMESPACE_BEGIN
 class CInputStream;
 VCMI_LIB_NAMESPACE_END
 
-#define FOURCC(a,b,c,d) (uint32_t(uint8_t(a)) | (uint32_t(uint8_t(b))<<8) | (uint32_t(uint8_t(c))<<16) | (uint32_t(uint8_t(d))<<24))
+constexpr std::uint32_t FOURCC(char a, char b, char c, char d) noexcept
+{
+	return  (std::uint32_t(static_cast<std::uint8_t>(a))      ) |
+			(std::uint32_t(static_cast<std::uint8_t>(b)) <<  8) |
+			(std::uint32_t(static_cast<std::uint8_t>(c)) << 16) |
+			(std::uint32_t(static_cast<std::uint8_t>(d)) << 24);
+}
 
 class DdsFormat
 {

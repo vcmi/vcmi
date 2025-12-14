@@ -187,12 +187,12 @@ void StartGameTab::refreshMods()
 	ui->buttonChroniclesHelp->setVisible(chroniclesMods.size() != chroniclesCount);
 
 #ifdef VCMI_ANDROID
-	bool hdInstalled = true; // TODO: HD import on android
+	bool canInstallHD = false; // TODO: HD import on android
 #else
-	bool hdInstalled = Helper::getMainWindow()->getModView()->isInstalledHd();
+	bool canInstallHD = !Helper::getMainWindow()->getModView()->isInstalledHd();
 #endif
-	ui->buttonInstallHdEdition->setVisible(!hdInstalled);
-	ui->buttonInstallHdEditionHelp->setVisible(!hdInstalled);
+	ui->buttonInstallHdEdition->setVisible(canInstallHD);
+	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
 void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
