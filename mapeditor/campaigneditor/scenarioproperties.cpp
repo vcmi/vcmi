@@ -81,9 +81,10 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->checkBoxCrossoverSpells->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.spells);
 	ui->checkBoxCrossoverArtifacts->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.artifacts);
 
-	ui->radioButtonStartingOptionBonus->setChecked(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::START_BONUS);
-	ui->radioButtonStartingOptionHeroCrossover->setChecked(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_CROSSOVER);
-	ui->radioButtonStartingOptionStartingHero->setChecked(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS);
+	auto campaignStartOption = campaignState->scenarios.at(scenario).travelOptions.startOptions;
+	ui->radioButtonStartingOptionBonus->setChecked(campaignStartOption == CampaignStartOptions::START_BONUS || campaignStartOption == CampaignStartOptions::NONE);
+	ui->radioButtonStartingOptionHeroCrossover->setChecked(campaignStartOption == CampaignStartOptions::HERO_CROSSOVER);
+	ui->radioButtonStartingOptionStartingHero->setChecked(campaignStartOption == CampaignStartOptions::HERO_OPTIONS);
 
 	for(auto const & objectPtr : LIBRARY->arth->objects)
 	{
