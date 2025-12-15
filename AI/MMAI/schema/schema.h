@@ -1,0 +1,22 @@
+/*
+ * schema.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+#pragma once
+
+/*
+ * THIS FILE LIVES IN:
+ *
+ * vcmi/AI/MMAI/export/export.h
+ *
+ */
+
+#include "schema/base.h"
+
+#include "schema/v13/schema.h"

@@ -3,6 +3,8 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
+source $(dirname "${BASH_SOURCE[0]}")/linux_common.sh
+
 APT_CACHE="${APT_CACHE:-${RUNNER_TEMP:-/tmp}/apt-cache}"
 sudo mkdir -p "$APT_CACHE"
 

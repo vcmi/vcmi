@@ -40,6 +40,7 @@ const std::vector<std::vector<std::string>> contributors = {
 	{ "Developing", "Rickard Westerlund" , "Onion Knight"       , "onionknigh@gmail.com"         },
 	{ "Developing", ""                   , "rilian-la-te"       , ""                             },
 	{ "Developing", ""                   , "SoundSSGood"        , ""                             },
+	{ "Developing", "Simeon Manolov"     , "smanolloff"         , "s.manolloff@gmail.com"        },
 	{ "Developing", "Stefan Pavlov"      , "Ste"                , "mailste@gmail.com"            },
 	{ "Developing", "Tom Zielinski"      , "Warmonger"          , "Warmonger@vp.pl"              },
 	{ "Developing", "Trevor Standley"    , "tstandley"          , ""                             },
