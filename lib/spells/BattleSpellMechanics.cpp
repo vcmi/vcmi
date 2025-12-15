@@ -445,16 +445,21 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	std::vector <const battle::Unit *> resisted;
 
-	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	resistantUnitIds.clear();
+	if(isNegativeSpell() && isMagicalEffect())
 	{
-		if(isNegativeSpell() && isMagicalEffect())
+		//magic resistance
+		for (const auto * unit : battle()->battleGetAllUnits(false))
 		{
-			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
 			if(rng.nextInt(0, 99) < prob)
-				return true;
+				resistantUnitIds.insert(unit->unitId());
 		}
-		return false;
+	}
+
+	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	{
+		return resistantUnitIds.contains(unit->unitId());
 	};
 
 	auto filterUnit = [&](const battle::Unit * unit)
@@ -496,6 +501,8 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	for(const auto * unit : resisted)
 		sc.resistedCres.insert(unit->unitId());
+
+	resistantUnitIds.clear();
 }
 
 bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rng)
@@ -761,6 +768,11 @@ bool BattleSpellMechanics::isReceptive(const battle::Unit * target) const
 bool BattleSpellMechanics::isSmart() const
 {
 	return mode != Mode::MAGIC_MIRROR && BaseMechanics::isSmart();
+}
+
+bool BattleSpellMechanics::wouldResist(const battle::Unit * unit) const
+{
+	return resistantUnitIds.contains(unit->unitId());
 }
 
 BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const
