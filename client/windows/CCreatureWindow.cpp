@@ -837,6 +837,7 @@ void CStackWindow::init()
 
 	if(!info->stackNode)
 	{
+		//does not contain any propagated bonuses
 		fakeNode = std::make_unique<CStackInstance>(nullptr, info->creature->getId(), 1, true);
 		info->stackNode = fakeNode.get();
 	}
@@ -856,14 +857,26 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent));
+	const IBonusBearer * bonusSource = (info->stack && !info->stack->base) 
+    ? static_cast<const IBonusBearer*>(info->stack)  // Use CStack for war machines
+    : static_cast<const IBonusBearer*>(info->stackNode);  // Use CStackInstance for regular units
+
+	auto bonusToString = [bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
+	{
+		if(!bonus->description.empty())
+			return bonus->description.toString();
+		else
+			return LIBRARY->getBth()->bonusToString(bonus, bonusSource);
+	};
+
+	BonusList receivedBonuses = *bonusSource->getBonuses(CSelector(Bonus::Permanent));
 	BonusList abilities = info->creature->getExportedBonusList();
 
 	// remove all bonuses that are not propagated away
 	// such bonuses should be present in received bonuses, and if not - this means that they are behind inactive limiter, such as inactive stack experience bonuses
 	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr;});
 
-	const auto & bonusSortingPredicate = [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
+	const auto & bonusSortingPredicate = [bonusToString](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
@@ -871,7 +884,7 @@ void CStackWindow::initBonusesList()
 			return priorityV1 < priorityV2;
 		}
 		else
-			return  info->stackNode->bonusToString(v1) < info->stackNode->bonusToString(v2);
+			return bonusToString(v1) < bonusToString(v2);
 	};
 
 	receivedBonuses.remove_if([](const Bonus* b)
@@ -939,7 +952,8 @@ void CStackWindow::initBonusesList()
 	BonusInfo bonusInfo;
 	for(auto b : visibleBonuses)
 	{
-		bonusInfo.description = info->stackNode->bonusToString(b);
+		bonusInfo.description = bonusToString(b);
+		//FIXME: we possibly use fakeNode, which does not have the correct bonus value
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 

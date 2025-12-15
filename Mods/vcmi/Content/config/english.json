@@ -1113,6 +1113,7 @@
 	"core.bonus.UNDEAD.description" : "{Undead}\nCreature is Undead and is immune to effects that only affect living",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Unlimited retaliations}\nThis unit can retaliate against an unlimited number of attacks",
 	"core.bonus.WIDE_BREATH.description" : "{Wide breath}\nThis unit attacks all units around its target",
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Damage limit (${val}%) }\nNo single attack can deal more damage than ${val}% of max health",
 
 	"spell.core.castleMoat.name" : "Moat",
 	"spell.core.castleMoatTrigger.name" : "Moat",
