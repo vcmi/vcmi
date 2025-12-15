@@ -170,7 +170,8 @@ void AbstractViewportLayer::redrawWithSurroundingTiles(const std::vector<int3> &
 
 void AbstractViewportLayer::redraw(const std::set<CGObjectInstance *> & objects)
 {
-	std::vector<QRectF> areas(objects.size());
+	std::vector<QRectF> areas;
+	areas.reserve(objects.size());
 	for (const CGObjectInstance * object : objects)
 	{
 		areas.push_back(getObjectArea(object));
@@ -461,10 +462,8 @@ void SelectionTerrainLayer::select(const std::vector<int3> & tiles)
 {
 	for (int3 tile : tiles)
 	{
-		if(!area.count(tile))
-		{
+		if(!area.count(tile) && map->isInTheMap(tile))
 			area.insert(tile);
-		}
 	}
 	redraw(tiles);
 	onSelection();
@@ -545,28 +544,13 @@ ObjectsLayer::ObjectsLayer(MapSceneBase * s): AbstractViewportLayer(s)
 
 QGraphicsItem * ObjectsLayer::draw(const QRectF & section)
 {
-	int left = toInt(section.left());
-	int right = toInt(section.right());
-	int top = toInt(section.top());
-	int bottom = toInt(section.bottom());
 	QPixmap pixmap(toInt(section.width()), toInt(section.height()));
 	pixmap.fill(Qt::transparent);
 
 	if (isShown)
 	{
 		QPainter painter(&pixmap);
-
-		QPointF offset = section.topLeft();
-
-		int margin = 2;		// margin is necessary to properly display flags on heroes on a border between two sections
-
-		for(int x = (left - margin)/tileSize; x < (right + margin)/tileSize; ++x)
-		{
-			for(int y = (top - margin)/tileSize; y < (bottom + margin)/tileSize; ++y)
-			{
-				handler->drawObjects(painter, x, y, scene->level, offset, lockedObjects);
-			}
-		}
+		handler->drawObjects(painter, section, scene->level, lockedObjects);
 	}
 
 	QGraphicsPixmapItem * result = scene->addPixmap(pixmap);
@@ -586,11 +570,14 @@ void ObjectsLayer::setLockObject(const CGObjectInstance * object, bool lock)
 		lockedObjects.insert(object);
 	else
 		lockedObjects.erase(object);
+	QRectF area = getObjectArea(object);
+	redraw({area});
 }
 
 void ObjectsLayer::unlockAll()
 {
 	lockedObjects.clear();
+	redraw();
 }
 
 SelectionObjectsLayer::SelectionObjectsLayer(MapSceneBase * s): AbstractViewportLayer(s), newObject(nullptr)

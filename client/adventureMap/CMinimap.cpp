@@ -244,7 +244,10 @@ void CMinimap::onMapViewMoved(const Rect & visibleArea, int mapLevel)
 		update();
 	}
 	else
+	{
+		setRedrawParent(true); // needed for non square map to redraw black background when viewarea rectangle is moved
 		redraw();
+	}
 }
 
 void CMinimap::setAIRadar(bool on)

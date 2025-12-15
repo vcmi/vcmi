@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Ruch tutaj będzie kosztował {%POINTS} punktów. {%REMAINING} punktów zostanie po ruchu.",
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Punkty ruchu: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Wybacz, powtórka ruchu wroga nie została jeszcze zaimplementowana!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Czy na pewno chcesz załadować szybki zapis?",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nCzy chciałbyś zrekrutować %s lub %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nCzy chciałbyś zrekrutować %s, %s, lub %s?",
@@ -418,7 +419,13 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "obrażenia: %d",
 	"vcmi.battleWindow.damageEstimation.kills" : "zginie: %d",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "zginie: %d",
-
+	"vcmi.battleWindow.healValuePreview.0" : "przywróci %d pkt. zdrowia",
+	"vcmi.battleWindow.healValuePreview.1" : "przywróci %d pkt. zdrowia",
+	"vcmi.battleWindow.healValuePreview.2" : "przywróci %d pkt. zdrowia",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.0" : "pozyskaj %d pkt. zdrowia",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.1" : "pozyskaj %d pkt. zdrowia",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.2" : "pozyskaj %d pkt. zdrowia",
+	
 	"vcmi.battleWindow.damageRetaliation.will" : "Nastąpi odwet ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Możliwy odwet ",
 	"vcmi.battleWindow.damageRetaliation.never" : "Nie będzie odwetu.",

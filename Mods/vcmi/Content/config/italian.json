@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Punti movimento - Costo: %POINTS punti, Punti rimanenti: %REMAINING",
 	"vcmi.adventureMap.movementPointsHeroInfo" 			 : "(Punti movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Spiacente, la riproduzione del turno avversario non è ancora implementata!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Sei sicuro di voler caricare il salvataggio rapido?",
 
 	"vcmi.bonusSource.artifact" : "Artefatto",
 	"vcmi.bonusSource.creature" : "Abilità",

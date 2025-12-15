@@ -44,6 +44,17 @@ int32_t CBattleInfoEssentials::battleGetEnchanterCounter(BattleSide side) const
 	return getBattle()->getEnchanterCounter(side);
 }
 
+int32_t CBattleInfoEssentials::nextObstacleId() const
+{
+	int32_t maxId = -1;
+	for (const auto & obstacle : getBattle()->getAllObstacles())
+	{
+		if (obstacle->uniqueID > maxId)
+			maxId = obstacle->uniqueID;
+	}
+	return maxId + 1;
+}
+
 std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::battleGetAllObstacles(std::optional<BattleSide> perspective) const
 {
 	std::vector<std::shared_ptr<const CObstacleInstance> > ret;
@@ -109,6 +120,14 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	return battleGetStacksIf([=](const CStack * s)
 	{
 		return !s->isGhost() && (includeTurrets || !s->isTurret());
+	});
+}
+
+battle::Units CBattleInfoEssentials::battleGetAllUnits(bool includeTurrets) const
+{
+	return battleGetUnitsIf([=](const battle::Unit * unit)
+	{
+		return !unit->isGhost() && (includeTurrets || !unit->isTurret());
 	});
 }
 

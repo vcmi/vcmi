@@ -15,6 +15,7 @@
 #include "windows/GUIClasses.h"
 #include "windows/CCastleInterface.h"
 #include "mapView/mapHandler.h"
+#include "mainmenu/CMainMenu.h"
 #include "adventureMap/AdventureMapInterface.h"
 #include "adventureMap/CInGameConsole.h"
 #include "battle/BattleInterface.h"
@@ -400,7 +401,7 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 	bool localHumanWinsGame = vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && pack.victoryLossCheckResult.victory();
 	bool lastHumanEndsGame = GAME->server().howManyPlayerInterfaces() == 1 && vstd::contains(cl.playerint, pack.player) && cl.gameInfo().getPlayerState(pack.player)->human && !settings["session"]["spectate"].Bool();
 
-	if(lastHumanEndsGame || localHumanWinsGame)
+	if(lastHumanEndsGame || localHumanWinsGame || pack.silentEnd)
 	{
 		assert(adventureInt);
 		if(adventureInt)
@@ -409,7 +410,13 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 			adventureInt.reset();
 		}
 
-		GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		if(!pack.silentEnd)
+			GAME->server().showHighScoresAndEndGameplay(pack.player, pack.victoryLossCheckResult.victory(), pack.statistic);
+		else
+		{
+			GAME->server().endGameplay();
+			GAME->mainmenu()->menu->switchToTab("main");
+		}
 	}
 
 	// In auto testing pack.mode we always close client if red pack.player won or lose
@@ -448,7 +455,10 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 
 	GAME->map().onObjectFadeOut(o, pack.initiator);
 	if (h && h->inBoat())
+	{
+		GAME->map().waitForOngoingAnimations();
 		GAME->map().onObjectFadeOut(h->getBoat(), pack.initiator);
+	}
 
 	//notify interfaces about removal
 	for(auto i=cl.playerint.begin(); i!=cl.playerint.end(); i++)
@@ -861,6 +871,13 @@ void ApplyClientNetPackVisitor::visitBattleResultsApplied(BattleResultsApplied &
 	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleResultsApplied);
 }
 
+void ApplyClientNetPackVisitor::visitBattleEnded(BattleEnded & pack)
+{
+	callInterfaceIfPresent(cl, pack.victor, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, pack.loser, &IGameEventsReceiver::battleEnded);
+	callInterfaceIfPresent(cl, PlayerColor::SPECTATOR, &IGameEventsReceiver::battleEnded);
+}
+
 void ApplyClientNetPackVisitor::visitBattleUnitsChanged(BattleUnitsChanged & pack)
 {
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleUnitsChanged, pack.battleID, pack.changedStacks);
@@ -1070,4 +1087,22 @@ void ApplyClientNetPackVisitor::visitPlayerCheated(PlayerCheated & pack)
 {
 	if(pack.colorScheme != ColorScheme::KEEP && vstd::contains(cl.playerint, pack.player))
 		cl.playerint[pack.player]->setColorScheme(pack.colorScheme);
+}
+
+void ApplyClientNetPackVisitor::visitChangeTownName(ChangeTownName & pack)
+{
+	if(!adventureInt)
+		return;
+
+	const CGTownInstance *town = gs.getTown(pack.tid);
+	if(town)
+	{
+		adventureInt->onTownChanged(town);
+		ENGINE->windows().totalRedraw();
+	}
+}
+
+void ApplyClientNetPackVisitor::visitResponseStatistic(ResponseStatistic & pack)
+{
+	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::responseStatistic, pack.statistic);
 }

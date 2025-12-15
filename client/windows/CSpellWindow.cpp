@@ -34,6 +34,7 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/VideoWidget.h"
 #include "../adventureMap/AdventureMapInterface.h"
+#include "../eventsSDL/InputHandler.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameConstants.h"
@@ -99,6 +100,7 @@ CSpellWindow::InteractiveArea::InteractiveArea(const Rect & myRect, const std::f
 
 void CSpellWindow::InteractiveArea::clickPressed(const Point & cursorPosition)
 {
+	ENGINE->input().hapticFeedback();
 	onLeft();
 }
 
@@ -687,6 +689,8 @@ void CSpellWindow::SpellArea::clickPressed(const Point & cursorPosition)
 {
 	if(mySpell)
 	{
+		ENGINE->input().hapticFeedback();
+
 		if(owner->onSpellSelect)
 		{
 			owner->onSpellSelect(mySpell->id);
@@ -848,15 +852,18 @@ void CSpellWindow::SpellArea::setSpell(const CSpell * spell)
 		name->setText(mySpell->getNameTranslated());
 
 		level->color = secondLineColor;
+		std::string levelStr = mySpell->getLevel() > 0 ? LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()]
+												   : LIBRARY->generaltexth->translate("vcmi.spellBook.zero_level.hint");
+
 		if(schoolLevel > 0)
 		{
 			boost::format fmt("%s/%s");
-			fmt % LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()];
+			fmt % levelStr;
 			fmt % LIBRARY->generaltexth->levels[3+(schoolLevel-1)];//lines 4-6
 			level->setText(fmt.str());
 		}
 		else
-			level->setText(LIBRARY->generaltexth->allTexts[171 + mySpell->getLevel()]);
+			level->setText(levelStr);
 
 		cost->color = secondLineColor;
 		boost::format costfmt("%s: %d");

@@ -155,9 +155,9 @@ InfoCard::InfoCard()
 	pos.x += 393;
 	pos.y += 6;
 
-	labelSaveDate = std::make_shared<CLabel>(310, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
-	labelMapSize = std::make_shared<CLabel>(333, 56, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
-	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 285);
+	labelSaveDate = std::make_shared<CLabel>(305, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
+	labelMapSize = std::make_shared<CLabel>(327, 57, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
+	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 280);
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
@@ -183,7 +183,7 @@ InfoCard::InfoCard()
 		parent->children.pop_back();
 		pos.w = background->pos.w;
 		pos.h = background->pos.h;
-		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 318, 22); //let it be custom size (frame 4) by default
+		iconsMapSizes = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRMPSZ"), 4, 0, 313, 25); //let it be custom size (frame 4) by default
 
 		iconDifficulty = std::make_shared<CToggleGroup>(0);
 		{
@@ -255,7 +255,7 @@ void InfoCard::changeSelection()
 
 	const CMapHeader * header = mapInfo->mapHeader.get();
 
-	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height));
+	labelMapSize->setText(std::to_string(header->width) + "x" + std::to_string(header->height) + "x" + std::to_string(header->mapLevels));
 	iconsMapSizes->setFrame(mapInfo->getMapSizeIconId());
 
 	iconsVictoryCondition->setFrame(header->victoryIconIndex);
@@ -264,6 +264,7 @@ void InfoCard::changeSelection()
 	labelLossConditionText->setText(header->defeatMessage.toString());
 	flagbox->recreate();
 	labelDifficulty->setText(LIBRARY->generaltexth->arraytxt[142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)]);
+	iconDifficulty->activate();
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
 	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
 		for(auto & button : iconDifficulty->buttons)
@@ -292,6 +293,24 @@ void InfoCard::changeSelection()
 
 		labelGroupPlayers->add(labelPosition.x, labelPosition.y, p.second.name);
 	}
+}
+
+void InfoCard::clearSelection()
+{
+	labelSaveDate->setText("");
+	mapName->setText("");
+	mapDescription->setText("");
+
+	if(SEL->screenType == ESelectionScreen::campaignList)
+		return;
+
+	labelMapSize->setText("");
+
+	labelVictoryConditionText->setText("");
+	labelLossConditionText->setText("");
+	iconDifficulty->deactivate();
+	labelDifficulty->setText("");
+	labelDifficultyPercent->setText("");
 }
 
 void InfoCard::toggleChat()

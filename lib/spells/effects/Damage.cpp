@@ -21,6 +21,7 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/Languages.h"
 #include "../../serializer/JsonSerializeFormat.h"
+#include "../lib/CRandomGenerator.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -83,6 +84,38 @@ void Damage::apply(ServerCallback * server, const Mechanics * m, const EffectTar
 
 	if(!blm.lines.empty())
 		server->apply(blm);
+}
+
+SpellEffectValue Damage::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result {};
+
+	size_t targetIndex = 0;
+	CRandomGenerator fakeRng;
+
+	for(auto const & t : spellTarget)
+	{
+		const battle::Unit * unit = t.unitValue;
+		if(unit && unit->alive())
+		{
+			BattleStackAttacked bsa;
+			bsa.damageAmount = damageForTarget(targetIndex, m, unit);
+			bsa.stackAttacked = unit->unitId();
+			bsa.attackerID = -1;
+			auto state = unit->acquireState();
+			int64_t before = state->getAvailableHealth();
+			CStack::prepareAttacked(bsa, fakeRng, state);
+			int64_t after  = state->getAvailableHealth();
+			int64_t applied = before - after;
+
+			result.hpDelta -= applied;
+			result.unitsDelta -= static_cast<int32_t>(bsa.killedAmount);
+		}
+
+		targetIndex++;
+	}
+
+	return result;
 }
 
 bool Damage::isReceptive(const Mechanics * m, const battle::Unit * unit) const

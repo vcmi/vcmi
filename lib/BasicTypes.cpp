@@ -32,7 +32,7 @@ bool INativeTerrainProvider::isNativeTerrain(TerrainId terrain) const
 
 TerrainId AFactionMember::getNativeTerrain() const
 {
-	//this code is used in the CreatureTerrainLimiter::limit to setup battle bonuses
+	//this code is used in the TerrainLimiter::limit to setup battle bonuses
 	//and in the CGHeroInstance::getNativeTerrain() to setup movement bonuses or/and penalties.
 	return getBonusBearer()->hasBonusOfType(BonusType::TERRAIN_NATIVE)
 			 ? TerrainId::ANY_TERRAIN : getFactionID().toEntity(LIBRARY)->getNativeTerrain();

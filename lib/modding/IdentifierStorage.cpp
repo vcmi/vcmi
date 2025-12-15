@@ -246,7 +246,7 @@ std::optional<si32> CIdentifierStorage::getIdentifierImpl(const ObjectCallback &
 
 	if (idList.size() == 1)
 		return idList.front().id;
-	if (!silent)
+	if (!silent && options.localScope != ModScope::scopeGame())
 		showIdentifierResolutionErrorDetails(options);
 	return std::optional<si32>();
 }

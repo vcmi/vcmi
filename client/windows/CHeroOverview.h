@@ -58,7 +58,7 @@ class CHeroOverview : public CWindowObject
 
     std::shared_ptr<CLabel> labelSpellTitle;
     std::vector<std::shared_ptr<CAnimImage>> imageSpells;
-    std::vector<std::shared_ptr<CLabel>> labelSpellsNames;
+    std::vector<std::shared_ptr<CMultiLineLabel>> labelSpellsNames;
 
     std::shared_ptr<CLabel> labelSecSkillTitle;
     std::vector<std::shared_ptr<CSecSkillPlace>> secSkills;

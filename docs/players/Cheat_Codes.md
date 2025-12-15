@@ -47,10 +47,11 @@ Gives specific creature in every slot, with optional amount. Examples:
 - `vcmiforgeofnoldorking` or `vcmiartifacts` - give all artifacts, except spell book, spell scrolls and war machines. Artifacts added via mods included  
 - `vcmiscrolls` - give spell scrolls for every possible spells
 
-### Movement points
+### Movement
 
 - `nwcnebuchadnezzar`, `nwcpodracer`, `nwccoconuts`, `vcminahar` or `vcmimove` - give unlimited (or specified amount of) movement points and free ship boarding
 - Alternative usage: `vcmimove <amount>` - gives specified amount of movement points
+- `vcmiteleport` - teleports hero to desired coordinate on map, usage: `vcmiteleport <x> <y> <z(optional)>`
 
 ### Resources
 
@@ -162,15 +163,18 @@ Below a list of supported commands, with their arguments wrapped in `<>`
 
 #### Settings
 
-- `set <command> <on/off>` - sets special temporary settings that reset on game quit. Below some of the most notable commands:  
-- `autoskip` - identical to `autoskip` option  
-- `onlyAI` - run without human player, all players will be *default AI*  
-- `headless` - run without GUI, implies `onlyAI` is set  
-- `showGrid` - display a square grid overlay on top of adventure map  
-- `showBlocked` - show blocked tiles on map  
-- `showVisitable` - show visitable tiles on map  
-- `hideSystemMessages` - suppress server messages in chat  
+- `set <command> <on/off>` - sets special temporary settings that reset on game quit. Below some of the most notable commands:
+- `autoskip` - identical to `autoskip` option
+- `onlyAI` - run without human player, all players will be *default AI*
+- `headless` - run without GUI, implies `onlyAI` is set
+- `showGrid` - display a square grid overlay on top of adventure map
+- `showBlocked` - show blocked tiles on map
+- `showVisitable` - show visitable tiles on map
+- `showInvisible` - show invisible tiles (events, grail) on map
+- `hideSystemMessages` - suppress server messages in chat
 - `antilag` - toggles network lag compensation in multiplayer on or off
+
+`showBlocked`, `showVisitable` and `showInvisible` only works if cheats are enabled.
 
 #### Developer Commands
 

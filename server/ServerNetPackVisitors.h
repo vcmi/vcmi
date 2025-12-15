@@ -58,12 +58,14 @@ public:
 	void visitBuyArtifact(BuyArtifact & pack) override;
 	void visitTradeOnMarketplace(TradeOnMarketplace & pack) override;
 	void visitSetFormation(SetFormation & pack) override;
+	void visitSetTownName(SetTownName & pack) override;
 	void visitHireHero(HireHero & pack) override;
 	void visitBuildBoat(BuildBoat & pack) override;
 	void visitQueryReply(QueryReply & pack) override;
 	void visitMakeAction(MakeAction & pack) override;
 	void visitDigWithHero(DigWithHero & pack) override;
 	void visitCastAdvSpell(CastAdvSpell & pack) override;
+	void visitRequestStatistic(RequestStatistic & pack) override;
 	void visitPlayerMessage(PlayerMessage & pack) override;
 	void visitSaveLocalState(SaveLocalState & pack) override;
 };

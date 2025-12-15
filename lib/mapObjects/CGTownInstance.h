@@ -46,6 +46,7 @@ class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public I
 {
 	friend class CTownInstanceConstructor;
 	std::string nameTextId; // name of town
+	std::string customName;
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
 	std::set<BuildingID> builtBuildings;
@@ -75,6 +76,8 @@ public:
 	{
 		h & static_cast<CGDwelling&>(*this);
 		h & nameTextId;
+		if (h.version >= Handler::Version::CUSTOM_NAMES)
+			h & customName;
 		h & built;
 		h & destroyed;
 		h & identifier;
@@ -128,6 +131,7 @@ public:
 	std::string getNameTranslated() const;
 	std::string getNameTextID() const;
 	void setNameTextId(const std::string & newName);
+	void setCustomName(const std::string & newName);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -156,12 +160,11 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	bool hasBuiltSomeTradeBuilding() const;
+	bool hasBuiltResourceMarketplace() const;
 	//checks if special building with type buildingID is constructed
 	bool hasBuilt(BuildingSubID::EBuildingSubID buildingID) const;
 	//checks if building is constructed and town has same subID
 	bool hasBuilt(const BuildingID & buildingID) const;
-	bool hasBuilt(const BuildingID & buildingID, FactionID townID) const;
 	void addBuilding(const BuildingID & buildingID);
 	void removeBuilding(const BuildingID & buildingID);
 	void removeAllBuildings();

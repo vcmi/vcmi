@@ -40,7 +40,7 @@ public:
 	};
 
 	void addBannedObject(const CompoundMapObjectID & objid);
-	void addCustomObject(const ObjectInfo & object, const CompoundMapObjectID & objid);
+	void addCustomObject(const ObjectInfo & object);
 	void clearBannedObjects();
 	void clearCustomObjects();
 	const std::vector<CompoundMapObjectID> & getBannedObjects() const;

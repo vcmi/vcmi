@@ -1,10 +1,10 @@
 {
 	"mappings" : [
 		// Normal type
-		{
-			"pos" : [ [ 14,13,0 ], [ 4,34,0 ] ],
-			"pattern" : "normal.s1"
-		},
+//		{
+//			"pos" : [ [ 14,13,0 ], [ 4,34,0 ] ],
+//			"pattern" : "normal.s1"
+//		},
 		{
 			"pos" : [ [ 14,15,0 ], [ 29,19,0 ] ],
 			"pattern" : "normal.s2"
@@ -21,10 +21,10 @@
 			"pos" : [ [ 5,14,0 ], [ 31,13,0 ], [ 17,3,0 ], [ 13,8,0 ] ],
 			"pattern" : "normal.s5"
 		},
-		{
-			"pos" : [ [ 9,17,0 ], [ 3,17,0 ] ],
-			"pattern" : "normal.s6"
-		},
+//		{
+//			"pos" : [ [ 9,17,0 ], [ 3,17,0 ] ],
+//			"pattern" : "normal.s6"
+//		},
 		{
 			"pos" : [ [ 21,20,1 ], [ 28,27,0 ] ],
 			"pattern" : "normal.m1"
@@ -90,10 +90,10 @@
 			"pos" : [ [ 26,28,1 ], [ 27,35,0 ] ],
 			"pattern" : "dirt.s5"
 		},
-		{
-			"pos" : [ [ 25,28,1 ] ],
-			"pattern" : "dirt.s6"
-		},
+//		{
+//			"pos" : [ [ 25,28,1 ] ],
+//			"pattern" : "dirt.s6"
+//		},
 		{
 			"pos" : [ [ 9,25,1 ] ],
 			"pattern" : "dirt.m1"
@@ -132,10 +132,10 @@
 			"pos" : [ [ 8,14,0 ] ],
 			"pattern" : "water.s5"
 		},
-		{
-			"pos" : [ [ 8,13,0 ] ],
-			"pattern" : "water.s6"
-		},
+//		{
+//			"pos" : [ [ 8,13,0 ] ],
+//			"pattern" : "water.s6"
+//		},
 		{
 			"pos" : [ [ 9,13,0 ] ],
 			"pattern" : "water.n1"
@@ -169,9 +169,9 @@
 			"pos" : [ [ 16,4,1 ] ],
 			"pattern" : "rock.s5"
 		},
-		{
-			"pos" : [ [ 8,23,1 ] ],
-			"pattern" : "rock.s6"
-		},
+//		{
+//			"pos" : [ [ 8,23,1 ] ],
+//			"pattern" : "rock.s6"
+//		},
 	]
 }

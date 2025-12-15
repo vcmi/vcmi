@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns" : "Переміщення сюди коштуватиме {%TOTAL} очок. Після переміщення залишиться {%REMAINING} очок.",
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Ви впевнені, що хочете завантажити швидке збереження?",
 
 	"vcmi.artifact.charges" : "Заряди",
 	

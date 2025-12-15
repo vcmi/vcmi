@@ -138,6 +138,21 @@ BattleSpellMechanics::BattleSpellMechanics(const IBattleCast * event,
 	targetCondition(std::move(targetCondition_))
 {}
 
+void BattleSpellMechanics::forEachEffect(const std::function<bool (const spells::effects::Effect &)> & fn) const
+{
+	if (!effects)
+		return;
+
+	effects->forEachEffect(getEffectLevel(), [&](const spells::effects::Effect * eff, bool & stop)
+	{
+		if(!eff)
+			return;
+
+		if(fn(*eff))
+			stop = true;
+	});
+}
+
 BattleSpellMechanics::~BattleSpellMechanics() = default;
 
 void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & targets, bool indirect, bool ignoreImmunity) const
@@ -430,16 +445,21 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	std::vector <const battle::Unit *> resisted;
 
-	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	resistantUnitIds.clear();
+	if(isNegativeSpell() && isMagicalEffect())
 	{
-		if(isNegativeSpell() && isMagicalEffect())
+		//magic resistance
+		for (const auto * unit : battle()->battleGetAllUnits(false))
 		{
-			//magic resistance
 			const int prob = std::min(unit->magicResistance(), 100); //probability of resistance in %
 			if(rng.nextInt(0, 99) < prob)
-				return true;
+				resistantUnitIds.insert(unit->unitId());
 		}
-		return false;
+	}
+
+	auto filterResisted = [&, this](const battle::Unit * unit) -> bool
+	{
+		return resistantUnitIds.contains(unit->unitId());
 	};
 
 	auto filterUnit = [&](const battle::Unit * unit)
@@ -481,6 +501,8 @@ void BattleSpellMechanics::beforeCast(BattleSpellCast & sc, vstd::RNG & rng, con
 
 	for(const auto * unit : resisted)
 		sc.resistedCres.insert(unit->unitId());
+
+	resistantUnitIds.clear();
 }
 
 bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rng)
@@ -748,6 +770,11 @@ bool BattleSpellMechanics::isSmart() const
 	return mode != Mode::MAGIC_MIRROR && BaseMechanics::isSmart();
 }
 
+bool BattleSpellMechanics::wouldResist(const battle::Unit * unit) const
+{
+	return resistantUnitIds.contains(unit->unitId());
+}
+
 BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) const
 {
 	if(isMassive() || !centralHex.isValid())
@@ -769,6 +796,11 @@ BattleHexArray BattleSpellMechanics::rangeInHexes(const BattleHex & centralHex) 
 	});
 
 	return effectRange;
+}
+
+Target BattleSpellMechanics::canonicalizeTarget(const Target & aim) const
+{
+	return transformSpellTarget(aim);
 }
 
 const Spell * BattleSpellMechanics::getSpell() const

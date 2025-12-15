@@ -92,6 +92,15 @@ void AssetGenerator::initialize()
 	animationFiles[AnimationPath::builtin("SPRITES/adventureLayersButton")] = createAdventureMapButton(ImagePath::builtin("adventureLayers.png"), true);
 	
 	animationFiles[AnimationPath::builtin("SPRITES/GSPButtonClear")] = createGSPButtonClear();
+	animationFiles[AnimationPath::builtin("SPRITES/GSPButton2Arrow")] = createGSPButton2Arrow();
+
+	for (PlayerColor color(-1); color < PlayerColor::PLAYER_LIMIT; ++color)
+	{
+		std::string name = "TownPortalBackgroundBlue" + (color == -1 ? "" : "-" + color.toString());
+		imageFiles[ImagePath::builtin(name)] = [this, color](){ return createGateListColored(std::max(PlayerColor(0), color), PlayerColor(1)); };
+	}
+
+	imageFiles[ImagePath::builtin("heroSlotsBlue.png")] = [this](){ return createHeroSlotsColored(PlayerColor(1));};
 
 	createPaletteShiftedSprites();
 }
@@ -127,6 +136,22 @@ void AssetGenerator::addImageFile(const ImagePath & path, ImageGenerationFunctor
 void AssetGenerator::addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim)
 {
 	animationFiles[path] = anim;
+}
+
+auto getColorFilters()
+{
+	auto filterSettings = LIBRARY->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
+		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
+		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
+	};
+	return filters;
 }
 
 AssetGenerator::CanvasPtr AssetGenerator::createAdventureOptionsCleanBackground() const
@@ -208,17 +233,7 @@ AssetGenerator::CanvasPtr AssetGenerator::createPlayerColoredBackground(const Pl
 	std::shared_ptr<IImage> texture = ENGINE->renderHandler().loadImage(locator);
 
 	// transform to make color of brown DIBOX.PCX texture match color of specified player
-	auto filterSettings = LIBRARY->settingsHandler->getFullConfig()["interface"]["playerColoredBackground"];
-	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = {
-		ColorFilter::genRangeShifter( filterSettings["red"   ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["blue"  ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["tan"   ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["green" ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["orange"].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["purple"].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["teal"  ].convertTo<std::vector<float>>() ),
-		ColorFilter::genRangeShifter( filterSettings["pink"  ].convertTo<std::vector<float>>() )
-	};
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
 
 	assert(player.isValidPlayer());
 	if (!player.isValidPlayer())
@@ -622,6 +637,116 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createAdventureMapButton(cons
 	return layout;
 }
 
+AssetGenerator::AnimationLayoutMap AssetGenerator::createSliderBar(bool brown, bool horizontal, int length)
+{
+	AnimationLayoutMap layout;
+
+	AnimationPath anim = brown ? AnimationPath::builtin("IGPCRDIV.DEF") : AnimationPath::builtin("SCNRBSL.DEF");
+
+	auto genSlider = [horizontal, length](std::shared_ptr<IImage> src, Canvas & canvas){
+		const int border = 6;
+		const int inner  = 4;
+		int pos = 0;
+
+		while (pos < length)
+		{
+			int remain = length - pos;
+			Rect c;
+
+			// FIRST segment → leading border + inner
+			if(pos == 0)
+			{
+				int w = std::min(remain, border + inner);
+				c = horizontal ? Rect(0, 0, w, 16)
+							: Rect(0, 0, 16, w);
+			}
+			// LAST segment → inner + trailing border
+			else if(remain <= border + inner)
+			{
+				int w = std::min(remain, border + inner);
+				c = horizontal ? Rect(16 - w, 0, w, 16)
+							: Rect(0, 16 - w, 16, w);
+			}
+			// MIDDLE → pure inner (no borders)
+			else
+			{
+				c = horizontal ? Rect(border, 0, inner, 16)
+							: Rect(0, border, 16, inner);
+			}
+
+			canvas.draw(src,
+						horizontal ? Point(pos,0) : Point(0,pos),
+						c);
+
+			// **Important**: advance by INNER for all but the last slice
+			if(remain > border + inner) pos += inner;
+			else break;
+		}
+	};
+
+	for(int i = 0; i < 4; i++)
+	{
+		std::string baseName = "Slider-" + std::string(brown ? "brown" : "blue") + "-" + std::string(horizontal ? "horizontal" : "vertical") + "-" + std::to_string(length) + "-" + std::to_string(i);
+		ImagePath spriteName = ImagePath::builtin(baseName + ".png");
+
+		imageFiles[spriteName] = [anim, horizontal, brown, length, i, genSlider](){
+			auto newImg = ENGINE->renderHandler().createImage(Point(horizontal ? length : 16, horizontal ? 16 : length), CanvasScalingPolicy::IGNORE);
+			auto canvas = newImg->getCanvas();
+			switch(i)
+			{
+			case 0:
+				{
+					auto src = ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 0);
+					genSlider(src, canvas);
+					return newImg;
+				}
+			case 1:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					auto srcImg = ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 1);
+
+					tmpCanvas.drawColor(Rect(Point(0, 0), tmpImg->dimensions()), Colors::BLACK);
+					if(brown)
+					{
+						
+						tmpCanvas.draw(srcImg, Point(1, 1));
+						tmpCanvas.drawColorBlended(Rect(0, 0, tmpImg->width(), 3), ColorRGBA(0, 0, 0, 160));
+						tmpCanvas.drawColorBlended(Rect(0, 0, 3, tmpImg->height()), ColorRGBA(0, 0, 0, 160));
+					}
+					else
+						tmpCanvas.draw(srcImg, Point(0, 0));
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			case 2:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					tmpCanvas.draw(ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 2), Point(0, 0));
+					// TODO: generate disabled brown slider (not used yet, but filling with dummy avoids warning)
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			default:
+				{
+					auto tmpImg = ENGINE->renderHandler().createImage(Point(16, 16), CanvasScalingPolicy::IGNORE);
+					auto tmpCanvas = tmpImg->getCanvas();
+					tmpCanvas.draw(ENGINE->renderHandler().loadAnimation(anim, EImageBlitMode::OPAQUE)->getImage(brown ? 4 : 3), Point(0, 0));
+					if(brown)
+						tmpCanvas.drawBorder(Rect(Point(0, 0), tmpImg->dimensions()), Colors::WHITE, 1);
+					genSlider(tmpImg, canvas);
+					return newImg;
+				}
+			}
+		};
+
+		layout[0].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+	}
+
+	return layout;
+}
+
 AssetGenerator::CanvasPtr AssetGenerator::createCreatureInfoPanel(int boxesAmount) const
 {
 	Point size(438, 187);
@@ -883,4 +1008,105 @@ AssetGenerator::AnimationLayoutMap AssetGenerator::createGSPButtonClear()
 	}
 
 	return layout;
+}
+
+AssetGenerator::AnimationLayoutMap AssetGenerator::createGSPButton2Arrow()
+{
+	auto baseImg = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("GSPBUT2"), EImageBlitMode::OPAQUE);
+	auto overlayImg = ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("GSPBUTT"), EImageBlitMode::OPAQUE);
+
+	AnimationLayoutMap layout;
+	for(int i = 0; i < 4; i++)
+	{
+		ImagePath spriteName = ImagePath::builtin("GSPButton2Arrow" + std::to_string(i) + ".png");
+
+		imageFiles[spriteName] = [baseImg, overlayImg, i](){
+			auto newImg = ENGINE->renderHandler().createImage(baseImg->getImage(i)->dimensions(), CanvasScalingPolicy::IGNORE);
+			auto canvas = newImg->getCanvas();
+			canvas.draw(baseImg->getImage(i), Point(0, 0));
+			canvas.draw(overlayImg->getImage(i), Point(0, 0), Rect(0, 0, 20, 20));
+			return newImg;
+		};
+
+		layout[0].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+	}
+
+	return layout;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createGateListColored(PlayerColor color, PlayerColor backColor) const
+{
+	auto locator = ImageLocator(ImagePath::builtin("TpGate"), EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+	img->playerColored(color);
+	std::shared_ptr<IImage> imgColored = ENGINE->renderHandler().loadImage(locator);
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
+	imgColored->adjustPalette(filters[backColor.getNum()], 0);
+
+	auto image = ENGINE->renderHandler().createImage(img->dimensions(), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+
+	canvas.draw(imgColored, Point(0, 0));
+
+	std::vector<Rect> keepOriginalRects = {
+		Rect(0, 0, 14, 393),
+		Rect(293, 0, 13, 393),
+		Rect(0, 393, 8, 76),
+		Rect(299, 393, 6, 76),
+		Rect(0, 0, 306, 16),
+		Rect(0, 383, 306, 10),
+		Rect(0, 441, 306, 2),
+		Rect(0, 462, 306, 7),
+		// Edges
+		Rect(14, 15, 2, 5),
+		Rect(16, 15, 3, 2),
+		Rect(16, 17, 1, 1),
+		Rect(14, 379, 3, 4),
+		Rect(16, 381, 2, 2),
+		Rect(16, 380, 1, 1),
+		Rect(289, 16, 2, 2),
+		Rect(291, 16, 2, 4),
+		Rect(289, 381, 2, 2),
+		Rect(291, 379, 2, 4)
+	};
+	for(auto & rect : keepOriginalRects)
+		canvas.draw(img, Point(rect.x, rect.y), rect);
+
+	std::vector<Rect> blackRect = {
+		Rect(14, 401, 66, 32),
+		Rect(227, 401, 66, 32)
+	};
+	for(auto & rect : blackRect)
+		canvas.drawBorder(rect, Colors::BLACK);
+
+	return image;
+}
+
+AssetGenerator::CanvasPtr AssetGenerator::createHeroSlotsColored(PlayerColor backColor) const
+{
+	auto locator = ImageLocator(AnimationPath::builtin("OVSLOT"), 4, 0, EImageBlitMode::COLORKEY);
+	std::shared_ptr<IImage> img = ENGINE->renderHandler().loadImage(locator);
+	static const std::array<ColorFilter, PlayerColor::PLAYER_LIMIT_I> filters = getColorFilters();
+	img->adjustPalette(filters[backColor.getNum()], 0);
+
+	auto image = ENGINE->renderHandler().createImage(Point(327, 216), CanvasScalingPolicy::IGNORE);
+	Canvas canvas = image->getCanvas();
+	canvas.draw(img, Point(0, 0), Rect(3, 4, 253, 107));
+	for(int i = 0; i<7; i++)
+		canvas.draw(img, Point(1 + i * 36, 108), Rect(76, 57, 35, 17));
+
+	// sec skill
+	for(int x = 0; x<2; x++)
+		for(int y = 0; y<4; y++)
+		{
+			canvas.draw(img, Point(255 + x * 36, y * (36 + 18)), Rect(3, 75, 36, 36));
+			canvas.draw(img, Point(256 + x * 36, 37 + y * (36 + 18)), Rect(76, 57, 35, 17));
+		}
+	
+	// artifacts
+	for(int x = 0; x<7; x++)
+		for(int y = 0; y<2; y++)
+			canvas.draw(img, Point(x * 36, 130 + y * 36), Rect(3, 75, 36, 36));
+
+	return image;
 }

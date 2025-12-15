@@ -12,6 +12,7 @@
 #include "SelectionTab.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
+#include "BattleOnlyModeTab.h"
 
 #include "../CPlayerInterface.h"
 #include "../CServerHandler.h"
@@ -325,6 +326,7 @@ void SelectionTab::toggleMode()
 				inputName->disable();
 				auto files = getFiles("Maps/", EResType::MAP);
 				files.erase(ResourcePath("Maps/Tutorial.tut", EResType::MAP));
+				files.erase(ResourcePath("Maps/BattleOnlyMode.vmap", EResType::MAP));
 				parseMaps(files);
 				break;
 			}

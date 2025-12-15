@@ -365,6 +365,14 @@ void TemplateEditor::loadZoneMenuContent(bool onlyPosition)
 		ui->comboBoxZoneOwner->setEnabled(false);
 	}
 
+	ui->comboBoxForcedLevel->clear();
+	ui->comboBoxForcedLevel->addItem(tr("Automatic"), QVariant(static_cast<int>(EZoneLevel::AUTOMATIC)));
+	ui->comboBoxForcedLevel->addItem(tr("Surface"), QVariant(static_cast<int>(EZoneLevel::SURFACE)));
+	ui->comboBoxForcedLevel->addItem(tr("Underground"), QVariant(static_cast<int>(EZoneLevel::UNDERGROUND)));
+	for (int i = 0; i < ui->comboBoxForcedLevel->count(); ++i)
+		if (ui->comboBoxForcedLevel->itemData(i).toInt() == static_cast<int>(zone->getForcedLevel()))
+			ui->comboBoxForcedLevel->setCurrentIndex(i);
+
 	ui->comboBoxMonsterStrength->clear();
 	ui->comboBoxMonsterStrength->addItem(tr("None"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::ZONE_NONE)));
 	ui->comboBoxMonsterStrength->addItem(tr("Random"), QVariant(static_cast<int>(EMonsterStrength::EMonsterStrength::RANDOM)));
@@ -466,10 +474,12 @@ void TemplateEditor::saveZoneMenuContent()
 
 	auto zone = templates[selectedTemplate]->getZones().at(selectedZone);
 	auto type = static_cast<ETemplateZoneType>(ui->comboBoxZoneType->currentData().toInt());
+	auto forcedLevel = static_cast<EZoneLevel>(ui->comboBoxForcedLevel->currentData().toInt());
 
 	zone->setVisiblePosition(Point(ui->spinBoxZoneVisPosX->value(), ui->spinBoxZoneVisPosY->value()));
 	zone->setVisibleSize(ui->doubleSpinBoxZoneVisSize->value());
 	zone->setType(type);
+	zone->setForcedLevel(forcedLevel);
 	zone->setSize(ui->spinBoxZoneSize->value());
 	zone->playerTowns.townCount = ui->spinBoxTownCountPlayer->value();
 	zone->playerTowns.castleCount = ui->spinBoxCastleCountPlayer->value();
@@ -826,6 +836,12 @@ void TemplateEditor::on_comboBoxZoneType_currentTextChanged(const QString &text)
 void TemplateEditor::on_comboBoxZoneOwner_currentTextChanged(const QString &text)
 {
 	if(ui->comboBoxZoneOwner->hasFocus())
+		saveZoneMenuContent();
+}
+
+void TemplateEditor::on_comboBoxForcedLevel_currentTextChanged(const QString &text)
+{
+	if(ui->comboBoxForcedLevel->hasFocus())
 		saveZoneMenuContent();
 }
 

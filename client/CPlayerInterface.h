@@ -10,8 +10,10 @@
 #pragma once
 
 #include "ArtifactsUIController.h"
+#include "GameChatHandler.h"
 
 #include "../lib/callback/CGameInterface.h"
+#include "../lib/gameState/GameStatistics.h"
 #include "../lib/FunctionList.h"
 #include "gui/CIntObject.h"
 
@@ -62,6 +64,8 @@ class CPlayerInterface : public CGameInterface
 	bool ignoreEvents;
 	int autosaveCount;
 
+	const std::string QUICKSAVE_PATH = "Saves/Quicksave";
+
 	std::list<std::shared_ptr<CInfoWindow>> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
 	std::unique_ptr<HeroMovementController> movementController;
@@ -82,6 +86,8 @@ public: // TODO: make private
 	CInGameConsole * cingconsole;
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
+
+	bool hasQuickSave;
 
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
@@ -147,6 +153,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void playerEndsTurn(PlayerColor player) override;
 	void showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain) override;
 	void setColorScheme(ColorScheme scheme) override;
+	void responseStatistic(StatisticDataSet & statistic) override;
 
 	//for battles
 	void actionFinished(const BattleID & battleID, const BattleAction& action) override;//occurs AFTER action taken by active stack or by the hero
@@ -198,6 +205,9 @@ public: // public interface for use by client via GAME->interface() access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
+	bool checkQuickLoadingGame(bool verbose = false);
+	void proposeQuickLoadingGame();
+	void quickSaveGame();
 	void performAutosave();
 	void gamePause(bool pause);
 	void endNetwork();

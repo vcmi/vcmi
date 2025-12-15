@@ -27,6 +27,7 @@
 	"vcmi.adventureMap.moveCostDetailsNoTurns"           : "Mover para cá custará {%POINTS} pontos. {%REMAINING} pontos restantes após mover.",
 	"vcmi.adventureMap.movementPointsHeroInfo"           : "(Pontos de movimento: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Desculpe, a repetição do turno do oponente ainda não foi implementada!",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "Tem a certeza de que pretende carregar o jogo guardado rapidamente?",
 
 	"vcmi.adventureMap.dwelling2" : "{%s}\n\nVocê gostaria de recrutar %s ou %s?",
 	"vcmi.adventureMap.dwelling3" : "{%s}\n\nVocê gostaria de recrutar %s, %s ou %s?",

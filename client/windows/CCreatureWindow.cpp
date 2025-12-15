@@ -346,6 +346,7 @@ CStackWindow::BonusesSection::BonusesSection(CStackWindow * owner, int yOffset, 
 	};
 
 	lines = std::make_shared<CListBox>(onCreate, Point(0, 0), Point(0, itemHeight), visibleSize, totalSize, 0, totalSize > 3 ? 1 : 0, Rect(pos.w - 15, 0, pos.h, pos.h));
+	lines->onScroll = [owner](){ owner->redraw(); };
 }
 
 CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
@@ -428,7 +429,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			};
 
 			std::string tooltipText = "vcmi.creatureWindow." + btnIDs[buttonIndex];
-			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(302 + (int)buttonIndex*40, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
+			parent->switchButtons[buttonIndex] = std::make_shared<CButton>(Point(342, 5), AnimationPath::builtin("stackWindow/upgradeButton"), CButton::tooltipLocalized(tooltipText), onSwitch);
 			parent->switchButtons[buttonIndex]->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("stackWindow/switchModeIcons"), buttonIndex));
 		}
 		parent->switchButtons[parent->activeTab]->disable();
@@ -537,7 +538,7 @@ CStackWindow::CommanderMainSection::CommanderMainSection(CStackWindow * owner, i
 		};
 
 		abilities = std::make_shared<CListBox>(onCreate, Point(38, 3+pos.h), Point(63, 0), 6, abilitiesCount);
-		abilities->setRedrawParent(true);
+		abilities->onScroll = [owner](){ owner->redraw(); };
 
 		leftBtn = std::make_shared<CButton>(Point(10,  pos.h + 6), AnimationPath::builtin("hsbtns3.def"), CButton::tooltip(), [this](){ abilities->moveToPrev(); }, EShortcut::MOVE_LEFT);
 		rightBtn = std::make_shared<CButton>(Point(411, pos.h + 6), AnimationPath::builtin("hsbtns5.def"), CButton::tooltip(), [this](){ abilities->moveToNext(); }, EShortcut::MOVE_RIGHT);
@@ -836,6 +837,7 @@ void CStackWindow::init()
 
 	if(!info->stackNode)
 	{
+		//does not contain any propagated bonuses
 		fakeNode = std::make_unique<CStackInstance>(nullptr, info->creature->getId(), 1, true);
 		info->stackNode = fakeNode.get();
 	}
@@ -855,14 +857,26 @@ void CStackWindow::init()
 
 void CStackWindow::initBonusesList()
 {
-	BonusList receivedBonuses = *info->stackNode->getBonuses(CSelector(Bonus::Permanent));
+	const IBonusBearer * bonusSource = (info->stack && !info->stack->base) 
+    ? static_cast<const IBonusBearer*>(info->stack)  // Use CStack for war machines
+    : static_cast<const IBonusBearer*>(info->stackNode);  // Use CStackInstance for regular units
+
+	auto bonusToString = [bonusSource](const std::shared_ptr<Bonus> & bonus) -> std::string
+	{
+		if(!bonus->description.empty())
+			return bonus->description.toString();
+		else
+			return LIBRARY->getBth()->bonusToString(bonus, bonusSource);
+	};
+
+	BonusList receivedBonuses = *bonusSource->getBonuses(CSelector(Bonus::Permanent));
 	BonusList abilities = info->creature->getExportedBonusList();
 
 	// remove all bonuses that are not propagated away
 	// such bonuses should be present in received bonuses, and if not - this means that they are behind inactive limiter, such as inactive stack experience bonuses
 	abilities.remove_if([](const Bonus* b){ return b->propagator == nullptr;});
 
-	const auto & bonusSortingPredicate = [this](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
+	const auto & bonusSortingPredicate = [bonusToString](const std::shared_ptr<Bonus> & v1, const std::shared_ptr<Bonus> & v2){
 		if (v1->source != v2->source)
 		{
 			int priorityV1 = v1->source == BonusSource::CREATURE_ABILITY ? -1 : static_cast<int>(v1->source);
@@ -870,7 +884,7 @@ void CStackWindow::initBonusesList()
 			return priorityV1 < priorityV2;
 		}
 		else
-			return  info->stackNode->bonusToString(v1) < info->stackNode->bonusToString(v2);
+			return bonusToString(v1) < bonusToString(v2);
 	};
 
 	receivedBonuses.remove_if([](const Bonus* b)
@@ -938,7 +952,8 @@ void CStackWindow::initBonusesList()
 	BonusInfo bonusInfo;
 	for(auto b : visibleBonuses)
 	{
-		bonusInfo.description = info->stackNode->bonusToString(b);
+		bonusInfo.description = bonusToString(b);
+		//FIXME: we possibly use fakeNode, which does not have the correct bonus value
 		bonusInfo.imagePath = info->stackNode->bonusToGraphics(b);
 		bonusInfo.bonusSource = b->source;
 
@@ -952,8 +967,8 @@ void CStackWindow::initSections()
 {
 	OBJECT_CONSTRUCTION;
 
-	bool showArt = GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
-	bool showExp = (GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE) || info->commander != nullptr) && info->stackNode;
+	bool showArt = GAME->interface() && GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_ARTIFACT) && info->commander == nullptr && info->stackNode;
+	bool showExp = ((GAME->interface() && GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) || info->commander != nullptr) && info->stackNode;
 
 	mainSection = std::make_shared<MainSection>(this, pos.h, showExp, showArt);
 
@@ -973,17 +988,13 @@ void CStackWindow::initSections()
 			auto obj = switchTab(index);
 
 			if(obj)
-			{
-				obj->activate();
-				obj->recActions |= (UPDATE | SHOWALL);
-			}
+				obj->enable();
 			return obj;
 		};
 
 		auto deactivateObj = [=](std::shared_ptr<CIntObject> obj)
 		{
-			obj->deactivate();
-			obj->recActions &= ~(UPDATE | SHOWALL);
+			obj->disable();
 		};
 
 		commanderMainSection = std::make_shared<CommanderMainSection>(this, 0);

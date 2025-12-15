@@ -13,6 +13,8 @@
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/mapping/CMapHeader.h"
 #include "../lib/gameState/GameStatistics.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -77,6 +79,7 @@ public:
 	virtual void setCampaignState(std::shared_ptr<CampaignState> newCampaign) = 0;
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
+	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
 	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
@@ -88,7 +91,7 @@ public:
 	virtual void setExtraOptionsInfo(const ExtraOptionsInfo & info) const = 0;
 	virtual void sendMessage(const std::string & txt) const = 0;
 	virtual void sendGuiAction(ui8 action) const = 0; // TODO: possibly get rid of it?
-	virtual void sendStartGame(bool allowOnlyAI = false) const = 0;
+	virtual void sendStartGame(bool allowOnlyAI = false, bool verify = true) const = 0;
 	virtual void sendRestartGame() const = 0;
 };
 
@@ -139,6 +142,7 @@ public:
 	ESelectionScreen screenType; // To create lobby UI only after server is setup
 	EServerMode serverMode;
 	ELoadMode loadMode; // For saves filtering in SelectionTab
+	bool battleMode;
 	////////////////////
 
 	std::unique_ptr<CStopWatch> th;
@@ -186,6 +190,7 @@ public:
 	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
+	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
@@ -198,13 +203,15 @@ public:
 	void sendMessage(const std::string & txt) const override;
 	void sendGuiAction(ui8 action) const override;
 	void sendRestartGame() const override;
-	void sendStartGame(bool allowOnlyAI = false) const override;
+	void sendStartGame(bool allowOnlyAI = false, bool verify = true) const override;
 
 	void startMapAfterConnection(std::shared_ptr<CMapInfo> to);
 	bool validateGameStart(bool allowOnlyAI = false) const;
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(std::shared_ptr<CGameState> gameState);
+	std::optional<std::string> canQuickLoadGame(const std::string & path) const; // returns reason why not compatible, or nullopt if can
+	void quickLoadGame(const std::string & path);
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void endNetwork();
 	void endGameplay();

@@ -19,6 +19,7 @@
 	"vcmi.adventureMap.spellUnknownProblem"    : "Problema desconocido con este hechizo, no hay más información disponible.",
 	"vcmi.adventureMap.playerAttacked"         : "El jugador ha sido atacado: %s",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Disculpe, la repetición del turno del oponente aún no está implementada.",
+	"vcmi.adventureMap.confirmQuickLoadGame"             : "¿Estás segura de que quieres cargar el quicksave?",
 
 	"vcmi.capitalColors.0" : "Rojo",
 	"vcmi.capitalColors.1" : "Azul",

@@ -36,6 +36,7 @@ public:
 	void addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim);
 
 	AnimationLayoutMap createAdventureMapButton(const ImagePath & overlay, bool small);
+	AnimationLayoutMap createSliderBar(bool brown, bool horizontal, int length);
 
 private:
 	struct PaletteAnimation
@@ -66,6 +67,9 @@ private:
 	CanvasPtr createCreatureInfoPanelElement(CreatureInfoPanelElement element) const;
 	CanvasPtr createQuestWindow() const;
 	AnimationLayoutMap createGSPButtonClear();
+	AnimationLayoutMap createGSPButton2Arrow();
+	CanvasPtr createGateListColored(PlayerColor color, PlayerColor backColor) const;
+	CanvasPtr createHeroSlotsColored(PlayerColor backColor) const;
 
 	void createPaletteShiftedSprites();
 	void generatePaletteShiftedAnimation(const AnimationPath & source, const std::vector<PaletteAnimation> & animation);

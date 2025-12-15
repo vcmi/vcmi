@@ -28,7 +28,7 @@ SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
 {
 	if (!config["createdBoat"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("core:boat", config["createdBoat"], [=](int32_t boatTypeID)
+		LIBRARY->identifiers()->requestIdentifier("core:boat", config["createdBoat"], [this](int32_t boatTypeID)
 		{
 			createdBoat = BoatId(boatTypeID);
 		});

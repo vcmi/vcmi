@@ -206,9 +206,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-316</y>
-          <width>449</width>
-          <height>830</height>
+          <y>0</y>
+          <width>441</width>
+          <height>936</height>
          </rect>
         </property>
         <attribute name="label">
@@ -552,9 +552,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
-          <width>449</width>
-          <height>1494</height>
+          <y>-106</y>
+          <width>441</width>
+          <height>1796</height>
          </rect>
         </property>
         <attribute name="label">
@@ -719,6 +719,18 @@
            <layout class="QVBoxLayout" name="verticalLayout_11">
             <item>
              <widget class="QComboBox" name="comboBoxZoneOwner"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxForcedLevel">
+           <property name="title">
+            <string>Forced level</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_22">
+            <item>
+             <widget class="QComboBox" name="comboBoxForcedLevel"/>
             </item>
            </layout>
           </widget>
@@ -1280,7 +1292,7 @@
           <x>0</x>
           <y>0</y>
           <width>462</width>
-          <height>514</height>
+          <height>491</height>
          </rect>
         </property>
         <attribute name="label">

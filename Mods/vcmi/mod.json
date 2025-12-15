@@ -239,6 +239,16 @@
 		]
 	},
 
+	"turkish": {
+		"name": "VCMI - Temel dosyalar",
+		"description": "VCMI'nin doğru çalışması için gereken temel dosyalar",
+		"author": "Erthon",
+		"skipValidation": true,
+		"translations": [
+			"config/turkish.json"
+		]
+	},
+
 	"translations" : [
 		"config/english.json"
 	],

@@ -130,10 +130,21 @@ In order to make functional hero you also need:
 			"anotherOne" : {Bonus Format}
 		},
 		// Shortcut for defining creature specialty, using standard H3 rules
+		// Can be combined with bonuses-based specialty if desired
 		"creature" : "griffin",
 
 		// Shortcut for defining specialty in secondary skill, using standard H3 rules
-		"secondary" : "offence"
+		// Can be combined with bonuses-based specialty if desired
+		"secondary" : "offence",
+		
+		// Optional, only applicable to creature specialties
+		// Overrides creature level to specific value for purposes of computing growth of h3-like creature specialty
+		"creatureLevel" : 5
+		
+		// Optional, only applicable to creature and secondary skill specialties
+		// Overrides default (5% for vanilla H3 specialties) growth of specialties per level to a specified value
+		// Default value can be modified globally using specialtySecondarySkillGrowth and specialtyCreatureGrowth game settings
+		"stepSize" : 5
 	}
 }
 ```

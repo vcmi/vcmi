@@ -52,6 +52,7 @@ set(vcmiclientcommon_SRCS
 	gui/ShortcutHandler.cpp
 	gui/WindowHandler.cpp
 
+	lobby/BattleOnlyModeTab.cpp
 	lobby/CBonusSelection.cpp
 	lobby/CCampaignInfoScreen.cpp
 	lobby/CLobbyScreen.cpp
@@ -262,6 +263,7 @@ set(vcmiclientcommon_HEADERS
 	gui/TextAlignment.h
 	gui/WindowHandler.h
 
+	lobby/BattleOnlyModeTab.h
 	lobby/CBonusSelection.h
 	lobby/CCampaignInfoScreen.h
 	lobby/CLobbyScreen.h
@@ -450,15 +452,24 @@ assign_source_group(${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 add_library(vcmiclientcommon STATIC ${vcmiclientcommon_SRCS} ${vcmiclientcommon_HEADERS})
 
 if(NOT ENABLE_STATIC_LIBS)
-	add_dependencies(vcmiclientcommon
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	add_dependencies(vcmiclientcommon EmptyAI)
+
 	if(ENABLE_NULLKILLER_AI)
 		add_dependencies(vcmiclientcommon Nullkiller)
 	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
+		add_dependencies(vcmiclientcommon Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		add_dependencies(vcmiclientcommon StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		add_dependencies(vcmiclientcommon BattleAI)
+	endif()
+
 endif()
 if(IOS)
 	if(ENABLE_ERM)

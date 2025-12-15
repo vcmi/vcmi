@@ -182,28 +182,38 @@ std::vector<std::string> CMultiLineLabel::getLines()
 	return lines;
 }
 
-void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
+const std::string delimiters = "{}";
+
+int CTextContainer::getDelimitersWidth(EFonts font, std::string text)
 {
 	const auto f = ENGINE->renderHandler().loadFont(font);
-	Point where = destRect.topLeft();
-	const std::string delimiters = "{}";
-	auto delimitersCount = std::count_if(what.cbegin(), what.cend(), [&delimiters](char c)
+	auto delimitersWidth = std::count_if(text.cbegin(), text.cend(), [](char c)
 	{
 		return delimiters.find(c) != std::string::npos;
 	});
 	//We should count delimiters length from string to correct centering later.
-	delimitersCount *= f->getStringWidth(delimiters)/2;
+	delimitersWidth *= f->getStringWidth(delimiters)/2;
 
 	std::smatch match;
 	std::regex expr("\\{(.*?)\\|");
-	std::string::const_iterator searchStart( what.cbegin() );
-	while(std::regex_search(searchStart, what.cend(), match, expr))
+	std::string::const_iterator searchStart( text.cbegin() );
+	while(std::regex_search(searchStart, text.cend(), match, expr))
 	{
 		std::string colorText = match[1].str();
 		if(auto c = Colors::parseColor(colorText))
-			delimitersCount += f->getStringWidth(colorText + "|");
+			delimitersWidth += f->getStringWidth(colorText + "|");
 		searchStart = match.suffix().first;
 	}
+
+	return delimitersWidth;
+}
+
+void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
+{
+	const auto f = ENGINE->renderHandler().loadFont(font);
+	Point where = destRect.topLeft();
+
+	int delimitersWidth = getDelimitersWidth(font, what);
 
 	// input is rect in which given text should be placed
 	// calculate proper position for top-left corner of the text
@@ -212,10 +222,10 @@ void CTextContainer::blitLine(Canvas & to, Rect destRect, std::string what)
 		where.x += getBorderSize().x;
 
 	if(alignment == ETextAlignment::CENTER || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::BOTTOMCENTER)
-		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount)) / 2;
+		where.x += (destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersWidth)) / 2;
 
 	if(alignment == ETextAlignment::TOPRIGHT || alignment == ETextAlignment::BOTTOMRIGHT || alignment == ETextAlignment::CENTERRIGHT)
-		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersCount);
+		where.x += getBorderSize().x + destRect.w - (static_cast<int>(f->getStringWidth(what)) - delimitersWidth);
 
 	if(alignment == ETextAlignment::TOPLEFT || alignment == ETextAlignment::TOPCENTER || alignment == ETextAlignment::TOPRIGHT)
 		where.y += getBorderSize().y;
@@ -341,12 +351,13 @@ Rect CMultiLineLabel::getTextLocation()
 
 	switch(alignment)
 	{
-	case ETextAlignment::TOPLEFT:     return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::TOPCENTER:   return Rect(pos.topLeft(), textSizeComputed);
-	case ETextAlignment::CENTER:      return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
-	case ETextAlignment::CENTERLEFT:  return Rect(pos.topLeft() + Point(0, textOffset.y / 2), textSizeComputed);
-	case ETextAlignment::CENTERRIGHT: return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
-	case ETextAlignment::BOTTOMRIGHT: return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::TOPLEFT:      return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::TOPCENTER:    return Rect(pos.topLeft(), textSizeComputed);
+	case ETextAlignment::CENTER:       return Rect(pos.topLeft() + textOffset / 2, textSizeComputed);
+	case ETextAlignment::CENTERLEFT:   return Rect(pos.topLeft() + Point(0, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::CENTERRIGHT:  return Rect(pos.topLeft() + Point(textOffset.x, textOffset.y / 2), textSizeComputed);
+	case ETextAlignment::BOTTOMRIGHT:  return Rect(pos.topLeft() + textOffset, textSizeComputed);
+	case ETextAlignment::BOTTOMCENTER: return Rect(pos.topLeft() + Point(textOffset.x / 2, textOffset.y), textSizeComputed);
 	}
 	assert(0);
 	return Rect();

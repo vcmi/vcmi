@@ -46,9 +46,15 @@ option(ENABLE_ERM "Enable compilation of ERM scripting module" OFF)
 option(ENABLE_LUA "Enable compilation of LUA scripting module" OFF)
 option(ENABLE_VIDEO "Enable video support using ffmpeg" ON)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
-option(ENABLE_NULLKILLER_AI "Enable compilation of Nullkiller AI library" ON)
 option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
 option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routines are disabled" OFF)
+
+# AI libraries. Empty AI is always on
+
+option(ENABLE_NULLKILLER_AI "Enable compilation of NullkillerAI library" ON)
+option(ENABLE_NULLKILLER2_AI "Enable compilation of Nullkiller2AI library" ON)
+option(ENABLE_STUPID_AI "Enable compilation of StupidAI library" ON)
+option(ENABLE_BATTLE_AI "Enable compilation of BattleAI library" ON)
 
 # Compilation options
 
@@ -223,8 +229,9 @@ include(UseDoxygen OPTIONAL)
 #        Compile and linking options       #
 ############################################
 
-#Enable C++17 Globally
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
 #General visibility options
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
@@ -281,6 +288,19 @@ endif()
 
 if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
+endif()
+
+if(ENABLE_NULLKILLER_AI)
+	add_definitions(-DENABLE_NULLKILLER_AI)
+endif()
+if(ENABLE_NULLKILLER2_AI)
+	add_definitions(-DENABLE_NULLKILLER2_AI)
+endif()
+if(ENABLE_STUPID_AI)
+	add_definitions(-DENABLE_STUPID_AI)
+endif()
+if(ENABLE_BATTLE_AI)
+	add_definitions(-DENABLE_BATTLE_AI)
 endif()
 
 if(IOS)
@@ -423,18 +443,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR NOT WIN32)
 endif()
 
 # Check if some platform-specific libraries are needed for linking
-if(NOT WIN32 AND NOT IOS)
-	include(CheckLibraryExists)
-
-	# Shared memory functions used by Boost.Interprocess
-	# FindBoost handle linking with pthreads, but doesn't handle this
-	CHECK_LIBRARY_EXISTS(rt shm_open "" HAVE_RT_LIB)
-	if(HAVE_RT_LIB)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} rt)
-	endif()
-	if(HAIKU)
-		set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
-	endif()
+if(HAIKU)
+	set(SYSTEM_LIBS ${SYSTEM_LIBS} network)
 endif()
 
 if(ENABLE_LUA)
@@ -449,10 +459,10 @@ set(BOOST_COMPONENTS date_time filesystem locale program_options)
 if(ENABLE_INNOEXTRACT)
 	list(APPEND BOOST_COMPONENTS iostreams)
 endif()
-find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(Boost 1.74.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 if(Boost_MAJOR_VERSION EQUAL 1 AND Boost_MINOR_VERSION LESS 69)
 	list(APPEND BOOST_COMPONENTS system)
-	find_package(Boost 1.48.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+	find_package(Boost 1.74.0 REQUIRED COMPONENTS ${BOOST_COMPONENTS})
 endif()
 
 find_package(ZLIB REQUIRED)

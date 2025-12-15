@@ -36,6 +36,7 @@ public:
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -47,6 +48,7 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public VCMI_LIB_WRAP_NAMESPACE(ICPackVisitor)
@@ -61,6 +63,7 @@ public:
 	}
 
 	void visitForLobby(CPackForLobby & pack) override;
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -88,6 +91,7 @@ public:
 		return result;
 	}
 
+	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;

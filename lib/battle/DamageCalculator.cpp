@@ -285,11 +285,24 @@ double DamageCalculator::getAttackFromBackFactor() const
 	return 0;
 }
 
-double DamageCalculator::getAttackHateFactor() const
+double DamageCalculator::getAttackHateCreatureFactor() const
 {
 	//assume that unit have only few HATE features and cache them all
 	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATE);
 	return allHateEffects->valOfBonuses(Selector::subtype()(BonusSubtypeID(info.defender->creatureId()))) / 100.0;
+}
+
+double DamageCalculator::getAttackHateTraitFactor() const
+{
+	//assume that unit have only few HATE features and cache them all
+	auto allHateEffects = info.attacker->getBonusesOfType(BonusType::HATES_TRAIT);
+
+	auto selector = [this](const Bonus* hateBonus) -> bool
+	{
+		return info.defender->hasBonusOfType(hateBonus->subtype.as<BonusTypeID>().toEnum());
+	};
+
+	return allHateEffects->valOfBonuses(selector) / 100.0;
 }
 
 double DamageCalculator::getAttackRevengeFactor() const
@@ -475,7 +488,8 @@ std::vector<double> DamageCalculator::getAttackFactors() const
 		getAttackFromBackFactor(),
 		getAttackDeathBlowFactor(),
 		getAttackDoubleDamageFactor(),
-		getAttackHateFactor(),
+		getAttackHateCreatureFactor(),
+		getAttackHateTraitFactor(),
 		getAttackRevengeFactor()
 	};
 }
@@ -527,6 +541,18 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 	return bearer->getBonuses(selector)->valOfBonuses(noLimit.Or(limitMatches));
 };
 
+int64_t DamageCalculator::getDamageCap() const
+{
+	const std::string cachingStrDamageCap = "type_DAMAGE_RECEIVED_CAP";
+	static const auto selectorDamageCap = Selector::type()(BonusType::DAMAGE_RECEIVED_CAP);
+
+	int damageCapPercentage = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap);
+	if (damageCapPercentage <= 0)
+		return std::numeric_limits<int64_t>::max();
+
+	return info.defender->getMaxHealth() * damageCapPercentage / 100;
+}
+
 DamageEstimation DamageCalculator::calculateDmgRange() const
 {
 	DamageRange damageBase = getBaseDamageStack();
@@ -551,10 +577,16 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
-	DamageRange damageDealt {
-		std::max<int64_t>( 1.0, std::floor(damageBase.min * resultingFactor)),
-		std::max<int64_t>( 1.0, std::floor(damageBase.max * resultingFactor))
-	};
+	int64_t avail = info.defender->getAvailableHealth();
+	int64_t cap = getDamageCap();
+
+	auto dmin = std::max<int64_t>(1.0, std::floor(damageBase.min * resultingFactor));
+	auto dmax = std::max<int64_t>(1.0, std::floor(damageBase.max * resultingFactor));
+
+	dmin = std::min({dmin, avail, cap});
+	dmax = std::min({dmax, avail, cap});
+
+	DamageRange damageDealt{ dmin, dmax };
 
 	DamageRange killsDealt = getCasualties(damageDealt);
 

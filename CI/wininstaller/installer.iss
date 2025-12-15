@@ -166,12 +166,12 @@ Source: "{#UCRTFilesPath}\{#InstallerArch}\*"; DestDir: "{app}"; Flags: ignoreve
 
 
 [Icons]
-Name: "{group}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}";  Tasks: startmenu
-Name: "{group}\{cm:ShortcutMapEditor}"; Filename: "{app}\VCMI_mapeditor.exe"; Comment: "{cm:ShortcutMapEditorComment}";  Tasks: startmenu
+Name: "{group}\{cm:ShortcutLauncher}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}{code:GetBranchSuffix}";  Tasks: startmenu
+Name: "{group}\{cm:ShortcutMapEditor}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_mapeditor.exe"; Comment: "{cm:ShortcutMapEditorComment}{code:GetBranchSuffix}";  Tasks: startmenu
 Name: "{group}\{cm:ShortcutWebPage}"; Filename: "{#VCMIHome}"; Comment: "{cm:ShortcutWebPageComment}";  Tasks: startmenu
 Name: "{group}\{cm:ShortcutDiscord}"; Filename: "{#VCMIContact}"; Comment: "{cm:ShortcutDiscordComment}";  Tasks: startmenu
 
-Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}"; Tasks: desktop
+Name: "{code:GetUserDesktopFolder}\{cm:ShortcutLauncher}{code:GetBranchSuffix}"; Filename: "{app}\VCMI_launcher.exe"; Comment: "{cm:ShortcutLauncherComment}{code:GetBranchSuffix}"; Tasks: desktop
 
 
 [Tasks]
@@ -368,6 +368,22 @@ begin
     WTSFreeMemory(Buffer);
   end;
 
+end;
+
+
+function GetBranchSuffix(Param: string): string;
+var
+  Branch: string;
+begin
+  Branch := UpperCase(ExpandConstant('{#VCMIFolder}'));
+
+  if Pos('(BRANCH BETA)', Branch) > 0 then
+    Result := ' (Beta)'
+  else
+  if Pos('(BRANCH DEVELOP)', Branch) > 0 then
+    Result := ' (Develop)'
+  else
+    Result := '';
 end;
 
 

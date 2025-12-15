@@ -18,6 +18,7 @@
 #include "serializer/GameConnectionID.h"
 #include "serializer/Serializeable.h"
 #include "serializer/PlayerConnectionID.h"
+#include "mapObjects/army/CStackBasicDescriptor.h"
 #include "ResourceSet.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
@@ -239,5 +240,42 @@ struct DLL_LINKAGE LobbyInfo : public LobbyState
 	TeamID getPlayerTeamId(const PlayerColor & color);
 };
 
+class DLL_LINKAGE BattleOnlyModeStartInfo : public Serializeable
+{
+public:
+	TerrainId selectedTerrain;
+	FactionID selectedTown;
+
+	std::array<HeroTypeID, 2> selectedHero;
+	std::array<std::array<CStackBasicDescriptor, GameConstants::ARMY_SIZE>, 2> selectedArmy;
+
+	std::array<std::array<int, GameConstants::PRIMARY_SKILLS>, 2> primSkillLevel;
+	std::array<std::array<std::pair<SecondarySkill, MasteryLevel::Type>, 8>, 2> secSkillLevel;
+
+	std::array<std::map<ArtifactPosition, ArtifactID>, 2> artifacts;
+	std::array<std::vector<SpellID>, 2> spells;
+
+	std::array<bool, 2> warMachines;
+
+	std::array<bool, 2> spellBook;
+
+	BattleOnlyModeStartInfo();
+
+	void serializeJson(JsonSerializeFormat & handler);
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & selectedTerrain;
+		h & selectedTown;
+		h & selectedHero;
+		h & selectedArmy;
+		h & primSkillLevel;
+		h & secSkillLevel;
+		h & artifacts;
+		h & warMachines;
+		h & spellBook;
+		h & spells;
+	}
+};
 
 VCMI_LIB_NAMESPACE_END

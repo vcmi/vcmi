@@ -73,6 +73,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X1,    optionInWorldView(),    [this]() { this->worldViewScale1x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X2,    optionInWorldView(),    [this]() { this->worldViewScale2x(); } },
 		{ EShortcut::ADVENTURE_VIEW_WORLD_X4,    optionInWorldView(),    [this]() { this->worldViewScale4x(); } },
+		{ EShortcut::ADVENTURE_VIEW_STATISTIC,   optionViewStatistic(),  [this]() { this->viewStatistic(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_MAP_LEVEL, optionCanToggleLevel(), [this]() { this->switchMapLevel(); } },
 		{ EShortcut::ADVENTURE_QUEST_LOG,        optionCanViewQuests(),  [this]() { this->showQuestlog(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_SLEEP,     optionHeroSelected(),   [this]() { this->toggleSleepWake(); } },
@@ -96,6 +97,8 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_SAVE_GAME,        optionInMapView(),      [this]() { this->saveGame(); } },
 		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
 		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
+		{ EShortcut::ADVENTURE_QUICK_SAVE,       optionIsLocal(),        [this]() { this->quickSaveGame(); } },
+		{ EShortcut::ADVENTURE_QUICK_LOAD,       optionQuickSaveLoad(),  [this]() { this->quickLoadGame(); } },
 		{ EShortcut::ADVENTURE_RESTART_GAME,     optionInMapView(),      [this]() { this->restartGame(); } },
 		{ EShortcut::ADVENTURE_DIG_GRAIL,        optionHeroDig(),        [this]() { this->digGrail(); } },
 		{ EShortcut::ADVENTURE_VIEW_PUZZLE,      optionSidePanelActive(),[this]() { this->viewPuzzleMap(); } },
@@ -151,6 +154,11 @@ void AdventureMapShortcuts::worldViewScale2x()
 void AdventureMapShortcuts::worldViewScale4x()
 {
 	owner.openWorldView(16);
+}
+
+void AdventureMapShortcuts::viewStatistic()
+{
+	GAME->interface()->cb->requestStatistic();
 }
 
 void AdventureMapShortcuts::switchMapLevel()
@@ -366,6 +374,16 @@ void AdventureMapShortcuts::saveGame()
 void AdventureMapShortcuts::loadGame()
 {
 	GAME->interface()->proposeLoadingGame();
+}
+
+void AdventureMapShortcuts::quickSaveGame()
+{
+	GAME->interface()->quickSaveGame();
+}
+
+void AdventureMapShortcuts::quickLoadGame()
+{
+	GAME->interface()->proposeQuickLoadingGame();
 }
 
 void AdventureMapShortcuts::digGrail()
@@ -676,4 +694,32 @@ bool AdventureMapShortcuts::optionHeroDig()
 {
 	auto hero = GAME->interface()->localState->getCurrentHero();
 	return optionInMapView() && hero && hero->diggingStatus() == EDiggingStatus::CAN_DIG;
+}
+
+bool AdventureMapShortcuts::optionViewStatistic()
+{
+	if(!GAME->interface()->makingTurn)
+		return false;
+	auto day = GAME->interface()->cb->getDate(Date::DAY);
+	return optionInMapView() && day > 1;
+}
+
+bool AdventureMapShortcuts::optionIsLocal()
+{
+	if (!optionInMapView() || !GAME->server().isHost() || !(GAME->server().serverMode == EServerMode::LOCAL))
+		return false;
+	
+	//exclude local multiplayer games (hot seat is ok)
+	auto hostClientId = GAME->server().hostClientId;
+	for(const auto& playerName : GAME->server().playerNames)
+	{
+		if(playerName.second.connection != hostClientId)
+			return false;
+	}
+	return true;
+}
+
+bool AdventureMapShortcuts::optionQuickSaveLoad()
+{
+	return optionIsLocal() && GAME->interface()->hasQuickSave;
 }

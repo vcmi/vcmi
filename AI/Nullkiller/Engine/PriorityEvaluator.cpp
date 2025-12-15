@@ -281,7 +281,9 @@ uint64_t RewardEvaluator::getArmyReward(
 			for(const auto & stackInfo : info.reward.creatures)
 				rewardValue += stackInfo.getType()->getAIValue() * stackInfo.getCount();
 
-			totalValue += rewardValue > 0 ? rewardValue / (info.reward.grantedArtifacts.size() + info.reward.creatures.size()) : 0;
+			auto combined_size = std::min(static_cast<size_t>(1), info.reward.grantedArtifacts.size() + info.reward.creatures.size() + info.reward.grantedScrolls.size());
+
+			totalValue += rewardValue > 0 ? rewardValue / combined_size : 0;
 		}
 
 		return totalValue;
@@ -459,7 +461,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 	{
 		auto mine = dynamic_cast<const CGMine *>(target);
 		return mine->producedResource == EGameResID::GOLD
-			? 0.5f 
+			? 0.5f
 			: 0.4f * getTotalResourceRequirementStrength(mine->producedResource) + 0.1f * getResourceRequirementStrength(mine->producedResource);
 	}
 
@@ -468,7 +470,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 		auto resource = dynamic_cast<const CGResource *>(target);
 		TResources res;
 		res[resource->resourceID()] = resource->getAmount();
-		
+
 		return getResourceRequirementStrength(res);
 	}
 
@@ -1059,7 +1061,10 @@ public:
 		auto hero = clusterGoal.hero;
 		auto role = evaluationContext.evaluator.ai->heroManager->getHeroRole(hero);
 
-		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects(cluster->objects.begin(), cluster->objects.end());
+		std::vector<std::pair<ObjectInstanceID, ClusterObjectInfo>> objects;
+		objects.reserve(cluster->objects.size());
+		for (const auto& obj : cluster->objects)
+			objects.emplace_back(obj.first, obj.second);
 
 		std::sort(objects.begin(), objects.end(), [](std::pair<ObjectInstanceID, ClusterObjectInfo> o1, std::pair<ObjectInstanceID, ClusterObjectInfo> o2) -> bool
 		{
@@ -1576,7 +1581,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
 						for (auto town : ai->cb->getTownsInfo())
 						{
-							if (!town->hasBuiltSomeTradeBuilding())
+							if (!town->hasBuiltResourceMarketplace())
 								return 0;
 						}
 					}

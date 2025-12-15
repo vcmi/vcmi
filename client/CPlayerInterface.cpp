@@ -37,6 +37,7 @@
 
 #include "mainmenu/CMainMenu.h"
 #include "mainmenu/CHighScoreScreen.h"
+#include "mainmenu/CStatisticScreen.h"
 
 #include "mapView/mapHandler.h"
 
@@ -97,6 +98,7 @@
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapHeader.h"
 
 #include "../lib/networkPacks/PacksForClient.h"
@@ -113,6 +115,8 @@
 #include "../lib/spells/CSpellHandler.h"
 
 #include "../lib/texts/TextOperations.h"
+
+#include "../lib/filesystem/Filesystem.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -143,6 +147,7 @@ CPlayerInterface::CPlayerInterface(PlayerColor Player):
 	isAutoFightOn = false;
 	isAutoFightEndBattle = false;
 	ignoreEvents = false;
+	hasQuickSave = checkQuickLoadingGame();
 }
 
 CPlayerInterface::~CPlayerInterface()
@@ -658,7 +663,7 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool();
+	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool() || GAME->map().getMap()->battleOnly;
 	bool forceQuickCombat = settings["adventure"]["forceQuickCombat"].Bool();
 
 	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
@@ -1482,7 +1487,7 @@ void CPlayerInterface::playerBlocked(int reason, bool start)
 {
 	if(reason == PlayerBlocked::EReason::UPCOMING_BATTLE)
 	{
-		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false)
+		if(GAME->server().howManyPlayerInterfaces() > 1 && GAME->interface() != this && GAME->interface()->makingTurn == false && !GAME->map().getMap()->battleOnly)
 		{
 			//one of our players who isn't last in order got attacked not by our another player (happens for example in hotseat mode)
 			GAME->setInterfaceInstance(this);
@@ -1798,6 +1803,60 @@ void CPlayerInterface::proposeLoadingGame()
 	);
 }
 
+void CPlayerInterface::quickSaveGame()
+{
+	// notify player about saving
+	MetaString txt;
+	txt.appendTextID("vcmi.adventureMap.savingQuickSave");	
+	txt.replaceTextID(QUICKSAVE_PATH);
+	GAME->server().getGameChat().sendMessageGameplay(txt.toString());
+	GAME->interface()->cb->save(QUICKSAVE_PATH);
+	hasQuickSave = true;
+	if(adventureInt)
+		adventureInt->updateActiveState();
+}
+
+bool CPlayerInterface::checkQuickLoadingGame(bool verbose)
+{
+	if(!CResourceHandler::get("local")->existsResource(ResourcePath(QUICKSAVE_PATH, EResType::SAVEGAME)))
+	{
+		if(verbose)
+			logGlobal->error("No quicksave file found at %s", QUICKSAVE_PATH);
+		else
+			logGlobal->trace("No quicksave file found at %s", QUICKSAVE_PATH);
+		hasQuickSave = false;
+		if(cb && adventureInt)
+			adventureInt->updateActiveState();
+		return false;
+	}
+	auto error = GAME->server().canQuickLoadGame(QUICKSAVE_PATH);
+	if(error)
+	{
+		if(verbose)
+			logGlobal->error("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		else
+			logGlobal->trace("Cannot quick load game at %s: %s", QUICKSAVE_PATH, *error);
+		hasQuickSave = false;
+		if(cb && adventureInt)
+			adventureInt->updateActiveState();
+		return false;
+	}
+	return true;
+}
+
+void CPlayerInterface::proposeQuickLoadingGame()
+{
+	if(!checkQuickLoadingGame(true))
+		return;
+
+	auto onYes = [this]() -> void
+	{
+		GAME->server().quickLoadGame(QUICKSAVE_PATH);
+	};
+
+	GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.adventureMap.confirmQuickLoadGame"), onYes, nullptr);
+}
+
 bool CPlayerInterface::capturedAllEvents()
 {
 	if(movementController->isHeroMoving())
@@ -1845,4 +1904,9 @@ void CPlayerInterface::unregisterBattleInterface(std::shared_ptr<CBattleGameInte
 	assert(battleEvents == autofightingAI);
 	GAME->server().client->unregisterBattleInterface(autofightingAI, playerID);
 	autofightingAI.reset();
+}
+
+void CPlayerInterface::responseStatistic(StatisticDataSet & statistic)
+{
+	ENGINE->windows().createAndPushWindow<CStatisticScreen>(statistic);
 }

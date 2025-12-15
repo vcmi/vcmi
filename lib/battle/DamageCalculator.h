@@ -50,7 +50,8 @@ class DLL_LINKAGE DamageCalculator
 	double getAttackJoustingFactor() const;
 	double getAttackDeathBlowFactor() const;
 	double getAttackDoubleDamageFactor() const;
-	double getAttackHateFactor() const;
+	double getAttackHateCreatureFactor() const;
+	double getAttackHateTraitFactor() const;
 	double getAttackRevengeFactor() const;
 	double getAttackFromBackFactor() const;
 
@@ -65,6 +66,7 @@ class DLL_LINKAGE DamageCalculator
 	double getDefensePetrificationFactor() const;
 	double getDefenseMagicFactor() const;
 	double getDefenseMindFactor() const;
+	int64_t getDamageCap() const;
 
 	std::vector<double> getAttackFactors() const;
 	std::vector<double> getDefenseFactors() const;

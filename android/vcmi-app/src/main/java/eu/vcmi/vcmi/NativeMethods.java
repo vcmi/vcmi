@@ -27,6 +27,7 @@ public class NativeMethods
 
     public static native void initClassloader();
     public static native boolean tryToSaveTheGame();
+    public static native void heroesDataUpdate();
 
     public static void setupMsg(final Messenger msg)
     {

@@ -31,10 +31,10 @@ class DLL_LINKAGE CIdentifierStorage
 		std::string type;        /// type, e.g. creature, faction, hero, etc
 		std::string name;        /// string ID
 		std::function<void(si32)> callback;
-		bool optional;
-		bool bypassDependenciesCheck;
-		bool dynamicType;
-		bool caseSensitive;
+		bool optional = false;
+		bool bypassDependenciesCheck = false;
+		bool dynamicType = false;
+		bool caseSensitive = false;
 
 		/// Builds callback from identifier in form "targetMod:type.name"
 		static ObjectCallback fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool caseSensitive);

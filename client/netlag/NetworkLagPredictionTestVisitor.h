@@ -55,6 +55,7 @@ class NetworkLagPredictionTestVisitor final : public ICPackVisitor
 	//void visitMakeAction(MakeAction & pack) override;
 	//void visitDigWithHero(DigWithHero & pack) override;
 	//void visitCastAdvSpell(CastAdvSpell & pack) override;
+	//void visitRequestStatistic(RequestStatistic & pack) override;
 	//void visitPlayerMessage(PlayerMessage & pack) override;
 	//void visitSaveLocalState(SaveLocalState & pack) override;
 

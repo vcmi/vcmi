@@ -85,6 +85,7 @@ private:
 	//void visitSetCommanderProperty(SetCommanderProperty & pack) override;
 	//void visitAddQuest(AddQuest & pack) override;
 	//void visitChangeFormation(ChangeFormation & pack) override;
+	//void visitChangeTownName(ChangeTownName & pack) override;
 	//void visitChangeSpells(ChangeSpells & pack) override;
 	//void visitSetAvailableHero(SetAvailableHero & pack) override;
 	//void visitChangeObjectVisitors(ChangeObjectVisitors & pack) override;
@@ -101,6 +102,7 @@ private:
 	//void visitBattleResultsApplied(BattleResultsApplied & pack) override;
 	//void visitBattleResultAccepted(BattleResultAccepted & pack) override;
 	//void visitTurnTimeUpdate(TurnTimeUpdate & pack) override;
+	//void visitResponseStatistic(ResponseStatistic & pack) override;
 
 public:
 	PackRollbackGeneratorVisitor(const CGameState & gs)

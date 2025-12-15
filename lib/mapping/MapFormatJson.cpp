@@ -870,6 +870,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 	readTeams(handler);
 	//TODO: check mods
 
+	mapHeader->battleOnly = header["battleOnly"].Bool();
+
 	if(complete)
 		readOptions(handler);
 	
@@ -1043,6 +1045,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 		logGlobal->debug(configuration.toString());
 		return;
 	}
+
+	configuration.setModScope(ModScope::scopeGame());
 
 	auto handler = LIBRARY->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
 
@@ -1223,6 +1227,8 @@ void CMapSaverJson::writeHeader()
 
 	writeTeams(handler);
 
+	header["battleOnly"].Bool() = mapHeader->battleOnly;
+
 	writeOptions(handler);
 
 	writeTranslations();
@@ -1293,6 +1299,8 @@ void CMapSaverJson::writeObjects()
 		auto temp = handler.enterStruct(obj->instanceName);
 
 		obj->serializeJson(handler);
+
+		data[obj->instanceName].setModScope(ModScope::scopeGame());
 	}
 
 	if(map->grailPos.isValid())
@@ -1305,6 +1313,8 @@ void CMapSaverJson::writeObjects()
 		grail["l"].Float() = map->grailPos.z;
 
 		grail["options"]["radius"].Float() = map->grailRadius;
+
+		grail.setModScope(ModScope::scopeGame());
 
 		data["grail"] = grail;
 	}

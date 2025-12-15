@@ -46,8 +46,8 @@ class BattleFieldController : public CIntObject
 	/// hex currently under mouse hover
 	BattleHex hoveredHex;
 
-	/// hexes to which currently active stack can move
-	BattleHexArray occupiableHexes;
+	/// hexes to which the currently active stack can move (for double-wide units only the head is considered)
+	BattleHexArray availableHexes;
 
 	/// hexes that when in front of a unit cause it's amount box to move back
 	std::array<bool, GameConstants::BFIELD_SIZE> stackCountOutsideHexes;
@@ -126,13 +126,8 @@ public:
 	/// Returns the currently hovered stack
 	const CStack* getHoveredStack();
 
-	/// returns true if selected tile can be attacked in melee by current stack
-	bool isTileAttackable(const BattleHex & number) const;
-
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
 	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
-
-	BattleHex fromWhichHexAttack(const BattleHex & myNumber);
 };

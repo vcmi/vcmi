@@ -196,7 +196,7 @@
 						"earthMagic"
 					]
 				},
-				"grail":          { },
+				"grail":          { "type" : "auroraBorealis" },
 				"extraTownHall":  { },
 				"extraCityHall":  { },
 				"extraCapitol":   { },

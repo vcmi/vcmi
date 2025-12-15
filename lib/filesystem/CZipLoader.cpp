@@ -241,9 +241,9 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 	{
 #ifdef VCMI_WINDOWS
 		if (fullName.size() < 260)
-			logGlobal->error("Failed to open file '%s'", fullName.c_str());
+			logGlobal->error("Failed to open file '%s'", fullName.string());
 		else
-			logGlobal->error("Failed to open file with long path '%s' (%d characters)", fullName.c_str(), fullName.size());
+			logGlobal->error("Failed to open file with long path '%s' (%d characters)", fullName.string(), fullName.size());
 #else
 		logGlobal->error("Failed to open file '%s'", fullName.c_str());
 #endif

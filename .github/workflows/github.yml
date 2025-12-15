@@ -13,7 +13,6 @@ jobs:
   build:
     name: Build (${{ matrix.platform }})
     strategy:
-      fail-fast: false      # Do not cancel whole matrix when one build fails
       matrix:
         include:
           - platform: mac-intel
@@ -56,6 +55,7 @@ jobs:
 
           - platform: msvc-x64
             arch: x64
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -66,10 +66,10 @@ jobs:
             conan_prebuilts: dependencies-windows-x64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x64
-            cl: Hostx64/x64/cl.exe
 
           - platform: msvc-x86
-            arch: x86
+            arch: amd64_x86
+            toolset: '14.29'
             os: windows-2025
             pack: 1
             upload: 0
@@ -80,7 +80,6 @@ jobs:
             conan_prebuilts: dependencies-windows-x86
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:target_pre_windows10=True"
             artifact_platform: x86
-            cl: Hostx64/x86/cl.exe
 
           - platform: msvc-arm64
             arch: arm64
@@ -94,7 +93,6 @@ jobs:
             conan_prebuilts: dependencies-windows-arm64
             conan_options: -s "&:build_type=RelWithDebInfo" -c tools.env.virtualenv:powershell=pwsh -o "&:lua_lib=lua"
             artifact_platform: arm64
-            cl: HostARM64/ARM64/cl.exe
 
           - platform: android-32
             os: ubuntu-latest
@@ -127,17 +125,14 @@ jobs:
             artifact_platform: x64
 
     runs-on: ${{ matrix.os }}
-    # Allow non-MSVC builds to fail without failing whole job
-    # This keeps pipeline moving so Windows Installer job can still run
-    # MSVC builds must success to continue to Windows Installer job
-    continue-on-error: ${{ !startsWith(matrix.platform, 'msvc') }}
+
     defaults:
       run:
         shell: bash
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -148,7 +143,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -162,7 +157,7 @@ jobs:
     # Save only on cache miss, GitHub caches are immutable per key
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
@@ -178,6 +173,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: ${{ matrix.arch }}
+        toolset: ${{ matrix.toolset }}
 
     # ensure the cache for each PR is separate so they don't interfere with each other
     # fall back to cache of the vcmi/vcmi repo if no PR-specific cache is found
@@ -224,32 +220,18 @@ jobs:
       if: "${{ matrix.conan_profile != '' }}"
       run: |
         conan profile detect
+        outFolder=conan-generated
         conan install . \
-          --output-folder=conan-generated \
+          --output-folder="$outFolder" \
           --build=never \
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           ${{ matrix.conan_options }}
+        ${{ startsWith(matrix.platform, 'msvc') && 'echo CONANRUN_PWSH_SCRIPT="$outFolder/conanrun.ps1" >> $GITHUB_ENV' || '' }}
 
     # Can't be set in Gradle project
     - name: Configure enableUncompressedNativeLibs
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: mkdir -p ~/.gradle && echo "android.bundle.enableUncompressedNativeLibs=true" > ~/.gradle/gradle.properties
-
-    # Workaround for gradle not discovering SDK that was installed via Сonan
-    - name: Link Android NDK from Conan cache to Android SDK path
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      run: |
-        ndkPackage='android-ndk'
-        hexRegex='[[:xdigit:]]+'
-
-        ndkPackageRevision=$(conan list "$ndkPackage/*:*" --format=compact \
-          | egrep --only-matching "$ndkPackage/\\w+#$hexRegex:$hexRegex")
-        ndkPackagePath=$(conan cache path "$ndkPackageRevision")
-
-        # format: Pkg.Revision = 25.2.9519653
-        ndkPath="$ndkPackagePath/bin"
-        ndkVersion=$(fgrep 'Pkg.Revision' "$ndkPath/source.properties" | cut -d ' ' -f 3)
-        ln -s -T "$ndkPath" "$ANDROID_HOME/ndk/$ndkVersion"
 
     - name: Install Java
       uses: actions/setup-java@v5
@@ -290,18 +272,14 @@ jobs:
     - name: Configure (MSVC)
       if: ${{ startsWith(matrix.platform, 'msvc') }}
       run: |
-        & conan-generated\conanrun.ps1
+        & $env:CONANRUN_PWSH_SCRIPT
 
-        $CL = "$($env:VCToolsInstallDir)/bin/${{ matrix.cl }}"
-        cmake `
-          -D "CMAKE_C_COMPILER:FILEPATH=$CL" `
-          -D "CMAKE_CXX_COMPILER:FILEPATH=$CL" `
-          --preset ${{ matrix.preset }}
+        cmake --preset ${{ matrix.preset }}
       shell: pwsh
 
     - name: Build
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cmake --build --preset ${{matrix.preset}}
       shell: pwsh
       env:
@@ -320,7 +298,7 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        ${{ startsWith(matrix.platform, 'msvc') && '& conan-generated\conanrun.ps1' }}
+        ${{ startsWith(matrix.platform, 'msvc') && '& $env:CONANRUN_PWSH_SCRIPT' }}
         cd "${{github.workspace}}/out/build/${{matrix.preset}}"
         cpack -C ${{matrix.pack_type}}
       shell: pwsh
@@ -334,7 +312,7 @@ jobs:
 
     - name: Upload Artifact
       id: upload_artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         compression-level: 9
@@ -344,7 +322,7 @@ jobs:
     - name: Upload AAB Artifact
       id: upload_aab
       if: ${{ startsWith(matrix.platform, 'android') && github.ref == 'refs/heads/master' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - aab
         compression-level: 9
@@ -354,7 +332,7 @@ jobs:
     - name: Upload debug symbols
       id: upload_symbols
       if: ${{ startsWith(matrix.platform, 'msvc') }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - symbols
         compression-level: 9
@@ -376,7 +354,6 @@ jobs:
       id: make_partial_json
       env:
         PLATFORM: ${{ matrix.platform }}
-        ARCH: ${{ matrix.arch }}
         ARTIFACT_URL: ${{ steps.upload_artifact.outputs.artifact-url }}
         DEBUG_SYMBOLS_URL: ${{ steps.upload_symbols.outputs.artifact-url }}
         AAB_URL: ${{ steps.upload_aab.outputs.artifact-url }}
@@ -384,7 +361,7 @@ jobs:
         python3 CI/emit_partial.py
 
     - name: Upload partial JSON with build informations
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: partial-json-${{ matrix.platform }}
         path: .summary/${{ matrix.platform }}.json
@@ -397,7 +374,7 @@ jobs:
       run:
         shell: bash
     steps:
-        - uses: actions/checkout@v5
+        - uses: actions/checkout@v6
           with:
             submodules: recursive
 
@@ -415,7 +392,7 @@ jobs:
 
         - name: Upload source code archive
           id: upload_source
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v6
           with:
             name: ${{ env.VCMI_PACKAGE_FILE_NAME }}
             compression-level: 9
@@ -431,7 +408,7 @@ jobs:
             JSON
 
         - name: Upload partial JSON with source informations
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@v6
           with:
             name: partial-json-source
             path: .summary/source.json
@@ -480,7 +457,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -491,7 +468,7 @@ jobs:
     - name: APT cache restore
       if: contains(matrix.os, 'ubuntu')
       id: aptcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ matrix.platform }}-apt-${{ matrix.os }}
@@ -503,7 +480,7 @@ jobs:
 
     - name: APT cache save
       if: contains(matrix.os, 'ubuntu') && steps.aptcache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ runner.temp }}/apt-cache
         key: ${{ steps.aptcache.outputs.cache-primary-key }}
@@ -584,7 +561,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         submodules: recursive
 
@@ -618,7 +595,7 @@ jobs:
         PULL_REQUEST: ${{ github.event.pull_request.number }}
 
     - name: Download Artifact
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }}
         path: ${{github.workspace}}/artifact
@@ -648,7 +625,7 @@ jobs:
 
     - name: Upload VCMI Installer Artifacts
       id: upload_installer
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.VCMI_PACKAGE_FILE_NAME }} - ${{ matrix.platform }} - installer
         compression-level: 9
@@ -676,7 +653,7 @@ jobs:
         JSON
 
     - name: Upload partial JSON with installer informations
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: partial-json-${{ matrix.platform }}-installer
         path: .summary/installer-${{ matrix.platform }}.json
@@ -690,7 +667,7 @@ jobs:
         shell: bash
 
     steps:
-        - uses: actions/checkout@v5
+        - uses: actions/checkout@v6
         - name: Ensure LF line endings
           run: |
             find . -path ./.git -prune -o -path ./AI/FuzzyLite -prune -o -path ./test/googletest \
@@ -704,7 +681,7 @@ jobs:
             python3 CI/validate_json.py
 
         - name: Validate Markdown
-          uses: DavidAnson/markdownlint-cli2-action@v20
+          uses: DavidAnson/markdownlint-cli2-action@v22
           with:
             config: 'CI/example.markdownlint-cli2.jsonc'
             globs: '**/*.md'
@@ -719,11 +696,11 @@ jobs:
       actions: write                   # Partial JSON artifacts can't be deleted in PRs
     steps:
       - name: Checkout (for script path)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download all partial JSON artifacts
         continue-on-error: true
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           pattern: partial-json-*
           merge-multiple: true

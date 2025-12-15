@@ -1161,26 +1161,24 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
 {
 	//we should always see our own heroes - but sometimes not visible heroes cause crash :?
-	if (player == obj->tempOwner)
+	// TODO: Mircea: Looks like a bug. See ExplorationBehavior::decompose
+	// if (!aiNk->cc->isVisibleFor(aiNk->cc->getObjInstance(exit), aiNk->playerID))
+	// First thought: we shouldn't have the following if: if(player == obj->tempOwner)
+	// because we need to triggger the actual isInTheMap and isVisibleFor code
+	if(player == obj->tempOwner)
 		return true;
 
 	if(player == PlayerColor::NEUTRAL) //-> TODO ??? needed?
 		return false;
 
-	//object is visible when at least one blocked tile is visible
-	for(int fy=0; fy < obj->getHeight(); ++fy)
-	{
-		for(int fx=0; fx < obj->getWidth(); ++fx)
+	return iteratePositionsUntilTrue(
+		obj,
+		[this, obj, player](const int3 & pos) -> bool
 		{
-			int3 pos = obj->anchorPos() + int3(-fx, -fy, 0);
-
-			if ( map->isInTheMap(pos) &&
-				 obj->coveringAt(pos) &&
-				 isVisibleFor(pos, player))
-				return true;
+			// object is visible when at least one tile is visible
+			return map->isInTheMap(pos) && obj->coveringAt(pos) && isVisibleFor(pos, player);
 		}
-	}
-	return false;
+	);
 }
 
 EVictoryLossCheckResult CGameState::checkForVictoryAndLoss(const PlayerColor & player) const
@@ -1242,17 +1240,20 @@ bool CGameState::checkForVictory(const PlayerColor & player, const EventConditio
 		case EventCondition::HAVE_CREATURES:
 		{
 			//check if in players armies there is enough creatures
-			int total = 0; //creature counter
-			for(auto ai : map->getObjects<CArmedInstance>())
-			{
-				if(ai->getOwner() == player)
-				{
-					for(const auto & elem : ai->Slots()) //iterate through army
-						if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
-							total += elem.second->getCount();
-				}
-			}
-			return total >= condition.value;
+			// NOTE: only heroes & towns are checked, in line with H3.
+			// Garrisons, mines, and guards of owned dwellings(!) are excluded
+			int totalCreatures = 0;
+			for (const auto & hero : p->getHeroes())
+				for(const auto & elem : hero->Slots()) //iterate through army
+					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
+						totalCreatures += elem.second->getCount();
+
+			for (const auto & town : p->getTowns())
+				for(const auto & elem : town->Slots()) //iterate through army
+					if(elem.second->getId() == condition.objectType.as<CreatureID>()) //it's searched creature
+						totalCreatures += elem.second->getCount();
+
+			return totalCreatures >= condition.value;
 		}
 		case EventCondition::HAVE_RESOURCES:
 		{
@@ -1626,18 +1627,19 @@ void CGameState::loadGame(CLoadFile & file)
 	logGlobal->info("Loading game state...");
 
 	CMapHeader dummyHeader;
-	StartInfo dummyStartInfo;
 	ActiveModsInSaveList dummyActiveMods;
 
 	file.load(dummyHeader);
 	if (file.hasFeature(ESerializationVersion::NO_RAW_POINTERS_IN_SERIALIZER))
 	{
+		StartInfo dummyStartInfo;
 		file.load(dummyStartInfo);
 		file.load(dummyActiveMods);
 		file.load(*this);
 	}
 	else
 	{
+		auto dummyStartInfo = std::make_shared<StartInfo>();
 		bool dummyA = false;
 		uint32_t dummyB = 0;
 		uint16_t dummyC = 0;

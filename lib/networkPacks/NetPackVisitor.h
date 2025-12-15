@@ -58,6 +58,7 @@ public:
 	virtual void visitSetCommanderProperty(SetCommanderProperty & pack) {}
 	virtual void visitAddQuest(AddQuest & pack) {}
 	virtual void visitChangeFormation(ChangeFormation & pack) {}
+	virtual void visitChangeTownName(ChangeTownName & pack) {}
 	virtual void visitRemoveObject(RemoveObject & pack) {}
 	virtual void visitTryMoveHero(TryMoveHero & pack) {}
 	virtual void visitNewStructures(NewStructures & pack) {}
@@ -112,6 +113,7 @@ public:
 	virtual void visitSetStackEffect(SetStackEffect & pack) {}
 	virtual void visitStacksInjured(StacksInjured & pack) {}
 	virtual void visitBattleResultsApplied(BattleResultsApplied & pack) {}
+	virtual void visitBattleEnded(BattleEnded & pack) {}
 	virtual void visitBattleObstaclesChanged(BattleObstaclesChanged & pack) {}
 	virtual void visitBattleSetStackProperty(BattleSetStackProperty & pack) {}
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
@@ -144,16 +146,19 @@ public:
 	virtual void visitBuyArtifact(BuyArtifact & pack) {}
 	virtual void visitTradeOnMarketplace(TradeOnMarketplace & pack) {}
 	virtual void visitSetFormation(SetFormation & pack) {}
+	virtual void visitSetTownName(SetTownName & pack) {}
 	virtual void visitHireHero(HireHero & pack) {}
 	virtual void visitBuildBoat(BuildBoat & pack) {}
 	virtual void visitQueryReply(QueryReply & pack) {}
 	virtual void visitMakeAction(MakeAction & pack) {}
 	virtual void visitDigWithHero(DigWithHero & pack) {}
 	virtual void visitCastAdvSpell(CastAdvSpell & pack) {}
+	virtual void visitRequestStatistic(RequestStatistic & pack) {}
 	virtual void visitSaveGame(SaveGame & pack) {}
 	virtual void visitPlayerMessage(PlayerMessage & pack) {}
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
 	virtual void visitCenterView(CenterView & pack) {}
+	virtual	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) {}
 	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) {}
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) {}
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}
@@ -168,6 +173,7 @@ public:
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
 	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) {}
 	virtual void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) {}
+	virtual void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) {}
 	virtual void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) {}
 	virtual void visitLobbySetPlayer(LobbySetPlayer & pack) {}
 	virtual void visitLobbySetPlayerName(LobbySetPlayerName & pack) {}
@@ -184,6 +190,7 @@ public:
 	virtual void visitBattleCancelled(BattleCancelled & pack) {}
 	virtual void visitBattleResultAccepted(BattleResultAccepted & pack) {}
 	virtual void visitBattleStackMoved(BattleLogMessage & pack) {}
+	virtual void visitResponseStatistic(ResponseStatistic & pack) {}
 };
 
 VCMI_LIB_NAMESPACE_END

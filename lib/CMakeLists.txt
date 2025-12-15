@@ -835,15 +835,23 @@ target_link_libraries(vcmi PUBLIC
 
 if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 	target_compile_definitions(vcmi PRIVATE STATIC_AI)
-	target_link_libraries(vcmi PRIVATE
-		BattleAI
-		EmptyAI
-		StupidAI
-		VCAI
-	)
+	target_link_libraries(vcmi PRIVATE EmptyAI)
 	if(ENABLE_NULLKILLER_AI)
 		target_link_libraries(vcmi PRIVATE Nullkiller)
 	endif()
+
+	if(ENABLE_NULLKILLER2_AI)
+		target_link_libraries(vcmi PRIVATE Nullkiller2)
+	endif()
+
+	if(ENABLE_STUPID_AI)
+		target_link_libraries(vcmi PRIVATE StupidAI)
+	endif()
+
+	if(ENABLE_BATTLE_AI)
+		target_link_libraries(vcmi PRIVATE BattleAI)
+	endif()
+
 endif()
 
 # no longer necessary, but might be useful to keep in future
@@ -868,6 +876,10 @@ if(WIN32)
 			OUTPUT_NAME "VCMI_lib"
 			PROJECT_LABEL "VCMI_lib"
 	)
+	if (MINGW)
+		# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
+		target_link_libraries(vcmi PRIVATE ws2_32 mswsock dbghelp)
+	endif()
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files

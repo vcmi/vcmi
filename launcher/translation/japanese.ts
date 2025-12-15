@@ -6,32 +6,32 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">DiscordのVCMI</translation>
+        <translation>DiscordのVCMI</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">質問がありますか？バグを見つけましたか？助けたいですか？参加してください！</translation>
+        <translation>質問がありますか？バグを見つけましたか？助けたいですか？参加してください！</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">GitHubのVCMI</translation>
+        <translation>GitHubのVCMI</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
         <source>Our Community</source>
-        <translation type="unfinished">私たちのコミュニティ</translation>
+        <translation>私たちのコミュニティ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation type="unfinished">ビルド情報</translation>
+        <translation>ビルド情報</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
         <source>User data directory</source>
-        <translation type="unfinished">ユーザーデータディレクトリ</translation>
+        <translation>ユーザーデータディレクトリ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="88"/>
@@ -39,52 +39,52 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="161"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="247"/>
         <source>Open</source>
-        <translation type="unfinished">開く</translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="121"/>
         <source>Check for updates</source>
-        <translation type="unfinished">アップデートを確認</translation>
+        <translation>アップデートを確認</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
         <source>Game version</source>
-        <translation type="unfinished">ゲームバージョン</translation>
+        <translation>ゲームバージョン</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation type="unfinished">ログファイルディレクトリ</translation>
+        <translation>ログファイルディレクトリ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation type="unfinished">データディレクトリ</translation>
+        <translation>データディレクトリ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
         <source>Game data directory</source>
-        <translation type="unfinished">ゲームデータディレクトリ</translation>
+        <translation>ゲームデータディレクトリ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
         <source>Operating System</source>
-        <translation type="unfinished">オペレーティングシステム</translation>
+        <translation>オペレーティングシステム</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished">設定ファイルディレクトリ</translation>
+        <translation>設定ファイルディレクトリ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="290"/>
         <source>Project homepage</source>
-        <translation type="unfinished">プロジェクトのホームページ</translation>
+        <translation>プロジェクトのホームページ</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="303"/>
         <source>Report a bug</source>
-        <translation type="unfinished">バグを報告</translation>
+        <translation>バグを報告</translation>
     </message>
 </context>
 <context>
@@ -92,242 +92,244 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
-        <translation type="unfinished">フィルター</translation>
+        <translation>フィルター</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
         <source>All mods</source>
-        <translation type="unfinished">すべてのモッド</translation>
+        <translation>すべてのモッド</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="74"/>
         <source>Downloadable</source>
-        <translation type="unfinished">ダウンロード可能</translation>
+        <translation>ダウンロード可能</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="79"/>
         <source>Installed</source>
-        <translation type="unfinished">インストール済み</translation>
+        <translation>インストール済み</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="84"/>
         <source>Updatable</source>
-        <translation type="unfinished">更新可能</translation>
+        <translation>更新可能</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation type="unfinished">アクティブ</translation>
+        <translation>アクティブ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
         <source>Inactive</source>
-        <translation type="unfinished">非アクティブ</translation>
+        <translation>非アクティブ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
         <source>Description</source>
-        <translation type="unfinished">説明</translation>
+        <translation>説明</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="214"/>
         <source>Changelog</source>
-        <translation type="unfinished">変更ログ</translation>
+        <translation>変更ログ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="236"/>
         <source>Screenshots</source>
-        <translation type="unfinished">スクリーンショット</translation>
+        <translation>スクリーンショット</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="524"/>
         <source>Uninstall</source>
-        <translation type="unfinished">アンインストール</translation>
+        <translation>アンインストール</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="514"/>
         <source>Enable</source>
-        <translation type="unfinished">有効にする</translation>
+        <translation>有効にする</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="509"/>
         <source>Disable</source>
-        <translation type="unfinished">無効にする</translation>
+        <translation>無効にする</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="529"/>
         <source>Update</source>
-        <translation type="unfinished">更新</translation>
+        <translation>更新</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="519"/>
         <source>Install</source>
-        <translation type="unfinished">インストール</translation>
+        <translation>インストール</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="335"/>
         <source> %p% (%v KB out of %m KB)</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished"> %p%（%m KB 中 %v KB）</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="108"/>
         <source>Reload repositories</source>
-        <translation type="unfinished">リポジトリを再読み込み</translation>
+        <translation>リポジトリを再読み込み</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="348"/>
         <source>Abort</source>
-        <translation type="unfinished">中止</translation>
+        <translation>中止</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="316"/>
         <source>Mod name</source>
-        <translation type="unfinished">モッド名</translation>
+        <translation>モッド名</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="319"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="325"/>
         <source>Installed version</source>
-        <translation type="unfinished">インストール済みのバージョン</translation>
+        <translation>インストール済みのバージョン</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="320"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="327"/>
         <source>Latest version</source>
-        <translation type="unfinished">最新バージョン</translation>
+        <translation>最新バージョン</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="331"/>
         <source>Size</source>
-        <translation type="unfinished">サイズ</translation>
+        <translation>サイズ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="334"/>
         <source>Download size</source>
-        <translation type="unfinished">ダウンロードサイズ</translation>
+        <translation>ダウンロードサイズ</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="336"/>
         <source>Authors</source>
-        <translation type="unfinished">著者</translation>
+        <translation>著者</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="339"/>
         <source>License</source>
-        <translation type="unfinished">ライセンス</translation>
+        <translation>ライセンス</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="342"/>
         <source>Contact</source>
-        <translation type="unfinished">連絡先</translation>
+        <translation>連絡先</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="351"/>
         <source>Compatibility</source>
-        <translation type="unfinished">互換性</translation>
+        <translation>互換性</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Required VCMI version</source>
-        <translation type="unfinished">必要なVCMIバージョン</translation>
+        <translation>必要なVCMIバージョン</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Supported VCMI version</source>
-        <translation type="unfinished">サポートされているVCMIバージョン</translation>
+        <translation>サポートされているVCMIバージョン</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>please upgrade mod</source>
-        <translation type="unfinished">モッドをアップグレードしてください</translation>
+        <translation>モッドをアップグレードしてください</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="188"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>mods repository index</source>
-        <translation type="unfinished">モッズリポジトリインデックス</translation>
+        <translation>モッズリポジトリインデックス</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>or newer</source>
-        <translation type="unfinished">または新しい</translation>
+        <translation>または新しい</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
         <source>Supported VCMI versions</source>
-        <translation type="unfinished">サポートされているVCMIバージョン</translation>
+        <translation>サポートされているVCMIバージョン</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="380"/>
         <source>Languages</source>
-        <translation type="unfinished">言語</translation>
+        <translation>言語</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Required mods</source>
-        <translation type="unfinished">必要なモッド</translation>
+        <translation>必要なモッド</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
         <source>Conflicting mods</source>
-        <translation type="unfinished">競合するモッド</translation>
+        <translation>競合するモッド</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation type="unfinished">このモッドは、異なる言語に翻訳されるため、有効にすることができません。</translation>
+        <translation>このモッドは、異なる言語に翻訳されるため、有効にすることができません。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation type="unfinished">このモッドは、以下の依存関係が存在しないため、有効にできません</translation>
+        <translation>このモッドは、以下の依存関係が存在しないため、有効にできません</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation type="unfinished">このモッドは、以下の依存関係が存在しないため、インストールできません</translation>
+        <translation>このモッドは、以下の依存関係が存在しないため、インストールできません</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation type="unfinished">これはサブモッドであり、親モッドとは別にインストールまたはアンインストールすることはできません</translation>
+        <translation>これはサブモッドであり、親モッドとは別にインストールまたはアンインストールすることはできません</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="420"/>
         <source>Notes</source>
-        <translation type="unfinished">ノート</translation>
+        <translation>ノート</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="491"/>
         <source>Context menu</source>
-        <translation type="unfinished">コンテキストメニュー</translation>
+        <translation>コンテキストメニュー</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="534"/>
         <source>Open directory</source>
-        <translation type="unfinished">ディレクトリを開く</translation>
+        <translation>ディレクトリを開く</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="539"/>
         <source>Open repository</source>
-        <translation type="unfinished">リポジトリを開く</translation>
+        <translation>リポジトリを開く</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="792"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">%1をダウンロード中。%p% (%v MB / %m MB) 完了しました</translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">「%1」をダウンロード中。%p%（%m MB 中 %v MB）完了</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="818"/>
         <source>Download failed</source>
-        <translation type="unfinished">ダウンロードに失敗しました</translation>
+        <translation>ダウンロードに失敗しました</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="819"/>
@@ -345,84 +347,93 @@ Encountered errors:
         <source>
 
 Install successfully downloaded?</source>
-        <translation type="unfinished">インストールが成功裏にダウンロードされましたか？</translation>
+        <translation>インストールが成功裏にダウンロードされましたか？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="979"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished">ヒーローズクロニクルのインストール</translation>
+        <translation>ヒーローズクロニクルのインストール</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished">モッド %1 をインストール中</translation>
+        <translation>モッド %1 をインストール中</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1128"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1130"/>
         <source>Map exists</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">マップが存在します</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1131"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">マップ &apos;%1&apos; は既に存在します。上書きしますか？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1138"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1140"/>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">すべてに「はい」</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1139"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1141"/>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">すべてに「いいえ」</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>Import complete</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">インポート完了</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1226"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1230"/>
         <source>%1 map(s) successfully imported.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">%1 個のマップを正常にインポートしました。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Import failed</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">インポートに失敗しました</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1229"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1233"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">次のマップのインポートに失敗しました:
+%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1255"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Operation failed</source>
-        <translation type="unfinished">操作が失敗しました</translation>
+        <translation>操作が失敗しました</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1256"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1260"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished">エラーが発生しました:</translation>
+        <translation>エラーが発生しました:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1292"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1296"/>
         <source>screenshots</source>
-        <translation type="unfinished">スクリーンショット</translation>
+        <translation>スクリーンショット</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1298"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1302"/>
         <source>Screenshot %1</source>
-        <translation type="unfinished">スクリーンショット %1</translation>
+        <translation>スクリーンショット %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="311"/>
         <source>Mod is incompatible</source>
-        <translation type="unfinished">モッドは互換性がありません</translation>
+        <translation>モッドは互換性がありません</translation>
     </message>
 </context>
 <context>
@@ -431,149 +442,149 @@ Install successfully downloaded?</source>
         <location filename="../settingsView/csettingsview_moc.ui" line="719"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="91"/>
         <source>Off</source>
-        <translation type="unfinished">オフ</translation>
+        <translation>オフ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="455"/>
         <source>Artificial Intelligence</source>
-        <translation type="unfinished">人工知能</translation>
+        <translation>人工知能</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1098"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished">インターフェーススケーリング</translation>
+        <translation>インターフェーススケーリング</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="641"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished">戦闘における中立的なAI</translation>
+        <translation>戦闘における中立的なAI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1056"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished">戦闘における敵AI</translation>
+        <translation>戦闘における敵AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="788"/>
         <source>Additional repository</source>
-        <translation type="unfinished">追加リポジトリ</translation>
+        <translation>追加リポジトリ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="634"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished">アドベンチャーマップの同盟者</translation>
+        <translation>アドベンチャーマップの同盟者</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="903"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished">オンラインロビーのポート</translation>
+        <translation>オンラインロビーのポート</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="703"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished">戦闘におけるオートバトルAI</translation>
+        <translation>戦闘におけるオートバトルAI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1459"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished">スティックの感度</translation>
+        <translation>スティックの感度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished">自動（リニア）</translation>
+        <translation>自動（リニア）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="288"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished">ハプティックフィードバック</translation>
+        <translation>ハプティックフィードバック</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Software Cursor</source>
-        <translation type="unfinished">ソフトウェアカーソル</translation>
+        <translation>ソフトウェアカーソル</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="97"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="576"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="1449"/>
         <source>Automatic</source>
-        <translation type="unfinished">自動</translation>
+        <translation>自動</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="75"/>
         <source>Mods Validation</source>
-        <translation type="unfinished">モッズの検証</translation>
+        <translation>モッズの検証</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="82"/>
         <source>Config editor</source>
-        <translation type="unfinished">設定エディタ</translation>
+        <translation>設定エディタ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="89"/>
         <source>Open editor</source>
-        <translation type="unfinished">エディタを開く</translation>
+        <translation>エディタを開く</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="102"/>
         <source>None</source>
-        <translation type="unfinished">なし</translation>
+        <translation>なし</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="107"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished">xBRZ x2</translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished">xBRZ x3</translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="117"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished">xBRZ x4</translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="330"/>
         <source>Full</source>
-        <translation type="unfinished">フル</translation>
+        <translation>フル</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="547"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished">ポートレートモードを許可</translation>
+        <translation>ポートレートモードを許可</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="825"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished">スケーラブルフォントを使用</translation>
+        <translation>スケーラブルフォントを使用</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="896"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished">オンラインロビーのアドレス</translation>
+        <translation>オンラインロビーのアドレス</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1033"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished">戻るを右クリックとして扱う</translation>
+        <translation>戻るを右クリックとして扱う</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1139"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished">カーソルのスケーリング</translation>
+        <translation>カーソルのスケーリング</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1168"/>
         <source>Scalable</source>
-        <translation type="unfinished">スケーラブル</translation>
+        <translation>スケーラブル</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1204"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished">その他</translation>
+        <translation>その他</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
@@ -595,277 +606,277 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1363"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished">フォントスケーリング（実験的）</translation>
+        <translation>フォントスケーリング（実験的）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1427"/>
         <source>Original</source>
-        <translation type="unfinished">オリジナル</translation>
+        <translation>オリジナル</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished">アップスケーリングフィルター</translation>
+        <translation>アップスケーリングフィルター</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1499"/>
         <source>Basic</source>
-        <translation type="unfinished">基本</translation>
+        <translation>基本</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1515"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished">ミュートスイッチを無視</translation>
+        <translation>ミュートスイッチを無視</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="693"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished">相対ポインタモードを使用</translation>
+        <translation>相対ポインタモードを使用</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="935"/>
         <source>Nearest</source>
-        <translation type="unfinished">最寄り</translation>
+        <translation>最寄り</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="940"/>
         <source>Linear</source>
-        <translation type="unfinished">線形</translation>
+        <translation>線形</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="844"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished">入力 - タッチスクリーン</translation>
+        <translation>入力 - タッチスクリーン</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="811"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished">アドベンチャーマップの敵</translation>
+        <translation>アドベンチャーマップの敵</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="963"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished">再度チュートリアルを表示</translation>
+        <translation>再度チュートリアルを表示</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="153"/>
         <source>Reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>リセット</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1189"/>
         <source>Network</source>
-        <translation type="unfinished">ネットワーク</translation>
+        <translation>ネットワーク</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="778"/>
         <source>Audio</source>
-        <translation type="unfinished">オーディオ</translation>
+        <translation>オーディオ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="491"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished">相対ポインタースピード</translation>
+        <translation>相対ポインタースピード</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1105"/>
         <source>Music Volume</source>
-        <translation type="unfinished">音楽の音量</translation>
+        <translation>音楽の音量</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="953"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished">SSLエラーを無視する</translation>
+        <translation>SSLエラーを無視する</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="740"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished">入力 - マウス</translation>
+        <translation>入力 - マウス</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1286"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished">長押しの期間</translation>
+        <translation>長押しの期間</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="910"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished">コントローラーのクリック許容値</translation>
+        <translation>コントローラーのクリック許容値</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="295"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished">タッチタップの許容範囲</translation>
+        <translation>タッチタップの許容範囲</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="351"/>
         <source>Input - Controller</source>
-        <translation type="unfinished">入力 - コントローラー</translation>
+        <translation>入力 - コントローラー</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="281"/>
         <source>Sound Volume</source>
-        <translation type="unfinished">音量</translation>
+        <translation>音量</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
         <source>Windowed</source>
-        <translation type="unfinished">ウィンドウ表示</translation>
+        <translation>ウィンドウ表示</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1260"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished">ボーダーレスフルスクリーン</translation>
+        <translation>ボーダーレスフルスクリーン</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1265"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished">排他的全画面</translation>
+        <translation>排他的全画面</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1063"/>
         <source>Autosave limit (0 = off)</source>
-        <translation type="unfinished">自動保存の制限 (0 = オフ)</translation>
+        <translation>自動保存の制限 (0 = オフ)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="498"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished">ダウンサンプリングフィルター</translation>
+        <translation>ダウンサンプリングフィルター</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="818"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished">フレームレート制限</translation>
+        <translation>フレームレート制限</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1473"/>
         <source>Autosave prefix</source>
-        <translation type="unfinished">自動保存の接頭辞</translation>
+        <translation>自動保存の接頭辞</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1026"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished">マウスクリックの許容範囲</translation>
+        <translation>マウスクリックの許容範囲</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="970"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished">スティックの加速度</translation>
+        <translation>スティックの加速度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1414"/>
         <source>empty = map name prefix</source>
-        <translation type="unfinished">空 = マップ名プレフィックス</translation>
+        <translation>空 = マップ名プレフィックス</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="627"/>
         <source>Refresh now</source>
-        <translation type="unfinished">今すぐ更新</translation>
+        <translation>今すぐ更新</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="465"/>
         <source>Default repository</source>
-        <translation type="unfinished">デフォルトリポジトリ</translation>
+        <translation>デフォルトリポジトリ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="832"/>
         <source>Renderer</source>
-        <translation type="unfinished">レンダラー</translation>
+        <translation>レンダラー</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="89"/>
         <source>On</source>
-        <translation type="unfinished">オン</translation>
+        <translation>オン</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="214"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished">予約された画面領域</translation>
+        <translation>予約された画面領域</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="443"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished">ヒーローズIII 翻訳</translation>
+        <translation>ヒーローズIII 翻訳</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1293"/>
         <source>Check on startup</source>
-        <translation type="unfinished">起動時にチェック</translation>
+        <translation>起動時にチェック</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1019"/>
         <source>Fullscreen</source>
-        <translation type="unfinished">全画面表示</translation>
+        <translation>全画面表示</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation>一般</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="889"/>
         <source>VCMI Language</source>
-        <translation type="unfinished">VCMI 言語</translation>
+        <translation>VCMI 言語</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1480"/>
         <source>Resolution</source>
-        <translation type="unfinished">解像度</translation>
+        <translation>解像度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="236"/>
         <source>Autosave</source>
-        <translation type="unfinished">自動保存</translation>
+        <translation>自動保存</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="801"/>
         <source>VSync</source>
-        <translation type="unfinished">垂直同期</translation>
+        <translation>垂直同期</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="686"/>
         <source>Display index</source>
-        <translation type="unfinished">表示インデックス</translation>
+        <translation>表示インデックス</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="750"/>
         <source>Network port</source>
-        <translation type="unfinished">ネットワークポート</translation>
+        <translation>ネットワークポート</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="982"/>
         <source>Video</source>
-        <translation type="unfinished">ビデオ</translation>
+        <translation>ビデオ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>Show intro</source>
-        <translation type="unfinished">イントロを表示</translation>
+        <translation>イントロを表示</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="551"/>
         <source>Active</source>
-        <translation type="unfinished">アクティブ</translation>
+        <translation>アクティブ</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="556"/>
         <source>Disabled</source>
-        <translation type="unfinished">無効</translation>
+        <translation>無効</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="557"/>
         <source>Enable</source>
-        <translation type="unfinished">有効にする</translation>
+        <translation>有効にする</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="562"/>
         <source>Not Installed</source>
-        <translation type="unfinished">インストールされていません</translation>
+        <translation>インストールされていません</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="563"/>
         <source>Install</source>
-        <translation type="unfinished">インストール</translation>
+        <translation>インストール</translation>
     </message>
 </context>
 <context>
@@ -873,33 +884,33 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">無効なファイルが選択されました</translation>
+        <translation>無効なファイルが選択されました</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="65"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">ヒーローズクロニクルのインストーラーファイルを選択する必要があります！</translation>
+        <translation>ヒーローズクロニクルのインストーラーファイルを選択する必要があります！</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="82"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">抽出エラー!</translation>
+        <translation>抽出エラー!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="86"/>
         <source>Hash error!</source>
-        <translation type="unfinished">ハッシュエラー!</translation>
+        <translation>ハッシュエラー!</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="104"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="105"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished">ヒーローズクロニクル</translation>
+        <translation>ヒーローズクロニクル</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="153"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">ヒーローズクロニクル %1 - %2</translation>
+        <translation>ヒーローズクロニクル %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -907,37 +918,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished">ファイル：</translation>
+        <translation>ファイル：</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished">設定エディタ</translation>
+        <translation>設定エディタ</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished">保存されていない変更</translation>
+        <translation>保存されていない変更</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished">変更を破棄しますか？</translation>
+        <translation>変更を破棄しますか？</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished">JSONファイルは無効です！</translation>
+        <translation>JSONファイルは無効です！</translation>
     </message>
 </context>
 <context>
@@ -946,7 +957,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/modstate.cpp" line="140"/>
         <location filename="../modManager/modstatemodel.cpp" line="93"/>
         <source>%1 MiB</source>
-        <translation type="unfinished">%1 MiB</translation>
+        <translation>%1 MiB</translation>
     </message>
 </context>
 <context>
@@ -954,107 +965,107 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
         <source>Language</source>
-        <translation type="unfinished">言語</translation>
+        <translation>言語</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation type="unfinished">ヒーローズIIIデータ</translation>
+        <translation>ヒーローズIIIデータ</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished">モッズプリセット</translation>
+        <translation>モッズプリセット</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="126"/>
         <source>Select your language</source>
-        <translation type="unfinished">言語を選択してください</translation>
+        <translation>言語を選択してください</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="169"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">質問がありますか？バグを見つけましたか？お手伝いしたいですか？ぜひご参加ください！</translation>
+        <translation>質問がありますか？バグを見つけましたか？お手伝いしたいですか？ぜひご参加ください！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="248"/>
         <source>Locate Heroes III data files</source>
-        <translation type="unfinished">ヒーローズ III のデータファイルを探す</translation>
+        <translation>ヒーローズ III のデータファイルを探す</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="297"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished">gog.comからオフラインインストーラーを使用する</translation>
+        <translation>gog.comからオフラインインストーラーを使用する</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="329"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished">gog.comファイルをインストール</translation>
+        <translation>gog.comファイルをインストール</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="488"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation type="unfinished">あなたのHeroes IIIデータファイルが正常に見つかりました。</translation>
+        <translation>あなたのHeroes IIIデータファイルが正常に見つかりました。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="742"/>
         <source>Interface Improvements</source>
-        <translation type="unfinished">インターフェースの改善</translation>
+        <translation>インターフェースの改善</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="622"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation type="unfinished">あなたの好みの言語でHeroes IIIの翻訳をインストールします</translation>
+        <translation>あなたの好みの言語でHeroes IIIの翻訳をインストールします</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="388"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished">インストール中... %p%</translation>
+        <translation>インストール中... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="417"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished">デバイスにすでにHeroes IIIのファイルがある場合は、このディレクトリを選択すると、VCMIが既存のデータを自動的にコピーします。</translation>
+        <translation>デバイスにすでにHeroes IIIのファイルがある場合は、このディレクトリを選択すると、VCMIが既存のデータを自動的にコピーします。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="459"/>
         <source>Copy existing files</source>
-        <translation type="unfinished">既存のファイルをコピー</translation>
+        <translation>既存のファイルをコピー</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="689"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation type="unfinished">オプションとして、VCMI Launcherを使用して、今すぐ、または後でいつでも追加のモッドをインストールできます。</translation>
+        <translation>オプションとして、VCMI Launcherを使用して、今すぐ、または後でいつでも追加のモッドをインストールできます。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="673"/>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
-        <translation type="unfinished">VCMIチームによって移植されたファン制作の『Heroes III』拡張パック「Horn of the Abyss」の互換バージョンをインストールしてください</translation>
+        <translation>VCMIチームによって移植されたファン制作の『Heroes III』拡張パック「Horn of the Abyss」の互換バージョンをインストールしてください</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="772"/>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
-        <translation type="unfinished">ファンメイドのHeroes III拡張「In The Wake of Gods」の互換性のあるバージョンをインストール</translation>
+        <translation>ファンメイドのHeroes III拡張「In The Wake of Gods」の互換性のあるバージョンをインストール</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
-        <translation type="unfinished">ランダムマップのためのより良いインターフェイスや戦闘での選択可能なアクションなど、さまざまなインターフェイス改善を提供するモッドをインストールします</translation>
+        <translation>ランダムマップのためのより良いインターフェイスや戦闘での選択可能なアクションなど、さまざまなインターフェイス改善を提供するモッドをインストールします</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="867"/>
         <source>Finish</source>
-        <translation type="unfinished">終了</translation>
+        <translation>終了</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="155"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">GithubのVCMI</translation>
+        <translation>GithubのVCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="162"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">DiscordでのVCMI</translation>
+        <translation>DiscordでのVCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="178"/>
@@ -1077,107 +1088,107 @@ VCMIを使用するには、Heroes® of Might and Magic® III: Completeまたは
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="212"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="564"/>
         <source>Next</source>
-        <translation type="unfinished">次へ</translation>
+        <translation>次へ</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="310"/>
         <source>You can manually copy directories Maps, Data, and Mp3 from the original game directory to the VCMI data directory that you can see on top of this page</source>
-        <translation type="unfinished">元のゲームディレクトリからマップ、データ、およびMp3のディレクトリを手動でコピーして、このページの上部に表示されているVCMIデータディレクトリに移動できます。</translation>
+        <translation>元のゲームディレクトリからマップ、データ、およびMp3のディレクトリを手動でコピーして、このページの上部に表示されているVCMIデータディレクトリに移動できます。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="347"/>
         <source>Manual Installation</source>
-        <translation type="unfinished">手動インストール</translation>
+        <translation>手動インストール</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="360"/>
         <source>Search again</source>
-        <translation type="unfinished">再検索</translation>
+        <translation>再検索</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="441"/>
         <source>Heroes III data files</source>
-        <translation type="unfinished">ヒーローズIII データファイル</translation>
+        <translation>ヒーローズIII データファイル</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="279"/>
         <source>Copy existing data</source>
-        <translation type="unfinished">既存のデータをコピー</translation>
+        <translation>既存のデータをコピー</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="504"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">gog.comでHeroes IIIを所有している場合は、gog.comからバックアップオフラインインストーラーをダウンロードできます。VCMIはその後、オフラインインストーラーを使用してHeroes IIIのデータをインポートします。オフラインインストーラーは「.exe」と「.bin」の2つのファイルで構成されています - 両方をダウンロードする必要があります。</translation>
+        <translation>gog.comでHeroes IIIを所有している場合は、gog.comからバックアップオフラインインストーラーをダウンロードできます。VCMIはその後、オフラインインストーラーを使用してHeroes IIIのデータをインポートします。オフラインインストーラーは「.exe」と「.bin」の2つのファイルで構成されています - 両方をダウンロードする必要があります。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="557"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="860"/>
         <source>Back</source>
-        <translation type="unfinished">戻る</translation>
+        <translation>戻る</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="594"/>
         <source>Install VCMI Mod Preset</source>
-        <translation type="unfinished">VCMIモッドプリセットをインストール</translation>
+        <translation>VCMIモッドプリセットをインストール</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="710"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished">奈落の角笛</translation>
+        <translation>奈落の角笛</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="643"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished">ヒーローズIII 翻訳</translation>
+        <translation>ヒーローズIII 翻訳</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="809"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished">神々の目覚めに</translation>
+        <translation>神々の目覚めに</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
         <source>Heroes III installation found!</source>
-        <translation type="unfinished">Heroes IIIのインストールが見つかりました！</translation>
+        <translation>Heroes IIIのインストールが見つかりました！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="177"/>
         <source>Copy data to VCMI folder?</source>
-        <translation type="unfinished">VCMIフォルダーにデータをコピーしますか？</translation>
+        <translation>VCMIフォルダーにデータをコピーしますか？</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="324"/>
         <source>Select %1 file...</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished">%1ファイルを選択...</translation>
+        <translation>%1ファイルを選択...</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="379"/>
         <source>You have to select %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished">%1ファイルを選択する必要があります！</translation>
+        <translation>%1ファイルを選択する必要があります！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="326"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished">GOGファイル（*.*）</translation>
+        <translation>GOGファイル（*.*）</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="327"/>
         <source>File selection</source>
-        <translation type="unfinished">ファイル選択</translation>
+        <translation>ファイル選択</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="336"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="387"/>
         <source>GOG installer</source>
-        <translation type="unfinished">GOG インストーラー</translation>
+        <translation>GOG インストーラー</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="441"/>
         <source>You&apos;ve provided a GOG Galaxy installer! This file doesn&apos;t contain the game. Please download the offline backup game installer!</source>
-        <translation type="unfinished">GOG Galaxy インストーラーを提供しました！このファイルにはゲームが含まれていません。オフラインバックアップゲームインストーラーをダウンロードしてください！</translation>
+        <translation>GOG Galaxy インストーラーを提供しました！このファイルにはゲームが含まれていません。オフラインバックアップゲームインストーラーをダウンロードしてください！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
@@ -1197,38 +1208,38 @@ Heroes III: Complete Edition または Heroes III: Shadow of Death がインス�
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="335"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="386"/>
         <source>GOG data</source>
-        <translation type="unfinished">GOGデータ</translation>
+        <translation>GOGデータ</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="372"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished">ファイルを開くことに失敗しました: %1</translation>
+        <translation>ファイルを開くことに失敗しました: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="467"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">抽出エラー！</translation>
+        <translation>抽出エラー！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="471"/>
         <source>Hash error!</source>
-        <translation type="unfinished">ハッシュエラー！</translation>
+        <translation>ハッシュエラー！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished">ヒーローズIIIのデータがありません!</translation>
+        <translation>ヒーローズIIIのデータがありません!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="475"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished">選択したファイルにはHeroes IIIのデータが含まれていません!</translation>
+        <translation>選択したファイルにはHeroes IIIのデータが含まれていません!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="520"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">選択したディレクトリに有効なHeroes IIIデータが検出されませんでした。インストールされたHeroes IIIデータのディレクトリを選択してください。</translation>
+        <translation>選択したディレクトリに有効なHeroes IIIデータが検出されませんでした。インストールされたHeroes IIIデータのディレクトリを選択してください。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="523"/>
@@ -1236,7 +1247,7 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="544"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="549"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished">Heroes IIIのデータが見つかりません！</translation>
+        <translation>Heroes IIIのデータが見つかりません！</translation>
     </message>
 </context>
 <context>
@@ -1244,7 +1255,7 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
-        <translation type="unfinished">画像ビューア</translation>
+        <translation>画像ビューア</translation>
     </message>
 </context>
 <context>
@@ -1253,17 +1264,17 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">ファイルを抽出中にストリームエラーが発生しました！エラー理由：</translation>
+        <translation>ファイルを抽出中にストリームエラーが発生しました！エラー理由：</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">サポートされていないInno Setupインストーラーです！</translation>
+        <translation>サポートされていないInno Setupインストーラーです！</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished">VCMIはexeファイルを抽出するために必要なinnoextractサポートなしでコンパイルされました!</translation>
+        <translation>VCMIはexeファイルを抽出するために必要なinnoextractサポートなしでコンパイルされました!</translation>
     </message>
     <message numerus="yes">
         <location filename="../innoextract.cpp" line="143"/>
@@ -1297,12 +1308,12 @@ Bin (%n bytes):
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Exe</source>
-        <translation type="unfinished">実行ファイル</translation>
+        <translation>実行ファイル</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Bin</source>
-        <translation type="unfinished">バイナリ</translation>
+        <translation>バイナリ</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="166"/>
@@ -1341,122 +1352,122 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished">ベラルーシ語</translation>
+        <translation>ベラルーシ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished">ブルガリア語</translation>
+        <translation>ブルガリア語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>Czech</source>
-        <translation type="unfinished">チェコ語</translation>
+        <translation>チェコ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Chinese</source>
-        <translation type="unfinished">中国語</translation>
+        <translation>中国語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>English</source>
-        <translation type="unfinished">英語</translation>
+        <translation>英語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Finnish</source>
-        <translation type="unfinished">フィンランド語</translation>
+        <translation>フィンランド語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>French</source>
-        <translation type="unfinished">フランス語</translation>
+        <translation>フランス語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>German</source>
-        <translation type="unfinished">ドイツ語</translation>
+        <translation>ドイツ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Greek</source>
-        <translation type="unfinished">ギリシャ語</translation>
+        <translation>ギリシャ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>Hungarian</source>
-        <translation type="unfinished">ハンガリー語</translation>
+        <translation>ハンガリー語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>Italian</source>
-        <translation type="unfinished">イタリア語</translation>
+        <translation>イタリア語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Japanese</source>
-        <translation type="unfinished">日本語</translation>
+        <translation>日本語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Korean</source>
-        <translation type="unfinished">韓国語</translation>
+        <translation>韓国語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Norwegian</source>
-        <translation type="unfinished">ノルウェー語</translation>
+        <translation>ノルウェー語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Polish</source>
-        <translation type="unfinished">ポーランド語</translation>
+        <translation>ポーランド語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Portuguese</source>
-        <translation type="unfinished">ポルトガル語</translation>
+        <translation>ポルトガル語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Romanian</source>
-        <translation type="unfinished">ルーマニア語</translation>
+        <translation>ルーマニア語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Russian</source>
-        <translation type="unfinished">ロシア語</translation>
+        <translation>ロシア語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Spanish</source>
-        <translation type="unfinished">スペイン語</translation>
+        <translation>スペイン語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Swedish</source>
-        <translation type="unfinished">スウェーデン語</translation>
+        <translation>スウェーデン語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="43"/>
         <source>Turkish</source>
-        <translation type="unfinished">トルコ語</translation>
+        <translation>トルコ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Ukrainian</source>
-        <translation type="unfinished">ウクライナ語</translation>
+        <translation>ウクライナ語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
         <source>Vietnamese</source>
-        <translation type="unfinished">ベトナム語</translation>
+        <translation>ベトナム語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="67"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished">自動 (%1)</translation>
+        <translation>自動 (%1)</translation>
     </message>
 </context>
 <context>
@@ -1464,55 +1475,55 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
         <source>VCMI Launcher</source>
-        <translation type="unfinished">VCMIランチャー</translation>
+        <translation>VCMIランチャー</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="150"/>
         <source>Settings</source>
-        <translation type="unfinished">設定</translation>
+        <translation>設定</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="196"/>
         <source>Help</source>
-        <translation type="unfinished">ヘルプ</translation>
+        <translation>ヘルプ</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="58"/>
         <source>Game</source>
-        <translation type="unfinished">ゲーム</translation>
+        <translation>ゲーム</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="104"/>
         <source>Mods</source>
-        <translation type="unfinished">モッズ</translation>
+        <translation>モッズ</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="50"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">実行可能ファイルの起動エラー</translation>
+        <translation>実行可能ファイルの起動エラー</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="293"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">設定ファイルを置き換えますか？</translation>
+        <translation>設定ファイルを置き換えますか？</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="293"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">％1を置き換えますか？</translation>
+        <translation>％1を置き換えますか？</translation>
     </message>
 </context>
 <context>
     <name>ModFields</name>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="188"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="189"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="191"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="192"/>
         <source>Type</source>
-        <translation type="unfinished">タイプ</translation>
+        <translation>タイプ</translation>
     </message>
 </context>
 <context>
@@ -1520,79 +1531,79 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="129"/>
         <source>Can not install submod</source>
-        <translation type="unfinished">サブモッドをインストールできません</translation>
+        <translation>サブモッドをインストールできません</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="132"/>
         <source>Mod is already installed</source>
-        <translation type="unfinished">モッドはすでにインストールされています</translation>
+        <translation>モッドはすでにインストールされています</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="141"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">サブモッドをアンインストールできません</translation>
+        <translation>サブモッドをアンインストールできません</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="144"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">モッドがインストールされていません</translation>
+        <translation>モッドがインストールされていません</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="157"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">モッドはすでに有効です</translation>
+        <translation>モッドはすでに有効です</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="160"/>
         <location filename="../modManager/modstatecontroller.cpp" line="186"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">モッドは最初にインストールする必要があります</translation>
+        <translation>モッドは最初にインストールする必要があります</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="164"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished">モッドは互換性がありません。VCMIを更新し、最新のモッドの修正を確認してください。</translation>
+        <translation>モッドは互換性がありません。VCMIを更新し、最新のモッドの修正を確認してください。</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="167"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished">異なる言語の翻訳モッドを有効にできません！</translation>
+        <translation>異なる言語の翻訳モッドを有効にできません！</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="172"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">必須のモジュール %1 が不足しています</translation>
+        <translation>必須のモジュール %1 が不足しています</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="183"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">モッドはすでに無効です</translation>
+        <translation>モッドはすでに無効です</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="196"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">モッドアーカイブが見つかりません</translation>
+        <translation>モッドアーカイブが見つかりません</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="201"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">モッドのアーカイブが無効または破損しています</translation>
+        <translation>モッドのアーカイブが無効または破損しています</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">モッドデータの抽出に失敗しました</translation>
+        <translation>モッドデータの抽出に失敗しました</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="256"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished">モッドデータが見つかりませんでした</translation>
+        <translation>モッドデータが見つかりませんでした</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">モッドは保護されたディレクトリにありますので、手動で削除してください：</translation>
+        <translation>モッドは保護されたディレクトリにありますので、手動で削除してください：</translation>
     </message>
 </context>
 <context>
@@ -1600,108 +1611,114 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="36"/>
         <source>Translation</source>
-        <translation type="unfinished">翻訳</translation>
+        <translation>翻訳</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Town</source>
-        <translation type="unfinished">町</translation>
+        <translation>町</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Test</source>
-        <translation type="unfinished">テスト</translation>
+        <translation>テスト</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Templates</source>
-        <translation type="unfinished">テンプレート</translation>
+        <translation>テンプレート</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Spells</source>
-        <translation type="unfinished">呪文</translation>
+        <translation>呪文</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Music</source>
-        <translation type="unfinished">音楽</translation>
+        <translation>音楽</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Maps</source>
-        <translation type="unfinished">地図</translation>
+        <translation>地図</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Sounds</source>
-        <translation type="unfinished">音</translation>
+        <translation>音</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Skills</source>
-        <translation type="unfinished">スキル</translation>
+        <translation>スキル</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
-        <location filename="../modManager/modstateitemmodel_moc.cpp" line="61"/>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="62"/>
         <source>Other</source>
-        <translation type="unfinished">その他</translation>
+        <translation>その他</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <source>Objects</source>
-        <translation type="unfinished">オブジェクト</translation>
+        <translation>オブジェクト</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <source>Mechanics</source>
-        <translation type="unfinished">力学</translation>
+        <translation>力学</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Interface</source>
-        <translation type="unfinished">インターフェース</translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Heroes</source>
-        <translation type="unfinished">ヒーロー</translation>
+        <translation>ヒーロー</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Graphical</source>
-        <translation type="unfinished">グラフィカル</translation>
+        <translation>グラフィカル</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Expansion</source>
-        <translation type="unfinished">拡張</translation>
+        <translation>拡張</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Creatures</source>
-        <translation type="unfinished">生き物</translation>
+        <translation>生き物</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Compatibility</source>
-        <translation type="unfinished">互換性</translation>
+        <translation>互換性</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Campaigns</source>
-        <translation type="unfinished">キャンペーン</translation>
+        <translation>キャンペーン</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Artifacts</source>
-        <translation type="unfinished">アーティファクト</translation>
+        <translation>アーティファクト</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>AI</source>
-        <translation type="unfinished">AI</translation>
+        <translation>AI</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
+        <source>Resources</source>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">資源</translation>
     </message>
 </context>
 <context>
@@ -1709,7 +1726,7 @@ Bin (%n bytes):
     <message>
         <location filename="../main.cpp" line="124"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">実行可能ファイルの起動エラー</translation>
+        <translation>実行可能ファイルの起動エラー</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="125"/>
@@ -1724,32 +1741,32 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="597"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished">クリップボードからインポート</translation>
+        <translation>クリップボードからインポート</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="616"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished">現在のプリセットの名前を変更</translation>
+        <translation>現在のプリセットの名前を変更</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="530"/>
         <source>Create New Preset</source>
-        <translation type="unfinished">新しいプリセットを作成</translation>
+        <translation>新しいプリセットを作成</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="511"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished">クリップボードにエクスポート</translation>
+        <translation>クリップボードにエクスポート</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="565"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished">現在のプリセットを削除</translation>
+        <translation>現在のプリセットを削除</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="119"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished">サポートされていないか、破損したゲームデータが検出されました！</translation>
+        <translation>サポートされていないか、破損したゲームデータが検出されました！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="141"/>
@@ -1762,82 +1779,82 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="451"/>
         <location filename="../startGame/StartGameTab.ui" line="470"/>
         <source>?</source>
-        <translation type="unfinished">?</translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="239"/>
         <source>Install Translation</source>
-        <translation type="unfinished">翻訳をインストール</translation>
+        <translation>翻訳をインストール</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="391"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished">サウンドトラックが検出されませんでした！</translation>
+        <translation>サウンドトラックが検出されませんでした！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished">アーマゲドンの刃のキャンペーンが見つかりません！</translation>
+        <translation>アーマゲドンの刃のキャンペーンが見つかりません！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="293"/>
         <source>No video files detected!</source>
-        <translation type="unfinished">ビデオファイルが検出されませんでした！</translation>
+        <translation>ビデオファイルが検出されませんでした！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="432"/>
         <source>Activate Translation</source>
-        <translation type="unfinished">翻訳を有効にする</translation>
+        <translation>翻訳を有効にする</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="315"/>
         <source>Import files</source>
-        <translation type="unfinished">ファイルをインポート</translation>
+        <translation>ファイルをインポート</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="701"/>
         <source>Check For Updates</source>
-        <translation type="unfinished">アップデートを確認</translation>
+        <translation>アップデートを確認</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="720"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished">ダウンロードページへ行く</translation>
+        <translation>ダウンロードページへ行く</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="739"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished">変更履歴ページに移動</translation>
+        <translation>変更履歴ページに移動</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="657"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished">最新バージョンを使用しています</translation>
+        <translation>最新バージョンを使用しています</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
         <source>Game Data Files</source>
-        <translation type="unfinished">ゲームデータファイル</translation>
+        <translation>ゲームデータファイル</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translation type="unfinished">モッドプリセット</translation>
+        <translation>モッドプリセット</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="773"/>
         <source>Resume</source>
-        <translation type="unfinished">再開</translation>
+        <translation>再開</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="834"/>
         <source>Play</source>
-        <translation type="unfinished">プレイ</translation>
+        <translation>プレイ</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="801"/>
         <source>Editor</source>
-        <translation type="unfinished">エディター</translation>
+        <translation>エディター</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="180"/>
@@ -1857,47 +1874,47 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="201"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished">%1へのアップデートが利用可能です</translation>
+        <translation>%1へのアップデートが利用可能です</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="237"/>
         <source>All supported files</source>
-        <translation type="unfinished">すべてのサポートされているファイル</translation>
+        <translation>すべてのサポートされているファイル</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="238"/>
         <source>Maps</source>
-        <translation type="unfinished">マップ</translation>
+        <translation>マップ</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="239"/>
         <source>Campaigns</source>
-        <translation type="unfinished">キャンペーン</translation>
+        <translation>キャンペーン</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="240"/>
         <source>Configs</source>
-        <translation type="unfinished">設定</translation>
+        <translation>設定</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Mods</source>
-        <translation type="unfinished">モッズ</translation>
+        <translation>モッズ</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="242"/>
         <source>Gog files</source>
-        <translation type="unfinished">Gogファイル</translation>
+        <translation>Gogファイル</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="245"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">すべてのファイル (*.*)</translation>
+        <translation>すべてのファイル (*.*)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="247"/>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished">インストールするファイル（設定、モッド、マップ、キャンペーン、GOGファイル）を選択してください...</translation>
+        <translation>インストールするファイル（設定、モッド、マップ、キャンペーン、GOGファイル）を選択してください...</translation>
     </message>
     <message>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
@@ -1927,17 +1944,25 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
+        <translation type="unfinished">このオプションでは、VCMI のインストールに追加のデータファイルを取り込むことができます。現在、次の項目に対応しています:
+
+- Heroes III のマップ（.h3m または .vmap）
+- Heroes III のキャンペーン（.h3c または .vcmp）
+- GOG.com のオフラインバックアップインストーラー（.exe）を用いた Heroes III Chronicles
+- zip 形式の VCMI Mod（.zip）
+- VCMI 設定ファイル（.json）
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="305"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished">あなたのHeroes IIIのバージョンは異なる言語を使用しています。VCMIは、さまざまな言語へのゲームの翻訳を提供しており、使用できます。このオプションを使用して、その翻訳を自動的にあなたの言語にインストールします。</translation>
+        <translation>あなたのHeroes IIIのバージョンは異なる言語を使用しています。VCMIは、さまざまな言語へのゲームの翻訳を提供しており、使用できます。このオプションを使用して、その翻訳を自動的にあなたの言語にインストールします。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="315"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished">Heroes IIIの翻訳がインストールされていますが、無効になっています。このオプションを使用して有効にしてください。</translation>
+        <translation>Heroes IIIの翻訳がインストールされていますが、無効になっています。このオプションを使用して有効にしてください。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="325"/>
@@ -1952,7 +1977,7 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
         <location filename="../startGame/StartGameTab.cpp" line="337"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles</source>
-        <translation type="unfinished">gog.comでHeroes Chroniclesを所有している場合、gogが提供するオフラインバックアップインストーラーを使用して、Heroes ChroniclesのデータをVCMIにカスタムキャンペーンとしてインポートできます。Heroes Chroniclesをインポートするには、インストールしたい各クロニクルのオフラインバックアップインストーラーをダウンロードし、&apos;ファイルをインポート&apos;オプションを選択してダウンロードしたファイルを選びます。これにより、インポートされたクロニクルを含むVCMI用のモッドが生成され、インストールされます。</translation>
+        <translation>gog.comでHeroes Chroniclesを所有している場合、gogが提供するオフラインバックアップインストーラーを使用して、Heroes ChroniclesのデータをVCMIにカスタムキャンペーンとしてインポートできます。Heroes Chroniclesをインポートするには、インストールしたい各クロニクルのオフラインバックアップインストーラーをダウンロードし、&apos;ファイルをインポート&apos;オプションを選択してダウンロードしたファイルを選びます。これにより、インポートされたクロニクルを含むVCMI用のモッドが生成され、インストールされます。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="350"/>
@@ -1977,36 +2002,36 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com</source>
-        <translation type="unfinished">VCMIは、あなたのインストールからいくつかのHeroes IIIデータファイルが欠けていることを検出しました。VCMIを実行しようとすることはできますが、ゲームは期待通りに動作しないか、クラッシュする可能性があります。</translation>
+        <translation>VCMIは、あなたのインストールからいくつかのHeroes IIIデータファイルが欠けていることを検出しました。VCMIを実行しようとすることはできますが、ゲームは期待通りに動作しないか、クラッシュする可能性があります。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="383"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files</source>
-        <translation type="unfinished">VCMIは、あなたのインストールからHeroes III: Armageddon&apos;s Bladeのデータファイルのいくつかが失われていることを検出しました。VCMIは動作しますが、Armageddon&apos;s Bladeのキャンペーンは利用できません。この問題を解決するには、Heroes IIIからVCMIデータファイルディレクトリに欠落しているデータファイルを手動でコピーするか、VCMIを再インストールし、Heroes IIIのデータファイルを再インポートしてください</translation>
+        <translation>VCMIは、あなたのインストールからHeroes III: Armageddon&apos;s Bladeのデータファイルのいくつかが失われていることを検出しました。VCMIは動作しますが、Armageddon&apos;s Bladeのキャンペーンは利用できません。この問題を解決するには、Heroes IIIからVCMIデータファイルディレクトリに欠落しているデータファイルを手動でコピーするか、VCMIを再インストールし、Heroes IIIのデータファイルを再インポートしてください</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Preset import failed</source>
-        <translation type="unfinished">プリセットのインポートに失敗しました</translation>
+        <translation>プリセットのインポートに失敗しました</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="407"/>
         <location filename="../startGame/StartGameTab.cpp" line="416"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished">プリセットのインポートに失敗しました - クリップボードのデータがモッドプリセットのようではありません！</translation>
+        <translation>プリセットのインポートに失敗しました - クリップボードのデータがモッドプリセットのようではありません！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="432"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished">プリセット名を入力してください：</translation>
+        <translation>プリセット名を入力してください：</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="475"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished">プリセット&apos;%1&apos;の名前を変更:</translation>
+        <translation>プリセット&apos;%1&apos;の名前を変更:</translation>
     </message>
 </context>
 <context>
@@ -2014,27 +2039,27 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation type="unfinished">最新バージョンをお持ちです</translation>
+        <translation>最新バージョンをお持ちです</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation>閉じる</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation type="unfinished">起動時にアップデートを確認する</translation>
+        <translation>起動時にアップデートを確認する</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
-        <translation type="unfinished">ネットワークエラー</translation>
+        <translation>ネットワークエラー</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished">URLからJSONを読み取れないか、JSONデータが正しくありません</translation>
+        <translation>URLからJSONを読み取れないか、JSONデータが正しくありません</translation>
     </message>
 </context>
 </TS>

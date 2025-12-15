@@ -354,7 +354,7 @@ Rect ScalableImageInstance::contentRect() const
 Point ScalableImageInstance::dimensions() const
 {
 	if (scaledImage)
-		return scaledImage->dimensions() / ENGINE->screenHandler().getScalingFactor();
+		return scaledImage->dimensions();
 	return image->dimensions();
 }
 

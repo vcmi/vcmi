@@ -242,6 +242,11 @@ bool JsonNode::isNull() const
 	return getType() == JsonType::DATA_NULL;
 }
 
+bool JsonNode::isBool() const
+{
+	return getType() == JsonType::DATA_BOOL;
+}
+
 bool JsonNode::isNumber() const
 {
 	return getType() == JsonType::DATA_INTEGER || getType() == JsonType::DATA_FLOAT;

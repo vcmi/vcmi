@@ -486,7 +486,7 @@ void CGSubterraneanGate::initObj(IGameRandomizer & gameRandomizer)
 void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
-	std::vector<CGSubterraneanGate *> gatesSplit[2]; //surface and underground gates
+	std::vector<std::vector<CGSubterraneanGate *>> gatesSplit(cb->gameState().getMap().mapLevels); //surface and underground gates
 	for(auto gate : cb->gameState().getMap().getObjects<CGSubterraneanGate>())
 	{
 		gatesSplit[gate->visitablePos().z].push_back(gate);
@@ -535,8 +535,9 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 	}
 
 	// we should assign empty channels to underground gates if they don't have matching overground gates
-	for(auto & i : gatesSplit[1])
-		assignToChannel(i);
+	if(gatesSplit.size() > 1)
+		for(auto & i : gatesSplit[1])
+			assignToChannel(i);
 }
 
 void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

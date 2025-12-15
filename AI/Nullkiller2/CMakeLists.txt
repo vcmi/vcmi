@@ -1,0 +1,165 @@
+set(Nullkiller2_SRCS
+		Pathfinding/AIPathfinderConfig.cpp
+		Pathfinding/AIPathfinder.cpp
+		Pathfinding/AINodeStorage.cpp
+		Pathfinding/Actors.cpp
+		Pathfinding/Actions/SpecialAction.cpp
+		Pathfinding/Actions/BattleAction.cpp
+		Pathfinding/Actions/QuestAction.cpp
+		Pathfinding/Actions/BuyArmyAction.cpp
+		Pathfinding/Actions/BoatActions.cpp
+		Pathfinding/Actions/WhirlpoolAction.cpp
+		Pathfinding/Actions/TownPortalAction.cpp
+		Pathfinding/Actions/AdventureSpellCastMovementActions.cpp
+		Pathfinding/Rules/AILayerTransitionRule.cpp
+		Pathfinding/Rules/AIMovementAfterDestinationRule.cpp
+		Pathfinding/Rules/AIMovementToDestinationRule.cpp
+		Pathfinding/Rules/AIPreviousNodeRule.cpp
+		Pathfinding/ObjectGraph.cpp
+		Pathfinding/GraphPaths.cpp
+		Pathfinding/ObjectGraphCalculator.cpp
+		AIUtility.cpp
+		Analyzers/ArmyManager.cpp
+		Analyzers/HeroManager.cpp
+		Engine/Settings.cpp
+		Engine/FuzzyEngines.cpp
+		Engine/FuzzyHelper.cpp
+		Engine/AIMemory.cpp
+		Goals/AbstractGoal.cpp
+		Goals/Composition.cpp
+		Goals/SaveResources.cpp
+		Goals/BuildBoat.cpp
+		Goals/BuildThis.cpp
+		Goals/DismissHero.cpp
+		Goals/BuyArmy.cpp
+		Goals/AdventureSpellCast.cpp
+		Goals/Trade.cpp
+		Goals/CaptureObject.cpp
+		Goals/RecruitHero.cpp
+		Goals/DigAtTile.cpp
+		Goals/ExecuteHeroChain.cpp
+		Goals/ExchangeSwapTownHeroes.cpp
+		Goals/CompleteQuest.cpp
+		Goals/StayAtTown.cpp
+		Goals/ExploreNeighbourTile.cpp
+		Markers/ArmyUpgrade.cpp
+		Markers/HeroExchange.cpp
+		Markers/UnlockCluster.cpp
+		Markers/DefendTown.cpp
+		Markers/ExplorationPoint.cpp
+		Engine/Nullkiller.cpp
+		Engine/DeepDecomposer.cpp
+		Engine/PriorityEvaluator.cpp
+		Engine/ResourceTrader.cpp
+		Analyzers/DangerHitMapAnalyzer.cpp
+		Analyzers/BuildAnalyzer.cpp
+		Analyzers/ObjectClusterizer.cpp
+		Behaviors/CaptureObjectsBehavior.cpp
+		Behaviors/RecruitHeroBehavior.cpp
+		Behaviors/BuyArmyBehavior.cpp
+		Behaviors/DefenceBehavior.cpp
+		Behaviors/StartupBehavior.cpp
+		Behaviors/BuildingBehavior.cpp
+		Behaviors/GatherArmyBehavior.cpp
+		Behaviors/ClusterBehavior.cpp
+		Behaviors/StayAtTownBehavior.cpp
+		Behaviors/ExplorationBehavior.cpp
+		Helpers/ArmyFormation.cpp
+		Helpers/ExplorationHelper.cpp
+		AIGateway.cpp
+)
+
+set(Nullkiller2_HEADERS
+		StdInc.h
+		
+		Pathfinding/AIPathfinderConfig.h
+		Pathfinding/AIPathfinder.h
+		Pathfinding/AINodeStorage.h
+		Pathfinding/Actors.h
+		Pathfinding/Actions/SpecialAction.h
+		Pathfinding/Actions/BattleAction.h
+		Pathfinding/Actions/QuestAction.h
+		Pathfinding/Actions/BuyArmyAction.h
+		Pathfinding/Actions/BoatActions.h
+		Pathfinding/Actions/WhirlpoolAction.h
+		Pathfinding/Actions/TownPortalAction.h
+		Pathfinding/Actions/AdventureSpellCastMovementActions.h
+		Pathfinding/Rules/AILayerTransitionRule.h
+		Pathfinding/Rules/AIMovementAfterDestinationRule.h
+		Pathfinding/Rules/AIMovementToDestinationRule.h
+		Pathfinding/Rules/AIPreviousNodeRule.h
+		Pathfinding/ObjectGraph.h
+		Pathfinding/GraphPaths.h
+		Pathfinding/ObjectGraphCalculator.h
+		AIUtility.h
+		pforeach.h
+		Analyzers/ArmyManager.h
+		Analyzers/HeroManager.h
+		Engine/Settings.h
+		Engine/FuzzyEngines.h
+		Engine/FuzzyHelper.h
+		Engine/AIMemory.h
+		Goals/AbstractGoal.h
+		Goals/CGoal.h
+		Goals/Composition.h
+		Goals/Invalid.h
+		Goals/BuildBoat.h
+		Goals/SaveResources.h
+		Goals/BuildThis.h
+		Goals/DismissHero.h
+		Goals/BuyArmy.h
+		Goals/AdventureSpellCast.h
+		Goals/Trade.h
+		Goals/CaptureObject.h
+		Goals/RecruitHero.h
+		Goals/DigAtTile.h
+		Goals/ExecuteHeroChain.h
+		Goals/ExchangeSwapTownHeroes.h
+		Goals/CompleteQuest.h
+		Goals/Goals.h
+		Goals/StayAtTown.h
+		Goals/ExploreNeighbourTile.h
+		Markers/ArmyUpgrade.h
+		Markers/HeroExchange.h
+		Markers/UnlockCluster.h
+		Markers/DefendTown.h
+		Markers/ExplorationPoint.h
+		Engine/Nullkiller.h
+		Engine/DeepDecomposer.h
+		Engine/PriorityEvaluator.h
+		Engine/ResourceTrader.h
+		Analyzers/DangerHitMapAnalyzer.h
+		Analyzers/BuildAnalyzer.h
+		Analyzers/ObjectClusterizer.h
+		Behaviors/CaptureObjectsBehavior.h
+		Behaviors/RecruitHeroBehavior.h
+		Behaviors/BuyArmyBehavior.h
+		Behaviors/DefenceBehavior.h
+		Behaviors/StartupBehavior.h
+		Behaviors/BuildingBehavior.h
+		Behaviors/GatherArmyBehavior.h
+		Behaviors/ClusterBehavior.h
+		Behaviors/StayAtTownBehavior.h
+		Behaviors/ExplorationBehavior.h
+		Helpers/ArmyFormation.h
+		Helpers/ExplorationHelper.h
+		AIGateway.h
+)
+
+if(NOT ENABLE_STATIC_LIBS)
+	list(APPEND Nullkiller2_SRCS main.cpp StdInc.cpp)
+endif()
+assign_source_group(${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
+
+if(ENABLE_STATIC_LIBS)
+	add_library(Nullkiller2 STATIC ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
+else()
+	add_library(Nullkiller2 SHARED ${Nullkiller2_SRCS} ${Nullkiller2_HEADERS})
+	install(TARGETS Nullkiller2 RUNTIME DESTINATION ${AI_LIB_DIR} LIBRARY DESTINATION ${AI_LIB_DIR})
+endif()
+
+target_include_directories(Nullkiller2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(Nullkiller2 PUBLIC vcmi fuzzylite::fuzzylite TBB::tbb)
+
+vcmi_set_output_dir(Nullkiller2 "AI")
+enable_pch(Nullkiller2)

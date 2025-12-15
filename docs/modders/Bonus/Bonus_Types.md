@@ -543,8 +543,25 @@ When affected unit is attacked from behind, it will receive more damage when att
 
 Affected unit will deal more damage when attacking specific creature
 
-- subtype - identifier of hated creature, ie. "creature.genie"
+- subtype - identifier of hated creature, ie. `genie`
 - val - additional damage, percentage
+
+### HATES_TRAIT
+
+Affected unit will deal more damage when attacking unit that has specific bonus. Note that this bonus has no assigned description. To make it visible in creature window UI, make sure to provide custom description for such bonus.
+
+- subtype - identifier of hated bonus, ie. `UNDEAD`
+- val - additional damage, percentage
+
+Example: Unit deals 50% more damage to any target that has UNDEAD bonus
+
+```json
+	"hatesUndead" : {
+		"type" : "HATES_TRAIT",
+		"subtype" : "UNDEAD",
+		"val" : 50
+	}
+```
 
 ### SPELL_LIKE_ATTACK
 
@@ -630,6 +647,12 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeMelee: only melee damage will be reduced
   - damageTypeRanged: only ranged damage will be reduced
   - damageTypeAll: all damage will be reduced
+
+### DAMAGE_RECEIVED_CAP
+
+Limits maximal damage received by affected units based on max hp (HotA war machines)
+
+- val: maximal damage limit, percentage of max hp
 
 ### PERCENTAGE_DAMAGE_BOOST
 

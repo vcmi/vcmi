@@ -59,9 +59,10 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m) const
 	bool targetExists = false;
 	bool targetToSacrificeExists = false;
 
-	for(auto & target : targets)
+	for(const battle::Unit * target : targets)
 	{
-		if(target->alive())
+		auto unit = target->acquire();
+		if(target->alive() && unit->isLiving() && !unit->hasBonusOfType(BonusType::MECHANICAL))
 			targetToSacrificeExists = true;
 		else if(target->isDead())
 			targetExists = true;
@@ -89,12 +90,15 @@ bool Sacrifice::applicable(Problem & problem, const Mechanics * m, const EffectT
 	if(!Heal::applicable(problem, m, healTarget))
 		return false;
 
+	if(healTarget.front().unitValue->alive())
+		return false;
+
 	if(target.size() == 2)
 	{
 		const auto *victim = target.at(1).unitValue;
 		if(!victim)
 			return false;
-		
+
 		return victim->alive() && getStackFilter(m, false, victim) && isReceptive(m, victim);
 	}
 
@@ -149,6 +153,30 @@ EffectTarget Sacrifice::transformTarget(const Mechanics * m, const Target & aimP
 	}
 
 	return res;
+}
+
+SpellEffectValue Sacrifice::getHealthChange(const Mechanics * m, const EffectTarget & spellTarget) const
+{
+	SpellEffectValue result{};
+
+	if(spellTarget.empty())
+		return result;
+
+	const battle::Unit * target = spellTarget.front().unitValue;
+
+	result.unitType = target->creatureId();
+
+	if(!target->alive())
+	{
+		result.hpDelta = target->unitBaseAmount() * target->getMaxHealth();
+		result.unitsDelta = target->unitBaseAmount();
+		return result;
+	}
+
+	result.hpDelta = calculateHealEffectValue(m, target);
+	result.unitsDelta = -target->getCount();
+
+	return result;
 }
 
 int64_t Sacrifice::calculateHealEffectValue(const Mechanics * m, const battle::Unit * victim) 

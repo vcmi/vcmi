@@ -296,6 +296,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town)
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CTownTooltip>(Point(9, 10), iah);
 
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(town->getOwner());
+
 	addUsedEvents(DRAG_POPUP);
 
 	fitToScreen(10);
@@ -309,6 +312,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero)
 
 	OBJECT_CONSTRUCTION;
 	tooltip = std::make_shared<CHeroTooltip>(Point(9, 10), iah);
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(hero->getOwner());
 	
 	addUsedEvents(DRAG_POPUP);
 
@@ -331,6 +337,9 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr)
 	{
         tooltip = std::make_shared<CArmyTooltip>(Point(9, 10), iah);
 	}
+
+	if(settings["general"]["enableUiEnhancements"].Bool())
+		background->setPlayerColor(garr->getOwner());
 
 	addUsedEvents(DRAG_POPUP);
 

@@ -524,6 +524,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 	PlayerColor player;
 	EVictoryLossCheckResult victoryLossCheckResult;
 	StatisticDataSet statistic;
+	bool silentEnd = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -532,6 +533,7 @@ struct DLL_LINKAGE PlayerEndsGame : public CPackForClient
 		h & player;
 		h & victoryLossCheckResult;
 		h & statistic;
+		h & silentEnd;
 	}
 };
 
@@ -614,6 +616,20 @@ struct DLL_LINKAGE ChangeFormation : public CPackForClient
 	}
 };
 
+struct DLL_LINKAGE ChangeTownName : public CPackForClient
+{
+	ObjectInstanceID tid;
+	std::string name;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & tid;
+		h & name;
+	}
+};
+
 struct DLL_LINKAGE RemoveObject : public CPackForClient
 {
 	RemoveObject() = default;
@@ -686,7 +702,7 @@ struct DLL_LINKAGE TryMoveHero : public CPackForClient
 		for (const auto & tile : fowRevealed)
 			fow += tile.toString() + ", ";
 
-		logGlobal->info("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
+		logGlobal->trace("OI %d, mp %d, res %d, start %s, end %s, attack %s, fow %s", id.getNum(), movePoints, static_cast<int>(result), start.toString(), end.toString(), attackedFrom.toString(), fow);
 	}
 };
 
@@ -1504,6 +1520,20 @@ struct DLL_LINKAGE CenterView : public CPackForClient
 		h & pos;
 		h & player;
 		h & focusTime;
+	}
+};
+
+struct DLL_LINKAGE ResponseStatistic : public CPackForClient
+{
+	PlayerColor player;
+	StatisticDataSet statistic;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & player;
+		h & statistic;
 	}
 };
 

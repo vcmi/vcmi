@@ -91,6 +91,7 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
+	extendedSel(CTerrainSelection(terrainSel.getMap())),
 	terType(terType),
 	decorationsPercentage(decorationsPercentage),
 	gen(gen)
@@ -102,23 +103,49 @@ void CDrawTerrainOperation::execute()
 {
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
-		auto & tile = map->getTile(pos);
-		tile.terrainType = terType;
-		invalidateTerrainViews(pos);
+		saveTileState(pos);
+		expandInvalidatedTileList(pos);
 	}
-
-	updateTerrainTypes();
+	changeTerrainType(terrainSel, terType);
+	expandSelection(terrainSel);
 	updateTerrainViews();
+}
+
+void CDrawTerrainOperation::changeTerrainType(CTerrainSelection selection, TerrainId terrainType)
+{
+	for(const auto & pos : selection.getSelectedItems())
+	{
+		auto & tile = map->getTile(pos);
+		tile.terrainType = terrainType;
+	}
 }
 
 void CDrawTerrainOperation::undo()
 {
-	//TODO
+	for (auto const& typeToSelection : formerState)
+	{
+		changeTerrainType(typeToSelection.second, typeToSelection.first);
+	}
+	updateTerrainViews();
 }
 
 void CDrawTerrainOperation::redo()
 {
-	//TODO
+	changeTerrainType(extendedSel, terType);
+	updateTerrainViews();
+}
+
+void CDrawTerrainOperation::saveTileState(int3 tile)
+{
+	if(extendedSel.getSelectedItems().contains(tile))	//tile is being changed a second time
+		return;
+
+	extendedSel.select(tile);
+
+	auto terrainType = map->getTile(tile).terrainType;
+	if (!formerState.contains(terrainType))
+		formerState.insert({terrainType, CTerrainSelection(terrainSel.getMap())});
+	formerState.at(terrainType).select(tile);
 }
 
 std::string CDrawTerrainOperation::getLabel() const
@@ -126,9 +153,9 @@ std::string CDrawTerrainOperation::getLabel() const
 	return "Draw Terrain";
 }
 
-void CDrawTerrainOperation::updateTerrainTypes()
+void CDrawTerrainOperation::expandSelection(CTerrainSelection selection)
 {
-	auto positions = terrainSel.getSelectedItems();
+	auto positions = selection.getSelectedItems();
 	while(!positions.empty())
 	{
 		const auto & centerPos = *(positions.begin());
@@ -137,9 +164,10 @@ void CDrawTerrainOperation::updateTerrainTypes()
 		auto tiles = getInvalidTiles(centerPos);
 		auto updateTerrainType = [&](const int3& pos)
 		{
+			saveTileState(pos);
 			map->getTile(pos).terrainType = centerTile.terrainType;
 			positions.insert(pos);
-			invalidateTerrainViews(pos);
+			expandInvalidatedTileList(pos);
 			//logGlobal->debug("Set additional terrain tile at pos '%s' to type '%s'", pos, centerTile.terType);
 		};
 
@@ -311,7 +339,7 @@ void CDrawTerrainOperation::updateTerrainViews()
 		if(!pattern.diffImages)
 		{
 			tile.terView = gen->nextInt(mapping.first, mapping.second);
-			tile.extTileFlags = valRslt.flip;
+			tile.extTileFlags = (tile.extTileFlags & 0b11111100) | valRslt.flip;
 		}
 		else
 		{
@@ -405,9 +433,9 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0 && map->isInTheMap(currentPos))
 				{
-					if(terType->getId() == centerTerType->getId())
+					if(centerTerType->getId() == terType->getId() || (centerTerType->getId() == ETerrainId::DIRT && !terType->isTransitionRequired()))
 					{
-						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(centerTerType->getId(), rule.name);
+						const auto patternForRule = LIBRARY->terviewh->getTerrainViewPatternsById(terType->getId(), rule.name);
 						if(auto p = patternForRule)
 						{
 							auto rslt = validateTerrainView(currentPos, &(p->get()), 1);
@@ -496,7 +524,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 	}
 }
 
-void CDrawTerrainOperation::invalidateTerrainViews(const int3& centerPos)
+void CDrawTerrainOperation::expandInvalidatedTileList(const int3& centerPos)
 {
 	auto rect = extendTileAroundSafely(centerPos);
 	rect.forEach([&](const int3& pos)

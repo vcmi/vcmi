@@ -90,7 +90,7 @@ struct DLL_LINKAGE LobbyChatMessage : public CLobbyPackToPropagate
 struct DLL_LINKAGE LobbyGuiAction : public CLobbyPackToPropagate
 {
 	enum EAction : ui8 {
-		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS, OPEN_EXTRA_OPTIONS
+		NONE, NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS, OPEN_TURN_OPTIONS, OPEN_EXTRA_OPTIONS, BATTLE_MODE
 	} action = NONE;
 
 
@@ -148,6 +148,18 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 		h & initializedGameState;
 		if (!h.saving)
 			h.loadingGamestate = false;
+	}
+};
+
+struct DLL_LINKAGE LobbyQuickLoadGame : public CLobbyPackToPropagate
+{
+	std::string saveFilePath;  //"Saves/Quicksave"
+
+	void visitTyped(ICPackVisitor & visitor) override;
+	
+	template <typename Handler> void serialize(Handler &h)
+	{
+			h & saveFilePath;
 	}
 };
 
@@ -227,6 +239,18 @@ struct DLL_LINKAGE LobbySetCampaignBonus : public CLobbyPackToServer
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & bonusId;
+	}
+};
+
+struct DLL_LINKAGE LobbySetBattleOnlyModeStartInfo : public CLobbyPackToPropagate
+{
+	std::shared_ptr<BattleOnlyModeStartInfo> startInfo;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & startInfo;
 	}
 };
 

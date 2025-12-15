@@ -480,54 +480,75 @@ void CZonePlacer::prepareZones(TZoneMap &zones, TZoneVector &zonesVector, const 
 	for(const auto & zone : zonesVector)
 	{
 		if (mapLevels == 1) //this step is ignored
-			zonesToPlace.push_back(zone);
-		else //place players depending on their factions
 		{
-			if(std::optional<int> owner = zone.second->getOwner())
-			{
-				auto player = PlayerColor(*owner - 1);
-				auto playerSettings = map.getMapGenOptions().getPlayersSettings();
-				FactionID faction = FactionID::RANDOM;
-				if (playerSettings.size() > player.getNum())
-				{
-					faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
-				}
-				else
-				{
-					logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
-				}
+			zonesToPlace.push_back(zone);
+			continue;
+		}
 
-				if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+		// Check if zone has forced level assignment
+		auto forcedLevel = zone.second->getForcedLevel();
+		if (forcedLevel == EZoneLevel::SURFACE)
+		{
+			// Force to surface (level 0)
+			levels[zone.first] = 0;
+			zonesOnLevel[0]++;
+			continue;
+		}
+		else if (forcedLevel == EZoneLevel::UNDERGROUND)
+		{
+			// Force to underground (level 1)
+			// mapLevels > 1 is guaranteed here since mapLevels == 1 was handled above
+			levels[zone.first] = 1;
+			zonesOnLevel[1]++;
+			continue;
+		}
+		// forcedLevel == AUTOMATIC - continue with normal logic
+
+		//place players depending on their factions
+		if(std::optional<int> owner = zone.second->getOwner())
+		{
+			auto player = PlayerColor(*owner - 1);
+			auto playerSettings = map.getMapGenOptions().getPlayersSettings();
+			FactionID faction = FactionID::RANDOM;
+			if (playerSettings.size() > player.getNum())
+			{
+				faction = std::next(playerSettings.begin(), player.getNum())->second.getStartingTown();
+			}
+			else
+			{
+				logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
+			}
+
+			if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
+				zonesToPlace.push_back(zone);
+			else
+			{
+				auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
+				if(tt == ETerrainId::NONE)
+				{
+					//any / random
 					zonesToPlace.push_back(zone);
+				}
 				else
 				{
-					auto & tt = (*LIBRARY->townh)[faction]->nativeTerrain;
-					if(tt == ETerrainId::NONE)
+					const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
+					if(terrainType->isUnderground() && !terrainType->isSurface())
 					{
-						//any / random
-						zonesToPlace.push_back(zone);
+						//underground only
+						zonesOnLevel[1]++;
+						levels[zone.first] = 1;
 					}
 					else
 					{
-						const auto & terrainType = LIBRARY->terrainTypeHandler->getById(tt);
-						if(terrainType->isUnderground() && !terrainType->isSurface())
-						{
-							//underground only
-							zonesOnLevel[1]++;
-							levels[zone.first] = 1;
-						}
-						else
-						{
-							//surface
-							addZoneEqually(zone, true);
-						}
+						//surface
+						addZoneEqually(zone, true);
 					}
 				}
 			}
-			else //no starting zone or no underground altogether
-			{
-				zonesToPlace.push_back(zone);
-			}
+		}
+		else //no starting zone or no underground altogether
+		{
+			zonesToPlace.push_back(zone);
 		}
 	}
 	for(const auto & zone : zonesToPlace)

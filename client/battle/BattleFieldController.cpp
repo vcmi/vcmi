@@ -263,9 +263,10 @@ void BattleFieldController::showBackgroundImageWithHexes(Canvas & canvas)
 void BattleFieldController::redrawBackgroundWithHexes()
 {
 	const CStack *activeStack = owner.stacksController->getActiveStack();
-	BattleHexArray attackableHexes;
 	if(activeStack)
-		occupiableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false, true, &attackableHexes);
+		availableHexes = owner.getBattle()->battleGetAvailableHexes(activeStack, false);
+	else
+		availableHexes.clear();
 
 	// prepare background graphic with hexes and shaded hexes
 	backgroundWithHexes->draw(background, Point(0,0));
@@ -274,13 +275,18 @@ void BattleFieldController::redrawBackgroundWithHexes()
 		owner.siegeController->showAbsoluteObstacles(*backgroundWithHexes);
 
 	// show shaded hexes for active's stack valid movement and the hexes that it can attack
-	if(settings["battle"]["stackRange"].Bool())
+	if(activeStack && settings["battle"]["stackRange"].Bool())
 	{
-		BattleHexArray hexesToShade = occupiableHexes;
-		hexesToShade.insert(attackableHexes);
-		for(const BattleHex & hex : hexesToShade)
+		auto occupiableHexes = owner.getBattle()->battleGetOccupiableHexes(availableHexes, activeStack);
+		for(si16 hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
 		{
-			showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
+			//shade occupiable and attackable hexes
+			if (occupiableHexes.contains(hex) ||
+				(owner.getBattle()->battleCanAttackUnit(activeStack, owner.getBattle()->battleGetStackByPos(hex, true)) &&
+					owner.getBattle()->battleCanAttackHex(availableHexes, activeStack, hex)) ||
+				(owner.getBattle()->battleGetStackByPos(hex, true) &&
+					owner.getBattle()->battleCanShoot(activeStack, hex)))
+				showHighlightedHex(*backgroundWithHexes, cellShade, hex, false);
 		}
 	}
 
@@ -330,10 +336,7 @@ BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 		return BattleHexArray();
 
 	auto hoveredStack = getHoveredStack();
-	if(hoveredStack)
-		return owner.getBattle()->battleGetAvailableHexes(hoveredStack, true, true, nullptr);
-	else
-		return BattleHexArray();
+	return hoveredStack ? owner.getBattle()->battleGetOccupiableHexes(hoveredStack, true) : BattleHexArray();
 }
 
 BattleHexArray BattleFieldController::getHighlightedHexesForSpellRange()
@@ -371,45 +374,26 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	if(!stack)
 		return {};
 
-	BattleHexArray availableHexes = owner.getBattle()->battleGetAvailableHexes(stack, false, false, nullptr);
-
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 
-	if(owner.getBattle()->battleCanAttack(stack, hoveredStack, hoveredHex) && isTileAttackable(hoveredHex))
+	if(owner.getBattle()->battleCanAttackUnit(stack, hoveredStack) && owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex))
 	{
-		BattleHex attackFromHex = fromWhichHexAttack(hoveredHex);
-		if(owner.getBattle()->battleCanAttack(stack, hoveredStack, attackFromHex))
-		{
-			if(stack->doubleWide())
-				return {attackFromHex, stack->occupiedHex(attackFromHex)};
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex));
+		assert(fromHex.isValid());
+		if(stack->doubleWide())
+			return {fromHex, stack->occupiedHex(fromHex)};
 
-			return {attackFromHex};
-		}
+		return {fromHex};
 	}
 
-	if (stack->doubleWide())
-	{
-		const bool canMoveHeadHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex);
-		const bool canMoveTailHere = hoveredHex.isAvailable() && availableHexes.contains(hoveredHex.cloneInDirection(stack->destShiftDir()));
-		const bool backwardsMove = stack->unitSide() == BattleSide::ATTACKER ?
-									   hoveredHex.getX() < stack->getPosition().getX():
-									   hoveredHex.getX() > stack->getPosition().getX();
-
-		if(canMoveTailHere && (backwardsMove || !canMoveHeadHere))
-			return {hoveredHex, hoveredHex.cloneInDirection(stack->destShiftDir())};
-
-		if (canMoveHeadHere)
-			return {hoveredHex, stack->occupiedHex(hoveredHex)};
-
+	auto toHex = owner.getBattle()->toWhichHexMove(availableHexes, stack, hoveredHex);
+	if (!toHex.isValid())
 		return {};
-	}
+	
+	if (stack->doubleWide())
+		return {toHex, stack->occupiedHex(toHex)};
 	else
-	{
-		if (availableHexes.contains(hoveredHex))
-			return {hoveredHex};
-		else
-			return {};
-	}
+		return {toHex};
 }
 
 // Range limit highlight helpers
@@ -667,162 +651,45 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 
 BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
 {
-	const bool doubleWide = owner.stacksController->getActiveStack()->doubleWide();
+	auto attacker = owner.stacksController->getActiveStack();
+	assert(attacker);
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
-	//   0 1
-	//  5 x 2
-	//   4 3
-
-	// if true - our current stack can move into this hex (and attack)
-	std::array<bool, 8> attackAvailability;
-
-	if (doubleWide)
-	{
-		// For double-hexes we need to ensure that both hexes needed for this direction are occupyable:
-		// |    -0-   |   -1-    |    -2-   |   -3-    |    -4-   |   -5-    |    -6-   |   -7-
-		// |  o o -   |   - o o  |    - -   |   - -    |    - -   |   - -    |    o o   |   - -
-		// |   - x -  |  - x -   |   - x o o|  - x -   |   - x -  |o o x -   |   - x -  |  - x -
-		// |    - -   |   - -    |    - -   |   - o o  |  o o -   |   - -    |    - -   |   o o
-
-		for (size_t i : { 1, 2, 3})
-		{
-			BattleHex target = neighbours[i].cloneInDirection(BattleHex::RIGHT, false);
-			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]) && target.isValid() && occupiableHexes.contains(target);
-		}
-
-		for (size_t i : { 4, 5, 0})
-		{
-			BattleHex target = neighbours[i].cloneInDirection(BattleHex::LEFT, false);
-			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]) && target.isValid() && occupiableHexes.contains(target);
-		}
-
-		attackAvailability[6] = neighbours[0].isValid() && neighbours[1].isValid() && occupiableHexes.contains(neighbours[0]) && occupiableHexes.contains(neighbours[1]);
-		attackAvailability[7] = neighbours[3].isValid() && neighbours[4].isValid() && occupiableHexes.contains(neighbours[3]) && occupiableHexes.contains(neighbours[4]);
-	}
-	else
-	{
-		for (size_t i = 0; i < 6; ++i)
-			attackAvailability[i] = neighbours[i].isValid() && occupiableHexes.contains(neighbours[i]);
-
-		attackAvailability[6] = false;
-		attackAvailability[7] = false;
-	}
-
-	// Zero available tiles to attack from
-	if ( vstd::find(attackAvailability, true) == attackAvailability.end())
-	{
-		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
-		return BattleHex::NONE;
-	}
-
 	// For each valid direction, select position to test against
 	std::array<Point, 8> testPoint;
+	testPoint.fill(Point::makeInvalid());
 
 	for (size_t i = 0; i < 6; ++i)
-		if (attackAvailability[i])
+		if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i)))
 			testPoint[i] = hexPositionAbsolute(neighbours[i]).center();
 
 	// For bottom/top directions select central point, but move it a bit away from true center to reduce zones allocated to them
-	if (attackAvailability[6])
+	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(6)))
 		testPoint[6] = (hexPositionAbsolute(neighbours[0]).center() + hexPositionAbsolute(neighbours[1]).center()) / 2 + Point(0, -5);
 
-	if (attackAvailability[7])
+	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(7)))
 		testPoint[7] = (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0,  5);
 
 	// Compute distance between tested position & cursor position and pick nearest
-	std::array<int, 8> distance2;
-
-	for (size_t i = 0; i < 8; ++i)
-		if (attackAvailability[i])
-			distance2[i] = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
-
+	int nearestDistance = std::numeric_limits<int>::max();
 	size_t nearest = -1;
+
 	for (size_t i = 0; i < 8; ++i)
-		if (attackAvailability[i] && (nearest == -1 || distance2[i] < distance2[nearest]) )
-			nearest = i;
+	{
+		if (testPoint[i].isValid())
+		{
+			int distance = (testPoint[i].y - currentAttackOriginPoint.y)*(testPoint[i].y - currentAttackOriginPoint.y) + (testPoint[i].x - currentAttackOriginPoint.x)*(testPoint[i].x - currentAttackOriginPoint.x);
+			if (nearest == -1 || distance < nearestDistance)
+			{
+				nearestDistance = distance;
+				nearest = i;
+			}
+		}
+	}
 
-	assert(nearest != -1);
+	if (nearest == -1)
+		// Zero available tiles to attack from
+		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
 	return BattleHex::EDir(nearest);
-}
-
-BattleHex BattleFieldController::fromWhichHexAttack(const BattleHex & attackTarget)
-{
-	BattleHex::EDir direction = selectAttackDirection(attackTarget);
-
-	const CStack * attacker = owner.stacksController->getActiveStack();
-
-	assert(direction != BattleHex::NONE);
-	assert(attacker);
-
-	if (!attacker->doubleWide())
-	{
-		assert(direction != BattleHex::BOTTOM);
-		assert(direction != BattleHex::TOP);
-		return attackTarget.cloneInDirection(direction);
-	}
-	else
-	{
-		// We need to find position of right hex of double-hex creature (or left for defending side)
-		// | TOP_LEFT |TOP_RIGHT |   RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT    |    TOP   |BOTTOM
-		// |  o o -   |   - o o  |    - -   |   - -      |    - -    |   - -    |    o o   |   - -
-		// |   - x -  |  - x -   |   - x o o|  - x -     |   - x -   |o o x -   |   - x -  |  - x -
-		// |    - -   |   - -    |    - -   |   - o o    |  o o -    |   - -    |    - -   |   o o
-
-		switch (direction)
-		{
-		case BattleHex::TOP_LEFT:
-		case BattleHex::LEFT:
-		case BattleHex::BOTTOM_LEFT:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(direction);
-			else
-				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::LEFT);
-		}
-
-		case BattleHex::TOP_RIGHT:
-		case BattleHex::RIGHT:
-		case BattleHex::BOTTOM_RIGHT:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(direction).cloneInDirection(BattleHex::RIGHT);
-			else
-				return attackTarget.cloneInDirection(direction);
-		}
-
-		case BattleHex::TOP:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(BattleHex::TOP_RIGHT);
-			else
-				return attackTarget.cloneInDirection(BattleHex::TOP_LEFT);
-		}
-
-		case BattleHex::BOTTOM:
-		{
-			if ( attacker->unitSide() == BattleSide::ATTACKER )
-				return attackTarget.cloneInDirection(BattleHex::BOTTOM_RIGHT);
-			else
-				return attackTarget.cloneInDirection(BattleHex::BOTTOM_LEFT);
-		}
-		default:
-			assert(0);
-			return BattleHex::INVALID;
-		}
-	}
-}
-
-bool BattleFieldController::isTileAttackable(const BattleHex & number) const
-{
-	if(!number.isValid())
-		return false;
-
-	for (auto & elem : occupiableHexes)
-	{
-		if (BattleHex::mutualPosition(elem, number) != BattleHex::EDir::NONE || elem == number)
-			return true;
-	}
-	return false;
 }
 
 void BattleFieldController::updateAccessibleHexes()

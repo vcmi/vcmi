@@ -11,6 +11,7 @@
 
 #include "../../lib/GameConstants.h"
 #include "../../lib/serializer/GameConnectionID.h"
+#include "../../lib/json/JsonNode.h"
 
 VCMI_LIB_NAMESPACE_BEGIN
 class CGHeroInstance;
@@ -36,6 +37,7 @@ class PlayerMessageProcessor
 	ECurrentChatVote currentVote = ECurrentChatVote::NONE;
 	int currentVoteParameter = 0;
 	std::set<PlayerColor> awaitingPlayers;
+	JsonNode cheatConfig;
 
 	void executeCheatCode(const std::string & cheatName, PlayerColor player, ObjectInstanceID currObj, const std::vector<std::string> & arguments );
 	bool handleCheatCode(const std::string & cheatFullCommand, PlayerColor player, ObjectInstanceID currObj);
@@ -60,6 +62,7 @@ class PlayerMessageProcessor
 	void cheatMaxMorale(PlayerColor player, const CGHeroInstance * hero);
 	void cheatFly(PlayerColor player, const CGHeroInstance * hero);
 	void cheatSkill(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
+	void cheatTeleport(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words);
 
 	void commandExit(PlayerColor player, const std::vector<std::string> & words);
 	void commandKick(PlayerColor player, const std::vector<std::string> & words);

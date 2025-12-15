@@ -65,6 +65,8 @@ Rect CanvasImage::contentRect() const
 
 Point CanvasImage::dimensions() const
 {
+	if (scalingPolicy != CanvasScalingPolicy::IGNORE)
+		return Point(surface->w, surface->h) / ENGINE->screenHandler().getScalingFactor();
 	return {surface->w, surface->h};
 }
 

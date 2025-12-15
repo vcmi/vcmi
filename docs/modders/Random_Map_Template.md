@@ -103,7 +103,13 @@
 	"size" : 2, 
 	
 	// index of player that owns this zone
-	"owner" : 1, 
+	"owner" : 1,
+	
+	// Force zone placement on specific level. Possible values:
+	// "automatic" (default) - Zone level is determined automatically based on faction terrain preferences
+	// "surface" - Force zone to be placed on surface level (level 0)
+	// "underground" - Force zone to be placed on underground level (level 1)
+	"forcedLevel" : "automatic", 
 	
 	// castles and towns owned by player in this zone
 	"playerTowns" : {
@@ -210,16 +216,51 @@
 		// All of objects of this kind will be removed from zone
 		// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other
 		"bannedCategories" : ["all", "dwelling", "creatureBank", "other"],
+
 		// Specify object types and subtypes
-		"bannedObjects" :["core:object.randomArtifactRelic"],
-		// Configure individual common objects - overrides banned objects
+		"bannedObjects" : {
+			// ban a specific object from base game or from any dependent mod. Object with such ID must exist
+			"randomArtifactRelic" : true,
+			
+			// ban object named townGate from mod 'hota.mapobjects'. Mod can be used without explicit dependency
+			// If mod with such name is not loaded, this entry will be ignored and will have no effect
+			"hota.mapobjects:townGate" : true,
+			
+			// ban only land version of Cartographer. Other versions, such as water and subterra cartographers may still appear on map
+			"cartographer" : {
+				"cartographerLand" : true
+			}
+		},
+
+		// Configure individual common objects. 
+		// Any object in this list will be excluded from regular placement rules, similarly to bannedObjects
 		"commonObjects":
 		[
 			{
-				"id" : "core:object.creatureBank.dragonFlyHive",
+				// configure water cartographer properties
+				"type" : "cartographer",
+				"subtype" : "cartographerWater",
 				"rmg" : {
 					"value"		: 9000,
 					"rarity"	: 500,
+					"zoneLimit" : 2
+				}
+			},
+			{
+				// configure scholar properties. Behavior unspecified if there are multiple 'scholar' objects
+				"type" : "scholar",
+				"rmg" : {
+					"value"		: 900,
+					"rarity"	: 50,
+					"zoneLimit" : 2
+				}
+			},
+			{
+				// configure town gate (hota) properties. This entry will have no effect if mod is not enabled
+				"type" : "hota.mapobjects:townGate",
+				"rmg" : {
+					"value"		: 2000,
+					"rarity"	: 100,
 					"zoneLimit" : 2
 				}
 			}

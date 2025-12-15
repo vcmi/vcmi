@@ -189,6 +189,8 @@ TEST_F(BonusSystemTest, battlewidePropagationToAll)
 
 	EXPECT_TRUE(heroAine.hasBonusOfType(BonusType::BLOCK_ALL_MAGIC));
 	EXPECT_TRUE(heroBron.hasBonusOfType(BonusType::BLOCK_ALL_MAGIC));
+
+	heroAine.detachFromSource(orb);
 }
 
 TEST_F(BonusSystemTest, battlewidePropagationToEnemies)
@@ -297,6 +299,8 @@ TEST_F(BonusSystemTest, legionPieces)
 
 	heroAine.detachFrom(townAndVisitor);
 	EXPECT_EQ(town.valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(3)), 0);
+
+	heroAine.detachFromSource(legion);
 }
 
 }
