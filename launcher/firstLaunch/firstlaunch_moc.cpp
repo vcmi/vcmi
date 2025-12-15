@@ -337,6 +337,62 @@ static QString defaultStartDirForOpen()
 #endif
 }
 
+
+QString FirstLaunchView::checkFileMagic(const QString &filename, const QString &filter, const QByteArray &magic, const QString &ext, bool &openFailed) const
+{
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly))
+    {
+		if(openFailed)
+		{
+			return tr("Failed to open file: %1").arg(file.errorString());
+		}
+		else
+		{
+			// Some systems can't access selected file for read, but can copy it, postpone fail fast for next run
+			logGlobal->warn("checkMagic: open failed for '%s': %s", filename.toStdString(), file.errorString().toStdString());
+			openFailed = true;
+			return {};
+		}
+    }
+
+    QFileInfo fileInfo(filename);
+    quint64 fileSize = fileInfo.size();
+
+    logGlobal->info("Checking %s with size: %llu", filename.toStdString(), fileSize);
+
+#if defined(VCMI_MOBILE)
+    if(fileInfo.suffix().compare(ext, Qt::CaseInsensitive) != 0)
+        return tr("You need to select a %1 file!", "param is file extension").arg(ext);
+#endif
+
+    if(fileInfo.suffix().compare("exe", Qt::CaseInsensitive) == 0){
+        if(fileSize > 1500000) // 1.5MB
+        {
+            logGlobal->info("Unknown installer selected: %s", filename.toStdString());
+            return tr("Unknown installer selected.\nYou need to select the offline GOG installer.");
+        }
+
+        const QByteArray data = file.peek(fileSize);
+
+        constexpr std::u16string_view galaxyID = u"GOG Galaxy";
+        const auto galaxyIDBytes = reinterpret_cast<const char*>(galaxyID.data());
+        const auto magicId = QByteArray::fromRawData(galaxyIDBytes, galaxyID.size() * sizeof(decltype(galaxyID)::value_type));
+
+        if(data.contains(magicId))
+        {
+            logGlobal->info("GOG Galaxy detected! Aborting...");
+            return tr("You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.");
+        }
+    }
+
+    const QByteArray magicFile = file.peek(magic.length());
+    if(!magicFile.startsWith(magic))
+        return tr("You need to select a %1 file!", "param is file extension").arg(filter);
+
+    return {};
+}
+
 void FirstLaunchView::extractGogData()
 {
 #ifdef ENABLE_INNOEXTRACT
@@ -351,6 +407,9 @@ void FirstLaunchView::extractGogData()
 		return file;
 	};
 
+	needPostCopyCheckExe = false;
+    needPostCopyCheckBin = false;
+
 	QString filterExe = tr("GOG installer") + " (*.exe)";
 	QString titleExe  = tr("Select the offline GOG installer (.exe)");
 
@@ -358,51 +417,7 @@ void FirstLaunchView::extractGogData()
 	if(fileExe.isEmpty())
 		return;
 
-	auto checkMagic = [](const QString &filename, const QString &filter, const QByteArray &magic, const QString &ext) -> QString {
-		QFile file(filename);
-		if(!file.open(QIODevice::ReadOnly))
-			return QObject::tr("Failed to open file: %1").arg(file.errorString());
-
-		QFileInfo fileInfo(filename);
-		quint64 fileSize = fileInfo.size();
-
-		logGlobal->error("Checking %s with size: %llu", filename.toStdString(), fileSize);
-		
-		// On mobile platforms it is not possible to filter selection by extension in the file picker
-#if defined(VCMI_MOBILE)
-		if(fileInfo.suffix().compare(ext, Qt::CaseInsensitive) != 0)
-			return QObject::tr("You need to select a %1 file!", "param is file extension").arg(ext);
-#endif
-
-		if(fileInfo.suffix().compare("exe", Qt::CaseInsensitive) == 0){
-			if(fileSize > 1500000) // 1.5MB
-			{
-				logGlobal->info("Unknown installer selected: %s", filename.toStdString());
-				return QObject::tr("Unknown installer selected.\nYou need to select the offline GOG installer.");
-			}
-
-			const QByteArray data = file.peek(fileSize);
-
-			constexpr std::u16string_view galaxyID = u"GOG Galaxy";
-			const auto galaxyIDBytes = reinterpret_cast<const char*>(galaxyID.data());
-			const auto magicId = QByteArray::fromRawData(galaxyIDBytes, galaxyID.size() * sizeof(decltype(galaxyID)::value_type));
-
-			if(data.contains(magicId))
-			{
-				logGlobal->info("GOG Galaxy detected! Aborting...");
-				return QObject::tr("You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.");
-			}
-		}
-
-		const QByteArray magicFile = file.peek(magic.length());
-		if(!magicFile.startsWith(magic))
-			return QObject::tr("You need to select a %1 file!", "param is file extension").arg(filter);
-
-		return QString();
-	};
-
-	QString errorText = checkMagic(fileExe, filterExe, QByteArray{"MZP"}, "EXE");
-
+	QString errorText = checkFileMagic(fileExe, filterExe, QByteArray{"MZP"}, "EXE", needPostCopyCheckExe);
 	if(!errorText.isEmpty())
 	{
 		QMessageBox::critical(this, tr("Invalid file selected"), errorText);
@@ -429,7 +444,7 @@ void FirstLaunchView::extractGogData()
 	if(fileBin.isEmpty())
 		return;
 
-	errorText = checkMagic(fileBin, filterBin, QByteArray{"idska32"}, "BIN");
+	errorText = checkFileMagic(fileBin, filterBin, QByteArray{"idska32"}, "BIN", needPostCopyCheckBin);
 	if(!errorText.isEmpty())
 	{
 		QMessageBox::critical(this, tr("Invalid data file"), errorText);
@@ -458,7 +473,7 @@ bool FirstLaunchView::performCopyFlow(const QString& path, ProgressOverlay* over
 
 	// 2) Validate signature
 	// TODO: Find proper way for pure SoD check in import or way to block pure RoE / AB
-	//	   Or prepare RoE / AB Ban mod and allow VCMI to with any H3 version
+	//	     Or prepare RoE / AB Ban mod and allow VCMI to go with any H3 version
 	auto validate = [](const QStringList &items)->QString {
 		bool anyLOD=false;
 		bool anySOD=false;
@@ -565,6 +580,11 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		overlay->raise();
 		qApp->processEvents();
 
+		// "Goole TV Tick" without this was never displayed "Preparing installer" on screen
+		QEventLoop ev;
+		QTimer::singleShot(0, &ev, &QEventLoop::quit);
+		ev.exec();
+
 		// 1) Prepare temp dir
 		QDir tempDir(pathToQString(VCMIDirs::get().userDataPath()));
 		if(tempDir.cd("tmp"))
@@ -587,7 +607,31 @@ void FirstLaunchView::extractGogDataAsync(QString filePathBin, QString filePathE
 		// 2) Copy selected files into tmp
 		logGlobal->info("Performing native copy...");
 		Helper::performNativeCopy(filePathExe, tmpFileExe);
+
+		if(needPostCopyCheckExe)
+		{
+			const QString err = checkFileMagic(tmpFileExe, tr("GOG installer") + " (*.exe)", QByteArray{"MZP"}, "EXE", needPostCopyCheckExe);
+			if(!err.isEmpty())
+			{
+				QMessageBox::critical(this, tr("Invalid file selected"), err);
+				tempDir.removeRecursively();
+				return;
+			}
+		}
+
 		Helper::performNativeCopy(filePathBin, tmpFileBin);
+
+		if(needPostCopyCheckBin)
+		{
+			const QString err = checkFileMagic(tmpFileBin, tr("GOG data") + " (*.bin)", QByteArray{"idska32"}, "BIN", needPostCopyCheckBin);
+			if(!err.isEmpty())
+			{
+				QMessageBox::critical(this, tr("Invalid data file"), err);
+				tempDir.removeRecursively();
+				return;
+			}
+		}
+
 		logGlobal->info("Native copy completed");
 
 		// 3) Extract
