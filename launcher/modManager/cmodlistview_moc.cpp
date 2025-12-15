@@ -36,6 +36,8 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
+#include "../vcmiqt/launcherdirs.h"
+
 #include <future>
 
 void CModListView::setupModModel()
@@ -79,7 +81,7 @@ void CModListView::setupModsView()
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	auto state = s.value("AllModsView/State").toByteArray();
 	if(!state.isNull()) //read last saved settings
 	{
@@ -191,7 +193,7 @@ void CModListView::loadRepositories()
 
 CModListView::~CModListView()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
 
 	delete ui;
