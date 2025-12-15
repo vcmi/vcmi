@@ -122,6 +122,7 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".PAC",   EResType::ARCHIVE_LOD},
 		{".VID",   EResType::ARCHIVE_VID},
 		{".SND",   EResType::ARCHIVE_SND},
+		{".PAK",   EResType::ARCHIVE_PAK},
 		{".PAL",   EResType::PALETTE},
 		{".VSGM1", EResType::SAVEGAME},
 		{".ERM",   EResType::ERM},
