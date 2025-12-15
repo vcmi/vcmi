@@ -478,10 +478,17 @@ void MapReaderH3M::readResources(TResources & resources)
 
 bool MapReaderH3M::readBool()
 {
-	uint8_t result = readUInt8();
-	assert(result == 0 || result == 1);
+	const uint8_t raw = readUInt8();
 
-	return result != 0;
+	if(raw != 0 && raw != 1)
+	{
+		logGlobal->warn(
+			"MapReaderH3M: invalid bool value %u in H3M data, using LSB (%u) as value",
+			static_cast<unsigned>(raw),
+			static_cast<unsigned>(raw & 1));
+	}
+
+	return (raw & 1) != 0;
 }
 
 int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
