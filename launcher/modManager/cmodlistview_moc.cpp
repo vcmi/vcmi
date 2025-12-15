@@ -1229,7 +1229,7 @@ void CModListView::installMaps(QStringList maps)
 	}
 
 	if (successCount > 0)
-		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount));
+		QMessageBox::information(this, tr("Import complete"), tr("%n map(s) successfully imported.", "", successCount));
 
 	if (!failedMaps.isEmpty())
 		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")));
