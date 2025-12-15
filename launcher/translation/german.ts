@@ -364,39 +364,34 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1132"/>
         <source>Map exists</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Karte vorhanden</translation>
+        <translation>Karte vorhanden</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1133"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Karte &apos;%1&apos; existiert bereits. Möchten Sie sie überschreiben?</translation>
+        <translation>Karte &apos;%1&apos; existiert bereits. Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1142"/>
         <source>Yes to All</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ja für alle</translation>
+        <translation>Ja für alle</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1143"/>
         <source>No to All</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Nein für alle</translation>
+        <translation>Nein für alle</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
         <source>Import complete</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Import abgeschlossen</translation>
+        <translation>Import abgeschlossen</translation>
     </message>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
         <source>%n map(s) successfully imported.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n Karte erfolgreich importiert.</numerusform>
+            <numerusform>%n Karten erfolgreich importiert.</numerusform>
         </translation>
     </message>
     <message>
@@ -407,15 +402,13 @@ Installation erfolgreich heruntergeladen?</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
         <source>Import failed</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Import fehlgeschlagen</translation>
+        <translation>Import fehlgeschlagen</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1235"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Die folgenden Karten konnten nicht importiert werden:
+        <translation>Die folgenden Karten konnten nicht importiert werden:
 %1</translation>
     </message>
     <message>
@@ -866,32 +859,32 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="123"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished"></translation>
+        <translation>StupidAI (veraltet)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation>BattleAI (Standard, empfohlen)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="131"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>MMAI (experimentell)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>Nullkiller (superseded by Nullkiller2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nullkiller (ersetzt durch Nullkiller2)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nullkiller2 (Standard, empfohlen)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="155"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished"></translation>
+        <translation>EmptyAI – Keine gültigen KI-Bibliotheken gefunden!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="654"/>
@@ -1297,27 +1290,27 @@ Bitte wählt das Verzeichnis mit installierten Heroes III-Daten.</translation>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="38"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis mit HD Edition auswählen (Steam-Ordner)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>Invalid folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Ordner</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="46"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der ausgewählte Ordner enthält nicht die Datei „HOMM3 2.0.exe“! Bitte wählen Sie den Installationsordner der HD Edition aus.</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Extraction error</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraktionsfehler</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="98"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte Mod löschen und erneut versuchen! Kopieren der Datei %1 nach %2 fehlgeschlagen</translation>
     </message>
 </context>
 <context>
@@ -1799,8 +1792,7 @@ Bin (%n Bytes):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>Resources</source>
-        <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation type="unfinished">Ressourcen</translation>
+        <translation>Ressourcen</translation>
     </message>
 </context>
 <context>
@@ -1927,7 +1919,7 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished"></translation>
+        <translation>HD Edition installieren (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="811"/>
@@ -2094,7 +2086,9 @@ Um dieses Problem zu beheben, kopieren Sie bitte die fehlenden Dateien aus Heroe
         <source>You can install resources from official Heroes III HD Edition (Steam) to improve graphics quality in VCMI. Choose your Heroes HD folder from Steam.
 
 After installation you also have to set an upscale factor &gt; 1 to see HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können Ressourcen aus der offiziellen Heroes III HD Edition (Steam) installieren, um die Grafikqualität in VCMI zu verbessern. Wählen Sie Ihren Heroes HD-Ordner aus Steam aus.
+
+Nach der Installation müssen Sie außerdem einen Upscale-Faktor &gt; 1 einstellen, um HD-Grafiken zu sehen.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="442"/>
