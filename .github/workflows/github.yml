@@ -240,6 +240,16 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    # Frees 10+GB on linux runners by removing unused tools (.NET, Haskell compiler)
+    - name: Free up disk space
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        echo "Disk usage BEFORE cleanup:"
+        df -h
+        sudo rm -rf /opt/ghc /usr/local/.ghcup /usr/share/dotnet || :
+        echo "Disk usage AFTER cleanup:"
+        df -h
+
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
     # TODO: x86_64
     - name: Bump Android x64 build ID
