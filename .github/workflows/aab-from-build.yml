@@ -42,7 +42,7 @@ jobs:
         echo "ANDROID_AAB_PATH=$ANDROID_AAB_PATH" >> $GITHUB_ENV
 
     - name: Artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: aab
         compression-level: 0
