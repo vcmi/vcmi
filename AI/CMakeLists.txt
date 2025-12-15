@@ -44,6 +44,10 @@ if(ENABLE_BATTLE_AI)
 	add_subdirectory(BattleAI)
 endif()
 
+if(ENABLE_MMAI)
+	add_subdirectory(MMAI)
+endif()
+
 # Adventure AI's
 add_subdirectory(EmptyAI)
 

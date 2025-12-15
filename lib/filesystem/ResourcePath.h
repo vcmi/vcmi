@@ -60,6 +60,7 @@ enum class EResType
 	ERT,
 	ERS,
 	LUA,
+	AI_MODEL,
 	OTHER,
 	UNDEFINED,
 };

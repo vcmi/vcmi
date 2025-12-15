@@ -32,7 +32,7 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 	BonusValueCache nativeTerrain;
 	BonusValueCache initiative;
 
-	CArmedInstance * armyInstance = nullptr; //stack must be part of some army, army must be part of some object
+	CArmedInstance * armyInstance = nullptr;
 
 	IGameInfoCallback * getCallback() const final
 	{

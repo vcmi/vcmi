@@ -131,7 +131,8 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 		{".VMAP",  EResType::MAP},
 		{".VCMP",  EResType::CAMPAIGN},
 		{".VERM",  EResType::ERM},
-		{".LUA",   EResType::LUA}
+		{".LUA",   EResType::LUA},
+		{".ONNX",  EResType::AI_MODEL}
 	};
 
 	auto iter = stringToRes.find(extension);

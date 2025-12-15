@@ -31,7 +31,7 @@ public:
 
 	void redraw();
 
-	static void showCampaignEditor();
+	static void showCampaignEditor(QWidget *parent);
 
 private slots:
 	void on_actionOpen_triggered();
@@ -45,6 +45,7 @@ private:
 	bool getAnswerAboutUnsavedChanges();
 	void setTitle();
 	void changed();
+	bool validate();
 	void saveCampaign();
 
 	void closeEvent(QCloseEvent *event) override;

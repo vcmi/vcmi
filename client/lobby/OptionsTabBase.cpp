@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "OptionsTabBase.h"
 #include "CSelectionBase.h"
+#include "TurnOptionsTab.h"
+#include "CLobbyScreen.h"
 
 #include "../widgets/ComboBox.h"
 #include "../widgets/CTextInput.h"
@@ -78,6 +80,12 @@ OptionsTabBase::OptionsTabBase(const JsonPath & configPath)
 	auto setSimturnsPresetCallback = [this](int index){
 		GAME->server().setSimturnsInfo(getSimturnsPresets().at(index));
 	};
+
+	addCallback("tabTurnOptions", [&](int)
+	{
+		auto lobby = (static_cast<CLobbyScreen *>(parent));
+		lobby->toggleTab(lobby->tabTurnOptions);
+	});
 
 	addCallback("setTimerPreset", setTimerPresetCallback);
 	addCallback("setSimturnPreset", setSimturnsPresetCallback);
@@ -426,6 +434,11 @@ void OptionsTabBase::recreate(bool campaign)
 	{
 		buttonUnlimitedReplay->setSelectedSilent(SEL->getStartInfo()->extraOptionsInfo.unlimitedReplay);
 		buttonUnlimitedReplay->block(GAME->server().isGuest());
+	}
+
+	if(auto buttonTurnOptions = widget<CButton>("buttonTurnOptions"))
+	{
+		buttonTurnOptions->block(GAME->server().isGuest() || campaign);
 	}
 
 	if(auto textureCampaignOverdraw = widget<CFilledTexture>("textureCampaignOverdraw"))

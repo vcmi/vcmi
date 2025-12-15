@@ -63,7 +63,6 @@ public:
 		h & spell;
 		h & target;
 	}
-private:
 
 	struct DestinationInfo
 	{

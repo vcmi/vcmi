@@ -21,6 +21,7 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 
+#include "../vcmiqt/launcherdirs.h"
 #include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
 #include "ui_windownewmap.h"
@@ -93,7 +94,7 @@ bool WindowNewMap::loadUserSettings()
 	bool ret = false;
 	CRmgTemplate * templ = nullptr;
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	auto generateRandom = s.value(newMapGenerateRandom);
 	if (generateRandom.isValid())
@@ -182,7 +183,7 @@ bool WindowNewMap::loadUserSettings()
 
 void WindowNewMap::saveUserSettings()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 
 	JsonNode data;
 	JsonSerializer ser(nullptr, data);

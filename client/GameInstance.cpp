@@ -20,6 +20,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/callback/CCallback.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
@@ -111,4 +112,35 @@ void GameInstance::onShutdownRequested(bool ask)
 		else
 			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->allTexts[69], {}, doQuit, {}, PlayerColor(1));
 	}
+}
+
+void GameInstance::onAppPaused()
+{
+	pauseAutoSave();
+}
+
+void GameInstance::pauseAutoSave()
+{
+	const std::string autoSaveName = "Saves/PauseAutosave";
+
+	logGlobal->info("Received pause save game request");
+	if(!GAME->interface() || !GAME->interface()->cb)
+	{
+		logGlobal->info("... but no active player interface found!");
+		return;
+	}
+
+	if (!GAME->server().logicConnection)
+	{
+		logGlobal->info("... but no active connection found!");
+		return;
+	}
+
+	if(!GAME->interface()->cb->getActiveBattles().empty())
+	{
+		logGlobal->info("... but player is in battle, skipping autosave!");
+		return;
+	}
+
+	GAME->interface()->cb->save(autoSaveName);
 }

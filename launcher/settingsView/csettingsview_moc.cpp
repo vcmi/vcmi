@@ -33,6 +33,30 @@ static QString resolutionToString(const QSize & resolution)
 	return QString{"%1x%2"}.arg(resolution.width()).arg(resolution.height());
 }
 
+static void enableMod(const QString & name)
+{
+	auto * mainWindow = Helper::getMainWindow();
+
+	assert(mainWindow);
+	if (!mainWindow)
+		return;
+
+	auto * view = mainWindow->getModView();
+
+	if (view->isModEnabled(name))
+		return;
+
+	if (view->isModAvailable(name))
+	{
+		mainWindow->switchToModsTab();
+		view->doInstallMod(name);
+	}
+	else
+	{
+		view->enableModByName(name);
+	}
+}
+
 static constexpr std::array cursorTypesList =
 {
 	"hardware",
@@ -101,6 +125,10 @@ void CSettingsView::fillValidCombatAILibraries(QComboBox * comboBox, QString act
 
 #ifdef ENABLE_BATTLE_AI
 	comboBox->addItem(tr("BattleAI (default, recommended)"), "BattleAI");
+#endif
+
+#ifdef ENABLE_MMAI
+	comboBox->addItem(tr("MMAI (experimental)"), "MMAI");
 #endif
 
 	fillValidAnyAILibraries(comboBox, activeAI);
@@ -182,6 +210,7 @@ void CSettingsView::loadSettings()
 	ui->labelIgnoreMuteSwitch->hide();
 	ui->buttonIgnoreMuteSwitch->hide();
 #endif
+
 	fillValidScalingRange();
 	fillValidAILibraries();
 
@@ -501,6 +530,9 @@ void CSettingsView::on_comboBoxFriendlyAI_currentIndexChanged(int index)
 	QString aiName = ui->comboBoxFriendlyAI->itemData(index).toString();
 	Settings node = settings.write["server"]["friendlyAI"];
 	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
 }
 
 void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
@@ -508,6 +540,9 @@ void CSettingsView::on_comboBoxNeutralAI_currentIndexChanged(int index)
 	QString aiName = ui->comboBoxNeutralAI->itemData(index).toString();
 	Settings node = settings.write["server"]["neutralAI"];
 	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
 }
 
 void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
@@ -515,6 +550,9 @@ void CSettingsView::on_comboBoxEnemyAI_currentIndexChanged(int index)
 	QString aiName = ui->comboBoxEnemyAI->itemData(index).toString();
 	Settings node = settings.write["server"]["enemyAI"];
 	node->String() = aiName.toUtf8().data();
+
+	if (node->String() == "MMAI")
+		enableMod("mmai");
 }
 
 void CSettingsView::on_comboBoxEnemyPlayerAI_currentIndexChanged(int index)
@@ -640,19 +678,7 @@ void CSettingsView::on_pushButtonTranslation_clicked()
 	QString languageName = QString::fromStdString(settings["general"]["language"].String());
 	QString modName = mainWindow->getModView()->getTranslationModName(languageName);
 
-	assert(!modName.isEmpty());
-	if (modName.isEmpty())
-		return;
-
-	if (mainWindow->getModView()->isModAvailable(modName))
-	{
-		mainWindow->switchToModsTab();
-		mainWindow->getModView()->doInstallMod(modName);
-	}
-	else
-	{
-		mainWindow->getModView()->enableModByName(modName);
-	}
+	enableMod(modName);
 }
 
 void CSettingsView::on_pushButtonResetTutorialTouchscreen_clicked()

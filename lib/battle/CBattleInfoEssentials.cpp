@@ -123,6 +123,14 @@ TStacks CBattleInfoEssentials::battleGetAllStacks(bool includeTurrets) const
 	});
 }
 
+battle::Units CBattleInfoEssentials::battleGetAllUnits(bool includeTurrets) const
+{
+	return battleGetUnitsIf([=](const battle::Unit * unit)
+	{
+		return !unit->isGhost() && (includeTurrets || !unit->isTurret());
+	});
+}
+
 TStacks CBattleInfoEssentials::battleGetStacksIf(const TStackFilter & predicate) const
 {
 	RETURN_IF_NOT_BATTLE(TStacks());
