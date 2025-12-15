@@ -35,7 +35,7 @@ public:
 	explicit TemplateEditor();
 	~TemplateEditor();
 
-	static void showTemplateEditor();
+	static void showTemplateEditor(QWidget *parent);
 
 private slots:
 	void on_actionOpen_triggered();
