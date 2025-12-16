@@ -22,7 +22,7 @@ namespace MMAI::BAI
 class NNModel : public MMAI::Schema::IModel
 {
 public:
-	explicit NNModel(const std::string & path, float temperature, uint64_t seed);
+	explicit NNModel(const std::string & path, float _temperature, uint64_t seed);
 
 	Schema::ModelType getType() override;
 	std::string getName() override;
