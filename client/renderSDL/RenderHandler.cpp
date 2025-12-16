@@ -23,6 +23,7 @@
 #include "../render/Colors.h"
 #include "../render/ColorFilter.h"
 #include "../render/IScreenHandler.h"
+#include "../render/hdEdition/HdImageLoader.h"
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CThreadHelper.h"
@@ -70,8 +71,33 @@ std::shared_ptr<CDefFile> RenderHandler::getAnimationFile(const AnimationPath & 
 
 	auto result = std::make_shared<CDefFile>(actualPath);
 
+	auto entries = result->getEntries();
+	for(const auto& entry : entries)
+		for(size_t i = 0; i < entry.second; ++i)
+			animationSpriteDefs[actualPath][entry.first][i] = {result->getName(i, entry.first), result->getFrameInfo(i, entry.first)};
+
 	animationFiles[actualPath] = result;
 	return result;
+}
+
+std::pair<std::string, CDefFile::SSpriteDef> RenderHandler::getAnimationSpriteDef(const AnimationPath & path, int frame, int group)
+{
+	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
+
+	return animationSpriteDefs[actualPath][group][frame];
+}
+
+ImagePath RenderHandler::getAnimationFrameName(const AnimationPath & path, int frame, int group)
+{
+	auto info = getAnimationSpriteDef(path, frame, group);
+
+	auto frameName = info.first;
+	boost::iterator_range<std::string::iterator> sub = boost::find_first(frameName, ".");
+	if(!sub.empty())
+		frameName = std::string(frameName.begin(), sub.begin());
+	boost::to_upper(frameName);
+
+	return ImagePath::builtin(frameName);
 }
 
 void RenderHandler::initFromJson(AnimationLayoutMap & source, const JsonNode & config, EImageBlitMode mode) const
@@ -244,7 +270,15 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	{
 		auto defFile = getAnimationFile(*locator.defFile);
 		if(defFile->hasFrame(locator.defFrame, locator.defGroup))
-			return std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
+		{
+			auto img = std::make_shared<SDLImageShared>(defFile.get(), locator.defFrame, locator.defGroup);
+
+			auto pathForDefFrame = getAnimationFrameName(*locator.defFile, locator.defFrame, locator.defGroup);
+			if(hdImageLoader->exists(pathForDefFrame))
+				img->setAsyncUpscale(false); // avoids flickering graphics when hd textures are enabled
+
+			return img;
+		}
 		else
 		{
 			logGlobal->error("Frame %d in group %d not found in file: %s", 
@@ -280,15 +314,28 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 	};
 
 	ImagePath pathToLoad;
+	Point defMargins(0, 0);
+	Point defFullSize(0, 0);
 
 	if(locator.defFile)
 	{
 		auto remappedLocator = getLocatorForAnimationFrame(*locator.defFile, locator.defFrame, locator.defGroup, locator.scalingFactor, locator.layer);
 		// we expect that .def's are only used for 1x data, upscaled assets should use standalone images
 		if (!remappedLocator.image)
-			return nullptr;
+		{
+			if(!settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1)
+				return nullptr;
 
-		pathToLoad = *remappedLocator.image;
+			auto info = getAnimationSpriteDef(*locator.defFile, locator.defFrame, locator.defGroup);
+			defMargins = Point(info.second.leftMargin, info.second.topMargin);
+			defFullSize = Point(info.second.fullWidth, info.second.fullHeight);
+
+			auto pathForDefFrame = getAnimationFrameName(*locator.defFile, locator.defFrame, locator.defGroup);
+			if(hdImageLoader->exists(pathForDefFrame))
+				pathToLoad = pathForDefFrame;
+		}
+		else
+			pathToLoad = *remappedLocator.image;
 	}
 
 	if(locator.image)
@@ -298,16 +345,19 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 		return nullptr;
 
 	std::string imagePathString = pathToLoad.getName();
+	auto imagePathOriginal = ImagePath::builtin(imagePathString);
 
 	bool generateShadow = locator.generateShadow && (*locator.generateShadow) != SharedImageLocator::ShadowMode::SHADOW_NONE;
 	bool generateOverlay = locator.generateOverlay && (*locator.generateOverlay) != SharedImageLocator::OverlayMode::OVERLAY_NONE;
 	bool isShadow = locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION || locator.layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR;
 	bool isOverlay = locator.layer == EImageBlitMode::ONLY_FLAG_COLOR || locator.layer == EImageBlitMode::ONLY_SELECTION;
 	bool optimizeImage = !(isShadow && generateShadow) && !(isOverlay && generateOverlay); // images needs to expanded
+	bool overlay = isOverlay && !generateOverlay;
+	bool shadow = isShadow && !generateShadow;
 
-	if(isOverlay && !generateOverlay)
+	if(overlay)
 		imagePathString += "-OVERLAY";
-	if(isShadow && !generateShadow)
+	if(shadow)
 		imagePathString += "-SHADOW";
 	if(locator.playerColored.isValidPlayer())
 		imagePathString += "-" + boost::to_upper_copy(GameConstants::PLAYER_COLOR_NAMES[locator.playerColored.getNum()]);
@@ -320,13 +370,18 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	std::shared_ptr<SDLImageShared> img = nullptr;
 
-	if(CResourceHandler::get()->existsResource(imagePathSprites) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
+	if(!img && CResourceHandler::get()->existsResource(imagePathSprites) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		img = std::make_shared<SDLImageShared>(imagePathSprites, optimizeImage);
-	else if(CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
+	if(!img && CResourceHandler::get()->existsResource(imagePathData) && (settings["video"]["useHdTextures"].Bool() || locator.scalingFactor == 1))
 		img = std::make_shared<SDLImageShared>(imagePathData, optimizeImage);
-	else if(CResourceHandler::get()->existsResource(imagePath))
+	if(!img && hdImageLoader->exists(imagePathOriginal) && settings["video"]["useHdTextures"].Bool() && locator.scalingFactor > 1)
+	{
+		if((!isOverlay || !isShadow) || overlay || shadow)
+			img = hdImageLoader->getImage(imagePathOriginal, defFullSize, defMargins, shadow, overlay);
+	}
+	if(!img && CResourceHandler::get()->existsResource(imagePath))
 		img = std::make_shared<SDLImageShared>(imagePath, optimizeImage);
-	else if(locator.scalingFactor == 1)
+	if(!img && locator.scalingFactor == 1)
 		img = std::dynamic_pointer_cast<SDLImageShared>(assetGenerator->generateImage(imagePath));
 
 	if(img)
@@ -503,6 +558,8 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 void RenderHandler::onLibraryLoadingFinished(const Services * services)
 {
+	hdImageLoader = std::make_unique<HdImageLoader>(); // needs to initialize after class construction because we need loaded screenHandler for getScalingFactor()
+
 	assert(animationLayouts.empty());
 	assetGenerator->initialize();
 	updateGeneratedAssets();

@@ -30,18 +30,10 @@ CPrologEpilogVideo::CPrologEpilogVideo(CampaignScenarioPrologEpilog _spe, std::f
 
 	backgroundAroundMenu = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(-pos.x, -pos.y, ENGINE->screenDimensions().x, ENGINE->screenDimensions().y));
 
-	//TODO: remove hardcoded paths. Some of campaigns video actually consist from 2 parts
-	// however, currently our campaigns format expects only	a single video file
-	static const std::map<VideoPath, VideoPath> pairedVideoFiles = {
-		{ VideoPath::builtin("EVIL2AP1"),  VideoPath::builtin("EVIL2AP2") },
-		{ VideoPath::builtin("H3ABdb4"),   VideoPath::builtin("H3ABdb4b") },
-		{ VideoPath::builtin("H3x2_RNe1"), VideoPath::builtin("H3x2_RNe2") },
-	};
-
-	if (pairedVideoFiles.count(spe.prologVideo))
-		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, pairedVideoFiles.at(spe.prologVideo), true);
+	if (!spe.prologVideo.second.empty())
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, spe.prologVideo.second, true);
 	else
-		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo, true);
+		videoPlayer = std::make_shared<VideoWidget>(Point(0, 0), spe.prologVideo.first, true);
 
 	//some videos are 800x600 in size while some are 800x400
 	if (videoPlayer->pos.h == 400)

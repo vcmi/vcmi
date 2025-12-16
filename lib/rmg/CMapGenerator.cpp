@@ -83,6 +83,8 @@ void CMapGenerator::loadConfig()
 		config.questValues.push_back(i.Integer());
 	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
 		config.questRewardValues.push_back(i.Integer());
+	config.seerHutValue = randomMapJson["quests"]["seerHutValue"].Integer();
+	logGlobal->info("Seer Hut value: %d", config.seerHutValue);
 	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();
 	config.pandoraMultiplierExperience = randomMapJson["pandoras"]["valueMultiplierExperience"].Integer();
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();

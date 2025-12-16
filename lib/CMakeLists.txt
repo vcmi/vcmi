@@ -852,6 +852,9 @@ if(ENABLE_STATIC_LIBS AND ENABLE_CLIENT)
 		target_link_libraries(vcmi PRIVATE BattleAI)
 	endif()
 
+	if(ENABLE_MMAI)
+		target_link_libraries(vcmi PRIVATE MMAI)
+	endif()
 endif()
 
 # no longer necessary, but might be useful to keep in future

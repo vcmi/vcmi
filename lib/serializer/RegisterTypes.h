@@ -110,7 +110,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<AllOfLimiter>(61);
 	s.template registerType<CCreatureTypeLimiter>(62);
 	s.template registerType<HasAnotherBonusLimiter>(63);
-	s.template registerType<CreatureTerrainLimiter>(64);
+	s.template registerType<TerrainLimiter>(64);
 	s.template registerType<FactionLimiter>(65);
 	s.template registerType<CreatureLevelLimiter>(66);
 	s.template registerType<CreatureAlignmentLimiter>(67);

@@ -599,17 +599,17 @@
 				},
 				"friendlyAI" : {
 					"type" : "string",
-					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
 				"neutralAI" : {
 					"type" : "string",
-					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				},
 				"enemyAI" : {
 					"type" : "string",
-					"enum" : [ "EmptyAI", "StupidAI", "BattleAI" ],
+					"enum" : [ "EmptyAI", "StupidAI", "BattleAI", "MMAI" ],
 					"default" : "BattleAI"
 				}
 			}

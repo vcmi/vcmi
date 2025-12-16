@@ -67,6 +67,7 @@ private:
 	CanvasPtr createCreatureInfoPanelElement(CreatureInfoPanelElement element) const;
 	CanvasPtr createQuestWindow() const;
 	AnimationLayoutMap createGSPButtonClear();
+	AnimationLayoutMap createGSPButton2Arrow();
 	CanvasPtr createGateListColored(PlayerColor color, PlayerColor backColor) const;
 	CanvasPtr createHeroSlotsColored(PlayerColor backColor) const;
 

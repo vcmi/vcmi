@@ -219,6 +219,7 @@ public:
 	virtual void castEval(ServerCallback * server, const Target & target) = 0;
 
 	virtual bool isReceptive(const battle::Unit * target) const = 0;
+	virtual bool wouldResist(const battle::Unit * target) const = 0;
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
 

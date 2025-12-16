@@ -98,7 +98,7 @@ Prolog and epilog properties are optional
 
 ```json
 {
-    "video": "NEUTRALA.smk", //video to show
+    "video": ["NEUTRALA.smk"], //video to show (if second video in array: this video will looped after playing the first)
     "music": "musicFile.ogg", //music to play, should be located in music directory
     "voice": "musicFile.wav", //voice to play, should be located in sounds directory
     "text": "some long text" //text to be shown

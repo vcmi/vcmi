@@ -36,6 +36,8 @@
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
+#include "../vcmiqt/launcherdirs.h"
+
 #include <future>
 
 void CModListView::setupModModel()
@@ -79,7 +81,7 @@ void CModListView::setupModsView()
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
 
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	auto state = s.value("AllModsView/State").toByteArray();
 	if(!state.isNull()) //read last saved settings
 	{
@@ -191,7 +193,7 @@ void CModListView::loadRepositories()
 
 CModListView::~CModListView()
 {
-	QSettings s(Ui::teamName, Ui::appName);
+	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
 
 	delete ui;
@@ -1227,7 +1229,7 @@ void CModListView::installMaps(QStringList maps)
 	}
 
 	if (successCount > 0)
-		QMessageBox::information(this, tr("Import complete"), tr("%1 map(s) successfully imported.").arg(successCount));
+		QMessageBox::information(this, tr("Import complete"), tr("%n map(s) successfully imported.", "", successCount));
 
 	if (!failedMaps.isEmpty())
 		QMessageBox::warning(this, tr("Import failed"), tr("Failed to import the following maps:\n%1").arg(failedMaps.join("\n")));
@@ -1350,6 +1352,8 @@ bool CModListView::isModEnabled(const QString & modName)
 
 bool CModListView::isModInstalled(const QString & modName)
 {
+	if(!modStateModel->isModExists(modName))
+		return false;
 	auto mod = modStateModel->getMod(modName);
 	return mod.isInstalled();
 }
@@ -1371,6 +1375,21 @@ QStringList CModListView::getInstalledChronicles()
 	}
 
 	return result;
+}
+
+bool CModListView::isInstalledHd()
+{
+	for(const auto & modName : modStateModel->getAllMods())
+	{
+		auto mod = modStateModel->getMod(modName);
+		if (!mod.isInstalled())
+			continue;
+
+		if (mod.getID() == "hd-edition")
+			return true;
+	}
+
+	return false;
 }
 
 QStringList CModListView::getUpdateableMods()

@@ -217,6 +217,12 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 #endif
 		return;
 	}
+	else if(ev.type == SDL_APP_WILLENTERBACKGROUND)
+	{
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		ENGINE->user().onAppPaused();
+		return;
+	}
 	else if(ev.type == SDL_KEYDOWN)
 	{
 		if(ev.key.keysym.sym == SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT))

@@ -15,6 +15,7 @@ To compile, the following packages (and their development counterparts) are need
 - SDL2 with devel packages: mixer, image, ttf
 - minizip or minizip-ng
 - zlib and zlib-devel
+- onnxruntime
 - Boost C++ libraries: program-options, filesystem, system, thread, locale
 - Recommended, if you want to build launcher or map editor: Qt (widget and network modules)
 - Recommended, FFmpeg libraries, if you want to watch in-game videos: libavformat and libswscale. Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
@@ -24,17 +25,47 @@ To compile, the following packages (and their development counterparts) are need
 
 ### On Debian-based systems (e.g. Ubuntu)
 
-For Ubuntu and Debian you need to install this list of packages:
+For Ubuntu and Debian you need to:
 
-`sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libqt5svg5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev qttools5-dev ninja-build ccache`
+1. Install this list of packages:
+
+    ```sh
+    sudo apt-get install cmake g++ clang libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev libboost-locale-dev libboost-iostreams-dev qtbase5-dev libqt5svg5-dev libtbb-dev libluajit-5.1-dev liblzma-dev libsqlite3-dev libminizip-dev qttools5-dev libsquish-dev ninja-build ccache
+    ```
+
+1. Install `onnxruntime`:
+
+    - On Debian 13+ and Ubuntu 24.10+, use apt:
+
+        ```sh
+        sudo apt-get install libonnxruntime-dev
+        ```
+
+    - Otherwise, use the script below to install from onnxruntime's
+      [official releases](https://github.com/microsoft/onnxruntime/releases):
+
+        ```sh
+        ONNXRUNTIME_URL=https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz
+        ONNXRUNTIME_ROOT=/opt/onnxruntime
+        mkdir -p "$ONNXRUNTIME_ROOT"
+        curl -fsSL "$ONNXRUNTIME_URL" | tar -xzv --strip-components=1 -C "$ONNXRUNTIME_ROOT"
+        sudo ldconfig "$ONNXRUNTIME_ROOT"
+        ```
+
+        NOTE: you will also need to pass `-DONNXRUNTIME_ROOT=/opt/onnxruntime`
+        to `cmake` during the "Configuring Makefiles" step later.
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 
-`sudo apt-get build-dep vcmi`
+```sh
+sudo apt-get build-dep vcmi
+```
 
 ### On RPM-based distributions (e.g. Fedora)
 
-`sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel ccache`
+```sh
+sudo yum install cmake gcc-c++ SDL2-devel SDL2_image-devel SDL2_ttf-devel SDL2_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options boost-locale boost-iostreams zlib-devel ffmpeg-free-devel qt5-qtbase-devel qt5-qtsvg-devel qt5-qttools-devel tbb-devel luajit-devel xz-devel sqlite-devel minizip-devel onnxruntime-devel libsquish-devel ccache
+```
 
 NOTE: VCMI bundles the fuzzylite lib in its source code.
 
@@ -60,7 +91,7 @@ stdenv.mkDerivation {
     boost zlib minizip xz
     SDL2 SDL2_ttf SDL2_net SDL2_image SDL2_sound SDL2_mixer SDL2_gfx
     ffmpeg tbb vulkan-headers libxkbcommon
-    qt6.full luajit
+    qt6.full luajit onnxruntime
   ];
 }
 ```

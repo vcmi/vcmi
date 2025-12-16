@@ -242,14 +242,6 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
-		if(tabType == ESelectionScreen::newGame)
-		{
-			buttonBattleOnlyMode = std::make_shared<CButton>(Point(23, 18), AnimationPath::builtin("lobby/battleButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode")), [this](){
-				auto lobby = static_cast<CLobbyScreen *>(parent);
-				lobby->toggleTab(lobby->tabBattleOnlyMode);
-			}, EShortcut::LOBBY_BATTLE_MODE);
-		}
-
 		if(tabType == ESelectionScreen::loadGame || tabType == ESelectionScreen::newGame)
 		{
 			buttonDeleteMode = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("lobby/deleteButton"), CButton::tooltip("", LIBRARY->generaltexth->translate("vcmi.lobby.deleteMode")), [this, tabTitle, tabTitleDelete](){
@@ -324,8 +316,6 @@ void SelectionTab::toggleMode()
 	{
 		if(slider)
 			slider->block(true);
-		if(buttonBattleOnlyMode)
-			buttonBattleOnlyMode->block(true);
 	}
 	else
 	{

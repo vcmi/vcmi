@@ -541,6 +541,18 @@ int DamageCalculator::battleBonusValue(const IBonusBearer * bearer, const CSelec
 	return bearer->getBonuses(selector)->valOfBonuses(noLimit.Or(limitMatches));
 };
 
+int64_t DamageCalculator::getDamageCap() const
+{
+	const std::string cachingStrDamageCap = "type_DAMAGE_RECEIVED_CAP";
+	static const auto selectorDamageCap = Selector::type()(BonusType::DAMAGE_RECEIVED_CAP);
+
+	int damageCapPercentage = info.defender->valOfBonuses(selectorDamageCap, cachingStrDamageCap);
+	if (damageCapPercentage <= 0)
+		return std::numeric_limits<int64_t>::max();
+
+	return info.defender->getMaxHealth() * damageCapPercentage / 100;
+}
+
 DamageEstimation DamageCalculator::calculateDmgRange() const
 {
 	DamageRange damageBase = getBaseDamageStack();
@@ -566,12 +578,13 @@ DamageEstimation DamageCalculator::calculateDmgRange() const
 	double resultingFactor = attackFactorTotal * defenseFactorTotal;
 
 	int64_t avail = info.defender->getAvailableHealth();
+	int64_t cap = getDamageCap();
 
 	auto dmin = std::max<int64_t>(1.0, std::floor(damageBase.min * resultingFactor));
 	auto dmax = std::max<int64_t>(1.0, std::floor(damageBase.max * resultingFactor));
 
-	dmin = std::min(dmin, avail);
-	dmax = std::min(dmax, avail);
+	dmin = std::min({dmin, avail, cap});
+	dmax = std::min({dmax, avail, cap});
 
 	DamageRange damageDealt{ dmin, dmax };
 

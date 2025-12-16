@@ -112,13 +112,13 @@
 						"type" : "object",
 						"required" : [ "type" ],
 						"properties" : {
-							"type" : { "type" : "string", "const" : "CREATURE_TERRAIN_LIMITER" }
+							"type" : { "type" : "string", "enum" : [ "CREATURE_TERRAIN_LIMITER", "TERRAIN_LIMITER" ] }
 						}
 					},
 					"then" : {
 						"additionalProperties" : false,
 						"properties" : {
-							"type" : { "type" : "string", "const" : "CREATURE_TERRAIN_LIMITER" },
+							"type" : { "type" : "string", "enum" : [ "CREATURE_TERRAIN_LIMITER", "TERRAIN_LIMITER" ] },
 							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
 							"terrain" : { "type" : "string" }
 						}

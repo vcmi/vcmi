@@ -59,6 +59,7 @@ public:
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	bool blockVisit;
 	bool removable;
+	ui32 rmgValue = 0; // Value assigned during random map generation (not serialized)
 
 	PlayerColor getOwner() const override
 	{

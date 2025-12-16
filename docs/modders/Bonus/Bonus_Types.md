@@ -656,6 +656,12 @@ Affected units will receive reduced damage from attacks by other units
   - damageTypeRanged: only ranged damage will be reduced
   - damageTypeAll: all damage will be reduced
 
+### DAMAGE_RECEIVED_CAP
+
+Limits maximal damage received by affected units based on max hp (HotA war machines)
+
+- val: maximal damage limit, percentage of max hp
+
 ### PERCENTAGE_DAMAGE_BOOST
 
 Affected units will deal increased damage when attacking other units

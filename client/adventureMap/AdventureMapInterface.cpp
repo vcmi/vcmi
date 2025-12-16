@@ -603,7 +603,9 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
 		return;
-
+	//if the player is not ingame (loser, winner, wrong) we are in a shutdown process
+	if (!GAME->interface()->cb || GAME->interface()->cb->getPlayerStatus(GAME->interface()->playerID) != EPlayerStatus::INGAME)
+		return;
 	//may occur just at the start of game (fake move before full initialization)
 	if(!GAME->interface()->localState->getCurrentArmy())
 		return;

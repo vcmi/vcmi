@@ -10,10 +10,13 @@
 * It is now possible to view and configure keybinding in game
 * Battle-only mode has been implemented, consisting solely of combat between heroes without an adventure map phase.
 * Implemented unit action panel in combat for easy selection of unit's alternative actions
+* Implemented quick save & quick load options in game
 * Added an improved Nullkiller2 adventure map AI as the default option.
+* Added an experimental machine learning-based combat AI, MMAI
 * Removed the deprecated VCAI adventure map AI
-* Added translation to Romanian language
+* Added translation to Romanian and Turkish languages
 * Initial support for maps with more than two layers
+* It is now possible to import data from Heroes 3: HD Edition into VCMI. Shadow of Death or Complete edition is still required as a base game
 
 ### Stability
 
@@ -87,11 +90,14 @@
 * Fixed quick recruitment dialog failing if there are no free slots in army
 * It is now possible to rename a town that the player owns during gameplay
 * Conflux with Aurora Borealis build will now correctly display all available spells in the Mages Guild.
+* Removed water wheel animation from Fortress town screen in line with H3
 
 ### Interface - Combat
 
 * Implemented unit action panel in combat for easy selection of unit's alternative actions
 * Battle window now uses thin border and require less screen space. Quick actions side panels are now active on all 900px-wide resolutions
+* Hovering over target with spell will now show spell impact (damage, health, raised or summoned unit amount) in status bar
+* Units that will be affected by multi-hex attacks like Dragon Breath will now be selected similar to primary target
 * It is now possible to permanently open creature window of any unit using "show info" button from unit action panel
 * Right-click tooltip on list of spells affecting unit in unit window will now show full spell description
 * It is now possible to move double-wide unit one hex backwards
@@ -155,6 +161,8 @@
 * Hypnotized units with multi-target attacks such as Cerberi or Hydra will now attack all units that they view as enemy
 * Attack skill provided by equipped artifact will now correctly modify damage range of Ballista
 * Familiar's Magic Channel ability will no longer work after Familiars are dead
+* Resistance now correctly interacts with Chain Lightning spell, in line with H3
+* Units that are unable to act (e.g. Blinded) will no longer be able to use preemptive attack ability
 * Fixed functionality of Adela specialty
 * Fixed inability to use ranged attack if enemy clone that was blocking unit was killed in this round before
 * Fixed inability of creatures to cast spells when controlled by defending player in hotseat mode
@@ -180,6 +188,9 @@
 * Fixed possible infinite loop when hero can't decide whether to equip mana regeneration artifact or knowledge boosting artifact
 * Fixed incorrect BattleAI estimation of multi-hex attacks when attacking from behind if at least one of the units is double-wide
 * Fixed a bug where the adventure AI might attempt to act before all the side effects from the battle end have been processed.
+* Fixed bug where BattleAI would only consider head position of double-wide unit leading to inability to move such unit
+* BattleAI is now aware of invincible units and will not attempt to attack them
+* Units under BattleAI control will now cast healing, resurrection, and summoning spells, if any
 
 ### Random Maps Generator
 
@@ -187,11 +198,16 @@
 * Added support for town type hints `likeZone`, `notLikeZone`, `relatedToZoneTerrain`
 * Map generator will now place curved roads
 * Fixed missing road on 6lm10a template
+* It is now possible to force zone to be placed on specific map level
+* Removed roads that don't end with towns or zone entry points
+* Fixed possible freeze on attempt to revert unsucessful treasure placement
+* Simplified syntax and fixed logic of object customization of map objects in random map template
 
 ### Launcher
 
 * Fixed a crash when importing the new version of the Heroes Chronicles installer from GOG.com
 * Fixed importing of maps on Android
+* Fixed a bug causing mods to be disabled if they are marked as soft-depending on submod of mod that was disabled
 * Mod download will now keep screen active on mobile system to prevent corrupted downloads
 * It is now possible to import a .zip archive containing multiple maps
 * Fixed mod selection reset on installation of a new mod
@@ -216,6 +232,7 @@
 * Added word wrap for item text activates only when the map validation window reaches a defined width limit
 * Fixed potentially corrupted tiling of terrains in some edge cases when multiple types of terrain are adjacent to each other
 * When changing terrain, the orientation of pre-existing rivers on affected tiles will now be preserved correctly
+* Map editor now uses .ini format to save settings on all platforms
 
 ### Modding - General
 
@@ -229,12 +246,14 @@
 * It is now possible to add additional campaign sets without causing mod conflicts
 * Game will now automatically generate campaign screen backgrounds, depending on number of campaigns in set
 * Added "Campaigns" mod type
+* It is now possible to list terrain ID's from mods that are not dependency in map object template definition
 * Added support for banning heroes, artifacts, spells, and secondary skills in random map templates
 * Added support for configuring parameters of H3 adventure map spells and for creating similar spells in mods
 * It is now possible to change number of skills offered to hero on levelup
 * Game will now generate shadow and selection overlay if enabled in animation config
 * Implemented validation of `targetCondition` in spells to automatically detect invalid mods
 * Implemented validation of `mapObject` in towns and heroes to automatically detect invalid mods
+* It is now possible to define cheat aliases in mod
 
 ### Modding - Adventure Map Objects
 
@@ -311,6 +330,7 @@
 * All limiters now use named parameters instead of ambiguous `parameters` value
 * Creature terrain limiter will now correctly evaluate outside of combat
 * Creature terrain limiter applied to hero primary skills now works as expected when combined with noneOf limiter
+* Creature terrain limiter has been renamed to terrain limiter and can be used for heroes and towns
 * Creature type limiter will now correctly handle upgrades of upgrades
 * Bonuses with terrain limiter will now correctly update on hero stepping onto different terrain
 * HAS_ANOTHER_BONUS_LIMITER no longer requires bonus type present
