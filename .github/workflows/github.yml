@@ -251,10 +251,13 @@ jobs:
         df -h
 
     # a hack to build ID for x64 build in order for Google Play to allow upload of both 32 and 64 bit builds
-    # TODO: x86_64
     - name: Bump Android x64 build ID
       if: ${{ matrix.platform == 'android-64' }}
       run: perl -i -pe 's/versionCode (\d+)/$x=$1+1; "versionCode $x"/e' android/vcmi-app/build.gradle
+
+    - name: Bump Android x86_64 build ID
+      if: ${{ matrix.platform == 'android-64-intel' }}
+      run: perl -i -pe 's/versionCode (\d+)/$x=$1+2; "versionCode $x"/e' android/vcmi-app/build.gradle
 
     - name: Build Number
       run: |
