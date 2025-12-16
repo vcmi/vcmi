@@ -584,8 +584,10 @@ bool CGCreature::containsUpgradedStack() const
 
 int CGCreature::getNumberOfStacks(const CGHeroInstance * hero) const
 {
+	if(stacksCount > 0)
+		return stacksCount;
+
 	int split = 0;
-	// TODO: If this value is defined in a HotA map, use it first.
 	if (hero->hasBonusOfType(BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT))
 		split = getNumberOfStacksFromBonus(hero);
 
@@ -604,7 +606,6 @@ int CGCreature::getNumberOfStacksFromBonus(const CGHeroInstance * hero) const
 	if(bonus->val > 0)
 		return bonus->val;
 
-	// TODO: When VCMI adds support for Lua scripting, this should provide a script-based solution.
 	auto addInfo = bonus->additionalInfo;
 	if(addInfo.empty())
 		return 0;
@@ -653,9 +654,11 @@ int CGCreature::getDefaultNumberOfStacks(const CGHeroInstance *hero) const
 
 	int R4 = R2 % 100 + 1;
 
-	if (R4 <= 20)
+	if(stacksCount == -3)
+		;
+	else if (stacksCount == -2 || R4 <= 20)
 		split -= 1;
-	else if (R4 >= 80)
+	else if(stacksCount == 0 || R4 >= 80)
 		split += 1;
 
 	vstd::amin(split, getStack(SlotID(0)).getCount()); //can't divide into more stacks than creatures total

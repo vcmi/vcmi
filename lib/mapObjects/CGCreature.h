@@ -35,6 +35,7 @@ public:
 	bool neverFlees = false; //if true, the troops will never flee
 	bool notGrowingTeam = false; //if true, number of units won't grow
 	int64_t temppower = 0; //used to handle fractional stack growth for tiny stacks
+	int64_t stacksCount = -1; // the split stack count specified in a HotA 1.7 map (0 - one more, -1 - default, -2 one less, -3 average)
 
 	bool refusedJoining = false;
 
@@ -70,6 +71,8 @@ public:
 		h & temppower;
 		h & refusedJoining;
 		h & formation;
+		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
+			h & stacksCount;
 	}
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
