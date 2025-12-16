@@ -1,6 +1,6 @@
 # VCMI Project Changelog
 
-## 1.6.8 -> 1.7.0 (in development)
+## 1.6.8 -> 1.7.0
 
 ### Key Changes
 
