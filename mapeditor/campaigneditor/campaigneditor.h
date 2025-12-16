@@ -35,6 +35,7 @@ public:
 
 private slots:
 	void on_actionOpen_triggered();
+	void on_actionOpenSet_triggered();
 	void on_actionSave_as_triggered();
 	void on_actionNew_triggered();
 	void on_actionSave_triggered();
