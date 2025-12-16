@@ -51,6 +51,7 @@ public:
 		std::vector<int> pandoraCreatureValues;
 		std::vector<int> questValues;
 		std::vector<int> questRewardValues;
+		int seerHutValue;
 		bool singleThread;
 	};
 	
