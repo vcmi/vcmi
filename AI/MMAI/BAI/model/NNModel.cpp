@@ -319,7 +319,7 @@ std::vector<const char *> NNModel::readOutputNames()
 {
 	/*
 	 * Model outputs (10):
-     *   [0] greedy action (not used)
+     *   [0] greedy action
 	 *        dtype=int
 	 *        shape=[1]
      *   [1] main action logits (see readActionTable, d0)
@@ -340,13 +340,13 @@ std::vector<const char *> NNModel::readOutputNames()
      *   [6] hex#2 mask
 	 *        dtype=int
 	 *        shape=[165]
-     *   [7] greedy main action (not used)
+     *   [7] greedy main action
 	 *        dtype=int
 	 *        shape=[1]
-     *   [8] greedy hex1 (not used)
+     *   [8] greedy hex1
 	 *        dtype=int
 	 *        shape=[1]
-     *   [9] greedy hex2 (not used)
+     *   [9] greedy hex2
 	 *        dtype=int
 	 *        shape=[1]
 	 *
@@ -370,8 +370,19 @@ std::vector<const char *> NNModel::readOutputNames()
 	return res;
 }
 
-NNModel::NNModel(const std::string & path, float temperature, uint64_t seed)
-	: path(path), temperature(temperature), meminfo(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault))
+/*
+ * XXX:
+ * hex1_logits and hex2_logits are based on a greedy act0.
+ * However, if temp > 0 and a non-greedy act0 is chosen,
+ * the hex logits become inconsistent with the chosen action.
+ * As a temporary workaround, force greedy actions with temperature = 0.
+ * Proper fix would require:
+ * 1) re-exporting the model, changing its output dimensions to
+ *    [4, 165] and [4, 165, 165] for hex1_logits and hex2_logits respectively
+ * 2) changing the logic here to pick the proper hex logits after sampling
+ */
+NNModel::NNModel(const std::string & path, float _temperature, uint64_t seed)
+	: path(path), temperature(0), meminfo(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault))
 {
 	logAi->info("MMAI: NNModel params: seed=%1%, temperature=%2%, model=%3%", seed, temperature, path);
 
@@ -448,23 +459,30 @@ int NNModel::getAction(const MMAI::Schema::IState * s)
 	if(outputs.size() != 10)
 		throwf("getAction: bad output size: want: 10, have: %d", outputs.size());
 
-	// deterministic action (useful for debugging)
+	// Deterministic (greedy) action
 	auto action = toVector<int32_t>("getAction: t_action", outputs[0], 1).at(0);
 
-	auto sample = sampling::sample_triplet(
-		MaskedLogits{.logits = outputs[1], .mask = outputs[4]}, // act0 [1, 4]
-		MaskedLogits{.logits = outputs[2], .mask = outputs[5]}, // hex1 [1, 4, 165]
-		MaskedLogits{.logits = outputs[3], .mask = outputs[6]}, // hex2 [1, 4, 165, 165]
-		temperature,
-		rng
-	);
+	timer.name = "MMAI action: " + std::to_string(action);
 
-	auto s_action = actionTable.at(sample.act0).at(sample.hex1).at(sample.hex2);
+	// Stochastic action (used instead of the greedy action if temperature > 0)
+	if(temperature > 1e-8)
+	{
+		auto sample = sampling::sample_triplet(
+			MaskedLogits{.logits = outputs[1], .mask = outputs[4]}, // act0 [4]
+			MaskedLogits{.logits = outputs[2], .mask = outputs[5]}, // hex1 [165]
+			MaskedLogits{.logits = outputs[3], .mask = outputs[6]}, // hex2 [165]
+			temperature,
+			rng
+		);
 
-	if(s_action != action)
-		logAi->debug("Sampled a non-greedy action: %d != %d", s_action, action);
+		auto s_action = actionTable.at(sample.act0).at(sample.hex1).at(sample.hex2);
 
-	timer.name = boost::str(boost::format("MMAI action: %d (confidence=%.2f)") % action % sample.confidence);
+		if(s_action != action)
+			logAi->debug("Sampled a non-greedy action: %d with confidence=%.2f", s_action, sample.confidence);
+
+		timer.name = boost::str(boost::format("MMAI action: %d (confidence=%.2f)") % s_action % sample.confidence);
+		action = s_action;
+	}
 
 	return static_cast<MMAI::Schema::Action>(action);
 };
