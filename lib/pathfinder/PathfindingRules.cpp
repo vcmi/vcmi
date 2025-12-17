@@ -135,15 +135,6 @@ void DestinationActionRule::process(
 		/// don't break - next case shared for both land and sail layers
 		[[fallthrough]];
 
-	case EPathfindingLayer::AVIATE:
-		if(destination.node->accessible == EPathAccessibility::VISITABLE)
-		{
-			if(destination.nodeObject->ID == Obj::BOAT)
-				action = EPathNodeAction::EMBARK;
-		}
-
-		break;
-
 	case EPathfindingLayer::SAIL:
 		if(destination.isNodeObjectVisitable())
 		{
@@ -202,7 +193,18 @@ void DestinationActionRule::process(
 			action = EPathNodeAction::BATTLE;
 
 		break;
+
+	case EPathfindingLayer::AVIATE:
+		if(destination.node->accessible == EPathAccessibility::VISITABLE)
+		{
+			if(destination.nodeObject->ID == Obj::BOAT)
+				action = EPathNodeAction::EMBARK;
+		}
+
+		break;
 	}
+
+
 
 	destination.action = action;
 }
