@@ -1061,7 +1061,11 @@ void CModListView::installMods(QStringList archives)
 	for(int i = 0; i < modNames.size(); i++)
 	{
 		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
-		ui->progressBar->setFormat(tr("Installing mod %1").arg(modStateModel->getMod(modNames[i]).getName()));
+		QString modDisplayName = modNames[i];
+		if (modStateModel->isModExists(modNames[i]))
+			modDisplayName = modStateModel->getMod(modNames[i]).getName();
+
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
 
