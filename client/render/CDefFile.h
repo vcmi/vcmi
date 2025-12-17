@@ -12,6 +12,10 @@
 #include "../../lib/vcmi_endian.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
+VCMI_LIB_NAMESPACE_BEGIN
+class Point;
+VCMI_LIB_NAMESPACE_END
+
 class IImageLoader;
 struct SDL_Color;
 
@@ -19,8 +23,7 @@ struct SDL_Color;
 /// After loading will store general info (palette and frame offsets) and pointer to file itself
 class CDefFile
 {
-private:
-
+public:
 	PACKED_STRUCT_BEGIN
 	struct SSpriteDef
 	{
@@ -33,8 +36,12 @@ private:
 		si32 leftMargin;
 		si32 topMargin;
 	} PACKED_STRUCT_END;
+private:
+
 	//offset[group][frame] - offset of frame data in file
 	std::map<size_t, std::vector <size_t> > offset;
+	//name[group][frame] - name of frame data in file
+	std::map<size_t, std::vector <std::string> > name;
 
 	std::unique_ptr<ui8[]>       data;
 	std::unique_ptr<SDL_Color[]> palette;
@@ -46,6 +53,8 @@ public:
 	//load frame as SDL_Surface
 	void loadFrame(size_t frame, size_t group, IImageLoader &loader) const;
 	bool hasFrame(size_t frame, size_t group) const;
+	std::string getName(size_t frame, size_t group) const;
+	SSpriteDef getFrameInfo(size_t frame, size_t group) const;
 
 	const std::map<size_t, size_t> getEntries() const;
 };

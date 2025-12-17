@@ -26,23 +26,34 @@ public:
 	void addQuestArtZone(std::shared_ptr<Zone> otherZone);
 	void findZonesForQuestArts();
 
-	void addQuestArtifact(const ArtifactID& id);
+	void addQuestArtifact(const ArtifactID& id, ui32 desiredValue);
 	void removeQuestArtifact(const ArtifactID& id);
-	void rememberPotentialArtifactToReplace(CGObjectInstance* obj);
-	CGObjectInstance * drawObjectToReplace();
+	void rememberPotentialArtifactToReplace(CGObjectInstance* obj, ui32 value);
+	CGObjectInstance * drawObjectToReplace(ui32 desiredValue);
 	std::vector<CGObjectInstance*> getPossibleArtifactsToReplace() const;
 	void placeQuestArtifacts(vstd::RNG & rand);
-	void dropReplacedArtifact(CGObjectInstance* obj);
+	void dropReplacedArtifact(const CGObjectInstance* obj);
 
 	size_t getMaxQuestArtifactCount() const;
 	[[nodiscard]] ArtifactID drawRandomArtifact();
 	void addRandomArtifact(const ArtifactID & artid);
 
 protected:
+	struct QuestArtifactRequest
+	{
+		ArtifactID id;
+		ui32 desiredValue;
+	};
+
+	struct ReplacementCandidate
+	{
+		CGObjectInstance* object;
+		ui32 value;
+	};
 
 	std::vector<std::shared_ptr<Zone>> questArtZones; //artifacts required for Seer Huts will be placed here - or not if null
-	std::vector<ArtifactID> questArtifactsToPlace;
-	std::vector<CGObjectInstance*> artifactsToReplace; //Common artifacts which may be replaced by quest artifacts from other zones
+	std::vector<QuestArtifactRequest> questArtifactsToPlace;
+	std::vector<ReplacementCandidate> artifactsToReplace; //Common artifacts which may be replaced by quest artifacts from other zones
 
 	size_t maxQuestArtifacts;
 	std::vector<ArtifactID> questArtifacts;

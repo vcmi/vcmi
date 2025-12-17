@@ -19,4 +19,5 @@ namespace CLauncherDirs
 	VCMIQT_LINKAGE QString downloadsPath();
 	VCMIQT_LINKAGE QString modsPath();
 	VCMIQT_LINKAGE QString mapsPath();
+	VCMIQT_LINKAGE QSettings getSettings(QString appName);
 }

@@ -52,8 +52,9 @@ enum class ESerializationVersion : int32_t
 	CONFIGURABLE_RESOURCES, // configurable resources
 	CUSTOM_NAMES, // custom names
 	BATTLE_ONLY, // battle only mode
+	CAMPAIGN_VIDEO, // second video for prolog/epilog in campaigns
 
-	CURRENT = BATTLE_ONLY,
+	CURRENT = CAMPAIGN_VIDEO,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

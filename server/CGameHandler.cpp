@@ -1001,6 +1001,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return false;
 	};
 
+	if (gameInfo().getPlayerState(h->getOwner())->human && (guardian || objectToVisit) && movementMode == EMovementMode::STANDARD)
+		save("Saves/BeforeVisitSave");
 
 	if (!transit && embarking)
 	{
@@ -1151,6 +1153,9 @@ void CGameHandler::giveResource(PlayerColor player, GameResID which, int val)
 
 void CGameHandler::giveResources(PlayerColor player, const ResourceSet & resources)
 {
+	if (resources.empty())
+		return;
+
 	SetResources sr;
 	sr.mode = ChangeValueMode::RELATIVE;
 	sr.player = player;

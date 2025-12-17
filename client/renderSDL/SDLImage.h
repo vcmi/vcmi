@@ -77,5 +77,8 @@ public:
 	std::shared_ptr<SDLImageShared> drawShadow(bool doSheer) const;
 	std::shared_ptr<SDLImageShared> drawOutline(const ColorRGBA & color, int thickness) const;
 
+	void setMargins(const Point & newMargins);
+	void setFullSize(const Point & newSize);
+
 	friend class SDLImageLoader;
 };

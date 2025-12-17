@@ -82,7 +82,7 @@ ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPal
 {
 	if (originalPalette)
 	{
-		palette = SDL_AllocPalette(originalPalette->ncolors);
+		palette = SDL_AllocPalette(256);
 		SDL_SetPaletteColors(palette, originalPalette->colors, 0, originalPalette->ncolors);
 		preparePalette(originalPalette, blitMode);
 	}
@@ -494,7 +494,7 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 
 	ScalableImageParameters parameters(getPalette(), mode);
 	// if all else fails - use base (presumably, indexed) image and convert it to desired form
-	if (color != PlayerColor::CANNOT_DETERMINE)
+	if (color != PlayerColor::CANNOT_DETERMINE && parameters.palette)
 		parameters.playerColored(color);
 
 	if (upscalingSource)

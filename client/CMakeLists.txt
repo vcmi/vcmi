@@ -103,6 +103,9 @@ set(vcmiclientcommon_SRCS
 	render/Graphics.cpp
 	render/IFont.cpp
 	render/ImageLocator.cpp
+	render/hdEdition/HdImageLoader.cpp
+	render/hdEdition/PakLoader.cpp
+	render/hdEdition/DdsFormat.cpp
 
 	renderSDL/CBitmapFont.cpp
 	renderSDL/CTrueTypeFont.cpp
@@ -329,6 +332,9 @@ set(vcmiclientcommon_HEADERS
 	render/ImageLocator.h
 	render/IRenderHandler.h
 	render/IScreenHandler.h
+	render/hdEdition/HdImageLoader.h
+	render/hdEdition/PakLoader.h
+	render/hdEdition/DdsFormat.h
 
 	renderSDL/CBitmapFont.h
 	renderSDL/CTrueTypeFont.h
@@ -470,6 +476,9 @@ if(NOT ENABLE_STATIC_LIBS)
 		add_dependencies(vcmiclientcommon BattleAI)
 	endif()
 
+	if(ENABLE_MMAI)
+		add_dependencies(vcmiclientcommon MMAI)
+	endif()
 endif()
 if(IOS)
 	if(ENABLE_ERM)
@@ -509,7 +518,7 @@ endif()
 target_link_libraries(vcmiclientcommon PRIVATE vcmiservercommon)
 
 target_link_libraries(vcmiclientcommon PUBLIC
-		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF
+		vcmi SDL2::SDL2 SDL2::Image SDL2::Mixer SDL2::TTF libsquish::libsquish
 )
 
 if(ENABLE_VIDEO)

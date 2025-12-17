@@ -90,11 +90,22 @@ void StartingBonus::initControls()
 
 			if(town->pos == map->players[color].posOfMainTown)
 			{
+				if(town->getTown()->faction->getId() == FactionID::NEUTRAL)
+				{
+					ui->comboBoxBuildingBuilding->addItem(tr("Main town is of random faction"), QVariant(BuildingID::NONE));
+					ui->comboBoxBuildingBuilding->setEnabled(false);
+					break;
+				}
 				for(auto & building : town->getTown()->buildings)
 					ui->comboBoxBuildingBuilding->addItem(QString::fromStdString(building.second->getNameTranslated()), QVariant(building.first.getNum()));
 				break;
 			}
 		}
+	}
+	else
+	{
+		ui->comboBoxBuildingBuilding->addItem(tr("Player does not have a main town!"), QVariant(BuildingID::NONE));
+		ui->comboBoxBuildingBuilding->setEnabled(false);
 	}
 
 	for(auto const & objectPtr : LIBRARY->arth->objects)
@@ -162,6 +173,8 @@ void StartingBonus::loadBonus()
 		}
 		case CampaignBonusType::BUILDING:
 		{
+			if(ui->comboBoxBuildingBuilding->currentData().toInt() == BuildingID::NONE)
+				break;
 			const auto & bonusValue = bonus.getValue<CampaignBonusBuilding>();
 			ui->radioButtonBuilding->setChecked(true);
 			on_radioButtonBuilding_toggled();
@@ -243,17 +256,17 @@ void StartingBonus::saveBonus()
 		};
 	else if(ui->radioButtonArtifact->isChecked())
 		bonus = CampaignBonusArtifact{
-			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			HeroTypeID(ui->comboBoxArtifactRecipient->currentData().toInt()),
 			ArtifactID(ui->comboBoxArtifactArtifact->currentData().toInt())
 		};
 	else if(ui->radioButtonSpellScroll->isChecked())
 		bonus = CampaignBonusSpellScroll{
-			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			HeroTypeID(ui->comboBoxSpellScrollRecipient->currentData().toInt()),
 			SpellID(ui->comboBoxSpellScrollSpell->currentData().toInt())
 		};
 	else if(ui->radioButtonPrimarySkill->isChecked())
 		bonus = CampaignBonusPrimarySkill{
-			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			HeroTypeID(ui->comboBoxPrimarySkillRecipient->currentData().toInt()),
 			{
 				uint8_t(ui->spinBoxPrimarySkillAttack->value()),
 				uint8_t(ui->spinBoxPrimarySkillDefense->value()),
@@ -263,7 +276,7 @@ void StartingBonus::saveBonus()
 		};
 	else if(ui->radioButtonSecondarySkill->isChecked())
 		bonus = CampaignBonusSecondarySkill{
-			HeroTypeID(ui->comboBoxCreatureRecipient->currentData().toInt()),
+			HeroTypeID(ui->comboBoxSecondarySkillRecipient->currentData().toInt()),
 			SecondarySkill(ui->comboBoxSecondarySkillSecondarySkill->currentData().toInt()),
 			int32_t(ui->comboBoxSecondarySkillMastery->currentData().toInt())
 		};
@@ -381,43 +394,52 @@ QString StartingBonus::getBonusListTitle(CampaignBonus bonus, std::shared_ptr<CM
 	return {};
 }
 
+void StartingBonus::radioButtonToggled(int index)
+{
+	if(index == 2 && ui->comboBoxBuildingBuilding->currentData().toInt() == BuildingID::NONE)
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+	else
+		ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+	ui->tabWidget->setCurrentIndex(index);
+}
+
 void StartingBonus::on_radioButtonSpell_toggled()
 {
-	ui->tabWidget->setCurrentIndex(0);
+	radioButtonToggled(0);
 }
 
 void StartingBonus::on_radioButtonCreature_toggled()
 {
-	ui->tabWidget->setCurrentIndex(1);
+	radioButtonToggled(1);
 }
 
 void StartingBonus::on_radioButtonBuilding_toggled()
 {
-	ui->tabWidget->setCurrentIndex(2);
+	radioButtonToggled(2);
 }
 
 void StartingBonus::on_radioButtonArtifact_toggled()
 {
-	ui->tabWidget->setCurrentIndex(3);
+	radioButtonToggled(3);
 }
 
 void StartingBonus::on_radioButtonSpellScroll_toggled()
 {
-	ui->tabWidget->setCurrentIndex(4);
+	radioButtonToggled(4);
 }
 
 void StartingBonus::on_radioButtonPrimarySkill_toggled()
 {
-	ui->tabWidget->setCurrentIndex(5);
+	radioButtonToggled(5);
 }
 
 void StartingBonus::on_radioButtonSecondarySkill_toggled()
 {
-	ui->tabWidget->setCurrentIndex(6);
+	radioButtonToggled(6);
 }
 
 void StartingBonus::on_radioButtonResource_toggled()
 {
-	ui->tabWidget->setCurrentIndex(7);
+	radioButtonToggled(7);
 }
 

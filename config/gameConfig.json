@@ -325,6 +325,7 @@
 					"GOOD2D.SMK" : 12,
 					"EVIL2A.SMK" : 13,
 					"EVIL2AP1.SMK" : 14,
+					"EVIL2AP2.SMK" : 14, // looped
 					"EVIL2B.SMK" : 15,
 					"EVIL2C.SMK" : 16,
 					"EVIL2D.SMK" : 17,
@@ -383,6 +384,7 @@
 					"H3ABdb2.smk" : 34,
 					"H3ABdb3.smk" : 35,
 					"H3ABdb4.smk" : 36,
+					"H3ABdb4b.smk" : 36, // looped
 					"H3ABdb5.smk" : 37,
 					"H3ABds1.smk" : 38,
 					"H3ABds2.smk" : 39,
@@ -456,6 +458,7 @@
 					"H3x2_RNc.smk" : 80,
 					"H3x2_RNd.smk" : 81,
 					"H3x2_RNe1.smk": 82,
+					"H3x2_RNe2.smk": 82, // looped
 					"H3x2_SPa.smk" : 83,
 					"H3x2_SPb.smk" : 84,
 					"H3x2_SPc.smk" : 85,

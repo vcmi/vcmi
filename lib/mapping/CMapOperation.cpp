@@ -91,6 +91,7 @@ void CComposedOperation::addOperation(std::unique_ptr<CMapOperation>&& operation
 CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, CTerrainSelection terrainSel, TerrainId terType, int decorationsPercentage, vstd::RNG * gen):
 	CMapOperation(map),
 	terrainSel(std::move(terrainSel)),
+	extendedSel(CTerrainSelection(terrainSel.getMap())),
 	terType(terType),
 	decorationsPercentage(decorationsPercentage),
 	gen(gen)
@@ -102,39 +103,49 @@ void CDrawTerrainOperation::execute()
 {
 	for(const auto & pos : terrainSel.getSelectedItems())
 	{
-		auto & tile = map->getTile(pos);
-		if (formerState.find(tile.terrainType) == formerState.end())
-			formerState.insert({tile.terrainType, CTerrainSelection(terrainSel.getMap())});
-		formerState.at(tile.terrainType).select(pos);
+		saveTileState(pos);
+		expandInvalidatedTileList(pos);
 	}
-	drawTerrain(terType, terrainSel);
+	changeTerrainType(terrainSel, terType);
+	expandSelection(terrainSel);
+	updateTerrainViews();
 }
 
-void CDrawTerrainOperation::drawTerrain(TerrainId terrainType, CTerrainSelection selection)
+void CDrawTerrainOperation::changeTerrainType(CTerrainSelection selection, TerrainId terrainType)
 {
 	for(const auto & pos : selection.getSelectedItems())
 	{
 		auto & tile = map->getTile(pos);
 		tile.terrainType = terrainType;
-		invalidateTerrainViews(pos);
 	}
-
-	updateTerrainTypes(selection);
-	updateTerrainViews();
-	invalidatedTerViews.clear();
 }
 
 void CDrawTerrainOperation::undo()
 {
 	for (auto const& typeToSelection : formerState)
 	{
-		drawTerrain(typeToSelection.first, typeToSelection.second);
+		changeTerrainType(typeToSelection.second, typeToSelection.first);
 	}
+	updateTerrainViews();
 }
 
 void CDrawTerrainOperation::redo()
 {
-	drawTerrain(terType, terrainSel);
+	changeTerrainType(extendedSel, terType);
+	updateTerrainViews();
+}
+
+void CDrawTerrainOperation::saveTileState(int3 tile)
+{
+	if(extendedSel.getSelectedItems().contains(tile))	//tile is being changed a second time
+		return;
+
+	extendedSel.select(tile);
+
+	auto terrainType = map->getTile(tile).terrainType;
+	if (!formerState.contains(terrainType))
+		formerState.insert({terrainType, CTerrainSelection(terrainSel.getMap())});
+	formerState.at(terrainType).select(tile);
 }
 
 std::string CDrawTerrainOperation::getLabel() const
@@ -142,7 +153,7 @@ std::string CDrawTerrainOperation::getLabel() const
 	return "Draw Terrain";
 }
 
-void CDrawTerrainOperation::updateTerrainTypes(CTerrainSelection selection)
+void CDrawTerrainOperation::expandSelection(CTerrainSelection selection)
 {
 	auto positions = selection.getSelectedItems();
 	while(!positions.empty())
@@ -153,9 +164,10 @@ void CDrawTerrainOperation::updateTerrainTypes(CTerrainSelection selection)
 		auto tiles = getInvalidTiles(centerPos);
 		auto updateTerrainType = [&](const int3& pos)
 		{
+			saveTileState(pos);
 			map->getTile(pos).terrainType = centerTile.terrainType;
 			positions.insert(pos);
-			invalidateTerrainViews(pos);
+			expandInvalidatedTileList(pos);
 			//logGlobal->debug("Set additional terrain tile at pos '%s' to type '%s'", pos, centerTile.terType);
 		};
 
@@ -512,7 +524,7 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 	}
 }
 
-void CDrawTerrainOperation::invalidateTerrainViews(const int3& centerPos)
+void CDrawTerrainOperation::expandInvalidatedTileList(const int3& centerPos)
 {
 	auto rect = extendTileAroundSafely(centerPos);
 	rect.forEach([&](const int3& pos)
