@@ -45,6 +45,7 @@
 #include "../../lib/spells/CSpellHandler.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/pathfinder/CGPathNode.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/spells/adventure/AdventureSpellEffect.h"
@@ -298,7 +299,8 @@ void AdventureMapInterface::keyPressed(EShortcut key)
 {
 	if (key == EShortcut::GLOBAL_CANCEL && spellBeingCasted)
 		hotkeyAbortCastingMode();
-
+	if (key == EShortcut::GLOBAL_CANCEL && getState() == EAdventureState::DISEMBARKING)
+		exitDisembarkMode();
 	//fake mouse use to trigger onTileHovered()
 	ENGINE->fakeMouseMove();
 }
@@ -377,6 +379,11 @@ void AdventureMapInterface::onEnemyTurnStarted(PlayerColor playerID, bool isHuma
 	widget->getMinimap()->setAIRadar(!isHuman);
 	widget->getInfoBar()->startEnemyTurn(playerID);
 	setState(isHuman ? EAdventureState::MAKING_TURN : EAdventureState::AI_PLAYER_TURN);
+}
+
+EAdventureState AdventureMapInterface::getState() const
+{
+	return shortcuts->getState();
 }
 
 void AdventureMapInterface::setState(EAdventureState state)
@@ -522,6 +529,13 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 		return;
 	}
 
+	if(getState() == EAdventureState::DISEMBARKING)
+	{
+			if(isValidDisembarkTarget(targetPosition))
+				performDisembark(targetPosition);
+			return;
+	}
+
 	if(!GAME->interface()->cb->isVisible(targetPosition))
 		return;
 
@@ -538,8 +552,11 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 	}
 	else if(const CGHeroInstance * currentHero = GAME->interface()->localState->getCurrentHero()) //hero is selected
 	{
-		const CGPathNode *pn = GAME->interface()->getPathsInfo(currentHero)->getPathInfo(targetPosition);
-
+		EPathfindingLayer destinationLayer = EPathfindingLayer::AUTO;
+		if (currentHero->inBoat() && currentHero->getBoat()->layer == EPathfindingLayer::AVIATE)
+			destinationLayer = EPathfindingLayer::AVIATE;
+		
+		const CGPathNode *pn = GAME->interface()->getPathsInfo(currentHero)->getPathInfo(targetPosition, destinationLayer);
 		const auto shipyard = dynamic_cast<const IShipyard *>(topBlocking);
 
 		if(currentHero == topBlocking) //clicked selected hero
@@ -587,7 +604,7 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 				}
 				else //remove old path and find a new one if we clicked on accessible tile
 				{
-					GAME->interface()->localState->setPath(currentHero, destinationTile);
+					GAME->interface()->localState->setPath(currentHero, destinationTile, destinationLayer);
 					onHeroChanged(currentHero);
 				}
 			}
@@ -622,6 +639,12 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		else
 			ENGINE->cursor().set(Cursor::Map::POINTER);
 
+		return;
+	}
+
+	if(getState() == EAdventureState::DISEMBARKING)
+	{
+		ENGINE->cursor().set(isValidDisembarkTarget(targetPosition) ? Cursor::Map::T1_DISEMBARK : Cursor::Map::POINTER);
 		return;
 	}
 
@@ -800,6 +823,12 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 		return;
 	}
 
+	if(getState() == EAdventureState::DISEMBARKING)
+	{
+		exitDisembarkMode();
+		return;
+	}
+
 	if(!GAME->interface()->cb->isVisible(mapPos))
 	{
 		CRClickPopup::createAndPush(LIBRARY->generaltexth->allTexts[61]); //Uncharted Territory
@@ -876,6 +905,44 @@ void AdventureMapInterface::openWorldView(const std::vector<ObjectPosInfo>& obje
 {
 	openWorldView(11);
 	widget->getMapView()->onViewSpellActivated(11, objectPositions, showTerrain);
+}
+
+void AdventureMapInterface::enterDisembarkMode()
+{
+	setState(EAdventureState::DISEMBARKING);
+}
+
+void AdventureMapInterface::exitDisembarkMode()
+{
+	assert(getState() == EAdventureState::DISEMBARKING);
+	setState(EAdventureState::MAKING_TURN);
+}
+
+bool AdventureMapInterface::isValidDisembarkTarget(int3 targetPosition) const
+{
+	const CGHeroInstance * hero = GAME->interface()->localState->getCurrentHero();
+	if (!hero || !hero->inBoat() || hero->getBoat()->layer != EPathfindingLayer::AVIATE)
+			return false;
+			
+	const CGPathNode * pathNode = GAME->interface()->getPathsInfo(hero)->getPathInfo(targetPosition);
+	
+	return pathNode->reachable()
+		&& pathNode->action == EPathNodeAction::DISEMBARK;
+}
+
+void AdventureMapInterface::performDisembark(const int3 & destTarget)
+{
+	const CGHeroInstance * hero = GAME->interface()->localState->getCurrentHero();
+	exitDisembarkMode();
+	
+	// Set path to destination and move hero
+	GAME->interface()->localState->setPath(hero, destTarget);
+	if(GAME->interface()->localState->hasPath(hero))
+	{
+			const CGPath & path = GAME->interface()->localState->getPath(hero);
+			if(path.nextNode().turns == 0)
+					GAME->interface()->moveHero(hero, path);
+	}
 }
 
 void AdventureMapInterface::hotkeyNextTown()

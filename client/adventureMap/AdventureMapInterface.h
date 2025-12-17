@@ -71,6 +71,7 @@ private:
 	std::shared_ptr<TurnTimerWidget> watches;
 
 private:
+	EAdventureState getState() const;
 	void setState(EAdventureState state);
 
 	/// updates active state of game window whenever game state changes
@@ -95,6 +96,14 @@ private:
 	/// dim interface if some windows opened
 	void dim(Canvas & to);
 
+	/// exits disembark mode
+	void exitDisembarkMode();
+
+	/// performs disembark to specified location
+	void performDisembark(const int3 & destTarget);
+
+	/// checks if tile is a valid disembark target
+	bool isValidDisembarkTarget(int3 targetPosition) const;
 protected:
 	/// CIntObject interface implementation
 
@@ -195,6 +204,9 @@ public:
 
 	/// update state of buttons
 	void updateActiveState();
+
+	/// called by shortcut handler to enter disembark mode
+	void enterDisembarkMode();
 };
 
 extern std::shared_ptr<AdventureMapInterface> adventureInt;

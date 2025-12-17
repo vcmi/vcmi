@@ -126,15 +126,23 @@ void DestinationActionRule::process(
 	switch(destination.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
-		if(source.node->layer == EPathfindingLayer::SAIL)
+		if((source.node->layer == EPathfindingLayer::SAIL || source.node->layer == EPathfindingLayer::AVIATE))
 		{
 			// TODO: Handle dismebark into guarded areaa
 			action = EPathNodeAction::DISEMBARK;
 			break;
 		}
-
 		/// don't break - next case shared for both land and sail layers
 		[[fallthrough]];
+
+	case EPathfindingLayer::AVIATE:
+		if(destination.node->accessible == EPathAccessibility::VISITABLE)
+		{
+			if(destination.nodeObject->ID == Obj::BOAT)
+				action = EPathNodeAction::EMBARK;
+		}
+
+		break;
 
 	case EPathfindingLayer::SAIL:
 		if(destination.isNodeObjectVisitable())
@@ -369,7 +377,7 @@ void LayerTransitionRule::process(
 	switch(source.node->layer.toEnum())
 	{
 	case EPathfindingLayer::LAND:
-		if(destination.node->layer == EPathfindingLayer::SAIL)
+		if(destination.node->layer == EPathfindingLayer::SAIL || destination.node->layer == EPathfindingLayer::AVIATE)
 		{
 			/// Cannot enter empty water tile from land -> it has to be visitable
 			if(destination.node->accessible == EPathAccessibility::ACCESSIBLE)
@@ -389,6 +397,16 @@ void LayerTransitionRule::process(
 
 		break;
 
+	case EPathfindingLayer::AVIATE:
+		// have to disembark first before visiting objects on land
+		if (destination.tile->visitable())
+			destination.blocked = true;
+
+		//can disembark only on accessible tiles or tiles guarded by nearby monster
+		if((destination.node->accessible != EPathAccessibility::ACCESSIBLE && destination.node->accessible != EPathAccessibility::GUARDED))
+			destination.blocked = true;
+
+		break;
 	case EPathfindingLayer::AIR:
 		if(pathfinderConfig->options.originalFlyRules)
 		{

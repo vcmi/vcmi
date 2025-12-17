@@ -121,7 +121,7 @@ namespace NPathfindingLayer
 {
 	const std::string names[EPathfindingLayer::NUM_LAYERS] =
 	{
-		"land", "sail", "water", "air"
+		"land", "sail", "water", "aviate", "air"
 	};
 }
 

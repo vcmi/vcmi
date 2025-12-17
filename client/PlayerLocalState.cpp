@@ -51,10 +51,10 @@ bool PlayerLocalState::hasPath(const CGHeroInstance * h) const
 	return paths.count(h) > 0;
 }
 
-bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination)
+bool PlayerLocalState::setPath(const CGHeroInstance * h, const int3 & destination, const EPathfindingLayer & layer)
 {
 	CGPath path;
-	if(!owner.getPathsInfo(h)->getPath(path, destination))
+	if(!owner.getPathsInfo(h)->getPath(path, destination, layer))
 	{
 		paths.erase(h); //invalidate previously possible path if selected (before other hero blocked only path / fly spell expired)
 		syncronizeState();

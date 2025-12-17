@@ -121,6 +121,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_MOVE_HERO_NE,     optionHeroSelected(),   [this]() { this->moveHeroDirectional({+1, -1}); } },
 		{ EShortcut::ADVENTURE_SEARCH,           optionSidePanelActive(),[this]() { this->search(false); } },
 		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } },
+		{ EShortcut::ADVENTURE_DISEMBARK,        optionCanDisembark(),   [this]() { this->enterDisembarkMode(); } },
 		{ EShortcut::MAIN_MENU_LOBBY,            optionSidePanelActive(),[    ]() { ENGINE->user().onGlobalLobbyInterfaceActivated(); } }
 	};
 	return result;
@@ -424,6 +425,11 @@ void AdventureMapShortcuts::visitObject()
 		GAME->interface()->cb->moveHero(h, h->pos, false);
 }
 
+void AdventureMapShortcuts::enterDisembarkMode()
+{
+    owner.enterDisembarkMode();
+}
+
 void AdventureMapShortcuts::openObject()
 {
 	const CGHeroInstance *h = GAME->interface()->localState->getCurrentHero();
@@ -542,6 +548,17 @@ void AdventureMapShortcuts::search(bool next)
 		selectObjOnMap(lastSel);
 	else
 		ENGINE->windows().createAndPushWindow<CObjectListWindow>(texts, nullptr, LIBRARY->generaltexth->translate("vcmi.adventureMap.search.hover"), LIBRARY->generaltexth->translate("vcmi.adventureMap.search.help"), [selectObjOnMap](int index){ selectObjOnMap(index); }, lastSel, std::vector<std::shared_ptr<IImage>>(), true);
+}
+
+bool AdventureMapShortcuts::optionCanDisembark()
+{
+	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
+	return optionInMapView() && hero && hero->inBoat();
+}
+
+bool AdventureMapShortcuts::optionDisembarking()
+{
+	return state == EAdventureState::DISEMBARKING;
 }
 
 void AdventureMapShortcuts::nextObject()
@@ -671,7 +688,7 @@ bool AdventureMapShortcuts::optionMapScrollingActive()
 
 bool AdventureMapShortcuts::optionMapViewActive()
 {
-	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL;
+	return state == EAdventureState::MAKING_TURN || state == EAdventureState::WORLD_VIEW || state == EAdventureState::CASTING_SPELL || state == EAdventureState::DISEMBARKING;
 }
 
 bool AdventureMapShortcuts::optionMarketplace()
@@ -684,7 +701,7 @@ bool AdventureMapShortcuts::optionMarketplace()
 	return false;
 }
 
-bool AdventureMapShortcuts::optionHeroBoat(EPathfindingLayer layer)
+bool AdventureMapShortcuts::optionHeroBoat(const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *hero = GAME->interface()->localState->getCurrentHero();
 	return optionInMapView() && hero && hero->inBoat() && hero->getBoat()->layer == layer;

@@ -241,7 +241,7 @@ enum class EMovementMode : int8_t
 	DIMENSION_DOOR,
 	MONOLITH,
 	CASTLE_GATE,
-	TOWN_PORTAL,
+	TOWN_PORTAL
 };
 
 enum class EMapLevel : int8_t
