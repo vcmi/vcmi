@@ -98,6 +98,10 @@ namespace Cursor
 		//POINTER_COPY       = 40, // probably unused
 		TELEPORT         = 41,
 		SCUTTLE_BOAT     = 42,
+		T1_AVIATE        =  43,
+		T2_AVIATE        =  44,
+		T3_AVIATE        =  45,
+		T4_AVIATE        =  46,
 
 		COUNT
 	};

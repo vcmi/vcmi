@@ -696,8 +696,13 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		std::array<Cursor::Map, 4> cursorExchange  = { Cursor::Map::T1_EXCHANGE,   Cursor::Map::T2_EXCHANGE,   Cursor::Map::T3_EXCHANGE,   Cursor::Map::T4_EXCHANGE,   };
 		std::array<Cursor::Map, 4> cursorVisit     = { Cursor::Map::T1_VISIT,      Cursor::Map::T2_VISIT,      Cursor::Map::T3_VISIT,      Cursor::Map::T4_VISIT,      };
 		std::array<Cursor::Map, 4> cursorSailVisit = { Cursor::Map::T1_SAIL_VISIT, Cursor::Map::T2_SAIL_VISIT, Cursor::Map::T3_SAIL_VISIT, Cursor::Map::T4_SAIL_VISIT, };
+		std::array<Cursor::Map, 4> cursorAviate    = { Cursor::Map::T1_AVIATE,     Cursor::Map::T2_AVIATE,     Cursor::Map::T3_AVIATE,     Cursor::Map::T4_AVIATE,     };
 
-		const CGPathNode * pathNode = GAME->interface()->getPathsInfo(hero)->getPathInfo(targetPosition);
+		EPathfindingLayer destinationLayer = EPathfindingLayer::AUTO;
+		if (hero->inBoat() && hero->getBoat()->layer == EPathfindingLayer::AVIATE)
+			destinationLayer = EPathfindingLayer::AVIATE;
+
+		const CGPathNode * pathNode = GAME->interface()->getPathsInfo(hero)->getPathInfo(targetPosition, destinationLayer);
 		assert(pathNode);
 
 		if((ENGINE->isKeyboardAltDown() || settings["gameTweaks"]["forceMovementInfo"].Bool()) && pathNode->reachable()) //overwrite status bar text with movement info
@@ -735,6 +740,8 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 		case EPathNodeAction::TELEPORT_NORMAL:
 			if(pathNode->layer == EPathfindingLayer::LAND)
 				ENGINE->cursor().set(cursorMove[turns]);
+			else if (pathNode->layer == EPathfindingLayer::AVIATE)
+				ENGINE->cursor().set(cursorAviate[turns]);
 			else
 				ENGINE->cursor().set(cursorSail[turns]);
 			break;
@@ -770,7 +777,11 @@ void AdventureMapInterface::onTileHovered(const int3 &targetPosition)
 			break;
 
 		case EPathNodeAction::EMBARK:
-			ENGINE->cursor().set(cursorSail[turns]);
+			{
+				const CGBoat * boat = dynamic_cast<const CGBoat*>(objAtTile);
+				assert(boat);
+				ENGINE->cursor().set(boat->layer == EPathfindingLayer::AVIATE ? cursorAviate[turns] : cursorSail[turns]);
+			}
 			break;
 
 		case EPathNodeAction::DISEMBARK:
