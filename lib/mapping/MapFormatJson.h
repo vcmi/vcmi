@@ -179,6 +179,7 @@ public:
 	struct MapObjectLoader
 	{
 		MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json);
+		MapObjectLoader(CMapLoaderJson * _owner, JsonVector::value_type & json);
 		CMapLoaderJson * owner;
 		std::shared_ptr<CGObjectInstance> instance;
 		ObjectInstanceID id;

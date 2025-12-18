@@ -279,6 +279,7 @@ public:
 
 	void saveCompatibilityStoreAllocatedArtifactID();
 	void parseUidCounter();
+	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
 private:
 

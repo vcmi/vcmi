@@ -235,7 +235,7 @@ namespace TerrainDetail
 }
 
 ///CMapFormatJson
-const int CMapFormatJson::VERSION_MAJOR = 2;
+const int CMapFormatJson::VERSION_MAJOR = 3;
 const int CMapFormatJson::VERSION_MINOR = 0;
 
 const std::string CMapFormatJson::HEADER_FILE_NAME = "header.json";
@@ -1009,9 +1009,11 @@ void CMapLoaderJson::readTerrain()
 
 CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonMap::value_type & json):
 	owner(_owner), instance(nullptr), id(-1), jsonKey(json.first), configuration(json.second)
-{
+{}
 
-}
+CMapLoaderJson::MapObjectLoader::MapObjectLoader(CMapLoaderJson * _owner, JsonVector::value_type & json):
+	owner(_owner), instance(nullptr), id(-1), configuration(json)
+{}
 
 void CMapLoaderJson::MapObjectLoader::construct()
 {
@@ -1019,6 +1021,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	//find type handler
 	std::string typeName = configuration["type"].String();
 	std::string subtypeName = configuration["subtype"].String();
+	std::string instanceName = owner->fileVersionMajor <= 2 ? jsonKey : configuration["instanceName"].String();
 	if(typeName.empty())
 	{
 		logGlobal->error("Object type missing");
@@ -1059,7 +1062,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 	// Will be destroyed soon and replaced with shared template
 	instance = handler->create(owner->map->cb, appearance);
 
-	instance->instanceName = jsonKey;
+	instance->instanceName = instanceName;
 	instance->setAnchorPos(pos);
 	owner->map->addNewObject(instance);
 }
@@ -1116,8 +1119,16 @@ void CMapLoaderJson::readObjects()
 	JsonNode data = getFromArchive(OBJECTS_FILE_NAME);
 
 	//get raw data
-	for(auto & p : data.Struct())
-		loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
+	if (fileVersionMajor <= 2)
+	{
+		for(auto & p : data.Struct())
+			loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
+	}
+	else
+	{
+		for(auto & p : data.Vector())
+			loaders.push_back(std::make_unique<MapObjectLoader>(this, p));
+	}
 
 	for(auto & ptr : loaders)
 		ptr->construct();
@@ -1290,23 +1301,25 @@ void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
 	JsonNode data;
+	int standardObjectCount = map->getObjects().size();
+	bool grailExists = map->grailPos.isValid();
+	data.Vector().resize(standardObjectCount + grailExists);
 
-	JsonSerializer handler(mapObjectResolver.get(), data);
-
-	for(const auto & obj : map->getObjects())
+	for (int i = 0; i < standardObjectCount; i++)
 	{
-		//logGlobal->trace("\t%s", obj->instanceName);
-		auto temp = handler.enterStruct(obj->instanceName);
-
+		JsonNode & objNode = data.Vector()[i];
+		CGObjectInstance * obj = map->getObject(ObjectInstanceID(i));
+		JsonSerializer handler(mapObjectResolver.get(), objNode);
 		obj->serializeJson(handler);
 
-		data[obj->instanceName].setModScope(ModScope::scopeGame());
+		data[i].setModScope(ModScope::scopeGame());
 	}
 
-	if(map->grailPos.isValid())
+	if(grailExists)
 	{
 		JsonNode grail;
 		grail["type"].String() = "grail";
+		grail["instanceName"].String() = "grail";
 
 		grail["x"].Float() = map->grailPos.x;
 		grail["y"].Float() = map->grailPos.y;
@@ -1316,13 +1329,12 @@ void CMapSaverJson::writeObjects()
 
 		grail.setModScope(ModScope::scopeGame());
 
-		data["grail"] = grail;
+		data[data.Vector().size() - 1] = grail;
 	}
 
 	//cleanup empty options
-	for(auto & p : data.Struct())
+	for(auto & obj : data.Vector())
 	{
-		JsonNode & obj = p.second;
 		if(obj["options"].Struct().empty())
 			obj.Struct().erase("options");
 	}

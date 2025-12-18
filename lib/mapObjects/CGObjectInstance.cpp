@@ -367,6 +367,7 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 
 		handler.serializeString("type", ourTypeName);
 		handler.serializeString("subtype", ourSubtypeName);
+		handler.serializeString("instanceName", instanceName);
 
 		handler.serializeInt("x", pos.x);
 		handler.serializeInt("y", pos.y);
