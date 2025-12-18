@@ -64,6 +64,8 @@
 
 ISelectionScreenInfo * SEL = nullptr;
 
+
+
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	: CWindowObject(BORDERED), config(configNode)
 {
@@ -83,13 +85,13 @@ CMenuScreen::CMenuScreen(const JsonNode & configNode)
 
 	for (const JsonNode& node : config["images"].Vector())
 	{
-		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), Point(node["x"].Integer(), node["y"].Integer()));
+		auto image = std::make_shared<CPicture>(ImagePath::fromJson(*RandomGeneratorUtil::nextItem(node["name"].Vector(), CRandomGenerator::getDefault())), adjustNegativeCoordinate(node["x"].Integer(), node["y"].Integer()));
 		images.push_back(image);
 	}
 
 	if(!config["video"].isNull())
 	{
-		Point videoPosition(config["video"]["x"].Integer(), config["video"]["y"].Integer());
+		Point videoPosition = adjustNegativeCoordinate(config["video"]["x"].Integer(), config["video"]["y"].Integer());
 		videoPlayer = std::make_shared<VideoWidget>(videoPosition, VideoPath::fromJson(config["video"]["name"]), false);
 	}
 
@@ -231,20 +233,13 @@ std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const Js
 			help = {"", LIBRARY->generaltexth->translate(button["help"].String())};
 	}	
 
-	int posx = static_cast<int>(button["x"].Float());
-	if(posx < 0)
-		posx = pos.w + posx;
-
-	int posy = static_cast<int>(button["y"].Float());
-	if(posy < 0)
-		posy = pos.h + posy;
-
+	Point point = adjustNegativeCoordinate(static_cast<int>(button["x"].Float()), static_cast<int>(button["y"].Float()));
 	EShortcut shortcut = ENGINE->shortcuts().findShortcut(button["shortcut"].String());
 
 	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
 		logGlobal->warn("Unknown shortcut '%s' found when loading main menu config!", button["shortcut"].String());
 
-	auto result = std::make_shared<CButton>(Point(posx, posy), AnimationPath::fromJson(button["name"]), help, command, shortcut);
+	auto result = std::make_shared<CButton>(point, AnimationPath::fromJson(button["name"]), help, command, shortcut);
 
 	if (button["center"].Bool())
 		result->moveBy(Point(-result->pos.w/2, -result->pos.h/2));
