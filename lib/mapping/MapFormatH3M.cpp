@@ -1186,8 +1186,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		int32_t joinPercent = reader->readInt32(); // 100 = default, percent of monsters that will join on successful aggression check
 		int32_t upgradedStack = reader->readInt32(); // Presence of upgraded stack, -1 = random, 0 = never, 1 = always
 		int32_t stacksCount = reader->readInt32(); // TODO: check possible values. How many creature stacks will be present on battlefield, -1 = default
+		object->stacksCount = stacksCount;
 
-		if(aggressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1 || stacksCount != -1)
+		if(aggressionExact != -1 || joinOnlyForMoney || joinPercent != 100 || upgradedStack != -1)
 			logGlobal->warn(
 				"Map '%s': Wandering monsters %s settings %d %d %d %d %d are not implemented!",
 				mapName,
@@ -1195,8 +1196,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 				aggressionExact,
 				int(joinOnlyForMoney),
 				joinPercent,
-				upgradedStack,
-				stacksCount
+				upgradedStack
 			);
 	}
 
