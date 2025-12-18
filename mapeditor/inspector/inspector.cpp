@@ -430,7 +430,7 @@ void Inspector::updateProperties(CGCreature * o)
 	{ //Character
 		auto * delegate = new InspectorDelegate;
 		delegate->options = characterIdentifiers;
-		addProperty<CGCreature::Character>("Character", (CGCreature::Character)o->character, delegate, false);
+		addProperty<CGCreature::Character>(QObject::tr("Character"), (CGCreature::Character)o->character, delegate, false);
 	}
 	addProperty(QObject::tr("Never flees"), o->neverFlees, false);
 	addProperty(QObject::tr("Not growing"), o->notGrowingTeam, false);
