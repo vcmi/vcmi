@@ -13,6 +13,7 @@
 #include "CMapEvent.h"
 #include "CMapHeader.h"
 #include "TerrainTile.h"
+#include "MapTilesStorage.h"
 
 #include "../mapObjects/CGObjectInstance.h"
 #include "../callback/GameCallbackHolder.h"
@@ -263,9 +264,8 @@ public:
 	//Helper lists
 	std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > teleportChannels;
 
-
 	std::unique_ptr<CMapEditManager> editManager;
-	boost::multi_array<int3, 3> guardingCreaturePositions;
+	MapTilesStorage<int3> guardingCreaturePositions;
 
 	std::map<std::string, std::shared_ptr<CGObjectInstance> > instanceNames;
 
@@ -286,8 +286,8 @@ public:
 
 private:
 
-	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	boost::multi_array<TerrainTile, 3> terrain;
+	/// a 3-dimensional array of terrain tiles
+	MapTilesStorage<TerrainTile> terrain;
 
 	si32 uidCounter; 
 
@@ -388,13 +388,13 @@ inline bool CMap::isInTheMap(const int3 & pos) const
 inline TerrainTile & CMap::getTile(const int3 & tile)
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 inline const TerrainTile & CMap::getTile(const int3 & tile) const
 {
 	assert(isInTheMap(tile));
-	return terrain[tile.z][tile.x][tile.y];
+	return terrain[tile];
 }
 
 VCMI_LIB_NAMESPACE_END

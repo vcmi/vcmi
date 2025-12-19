@@ -669,8 +669,7 @@ void CGameState::initFogOfWar()
 	for(auto & elem : teams)
 	{
 		auto & fow = elem.second.fogOfWarMap;
-		fow.resize(boost::extents[layers][map->width][map->height]);
-		std::fill(fow.data(), fow.data() + fow.num_elements(), 0);
+		fow = MapTilesStorage<uint8_t>(int3(map->width, map->height, layers));
 
 		for(const auto & obj : map->getObjects())
 		{
@@ -681,7 +680,7 @@ void CGameState::initFogOfWar()
 			getTilesInRange(tiles, obj->getSightCenter(), obj->getSightRadius(), ETileVisibility::HIDDEN, obj->tempOwner);
 			for(const int3 & tile : tiles)
 			{
-				elem.second.fogOfWarMap[tile.z][tile.x][tile.y] = 1;
+				elem.second.fogOfWarMap[tile] = 1;
 			}
 		}
 	}
@@ -1156,7 +1155,7 @@ bool CGameState::isVisibleFor(int3 pos, PlayerColor player) const
 	if(player.isSpectator())
 		return true;
 
-	return getPlayerTeam(player)->fogOfWarMap[pos.z][pos.x][pos.y];
+	return getPlayerTeam(player)->fogOfWarMap[pos];
 }
 
 bool CGameState::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const

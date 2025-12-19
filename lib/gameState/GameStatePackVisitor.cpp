@@ -190,7 +190,7 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 	TeamState * team = gs.getPlayerTeam(pack.player);
 	auto & fogOfWarMap = team->fogOfWarMap;
 	for(const int3 & t : pack.tiles)
-		fogOfWarMap[t.z][t.x][t.y] = pack.mode != ETileVisibility::HIDDEN;
+		fogOfWarMap[t] = pack.mode != ETileVisibility::HIDDEN;
 
 	if (pack.mode == ETileVisibility::HIDDEN) //do not hide too much
 	{
@@ -204,7 +204,7 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 			}
 		}
 		for(const int3 & t : tilesRevealed) //probably not the most optimal solution ever
-			fogOfWarMap[t.z][t.x][t.y] = 1;
+			fogOfWarMap[t] = 1;
 	}
 }
 
@@ -528,7 +528,7 @@ void GameStatePackVisitor::visitTryMoveHero(TryMoveHero & pack)
 
 	auto & fogOfWarMap = gs.getPlayerTeam(h->getOwner())->fogOfWarMap;
 	for(const int3 & t : pack.fowRevealed)
-		fogOfWarMap[t.z][t.x][t.y] = 1;
+		fogOfWarMap[t] = 1;
 
 	if (fromTile.getTerrainID() != destTile.getTerrainID())
 		h->nodeHasChanged(); // update bonuses with terrain limiter

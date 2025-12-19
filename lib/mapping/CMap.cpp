@@ -201,7 +201,7 @@ void CMap::hideObject(CGObjectInstance * obj)
 			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal>=0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
 				curt.visitableObjects -= obj->id;
 				curt.blockingObjects -= obj->id;
 			}
@@ -220,7 +220,7 @@ void CMap::showObject(CGObjectInstance * obj)
 			int yVal = obj->anchorPos().y - fy;
 			if(xVal>=0 && xVal < width && yVal >= 0 && yVal < height)
 			{
-				TerrainTile & curt = terrain[zVal][xVal][yVal];
+				TerrainTile & curt = getTile(int3(xVal, yVal, zVal));
 				if(obj->visitableAt(int3(xVal, yVal, zVal)))
 				{
 					assert(!vstd::contains(curt.visitableObjects, obj->id));
@@ -263,7 +263,7 @@ void CMap::calculateGuardingGreaturePositions(int3 topleft, int3 bottomright)
 		{
 			for(int y = topleftReal.y; y < bottomrightReal.y; y++)
 			{
-				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
+				guardingCreaturePositions[int3(x,y,z)] = guardingCreaturePosition(int3(x, y, z));
 			}
 		}
 	}
@@ -600,13 +600,13 @@ std::shared_ptr<CGObjectInstance> CMap::removeObject(ObjectInstanceID oldObject)
 		if (hero.getNum() >= obj->id)
 			hero = ObjectInstanceID(hero.getNum()-1);
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	for(auto & tile : terrain)
 	{
-		for (auto & objectID : tile->blockingObjects)
+		for (auto & objectID : tile.blockingObjects)
 			if (objectID.getNum() >= obj->id)
 				objectID = ObjectInstanceID(objectID.getNum()-1);
 
-		for (auto & objectID : tile->visitableObjects)
+		for (auto & objectID : tile.visitableObjects)
 			if (objectID.getNum() >= obj->id)
 				objectID = ObjectInstanceID(objectID.getNum()-1);
 	}
@@ -682,9 +682,9 @@ bool CMap::calculateWaterContent()
 	size_t totalTiles = height * width * levels();
 	size_t waterTiles = 0;
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile) 
+	for(auto & tile : terrain)
 	{
-		if (tile->isWater())
+		if (tile.isWater())
 		{
 			waterTiles++;
 		}
@@ -763,8 +763,8 @@ void CMap::unbanHero(const HeroTypeID & id)
 
 void CMap::initTerrain()
 {
-	terrain.resize(boost::extents[levels()][width][height]);
-	guardingCreaturePositions.resize(boost::extents[levels()][width][height]);
+	terrain = MapTilesStorage<TerrainTile>(int3(width, height, levels()));
+	guardingCreaturePositions = MapTilesStorage<int3>(int3(width, height, levels()));
 }
 
 CMapEditManager * CMap::getEditManager()
@@ -812,12 +812,12 @@ void CMap::reindexObjects()
 	for (auto & hero : heroesOnMap)
 		hero = oldIndex.at(hero.getNum())->id;
 
-	for(auto tile = terrain.origin(); tile < (terrain.origin() + terrain.num_elements()); ++tile)
+	for(auto & tile : terrain)
 	{
-		for (auto & objectID : tile->blockingObjects)
+		for (auto & objectID : tile.blockingObjects)
 			objectID = oldIndex.at(objectID.getNum())->id;
 
-		for (auto & objectID : tile->visitableObjects)
+		for (auto & objectID : tile.visitableObjects)
 			objectID = oldIndex.at(objectID.getNum())->id;
 	}
 }
