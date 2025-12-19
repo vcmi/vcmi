@@ -15,6 +15,7 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 class CGHeroInstance;
+class CGTownInstance;
 class CArmedInstance;
 
 struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
@@ -31,7 +32,7 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 	int32_t initialMana = 0;
 	int32_t additionalMana = 0;
 
-	void init(const CGHeroInstance * Hero, const CArmedInstance * Army);
+	void init(const CGHeroInstance * Hero, const CArmedInstance * Army, const CGTownInstance * town);
 	const CArmedInstance * getArmy() const;
 	const CGHeroInstance * getHero() const;
 
