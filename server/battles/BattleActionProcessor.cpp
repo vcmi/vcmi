@@ -229,7 +229,7 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 	}
 
 	BattleHex startingPos = stack->getPosition();
-	int overrideCreSpeed = stack->getMovementRange(0);
+	int beforeAttackSpeed = stack->getMovementRange(0);
 	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
 
 	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
@@ -329,7 +329,11 @@ bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, c
 		&& stack->alive())
 	{
 		assert(stack->unitId() == ba.stackNumber);
-		moveStack(battle, ba.stackNumber, startingPos, overrideCreSpeed);
+		int afterAttackSpeed = stack->getMovementRange(0);
+		std::pair<BattleHexArray, int> path = battle.getPath(stack->getPosition(), startingPos, stack);
+		size_t maxReachbleIndex = std::max(0, beforeAttackSpeed - afterAttackSpeed);
+		if(maxReachbleIndex < path.first.size())
+			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
 	}
 	return true;
 }
@@ -624,7 +628,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	return result;
 }
 
-BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest, int overrideCreSpeed)
+BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)
 {
 	const CStack *curStack = battle.battleGetStackByID(stack);
 	const CStack *stackAtEnd = battle.battleGetStackByPos(dest);
@@ -677,7 +681,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	int8_t passedHexes = path.second;
 	bool movementSuccess = true;
 
-	int creSpeed = overrideCreSpeed == -1 ? curStack->getMovementRange(0) : overrideCreSpeed;
+	int creSpeed = curStack->getMovementRange(0);
 
 	if (battle.battleGetTacticDist() > 0 && creSpeed > 0)
 		creSpeed = GameConstants::BFIELD_SIZE;
