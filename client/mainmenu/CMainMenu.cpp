@@ -64,8 +64,6 @@
 
 ISelectionScreenInfo * SEL = nullptr;
 
-
-
 CMenuScreen::CMenuScreen(const JsonNode & configNode)
 	: CWindowObject(BORDERED), config(configNode)
 {
