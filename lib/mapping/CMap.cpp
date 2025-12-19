@@ -237,13 +237,31 @@ void CMap::showObject(CGObjectInstance * obj)
 	}
 }
 
+
 void CMap::calculateGuardingGreaturePositions()
 {
-	for(int z = 0; z < levels(); z++)
+	calculateGuardingGreaturePositions(int3(0,0,0), int3(width, height, levels()));
+}
+
+void CMap::calculateGuardingGreaturePositions(int3 topleft, int3 bottomright)
+{
+	int3 topleftReal = {
+		std::max(0, topleft.x),
+		std::max(0, topleft.y),
+		std::max(0, topleft.z)
+	};
+
+	int3 bottomrightReal = {
+		std::min(width,    bottomright.x + 1),
+		std::min(height,   bottomright.y + 1),
+		std::min<int>(levels(), bottomright.z + 1)
+	};
+
+	for(int z = topleftReal.z; z < bottomrightReal.z; z++)
 	{
-		for(int x = 0; x < width; x++)
+		for(int x = topleftReal.x; x < bottomrightReal.x; x++)
 		{
-			for(int y = 0; y < height; y++)
+			for(int y = topleftReal.y; y < bottomrightReal.y; y++)
 			{
 				guardingCreaturePositions[z][x][y] = guardingCreaturePosition(int3(x, y, z));
 			}

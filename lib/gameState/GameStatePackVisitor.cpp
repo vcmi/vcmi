@@ -428,9 +428,12 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		}
 	}
 
+	int3 objPosition = obj->anchorPos();
+	int3 objDimensions(obj->getWidth(), obj->getHeight(), 1);
+
 	obj->detachFromBonusSystem(gs);
 	gs.getMap().eraseObject(pack.objectID);
-	gs.getMap().calculateGuardingGreaturePositions();//FIXME: excessive, update only affected tiles
+	gs.getMap().calculateGuardingGreaturePositions(objPosition - objDimensions - int3(1,1,0), objPosition + int3(1,1,0));
 }
 
 static int getDir(const int3 & src, const int3 & dst)
@@ -660,8 +663,11 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 
 void GameStatePackVisitor::visitNewObject(NewObject & pack)
 {
+	int3 objPosition = pack.newObject->anchorPos();
+	int3 objDimensions(pack.newObject->getWidth(), pack.newObject->getHeight(), 1);
+
 	gs.getMap().addNewObject(pack.newObject);
-	gs.getMap().calculateGuardingGreaturePositions();
+	gs.getMap().calculateGuardingGreaturePositions(objPosition - objDimensions - int3(1,1,0), objPosition + int3(1,1,0));
 
 	// attach newly spawned wandering monster to global bonus system node
 	auto newArmy = std::dynamic_pointer_cast<CArmedInstance>(pack.newObject);

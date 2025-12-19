@@ -98,6 +98,7 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const;
 
 	void calculateGuardingGreaturePositions();
+	void calculateGuardingGreaturePositions(int3 topleft, int3 bottomright);
 
 	void saveCompatibilityAddMissingArtifact(std::shared_ptr<CArtifactInstance> artifact);
 

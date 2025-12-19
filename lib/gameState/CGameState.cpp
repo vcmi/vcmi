@@ -1101,6 +1101,9 @@ std::vector<const CGObjectInstance*> CGameState::guardingCreatures (int3 pos) co
 	if (!map->isInTheMap(pos))
 		return guards;
 
+	if (map->guardingCreaturePosition(pos) == int3(-1, -1, -1))
+		return guards;
+
 	const TerrainTile &posTile = map->getTile(pos);
 	if (posTile.visitable())
 	{
