@@ -1053,7 +1053,7 @@
 	"core.bonus.FREE_SHOOTING.description" : "{Bliski Strzał}\nMoże strzelać w zasięgu walki wręcz",
 	"core.bonus.GARGOYLE.description" : "{Gargulec}\nNie może się wskrzesić i uleczyć",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeMelee" : "{Redukcja obrażeń}\nZmiejsza obr. fizyczne z ataków wręcz o ${val}%",
-	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeRanged" : "{Redukcja obrażeń) }\nZmiejsza obr. fizyczne z ataków dystansowych o ${val}%",
+	"core.bonus.GENERAL_DAMAGE_REDUCTION.description.bonusSubtype.damageTypeRanged" : "{Redukcja obrażeń}\nZmiejsza obr. fizyczne z ataków dystansowych o ${val}%",
 	"core.bonus.GENERAL_DAMAGE_REDUCTION.description" : "{Redukcja obrażeń}\nZmiejsza obr. fizyczne z dystansu lub wręcz o ${val}%",
 	"core.bonus.HATE.description" : "{${subtype.creature}}\n+${val}% dodatkowych obrażeń",
 	"core.bonus.HEALER.description" : "{Uzdrowiciel}\nLeczy sprzymierzone jednostki",
