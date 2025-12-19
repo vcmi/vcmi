@@ -15,6 +15,7 @@ set(launcher_SRCS
 		modManager/modstate.cpp
 		modManager/imageviewer_moc.cpp
 		modManager/chroniclesextractor.cpp
+		modManager/hdextractor.cpp
 		settingsView/csettingsview_moc.cpp
 		settingsView/configeditordialog_moc.cpp
 		startGame/StartGameTab.cpp
@@ -53,6 +54,7 @@ set(launcher_HEADERS
 		modManager/modstate.h
 		modManager/imageviewer_moc.h
 		modManager/chroniclesextractor.h
+		modManager/hdextractor.h
 		settingsView/configeditordialog_moc.h
 		settingsView/csettingsview_moc.h
 		startGame/StartGameTab.h

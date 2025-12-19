@@ -487,6 +487,7 @@ void TreasurePlacer::addSeerHuts()
 	//Seer huts with creatures or generic rewards
 
 	ObjectInfo oi(Obj::SEER_HUT, 0);
+	const auto seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
 
 	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
 	{
@@ -504,6 +505,7 @@ void TreasurePlacer::addSeerHuts()
 		
 		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
 		oi.maxPerZone = 1;
+		oi.value = seerHutPlacementValue;
 
 		std::vector<ObjectInfo> possibleSeerHuts;
 		//14 creatures per town + 4 for each of gold / exp reward
@@ -511,11 +513,11 @@ void TreasurePlacer::addSeerHuts()
 		
 		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
 
-		auto setRandomArtifact = [qap](CGSeerHut * obj)
+		auto setRandomArtifact = [qap](CGSeerHut * obj, ui32 rewardValue)
 		{
 			ArtifactID artid = qap->drawRandomArtifact();
 			obj->getQuest().mission.artifacts.push_back(artid);
-			qap->addQuestArtifact(artid);
+			qap->addQuestArtifact(artid, rewardValue);
 		};
 		auto destroyObject = [qap](CGObjectInstance & obj)
 		{
@@ -537,7 +539,14 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
+
+			if (rewardValue > zone.getMaxTreasureValue())
+			{
+				continue;
+			}
+
+			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(cb, nullptr));
@@ -546,23 +555,15 @@ void TreasurePlacer::addSeerHuts()
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 				
 				return obj;
 			};
 			oi.destroyObject = destroyObject;
 			oi.probability = 3;
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
-			if (oi.value > zone.getMaxTreasureValue())
-			{
-				continue;
-			}
-			else
-			{
-				if(!oi.templates.empty())
-					possibleSeerHuts.push_back(oi);
-			}
+			if(!oi.templates.empty())
+				possibleSeerHuts.push_back(oi);
 		}
 		
 		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
@@ -571,17 +572,16 @@ void TreasurePlacer::addSeerHuts()
 			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
 			
 			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			oi.value = generator.getConfig().questValues[i];
-			if (oi.value > zone.getMaxTreasureValue())
+			const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
+			if (rewardValue > zone.getMaxTreasureValue())
 			{
-				//Both variants have same value
 				continue;
 			}
 
 			oi.probability = 10;
 			oi.maxPerZone = 1;
 			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
@@ -590,7 +590,7 @@ void TreasurePlacer::addSeerHuts()
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 
 				return obj;
 			};
@@ -599,7 +599,7 @@ void TreasurePlacer::addSeerHuts()
 			if(!oi.templates.empty())
 				possibleSeerHuts.push_back(oi);
 			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact]() -> std::shared_ptr<CGObjectInstance>
+			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
 				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
 				auto obj = std::dynamic_pointer_cast<CGSeerHut>(factory->create(map.mapInstance->cb, nullptr));
@@ -609,7 +609,7 @@ void TreasurePlacer::addSeerHuts()
 				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 				obj->configuration.info.push_back(reward);
 				
-				setRandomArtifact(obj.get());
+				setRandomArtifact(obj.get(), rewardValue);
 				
 				return obj;
 			};
@@ -749,10 +749,12 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		if (oi->generateObject)
 		{
 			object = oi->generateObject();
+			object->rmgValue = oi->value;
 			if(oi->templates.empty())
 			{
 				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectName());
-				oi->destroyObject(*object);
+				if (oi->destroyObject)
+					oi->destroyObject(*object);
 				continue;
 			}
 		}

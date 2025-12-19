@@ -3,7 +3,7 @@
 	{
 		"type": "transparentFilledRectangle",
 		"visible": false,
-		"rect": {"x": 1, "y": 1, "w": 219, "h": 19},
+		"rect": {"x": 1, "y": 1, "w": 249, "h": 19},
 		"color": [0, 0, 0, 128],
 		"colorLine": [0, 0, 0, 128]
 	},
@@ -19,7 +19,7 @@
 	{
 		"type": "transparentFilledRectangle",
 		"visible": false,
-		"rect": {"x": 2, "y": 2, "w": 216, "h": 16},
+		"rect": {"x": 2, "y": 2, "w": 246, "h": 16},
 		"color": [0, 0, 0, 0],
 		"colorLine": [255, 255, 0, 255]
 	},
@@ -48,12 +48,12 @@
 					"type": "texture",
 					"image": "DiBoxBck",
 					"color" : "blue", 
-					"rect": {"x": 0, "y": 0, "w": 220, "h": 260}
+					"rect": {"x": 0, "y": 0, "w": 250, "h": 260}
 				},
 				{
 					"type": "transparentFilledRectangle",
 					"visible": false,
-					"rect": {"x": 0, "y": 0, "w": 220, "h": 260},
+					"rect": {"x": 0, "y": 0, "w": 250, "h": 260},
 					"color": [0, 0, 0, 0],
 					"colorLine": [64, 80, 128, 128]
 				},
@@ -345,12 +345,12 @@
 					"type": "texture",
 					"image": "DiBoxBck",
 					"color" : "blue", 
-					"rect": {"x": 0, "y": 0, "w": 220, "h": 160}
+					"rect": {"x": 0, "y": 0, "w": 250, "h": 160}
 				},
 				{
 					"type": "transparentFilledRectangle",
 					"visible": false,
-					"rect": {"x": 0, "y": 0, "w": 220, "h": 160},
+					"rect": {"x": 0, "y": 0, "w": 250, "h": 160},
 					"color": [0, 0, 0, 0],
 					"colorLine": [64, 80, 128, 128]
 				},

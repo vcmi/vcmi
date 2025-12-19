@@ -3,6 +3,8 @@
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
+source $(dirname "${BASH_SOURCE[0]}")/linux_common.sh
+
 APT_CACHE="${APT_CACHE:-${RUNNER_TEMP:-/tmp}/apt-cache}"
 sudo mkdir -p "$APT_CACHE"
 
@@ -20,7 +22,8 @@ sudo eatmydata apt -yq --no-install-recommends \
   qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools \
   qt6-l10n-tools qt6-svg-dev \
   ninja-build zlib1g-dev libavformat-dev libswscale-dev libtbb-dev \
-  libluajit-5.1-dev libminizip-dev libfuzzylite-dev libsqlite3-dev
+  libluajit-5.1-dev libminizip-dev libfuzzylite-dev libsqlite3-dev \
+  libsquish-dev
 
 sudo rm -f  "$APT_CACHE/lock" || true
 sudo rm -rf "$APT_CACHE/partial" || true

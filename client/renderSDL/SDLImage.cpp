@@ -483,6 +483,16 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & co
 	return ret;
 }
 
+void SDLImageShared::setMargins(const Point & newMargins)
+{
+	margins = newMargins;
+}
+
+void SDLImageShared::setFullSize(const Point & newSize)
+{
+	fullSize = newSize;
+}
+
 // Keep the original palette, in order to do color switching operation
 void SDLImageShared::savePalette()
 {

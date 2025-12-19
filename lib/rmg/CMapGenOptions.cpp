@@ -828,9 +828,12 @@ void CMapGenOptions::serializeJson(JsonSerializeFormat & handler)
 	bool hasTwoLevelsKey = !handler.getCurrent()["haswoLevels"].isNull();
 	bool hasTwoLevels = levels == 2;
 	if(handler.saving || !hasTwoLevelsKey)
-		handler.serializeInt("levels", levels);
+		handler.serializeInt("levels", levels, 1);
 	else
+	{
 		handler.serializeBool("haswoLevels", hasTwoLevels);
+		levels = hasTwoLevels ? 2 : 1;
+	}
 	handler.serializeInt("humanOrCpuPlayerCount", humanOrCpuPlayerCount);
 	handler.serializeInt("teamCount", teamCount);
 	handler.serializeInt("compOnlyPlayerCount", compOnlyPlayerCount);

@@ -613,9 +613,11 @@ void TemplateEditor::saveTemplate()
 	unsaved = false;
 }
 
-void TemplateEditor::showTemplateEditor()
+void TemplateEditor::showTemplateEditor(QWidget *parent)
 {
 	auto * dialog = new TemplateEditor();
+	
+	dialog->move(parent->geometry().center() - dialog->rect().center());
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 }

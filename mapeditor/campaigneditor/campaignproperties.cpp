@@ -37,6 +37,10 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->lineEditCampaignVersion->setText(QString::fromStdString(campaignState->campaignVersion.toString()));
 	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
 	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
+	ui->lineEditLoadingBackground->setText(QString::fromStdString(campaignState->loadingBackground.getName()));
+	ui->lineEditVideoRim->setText(QString::fromStdString(campaignState->videoRim.getName()));
+	ui->lineEditIntroVideo->setText(QString::fromStdString(campaignState->introVideo.getName()));
+	ui->lineEditOutroVideo->setText(QString::fromStdString(campaignState->outroVideo.getName()));
 	
 	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaignRegions.json"));
 	auto legacyRegions = legacyRegionConfig.Struct();
@@ -87,6 +91,10 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 		campaignState->campaignVersion = MetaString::createFromRawString(ui->lineEditCampaignVersion->text().toStdString());
 		campaignState->music = AudioPath::builtin(ui->lineEditMusic->text().toStdString());
 		campaignState->difficultyChosenByPlayer = ui->checkBoxScenarioDifficulty->isChecked();
+		campaignState->loadingBackground = ImagePath::builtin(ui->lineEditLoadingBackground->text().toStdString());
+		campaignState->videoRim = ImagePath::builtin(ui->lineEditVideoRim->text().toStdString());
+		campaignState->introVideo = VideoPath::builtin(ui->lineEditIntroVideo->text().toStdString());
+		campaignState->outroVideo = VideoPath::builtin(ui->lineEditOutroVideo->text().toStdString());
 		accept();
 	}
 	close();

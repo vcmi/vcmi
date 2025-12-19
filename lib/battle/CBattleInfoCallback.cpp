@@ -2129,7 +2129,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 	}
 }
 
-SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack * caster) const
+SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack * caster, bool includeAllowed) const
 {
 	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
@@ -2137,13 +2137,10 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	if (!bl->size())
 		return SpellID::NONE;
 
-	if(bl->size() == 1 && bl->front()->additionalInfo[0] > 0) // there is one random spell -> select it
-		return bl->front()->subtype.as<SpellID>();
-
 	int totalWeight = 0;
 	for(const auto & b : *bl)
 	{
-		totalWeight += std::max(b->additionalInfo[0], 0); //spells with 0 weight are non-random, exclude them
+		totalWeight += std::max(b->additionalInfo[0], includeAllowed ? 1 : 0); //spells with 0 weight are non-random, exclude them
 	}
 
 	if (totalWeight == 0)
@@ -2152,7 +2149,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand,const CStack 
 	int randomPos = rand.nextInt(totalWeight - 1);
 	for(const auto & b : *bl)
 	{
-		randomPos -= std::max(b->additionalInfo[0], 0);
+		randomPos -= std::max(b->additionalInfo[0], includeAllowed ? 1 : 0);
 		if(randomPos < 0)
 		{
 			return b->subtype.as<SpellID>();

@@ -371,29 +371,30 @@ void MapHandler::drawObjects(QPainter & painter, const QRectF & section, int z, 
 {
 	painter.setRenderHint(QPainter::Antialiasing, false);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-	std::map<int3, std::set<const CGObjectInstance *>> objectMap;	//following the natural order of int3 we draw from north-west to south-east, in accordance with H3's perspective
+	auto blitOrder = [](const CGObjectInstance * a, const CGObjectInstance * b) { return MapHandler::compareObjectBlitOrder(a, b);};
+	std::set<const CGObjectInstance *, decltype(blitOrder)> objects;
 
 
 	int left = static_cast<int>(std::round(section.left()))/tileSize;
 	int right = static_cast<int>(std::round(section.right()))/tileSize;
 	int top = static_cast<int>(std::round(section.top()))/tileSize;
 	int bottom = static_cast<int>(std::round(section.bottom()))/tileSize;
-
 	for(int x = left; x < right; ++x)
 	{
 		for(int y = top; y < bottom; ++y)
 		{
 			for(auto & object : getObjects(x, y, z))
-				objectMap[object.obj->pos].insert(object.obj);
+			{
+				if (!objects.contains(object.obj))
+					objects.insert(object.obj);
+			}
 		}
 	}
 
-	for (auto const& objectsOnTile : objectMap)
+	for (auto const& object : objects)
 	{
-		auto tile = objectsOnTile.first;
-		auto objects = objectsOnTile.second;
-		for (const CGObjectInstance * object : objects)
-			drawObjectAt(painter, object, tile.x, tile.y, section.topLeft(), locked.count(object));
+		int3 pos = object->pos;
+		drawObjectAt(painter, object, pos.x, pos.y, section.topLeft(), locked.count(object));
 	}
 }
 

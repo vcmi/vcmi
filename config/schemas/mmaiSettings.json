@@ -1,0 +1,39 @@
+{
+    "type" : "object",
+    "$schema" : "http://json-schema.org/draft-04/schema",
+    "title" : "MMAI settings format",
+    "description" : "Format used to define settings for the MMAI mod",
+    "additionalProperties" : false,
+    "required" : [ "models", "fallback", "temperature", "seed" ],
+    "properties" : {
+        "$comment" : {
+            "type" : "array",
+            "default" : [],
+            "items" : {
+                "type" : "string"
+            }
+        },
+        "models" : {
+            "type" : "object",
+            "additionalProperties" : false,
+            "required" : [ "attacker", "defender" ],
+            "properties" : {
+                "attacker" : { "type" : "string" },
+                "defender" : { "type" : "string" }
+            }
+        },
+        "fallback" : {
+            "type" : "string",
+            "default" : "BattleAI",
+            "enum" : [ "BattleAI", "StupidAI" ]
+        },
+        "temperature" : {
+            "type" : "number",
+            "default" : 0.5
+        },
+        "seed" : {
+            "type" : "number",
+            "default" : 0
+        }
+    }
+}

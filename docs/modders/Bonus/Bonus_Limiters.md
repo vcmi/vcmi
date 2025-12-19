@@ -148,18 +148,22 @@ Parameters:
 ],
 ```
 
-### CREATURE_TERRAIN_LIMITER
+### TERRAIN_LIMITER
+
+Also available as `CREATURE_TERRAIN_LIMITER`
 
 Parameters:
 
-- `terrain` - identifier of terrain on which this creature must be to pass this limiter. If not set, creature will pass this limiter if it is on native terrain
+- `terrain` - identifier of terrain on which this creature, hero or town must be to pass this limiter. If not set, creature will pass this limiter if it is on native terrain
+
+The native terrain of a town or a hero depends on their factions (e.g for a castle and a knight it is grass). The terrain type occupied by a town depends on its entrance tile (the tile with flags that is taken by visiting heros).
 
 Example:
 
 ```json
 "limiters" : [
 	{
-		"type" : "CREATURE_TERRAIN_LIMITER",
+		"type" : "TERRAIN_LIMITER",
 		"terrain" : "sand"
 	}
 ]
@@ -221,3 +225,7 @@ Example:
     }
 ]
 ```
+
+## Propagating Limiters
+
+When bonuses with limiters are propagated limiters are applied independently on each node. E.g. a bonus with "HAS_ANOTHER_BONUS_LIMITER" propagated to a hero from a stack will apply to the hero only if the hero has the required bonus, independently of the stack bonuses.

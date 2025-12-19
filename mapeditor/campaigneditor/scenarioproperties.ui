@@ -175,6 +175,23 @@
            </layout>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3_">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="labelPrologueVideoLoop">
+              <property name="text">
+               <string>Video 2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditPrologueVideoLoop"/>
+            </item>
+           </layout>
+          </item>
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <property name="topMargin">
              <number>0</number>
@@ -248,6 +265,23 @@
             </item>
             <item>
              <widget class="QLineEdit" name="lineEditEpilogueVideo"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6_">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="labelEpilogueVideoLoop">
+              <property name="text">
+               <string>Video 2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditEpilogueVideoLoop"/>
             </item>
            </layout>
           </item>

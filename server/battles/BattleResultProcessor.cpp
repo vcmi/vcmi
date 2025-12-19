@@ -416,7 +416,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	{
 		winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
 		loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
-		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 : true;
+		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 || (winnerHero->getCommander() && winnerHero->getCommander()->alive) : true;
 	}
 
 	BattleResultsApplied resultsApplied;

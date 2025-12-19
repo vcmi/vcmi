@@ -66,7 +66,7 @@ public:
 	std::shared_ptr<CButton> buttonSelect;
 	std::shared_ptr<CButton> buttonRMG;
 	std::shared_ptr<CButton> buttonOptions;
-	std::shared_ptr<CButton> buttonTurnOptions;
+	std::shared_ptr<CButton> buttonBattleMode;
 	std::shared_ptr<CButton> buttonExtraOptions;
 	std::shared_ptr<CButton> buttonStart;
 	std::shared_ptr<CButton> buttonBack;

@@ -17,7 +17,7 @@ VCMI_LIB_NAMESPACE_BEGIN
 class AggregateLimiter;
 class CCreatureTypeLimiter;
 class HasAnotherBonusLimiter;
-class CreatureTerrainLimiter;
+class TerrainLimiter;
 class CreatureLevelLimiter;
 class FactionLimiter;
 class CreatureAlignmentLimiter;
