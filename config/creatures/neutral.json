@@ -94,11 +94,17 @@
 			},
 			"fearful" :
 			{
+				"type" : "fearful_DESCRIPTION",
+				"val" : 10,
+				"description" : "@creatures.core.azureDragon.bonus.fearful"
+			},
+			"fear" :
+			{
 				"type" : "FEARFUL",
 				"val" : 10,
 				"propagator": "BATTLE_WIDE",
 				"propagationUpdater" : "BONUS_OWNER_UPDATER",
-				"description" : "PLACEHOLDER",
+				"description" : "@creatures.core.azureDragon.bonus.fear",
 				"limiters" : [ 
 					"OPPOSITE_SIDE", 
 					{
@@ -113,7 +119,6 @@
 				"valueType" : "INDEPENDENT_MIN",
 				"description" : "PLACEHOLDER",
 				"val" : 0
-				
 			},
 			"spellImmunity" :
 			{
