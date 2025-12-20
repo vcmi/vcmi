@@ -125,8 +125,8 @@ static QString gatherDeviceInfo()
 {
 	QString info;
 	QTextStream ts(&info);
+	ts << "VCMI version: " << QString::fromStdString(GameConstants::VCMI_VERSION) << '\n';
 	ts << "Operating system: " << QSysInfo::prettyProductName() << " (" << QSysInfo::kernelVersion() << ")" << '\n';
-	ts << "Product name: " << QSysInfo::prettyProductName() << '\n';
 	ts << "CPU architecture: " << QSysInfo::currentCpuArchitecture() << '\n';
 	ts << "Qt version: " << QT_VERSION_STR << '\n';
 #if defined(VCMI_ANDROID)
@@ -145,6 +145,7 @@ static QString gatherDeviceInfo()
 #endif
 #if defined(VCMI_IOS)
 	ts << "Device model: " << QString::fromStdString(iOS_utils::iphoneHardwareId()) << '\n';
+	ts << "Manufacturer: " << "Apple" << '\n';
 #endif
 	return info;
 }
