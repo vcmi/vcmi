@@ -326,17 +326,24 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
 {
-	if(source_left.column() == ModFields::STARS)
-	{
-		// sort numbers correctly (there is also empty space as string in column)
-		QCollator collator;
-        collator.setNumericMode(true);
-        collator.setCaseSensitivity(Qt::CaseInsensitive);
-
+    if(source_left.column() == ModFields::STARS)
+    {
+        // Compare STARS numerically (descending)
         const QString l = sourceModel()->data(source_left).toString();
         const QString r = sourceModel()->data(source_right).toString();
-        return collator.compare(l, r) < 0;
-	}
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+        int cmp = collator.compare(l, r);
+        if (cmp != 0)
+            return cmp > 0;
+
+        // Compare NAME (ascending)
+        const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
+        const QString rightName = sourceModel()->data(source_right.siblingAtColumn(ModFields::NAME)).toString();
+        if (leftName != rightName)
+            return leftName < rightName;
+    }
 	if(source_left.column() != ModFields::STATUS_ENABLED)
 		return QSortFilterProxyModel::lessThan(source_left, source_right);
 

@@ -76,8 +76,7 @@ void CModListView::setupModsView()
 {
 	ui->allModsView->setModel(filterModel);
 	// input data is not sorted - sort it before display
-	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
-	ui->allModsView->sortByColumn(ModFields::STARS, Qt::DescendingOrder);
+	ui->allModsView->sortByColumn(ModFields::STARS, Qt::AscendingOrder);
 
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
@@ -346,6 +345,12 @@ QString CModListView::genModInfoText(const ModState & mod)
 	if(!mod.getContact().isEmpty())
 		result += urlTemplate.arg(tr("Contact")).arg(mod.getContact()).arg(mod.getContact());
 
+	if(!mod.getDownloadUrl().isEmpty())
+		result += urlTemplate.arg(tr("Git-Repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
+
+	if(mod.getGithubStars() != -1)
+		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub-Stars")));
+
 	//compatibility info
 	if(!mod.isCompatible())
 	{
@@ -425,6 +430,17 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += textTemplate.arg(tr("Notes")).arg(notes);
 
 	return result;
+}
+
+QString CModListView::getRepoUrl(const ModState & mod)
+{
+	QUrl url(mod.getDownloadUrl());
+	QString repoUrl = QString("%1://%2/%3/%4")
+		.arg(url.scheme())
+		.arg(url.host())
+		.arg(url.path().split('/')[1])
+		.arg(url.path().split('/')[2]);
+	return repoUrl;
 }
 
 void CModListView::disableModInfo()
@@ -542,13 +558,8 @@ void CModListView::onCustomContextMenu(const QPoint &point)
 	addContextEntry(
 		state.repositoryVisible, state.repositoryEnabled, QIcon{":/icons/about-project.png"},
 		tr("Open repository"),
-		[](ModState mod){
-			QUrl url(mod.getDownloadUrl());
-			QString repoUrl = QString("%1://%2/%3/%4")
-				.arg(url.scheme())
-				.arg(url.host())
-				.arg(url.path().split('/')[1])
-				.arg(url.path().split('/')[2]);
+		[this](ModState mod){
+			QString repoUrl = getRepoUrl(mod);
 			QDesktopServices::openUrl(repoUrl);
 		}
 	);
