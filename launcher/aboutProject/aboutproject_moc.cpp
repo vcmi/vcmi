@@ -24,6 +24,8 @@
 #include "../../lib/GameConstants.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/CZipSaver.h"
+#include "../../lib/json/JsonUtils.h"
+#include "../../lib/filesystem/Filesystem.h"
 
 void AboutProjectView::hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch)
 {
@@ -147,7 +149,7 @@ static QString gatherDeviceInfo()
 	return info;
 }
 
-void AboutProjectView::on_pushButtonSendLogs_clicked()
+void AboutProjectView::on_pushButtonExportLogs_clicked()
 {
 	QDir tempDir(ui->lineEditTempDir->text());
 
@@ -163,7 +165,7 @@ void AboutProjectView::on_pushButtonSendLogs_clicked()
 	const QString tmpDir = QDir::tempPath();
 	const QString outPath = QDir(tmpDir).filePath(QString("vcmi-logs-%1.zip").arg(QString::number(QDateTime::currentMSecsSinceEpoch())));
 #else
-	const QString defaultName = tempDir.filePath("vcmi-logs.zip");
+	const QString defaultName = QDir::home().filePath("vcmi-logs.zip");
 	QString outPath = QFileDialog::getSaveFileName(this, tr("Save logs"), defaultName, tr("Zip archives (*.zip)"));
 	if (outPath.isEmpty())
 		return;
@@ -205,36 +207,44 @@ void AboutProjectView::on_pushButtonSendLogs_clicked()
 
 		for (const QFileInfo & fi : files)
 		{
+			// Skip persistent storage to avoid logging private data (e.g. lobby login tokens)
+			if (fi.fileName().compare(QStringLiteral("persistentStorage.json"), Qt::CaseInsensitive) == 0)
+				continue;
+
 			QFile f(fi.absoluteFilePath());
 			if (!f.open(QIODevice::ReadOnly))
 				continue;
 
 			QByteArray data = f.readAll();
-			// If JSON, sanitize sensitive fields before packing
-			QByteArray toWrite = data;
-			if (fi.suffix().toLower() == "json")
-			{
-				QStringList lines = QString::fromUtf8(data).split('\n');
-				const QStringList keys = { "accountCookie", "accountID", "displayName" };
-				for (QString &line : lines)
-				{
-					for (const QString &key : keys)
-					{
-						if (line.contains(QRegularExpression(QString("\\b%1\\b").arg(QRegularExpression::escape(key)))))
-						{
-							QRegularExpression re("^(\\s*)");
-							auto m = re.match(line);
-							QString indent = m.hasMatch() ? m.captured(1) : QString();
-							line = indent + QString("// [removed %1]").arg(key);
-							break;
-						}
-					}
-				}
-				toWrite = lines.join('\n').toUtf8();
-			}
-
 			auto stream = saver.addFile(fi.fileName().toStdString());
-			stream->write(reinterpret_cast<const ui8 *>(toWrite.constData()), toWrite.size());
+			stream->write(reinterpret_cast<const ui8 *>(data.constData()), data.size());
+		}
+
+		// try to include the last save reported in settings.json
+		{
+			auto json = JsonUtils::assembleFromFiles("config/settings.json");
+			if(!json["general"].isNull() && !json["general"]["lastSave"].isNull())
+			{
+				try
+				{
+					auto lastSavePath = json["general"]["lastSave"].String();
+					const auto rsave = ResourcePath(lastSavePath, EResType::SAVEGAME);
+					const auto * rhandler = CResourceHandler::get();
+					if(!rhandler->existsResource(rsave))
+						return;
+
+					size_t pos = lastSavePath.find_last_of("/\\");
+					std::string name = (pos == std::string::npos)? lastSavePath : lastSavePath.substr(pos + 1);
+
+					const auto & [data, length] = rhandler->load(rsave)->readAll();
+					auto stream = saver.addFile(name + ".VSGM1");
+					stream->write(data.get(), length);
+				}
+				catch(const std::exception& e)
+				{
+					// ignore errors here
+				}
+			}
 		}
 
 		// add generated listing as game-directory-structure.txt

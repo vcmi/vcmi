@@ -305,7 +305,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonSendLogs">
+      <widget class="QPushButton" name="pushButtonExportLogs">
        <property name="minimumSize">
         <size>
          <width>200</width>
@@ -313,7 +313,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Send logs</string>
+        <string>Export logs</string>
        </property>
       </widget>
      </item>
