@@ -17,6 +17,7 @@
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapping/TerrainTile.h"
+#include "../../../lib/CPlayerState.h"
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
@@ -1324,9 +1325,8 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 		+ (evaluationContext.skillReward > 0 ? 1 : 0)
 		+ (evaluationContext.strategicalValue > 0 ? 1 : 0);
 
-	const auto & townInfo = aiNk->cc->getTownsInfo();
-
 	float goldRewardVsMovement = evaluationContext.goldReward / std::log2f(2 + evaluationContext.movementCost * 10);
+	const bool amIInDanger = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 
 	double result = 0;
 
@@ -1379,7 +1379,6 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 #endif
 			return 0;
 		}
-		const bool amIInDanger = townInfo.empty();
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
 		const float maxWillingToLose = amIInDanger ? 1 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio : 1.0;
 		float dangerThreshold = 1;
@@ -1432,7 +1431,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if(evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !townInfo.empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !amIInDanger))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
@@ -1482,7 +1481,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					return 0;
 				if (evaluationContext.conquestValue > 0)
 					score = evaluationContext.armyInvolvement;
-				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !townInfo.empty()))
+				if (vstd::isAlmostZero(score) || (evaluationContext.enemyHeroDangerRatio > dangerThreshold && (evaluationContext.turn > 0 || evaluationContext.isExchange) && !amIInDanger))
 					return 0;
 				if (maxWillingToLose - evaluationContext.armyLossRatio < 0)
 					return 0;
@@ -1632,7 +1631,7 @@ float PriorityEvaluator::evaluate(Goals::TSubgoal task, int priorityTier)
 					if (!evaluationContext.isTradeBuilding && aiNk->getFreeResources()[EGameResID::WOOD] - evaluationContext.buildingCost[EGameResID::WOOD] < 5 && aiNk->buildAnalyzer->getDailyIncome()[EGameResID::WOOD] < 1)
 					{
 						logAi->trace("Should make sure to build market-place instead of %s", task->toString());
-						for (auto town : townInfo)
+						for (auto town : aiNk->cc->getTownsInfo())
 						{
 							if (!town->hasBuiltResourceMarketplace())
 								return 0;
