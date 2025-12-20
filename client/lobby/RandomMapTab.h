@@ -90,9 +90,11 @@ class SetSizeWindow: public CWindowObject
 	std::shared_ptr<FilledTexturePlayerColored> background;
 	std::vector<std::shared_ptr<CLabel>> titles;
 	std::shared_ptr<CButton> buttonOk;
+	std::shared_ptr<CButton> buttonCancel;
+	std::vector<std::shared_ptr<CLabel>> sizeLabels;
 
 	std::vector<std::shared_ptr<CTextInput>> numInputs;
 	std::vector<std::shared_ptr<TransparentFilledRectangle>> rectangles;
 public:
-	SetSizeWindow(int3 initSize, std::function<void(int3)> cb);
+	SetSizeWindow(int3 initSize, const CRmgTemplate * mapTemplate, std::function<void(int3)> cb);
 };

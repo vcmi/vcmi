@@ -568,6 +568,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
+	"vcmi.randomMapTab.template.minimalSize" : "Мінімальний розмір: %dx%d, рівнів: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Максимальний розмір: %dx%d, рівнів: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Параметри ходів",
 	"vcmi.optionsTab.turnOptions.help" : "Виберіть опції таймера ходів та одночасних ходів",
