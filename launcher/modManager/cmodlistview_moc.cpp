@@ -77,9 +77,11 @@ void CModListView::setupModsView()
 	ui->allModsView->setModel(filterModel);
 	// input data is not sorted - sort it before display
 	ui->allModsView->sortByColumn(ModFields::TYPE, Qt::AscendingOrder);
+	ui->allModsView->sortByColumn(ModFields::STARS, Qt::DescendingOrder);
 
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
+	ui->allModsView->header()->setSectionResizeMode(ModFields::STARS, QHeaderView::Fixed);
 
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	auto state = s.value("AllModsView/State").toByteArray();
@@ -95,6 +97,7 @@ void CModListView::setupModsView()
 
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
+	ui->allModsView->resizeColumnToContents(ModFields::STARS);
 
 	ui->allModsView->setUniformRowHeights(true);
 

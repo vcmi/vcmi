@@ -23,6 +23,7 @@ enum EModFields
 	STATUS_ENABLED,
 	STATUS_UPDATE,
 	TYPE,
+	STARS,
 	COUNT
 };
 }

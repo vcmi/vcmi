@@ -78,6 +78,9 @@ QVariant ModStateItemModel::getValue(const ModState & mod, int field) const
 		case ModFields::TYPE:
 			return modTypeName(mod.getType());
 
+		case ModFields::STARS:
+			return mod.getGithubStars() == -1 ? "" : QString::number(mod.getGithubStars());
+
 		default:
 			return QVariant();
 	}
@@ -190,6 +193,7 @@ QVariant ModStateItemModel::headerData(int section, Qt::Orientation orientation,
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", ""), // status icon
 		QT_TRANSLATE_NOOP("ModFields", "Type"),
+		QT_TRANSLATE_NOOP("ModFields", "⭐"),
 	};
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
@@ -322,6 +326,17 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
 {
+	if(source_left.column() == ModFields::STARS)
+	{
+		// sort numbers correctly (there is also empty space as string in column)
+		QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(Qt::CaseInsensitive);
+
+        const QString l = sourceModel()->data(source_left).toString();
+        const QString r = sourceModel()->data(source_right).toString();
+        return collator.compare(l, r) < 0;
+	}
 	if(source_left.column() != ModFields::STATUS_ENABLED)
 		return QSortFilterProxyModel::lessThan(source_left, source_right);
 
