@@ -24,4 +24,5 @@ bool performNativeCopy(QString src, QString dst);
 void revealDirectoryInFileBrowser(QString path);
 MainWindow * getMainWindow();
 void keepScreenOn(bool isEnabled);
+void sendFileToApp(QString path);
 }

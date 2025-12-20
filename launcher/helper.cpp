@@ -145,4 +145,20 @@ void keepScreenOn(bool isEnabled)
 	iOS_utils::keepScreenOn(isEnabled);
 #endif
 }
+
+void sendFileToApp(QString path)
+{
+#if defined(VCMI_ANDROID)
+	// delegate to Android activity which will copy to cache and share via FileProvider
+	auto jstr = QAndroidJniObject::fromString(path);
+	QtAndroid::runOnAndroidThread([jstr]() mutable {
+		QtAndroid::androidActivity().callMethod<void>("shareFile", "(Ljava/lang/String;)V", jstr.object<jstring>());
+	});
+#elif defined(VCMI_IOS)
+	// use iOS share sheet
+	iOS_utils::shareFile(path.toStdString());
+#else
+	Q_UNUSED(path);
+#endif
+}
 }
