@@ -169,6 +169,8 @@ struct DLL_LINKAGE CGPathNode
 
 struct DLL_LINKAGE CGPath
 {
+	using ELayer = EPathfindingLayer;
+
 	std::vector<CGPathNode> nodes; //just get node by node
 
 	/// Starting position of path, matches location of hero
@@ -179,7 +181,9 @@ struct DLL_LINKAGE CGPath
 	const CGPathNode & lastNode() const;
 
 	int3 startPos() const; // start point
+	ELayer startLayer() const; // start layer
 	int3 endPos() const; //destination point
+	ELayer endLayer() const; //destination layer
 };
 
 struct DLL_LINKAGE CPathsInfo

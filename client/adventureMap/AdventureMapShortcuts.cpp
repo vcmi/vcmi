@@ -587,7 +587,11 @@ void AdventureMapShortcuts::moveHeroDirectional(const Point & direction)
 	if (!GAME->map().isInMap((dst)))
 		return;
 
-	if ( !GAME->interface()->localState->setPath(h, dst))
+	EPathfindingLayer destinationLayer = EPathfindingLayer::AUTO;
+	if (h->inBoat() && h->getBoat()->layer == EPathfindingLayer::AVIATE)
+			destinationLayer = EPathfindingLayer::AVIATE;
+
+	if (!GAME->interface()->localState->setPath(h, dst, destinationLayer))
 		return;
 
 	const CGPath & path = GAME->interface()->localState->getPath(h);

@@ -47,9 +47,19 @@ int3 CGPath::startPos() const
 	return nodes[nodes.size()-1].coord;
 }
 
+CGPath::ELayer CGPath::startLayer() const
+{
+	return nodes[nodes.size()-1].layer;
+}
+
 int3 CGPath::endPos() const
 {
 	return nodes[0].coord;
+}
+
+CGPath::ELayer CGPath::endLayer() const
+{
+	return nodes[0].layer;
 }
 
 CPathsInfo::CPathsInfo(const int3 & Sizes, const CGHeroInstance * hero_)

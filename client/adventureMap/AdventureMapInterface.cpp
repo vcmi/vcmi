@@ -582,12 +582,13 @@ void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 
 			if(!settings["adventure"]["showMovePath"].Bool())
 			{
-				GAME->interface()->localState->setPath(currentHero, destinationTile);
+				GAME->interface()->localState->setPath(currentHero, destinationTile, destinationLayer);
 				onHeroChanged(currentHero);				
 			}
 
 			if(GAME->interface()->localState->hasPath(currentHero) &&
 			   GAME->interface()->localState->getPath(currentHero).endPos() == destinationTile &&
+				 GAME->interface()->localState->getPath(currentHero).endLayer() == destinationLayer &&
 			   !ENGINE->isKeyboardShiftDown())//we'll be moving
 			{
 				assert(!GAME->map().hasOngoingAnimations());
@@ -947,7 +948,7 @@ void AdventureMapInterface::performDisembark(const int3 & destTarget)
 	exitDisembarkMode();
 	
 	// Set path to destination and move hero
-	GAME->interface()->localState->setPath(hero, destTarget);
+	GAME->interface()->localState->setPath(hero, destTarget, CGPathNode::ELayer::LAND);
 	if(GAME->interface()->localState->hasPath(hero))
 	{
 			const CGPath & path = GAME->interface()->localState->getPath(hero);

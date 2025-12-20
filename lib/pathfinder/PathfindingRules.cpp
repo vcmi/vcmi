@@ -198,9 +198,12 @@ void DestinationActionRule::process(
 		if(destination.node->accessible == EPathAccessibility::VISITABLE)
 		{
 			if(destination.nodeObject->ID == Obj::BOAT)
-				action = EPathNodeAction::EMBARK;
+			{
+				auto boat = dynamic_cast<const CGBoat *>(destination.nodeObject);
+				if(boat && boat->layer == EPathfindingLayer::AVIATE)
+					action = EPathNodeAction::EMBARK;
+			}
 		}
-
 		break;
 	}
 

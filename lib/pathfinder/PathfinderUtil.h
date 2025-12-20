@@ -85,19 +85,25 @@ namespace PathfinderUtil
 
 		case ELayer::AVIATE:
 			// wrong logic? cannot just visit AVIATE boats?
+			/*
 			if(tinfo.visitable())
 			{
 				for(const auto objID : tinfo.visitableObjects)
 				{
 					auto obj = gameInfo.getObjInstance(objID);
 					if(obj->ID == Obj::BOAT)
-						return EPathAccessibility::VISITABLE;
+					{
+						auto boat = dynamic_cast<const CGBoat *>(obj);
+						if(boat && boat->layer == EPathfindingLayer::AVIATE)
+							return EPathAccessibility::VISITABLE;
+					}
+					return EPathAccessibility::FLYABLE;
 				}
 				return EPathAccessibility::ACCESSIBLE;
 			}
 			
 			break;
-
+			*/
 		case ELayer::AIR:
 			return EPathAccessibility::FLYABLE;
 
