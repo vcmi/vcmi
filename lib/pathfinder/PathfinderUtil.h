@@ -84,6 +84,10 @@ namespace PathfinderUtil
 			break;
 
 		case ELayer::AVIATE:
+			//we can fly over blocked and visitable tiles
+			if(tinfo.blocked() || tinfo.visitable())
+				return EPathAccessibility::FLYABLE;
+			return EPathAccessibility::ACCESSIBLE;
 			// wrong logic? cannot just visit AVIATE boats?
 			/*
 			if(tinfo.visitable())
@@ -101,9 +105,9 @@ namespace PathfinderUtil
 				}
 				return EPathAccessibility::ACCESSIBLE;
 			}
-			
-			break;
 			*/
+			break;
+			
 		case ELayer::AIR:
 			return EPathAccessibility::FLYABLE;
 

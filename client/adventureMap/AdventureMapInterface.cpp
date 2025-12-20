@@ -513,6 +513,9 @@ const CGObjectInstance* AdventureMapInterface::getActiveObject(const int3 &mapPo
 	return *boost::range::max_element(bobjs, &CMapHandler::compareObjectBlitOrder);
 }
 
+// TODO: land -> aviate -> air -> aviate -> land
+// we can traverse air layer, but hover over aviate layer (no hovering over mountains)
+
 void AdventureMapInterface::onTileLeftClicked(const int3 &targetPosition)
 {
 	if(!shortcuts->optionMapViewActive())
