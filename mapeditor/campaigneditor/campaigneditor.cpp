@@ -25,6 +25,7 @@
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/modding/ModIncompatibility.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 CampaignEditor::CampaignEditor():
@@ -219,6 +220,16 @@ void CampaignEditor::on_actionOpen_triggered()
 	campaignState = Helper::openCampaignInternal(filenameSelect);
 	selectedScenario = *campaignState->allScenarios().begin();
 
+	for(auto const & scenario : campaignState->allScenarios())
+	{
+		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario))
+		{
+			campaignState.reset();
+			selectedScenario = CampaignScenarioID::NONE;
+			return;
+		}
+	}
+
 	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
 		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show als regions without scenario defined yet
 
@@ -346,4 +357,33 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 		QWidget::closeEvent(event);
 	else
 		event->ignore();
+}
+
+std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario)
+{
+	try
+	{
+		auto map = state->getMap(scenario, nullptr);
+		return map;
+	}
+	catch(const ModIncompatibility & e)
+	{
+		assert(e.whatExcessive().empty());
+		auto qstrError = QString::fromStdString(e.getFullErrorMsg()).remove('{').remove('}');
+		QMessageBox::warning(parent, tr("Mods are required"), qstrError);
+		return nullptr;
+	}
+	catch(const IdentifierResolutionException & e)
+	{
+		MetaString errorMsg;
+		errorMsg.appendTextID("vcmi.server.errors.campOrMapFile.unknownEntity");
+		errorMsg.replaceRawString(e.identifierName);
+		QMessageBox::critical(parent, tr("Failed to open map"), QString::fromStdString(errorMsg.toString()));
+		return nullptr;
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(parent, tr("Failed to open map"), tr(e.what()));
+		return nullptr;
+	}
 }
