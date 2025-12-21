@@ -234,11 +234,10 @@ static QString replaceIfNotEmpty(QStringList value, QString pattern)
 
 QString CModListView::genChangelogText(const ModState & mod)
 {
-	QString headerTemplate = "<p><span style=\" font-weight:600;\">%1: </span></p>";
-	QString entryBegin = "<p align=\"justify\"><ul>";
-	QString entryEnd = "</ul></p>";
-	QString entryLine = "<li>%1</li>";
-	//QString versionSeparator = "<hr/>";
+	QString headerTemplate = "### %1:";
+	QString entryBegin = "\n\n";
+	QString entryEnd = "\n";
+	QString entryLine = "- %1\n";
 
 	QString result;
 
@@ -305,19 +304,27 @@ QStringList CModListView::getModNames(QString queryingModID, QStringList input)
 
 QString CModListView::genModInfoText(const ModState & mod)
 {
-	QString prefix = "<p><span style=\" font-weight:600;\">%1: </span>"; // shared prefix
-	QString redPrefix = "<p><span style=\" font-weight:600; color:red\">%1: </span>"; // shared prefix
-	QString lineTemplate = prefix + "%2</p>";
-	QString urlTemplate = prefix + "<a href=\"%2\">%3</a></p>";
-	QString textTemplate = prefix + "</p><p align=\"justify\">%2</p>";
-	QString listTemplate = "<p align=\"justify\">%1: %2</p>";
-	QString noteTemplate = "<p align=\"justify\">%1</p>";
-	QString incompatibleString = redPrefix + tr("Mod is incompatible") + "</p>";
-	QString supportedVersions = redPrefix + "%2 %3 %4</p>";
+	QString modNameTemplate = "# %1\n\n";
+	QString lineTemplate = "**%1**: %2\n\n";
+	QString urlTemplate =  "**%1**: [%3](%2)\n\n";
+	QString textTemplate = "**%1**: \n\n%2\n\n";
+	QString listTemplate = "**%1**: %2\n\n";
+	QString noteTemplate = "**%1**\n\n";
+	QString incompatibleString = "**%1**: " + tr("Mod is incompatible") + "\n\n";
+	QString supportedVersions =  "**%1**: %2 %3 %4\n\n";
 
 	QString result;
 
-	result += replaceIfNotEmpty(mod.getName(), lineTemplate.arg(tr("Mod name")));
+	QTextDocument description;
+	description.setMarkdown(mod.getDescription());
+	QString cleanDescription = description.toMarkdown();
+	if (cleanDescription.isEmpty())
+		cleanDescription = description.toPlainText();
+
+	result += replaceIfNotEmpty(mod.getName(), modNameTemplate);
+	result += cleanDescription;
+	result += "\n\n"; // to get some empty space
+
 	if (mod.isUpdateAvailable())
 	{
 		result += replaceIfNotEmpty(mod.getInstalledVersion(), lineTemplate.arg(tr("Installed version")));
@@ -343,7 +350,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += urlTemplate.arg(tr("License")).arg(mod.getLicenseUrl()).arg(mod.getLicenseName());
 
 	if(!mod.getContact().isEmpty())
-		result += urlTemplate.arg(tr("Contact")).arg(mod.getContact()).arg(mod.getContact());
+		result += lineTemplate.arg(tr("Contact")).arg(mod.getContact());
 
 	if(!mod.getDownloadUrl().isEmpty())
 		result += urlTemplate.arg(tr("Git-Repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
@@ -401,9 +408,6 @@ QString CModListView::genModInfoText(const ModState & mod)
 
 	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(getModNames(mod.getID(), conflicts), lineTemplate.arg(tr("Conflicting mods")));
-	result += replaceIfNotEmpty(mod.getDescription(), textTemplate.arg(tr("Description")));
-
-	result += "<p></p>"; // to get some empty space
 
 	QString translationMismatch = tr("This mod cannot be enabled because it translates into a different language.");
 	QString notInstalledDeps = tr("This mod can not be enabled because the following dependencies are not present");
@@ -588,8 +592,8 @@ void CModListView::selectMod(const QModelIndex & index)
 		ui->tabWidget->setTabEnabled(1, !mod.getChangelog().isEmpty());
 		ui->tabWidget->setTabEnabled(2, !mod.getScreenshots().isEmpty());
 
-		ui->modInfoBrowser->setHtml(genModInfoText(mod));
-		ui->changelogBrowser->setHtml(genChangelogText(mod));
+		ui->modInfoBrowser->document()->setMarkdown(genModInfoText(mod), QTextDocument::MarkdownFeature::MarkdownNoHTML);
+		ui->changelogBrowser->document()->setMarkdown(genChangelogText(mod), QTextDocument::MarkdownFeature::MarkdownNoHTML);
 
 		Helper::enableScrollBySwiping(ui->modInfoBrowser);
 		Helper::enableScrollBySwiping(ui->changelogBrowser);
