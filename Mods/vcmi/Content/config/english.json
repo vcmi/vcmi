@@ -845,6 +845,8 @@
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Setup...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Team Alignments",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Road Types",
+	"vcmi.randomMapTab.template.minimalSize" : "Minimal size: %dx%d, layers: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Maximal size: %dx%d, layers: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Turn Options",
 	"vcmi.optionsTab.turnOptions.help" : "Select turn timer and simultaneous turns options",
