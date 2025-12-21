@@ -105,14 +105,14 @@ bool CMapHandler::compareObjectBlitOrder(const CGObjectInstance * a, const CGObj
 	for(const auto & aOffset : a->getBlockedOffsets())
 	{
 		int3 testTarget = a->anchorPos() + aOffset + int3(0, 1, 0);
-		if(b->blockingAt(testTarget))
+		if(!a->blockingAt(testTarget) && b->blockingAt(testTarget))
 			bBlocksA += 1;
 	}
 
 	for(const auto & bOffset : b->getBlockedOffsets())
 	{
 		int3 testTarget = b->anchorPos() + bOffset + int3(0, 1, 0);
-		if(a->blockingAt(testTarget))
+		if(!b->blockingAt(testTarget) && a->blockingAt(testTarget))
 			aBlocksB += 1;
 	}
 
