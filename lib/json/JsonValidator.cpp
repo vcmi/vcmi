@@ -480,9 +480,17 @@ static bool testFilePresence(const std::string & scope, const ResourcePath & res
 
 	for(const auto & entry : allowedScopes)
 	{
-		if (CResourceHandler::get(entry)->existsResource(resource))
-			return true;
+		try
+		{
+			if (CResourceHandler::get(entry)->existsResource(resource))
+				return true;
+		}
+		catch (const std::out_of_range & e)
+		{
+			throw std::out_of_range("Failed to find filesystem of mod '" + entry + "' when testing file '" + resource.getOriginalName() + "' for mod '" + scope + "'");
+		}
 	}
+
 #endif
 	return false;
 }
