@@ -719,7 +719,10 @@
 		"markets" : 
 		{
 			// period between restocking of "Black Market" object found on adventure map
-			"blackMarketRestockPeriod" : 0
+			"blackMarketRestockPeriod" : 0,
+			
+			// Cost in gold of buying skill in on-map University or in University of Magic in Conflux
+			"universityGoldCost" : 2000
 		},
 		
 		"banks" : 
