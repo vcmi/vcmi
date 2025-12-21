@@ -727,7 +727,20 @@ QStringList CModListView::getModsToInstall(QString mod)
 
 void CModListView::on_updateButton_clicked()
 {
-	QString modName = ui->allModsView->currentIndex().data(ModRoles::ModNameRole).toString();
+	QModelIndex selectedMod = ui->allModsView->currentIndex();
+	if (!selectedMod.isValid())
+	{
+		logGlobal->error("Update failed! Invalid index selected but update button is not locked!");
+		return;
+	}
+
+	QString modName = selectedMod.data(ModRoles::ModNameRole).toString();
+	if (modName.isEmpty())
+	{
+		logGlobal->error("Update failed! Model index is valid but mod name is empty!");
+		return;
+	}
+
 	doUpdateMod(modName);
 
 	ui->updateButton->setEnabled(false);
