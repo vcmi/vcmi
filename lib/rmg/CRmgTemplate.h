@@ -359,6 +359,10 @@ public:
 	const std::set<ArtifactID> & getBannedArtifacts() const { return bannedArtifacts; }
 	const std::set<SecondarySkill> & getBannedSkills() const { return bannedSkills; }
 	const std::set<HeroTypeID> & getBannedHeroes() const { return bannedHeroes; }
+	const std::set<SpellID> & getEnabledSpells() const { return enabledSpells; }
+	const std::set<ArtifactID> & getEnabledArtifacts() const { return enabledArtifacts; }
+	const std::set<SecondarySkill> & getEnabledSkills() const { return enabledSkills; }
+	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabledHeroes; }
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
@@ -382,6 +386,11 @@ private:
 	std::set<ArtifactID> bannedArtifacts;
 	std::set<SecondarySkill> bannedSkills;
 	std::set<HeroTypeID> bannedHeroes;
+
+	std::set<SpellID> enabledSpells;
+	std::set<ArtifactID> enabledArtifacts;
+	std::set<SecondarySkill> enabledSkills;
+	std::set<HeroTypeID> enabledHeroes;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

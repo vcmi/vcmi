@@ -143,8 +143,8 @@ CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameA
 		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
 
 	ObjectCallback result;
-	result.localScope = scope;
-	result.remoteScope = scopeAndFullName.first;
+	result.localScope = boost::to_lower_copy(scope);
+	result.remoteScope = boost::to_lower_copy(scopeAndFullName.first);
 	result.type = type;
 	result.name = typeAndName.second;
 	result.callback = callback;
@@ -298,6 +298,8 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 				{
 					logMod->error("Identifier '%s' exists in mod %s", options.name, testOption.scope);
 					logMod->error("Please add mod '%s' as dependency of mod '%s' to access this identifier", testOption.scope, options.localScope);
+					if (options.bypassDependenciesCheck)
+						logMod->error("Or, to avoid this dependency, request this object as %s:%s", testOption.scope, options.name);
 					continue;
 				}
 
@@ -453,11 +455,11 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 		return true;
 	}
 
-	if (request.bypassDependenciesCheck)
+	if (request.bypassDependenciesCheck && !request.remoteScope.empty())
 	{
 		if (!vstd::contains(LIBRARY->modh->getActiveMods(), request.remoteScope))
 		{
-			logMod->debug("Mod '%s' requested identifier '%s' from not loaded mod '%s'. Ignoring.", request.localScope, request.remoteScope, request.name);
+			logMod->debug("Mod '%s' requested identifier '%s' from not loaded mod '%s'. Ignoring.", request.localScope, request.name, request.remoteScope);
 			return true; // mod was not loaded - ignore
 		}
 	}

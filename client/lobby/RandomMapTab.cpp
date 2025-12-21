@@ -266,6 +266,9 @@ void RandomMapTab::updateMapInfoByHost()
 
 		for (const auto & hero : temp->getBannedHeroes())
 			mapInfo->mapHeader->allowedHeroes.erase(hero);
+
+		for (const auto & hero : temp->getEnabledHeroes())
+			mapInfo->mapHeader->allowedHeroes.insert(hero);
 	}
 
 	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
