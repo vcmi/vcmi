@@ -338,20 +338,13 @@ bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelInde
 		int lValue = lData.toInt(&lIsInt);
 		int rValue = rData.toInt(&rIsInt);
 
-		if (lIsInt && rIsInt)
-		{
-			if(lValue != rValue)
-				return lValue > rValue; // numeric comparison
-		}
-		else if(lIsInt ^ rIsInt)
-			return lIsInt; // integers are "less" than non-integers
-		else
-		{
-			QString lStr = lData.toString();
-			QString rStr = rData.toString();
-			if(lStr != rStr)
-				return lStr > rStr; // fallback to string comparison
-		}
+		if (!lIsInt)
+			lValue = -1;
+			
+		if (!rIsInt)
+			rValue = -1;
+		
+		return lValue > rValue;
 
 		// Compare NAME (ascending)
 		const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
