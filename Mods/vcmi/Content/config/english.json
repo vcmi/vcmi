@@ -176,7 +176,7 @@
 	"vcmi.lobby.templatesSelect.hover" : "Templates",
 	"vcmi.lobby.templatesSelect.help" : "Search and select template",
 	"vcmi.lobby.customRmgSize.title" : "Select custom size",
-	"vcmi.lobby.customRmgSize.experimental" : "Two levels are fully supported. Additional levels are experimental and may not work correctly. Please report any issues you encounter!",
+	"vcmi.lobby.customRmgSize.experimental" : "{More than 2 layers}\n\nTwo layers are fully supported. Additional layers are experimental and may not work correctly.\n\nPlease report any issues you encounter!",
 	"vcmi.lobby.customRmgSize.0" : "Width",
 	"vcmi.lobby.customRmgSize.1" : "Height",
 	"vcmi.lobby.customRmgSize.2" : "Layers",
