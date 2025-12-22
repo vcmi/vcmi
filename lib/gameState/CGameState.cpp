@@ -1041,10 +1041,10 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 		return topObject->getBattlefield();
 	}
 
-	for(auto & obj : map->getObjects())
+	for(auto & obj : map->getObjects<CGTerrainPatch>())
 	{
-		//look only for objects covering given tile
-		if( !obj->coveringAt(tile))
+		//look only for magical terrain-like objects covering given tile
+		if(!obj->coveringAt(tile))
 			continue;
 
 		auto customBattlefield = obj->getBattlefield();
@@ -1061,8 +1061,6 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 
 	return BattleField(*RandomGeneratorUtil::nextItem(t.getTerrain()->battleFields, randomGenerator));
 }
-
-
 
 PlayerRelations CGameState::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {

@@ -158,6 +158,7 @@
 * Assembling an artifact will now correctly trigger victory conditions, if any
 * Game will now correctly disassemble combined artifact when its part is needed for Seer Hut quest
 * University, Scholar, and Witch Hut will no longer grant special secondary skills from mods
+* Fixed bug that could cause battle to start on battlefield from nearby map object, instead of current terrain
 
 ### Mechanics - Combat
 
