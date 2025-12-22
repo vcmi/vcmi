@@ -812,7 +812,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Install the Tides of War expansion, which adds the ability to build alternative level 7 creature dwellings for all 9 standard towns</string>
+            <string>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</string>
            </property>
            <property name="wordWrap">
             <bool>true</bool>
