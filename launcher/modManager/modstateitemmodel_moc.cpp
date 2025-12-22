@@ -79,7 +79,7 @@ QVariant ModStateItemModel::getValue(const ModState & mod, int field) const
 			return modTypeName(mod.getType());
 
 		case ModFields::STARS:
-			return mod.getGithubStars() == -1 ? "" : QString::number(mod.getGithubStars());
+			return mod.getGithubStars() == -1 ? QVariant("") : mod.getGithubStars();
 
 		default:
 			return QVariant();
@@ -326,24 +326,32 @@ bool CModFilterModel::filterAcceptsRow(int source_row, const QModelIndex & sourc
 
 bool CModFilterModel::lessThan(const QModelIndex & source_left, const QModelIndex & source_right) const
 {
-    if(source_left.column() == ModFields::STARS)
-    {
-        // Compare STARS numerically (descending)
-        const QString l = sourceModel()->data(source_left).toString();
-        const QString r = sourceModel()->data(source_right).toString();
-        QCollator collator;
-        collator.setNumericMode(true);
-        collator.setCaseSensitivity(Qt::CaseInsensitive);
-        int cmp = collator.compare(l, r);
-        if (cmp != 0)
-            return cmp > 0;
+	if(source_left.column() == ModFields::STARS)
+	{
+		// Compare STARS numerically (descending)
+		QVariant lData = sourceModel()->data(source_left);
+		QVariant rData = sourceModel()->data(source_right);
 
-        // Compare NAME (ascending)
-        const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
-        const QString rightName = sourceModel()->data(source_right.siblingAtColumn(ModFields::NAME)).toString();
-        if (leftName != rightName)
-            return leftName < rightName;
-    }
+		bool lIsInt = false;
+		bool rIsInt = false;
+
+		int lValue = lData.toInt(&lIsInt);
+		int rValue = rData.toInt(&rIsInt);
+
+		if (!lIsInt)
+			lValue = -1;
+			
+		if (!rIsInt)
+			rValue = -1;
+		
+		return lValue > rValue;
+
+		// Compare NAME (ascending)
+		const QString leftName  = sourceModel()->data(source_left.siblingAtColumn(ModFields::NAME)).toString();
+		const QString rightName = sourceModel()->data(source_right.siblingAtColumn(ModFields::NAME)).toString();
+		if (leftName != rightName)
+			return leftName < rightName;
+	}
 	if(source_left.column() != ModFields::STATUS_ENABLED)
 		return QSortFilterProxyModel::lessThan(source_left, source_right);
 
