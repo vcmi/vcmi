@@ -105,7 +105,7 @@
 	"vcmi.spellBook.tab.hover" : "%s zaklęć",
 	"vcmi.spellBook.tab.help" : "Kliknij, by zobaczyć %s zaklęć",
 
-	"vcmi.spellResearch.canNotAfford" : "Nie stać Cię na zastąpienie {%SPELL1} przez {%SPELL2}. Nadal możesz odrzucić to zaklęcie i kontynuować badania.",
+	"vcmi.spellResearch.canNotAfford" : "Nie stać Cię na zastąpienie {%SPELL1} przez {%SPELL2}.",
 	"vcmi.spellResearch.comeAgain" : "Badania zostały już dzisiaj przeprowadzone. Wróć jutro.",
 	"vcmi.spellResearch.pay" : "Czy chcesz zastąpić {%SPELL1} zaklęciem {%SPELL2}? Czy odrzucić tą wymianę i kontynuować badania?",
 	"vcmi.spellResearch.research" : "Wymień zaklęcie",
