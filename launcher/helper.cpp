@@ -179,6 +179,8 @@ bool canUseFolderPicker()
 }
 
 #ifdef VCMI_ANDROID
+// Request code for Android folder picker (ACTION_OPEN_DOCUMENT_TREE).
+// Value is arbitrary, used only to match activity result callback.
 static constexpr int  kFolderPickerReqCode = 4242;
 
 static jint intentFlags()
