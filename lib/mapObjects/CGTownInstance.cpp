@@ -276,6 +276,7 @@ CGTownInstance::CGTownInstance(IGameInfoCallback *cb):
 	alignmentToPlayer(PlayerColor::NEUTRAL),
 	spellResearchCounterDay(0),
 	spellResearchAcceptedCounter(0),
+	spellResearchPendingRerollsCounter(0),
 	spellResearchAllowed(true)
 {
 	attachTo(townAndVis);

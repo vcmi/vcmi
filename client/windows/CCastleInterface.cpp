@@ -2249,9 +2249,9 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
 		double pastResearchesCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
 		double pastRerollsCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
-		double pastResearchesCurrentMultiplier = town->spellResearchAcceptedCounter > 0 ? town->spellResearchAcceptedCounter * pastResearchesCostMultiplier : 1;
-		double pastRerollsCurrentMultiplier = town->spellResearchPendingRerollsCounter > 0 ? town->spellResearchPendingRerollsCounter * pastRerollsCostMultiplier : 1;
-		ResourceSet cost = costBase * (pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
+		double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, town->spellResearchAcceptedCounter);
+		double pastRerollsCurrentMultiplier = std::pow(pastRerollsCostMultiplier, town->spellResearchPendingRerollsCounter);
+		ResourceSet cost = costBase.multipliedBy(pastResearchesCurrentMultiplier * pastRerollsCurrentMultiplier);
 
 		std::vector<std::shared_ptr<CComponent>> resComps;
 
