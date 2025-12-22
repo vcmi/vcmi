@@ -276,7 +276,27 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditVideoRim"/>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="spacing">
+          <number>15</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="lineEditVideoRim"/>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBoxVideoRim">
+           <property name="text">
+            <string>Enable rim image</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QLabel" name="labelIntroVideo">

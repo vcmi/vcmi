@@ -37,6 +37,7 @@
       </property>
       <addaction name="actionNew"/>
       <addaction name="actionOpen"/>
+      <addaction name="actionOpenSet"/>
       <addaction name="actionSave"/>
       <addaction name="actionSave_as"/>
      </widget>
@@ -105,6 +106,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionOpenSet">
+   <property name="text">
+    <string>Open Campaignset</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+G</string>
    </property>
   </action>
   <action name="actionSave">

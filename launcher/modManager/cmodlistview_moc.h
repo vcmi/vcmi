@@ -61,6 +61,7 @@ class CModListView : public QWidget
 
 	QString genChangelogText(const ModState & mod);
 	QString genModInfoText(const ModState & mod);
+	QString getRepoUrl(const ModState & mod);
 
 	void changeEvent(QEvent *event) override;
 
@@ -101,6 +102,9 @@ public:
 
 	/// finds all already imported Heroes Chronicles mods (if any)
 	QStringList getInstalledChronicles();
+
+	/// finds imported HD
+	bool isInstalledHd();
 
 	/// finds all mods that can be updated
 	QStringList getUpdateableMods();

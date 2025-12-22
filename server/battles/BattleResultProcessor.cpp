@@ -421,15 +421,21 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 
 	BattleResultsApplied resultsApplied;
 
-	const auto addArtifactToDischarging = [&resultsApplied](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
+	std::vector<ArtifactInstanceID> dyingArtifacts;
+
+	const auto addArtifactToDischarging = [&resultsApplied, &dyingArtifacts](const std::map<ArtifactPosition, ArtSlotInfo> & artMap,
 			const ObjectInstanceID & id, const std::optional<SlotID> & creature = std::nullopt)
 	{
 		for(const auto & [slot, slotInfo] : artMap)
 		{
 			auto artInst = slotInfo.getArt();
 			assert(artInst);
-			if(const auto condition = artInst->getType()->getDischargeCondition(); condition == DischargeArtifactCondition::BATTLE)
+			const auto condition = artInst->getType()->getDischargeCondition();
+			if (condition == DischargeArtifactCondition::BATTLE)
 			{
+				if (artInst->getCharges() <= 1 && artInst->getType()->getRemoveOnDepletion())
+					dyingArtifacts.push_back(artInst->getId());
+
 				auto & discharging = resultsApplied.dischargingArtifacts.emplace_back(artInst->getId(), 1);
 				discharging.artLoc.emplace(id, creature, slot);
 			}
@@ -497,9 +503,12 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
-		const auto addArtifactToTransfer = [&artFittingSet](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
+		const auto addArtifactToTransfer = [&artFittingSet, &dyingArtifacts](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
 		{
 			assert(art);
+			if (vstd::contains(dyingArtifacts, art->getId()))
+				return; // artifact will be removed soon and can't be transferred to winner hero
+
 			const auto dstSlot = ArtifactUtils::getArtAnyPosition(&artFittingSet, art->getTypeId());
 			if(dstSlot != ArtifactPosition::PRE_FIRST)
 			{

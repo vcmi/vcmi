@@ -27,4 +27,13 @@ namespace Helper
 	bool canUseFolderPicker();
 	void nativeFolderPicker(QWidget *parent, std::function<void(QString)>&& cb);
 	QStringList findFilesForCopy(const QString &treeUri);
+void loadSettings();
+void reLoadSettings();
+void enableScrollBySwiping(QObject * scrollTarget);
+QString getRealPath(QString path);
+bool performNativeCopy(QString src, QString dst);
+void revealDirectoryInFileBrowser(QString path);
+MainWindow * getMainWindow();
+void keepScreenOn(bool isEnabled);
+void sendFileToApp(QString path);
 }

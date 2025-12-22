@@ -303,6 +303,15 @@ bool CIntObject::captureThisKey(EShortcut key)
 	return false;
 }
 
+Point CIntObject::adjustNegativeCoordinate(int posx, int posy)
+{
+	if(posx < 0)
+		posx = pos.w + posx;
+	if(posy < 0)
+		posy = pos.h + posy;
+	return Point(posx, posy);
+}
+
 CKeyShortcut::CKeyShortcut()
 	: assignedKey(EShortcut::NONE)
 	, shortcutPressed(false)

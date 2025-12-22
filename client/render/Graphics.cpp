@@ -124,6 +124,8 @@ Graphics::Graphics()
 
 void Graphics::setPlayerPalette(SDL_Palette * targetPalette, PlayerColor player)
 {
+	assert(targetPalette);
+
 	SDL_Color palette[32];
 	if(player.isValidPlayer())
 	{

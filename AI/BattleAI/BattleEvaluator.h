@@ -31,7 +31,7 @@ struct CachedAttack
 	bool waited = false;
 };
 
-class BattleEvaluator
+class DLL_EXPORT BattleEvaluator
 {
 	std::unique_ptr<PotentialTargets> targets;
 	std::shared_ptr<HypotheticBattle> hb;

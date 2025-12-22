@@ -52,4 +52,5 @@ private:
 	void initControls();
 	void loadBonus();
 	void saveBonus();
+	void radioButtonToggled(int index);
 };

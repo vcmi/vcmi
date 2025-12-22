@@ -327,7 +327,7 @@ QGraphicsItem * PassabilityLayer::draw(const QRectF & section)
 	if(isShown)
 	{
 		QPainter painter(&pixmap);
-		for(int j = 0; j <= pixmap.height(); j += tileSize)
+		for(int j = 0; j < pixmap.height(); j += tileSize)
 		{
 			for(int i = 0; i < pixmap.width(); i += tileSize)
 			{

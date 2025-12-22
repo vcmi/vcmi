@@ -229,6 +229,19 @@ void CArtifactSet::removeArtifact(const ArtifactPosition & slot)
 
 const CArtifactInstance * CArtifactSet::getCombinedArtWithPart(const ArtifactID & partId) const
 {
+	for(const auto & slot : artifactsWorn)
+	{
+		auto art = slot.second.getArt();
+		if(art->isCombined())
+		{
+			for(auto & ci : art->getPartsInfo())
+			{
+				if(ci.getArtifact()->getTypeId() == partId)
+					return art;
+			}
+		}
+	}
+
 	for(const auto & slot : artifactsInBackpack)
 	{
 		auto art = slot.getArt();

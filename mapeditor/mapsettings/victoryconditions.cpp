@@ -497,7 +497,11 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 void VictoryConditions::onObjectSelect()
 {
 	int vicConditions = ui->victoryComboBox->currentIndex() - 1;
-	for(int lvl : {0, 1})
+
+	std::vector<int>levels(controller->map()->levels());
+	std::iota (std::begin(levels), std::end(levels), 0);
+
+	for(int lvl : levels)
 	{
 		auto & l = controller->scene(lvl)->objectPickerView;
 		switch(vicConditions)
@@ -539,8 +543,11 @@ void VictoryConditions::onObjectSelect()
 void VictoryConditions::onObjectPicked(const CGObjectInstance * obj)
 {
 	controller->settingsDialog->show();
+
+	std::vector<int>levels(controller->map()->levels());
+	std::iota (std::begin(levels), std::end(levels), 0);
 	
-	for(int lvl : {0, 1})
+	for(int lvl : levels)
 	{
 		auto & l = controller->scene(lvl)->objectPickerView;
 		l.clear();

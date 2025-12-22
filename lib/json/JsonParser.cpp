@@ -18,8 +18,13 @@
 VCMI_LIB_NAMESPACE_BEGIN
 
 JsonParser::JsonParser(const std::byte * inputString, size_t stringSize, const JsonParsingSettings & settings)
+    : JsonParser(reinterpret_cast<const char*>(inputString), stringSize, settings) // NOSONAR
+{
+}
+
+JsonParser::JsonParser(const char * inputString, size_t stringSize, const JsonParsingSettings & settings)
 	: settings(settings)
-	, input(reinterpret_cast<const char *>(inputString), stringSize)
+	, input(inputString, stringSize)
 	, lineCount(1)
 	, currentDepth(0)
 	, lineStart(0)

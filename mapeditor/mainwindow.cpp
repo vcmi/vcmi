@@ -457,7 +457,7 @@ void MainWindow::initializeMap(bool isNew)
 		controller.map()->players[0].canComputerPlay = true;
 		controller.map()->players[0].canHumanPlay = true;
 	}
-	
+	ui->inspectorWidget->setRowCount(0);
 	onPlayersChanged();
 }
 
@@ -686,7 +686,7 @@ void MainWindow::on_actionCampaignEditor_triggered()
 		return;
 
 	hide();
-	CampaignEditor::showCampaignEditor();
+	CampaignEditor::showCampaignEditor(this);
 }
 
 void MainWindow::on_actionTemplateEditor_triggered()
@@ -696,7 +696,7 @@ void MainWindow::on_actionTemplateEditor_triggered()
 		return;
 
 	hide();
-	TemplateEditor::showTemplateEditor();
+	TemplateEditor::showTemplateEditor(this);
 #endif
 }
 

@@ -28,9 +28,13 @@
 	"vcmi.adventureMap.movementPointsHeroInfo" : "(Очки руху: %REMAINING / %POINTS)",
 	"vcmi.adventureMap.replayOpponentTurnNotImplemented" : "Вибачте, функція повтору ходу суперника ще не реалізована!",
 	"vcmi.adventureMap.confirmQuickLoadGame"             : "Ви впевнені, що хочете завантажити швидке збереження?",
+	"vcmi.adventureMap.savingQuickSave"                  : "Запис гри в %s",
+
+	"vcmi.adventureMap.dwelling2" : "{%s}\n\nЧи хотіли б ви найняти %s чи %s?",
+	"vcmi.adventureMap.dwelling3" : "{%s}\n\nЧи хотіли б ви найняти %s, %s, чи %s?",
 
 	"vcmi.artifact.charges" : "Заряди",
-	
+
 	"vcmi.battle.action.move" : "Перемістити загін у вказане місце",
 	"vcmi.battle.action.info" : "Показати інформацію про загін",
 	"vcmi.battle.action.shoot" : "Застосовувати дистанційну атаку",
@@ -95,7 +99,13 @@
 	"vcmi.randomMap.description.monster.normal" : "звичайні",
 	"vcmi.randomMap.description.monster.strong" : "сильні",
 
+	"vcmi.overlay.battery"  : "Акумулятор",
+	"vcmi.overlay.charging"  : "Заряджання",
+
 	"vcmi.spellBook.search" : "шукати...",
+	"vcmi.spellBook.tab.hover" : "Закляття школи %s",
+	"vcmi.spellBook.tab.help" : "Перегорнути щоб побачити закляття школи %s",
+	"vcmi.spellBook.zero_level.hint" : "0го рангу",
 
 	"vcmi.spellResearch.canNotAfford" : "Ви не можете дозволити собі замінити {%SPELL1} на {%SPELL2}. Але ви все одно можете відкинути це закляття і продовжити дослідження заклять.",
 	"vcmi.spellResearch.comeAgain" : "Сьогодні дослідження вже зроблено. Приходьте завтра..",
@@ -111,7 +121,7 @@
 	"vcmi.mainMenu.serverClosing" : "Завершення...",
 	"vcmi.mainMenu.hostTCP" : "Створити TCP/IP гру",
 	"vcmi.mainMenu.joinTCP" : "Приєднатися до TCP/IP гри",
-	
+
 	"vcmi.lobby.filepath" : "Назва файлу",
 	"vcmi.lobby.creationDate" : "Дата створення",
 	"vcmi.lobby.scenarioName" : "Назва сценарію",
@@ -131,6 +141,45 @@
 	"vcmi.lobby.deleteFile" : "Чи бажаєте вилучити цей файл?",
 	"vcmi.lobby.deleteFolder" : "Чи бажаєте вилучити цю теку?",
 	"vcmi.lobby.deleteMode" : "Перехід у режим видалення та назад",
+	"vcmi.lobby.battleOnlyMode" : "Режим одного бою",
+	"vcmi.lobby.battleOnlyMode.help" : "Зіграти простий бій без гри на мапи пригод",
+	"vcmi.lobby.battleOnlyModeSubTitle" : "Оберіть героїв, армію, навички, артефакти та поле бою для швидкої битви без мапи пригод",
+	"vcmi.lobby.battleOnlyModeBattlefield" : "Поле Бою",
+	"vcmi.lobby.battleOnlyModeBattlefieldSelect" : "Обрати Поле Бою",
+	"vcmi.lobby.battleOnlyModeHeroSelect" : "Обрати Героя",
+	"vcmi.lobby.battleOnlyModeCreatureSelect" : "Обрати Загін",
+	"vcmi.lobby.battleOnlyModeSecSkillSelect" : "Обрати Вторинну Навичку",
+	"vcmi.lobby.battleOnlyModeArtifactSelect" : "Обрати Артифакт",
+	"vcmi.lobby.battleOnlyModeSelectHero" : "Обрати\nГероя",
+	"vcmi.lobby.battleOnlyModeSelectUnit" : "Загін\n%d",
+	"vcmi.lobby.battleOnlyModeSelectSkill" : "Навичка\n%d",
+	"vcmi.lobby.battleOnlyModeSelectArtifact" : "Арт.\n%s",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.0" : "Голова",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.1" : "Плечі.",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.2" : "Шия",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.3" : "П.рука",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.4" : "Л.рука",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.5" : "Тулуб",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.6" : "П.кільце",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.7" : "Л.кільце",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.8" : "Ноги",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.9" : "Різне 1",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.10" : "Різне 2",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.11" : "Різне 3",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.12" : "Різне 4",
+	"vcmi.lobby.battleOnlyModeSelectArtifact.18" : "Різне 5",
+	"vcmi.lobby.battleOnlyModeReset" : "Скинути",
+	"vcmi.lobby.battleOnlySpellSelect" : "Додати закляття до книги",
+	"vcmi.lobby.battleOnlySpellSelectCurrent" : "Додати або видалити закляття з книги заклинань\n\nПоточні закляття:",
+	"vcmi.lobby.battleOnlySpellAdd" : "Додати закляття",
+	"vcmi.lobby.battleOnlySpellRemove" : "Видалити закляття",
+	"vcmi.lobby.templatesSelect.hover" : "Шаблони",
+	"vcmi.lobby.templatesSelect.help" : "Шукати та обрати шаблон",
+	"vcmi.lobby.customRmgSize.title" : "Обрати нетиповий розмір",
+	"vcmi.lobby.customRmgSize.experimental" : "Підтримка багаторівневих мап поки що знаходиться на експериментальному етапі. Не виключені проблеми.",
+	"vcmi.lobby.customRmgSize.0" : "Ширина",
+	"vcmi.lobby.customRmgSize.1" : "Висота",
+	"vcmi.lobby.customRmgSize.2" : "Рівнів",
 
 	"vcmi.broadcast.failedLoadGame" : "Не вдалося завантажити гру",
 	"vcmi.broadcast.command" : "Введіть '!help' у чаті гри, щоб переглянути список доступних команд",
@@ -243,9 +292,10 @@
 	"vcmi.server.errors.modsToEnable"    : "{Потрібні модифікації для завантаження гри}",
 	"vcmi.server.errors.modsToDisable"   : "{Модифікації що мають бути вимкнені}",
 	"vcmi.server.errors.saveFile.unknownEntity" : "Не вдалося завантажити гру! У збереженій грі знайдено невідомий об'єкт '%s'! Це збереження може бути несумісним зі встановленою версією модифікацій!",
+	"vcmi.server.errors.campOrMapFile.unknownEntity" : "Не вдалося завантажити гру! У збереженій грі знайдено невідомий об'єкт '%s'! Ця мапа може бути несумісним зі встановленою версією модифікацій!",
 	"vcmi.server.errors.wrongIdentified"   : "Ви були ідентифіковані як гравець %s, хоча очікували %s",
 	"vcmi.server.errors.notAllowed"   : "Ви не можете виконати цю дію!",
-	
+
 	"vcmi.dimensionDoor.seaToLandError" : "Неможливо телепортуватися з моря на сушу або навпаки за допомогою просторової брами",
 
 	"vcmi.settingsMainWindow.generalTab.hover" : "Загальні",
@@ -309,6 +359,8 @@
 	"vcmi.systemOptions.longTouchMenu.hover"     : "Виберіть інтервал довгого дотику",
 	"vcmi.systemOptions.longTouchMenu.help"      : "Змінити тривалість інтервалу довгого дотику.",
 	"vcmi.systemOptions.longTouchMenu.entry"     : "%d мілісекунд",
+	"vcmi.systemOptions.performanceOverlayButton.hover"  : "Відображати продуктивність",
+	"vcmi.systemOptions.performanceOverlayButton.help"   : "{Відображати продуктивність}\n\nДозволяє відображати оверлей з додатковою інформацією, такою як кількість кадрів в секунду, час і рівень заряду батареї (якщо доступно) у кутку ігрового вікна.",
 	"vcmi.systemOptions.hapticFeedbackButton.hover"  : "Тактильний відгук",
 	"vcmi.systemOptions.hapticFeedbackButton.help"   : "{Тактильний відгук}\n\nВикористовувати вібрацію при використанні сенсорного екрану",
 	"vcmi.systemOptions.enableUiEnhancementsButton.hover"  : "Розширення інтерфейсу",
@@ -348,6 +400,8 @@
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Встановити швидкість розгортання мапи - миттєво",
 	"vcmi.adventureOptions.hideBackground.hover" : "Приховувати тло",
 	"vcmi.adventureOptions.hideBackground.help" : "{Приховувати тло}\n\nПриховати мапу пригод на задньому тлі і показати замість неї текстуру.",
+	"vcmi.adventureOptions.minimapShowHeroes.hover" : "Відображати героїв на мінімапі",
+	"vcmi.adventureOptions.minimapShowHeroes.help" : "{Відображати героїв на мінімапі}\n\nПоказати піктограму для всіх героїв, видимих на мінімапі, щоб їх було легше помітити на великих картах.",
 
 	"vcmi.battleOptions.queueSizeLabel.hover": "Вигляд черги ходу істот",
 	"vcmi.battleOptions.queueSizeNoneButton.hover": "ВИМК",
@@ -382,6 +436,11 @@
 	"vcmi.adventureMap.revisitObject.hover" : "Відвідати Об'єкт",
 	"vcmi.adventureMap.revisitObject.help" : "{Відвідати Об'єкт}\n\nЯкщо герой в даний момент стоїть на об'єкті мапи, він може знову відвідати цю локацію.",
 
+	"vcmi.adventureMap.quickLoad.hover" : "Швидке завантаження",
+	"vcmi.adventureMap.quickLoad.help" : "{Швидке завантаження}\n\nЗавантажує дані гри з слота швидкого збереження.",
+	"vcmi.adventureMap.quickSave.hover" : "Швидке збереження",
+	"vcmi.adventureMap.quickSave.help" : "{Швидке збереження}\n\nЗберігає поточний стан гри в слоті швидкого збереження.",
+
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Натисніть будь-яку клавішу, щоб розпочати бій",
 	"vcmi.battleWindow.damageEstimation.melee" : "Атакувати %CREATURE (%DAMAGE).",
 	"vcmi.battleWindow.damageEstimation.meleeKills" : "Атакувати %CREATURE (%DAMAGE, %KILLS).",
@@ -393,13 +452,19 @@
 	"vcmi.battleWindow.damageEstimation.damage.1" : "%d пошкодження",
 	"vcmi.battleWindow.damageEstimation.kills" : "%d загинуть",
 	"vcmi.battleWindow.damageEstimation.kills.1" : "%d загине",
-	
+	"vcmi.battleWindow.healValuePreview.0" : "%d очко здоров'я буде відновлено",
+	"vcmi.battleWindow.healValuePreview.1" : "%d очка здоров'я буде відновлено",
+	"vcmi.battleWindow.healValuePreview.2" : "%d очок здоров'я буде відновлено",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.0" : "отримає %d очко здоров'я",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.1" : "отримає %d очки здоров'я",
+	"vcmi.battleWindow.sacrificeAcquiredHealth.2" : "отримає %d очок здоров'я",
+
 	"vcmi.battleWindow.damageRetaliation.will" : "Буде відповідати ",
 	"vcmi.battleWindow.damageRetaliation.may" : "Може відповісти ",
 	"vcmi.battleWindow.damageRetaliation.never" : "Не буде відповідати.",
 	"vcmi.battleWindow.damageRetaliation.damage" : "(%DAMAGE).",
 	"vcmi.battleWindow.damageRetaliation.damageKills" : "(%DAMAGE, %KILLS).",
-	
+
 	"vcmi.battleWindow.killed" : "Загинуло",
 	"vcmi.battleWindow.accurateShot.resultDescription.0" : "%d %s було вбито влучними пострілами!",
 	"vcmi.battleWindow.accurateShot.resultDescription.1" : "%d %s було вбито влучним пострілом!",
@@ -407,6 +472,39 @@
 	"vcmi.battleWindow.endWithAutocombat" : "Ви впевнені, що хочете завершити бій автобоєм?",
 
 	"vcmi.battleResultsWindow.applyResultsLabel" : "Прийняти результат бою?",
+	"vcmi.battleResultsWindow.spellDurationRemaining.0" : "Час до кінця: %d раунд бою",
+	"vcmi.battleResultsWindow.spellDurationRemaining.1" : "Час до кінця: %d раунди бою",
+	"vcmi.battleResultsWindow.spellDurationRemaining.2" : "Час до кінця: %d раундів бою",
+
+	"vcmi.credits.website" : "Вебсайт",
+	"vcmi.credits.vcmi" : "VCMI",
+	"vcmi.credits.heroes" : "Герої III",
+	"vcmi.credits.idea" : "Ідея",
+	"vcmi.credits.developing" : "Розробка",
+	"vcmi.credits.testing" : "Тестування",
+	"core.credits.createdBy" : "Створено",
+	"core.credits.executiveProducer" : "Виконавчий продюсер",
+	"core.credits.producer" : "Продюсер",
+	"core.credits.director" : "Режисер",
+	"core.credits.designers" : "Дизайнери",
+	"core.credits.leadProgrammers" : "Головні програмісти",
+	"core.credits.programmers" : "Програмісти",
+	"core.credits.installerProgrammer" : "Програміст установника",
+	"core.credits.leadArtists" : "Головні художники",
+	"core.credits.artists" : "Художники",
+	"core.credits.assetCoordinator" : "Координатор активів",
+	"core.credits.levelDesigners" : "Дизайнери рівнів",
+	"core.credits.musicProducer" : "Продюсер музики",
+	"core.credits.townThemes" : "Музика міст",
+	"core.credits.music" : "Музика",
+	"core.credits.soundDesign" : "Звуковий дизайн",
+	"core.credits.voiceProduction" : "Виробництво озвучування",
+	"core.credits.voiceTalent" : "Актори озвучування",
+	"core.credits.leadTester" : "Головний тестувальник",
+	"core.credits.seniorTester" : "Старший тестувальник",
+	"core.credits.testers" : "Тестувальники",
+	"core.credits.specialThanks" : "Особлива подяка",
+	"core.credits.visitUsOnTheWeb" : "Відвідайте нас в Інтернеті",
 
 	"vcmi.tutorialWindow.title" : "Використання Сенсорного Екрану",
 	"vcmi.tutorialWindow.decription.RightClick" : "Торкніться і утримуйте елемент, на якому ви хочете натиснути правою кнопкою миші. Торкніться вільної області, щоб закрити.",
@@ -433,6 +531,9 @@
 	"vcmi.townWindow.upgradeAll.notAllUpgradable" : "Недостатньо коштів, щоб покращити всіх істот. Чи бажаєте ви покращити наступних істот?",
 	"vcmi.townWindow.upgradeAll.notUpgradable" : "Недостатньо коштів, щоб покращити будь-яку істоту.",
 
+	"vcmi.kingdomOverview.secSkillOverflow.hover" : "Ще навички",
+	"vcmi.kingdomOverview.secSkillOverflow.help" : "{Ще навички}\n\nЦей герой має ще більше навичок.\nВи можете переглянути їх усі в огляді героїв.",
+
 	"vcmi.logicalExpressions.anyOf"  : "Будь-що з перерахованого:",
 	"vcmi.logicalExpressions.allOf"  : "Все з перерахованого:",
 	"vcmi.logicalExpressions.noneOf" : "Нічого з перерахованого:",
@@ -448,6 +549,7 @@
 	"vcmi.heroWindow.sortBackpackByClass.hover"  : "За рідкістю",
 	"vcmi.heroWindow.sortBackpackByClass.help"  : "{Сортування за рідкістю}\n\nСортувати артефакти в рюкзаку за класом рідкісності артефакту. Скарб, Малий, Великий, Реліквія",
 	"vcmi.heroWindow.fusingArtifact.fusing" : "Ви володієте всіма компонентами, необхідними для злиття %s. Ви бажаєте виконати злиття? {Всі компоненти буде спожито під час злиття.}",
+	"vcmi.heroWindow.lockedartifact.hover" : "Зайнято - %s",
 
 	"vcmi.tavernWindow.inviteHero"  : "Запросити героя",
 
@@ -462,12 +564,14 @@
 
 	"vcmi.questLog.hideComplete.hover" : "Приховати завершені квести",
 	"vcmi.questLog.hideComplete.help"  : "Приховує всі квести, які вже мають стан виконаних",
-	
+
 	"vcmi.randomMapTab.widgets.randomTemplate"      : "(Випадковий)",
 	"vcmi.randomMapTab.widgets.templateLabel"        : "Шаблон",
 	"vcmi.randomMapTab.widgets.teamAlignmentsButton" : "Налаштувати...",
 	"vcmi.randomMapTab.widgets.teamAlignmentsLabel"  : "Розподіл команд",
 	"vcmi.randomMapTab.widgets.roadTypesLabel"       : "Види доріг",
+	"vcmi.randomMapTab.template.minimalSize" : "Мінімальний розмір: %dx%d, рівнів: %d",
+	"vcmi.randomMapTab.template.maximalSize" : "Максимальний розмір: %dx%d, рівнів: %d",
 
 	"vcmi.optionsTab.turnOptions.hover" : "Параметри ходів",
 	"vcmi.optionsTab.turnOptions.help" : "Виберіть опції таймера ходів та одночасних ходів",
@@ -492,7 +596,7 @@
 	"vcmi.optionsTab.simturnsMin.help" : "Грати одночасно обрану кількість днів. Контакти між гравцями у цей період заблоковані",
 	"vcmi.optionsTab.simturnsMax.help" : "Грати одночасно обрану кількість днів чи до першого контакту з іншим гравцем",
 	"vcmi.optionsTab.simturnsAI.help" : "{Одночасні ходи ШІ}\nЕкспериментальна опція. Дозволяє гравцям-ШІ діяти одночасно с гравцями-людьми якщо одночасні ходи увімкнені.",
-	
+
 	"vcmi.optionsTab.turnTime.select"     : "Типові налаштування таймерів",
 	"vcmi.optionsTab.turnTime.unlimited"  : "Необмежений час ходу",
 	"vcmi.optionsTab.turnTime.classic.1"  : "Класичний таймер: 1 хвилина",
@@ -517,7 +621,10 @@
 	"vcmi.optionsTab.simturns.blocked1"       : "Одночасно: 1 тиждень, без контактів",
 	"vcmi.optionsTab.simturns.blocked2"       : "Одночасно: 2 тижні, без контактів",
 	"vcmi.optionsTab.simturns.blocked4"       : "Одночасно: 1 місяць, без контактів",
-	
+
+	"vcmi.campaignSet.chronicles" : "Хроніки Героїв",
+	"vcmi.campaignSet.hota" : "Ріг Безодні",
+
 	// Translation note: translate strings below using form that is correct for "0 days", "1 day" and "2 days" in your language
 	// Using this information, VCMI will automatically select correct plural form for every possible amount
 	"vcmi.optionsTab.simturns.days.0" : " %d днів",
@@ -529,6 +636,9 @@
 	"vcmi.optionsTab.simturns.months.0" : " %d місяців",
 	"vcmi.optionsTab.simturns.months.1" : " %d місяць",
 	"vcmi.optionsTab.simturns.months.2" : " %d місяці",
+
+	"vcmi.selectionTab.campaignSets.hover" : "Серія Кампаній",
+	"vcmi.selectionTab.campaignSets.help" : "Кілька кампаній, об'єднаних у серію",
 
 	"vcmi.optionsTab.extraOptions.hover" : "Розширені опції",
 	"vcmi.optionsTab.extraOptions.help" : "Додаткові налаштування для гри",
@@ -550,7 +660,7 @@
 
 	// few strings from WoG used by vcmi
 //	"vcmi.stackExperience.description" : "» S t a c k   E x p e r i e n c e   D e t a i l s «\n\nCreature Type ................... : %s\nExperience Rank ................. : %s (%i)\nExperience Points ............... : %i\nExperience Points to Next Rank .. : %i\nMaximum Experience per Battle ... : %i%% (%i)\nNumber of Creatures in stack .... : %i\nMaximum New Recruits\n without losing current Rank .... : %i\nExperience Multiplier ........... : %.2f\nUpgrade Multiplier .............. : %.2f\nExperience after Rank 10 ........ : %i\nMaximum New Recruits to remain at\n Rank 10 if at Maximum Experience : %i",
-	"vcmi.stackExperience.rank.0" : "Базовий",
+    "vcmi.stackExperience.rank.0" : "Базовий",
 	"vcmi.stackExperience.rank.1" : "Початківець",
 	"vcmi.stackExperience.rank.2" : "Підготовлений",
 	"vcmi.stackExperience.rank.3" : "Кваліфікований",
@@ -561,7 +671,7 @@
 	"vcmi.stackExperience.rank.8" : "Еліта",
 	"vcmi.stackExperience.rank.9" : "Майстер",
 	"vcmi.stackExperience.rank.10" : "Ас",
-	
+
 	// Strings for HotA Seer Hut / Quest Guards
 	"core.seerhut.quest.heroClass.complete.0" : "А, ти %s. Ось тобі подарунок.  Приймаєш?",
 	"core.seerhut.quest.heroClass.complete.1" : "А, ти %s. Ось тобі подарунок.  Приймаєш?",
@@ -593,7 +703,7 @@
 	"core.seerhut.quest.heroClass.visit.3" : "Вартові пропускають лише %s.",
 	"core.seerhut.quest.heroClass.visit.4" : "Вартові пропускають лише %s.",
 	"core.seerhut.quest.heroClass.visit.5" : "Вартові пропускають лише %s.",
-	
+
 	"core.seerhut.quest.reachDate.complete.0" : "Тепер я вільний. Ось що у мене є для тебе. Ти приймаєш?",
 	"core.seerhut.quest.reachDate.complete.1" : "Тепер я вільний. Ось що у мене є для тебе. Ти приймаєш?",
 	"core.seerhut.quest.reachDate.complete.2" : "Тепер я вільний. Ось що у мене є для тебе. Ти приймаєш?",
@@ -634,9 +744,15 @@
 	"creatures.core.marksman.bonus.extraAttack" : "{Стріляє двічі}\nЦей загін може стріляти двічі",
 	"creatures.core.azureDragon.bonus.fearful" : "{Страх}\nВорожі загони мають 10% шанс завмерти від страху",
 	"creatures.core.azureDragon.bonus.fearless" : "{Безстрашний}\nІмунітет до страху",
+	"creatures.core.halfling.bonus.lucky" : "{Щасливчик}\nУдача напіврослика не може бути зменшена нижче +1",
+	"creatures.core.nomad.bonus.sandWalker" : "{Піщаний ходок}\nГерой ігнорує штраф за рельєф на піску",
+	"creatures.core.rogue.bonus.visionsMonsters" : "{Бачення монстрів}\nГерой може бачити детальну інформацію про нейтральних монстрів",
+	"creatures.core.rogue.bonus.visionsHeroes" : "{Бачення героїв}\nГерой може бачити детальну інформацію про ворожих героїв",
+	"creatures.core.rogue.bonus.visionsTowns" : "{Бачення міст}\nГерой може бачити детальну інформацію про ворожі міста",
 
 	"core.bonus.ADDITIONAL_ATTACK.description" : "{Додаткові удари}\nАтакує двічі",
 	"core.bonus.ADDITIONAL_RETALIATION.description" : "{Додаткові відплати}\nЗагін може нанести ${val} додаткових ударів у відповідь",
+	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description" : "{Максимальний урон}\nЦей юніт завжди завдає максимально можливого урону",
 	"core.bonus.ATTACKS_ALL_ADJACENT.description" : "{Атакує всіх навколо}\nАтакує всіх прилеглих супротивників на додаток до основної цілі",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description" : "{Ворог не відповідає пострілом}\nПротивник не може відповісти на постріл цього загону",
 	"core.bonus.BLOCKS_RETALIATION.description" : "{Ворог не відповідає}\nПротивник не буде відповідати, коли цей загін атакує його в ближньому бою",
@@ -683,6 +799,7 @@
 	"core.bonus.MANA_DRAIN.description" : "{Викрадання мани}\nВитягує ${val} мани з ворожого героя кожного ходу",
 	"core.bonus.MECHANICAL.description" : "{Механічний}\nЦей загін не є живою істотою, і може бути відремонтований.",
 	"core.bonus.MIND_IMMUNITY.description" : "{Імунітет до заклять розуму}\nЦього загону не можна атакувати закляттями, що впливають на його розум",
+	"core.bonus.MORE_DAMAGE_FROM_SPELL.description" : "{Вразливий до ${subtype.spell}}\nШкода, яку отримує цей юніт від закляття ${subtype.spell}, збільшується на ${val}%.",
 	"core.bonus.NO_DISTANCE_PENALTY.description" : "{Немає штрафу за відстань}\nДальні атаки завдають повної шкоди на будь-якій відстані",
 	"core.bonus.NO_MELEE_PENALTY.description" : "{Немає штрафу за ближній бій}\nЦей загін стрільців завдає повної шкоди при атаках ближнього бою",
 	"core.bonus.NO_MORALE.description" : "{Нейтральний бойовий дух}\nНа загін не діють жодні ефекти моралі",
@@ -718,11 +835,13 @@
 	"core.bonus.SUMMON_GUARDIANS.description" : "{Закликає охоронців}\nНа початку бою викликає ${subtype.creature} (${val}%)",
 	"core.bonus.THREE_HEADED_ATTACK.description" : "{Триголова атака}\nАтакує до трьох сусідніх загонів",
 	"core.bonus.TRANSMUTATION.description" : "{Трансмутація}\n${val}% шанс перетворити атакованого юніта в інший тип",
+	"core.bonus.TRANSMUTATION_IMMUNITY.description" : "{Імунітет до трансмутації}\nЦей юніт не може бути трансформований в інший юніт атакою супротивника",
 	"core.bonus.TWO_HEX_ATTACK_BREATH.description" : "{Атака подихом}\nАтаки цього загону також вражатимуть загін, розташований позаду цілі",
 	"core.bonus.UNDEAD.description" : "{Нежить}\nІстота є нежиттю і має імунітет до ефектів, які впливають тільки на живе",
 	"core.bonus.UNLIMITED_RETALIATIONS.description" : "{Необмежена кількість ударів у відповідь}\nЦей загін може відбивати необмежену кількість атак",
 	"core.bonus.WIDE_BREATH.description" : "{Широкий подих}\nЦей загін атакує усі загони навколо своєї цілі",
-	
+	"core.bonus.DAMAGE_RECEIVED_CAP.description" : "{Максимум шкоди (${val}%)}\nНіяка атака не зможе завдати більше шкоди, ніж ${val}% від максимального здоров'я.",
+
 	"spell.core.castleMoat.name" : "Рів",
 	"spell.core.castleMoatTrigger.name" : "Рів",
 	"spell.core.catapultShot.name" : "Постріл з катапульти",
@@ -743,5 +862,21 @@
 	"spell.core.strongholdMoat.name" : "Дерев'яні піки",
 	"spell.core.strongholdMoatTrigger.name" : "Дерев'яні піки",
 	"spell.core.summonDemons.name" : "Виклик демонів",
-	"spell.core.towerMoat.name" : "Наземна міна"
+	"spell.core.towerMoat.name" : "Наземна міна",
+
+	"spell.core.stoneGaze.description.none" : "{Кам'яний погляд}\n\nЦільова одиниця застигає і не може рухатися протягом трьох раундів бою. При атаці вона отримує 50% шкоди і повертається до нормального стану",
+	"spell.core.poison.description.none" : "{Отрута}\n\nПри отруєнні максимальне здоров'я цілі зменшується на 10% за кожен раунд бою протягом трьох раундів. Після трьох раундів істота більше не отруєна, але максимальне здоров'я залишається зменшеним",
+	"spell.core.bind.description.none" : "{Обплетення}\n\nПоцілений загін приковується до землі і не може рухатися, поки загін, що її обплутав, не переміститься або не згине.",
+	"spell.core.disease.description.none" : "{Хвороба}\n\nЖива ціль захворіває, внаслідок чого її значення атаки та захисту зменшуються на два протягом трьох раундів.",
+	"spell.core.paralyze.description.none" : "{Параліч}\n\nЦіль стає паралізованою і втрачає свій хід на решту поточного раунду бою та два наступні раунди, якщо її не атакують у цей час. Паралізовані істоти отримують повну шкоду від атак, але атакують у відповідь лише з чвертю своєї сили..",
+	"spell.core.age.description.none" : "{Старіння}\n\nСтаріння знижує максимальний рівень здоров'я всіх істот у цільовому загоні до 50% протягом трьох раундів бою.",
+	"spell.core.deathCloud.description.none" : "{Хмара смерті}\n\nОкрім звичайного ураження від дистанційної атаки, хмара смерті також впливає на всі сусідні загони навколо цілі, завдаючи ураження всім живим істотам у радіусі дії.",
+	"spell.core.thunderbolt.description.none" : "{Громовий удар}\n\nКоли загін атакує, існує 20% ймовірність, що блискавка влучить у ворога, перш ніж він встигне відповісти. Якщо це трапиться, блискавка завдає шкоди, що дорівнює десятикратному числу атакуючих Громових птахів.",
+	"spell.core.dispelHelpful.description.none" : "{Розвіяти корисні закляття}\n\nЗнімає всі ефекти заклять з ураженого загону.",
+	"spell.core.acidBreath.description.none" : "{Кислотний подих}\n\nПодих зменшує захист цілі на 3 і має 20% шанс завдати додаткових 25 очок шкоди за кожного дракона в атакуючому загоні.",
+
+	"spellSchool.core.air.name" : "Повітря",
+	"spellSchool.core.earth.name" : "Земля",
+	"spellSchool.core.fire.name" : "Вогонь",
+	"spellSchool.core.water.name" : "Вода"
 }

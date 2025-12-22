@@ -64,6 +64,11 @@ void CAdventureAI::battleStacksEffectsSet(const BattleID & battleID, const SetSt
 	battleAI->battleStacksEffectsSet(battleID, sse);
 }
 
+void CAdventureAI::battleTriggerEffect(const BattleID & battleID, const BattleTriggerEffect & bte)
+{
+    battleAI->battleTriggerEffect(battleID, bte);
+}
+
 void CAdventureAI::battleObstaclesChanged(const BattleID & battleID, const std::vector<ObstacleChanges> & obstacles)
 {
 	battleAI->battleObstaclesChanged(battleID, obstacles);
