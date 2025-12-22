@@ -176,7 +176,7 @@
 	"vcmi.lobby.templatesSelect.hover" : "Šablony",
 	"vcmi.lobby.templatesSelect.help" : "Vyhledat a vybrat šablonu",
 	"vcmi.lobby.customRmgSize.title" : "Vybrat vlastní velikost",
-	"vcmi.lobby.customRmgSize.experimental" : "Dvě úrovně jsou plně podporovány. Další úrovně jsou experimentální a nemusí fungovat správně. Pokud narazíte na jakékoli problémy, prosíme, nahlaste je.",
+	"vcmi.lobby.customRmgSize.experimental" : "{Více než 2 úrovně}\n\nDvě úrovně jsou plně podporovány. Další úrovně jsou experimentální a nemusí fungovat správně.\n\nPokud narazíte na jakékoli problémy, prosíme, nahlaste je.",
 	"vcmi.lobby.customRmgSize.0" : "Šířka",
 	"vcmi.lobby.customRmgSize.1" : "Výška",
 	"vcmi.lobby.customRmgSize.2" : "Úrovně",
