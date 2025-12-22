@@ -69,6 +69,7 @@ public:
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond, factory = save debts);
 	int spellResearchCounterDay;
 	int spellResearchAcceptedCounter;
+	int spellResearchPendingRerollsCounter;
 	bool spellResearchAllowed;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -111,6 +112,9 @@ public:
 		h & spellResearchAllowed;
 		h & rewardableBuildings;
 		h & townAndVis;
+
+		if(h.hasFeature(Handler::Version::SPELL_RESEARCH_IMPROVEMENTS))
+			h & spellResearchPendingRerollsCounter;
 
 		if(!h.saving)
 			postDeserialize();
