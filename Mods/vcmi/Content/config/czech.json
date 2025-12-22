@@ -472,7 +472,7 @@
 	"vcmi.keyBindings.keyBinding.lobbyToggleChat" : "Lobby: přepnout chat",
 	"vcmi.keyBindings.keyBinding.lobbyTurnOptions" : "Lobby: volby tahu",
 	"vcmi.keyBindings.keyBinding.lobbyCampaignSets": "Lobby: sady kampaní",
-	"vcmi.keyBindings.keyBinding.lobbyBattleMode": "Lobby: režim bitvy"
+	"vcmi.keyBindings.keyBinding.lobbyBattleMode": "Lobby: režim bitvy",
 	"vcmi.keyBindings.keyBinding.mainMenuBack" : "Hlavní menu: zpět",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaign" : "Hlavní menu: kampaň",
 	"vcmi.keyBindings.keyBinding.mainMenuCampaignAb" : "Hlavní menu: kampaň AB",
