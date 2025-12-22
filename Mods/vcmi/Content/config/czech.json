@@ -714,7 +714,7 @@
 	"vcmi.adventureMap.quickLoad.hover" : "Rychlé načtení",
 	"vcmi.adventureMap.quickLoad.help" : "{Rychlé načtení}\n\nNačte stav hry z pozice rychlého uložení.",
 	"vcmi.adventureMap.quickSave.hover" : "Rychlé uložení",
-	"vcmi.adventureMap.quickSave.help" : "{Rychlé uložení}\n\nUloží aktuální stav hry do pozice rychlého uložení."
+	"vcmi.adventureMap.quickSave.help" : "{Rychlé uložení}\n\nUloží aktuální stav hry do pozice rychlého uložení.",
 
 	"vcmi.battleWindow.pressKeyToSkipIntro" : "Stiskněte jakoukoliv klávesu pro okamžité zahájení bitvy",
 	"vcmi.battleWindow.damageEstimation.melee" : "Zaútočit na %CREATURE (%DAMAGE).",
