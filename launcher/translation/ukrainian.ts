@@ -458,14 +458,14 @@ Install successfully downloaded?</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Import failed</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>Помилка імпортування</translation>
+        <translation type="unfinished">Помилка імпортування</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1253"/>
         <source>Failed to import the following maps:
 %1</source>
         <translatorcomment>AI-generated, needs review by native speaker; delete this comment afterwards</translatorcomment>
-        <translation>Не вдалося імпортувати такі мапи:
+        <translation type="unfinished">Не вдалося імпортувати такі мапи:
 %1</translation>
     </message>
     <message>
