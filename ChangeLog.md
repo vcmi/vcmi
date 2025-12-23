@@ -37,6 +37,7 @@
 * Fixed a crash when accessing a shipyard placed adjacent to the left border of the map
 * Fixed crash when unit with attack-and-return attack is slowed by retaliation and can’t return to origin
 * Fixed possible client crash on ending the game when playing through online lobby
+* Fixed crash on attempt to import mod preset that contains unknown mod
 
 ### Interface - General
 
